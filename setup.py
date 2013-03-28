@@ -1,26 +1,10 @@
 #!/usr/bin/env python
-import sys
-
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 __about__ = {}
 
 with open("warehouse/__about__.py") as fp:
     exec(fp.read(), None, __about__)
-
-
-class PyTest(TestCommand):
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        # Import here, cause outside the eggs aren't loaded
-        import pytest
-        sys.exit(pytest.main(self.test_args))
 
 
 setup(
@@ -38,9 +22,11 @@ setup(
     install_requires=[
         "Django>=1.6",
     ],
-    tests_requires=["pytest"],
     extras_require={
-        "tests": ["pytest"],
+        "tests": [
+            "pytest",
+            "pytest-django",
+        ],
     },
 
     packages=[
@@ -58,6 +44,4 @@ setup(
         "Operating System :: POSIX",
         "Programming Language :: Python :: 2.7",
     ],
-
-    cmdclass={"test": PyTest},
 )
