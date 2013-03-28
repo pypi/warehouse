@@ -20,7 +20,9 @@ setup(
     author_email=__about__["__email__"],
 
     install_requires=[
-        "Django>=1.6",
+        # We depend on Django>=1.6 but until it's released we can't depend on it
+        #   here.
+        "Django",
     ],
     extras_require={
         "tests": [
