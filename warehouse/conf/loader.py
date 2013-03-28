@@ -14,7 +14,7 @@ def load_yaml_config(conffile, environment):
         #   UPPERCASSED attributes only.
         config = {
                 key: value
-                for key, value in loaded.get(environment, {}).items()
+                for key, value in loaded.get(environment.upper(), {}).items()
                 if key == key.upper()
             }
 
