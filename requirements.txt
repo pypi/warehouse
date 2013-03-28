@@ -1,0 +1,8 @@
+# Install Django (we are using an unreleased version)
+-e git+https://github.com/django/django.git#egg=Django-dev
+
+# Install Warehouse (and it's dependencies)
+-e .
+
+# Install development dependencies
+pytest
