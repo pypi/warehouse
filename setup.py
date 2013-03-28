@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, find_packages
 
 __about__ = {}
 
@@ -29,9 +29,7 @@ setup(
         ],
     },
 
-    packages=[
-        "warehouse",
-    ],
+    packages=find_packages(exclude=["tests"]),
 
     entry_points={
         "console_scripts": [
@@ -44,4 +42,6 @@ setup(
         "Operating System :: POSIX",
         "Programming Language :: Python :: 2.7",
     ],
+
+    zip_safe=False,
 )
