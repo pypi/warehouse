@@ -30,3 +30,10 @@ globals().update(
         os.environ.get("WAREHOUSE_ENV", "DEVELOPMENT"),
     )
 )
+
+
+# This is a hack to make `warehouse init` work. We need a SECRET_KEY defined but
+#   we don't want to declare a default one. This will only declare one if
+#   WAREHOUSE_CONF is none (E.g. we are running on strictly default settings).
+if "WAREHOUSE_CONF" not in os.environ:
+    SECRET_KEY = "INSECURE, DO NOT USE"
