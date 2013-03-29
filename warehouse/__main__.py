@@ -8,7 +8,7 @@ from django.core.management import execute_from_command_line
 
 def main():
     # Preparse out -c/--config and -e/--environment
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("-c", "--config",
         help=("Path to a local Warehouse config file. If this is not provided "
               "WAREHOUSE_CONF will be used instead."),
