@@ -23,3 +23,6 @@ pip-log.txt
 
 #Translations
 *.mo
+
+# Ignore the typical config file
+config.yaml
