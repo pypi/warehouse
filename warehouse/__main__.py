@@ -3,7 +3,7 @@ import argparse
 import os
 import sys
 
-from django.core.management import execute_from_command_line
+from django.core import management
 
 
 def main():
@@ -25,8 +25,8 @@ def main():
     if args.environment:
         os.environ["WAREHOUSE_ENV"] = args.environment
 
-    execute_from_command_line(remaining)
+    management.execute_from_command_line(remaining)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
