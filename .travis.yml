@@ -1,0 +1,11 @@
+language: python
+python:
+  - "3.3"
+install:
+  - pip install -e git+https://github.com/django/django.git#egg=Django-dev
+  - pip install file://$PWD#egg=warehouse[tests]
+script:
+  - py.test
+branches:
+  only:
+    - master
