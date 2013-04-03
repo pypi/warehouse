@@ -67,10 +67,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def email(self):
-        try:
-            return [x for x in self.emails if x.primary][0].email
-        except IndexError:
-            pass
+        emails = self.emails.filter(primary=True)[:1]
+        if emails:
+            return emails[0].email
 
     class Meta:
         verbose_name = _("user")
