@@ -16,6 +16,8 @@ INSTALLED_APPS = (
     "warehouse.identity",
 )
 
+AUTH_USER_MODEL = "identity.User"
+
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
