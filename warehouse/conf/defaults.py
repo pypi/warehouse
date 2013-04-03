@@ -13,6 +13,7 @@ INSTALLED_APPS = (
 
     # Warehouse Apps
     "warehouse",
+    "warehouse.auth",
 )
 
 MIDDLEWARE_CLASSES = (
