@@ -13,10 +13,10 @@ INSTALLED_APPS = (
 
     # Warehouse Apps
     "warehouse",
-    "warehouse.identity",
+    "warehouse.accounts",
 )
 
-AUTH_USER_MODEL = "identity.User"
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
