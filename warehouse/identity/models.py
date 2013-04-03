@@ -65,6 +65,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
+    @property
+    def email(self):
+        try:
+            return [x for x in self.emails if x.primary][0].email
+        except IndexError:
+            pass
+
     class Meta:
         verbose_name = _("user")
         verbose_name_plural = _("users")
@@ -74,3 +81,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def get_short_name(self):
         return self.name
+
+
+class Email(models.Model):
+
+    user = models.ForeignKey(User,
+                verbose_name=_("user"),
+                related_name="emails",
+                on_delete=models.DO_NOTHING,
+            )
+    email = models.EmailField(_("email"), max_length=254, unique=True)
+    primary = models.BooleanField(_("primary"), default=False)
+    verified = models.BooleanField(_("verified"), default=False)
+
+    class Meta:
+        verbose_name = _("email")
+        verbose_name_plural = _("emails")
