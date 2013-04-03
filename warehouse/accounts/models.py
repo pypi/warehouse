@@ -18,15 +18,22 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a User with the given username, and password.
         """
-        now = timezone.now()
         if not username:
             raise ValueError("The given username must be set")
-        user = self.model(username=username,
-                          is_staff=False, is_active=True, is_superuser=False,
-                          last_login=now, date_joined=now, **extra_fields)
 
+        now = timezone.now()
+        user = self.model(
+                    username=username,
+                    is_staff=False,
+                    is_active=True,
+                    is_superuser=False,
+                    last_login=now,
+                    date_joined=now,
+                    **extra_fields
+                )
         user.set_password(password)
         user.save(using=self._db)
+
         return user
 
     def create_superuser(self, username, password, **extra_fields):
@@ -42,25 +49,33 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
 
-    username = models.CharField(_("username"), max_length=50, unique=True,
-        help_text=_("Required. 50 characters or fewer. Letters, numbers and "
-                    "./-/_ characters"),
-        validators=[
-            validators.RegexValidator(
-                re.compile(r"^[\w.-]+$"),
-                _("Enter a valid username."),
-                "invalid",
-            )
-        ])
+    username = models.CharField(_("username"),
+                    max_length=50,
+                    unique=True,
+                    help_text=_("Required. 50 characters or fewer. Letters, "
+                                "numbers and ./-/_ characters"),
+                    validators=[
+                        validators.RegexValidator(
+                            re.compile(r"^[\w.-]+$"),
+                            _("Enter a valid username."),
+                            "invalid",
+                        ),
+                    ],
+                )
 
     name = models.CharField(_("name"), max_length=100, blank=True)
 
-    is_staff = models.BooleanField(_("staff status"), default=False,
-        help_text=_("Designates whether the user can log into this admin "
-                    "site."))
-    is_active = models.BooleanField(_("active"), default=True,
-        help_text=_("Designates whether this user should be treated as "
-                    "active. Unselect this instead of deleting accounts."))
+    is_staff = models.BooleanField(_("staff status"),
+                    default=False,
+                    help_text=_("Designates whether the user can log into this"
+                                " admin site."),
+                )
+    is_active = models.BooleanField(_("active"),
+                    default=True,
+                    help_text=_("Designates whether this user should be "
+                                "treated as active. Unselect this instead of "
+                                "deleting accounts."),
+                )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     objects = UserManager()
