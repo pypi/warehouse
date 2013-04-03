@@ -11,6 +11,8 @@ from django.contrib.auth.models import (
                                     PermissionsMixin,
                                 )
 
+from warehouse import accounts
+
 
 class UserManager(BaseUserManager):
 
@@ -52,12 +54,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(_("username"),
                     max_length=50,
                     unique=True,
-                    help_text=_("Required. 50 characters or fewer. Letters, "
-                                "numbers and ./-/_ characters"),
+                    help_text=accounts.VALID_USERNAME_DESC,
                     validators=[
                         validators.RegexValidator(
-                            re.compile(r"^[\w.-]+$"),
-                            _("Enter a valid username."),
+                            re.compile(accounts.VALID_USERNAME_REGEX),
+                            accounts.INVALID_USERNAME_MSG,
                             "invalid",
                         ),
                     ],
