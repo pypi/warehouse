@@ -28,5 +28,5 @@ def main():
     management.execute_from_command_line(remaining)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()
