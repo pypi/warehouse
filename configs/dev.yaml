@@ -1,0 +1,17 @@
+# Warehouse settings
+COMMON: &common
+    SECRET_KEY: "insecure development secret key"
+
+    DATABASES:
+        default:
+            ENGINE: django.db.backends.postgresql_psycopg2
+            NAME: warehouse
+
+DEVELOPMENT: &development
+    <<: *common
+
+    DEBUG: true
+    TEMPLATE_DEBUG: true
+
+PRODUCTION: &production
+    <<: *common
