@@ -1,0 +1,16 @@
+# Warehouse settings
+COMMON: &common
+    SECRET_KEY: "testing secret key"
+
+    DATABASES:
+        default:
+            ENGINE: django.db.backends.sqlite3
+
+DEVELOPMENT: &development
+    <<: *common
+
+    DEBUG: true
+    TEMPLATE_DEBUG: true
+
+PRODUCTION: &production
+    <<: *common
