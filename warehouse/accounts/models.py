@@ -92,10 +92,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = _("users")
 
     def get_full_name(self):
-        return self.name
+        return self.name or self.username
 
     def get_short_name(self):
-        return self.name
+        return self.name or self.username
 
 
 class Email(models.Model):
