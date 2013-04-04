@@ -30,8 +30,7 @@ class UserChangeForm(forms.ModelForm):
         super(UserChangeForm, self).__init__(*args, **kwargs)
 
         f = self.fields.get("user_permissions", None)
-        if f is not None:
-            f.queryset = f.queryset.select_related("content_type")
+        f.queryset = f.queryset.select_related("content_type")
 
     def clean_password(self):
         # Regardless of what the user provides, return the initial value.
