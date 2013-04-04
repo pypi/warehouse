@@ -83,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def email(self):
-        emails = self.emails.filter(primary=True)[:1]
+        emails = self.emails.filter(primary=True, verified=True)[:1]
         if emails:
             return emails[0].email
 
