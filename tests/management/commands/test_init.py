@@ -1,5 +1,4 @@
 import os
-import yaml
 
 import pytest
 
@@ -18,11 +17,8 @@ def test_init_command_too_many_paths(tmpdir):
 
 
 def test_init_command_creates_config(tmpdir):
-    filename = os.path.join(str(tmpdir), "config.yaml")
+    filename = os.path.join(str(tmpdir), "config.py")
     Command().handle(filename)
 
     assert os.path.exists(filename)
     assert os.path.isfile(filename)
-
-    with open(filename, encoding="utf-8") as fp:
-        assert yaml.load(fp)
