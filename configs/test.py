@@ -19,5 +19,9 @@ class Development(Common):
     TEMPLATE_DEBUG = True
 
 
+class Testing(Common):
+    pass
+
+
 class Production(Common):
     pass
