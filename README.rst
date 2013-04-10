@@ -21,7 +21,7 @@ running locally and are configured to not require passwords.
 
 3. *(Optional)* Create a configuration file
 
-..code:: bash
+.. code:: bash
 
     $ warehouse init config.py
 
