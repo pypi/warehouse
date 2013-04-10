@@ -1,23 +1,20 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-__about__ = {}
-
-with open("warehouse/__about__.py") as fp:
-    exec(fp.read(), None, __about__)
+import warehouse
 
 
 setup(
-    name=__about__["__title__"],
-    version=__about__["__version__"],
+    name=warehouse.__title__,
+    version=warehouse.__version__,
 
-    description=__about__["__summary__"],
+    description=warehouse.__summary__,
     long_description=open("README.rst").read(),
-    url=__about__["__uri__"],
-    license=__about__["__license__"],
+    url=warehouse.__uri__,
+    license=warehouse.__license__,
 
-    author=__about__["__author__"],
-    author_email=__about__["__email__"],
+    author=warehouse.__author__,
+    author_email=warehouse.__email__,
 
     install_requires=[
         # We depend on Django>=1.6 but until it's released we can't depend on
