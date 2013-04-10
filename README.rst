@@ -19,23 +19,23 @@ running locally and are configured to not require passwords.
 
     $ pip install -r requirements.txt
 
-3. Create a local configuration file (optional)
+3. *(Optional)* Create a configuration file
+
+..code:: bash
+
+    $ warehouse init config.py
+
+4. Start the development server
 
 .. code:: bash
 
-    $ warehouse init config.yaml
+    # If you created a configuration file in 3.
+    $ warehouse runserver --settings=config --configuration=Development
 
-3. Start the development server
+    # If you want to use the default development configuration
+    $ warehouse runserver --settings=configs.dev --configuration=Development
 
-.. code:: bash
-
-    # If you created your own configuration file in 3.
-    $ warehouse runserver -c local.yaml
-
-    # Or use the default development file
-    $ warehouse runserver -c configs/dev.yaml
-
-4. Run the tests
+5. Run the tests
 
 .. code:: bash
 

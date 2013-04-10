@@ -1,7 +1,16 @@
-import os
+__all__ = [
+    "__title__", "__summary__", "__uri__", "__version__", "__author__",
+    "__email__", "__license__", "__copyright__",
+]
 
-from warehouse.__about__ import *
+__title__ = "warehouse"
+__summary__ = "Next Generation Python Package Index"
+__uri__ = "https://github.com/crateio/warehouse/"
 
-# Force the DJANGO_SETTINGS_MODULE environment variable to
-#   warehouse.conf.loader which handles loading settings in Warehouse.
-os.environ["DJANGO_SETTINGS_MODULE"] = "warehouse.conf.loader"
+__version__ = "0.1dev1"
+
+__author__ = "Donald Stufft"
+__email__ = "donald@stufft.io"
+
+__license__ = "Simplified BSD"
+__copyright__ = "Copyright 2012 Donald Stufft"

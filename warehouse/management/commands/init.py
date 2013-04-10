@@ -23,15 +23,28 @@ class Command(BaseCommand):
         # Create the config.yaml file
         with open(path, "w", encoding="utf-8") as configfile:
             configfile.write("""# Warehouse settings
-COMMON: &common
-    SECRET_KEY: "{secret_key}"
+from warehouse.conf import Settings
 
-DEVELOPMENT: &development
-    <<: *common
 
-    DEBUG: true
-    TEMPLATE_DEBUG: true
+class Common(Settings):
+    \"\"\"
+    Common settings for this Warehouse instance.
+    \"\"\"
 
-PRODUCTION: &production
-    <<: *common
+    SECRET_KEY = "{secret_key}"
+
+
+class Development(Common):
+    \"\"\"
+    Development settings for this Warehouse instance.
+    \"\"\"
+
+    DEBUG = True
+    TEMPLATE_DEBUG = True
+
+
+class Production(Common):
+    \"\"\"
+    Production settings for this Warehouse instance.
+    \"\"\"
 """.format(secret_key=secret_key))
