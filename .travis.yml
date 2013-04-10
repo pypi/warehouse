@@ -2,7 +2,7 @@ language: python
 python:
   - "3.3"
 install:
-  - pip install -e git:https://github.com/dstufft/pytest_django.git@django-configurations#egg=pytest-django
+  - pip install -e git+https://github.com/dstufft/pytest_django.git@django-configurations#egg=pytest-django
   - pip install -e git+https://github.com/django/django.git#egg=Django-dev
   - pip install file://$PWD#egg=warehouse[tests]
 script:
