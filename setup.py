@@ -20,9 +20,10 @@ setup(
     author_email=__about__["__email__"],
 
     install_requires=[
-        # We depend on Django>=1.6 but until it's released we can't depend on it
-        #   here.
+        # We depend on Django>=1.6 but until it's released we can't depend on
+        #   it here.
         "Django",
+        "django-configurations",
         "PyYAML",
     ],
     extras_require={
