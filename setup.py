@@ -21,7 +21,6 @@ setup(
         #   it here.
         "Django",
         "django-configurations",
-        "PyYAML",
     ],
     extras_require={
         "tests": [

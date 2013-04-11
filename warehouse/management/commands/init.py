@@ -20,7 +20,7 @@ class Command(BaseCommand):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         secret_key = get_random_string(50, chars)
 
-        # Create the config.yaml file
+        # Create the config file
         with open(path, "w", encoding="utf-8") as configfile:
             configfile.write("""# Warehouse settings
 from warehouse.conf import Settings
