@@ -20,13 +20,13 @@ setup(
         # We depend on Django>=1.6 but until it's released we can't depend on
         #   it here.
         "Django",
-        "django-configurations",
+        "django-configurations>=0.2.1",
     ],
     extras_require={
         "tests": [
             "pytest",
             "pytest-cov",
-            "pytest-django",
+            "pytest-django>=2.3.0",
         ],
     },
 
