@@ -3,10 +3,8 @@ from warehouse.conf import Settings
 
 class Common(Settings):
 
-    SITE_NAME = "Warehouse (Dev)"
-
     # Do NOT use this in production or anywhere this is exposed to the public
-    SECRET_KEY = "insecure development secret key"
+    SECRET_KEY = "insecure secret key"
 
     DATABASES = {
         "default": {
@@ -18,8 +16,19 @@ class Common(Settings):
 
 class Development(Common):
 
+    SITE_NAME = "Warehouse (Dev)"
+
     DEBUG = True
     TEMPLATE_DEBUG = True
+
+
+class Testing(Common):
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+        }
+    }
 
 
 class Production(Common):
