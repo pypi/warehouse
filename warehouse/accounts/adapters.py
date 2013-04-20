@@ -38,6 +38,9 @@ class UserAdapter(BaseAdapter):
         # Serialize the db user
         return self._serialize(db_user)
 
+    def username_exists(self, username):
+        return self.model.objects.filter(username=username).exists()
+
 
 class EmailAdapter(BaseAdapter):
 

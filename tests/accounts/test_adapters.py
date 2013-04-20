@@ -42,6 +42,26 @@ def test_useradapter_creates():
     assert created.save.call_args == (tuple(), {})
 
 
+@pytest.mark.parametrize(("exists",), [(True,), (False,)])
+def test_useradapter_username_exists(exists):
+    mexists = mock.Mock(return_value=exists)
+    mfilter = mock.Mock(return_value=stub(exists=mexists))
+    model = stub(objects=stub(filter=mfilter))
+
+    adapter = UserAdapter()
+    adapter.model = model
+
+    uexists = adapter.username_exists("testuser")
+
+    assert uexists == exists
+
+    assert mfilter.call_count == 1
+    assert mfilter.call_args == (tuple(), {"username": "testuser"})
+
+    assert mexists.call_count == 1
+    assert mexists.call_args == (tuple(), {})
+
+
 def test_useradapter_serializer():
     adapter = UserAdapter()
 
