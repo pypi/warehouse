@@ -35,8 +35,22 @@ running locally and are configured to not require passwords.
     # If you want to use the default development configuration
     $ warehouse runserver --settings=configs.dev --configuration=Development
 
-5. Run the tests
+
+Running the tests
+-----------------
+
+Warehouse uses pytest to run the test suite. You can run all the tests by using:
 
 .. code:: bash
 
     $ py.test
+
+Unit and functional tests have been marked and you may run either of by using:
+
+..code:: bash
+
+    # Run only the unit tests
+    $ py.test -m unit
+
+    # Run only the functional tests
+    $ py.test -m functional

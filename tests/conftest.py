@@ -1,6 +1,15 @@
 import pytest
 
 
+def pytest_collection_modifyitems(items):
+    for item in items:
+        path, name = item.nodeid.split("::")
+        if path.startswith("tests/unit/"):
+            item.keywords["unit"] = pytest.mark.unit
+        elif path.startswith("tests/functional"):
+            item.keywords["functional"] = pytest.mark.functional
+
+
 @pytest.fixture
 def webtest(request):
     from django.conf import settings
