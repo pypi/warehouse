@@ -27,6 +27,8 @@ setup(
             "pytest",
             "pytest-cov",
             "pytest-django>=2.3.0",
+            "webtest",
+            "django-webtest",
         ],
     },
 
