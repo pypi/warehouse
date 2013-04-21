@@ -24,11 +24,12 @@ setup(
     ],
     extras_require={
         "tests": [
+            "django-webtest",
+            "pretend",
             "pytest",
             "pytest-cov",
             "pytest-django>=2.3.0",
             "webtest",
-            "django-webtest",
         ],
     },
 
