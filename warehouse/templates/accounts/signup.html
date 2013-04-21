@@ -1,0 +1,82 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% load form_utils %}
+
+{% block head_title %}{% trans "Sign up" %}{% endblock %}
+
+{% block body_id %}sign-up{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>{% blocktrans %}Sign up for {{ SITE_NAME }}{% endblocktrans %}</h1>
+  </div>
+  <div class="row">
+    <div class="offset1 span5">
+      <form action="." method="POST">
+        {% csrf_token %}
+
+        {% if next %}
+          <div><input type="hidden" name="next" value="{{ next }}"></div>
+        {% endif %}
+
+        <div class="control-group{% if form.username.errors %} error{% endif %}">
+          <div class="controls">
+            {% if form.username.errors %}
+              {% for error in form.username.errors %}
+                <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+
+            {% trans "Username" as username %}
+            {% renderfield form.username placeholder=username class="input-xlarge" %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.email.errors %} error{% endif %}">
+          <div class="controls">
+            {% if form.email.errors %}
+              {% for error in form.email.errors %}
+                <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+
+            {% trans "Email" as email %}
+            {% renderfield form.email placeholder=email class="input-xlarge" %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.password.errors %} error{% endif %}">
+          <div class="controls">
+            {% if form.password.errors %}
+              {% for error in form.password.errors %}
+                <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+
+            {% trans "Password" as password %}
+            {% renderfield form.password placeholder=password class="input-xlarge" %}
+          </div>
+        </div>
+
+        <div class="control-group{% if form.confirm_password.errors %} error{% endif %}">
+          <div class="controls">
+            {% if form.confirm_password.errors %}
+              {% for error in form.confirm_password.errors %}
+                <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+
+            {% trans "Confirm Password" as confirm_password %}
+            {% renderfield form.confirm_password placeholder=confirm_password class="input-xlarge" %}
+          </div>
+        </div>
+
+        <button class="btn btn-success" type="submit">{% trans "Create an account" %}</button>
+      </form>
+    </div>
+    <div class="span6">
+        {% include "accounts/_signup_sidebar.html" %}
+    </div>
+  </div>
+{% endblock %}

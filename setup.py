@@ -24,13 +24,23 @@ setup(
     ],
     extras_require={
         "tests": [
+            "django-webtest",
+            "pretend",
             "pytest",
             "pytest-cov",
             "pytest-django>=2.3.0",
+            "webtest",
         ],
     },
 
     packages=find_packages(exclude=["tests"]),
+    package_data={
+        "warehouse": [
+            "templates/*.html",
+            "templates/*.txt",
+        ],
+    },
+    include_package_data=True,
 
     entry_points={
         "console_scripts": [

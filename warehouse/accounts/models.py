@@ -12,6 +12,7 @@ from django.contrib.auth.models import (
                                 )
 
 from warehouse import accounts
+from warehouse.accounts import adapters
 
 
 class UserManager(BaseUserManager):
@@ -80,6 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
 
     objects = UserManager()
+    api = adapters.UserAdapter()
 
     @property
     def email(self):
@@ -108,6 +110,8 @@ class Email(models.Model):
     email = models.EmailField(_("email"), max_length=254, unique=True)
     primary = models.BooleanField(_("primary"), default=False)
     verified = models.BooleanField(_("verified"), default=False)
+
+    api = adapters.EmailAdapter(user=User)
 
     class Meta:
         verbose_name = _("email")
