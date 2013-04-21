@@ -17,6 +17,7 @@ class Settings(BaseSettings):
         # Warehouse Apps
         "warehouse",
         "warehouse.accounts",
+        "warehouse.utils",
     )
 
     AUTH_USER_MODEL = "accounts.User"
