@@ -1,3 +1,6 @@
+# Install Invoke (this is used to run various tasks)
+invoke
+
 # Install Django (we are using an unreleased version)
 -e git+https://github.com/django/django.git#egg=Django-dev
 
