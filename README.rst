@@ -43,14 +43,14 @@ Warehouse uses pytest to run the test suite. You can run all the tests by using:
 
 .. code:: bash
 
-    $ py.test
+    $ invoke tests
 
 Unit and functional tests have been marked and you may run either of by using:
 
 ..code:: bash
 
     # Run only the unit tests
-    $ py.test -m unit
+    $ invoke tests -s unit
 
     # Run only the functional tests
-    $ py.test -m functional
+    $ invoke tests -s functional

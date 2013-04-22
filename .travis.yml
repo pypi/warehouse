@@ -2,10 +2,13 @@ language: python
 python:
   - "3.3"
 install:
-  - pip install -e git+https://github.com/django/django.git#egg=Django-dev
-  - pip install file://$PWD#egg=warehouse[tests]
+  - pip install -r requirements.txt
 script:
-  - py.test
+  - invoke tests --suite $SUITE
 branches:
   only:
     - master
+env:
+  - SUITE=unit
+  - SUITE=functional
+  - SUITE=coverage
