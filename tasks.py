@@ -51,3 +51,10 @@ def tests(suite=None, coverage=False, pdb=False):
         if int(covered) < 100:
             print("")
             sys.exit("[FAILED] Coverage is less than 100%")
+
+
+@invoke.task
+def compile():
+    # Compile the css for Warehouse
+    invoke.run(
+        "bundle exec compass compile --force warehouse/static")
