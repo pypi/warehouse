@@ -58,3 +58,9 @@ def compile():
     # Compile the css for Warehouse
     invoke.run(
         "bundle exec compass compile --force warehouse/static")
+
+
+@invoke.task
+def run():
+    # Use foreman to start up all our development processes
+    invoke.run("bundle exec foreman start -d devel -e devel/env", pty=True)

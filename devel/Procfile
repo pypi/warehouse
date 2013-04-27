@@ -1,0 +1,2 @@
+compass: bundle exec compass watch ../warehouse/static
+web: warehouse runserver
