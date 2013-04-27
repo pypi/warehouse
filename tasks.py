@@ -6,7 +6,7 @@ import pytest
 
 
 @invoke.task
-def tests(suite=None, coverage=None, pdb=False):
+def tests(suite=None, coverage=False, pdb=False):
     if suite is None:
         coverage = True
         markers = []
