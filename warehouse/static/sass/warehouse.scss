@@ -1,0 +1,11 @@
+@import "base";
+@import "sticky-footer";
+
+// Make sure that our header gets pushed down below the navbar
+#wrap > .container { padding-top: 60px; }
+
+// Give our sticky footer a bit of color
+#footer { background-color: #f5f5f5; }
+
+// Vertically center the text inside the footer
+#footer .credit { margin: 20px 0; }
