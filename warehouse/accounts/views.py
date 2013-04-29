@@ -73,7 +73,7 @@ class SignupView(TemplateResponseMixin, View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        next = request.REQUEST.get("next", None)
+        next_url = request.REQUEST.get("next", None)
 
         if form.is_valid():
             # Create User
@@ -84,17 +84,17 @@ class SignupView(TemplateResponseMixin, View):
                         )
 
             # Redirect to the next page
-            if next is None:
-                next = resolve_url(settings.LOGIN_REDIRECT_URL)
+            if not is_safe_url(next_url, host=request.get_host()):
+                next_url = resolve_url(settings.LOGIN_REDIRECT_URL)
 
-            return HttpResponseRedirect(next, status=303)
+            return HttpResponseRedirect(next_url, status=303)
 
-        return self.render_to_response(dict(form=form, next=next))
+        return self.render_to_response(dict(form=form, next=next_url))
 
     def get(self, request):
         form = self.form_class()
-        next = request.REQUEST.get("next", None)
+        next_url = request.REQUEST.get("next", None)
 
-        return self.render_to_response(dict(form=form, next=next))
+        return self.render_to_response(dict(form=form, next=next_url))
 
 signup = SignupView.as_view()
