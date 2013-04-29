@@ -29,7 +29,7 @@ class LoginView(TemplateResponseMixin, View):
 
     def post(self, request):
         form = self.form_class(request.POST)
-        next = request.REQUEST.get("next", None)
+        next_url = request.REQUEST.get("next", None)
 
         if form.is_valid():
             # Attempt to authenticate the user
@@ -50,19 +50,19 @@ class LoginView(TemplateResponseMixin, View):
             m = _("Invalid username or password")
             form._errors.setdefault("__all__", form.error_class([])).append(m)
 
-        return self.render_to_response(dict(form=form, next=next))
+        return self.render_to_response(dict(form=form, next=next_url))
 
     def get(self, request):
         form = self.form_class()
-        next = request.REQUEST.get("next", None)
+        next_url = request.REQUEST.get("next", None)
 
-        return self.render_to_response(dict(form=form, next=next))
+        return self.render_to_response(dict(form=form, next=next_url))
 
     def _get_next_url(self, request):
-        next = request.REQUEST.get("next", None)
-        if not is_safe_url(next, host=request.get_host()):
-            next = resolve_url(settings.LOGIN_REDIRECT_URL)
-        return next
+        next_url = request.REQUEST.get("next", None)
+        if not is_safe_url(next_url, host=request.get_host()):
+            next_url = resolve_url(settings.LOGIN_REDIRECT_URL)
+        return next_url
 
 
 class SignupView(TemplateResponseMixin, View):
