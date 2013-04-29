@@ -9,3 +9,31 @@
 
 // Vertically center the text inside the footer
 #footer .credit { margin: 20px 0; }
+
+// Create our Log in style
+body#login {
+  .form-signin {
+    max-width: 300px;
+
+    padding: 19px 29px 29px;
+    margin: 0 auto 20px;
+
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+
+    @include border-radius(5px);
+    @include single-box-shadow(0, 1px, 2px, rgba(0,0,0,.05));
+
+    .form-signin-heading, .checkbox {
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], input[type="password"] {
+      height: auto;
+      margin-bottom: 15px;
+      padding: 7px 9px;
+
+      font-size: 16px;
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+{% load form_utils %}
+
+{% block head_title %}{% trans "Log in" %}{% endblock %}
+
+{% block body_id %}login{% endblock %}
+
+{% block content %}
+  <form action="{% url 'accounts.login' %}" method="POST" class="form-signin">
+    <h2 class="form-signin-heading">{% trans "Please log in" %}</h2>
+
+    {% csrf_token %}
+
+    {% if next %}
+      <div><input type="hidden" name="next" value="{{ next }}"></div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-error">{{ error }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="control-group{% if form.username.errors %} error{% endif %}">
+      <div class="controls">
+        {% if form.username.errors %}
+          {% for error in form.username.errors %}
+            <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+
+        {% trans "Username" as username %}
+        {% renderfield form.username placeholder=username class="input-xlarge" %}
+      </div>
+    </div>
+
+    <div class="control-group{% if form.password.errors %} error{% endif %}">
+      <div class="controls">
+        {% if form.password.errors %}
+          {% for error in form.password.errors %}
+            <span class="help-block">{{ error }}</span>
+          {% endfor %}
+        {% endif %}
+
+        {% trans "Password" as password %}
+        {% renderfield form.password placeholder=password class="input-xlarge" %}
+      </div>
+    </div>
+
+    <button class="btn btn-large btn-primary" type="submit">{% trans "Log in" %}</button>
+  </form>
+{% endblock %}
