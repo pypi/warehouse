@@ -4,11 +4,9 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - invoke tests --suite $SUITE
+  - invoke tests --suite unit
+  - invoke tests --suite functional
+  - invoke tests --suite coverage
 branches:
   only:
     - master
-env:
-  - SUITE=unit
-  - SUITE=functional
-  - SUITE=coverage
