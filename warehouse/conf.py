@@ -5,7 +5,7 @@ from configurations import Settings as BaseSettings
 
 
 class Settings(BaseSettings):
-    INSTALLED_APPS = (
+    INSTALLED_APPS = [
         # Django Contrib Apps
         "django.contrib.admin",
         "django.contrib.auth",
@@ -18,11 +18,11 @@ class Settings(BaseSettings):
         "warehouse",
         "warehouse.accounts",
         "warehouse.utils",
-    )
+    ]
 
     AUTH_USER_MODEL = "accounts.User"
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE_CLASSES = [
         "django.contrib.sessions.middleware.SessionMiddleware",
         "django.middleware.locale.LocaleMiddleware",
         "django.middleware.common.CommonMiddleware",
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
         "django.contrib.auth.middleware.AuthenticationMiddleware",
         "django.contrib.messages.middleware.MessageMiddleware",
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    )
+    ]
 
     ROOT_URLCONF = "warehouse.urls"
 
