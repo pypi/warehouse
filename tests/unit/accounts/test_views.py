@@ -54,7 +54,7 @@ def test_login_already_logged_in(rf):
 
 
 def test_login_flow(rf):
-    user = stub(is_authenticated=lambda: False)
+    user = stub(is_authenticated=lambda: False, is_active=True)
     authenticator = mock.Mock(return_value=user)
     login = mock.Mock()
     view = LoginView.as_view(authenticator=authenticator, login=login)
@@ -111,7 +111,7 @@ def test_login_invalid_user(rf):
     login = mock.Mock()
     view = LoginView.as_view(authenticator=authenticator, login=login)
 
-    # Attempt to login with invalid form data
+    # Attempt to login with an invalid user
     data = {"username": "testuser", "password": "test password"}
     request = rf.post(reverse("accounts.login"), data)
     request.user = user
@@ -122,6 +122,33 @@ def test_login_invalid_user(rf):
     assert response.context_data["next"] is None
     assert response.context_data["form"].errors == {
                 "__all__": ["Invalid username or password"],
+            }
+
+
+def test_login_inactive_user(rf):
+    user = stub(is_authenticated=lambda: True, is_active=False)
+    authenticator = mock.Mock(return_value=user)
+    login = mock.Mock()
+    view = LoginView.as_view(authenticator=authenticator, login=login)
+
+    # Attempt to login with an inactive user
+    data = {"username": "testuser", "password": "test password"}
+    request = rf.post(reverse("accounts.login"), data)
+    request.user = stub(is_authenticated=lambda: False)
+    response = view(request)
+
+    assert authenticator.call_count == 1
+    assert authenticator.call_args == (tuple(), data)
+    assert login.call_count == 0
+
+    assert response.status_code == 200
+    assert response.context_data.keys() == set(["next", "form"])
+    assert response.context_data["next"] is None
+    assert response.context_data["form"].errors == {
+                "__all__": [
+                    ("This account is inactive or has been locked by "
+                    "an administrator.")
+                ],
             }
 
 

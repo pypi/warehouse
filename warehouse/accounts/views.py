@@ -38,17 +38,24 @@ class LoginView(TemplateResponseMixin, View):
                         password=form.cleaned_data["password"],
                     )
 
-            if user is not None:
+            if user is not None and user.is_active:
                 # We have a valid user, so add their session to the request
                 self.login(request, user)
 
                 return HttpResponseRedirect(self._get_next_url(request),
                             status=303,
                         )
-
-            # We don't have a valid user, so send an error back to the form
-            m = _("Invalid username or password")
-            form._errors.setdefault("__all__", form.error_class([])).append(m)
+            elif user is not None:
+                # We have a valid user, but their account is locked
+                msg = _("This account is inactive or has been locked by an "
+                        "administrator.")
+                e = form._errors.setdefault("__all__", form.error_class([]))
+                e.append(msg)
+            else:
+                # We don't have a valid user, so send an error back to the form
+                msg = _("Invalid username or password")
+                e = form._errors.setdefault("__all__", form.error_class([]))
+                e.append(msg)
 
         return self.render_to_response(dict(form=form, next=next_url))
 
