@@ -7761,3 +7761,28 @@ html, body {
 #footer .credit {
   margin: 20px 0;
 }
+
+body#login .form-signin {
+  max-width: 300px;
+  padding: 19px 29px 29px;
+  margin: 0 auto 20px;
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 1px 2px rgba(0, 0, 0, 0.05) 0;
+  -moz-box-shadow: 1px 2px rgba(0, 0, 0, 0.05) 0;
+  box-shadow: 1px 2px rgba(0, 0, 0, 0.05) 0;
+}
+body#login .form-signin .form-signin-heading, body#login .form-signin .checkbox {
+  margin-bottom: 10px;
+}
+body#login .form-signin input[type="text"], body#login .form-signin input[type="password"] {
+  height: auto;
+  margin-bottom: 15px;
+  padding: 7px 9px;
+  font-size: 16px;
+}

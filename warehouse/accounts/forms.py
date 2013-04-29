@@ -7,6 +7,12 @@ from warehouse import accounts
 from warehouse.accounts.models import User
 
 
+class LoginForm(forms.Form):
+
+    username = forms.CharField(label=_("Username"))
+    password = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+
+
 class SignupForm(forms.Form):
 
     model = User

@@ -26,6 +26,7 @@ setup(
         "tests": [
             "django-webtest",
             "pretend",
+            "pyquery",
             "pytest",
             "pytest-cov",
             "pytest-django>=2.3.0",
