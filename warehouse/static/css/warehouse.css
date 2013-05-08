@@ -7786,3 +7786,11 @@ body#login .form-signin input[type="text"], body#login .form-signin input[type="
   padding: 7px 9px;
   font-size: 16px;
 }
+
+.user-emails li {
+  padding: 0.5em 0;
+  border-bottom: 1px solid #eee;
+}
+.user-emails .email {
+  padding-top: 0.3em;
+}

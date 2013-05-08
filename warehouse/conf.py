@@ -59,3 +59,6 @@ class Settings(BaseSettings):
     ]
 
     SITE_NAME = "Warehouse"
+
+    LOGIN_URL = "accounts.login"
+    LOGIN_REDIRECT_URL = "accounts.settings"

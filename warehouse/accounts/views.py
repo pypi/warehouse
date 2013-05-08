@@ -8,7 +8,10 @@ from django.utils.translation import ugettext as _
 
 from django.contrib.auth import authenticate, login as auth_login
 
+from braces.views import LoginRequiredMixin
+
 from warehouse.accounts.forms import LoginForm, SignupForm
+from warehouse.accounts.models import Email
 from warehouse.accounts.regards import UserCreator
 
 
@@ -70,6 +73,17 @@ class LoginView(TemplateResponseMixin, View):
         if not is_safe_url(next_url, host=request.get_host()):
             next_url = resolve_url(settings.LOGIN_REDIRECT_URL)
         return next_url
+
+
+class AccountSettingsView(LoginRequiredMixin, TemplateResponseMixin, View):
+
+    get_emails = Email.api.get_user_emails
+    template_name = "accounts/settings.html"
+
+    def get(self, request):
+        # Get the users email addresses
+        emails = self.get_emails(request.user.username)
+        return self.render_to_response({"emails": emails})
 
 
 class SignupView(TemplateResponseMixin, View):

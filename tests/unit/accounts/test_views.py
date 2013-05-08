@@ -8,8 +8,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import resolve_url
 from django.test.utils import override_settings
 
+from warehouse.accounts.adapters import Email
 from warehouse.accounts.forms import SignupForm
-from warehouse.accounts.views import LoginView, SignupView
+from warehouse.accounts.views import LoginView, SignupView, AccountSettingsView
 
 
 @pytest.mark.parametrize(("url", "expected"), [
@@ -246,3 +247,34 @@ def test_signup_ensure_next(rf):
                 })
     response = view(request)
     assert response["Location"] == "/test/next/"
+
+
+def test_account_settings_anonymous_redirect(rf):
+    get_emails = lambda x: pytest.fail("get_emails shouldn't have been called")
+    view = AccountSettingsView.as_view(get_emails=get_emails)
+
+    request = rf.get(reverse("accounts.settings"))
+    request.user = stub(is_authenticated=lambda: False)
+    response = view(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == (
+        reverse("accounts.login") + "?next=" + reverse("accounts.settings"))
+
+
+def test_account_settings_ensure_email(rf):
+    emails = [
+        Email("testuser", "test@example.com", True, True),
+        Email("testuser", "test2@example.com", False, True),
+        Email("testuser", "test3@example.com", False, True),
+    ]
+
+    get_emails = mock.Mock(return_value=emails)
+    view = AccountSettingsView.as_view(get_emails=get_emails)
+
+    request = rf.get(reverse("accounts.settings"))
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request)
+
+    assert response.status_code == 200
+    assert response.context_data["emails"] == emails

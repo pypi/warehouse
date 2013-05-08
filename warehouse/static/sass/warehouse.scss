@@ -37,3 +37,16 @@ body#login {
     }
   }
 }
+
+
+// Style the Account settings email list
+.user-emails {
+  li {
+    padding: 0.5em 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .email {
+    padding-top: 0.3em;
+  }
+}

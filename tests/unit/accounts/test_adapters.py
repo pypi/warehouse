@@ -146,3 +146,35 @@ def test_emailadapter_serializer():
     assert email.email == "test@example.com"
     assert email.primary
     assert not email.verified
+
+
+def test_emailadapter_get_user_emails():
+    email_models = [
+        stub(
+            user=stub(username="testuser"),
+            email="test@example.com",
+            primary=True,
+            verified=True,
+        )
+    ]
+
+    morder_by = mock.Mock(return_value=email_models)
+    mselect_related = mock.Mock(return_value=stub(order_by=morder_by))
+    mfilter = mock.Mock(return_value=stub(select_related=mselect_related))
+    model = stub(objects=stub(filter=mfilter))
+
+    adapter = EmailAdapter(user=None)
+    adapter.model = model
+
+    emails = list(adapter.get_user_emails("testuser"))
+
+    assert emails == [("testuser", "test@example.com", True, True)]
+
+    assert mfilter.call_count == 1
+    assert mfilter.call_args == (tuple(), dict(user__username="testuser"))
+
+    assert mselect_related.call_count == 1
+    assert mselect_related.call_args == (("user",), {})
+
+    assert morder_by.call_count == 1
+    assert morder_by.call_args == (("-primary", "email"), {})

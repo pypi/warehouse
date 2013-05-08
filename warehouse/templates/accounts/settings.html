@@ -1,0 +1,33 @@
+{% extends "site_base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Account" %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="span3">
+    </div>
+    <div class="span9">
+      <div class="row">
+        <div class="span6">
+          <h3>{% trans "Email" %}</h3>
+          <ul class="unstyled user-emails">
+            {% for email in emails %}
+              <li>
+                <div class="row">
+                  <div class="span3 email">
+                    {{ email.email }}
+                    {% if email.primary %}<span class="label label-info">{% trans "Default" %}</span>{% endif %}
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="span3"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

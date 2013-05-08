@@ -70,3 +70,11 @@ class EmailAdapter(BaseAdapter):
         db_email.save()
 
         return self._serialize(db_email)
+
+    def get_user_emails(self, username):
+        for email in self.model.objects.filter(
+                                            user__username=username,
+                                        ).select_related(
+                                            "user",
+                                        ).order_by("-primary", "email"):
+            yield self._serialize(email)
