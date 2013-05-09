@@ -178,3 +178,27 @@ def test_emailadapter_get_user_emails():
 
     assert morder_by.call_count == 1
     assert morder_by.call_args == (("-primary", "email"), {})
+
+
+def test_emailadapter_delete_user_email():
+    mdelete = mock.Mock()
+    mfilter = mock.Mock(return_value=stub(delete=mdelete))
+    model = stub(objects=stub(filter=mfilter))
+
+    adapter = EmailAdapter(user=None)
+    adapter.model = model
+
+    adapter.delete_user_email("testuser", "test@example.com")
+
+    assert mfilter.call_count == 1
+    assert mfilter.call_args == (
+                tuple(),
+                {
+                    "user__username": "testuser",
+                    "email": "test@example.com",
+                    "primary": False
+                },
+            )
+
+    assert mdelete.call_count == 1
+    assert mdelete.call_args == (tuple(), {})

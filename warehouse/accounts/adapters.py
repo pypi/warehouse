@@ -78,3 +78,7 @@ class EmailAdapter(BaseAdapter):
                                             "user",
                                         ).order_by("-primary", "email"):
             yield self._serialize(email)
+
+    def delete_user_email(self, username, email):
+        self.model.objects.filter(
+                user__username=username, email=email, primary=False).delete()

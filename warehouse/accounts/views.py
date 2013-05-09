@@ -86,6 +86,24 @@ class AccountSettingsView(LoginRequiredMixin, TemplateResponseMixin, View):
         return self.render_to_response({"emails": emails})
 
 
+class DeleteAccountEmailView(LoginRequiredMixin, View):
+
+    delete_email = Email.api.delete_user_email
+    raise_exception = True
+
+    def post(self, request, email):
+        # Delete the email from the system
+        self.delete_email(request.user.username, email)
+
+        # Redirect back from whence we came
+        next_url = request.META.get("HTTP_REFERER", None)
+        print(next_url)
+        if not is_safe_url(next_url, host=request.get_host()):
+            next_url = resolve_url("accounts.settings")
+
+        return HttpResponseRedirect(next_url, status=303)
+
+
 class SignupView(TemplateResponseMixin, View):
 
     creator = UserCreator()

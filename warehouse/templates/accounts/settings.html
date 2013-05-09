@@ -20,6 +20,16 @@
                     {{ email.email }}
                     {% if email.primary %}<span class="label label-info">{% trans "Default" %}</span>{% endif %}
                   </div>
+                  <div class="span3">
+                    <div class="pull-right">
+                      {% if not email.primary %}
+                        <form action="{% url 'accounts.delete-email' email=email.email %}" method="POST">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
                 </div>
               </li>
             {% endfor %}

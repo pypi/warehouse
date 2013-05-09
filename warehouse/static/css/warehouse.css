@@ -7791,6 +7791,9 @@ body#login .form-signin input[type="text"], body#login .form-signin input[type="
   padding: 0.5em 0;
   border-bottom: 1px solid #eee;
 }
+.user-emails form {
+  margin: 0;
+}
 .user-emails .email {
   padding-top: 0.3em;
 }

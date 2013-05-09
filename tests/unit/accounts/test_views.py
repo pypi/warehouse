@@ -11,6 +11,7 @@ from django.test.utils import override_settings
 from warehouse.accounts.adapters import Email
 from warehouse.accounts.forms import SignupForm
 from warehouse.accounts.views import LoginView, SignupView, AccountSettingsView
+from warehouse.accounts.views import DeleteAccountEmailView
 
 
 @pytest.mark.parametrize(("url", "expected"), [
@@ -278,3 +279,37 @@ def test_account_settings_ensure_email(rf):
 
     assert response.status_code == 200
     assert response.context_data["emails"] == emails
+
+
+def test_account_settings_delete_email(rf):
+    delete_email = mock.Mock()
+    view = DeleteAccountEmailView.as_view(delete_email=delete_email)
+
+    request = rf.post(reverse("accounts.delete-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://testserver/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == "http://testserver/"
+
+    assert delete_email.call_count == 1
+    assert delete_email.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_delete_email_invalid_referer(rf):
+    delete_email = mock.Mock()
+    view = DeleteAccountEmailView.as_view(delete_email=delete_email)
+
+    request = rf.post(reverse("accounts.delete-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://evil.example.com/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == reverse("accounts.settings")
+
+    assert delete_email.call_count == 1
+    assert delete_email.call_args == (("testuser", "test@example.com"), {})
