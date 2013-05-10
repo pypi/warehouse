@@ -267,9 +267,9 @@ def test_account_settings_anonymous_redirect(rf):
 
 def test_account_settings_ensure_email(rf):
     emails = [
-        Email("testuser", "test@example.com", True, True),
-        Email("testuser", "test2@example.com", False, True),
-        Email("testuser", "test3@example.com", False, True),
+        Email("testuser", "test@example.com", primary=True, verified=True),
+        Email("testuser", "test2@example.com", primary=False, verified=True),
+        Email("testuser", "test3@example.com", primary=False, verified=True),
     ]
 
     get_emails = mock.Mock(return_value=emails)
