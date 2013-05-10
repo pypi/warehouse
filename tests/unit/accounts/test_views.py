@@ -10,8 +10,10 @@ from django.test.utils import override_settings
 
 from warehouse.accounts.adapters import Email
 from warehouse.accounts.forms import SignupForm
-from warehouse.accounts.views import LoginView, SignupView, AccountSettingsView
-from warehouse.accounts.views import DeleteAccountEmailView
+from warehouse.accounts.views import (
+        LoginView, SignupView, AccountSettingsView, DeleteAccountEmailView,
+        SetPrimaryEmailView
+    )
 
 
 @pytest.mark.parametrize(("url", "expected"), [
@@ -313,3 +315,37 @@ def test_account_settings_delete_email_invalid_referer(rf):
 
     assert delete_email.call_count == 1
     assert delete_email.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_set_primary_email(rf):
+    set_primary = mock.Mock()
+    view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
+
+    request = rf.post(reverse("accounts.set-primary-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://testserver/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == "http://testserver/"
+
+    assert set_primary.call_count == 1
+    assert set_primary.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_set_primary_email_invalid_referer(rf):
+    set_primary = mock.Mock()
+    view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
+
+    request = rf.post(reverse("accounts.set-primary-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://evil.example.com/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == reverse("accounts.settings")
+
+    assert set_primary.call_count == 1
+    assert set_primary.call_args == (("testuser", "test@example.com"), {})

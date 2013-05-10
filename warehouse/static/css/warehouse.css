@@ -7792,7 +7792,7 @@ body#login .form-signin input[type="text"], body#login .form-signin input[type="
   border-bottom: 1px solid #eee;
 }
 .user-emails form {
-  margin: 0;
+  margin: 0 0 0 0.5em;
 }
 .user-emails .email {
   padding-top: 0.3em;

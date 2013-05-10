@@ -22,8 +22,14 @@
                   </div>
                   <div class="span3">
                     <div class="pull-right">
+                      {% if email.verified and not email.primary %}
+                        <form class="pull-left" action="{% url 'accounts.set-primary-email' email=email.email %}" method="POST">
+                          {% csrf_token %}
+                          <button type="submit" class="btn">{% trans "Set as Default" %}</button>
+                        </form>
+                      {% endif %}
                       {% if not email.primary %}
-                        <form action="{% url 'accounts.delete-email' email=email.email %}" method="POST">
+                        <form class="pull-left" action="{% url 'accounts.delete-email' email=email.email %}" method="POST">
                           {% csrf_token %}
                           <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
                         </form>

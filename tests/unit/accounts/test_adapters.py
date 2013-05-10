@@ -3,6 +3,8 @@ from unittest import mock
 
 import pytest
 
+from django.db import transaction
+
 from warehouse.accounts.adapters import Email, EmailAdapter, User, UserAdapter
 
 
@@ -202,3 +204,82 @@ def test_emailadapter_delete_user_email():
 
     assert mdelete.call_count == 1
     assert mdelete.call_args == (tuple(), {})
+
+
+def test_emailadapter_set_user_primary_email(monkeypatch):
+    class fake_atomic(object):
+        def __init__(self):
+            pass
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, *args, **kwargs):
+            pass
+
+    monkeypatch.setattr(transaction, "atomic", fake_atomic)
+
+    mupdate = mock.Mock(return_value=1)
+    mfilter = mock.Mock(return_value=stub(update=mupdate))
+    model = stub(objects=stub(filter=mfilter))
+
+    adapter = EmailAdapter(user=None)
+    adapter.model = model
+
+    adapter.set_user_primary_email("testuser", "test@example.com")
+
+    assert mfilter.call_count == 2
+    assert mfilter.call_args_list == [
+            (tuple(), {"user__username": "testuser"}),
+            (tuple(), {
+                "user__username": "testuser",
+                "email": "test@example.com",
+                "verified": True,
+            }),
+        ]
+
+    assert mupdate.call_count == 2
+    assert mupdate.call_args_list == [
+        (tuple(), {"primary": False}),
+        (tuple(), {"primary": True}),
+    ]
+
+
+def test_emailadapter_set_user_primary_email_invalid_email(monkeypatch):
+    class fake_atomic(object):
+        def __init__(self):
+            pass
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, *args, **kwargs):
+            pass
+
+    monkeypatch.setattr(transaction, "atomic", fake_atomic)
+
+    mupdate = mock.Mock(return_value=0)
+    mfilter = mock.Mock(return_value=stub(update=mupdate))
+    model = stub(objects=stub(filter=mfilter))
+
+    adapter = EmailAdapter(user=None)
+    adapter.model = model
+
+    with pytest.raises(ValueError):
+        adapter.set_user_primary_email("testuser", "test@example.com")
+
+    assert mfilter.call_count == 2
+    assert mfilter.call_args_list == [
+            (tuple(), {"user__username": "testuser"}),
+            (tuple(), {
+                "user__username": "testuser",
+                "email": "test@example.com",
+                "verified": True,
+            }),
+        ]
+
+    assert mupdate.call_count == 2
+    assert mupdate.call_args_list == [
+        (tuple(), {"primary": False}),
+        (tuple(), {"primary": True}),
+    ]

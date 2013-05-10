@@ -86,6 +86,24 @@ class AccountSettingsView(LoginRequiredMixin, TemplateResponseMixin, View):
         return self.render_to_response({"emails": emails})
 
 
+class SetPrimaryEmailView(LoginRequiredMixin, View):
+
+    set_primary_email = Email.api.set_user_primary_email
+    raise_exception = True
+
+    def post(self, request, email):
+        # Set the primary email
+        self.set_primary_email(request.user.username, email)
+
+        # Redirect back from whence we came
+        next_url = request.META.get("HTTP_REFERER", None)
+        print(next_url)
+        if not is_safe_url(next_url, host=request.get_host()):
+            next_url = resolve_url("accounts.settings")
+
+        return HttpResponseRedirect(next_url, status=303)
+
+
 class DeleteAccountEmailView(LoginRequiredMixin, View):
 
     delete_email = Email.api.delete_user_email
