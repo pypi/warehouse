@@ -8,7 +8,10 @@ from django.utils.translation import ugettext as _
 
 from django.contrib.auth import authenticate, login as auth_login
 
+from braces.views import LoginRequiredMixin
+
 from warehouse.accounts.forms import LoginForm, SignupForm
+from warehouse.accounts.models import Email
 from warehouse.accounts.regards import UserCreator
 
 
@@ -70,6 +73,53 @@ class LoginView(TemplateResponseMixin, View):
         if not is_safe_url(next_url, host=request.get_host()):
             next_url = resolve_url(settings.LOGIN_REDIRECT_URL)
         return next_url
+
+
+class AccountSettingsView(LoginRequiredMixin, TemplateResponseMixin, View):
+
+    get_emails = Email.api.get_user_emails
+    template_name = "accounts/settings.html"
+
+    def get(self, request):
+        # Get the users email addresses
+        emails = self.get_emails(request.user.username)
+        return self.render_to_response({"emails": emails})
+
+
+class SetPrimaryEmailView(LoginRequiredMixin, View):
+
+    set_primary_email = Email.api.set_user_primary_email
+    raise_exception = True
+
+    def post(self, request, email):
+        # Set the primary email
+        self.set_primary_email(request.user.username, email)
+
+        # Redirect back from whence we came
+        next_url = request.META.get("HTTP_REFERER", None)
+        print(next_url)
+        if not is_safe_url(next_url, host=request.get_host()):
+            next_url = resolve_url("accounts.settings")
+
+        return HttpResponseRedirect(next_url, status=303)
+
+
+class DeleteAccountEmailView(LoginRequiredMixin, View):
+
+    delete_email = Email.api.delete_user_email
+    raise_exception = True
+
+    def post(self, request, email):
+        # Delete the email from the system
+        self.delete_email(request.user.username, email)
+
+        # Redirect back from whence we came
+        next_url = request.META.get("HTTP_REFERER", None)
+        print(next_url)
+        if not is_safe_url(next_url, host=request.get_host()):
+            next_url = resolve_url("accounts.settings")
+
+        return HttpResponseRedirect(next_url, status=303)
 
 
 class SignupView(TemplateResponseMixin, View):

@@ -8,8 +8,12 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import resolve_url
 from django.test.utils import override_settings
 
+from warehouse.accounts.adapters import Email
 from warehouse.accounts.forms import SignupForm
-from warehouse.accounts.views import LoginView, SignupView
+from warehouse.accounts.views import (
+        LoginView, SignupView, AccountSettingsView, DeleteAccountEmailView,
+        SetPrimaryEmailView
+    )
 
 
 @pytest.mark.parametrize(("url", "expected"), [
@@ -246,3 +250,102 @@ def test_signup_ensure_next(rf):
                 })
     response = view(request)
     assert response["Location"] == "/test/next/"
+
+
+def test_account_settings_anonymous_redirect(rf):
+    get_emails = lambda x: pytest.fail("get_emails shouldn't have been called")
+    view = AccountSettingsView.as_view(get_emails=get_emails)
+
+    request = rf.get(reverse("accounts.settings"))
+    request.user = stub(is_authenticated=lambda: False)
+    response = view(request)
+
+    assert response.status_code == 302
+    assert response["Location"] == (
+        reverse("accounts.login") + "?next=" + reverse("accounts.settings"))
+
+
+def test_account_settings_ensure_email(rf):
+    emails = [
+        Email("testuser", "test@example.com", primary=True, verified=True),
+        Email("testuser", "test2@example.com", primary=False, verified=True),
+        Email("testuser", "test3@example.com", primary=False, verified=True),
+    ]
+
+    get_emails = mock.Mock(return_value=emails)
+    view = AccountSettingsView.as_view(get_emails=get_emails)
+
+    request = rf.get(reverse("accounts.settings"))
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request)
+
+    assert response.status_code == 200
+    assert response.context_data["emails"] == emails
+
+
+def test_account_settings_delete_email(rf):
+    delete_email = mock.Mock()
+    view = DeleteAccountEmailView.as_view(delete_email=delete_email)
+
+    request = rf.post(reverse("accounts.delete-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://testserver/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == "http://testserver/"
+
+    assert delete_email.call_count == 1
+    assert delete_email.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_delete_email_invalid_referer(rf):
+    delete_email = mock.Mock()
+    view = DeleteAccountEmailView.as_view(delete_email=delete_email)
+
+    request = rf.post(reverse("accounts.delete-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://evil.example.com/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == reverse("accounts.settings")
+
+    assert delete_email.call_count == 1
+    assert delete_email.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_set_primary_email(rf):
+    set_primary = mock.Mock()
+    view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
+
+    request = rf.post(reverse("accounts.set-primary-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://testserver/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == "http://testserver/"
+
+    assert set_primary.call_count == 1
+    assert set_primary.call_args == (("testuser", "test@example.com"), {})
+
+
+def test_account_settings_set_primary_email_invalid_referer(rf):
+    set_primary = mock.Mock()
+    view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
+
+    request = rf.post(reverse("accounts.set-primary-email",
+                                    kwargs={"email": "test@example.com"}))
+    request.META["HTTP_REFERER"] = "http://evil.example.com/"
+    request.user = stub(is_authenticated=lambda: True, username="testuser")
+    response = view(request, "test@example.com")
+
+    assert response.status_code == 303
+    assert response["Location"] == reverse("accounts.settings")
+
+    assert set_primary.call_count == 1
+    assert set_primary.call_args == (("testuser", "test@example.com"), {})
