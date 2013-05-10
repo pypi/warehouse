@@ -1,5 +1,6 @@
 import collections
 
+from django.db import transaction
 from django.utils import timezone
 
 from warehouse.adapters import BaseAdapter
@@ -70,3 +71,26 @@ class EmailAdapter(BaseAdapter):
         db_email.save()
 
         return self._serialize(db_email)
+
+    def get_user_emails(self, username):
+        for email in self.model.objects.filter(
+                                            user__username=username,
+                                        ).select_related(
+                                            "user",
+                                        ).order_by("-primary", "email"):
+            yield self._serialize(email)
+
+    def set_user_primary_email(self, username, email):
+        with transaction.atomic():
+            self.model.objects.filter(
+                    user__username=username).update(primary=False)
+            updated = self.model.objects.filter(
+                    user__username=username, email=email, verified=True
+                ).update(primary=True)
+
+            if not updated:
+                raise ValueError("Must set a valid verified email as primary")
+
+    def delete_user_email(self, username, email):
+        self.model.objects.filter(
+                user__username=username, email=email, primary=False).delete()
