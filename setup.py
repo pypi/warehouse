@@ -22,6 +22,7 @@ setup(
         "Django",
         "django-braces",
         "django-configurations>=0.2.1",
+        "South",
     ],
     extras_require={
         "tests": [
