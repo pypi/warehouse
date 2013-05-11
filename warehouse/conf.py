@@ -14,6 +14,9 @@ class Settings(BaseSettings):
         "django.contrib.messages",
         "django.contrib.staticfiles",
 
+        # External Applications
+        "south",
+
         # Warehouse Apps
         "warehouse",
         "warehouse.accounts",
