@@ -8,18 +8,26 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # CREATE the citext extension
+        db.execute("CREATE EXTENSION IF NOT EXISTS citext")
+
         # Adding model 'User'
         db.create_table('accounts_user', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('password', self.gf('django.db.models.fields.CharField')(max_length=128)),
             ('last_login', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
             ('is_superuser', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('username', self.gf('django.db.models.fields.CharField')(unique=True, max_length=50)),
+            ('username', self.gf('warehouse.utils.db_fields.CaseInsensitiveCharField')(unique=True, max_length=50)),
             ('name', self.gf('django.db.models.fields.CharField')(blank=True, max_length=100)),
             ('is_staff', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('is_active', self.gf('django.db.models.fields.BooleanField')(default=True)),
             ('date_joined', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now)),
         ))
+
+        # Adding constraint to model field 'User.username'
+        db.execute("ALTER TABLE accounts_user ADD CONSTRAINT accounts_user_username_length CHECK (length(username) <= 50)")
+
+        # Send signal to show we've created the User model
         db.send_create_signal('accounts', ['User'])
 
         # Adding M2M table for field groups on 'User'
