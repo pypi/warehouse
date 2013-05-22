@@ -4,8 +4,5 @@ invoke
 # Install Django (we are using an unreleased version)
 -e git+https://github.com/django/django.git#egg=Django-dev
 
-# Install South (Python 3.x support is only in trunk)
--e hg+https://bitbucket.org/andrewgodwin/south#egg=South-dev
-
 # Install Warehouse (and it's dependencies)
 -e .[tests]
