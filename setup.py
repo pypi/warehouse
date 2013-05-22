@@ -22,6 +22,7 @@ setup(
         "Django",
         "django-braces",
         "django-configurations>=0.2.1",
+        "psycopg2",
         "South",
     ],
     extras_require={
