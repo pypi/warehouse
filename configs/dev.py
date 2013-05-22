@@ -25,12 +25,7 @@ class Development(Common):
 
 
 class Testing(Common):
-
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-        }
-    }
+    pass
 
 
 class Production(Common):
