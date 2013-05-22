@@ -13,6 +13,7 @@ from django.contrib.auth.models import (
 
 from warehouse import accounts
 from warehouse.accounts import adapters
+from warehouse.utils.db_fields import CaseInsensitiveCharField
 
 
 class UserManager(BaseUserManager):
@@ -52,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
 
-    username = models.CharField(_("username"),
+    username = CaseInsensitiveCharField(_("username"),
                     max_length=50,
                     unique=True,
                     help_text=accounts.VALID_USERNAME_DESC,
