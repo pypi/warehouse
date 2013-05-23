@@ -4,5 +4,8 @@ invoke
 # Install Django (we are using an unreleased version)
 -e git+https://github.com/django/django.git#egg=Django-dev
 
+# Install Webtest (Python 3.3.2 breaks the currently released version)
+-e git+https://github.com/Pylons/webtest.git#egg=webtest-dev
+
 # Install Warehouse (and it's dependencies)
 -e .[tests]
