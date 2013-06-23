@@ -4,13 +4,6 @@ Warehouse
 Warehouse is a reimplementation of the Python Package Index using modern
 web development frameworks and methodologies.
 
-Its current focus is on modeling and importing the data from the current
-database and Pull Requests not focused on that are likely to be declined. Once
-the project has matured and is more open to external contributions, it will be
-migrated to the `Python Packaging Authority`_ account.
-
-.. _Python Packaging Authority: https://github.com/pypa/
-
 Setting up a development environment
 ------------------------------------
 
@@ -64,3 +57,22 @@ Unit and functional tests have been marked and you may run either of by using:
 
     # Run only the functional tests
     $ invoke tests -s functional
+
+
+Contributing
+------------
+
+Currently focusing on modeling and importing the data from the current PyPI
+database. Pull Requests that are not focused on that are likely to be declined.
+Once the project has matured and is more open to external contributions, it
+will be migrated to the `Python Packaging Authority`_ account.
+
+1. Fork the `repository`_ on GitHub.
+2. Make a branch off of master and commit your changes to it.
+3. Ensure that your name is added to the end of the CONTRIBUTORS file using the
+   format ``Name <email@domain.com> (url)``, where the ``(url)`` portion is
+   optional.
+4. Submit a Pull Request to the master branch on GitHub.
+
+.. _Python Packaging Authority: https://github.com/pypa/
+.. _repository: https://github.com/dstufft/warehouse
