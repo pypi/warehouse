@@ -55,7 +55,7 @@ def tests(suite=None, coverage=False, pdb=False):
     if suite == "coverage":
         # When testing for coverage we want to fail the test run if we do not
         #   have 100% coverage.
-        cov = _coverage.coverage(config_file="coverage.cfg")
+        cov = _coverage.coverage(config_file=".coveragerc")
         cov.load()
 
         with open("/dev/null", "w") as devnull:
