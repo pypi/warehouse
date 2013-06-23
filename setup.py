@@ -66,7 +66,7 @@ setup(
     },
 
     classifiers=[
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: POSIX",
         "Programming Language :: Python :: 3.3",
     ],
