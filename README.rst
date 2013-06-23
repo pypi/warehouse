@@ -1,6 +1,16 @@
 Warehouse
 =========
 
+Warehouse is a reimplementation of the Python Package Index using modern
+web development frameworks and methodologies.
+
+Its current focus is on modeling and importing the data from the current
+database and Pull Requests not focused on that are likely to be declined. Once
+the project has matured and is more open to external contributions, it will be
+migrated to the `Python Packaging Authority`_ account.
+
+.. _Python Packaging Authority: https://github.com/pypa/
+
 Setting up a development environment
 ------------------------------------
 
