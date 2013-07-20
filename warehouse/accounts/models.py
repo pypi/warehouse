@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     help_text=accounts.VALID_USERNAME_DESC,
                     validators=[
                         validators.RegexValidator(
-                            re.compile(accounts.VALID_USERNAME_REGEX),
+                            accounts.VALID_USERNAME_REGEX,
                             accounts.INVALID_USERNAME_MSG,
                             "invalid",
                         ),
