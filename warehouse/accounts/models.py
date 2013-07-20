@@ -130,3 +130,17 @@ class Email(models.Model):
     class Meta:
         verbose_name = _("email")
         verbose_name_plural = _("emails")
+
+
+class GPGKey(models.Model):
+
+    user = models.ForeignKey(User,
+                verbose_name=_("user"),
+                related_name="gpg_keys",
+                on_delete=models.DO_NOTHING,
+            )
+    key_id = CaseInsensitiveCharField(_("Key ID"), max_length=16, unique=True)
+
+    class Meta:
+        verbose_name = _("GPG Key")
+        verbose_name_plural = _("GPG Keys")

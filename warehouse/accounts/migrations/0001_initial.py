@@ -70,6 +70,18 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('accounts', ['Email'])
 
+        # Adding model 'GPGKey'
+        db.create_table('accounts_gpgkey', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='gpg_keys', to=orm['accounts.User'], on_delete=models.DO_NOTHING)),
+            ('key_id', self.gf('warehouse.utils.db_fields.CaseInsensitiveCharField')(unique=True, max_length=16)),
+        ))
+
+        # Adding constraint to model field 'GPGKey.key_id'
+        db.execute("ALTER TABLE accounts_gpgkey ADD CONSTRAINT accounts_gpgkey_key_id_length CHECK (length(key_id) <= 16)")
+
+        # Send signal to show we've created the GPGKey model
+        db.send_create_signal('accounts', ['GPGKey'])
 
     def backwards(self, orm):
         # Deleting model 'User'
@@ -84,6 +96,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Email'
         db.delete_table('accounts_email')
 
+        # Deleting model 'GPGKey'
+        db.delete_table('accounts_gpgkey')
 
     models = {
         'accounts.email': {
@@ -93,6 +107,12 @@ class Migration(SchemaMigration):
             'primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'emails'", 'to': "orm['accounts.User']", 'on_delete': 'models.DO_NOTHING'}),
             'verified': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+        },
+        'accounts.gpgkey': {
+            'Meta': {'object_name': 'GPGKey'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key_id': ('warehouse.utils.db_fields.CaseInsensitiveCharField', [], {'unique': 'True', 'max_length': '16'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'gpg_keys'", 'to': "orm['accounts.User']", 'on_delete': 'models.DO_NOTHING'})
         },
         'accounts.user': {
             'Meta': {'object_name': 'User'},
@@ -105,14 +125,14 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'name': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '100'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'blank': 'True', 'symmetrical': 'False'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'})
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'user_set'", 'blank': 'True', 'to': "orm['auth.Permission']", 'symmetrical': 'False'}),
+            'username': ('warehouse.utils.db_fields.CaseInsensitiveCharField', [], {'unique': 'True', 'max_length': '50'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'blank': 'True', 'symmetrical': 'False'})
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['auth.Permission']", 'blank': 'True'})
         },
         'auth.permission': {
             'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
