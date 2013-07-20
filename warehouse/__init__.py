@@ -18,12 +18,12 @@ __all__ = [
 
 __title__ = "warehouse"
 __summary__ = "Next Generation Python Package Index"
-__uri__ = "https://github.com/crateio/warehouse/"
+__uri__ = "https://github.com/dstufft/warehouse"
 
 __version__ = "0.1dev1"
 
 __author__ = "Donald Stufft"
 __email__ = "donald@stufft.io"
 
-__license__ = "Simplified BSD"
+__license__ = "Apache License, Version 2.0"
 __copyright__ = "Copyright 2012 Donald Stufft"
