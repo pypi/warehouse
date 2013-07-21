@@ -37,7 +37,22 @@ class Migration(SchemaMigration):
         ))
 
         # Adding constraint to model field 'User.username'
-        db.execute("ALTER TABLE accounts_user ADD CONSTRAINT accounts_user_username_length CHECK (length(username) <= 50)")
+        db.execute("""
+            ALTER TABLE accounts_user
+            ADD CONSTRAINT accounts_user_username_length
+            CHECK (
+                length(username) <= 50
+            )
+        """)
+
+        # Adding valid username constraint on 'User'
+        db.execute("""
+            ALTER TABLE accounts_user
+            ADD CONSTRAINT accounts_user_valid_username
+            CHECK (
+                username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'
+            )
+        """)
 
         # Send signal to show we've created the User model
         db.send_create_signal('accounts', ['User'])
@@ -63,13 +78,32 @@ class Migration(SchemaMigration):
         # Adding model 'Email'
         db.create_table('accounts_email', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='emails', to=orm['accounts.User'], on_delete=models.DO_NOTHING)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='emails', to=orm['accounts.User'])),
             ('email', self.gf('django.db.models.fields.EmailField')(unique=True, max_length=254)),
             ('primary', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('verified', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('accounts', ['Email'])
 
+        # Adding model 'GPGKey'
+        db.create_table('accounts_gpgkey', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='gpg_keys', to=orm['accounts.User'])),
+            ('key_id', self.gf('warehouse.utils.db_fields.CaseInsensitiveCharField')(unique=True, max_length=8)),
+            ('verified', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        ))
+
+        # Adding valid key_id constraint on 'GPGKey'
+        db.execute("""
+            ALTER TABLE accounts_gpgkey
+            ADD CONSTRAINT accounts_gpgkey_valid_key_id
+            CHECK (
+                key_id ~* '^[A-F0-9]{8}$'
+            )
+        """)
+
+        # Send signal to show we've created the GPGKey model
+        db.send_create_signal('accounts', ['GPGKey'])
 
     def backwards(self, orm):
         # Deleting model 'User'
@@ -84,6 +118,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Email'
         db.delete_table('accounts_email')
 
+        # Deleting model 'GPGKey'
+        db.delete_table('accounts_gpgkey')
 
     models = {
         'accounts.email': {
@@ -91,7 +127,14 @@ class Migration(SchemaMigration):
             'email': ('django.db.models.fields.EmailField', [], {'unique': 'True', 'max_length': '254'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'emails'", 'to': "orm['accounts.User']", 'on_delete': 'models.DO_NOTHING'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.User']", 'related_name': "'emails'"}),
+            'verified': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
+        },
+        'accounts.gpgkey': {
+            'Meta': {'object_name': 'GPGKey'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key_id': ('warehouse.utils.db_fields.CaseInsensitiveCharField', [], {'max_length': '8', 'unique': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['accounts.User']", 'related_name': "'gpg_keys'"}),
             'verified': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         'accounts.user': {
@@ -105,14 +148,14 @@ class Migration(SchemaMigration):
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'name': ('django.db.models.fields.CharField', [], {'blank': 'True', 'max_length': '100'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'blank': 'True', 'symmetrical': 'False'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '50'})
+            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'user_set'", 'blank': 'True', 'to': "orm['auth.Permission']", 'symmetrical': 'False'}),
+            'username': ('warehouse.utils.db_fields.CaseInsensitiveCharField', [], {'unique': 'True', 'max_length': '50'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'blank': 'True', 'symmetrical': 'False'})
+            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['auth.Permission']", 'blank': 'True'})
         },
         'auth.permission': {
             'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
