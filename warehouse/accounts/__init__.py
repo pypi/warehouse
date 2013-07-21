@@ -11,9 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
+
 from django.utils.translation import ugettext_lazy as _
 
-VALID_USERNAME_REGEX = r"^[\w.-]+$"
+VALID_USERNAME_REGEX = re.compile(
+                            r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$",
+                            re.IGNORECASE,
+                        )
 VALID_USERNAME_DESC = _(
                     "50 characters or fewer. Letters, digits, and ./-/_ only.")
 INVALID_USERNAME_MSG = _(

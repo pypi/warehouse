@@ -64,6 +64,12 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    # There is a CHECK CONSTRAINT on User that ensures that User.username
+    # is a valid username. It checks that:
+    # - username begins and ends with ASCII letter or digit
+    # - username contains only ASCII letters, digits, periods, hyphens, and
+    # underscores
+
     USERNAME_FIELD = "username"
 
     username = CaseInsensitiveCharField(_("username"),
@@ -72,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     help_text=accounts.VALID_USERNAME_DESC,
                     validators=[
                         validators.RegexValidator(
-                            re.compile(accounts.VALID_USERNAME_REGEX),
+                            accounts.VALID_USERNAME_REGEX,
                             accounts.INVALID_USERNAME_MSG,
                             "invalid",
                         ),
@@ -119,7 +125,6 @@ class Email(models.Model):
     user = models.ForeignKey(User,
                 verbose_name=_("user"),
                 related_name="emails",
-                on_delete=models.DO_NOTHING,
             )
     email = models.EmailField(_("email"), max_length=254, unique=True)
     primary = models.BooleanField(_("primary"), default=False)
@@ -130,3 +135,32 @@ class Email(models.Model):
     class Meta:
         verbose_name = _("email")
         verbose_name_plural = _("emails")
+
+
+class GPGKey(models.Model):
+
+    # There is a CHECK CONSTRAINT on GPGKey that ensures that GPGKey.key_id
+    # is a valid short key id. It checks that:
+    # - key_id is exactly 8 characters in length (Short ID)
+    # - key_id contains only valid characters for a Short ID
+
+    user = models.ForeignKey(User,
+                verbose_name=_("user"),
+                related_name="gpg_keys",
+            )
+    key_id = CaseInsensitiveCharField(_("Key ID"),
+                    max_length=8,
+                    unique=True,
+                    validators=[
+                        validators.RegexValidator(
+                            re.compile(r"^[A-F0-9]{8}$", re.I),
+                            _("Key ID must contain a valid short identifier"),
+                            "invalid",
+                        ),
+                    ],
+                )
+    verified = models.BooleanField(_("Verified"), default=False)
+
+    class Meta:
+        verbose_name = _("GPG Key")
+        verbose_name_plural = _("GPG Keys")
