@@ -125,7 +125,6 @@ class Email(models.Model):
     user = models.ForeignKey(User,
                 verbose_name=_("user"),
                 related_name="emails",
-                on_delete=models.DO_NOTHING,
             )
     email = models.EmailField(_("email"), max_length=254, unique=True)
     primary = models.BooleanField(_("primary"), default=False)
@@ -148,19 +147,19 @@ class GPGKey(models.Model):
     user = models.ForeignKey(User,
                 verbose_name=_("user"),
                 related_name="gpg_keys",
-                on_delete=models.DO_NOTHING,
             )
     key_id = CaseInsensitiveCharField(_("Key ID"),
-                    max_length=16,
+                    max_length=8,
                     unique=True,
                     validators=[
                         validators.RegexValidator(
-                            re.compile(r"^[A-F0-9]{16}$", re.I),
-                            _("Key ID must contain a valid long identifier"),
+                            re.compile(r"^[A-F0-9]{8}$", re.I),
+                            _("Key ID must contain a valid short identifier"),
                             "invalid",
                         ),
                     ],
                 )
+    verified = models.BooleanField(_("Verified"), default=False)
 
     class Meta:
         verbose_name = _("GPG Key")
