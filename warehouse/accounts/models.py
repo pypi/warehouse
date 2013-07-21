@@ -140,9 +140,9 @@ class Email(models.Model):
 class GPGKey(models.Model):
 
     # There is a CHECK CONSTRAINT on GPGKey that ensures that GPGKey.key_id
-    # is a valid long key id. It checks that:
-    # - key_id is exactly 16 characters in length (Long ID)
-    # - key_id contains only valid characters for a Long ID
+    # is a valid short key id. It checks that:
+    # - key_id is exactly 8 characters in length (Short ID)
+    # - key_id contains only valid characters for a Short ID
 
     user = models.ForeignKey(User,
                 verbose_name=_("user"),
