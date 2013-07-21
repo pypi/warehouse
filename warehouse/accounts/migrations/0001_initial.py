@@ -37,7 +37,22 @@ class Migration(SchemaMigration):
         ))
 
         # Adding constraint to model field 'User.username'
-        db.execute("ALTER TABLE accounts_user ADD CONSTRAINT accounts_user_username_length CHECK (length(username) <= 50)")
+        db.execute("""
+            ALTER TABLE accounts_user
+            ADD CONSTRAINT accounts_user_username_length
+            CHECK (
+                length(username) <= 50
+            )
+        """)
+
+        # Adding valid username constraint on 'User'
+        db.execute("""
+            ALTER TABLE accounts_user
+            ADD CONSTRAINT accounts_user_valid_username
+            CHECK (
+                username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'
+            )
+        """)
 
         # Send signal to show we've created the User model
         db.send_create_signal('accounts', ['User'])
@@ -77,8 +92,14 @@ class Migration(SchemaMigration):
             ('key_id', self.gf('warehouse.utils.db_fields.CaseInsensitiveCharField')(unique=True, max_length=16)),
         ))
 
-        # Adding constraint to model field 'GPGKey.key_id'
-        db.execute("ALTER TABLE accounts_gpgkey ADD CONSTRAINT accounts_gpgkey_key_id_length CHECK (length(key_id) <= 16)")
+        # Adding valid key_id constraint on 'GPGKey'
+        db.execute("""
+            ALTER TABLE accounts_gpgkey
+            ADD CONSTRAINT accounts_gpgkey_valid_key_id
+            CHECK (
+                key_id ~* '^[A-F0-9]{16}$'
+            )
+        """)
 
         # Send signal to show we've created the GPGKey model
         db.send_create_signal('accounts', ['GPGKey'])

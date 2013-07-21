@@ -64,6 +64,12 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    # There is a CHECK CONSTRAINT on User that ensures that User.username
+    # is a valid username. It checks that:
+    # - username begins and ends with ASCII letter or digit
+    # - username contains only ASCII letters, digits, periods, hyphens, and
+    # underscores
+
     USERNAME_FIELD = "username"
 
     username = CaseInsensitiveCharField(_("username"),
@@ -134,12 +140,27 @@ class Email(models.Model):
 
 class GPGKey(models.Model):
 
+    # There is a CHECK CONSTRAINT on GPGKey that ensures that GPGKey.key_id
+    # is a valid long key id. It checks that:
+    # - key_id is exactly 16 characters in length (Long ID)
+    # - key_id contains only valid characters for a Long ID
+
     user = models.ForeignKey(User,
                 verbose_name=_("user"),
                 related_name="gpg_keys",
                 on_delete=models.DO_NOTHING,
             )
-    key_id = CaseInsensitiveCharField(_("Key ID"), max_length=16, unique=True)
+    key_id = CaseInsensitiveCharField(_("Key ID"),
+                    max_length=16,
+                    unique=True,
+                    validators=[
+                        validators.RegexValidator(
+                            re.compile(r"^[A-F0-9]{16}$", re.I),
+                            _("Key ID must contain a valid long identifier"),
+                            "invalid",
+                        ),
+                    ],
+                )
 
     class Meta:
         verbose_name = _("GPG Key")
