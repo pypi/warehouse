@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from configurations import importer
-from django.core.wsgi import get_wsgi_application
 
 # Install the Configurations importer
+from configurations import importer
 importer.install()
 
 # Create the WSGI application
+from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
