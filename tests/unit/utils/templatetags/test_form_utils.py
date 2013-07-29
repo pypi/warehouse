@@ -19,7 +19,7 @@ from warehouse.utils.templatetags.form_utils import renderfield
 
 def test_renderfield():
     # Setup a mock field object
-    field = pretend.stub(as_widget=pretend.call_recorder(lambda: "Rendered Widget!"))
+    field = pretend.stub(as_widget=pretend.call_recorder(lambda attrs: "Rendered Widget!"))
 
     # Attempt to render the field
     rendered = renderfield(field, **{"class": "my-class"})
