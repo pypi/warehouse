@@ -41,7 +41,7 @@ setup(
     extras_require={
         "tests": [
             "django-webtest",
-            "pretend",
+            "pretend>=1.0",
             "pyquery",
             "pytest",
             "pytest-cov",
