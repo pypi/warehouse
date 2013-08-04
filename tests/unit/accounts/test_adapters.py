@@ -14,6 +14,8 @@
 from pretend import stub
 from unittest import mock
 
+import pretend
+
 import pytest
 
 from django.db import transaction
@@ -27,11 +29,12 @@ def test_useradapter_no_username():
 
 
 def test_useradapter_creates():
-    created = mock.NonCallableMock()
-    created.username = "testuser"
-    created.set_password = mock.Mock()
-    created.save = mock.Mock()
-    model = mock.Mock(return_value=created)
+    created = pretend.stub(
+        username="testuser",
+        set_password=pretend.call_recorder(lambda pw: None),
+        save=pretend.call_recorder(lambda: None),
+    )
+    model = pretend.call_recorder(lambda *args, **kwargs: created)
 
     adapter = UserAdapter()
     adapter.model = model
@@ -40,21 +43,18 @@ def test_useradapter_creates():
 
     assert user.username == "testuser"
 
-    assert model.call_count == 1
-    assert model.call_args == (tuple(), {
-                                            "username": "testuser",
-                                            "is_staff": False,
-                                            "is_superuser": False,
-                                            "is_active": True,
-                                            "last_login": mock.ANY,
-                                            "date_joined": mock.ANY,
-                                        })
-
-    assert created.set_password.call_count == 1
-    assert created.set_password.call_args == (("testpassword",), {})
-
-    assert created.save.call_count == 1
-    assert created.save.call_args == (tuple(), {})
+    assert model.calls == [
+        pretend.call(
+            username="testuser",
+            is_staff=False,
+            is_superuser=False,
+            is_active=True,
+            last_login=mock.ANY,
+            date_joined=mock.ANY,
+        )
+    ]
+    assert created.set_password.calls == [pretend.call("testpassword")]
+    assert created.save.calls == [pretend.call()]
 
 
 @pytest.mark.parametrize(("exists",), [(True,), (False,)])
