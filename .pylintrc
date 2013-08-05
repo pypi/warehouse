@@ -1,0 +1,70 @@
+[MASTER]
+# Pickle collected data for later comparisons.
+persistent=yes
+
+# Ignore the migrations
+ignore=migrations
+
+
+[MESSAGES CONTROL]
+# Disable the message, report, category or checker with the given id(s). You
+# can either give multiple identifier separated by comma (,) or put this option
+# multiple time (only on the command line, not in the configuration file where
+# it should appear only once).
+#   C0103(invalid-name) - Trust programmers to choose reasonable names, or
+#                           reviewers to actually review names.
+#   C0111(missing-docstring) - Do not care if things are missing docstrings
+#   E1002(super-on-old-class) - Python 3.x has no old style classes
+#   E1101(no-member) - Django makes it pretty hard to determine this
+#   E1120(no-value-for-paramter) - Apparently broken with Django CBVs
+#   I0011(locally-disabled) - If something is disabled it shouldn't generate more output
+#   R0201(no-self-use) - Does @staticmethod even really gain anything?
+#   R0801(duplicate-code) - Programmers can determine if code should be refactored
+#   R0903(too-few-public-methods) - Tool enforced limits like this are horrible
+#   R0904(too-many-public-methods) - Tool enforced limits like this are horrible
+#   R0911(too-many-return-statements) - Tool enforced limits like this are horrible
+#   R0912(too-many-branches) - Tool enforced limits like this are horrible
+#   R0913(too-many-arguments) - Tool enforced limits like this are horrible
+#   R0914(too-many-locals) - Tool enforced limits like this are horrible
+#   R0915(too-many-statements) - Tool enforced limits like this are horrible
+#   R0924(too-many-instance-attributes) - Tool enforced limits like this are horrible
+#   W0142(star-args) - Language features are not "magic"
+#   W0212(protected-access) - Programmers can be trusted
+#   W0232(no-init) - No reason to require an __init__ method
+#   W0511(fixme) - Do not need TODO's outputted typically
+#   W0613(unused-argument) - Lots of valid reasons for unused arguments
+disable=C0103,C0111,E1002,E1101,E1120,I0011,R0201,R0801,R0903,R0904,R0911,R0912,R0913,R0914,R0915,R0924,W0142,W0212,W0232,W0511,W0613
+
+
+[REPORTS]
+
+output-format=colorized
+
+include-ids=yes
+
+symbols=yes
+
+reports=no
+
+comment=no
+
+
+[BASIC]
+# List of builtins function names that should not be used, separated by a comma
+bad-functions=
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=i,j,k,_,fp
+
+# Bad variable names which should always be refused, separated by a comma
+bad-names=
+
+[FORMAT]
+# Maximum number of characters on a single line.
+max-line-length=80
+
+
+[VARIABLES]
+# A regular expression matching the beginning of the name of dummy variables
+# (i.e. not used).
+dummy-variables-rgx=_

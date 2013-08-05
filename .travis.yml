@@ -3,13 +3,14 @@ python:
   - "3.3"
 install:
   - pip install -r requirements.txt
-  - pip install coveralls
+  - pip install coveralls pylint
 before_script:
   - psql -c 'CREATE DATABASE warehouse;' -U postgres
 script:
   - invoke tests --suite unit
   - invoke tests --suite functional
   - invoke tests --suite coverage
+  - pylint --rcfile .pylintrc warehouse
 after_success:
   - coveralls
 branches:
