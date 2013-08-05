@@ -31,5 +31,5 @@ class CaseInsensitiveCharField(fields.CharField):
 
 
 add_introspection_rules([],
-    ["^warehouse\.utils\.db_fields\.CaseInsensitiveCharField"],
+    [r"^warehouse\.utils\.db_fields\.CaseInsensitiveCharField"],
 )
