@@ -19,7 +19,7 @@ class BaseAdapter(object):
         super(BaseAdapter, self).__init__(*args, **kwargs)
         self.model = None
 
-    def __get__(self, instance, type=None):
+    def __get__(self, instance, type=None):  # pylint: disable=W0622
         if instance is not None:
             raise AttributeError(
                 "Manager isn't accessible via %s instances" % type.__name__)
