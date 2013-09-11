@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from unittest import mock
-from pretend import stub
-
+import pretend
 import pytest
+
+from pretend import stub
 
 from django import forms
 
@@ -26,7 +26,7 @@ def test_signup_form_initalizes():
 
 
 def test_signup_form_clean_username_valid():
-    username_exists = mock.Mock(return_value=False)
+    username_exists = pretend.call_recorder(lambda u: False)
     model = stub(api=stub(username_exists=username_exists))
     form = SignupForm({"username": "testuser"})
     form.cleaned_data = {"username": "testuser"}
@@ -35,12 +35,11 @@ def test_signup_form_clean_username_valid():
     cleaned = form.clean_username()
 
     assert cleaned == "testuser"
-    assert username_exists.call_count == 1
-    assert username_exists.call_args == (("testuser",), {})
+    assert username_exists.calls == [pretend.call("testuser")]
 
 
 def test_signup_form_clean_username_invalid():
-    username_exists = mock.Mock(return_value=True)
+    username_exists = pretend.call_recorder(lambda u: True)
     model = stub(api=stub(username_exists=username_exists))
     form = SignupForm({"username": "testuser"})
     form.cleaned_data = {"username": "testuser"}
@@ -49,8 +48,7 @@ def test_signup_form_clean_username_invalid():
     with pytest.raises(forms.ValidationError):
         form.clean_username()
 
-    assert username_exists.call_count == 1
-    assert username_exists.call_args == (("testuser",), {})
+    assert username_exists.calls == [pretend.call("testuser")]
 
 
 def test_signup_form_clean_passwords_valid():

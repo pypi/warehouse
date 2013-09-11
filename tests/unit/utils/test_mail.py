@@ -11,9 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pretend
 import pytest
-
-from unittest import mock
 
 from warehouse.utils.mail import send_mail
 
@@ -27,20 +26,17 @@ from warehouse.utils.mail import send_mail
 )
 def test_send_mail(recipients, subject, message, from_address):
     # Set up our FakeClass
-    instance = mock.NonCallableMock()
-    instance.send = mock.Mock()
-    mock_message = mock.Mock(return_value=instance)
+    instance = pretend.stub(
+        send=pretend.call_recorder(lambda *args, **kwargs: None),
+    )
+    message = pretend.call_recorder(lambda *args, **kwargs: instance)
 
     # Try to send a mail message
     send_mail(recipients, subject, message, from_address,
-                message_class=mock_message,
-            )
+        message_class=message,
+    )
 
-    assert mock_message.call_count == 1
-    assert mock_message.call_args == (
-                                (subject, message, from_address, recipients),
-                                {},
-                            )
-
-    assert instance.send.call_count == 1
-    assert instance.send.call_args == (tuple(), {})
+    assert message.calls == [
+        pretend.call(subject, message, from_address, recipients),
+    ]
+    assert instance.send.calls == [pretend.call()]
