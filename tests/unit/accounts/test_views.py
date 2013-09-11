@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pretend
 import pytest
 
-from unittest import mock
 from pretend import stub
 
 from django.conf import settings
@@ -72,8 +72,8 @@ def test_login_already_logged_in(rf):
 
 def test_login_flow(rf):
     user = stub(is_authenticated=lambda: False, is_active=True)
-    authenticator = mock.Mock(return_value=user)
-    login = mock.Mock()
+    authenticator = pretend.call_recorder(lambda *args, **kwargs: user)
+    login = pretend.call_recorder(lambda *args, **kwargs: None)
     view = LoginView.as_view(authenticator=authenticator, login=login)
 
     # Verify that we can GET the login url
@@ -95,18 +95,16 @@ def test_login_flow(rf):
     assert "Location" in response
     assert response["Location"] == resolve_url(settings.LOGIN_REDIRECT_URL)
 
-    assert authenticator.call_count == 1
-    assert authenticator.call_args == (tuple(), data)
-
-    assert login.call_count == 1
-    assert login.call_args == ((request, user), {})
+    assert authenticator.calls == [pretend.call(**data)]
+    assert login.calls == [pretend.call(request, user)]
 
 
 def test_login_invalid_form(rf):
     user = stub(is_authenticated=lambda: False)
-    authenticator = mock.Mock(return_value=None)
-    login = mock.Mock()
-    view = LoginView.as_view(authenticator=authenticator, login=login)
+    view = LoginView.as_view(
+        authenticator=lambda *args, **kwargs: None,
+        login=lambda *args, **kwargs: None,
+    )
 
     # Attempt to login with invalid form data
     data = {"username": "testuser"}
@@ -124,9 +122,10 @@ def test_login_invalid_form(rf):
 
 def test_login_invalid_user(rf):
     user = stub(is_authenticated=lambda: False)
-    authenticator = mock.Mock(return_value=None)
-    login = mock.Mock()
-    view = LoginView.as_view(authenticator=authenticator, login=login)
+    view = LoginView.as_view(
+        authenticator=lambda *args, **kwargs: None,
+        login=lambda *args, **kwargs: None,
+    )
 
     # Attempt to login with an invalid user
     data = {"username": "testuser", "password": "test password"}
@@ -144,8 +143,8 @@ def test_login_invalid_user(rf):
 
 def test_login_inactive_user(rf):
     user = stub(is_authenticated=lambda: True, is_active=False)
-    authenticator = mock.Mock(return_value=user)
-    login = mock.Mock()
+    authenticator = pretend.call_recorder(lambda *args, **kwargs: user)
+    login = pretend.call_recorder(lambda *args, **kwargs: None)
     view = LoginView.as_view(authenticator=authenticator, login=login)
 
     # Attempt to login with an inactive user
@@ -154,9 +153,8 @@ def test_login_inactive_user(rf):
     request.user = stub(is_authenticated=lambda: False)
     response = view(request)
 
-    assert authenticator.call_count == 1
-    assert authenticator.call_args == (tuple(), data)
-    assert login.call_count == 0
+    assert authenticator.calls == [pretend.call(**data)]
+    assert login.calls == []
 
     assert response.status_code == 200
     assert response.context_data.keys() == set(["next", "form"])
@@ -173,7 +171,7 @@ def test_signup_flow(rf):
     class TestSignupForm(SignupForm):
         model = stub(api=stub(username_exists=lambda x: False))
 
-    creator = mock.Mock()
+    creator = pretend.call_recorder(lambda *args, **kwargs: None)
     view = SignupView.as_view(creator=creator, form_class=TestSignupForm)
 
     # Verify that we can GET the signup url
@@ -199,12 +197,13 @@ def test_signup_flow(rf):
     assert "Location" in response
     assert response["Location"] == resolve_url(settings.LOGIN_REDIRECT_URL)
 
-    assert creator.call_count == 1
-    assert creator.call_args == (tuple(), {
-                                                "username": "testuser",
-                                                "email": "test@example.com",
-                                                "password": "test password",
-                                            })
+    assert creator.calls == [
+        pretend.call(
+            username="testuser",
+            email="test@example.com",
+            password="test password",
+        ),
+    ]
 
 
 @pytest.mark.parametrize(("data", "errors"), [
@@ -221,8 +220,10 @@ def test_signup_invalid(data, errors, rf):
     class TestSignupForm(SignupForm):
         model = stub(api=stub(username_exists=lambda x: False))
 
-    creator = mock.Mock()
-    view = SignupView.as_view(creator=creator, form_class=TestSignupForm)
+    view = SignupView.as_view(
+        creator=lambda *args, **kwargs: None,
+        form_class=TestSignupForm,
+    )
 
     request = rf.post(reverse("accounts.signup"), data)
     response = view(request)
@@ -285,8 +286,9 @@ def test_account_settings_ensure_email(rf):
         Email("testuser", "test3@example.com", primary=False, verified=True),
     ]
 
-    get_emails = mock.Mock(return_value=emails)
-    view = AccountSettingsView.as_view(get_emails=get_emails)
+    view = AccountSettingsView.as_view(
+        get_emails=lambda *args, **kwargs: emails,
+    )
 
     request = rf.get(reverse("accounts.settings"))
     request.user = stub(is_authenticated=lambda: True, username="testuser")
@@ -297,7 +299,7 @@ def test_account_settings_ensure_email(rf):
 
 
 def test_account_settings_delete_email(rf):
-    delete_email = mock.Mock()
+    delete_email = pretend.call_recorder(lambda *args, **kwargs: None)
     view = DeleteAccountEmailView.as_view(delete_email=delete_email)
 
     request = rf.post(reverse("accounts.delete-email",
@@ -309,12 +311,11 @@ def test_account_settings_delete_email(rf):
     assert response.status_code == 303
     assert response["Location"] == "http://testserver/"
 
-    assert delete_email.call_count == 1
-    assert delete_email.call_args == (("testuser", "test@example.com"), {})
+    assert delete_email.calls == [pretend.call("testuser", "test@example.com")]
 
 
 def test_account_settings_delete_email_invalid_referer(rf):
-    delete_email = mock.Mock()
+    delete_email = pretend.call_recorder(lambda *args, **kwargs: None)
     view = DeleteAccountEmailView.as_view(delete_email=delete_email)
 
     request = rf.post(reverse("accounts.delete-email",
@@ -326,12 +327,11 @@ def test_account_settings_delete_email_invalid_referer(rf):
     assert response.status_code == 303
     assert response["Location"] == reverse("accounts.settings")
 
-    assert delete_email.call_count == 1
-    assert delete_email.call_args == (("testuser", "test@example.com"), {})
+    assert delete_email.calls == [pretend.call("testuser", "test@example.com")]
 
 
 def test_account_settings_set_primary_email(rf):
-    set_primary = mock.Mock()
+    set_primary = pretend.call_recorder(lambda *args, **kwargs: None)
     view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
 
     request = rf.post(reverse("accounts.set-primary-email",
@@ -343,12 +343,11 @@ def test_account_settings_set_primary_email(rf):
     assert response.status_code == 303
     assert response["Location"] == "http://testserver/"
 
-    assert set_primary.call_count == 1
-    assert set_primary.call_args == (("testuser", "test@example.com"), {})
+    assert set_primary.calls == [pretend.call("testuser", "test@example.com")]
 
 
 def test_account_settings_set_primary_email_invalid_referer(rf):
-    set_primary = mock.Mock()
+    set_primary = pretend.call_recorder(lambda *args, **kwargs: None)
     view = SetPrimaryEmailView.as_view(set_primary_email=set_primary)
 
     request = rf.post(reverse("accounts.set-primary-email",
@@ -360,5 +359,4 @@ def test_account_settings_set_primary_email_invalid_referer(rf):
     assert response.status_code == 303
     assert response["Location"] == reverse("accounts.settings")
 
-    assert set_primary.call_count == 1
-    assert set_primary.call_args == (("testuser", "test@example.com"), {})
+    assert set_primary.calls == [pretend.call("testuser", "test@example.com")]

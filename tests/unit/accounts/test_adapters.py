@@ -59,8 +59,10 @@ def test_useradapter_creates():
 
 @pytest.mark.parametrize(("exists",), [(True,), (False,)])
 def test_useradapter_username_exists(exists):
-    mexists = mock.Mock(return_value=exists)
-    mfilter = mock.Mock(return_value=stub(exists=mexists))
+    mexists = pretend.call_recorder(lambda: exists)
+    mfilter = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(exists=mexists)
+    )
     model = stub(objects=stub(filter=mfilter))
 
     adapter = UserAdapter()
@@ -70,11 +72,8 @@ def test_useradapter_username_exists(exists):
 
     assert uexists == exists
 
-    assert mfilter.call_count == 1
-    assert mfilter.call_args == (tuple(), {"username": "testuser"})
-
-    assert mexists.call_count == 1
-    assert mexists.call_args == (tuple(), {})
+    assert mfilter.calls == [pretend.call(username="testuser")]
+    assert mexists.calls == [pretend.call()]
 
 
 def test_useradapter_serializer():
@@ -100,10 +99,10 @@ def test_useradapter_serializer():
 ])
 def test_emailadapter_creates(primary, verified):
     user = stub(username="testuser")
-    user_model_get = mock.Mock(return_value=user)
+    user_model_get = pretend.call_recorder(lambda **kw: user)
     user_model = stub(objects=stub(get=user_model_get))
 
-    created_model_save = mock.Mock()
+    created_model_save = pretend.call_recorder(lambda: None)
     created_model = stub(
                         user=user,
                         email="test@example.com",
@@ -111,7 +110,7 @@ def test_emailadapter_creates(primary, verified):
                         verified=verified if verified is not None else False,
                         save=created_model_save,
                     )
-    email_model = mock.Mock(return_value=created_model)
+    email_model = pretend.call_recorder(lambda *args, **kwargs: created_model)
 
     adapter = EmailAdapter(user=user_model)
     adapter.model = email_model
@@ -130,19 +129,16 @@ def test_emailadapter_creates(primary, verified):
     assert email.user == "testuser"
     assert email.email == "test@example.com"
 
-    assert user_model_get.call_count == 1
-    assert user_model_get.call_args == (tuple(), {"username": "testuser"})
-
-    assert email_model.call_count == 1
-    assert email_model.call_args == (tuple(), {
-                                        "user": user,
-                                        "email": "test@example.com",
-                                        "primary": primary,
-                                        "verified": verified,
-                                    })
-
-    assert created_model_save.call_count == 1
-    assert created_model_save.call_args == (tuple(), {})
+    assert user_model_get.calls == [pretend.call(username="testuser")]
+    assert email_model.calls == [
+        pretend.call(
+            user=user,
+            email="test@example.com",
+            primary=primary,
+            verified=verified,
+        ),
+    ]
+    assert created_model_save.calls == [pretend.call()]
 
 
 def test_emailadapter_serializer():
@@ -173,9 +169,13 @@ def test_emailadapter_get_user_emails():
         )
     ]
 
-    morder_by = mock.Mock(return_value=email_models)
-    mselect_related = mock.Mock(return_value=stub(order_by=morder_by))
-    mfilter = mock.Mock(return_value=stub(select_related=mselect_related))
+    morder_by = pretend.call_recorder(lambda *args: email_models)
+    mselect_related = pretend.call_recorder(
+        lambda *args, **kwargs: stub(order_by=morder_by)
+    )
+    mfilter = pretend.call_recorder(
+        lambda **kwargs: stub(select_related=mselect_related)
+    )
     model = stub(objects=stub(filter=mfilter))
 
     adapter = EmailAdapter(user=None)
@@ -185,19 +185,14 @@ def test_emailadapter_get_user_emails():
 
     assert emails == [("testuser", "test@example.com", True, True)]
 
-    assert mfilter.call_count == 1
-    assert mfilter.call_args == (tuple(), dict(user__username="testuser"))
-
-    assert mselect_related.call_count == 1
-    assert mselect_related.call_args == (("user",), {})
-
-    assert morder_by.call_count == 1
-    assert morder_by.call_args == (("-primary", "email"), {})
+    assert mfilter.calls == [pretend.call(user__username="testuser")]
+    assert mselect_related.calls == [pretend.call("user")]
+    assert morder_by.calls == [pretend.call("-primary", "email")]
 
 
 def test_emailadapter_delete_user_email():
-    mdelete = mock.Mock()
-    mfilter = mock.Mock(return_value=stub(delete=mdelete))
+    mdelete = pretend.call_recorder(lambda: None)
+    mfilter = pretend.call_recorder(lambda **kwargs: stub(delete=mdelete))
     model = stub(objects=stub(filter=mfilter))
 
     adapter = EmailAdapter(user=None)
@@ -205,18 +200,14 @@ def test_emailadapter_delete_user_email():
 
     adapter.delete_user_email("testuser", "test@example.com")
 
-    assert mfilter.call_count == 1
-    assert mfilter.call_args == (
-                tuple(),
-                {
-                    "user__username": "testuser",
-                    "email": "test@example.com",
-                    "primary": False
-                },
-            )
-
-    assert mdelete.call_count == 1
-    assert mdelete.call_args == (tuple(), {})
+    assert mfilter.calls == [
+        pretend.call(
+            user__username="testuser",
+            email="test@example.com",
+            primary=False,
+        ),
+    ]
+    assert mdelete.calls == [pretend.call()]
 
 
 def test_emailadapter_set_user_primary_email(monkeypatch):
@@ -232,8 +223,8 @@ def test_emailadapter_set_user_primary_email(monkeypatch):
 
     monkeypatch.setattr(transaction, "atomic", fake_atomic)
 
-    mupdate = mock.Mock(return_value=1)
-    mfilter = mock.Mock(return_value=stub(update=mupdate))
+    mupdate = pretend.call_recorder(lambda **kwargs: 1)
+    mfilter = pretend.call_recorder(lambda **kwargs: stub(update=mupdate))
     model = stub(objects=stub(filter=mfilter))
 
     adapter = EmailAdapter(user=None)
@@ -241,20 +232,17 @@ def test_emailadapter_set_user_primary_email(monkeypatch):
 
     adapter.set_user_primary_email("testuser", "test@example.com")
 
-    assert mfilter.call_count == 2
-    assert mfilter.call_args_list == [
-            (tuple(), {"user__username": "testuser"}),
-            (tuple(), {
-                "user__username": "testuser",
-                "email": "test@example.com",
-                "verified": True,
-            }),
-        ]
-
-    assert mupdate.call_count == 2
-    assert mupdate.call_args_list == [
-        (tuple(), {"primary": False}),
-        (tuple(), {"primary": True}),
+    assert mfilter.calls == [
+        pretend.call(user__username="testuser"),
+        pretend.call(
+            user__username="testuser",
+            email="test@example.com",
+            verified=True,
+        ),
+    ]
+    assert mupdate.calls == [
+        pretend.call(primary=False),
+        pretend.call(primary=True),
     ]
 
 
@@ -271,8 +259,8 @@ def test_emailadapter_set_user_primary_email_invalid_email(monkeypatch):
 
     monkeypatch.setattr(transaction, "atomic", fake_atomic)
 
-    mupdate = mock.Mock(return_value=0)
-    mfilter = mock.Mock(return_value=stub(update=mupdate))
+    mupdate = pretend.call_recorder(lambda **kwargs: 0)
+    mfilter = pretend.call_recorder(lambda **kwargs: stub(update=mupdate))
     model = stub(objects=stub(filter=mfilter))
 
     adapter = EmailAdapter(user=None)
@@ -281,18 +269,15 @@ def test_emailadapter_set_user_primary_email_invalid_email(monkeypatch):
     with pytest.raises(ValueError):
         adapter.set_user_primary_email("testuser", "test@example.com")
 
-    assert mfilter.call_count == 2
-    assert mfilter.call_args_list == [
-            (tuple(), {"user__username": "testuser"}),
-            (tuple(), {
-                "user__username": "testuser",
-                "email": "test@example.com",
-                "verified": True,
-            }),
-        ]
-
-    assert mupdate.call_count == 2
-    assert mupdate.call_args_list == [
-        (tuple(), {"primary": False}),
-        (tuple(), {"primary": True}),
+    assert mfilter.calls == [
+        pretend.call(user__username="testuser"),
+        pretend.call(
+            user__username="testuser",
+            email="test@example.com",
+            verified=True,
+        )
+    ]
+    assert mupdate.calls == [
+        pretend.call(primary=False),
+        pretend.call(primary=True)
     ]

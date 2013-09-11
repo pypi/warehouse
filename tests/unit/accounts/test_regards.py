@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pretend
+
 from pretend import stub
-from unittest import mock
 
 from warehouse.accounts.regards import UserCreator
 
@@ -22,22 +23,24 @@ def test_user_creator_basic():
 
 
 def test_user_creator():
-    user_creator = mock.Mock(return_value=stub(username="testuser"))
-    email_creator = mock.Mock(return_value=stub(email="test@example.com"))
-    mailer = mock.Mock()
+    user_creator = pretend.call_recorder(
+        lambda *args, **kwargs: stub(username="testuser")
+    )
+    email_creator = pretend.call_recorder(
+        lambda *args, **kwargs: stub(email="test@example.com")
+    )
 
     creator = UserCreator(
                 user_creator=user_creator,
                 email_creator=email_creator,
-                mailer=mailer,
+                mailer=lambda *args, **kwargs: None,
             )
 
     user = creator("testuser", "test@example.com", "testpassword")
 
     assert user.username == "testuser"
 
-    assert user_creator.call_count == 1
-    assert user_creator.call_args == (("testuser", "testpassword"), {})
-
-    assert email_creator.call_count == 1
-    assert email_creator.call_args == (("testuser", "test@example.com"), {})
+    assert user_creator.calls == [pretend.call("testuser", "testpassword")]
+    assert email_creator.calls == [
+        pretend.call("testuser", "test@example.com"),
+    ]
