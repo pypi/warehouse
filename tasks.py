@@ -95,6 +95,7 @@ def release():
     versions = sorted(tags.stdout.split())
     version_num = int(versions[-1].rsplit(".")[-1]) + 1 if versions else 0
     version = ".".join([version_series, str(version_num)])
+    version = ".".join([str(int(x)) for x in version.split(".")])
 
     # Regenerate __about__.py with the new version number
     with open("warehouse/__about__.py", "w") as about:
