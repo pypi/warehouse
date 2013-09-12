@@ -92,7 +92,8 @@ def release():
     # Determine the next version number using git tags
     version_series = datetime.datetime.utcnow().strftime("%y.%m.%d")
     tags = invoke.run("git tag -l '{}.*'".format(version_series), hide="out")
-    version_num = len(tags.stdout.split())
+    versions = sorted(tags.stdout.split())
+    version_num = int(versions[-1].rsplit(".")[-1]) + 1 if versions else 0
     version = ".".join([version_series, str(version_num)])
 
     # Regenerate __about__.py with the new version number
