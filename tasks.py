@@ -137,3 +137,7 @@ def release():
 
     # Return to the master branch
     invoke.run("git checkout master")
+
+    # Push changes to Origin
+    invoke.run("git push origin master")
+    invoke.run("git push --tags origin")
