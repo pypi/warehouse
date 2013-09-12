@@ -86,7 +86,7 @@ def release():
     # We can only make releases from the master branch, so ensure we are on it
     # TODO: Ensure there are no half committed files or anything like that
     refs = invoke.run("git symbolic-ref -q HEAD", hide="out")
-    if "refs/heads/versioning" not in refs.stdout:
+    if "refs/heads/master" not in refs.stdout:
         sys.exit("[ERROR] Can only make releases from the master branch")
 
     # Determine the next version number using git tags
@@ -136,4 +136,4 @@ def release():
     invoke.run("python setup.py sdist bdist_wheel upload --sign -r testpypi")
 
     # Return to the master branch
-    invoke.run("git checkout versioning")
+    invoke.run("git checkout master")
