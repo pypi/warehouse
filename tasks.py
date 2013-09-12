@@ -90,7 +90,7 @@ def release():
         sys.exit("[ERROR] Can only make releases from the master branch")
 
     # Determine the next version number using git tags
-    version_series = datetime.datetime.utcnow().strftime("v%y.%m.%d")
+    version_series = datetime.datetime.utcnow().strftime("%y.%m.%d")
     tags = invoke.run("git tag -l '{}.*'".format(version_series), hide="out")
     version_num = len(tags.stdout.split())
     version = ".".join([version_series, str(version_num)])
@@ -126,10 +126,10 @@ def release():
 
     # Tag the new commit
     # TODO: Have this pull a Changelog and embed it in the tag
-    invoke.run("git tag -s {0} -m 'Released version {0}'".format(version))
+    invoke.run("git tag -s v{0} -m 'Released version {0}'".format(version))
 
     # Checkout our version and clean up any unneeded files
-    invoke.run("git checkout {}".format(version))
+    invoke.run("git checkout v{}".format(version))
 
     # Create our packages & upload them to PyPI
     invoke.run("python setup.py sdist bdist_wheel upload -r testpypi")
