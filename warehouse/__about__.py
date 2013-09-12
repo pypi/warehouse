@@ -8,7 +8,7 @@ __title__ = "warehouse"
 __summary__ = "Next Generation Python Package Index"
 __uri__ = "https://github.com/dstufft/warehouse"
 
-__version__ = "13.09.12.0"
+__version__ = "13.9.0"
 
 __author__ = "Donald Stufft"
 __email__ = "donald@stufft.io"
