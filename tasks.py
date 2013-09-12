@@ -133,7 +133,7 @@ def release():
     invoke.run("git checkout v{}".format(version))
 
     # Create our packages & upload them to PyPI
-    invoke.run("python setup.py sdist bdist_wheel upload --sign -r testpypi")
+    invoke.run("python setup.py sdist bdist_wheel upload --sign")
 
     # Return to the master branch
     invoke.run("git checkout master")
