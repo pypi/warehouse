@@ -15,6 +15,7 @@ exclude_lines =
 omit =
     # These files are imported in the test framework, and run before coverage
     #   starts recording.
+    warehouse/__about__.py
     warehouse/__init__.py
     warehouse/__main__.py
     warehouse/conf.py
