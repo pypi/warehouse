@@ -90,7 +90,7 @@ def release():
         sys.exit("[ERROR] Can only make releases from the master branch")
 
     # Determine the next version number using git tags
-    version_series = datetime.datetime.utcnow().strftime("%y.%m.%d")
+    version_series = datetime.datetime.utcnow().strftime("%y.%m")
     tags = invoke.run("git tag -l 'v{}.*'".format(version_series), hide="out")
     versions = sorted(tags.stdout.split())
     version_num = int(versions[-1].rsplit(".")[-1]) + 1 if versions else 0
