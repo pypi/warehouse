@@ -85,13 +85,14 @@ def run():
 def release():
     # We can only make releases from the master branch, so ensure we are on it
     # TODO: Ensure there are no half committed files or anything like that
-    refs = invoke.run("git symbolic-ref -q HEAD", hide="out")
+    refs = invoke.run("git symbolic-ref -q HEAD", echo=True)
     if "refs/heads/master" not in refs.stdout:
         sys.exit("[ERROR] Can only make releases from the master branch")
 
     # Determine the next version number using git tags
     version_series = datetime.datetime.utcnow().strftime("%y.%m")
-    tags = invoke.run("git tag -l 'v{}.*'".format(version_series), hide="out")
+    version_series = ".".join([str(int(x)) for x in version_series.split(".")])
+    tags = invoke.run("git tag -l 'v{}.*'".format(version_series), echo=True)
     versions = sorted(tags.stdout.split())
     version_num = int(versions[-1].rsplit(".")[-1]) + 1 if versions else 0
     version = ".".join([version_series, str(version_num)])
@@ -122,24 +123,26 @@ def release():
         about.write(text)
 
     # Commit the new __about__.py
-    invoke.run("git add warehouse/__about__.py")
+    invoke.run("git add warehouse/__about__.py", echo=True)
     invoke.run("git commit -m 'Bumped version to {}' "
-               "warehouse/__about__.py".format(version))
+               "warehouse/__about__.py".format(version), echo=True)
 
     # Tag the new commit
     # TODO: Have this pull a Changelog and embed it in the tag
-    invoke.run("git tag -s v{0} -m 'Released version {0}'".format(version))
+    invoke.run("git tag -s v{0} -m 'Released version {0}'".format(version),
+        echo=True,
+    )
 
     # Checkout our version and clean up any unneeded files
-    invoke.run("git checkout v{}".format(version))
+    invoke.run("git checkout v{}".format(version), echo=True)
 
     # Create our packages & upload them to PyPI
-    invoke.run("pip install Wheel")
-    invoke.run("python setup.py sdist bdist_wheel upload --sign")
+    invoke.run("pip install Wheel", echo=True)
+    invoke.run("python setup.py sdist bdist_wheel upload --sign", echo=True)
 
     # Return to the master branch
-    invoke.run("git checkout master")
+    invoke.run("git checkout master", echo=True)
 
     # Push changes to Origin
-    invoke.run("git push origin master")
-    invoke.run("git push --tags origin")
+    invoke.run("git push origin master", echo=True)
+    invoke.run("git push --tags origin", echo=True)
