@@ -53,6 +53,8 @@ setup(
     packages=find_packages(exclude=["tests"]),
     package_data={
         "warehouse": [
+            "static/*/LICENSE",
+            "static/*.*",
             "templates/*.html",
             "templates/*.txt",
         ],
