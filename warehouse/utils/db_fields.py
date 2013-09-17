@@ -30,6 +30,15 @@ class CaseInsensitiveCharField(fields.CharField):
         return "citext"
 
 
+class CaseInsensitiveTextField(fields.TextField):
+
+    def db_type(self, connection):
+        return "citext"
+
+
 add_introspection_rules([],
     ["^warehouse\.utils\.db_fields\.CaseInsensitiveCharField"],
+)
+add_introspection_rules([],
+    ["^warehouse\.utils\.db_fields\.CaseInsensitiveTextField"],
 )
