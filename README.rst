@@ -45,6 +45,10 @@ running locally and are configured to not require passwords.
     # If you want to use the default development configuration
     $ warehouse runserver --settings=configs.dev --configuration=Development
 
+    # If you have the excellent envdir library installed and you want to use
+    # the default configurations
+    $ envdir configs/env warehouse runserver
+
 
 Running the tests
 -----------------
