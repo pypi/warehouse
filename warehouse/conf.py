@@ -45,6 +45,12 @@ class Settings(BaseSettings):
         "django.middleware.clickjacking.XFrameOptionsMiddleware",
     ]
 
+    PASSWORD_HASHERS = [
+        "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+        "django.contrib.auth.hashers.BCryptPasswordHasher",
+        "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    ]
+
     ROOT_URLCONF = "warehouse.urls"
 
     WSGI_APPLICATION = "warehouse.wsgi.application"
