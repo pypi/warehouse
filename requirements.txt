@@ -2,7 +2,7 @@
 invoke
 
 # Install Django (we are using an unreleased version)
--e git+https://github.com/django/django.git@stable/1.6.x#egg=Django
+https://www.djangoproject.com/m/releases/1.6/Django-1.6b4.tar.gz
 
 # Install Warehouse (and it's dependencies)
 -e .[tests]

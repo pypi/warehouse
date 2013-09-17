@@ -30,12 +30,14 @@ setup(
     author_email=warehouse.__email__,
 
     install_requires=[
+        "bcrypt",
         # We depend on Django>=1.6 but until it's released we can't depend on
         #   it here.
         "Django",
         "django-braces",
         "django-configurations>=0.2.1",
         "psycopg2",
+        "pytz>=dev",
         "South>=0.8",
     ],
     extras_require={
