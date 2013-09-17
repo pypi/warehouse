@@ -37,6 +37,7 @@ setup(
         "django-braces",
         "django-configurations>=0.2.1",
         "psycopg2",
+        "pytz>=dev",
         "South>=0.8",
     ],
     extras_require={
