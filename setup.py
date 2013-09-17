@@ -41,6 +41,7 @@ setup(
     extras_require={
         "tests": [
             "django-webtest",
+            "mock",
             "pretend>=1.0",
             "pyquery",
             "pytest",

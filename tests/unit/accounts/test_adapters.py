@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from pretend import stub
-from unittest import mock
 
+import mock
 import pretend
-
 import pytest
 
 from django.db import transaction
