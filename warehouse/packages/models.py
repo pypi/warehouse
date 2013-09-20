@@ -20,10 +20,17 @@ from django.utils.translation import ugettext_lazy as _
 from warehouse.utils.db_fields import CaseInsensitiveTextField
 
 
+# TODO: Move this to Forklift
+PROJECT_NAME_REGEX = re.compile(
+    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$",
+    re.IGNORECASE,
+)
+
+
 class Project(models.Model):
 
   # TODO: Add a DB CONSTRAINT for Project.name regex
-  # TODO: Figure out how best to expose the normalized_name without duplicating
+  # TODO: Normalize the name and store it in the normalized field
   # TODO: Migrate bugtrack_url to something that does not have a length limit
 
     name = CaseInsensitiveTextField(_("Name"),
@@ -31,12 +38,20 @@ class Project(models.Model):
         help_text=_("Letters, digits, and ./-/_ only."),
         validators=[
             validators.RegexValidator(
-                re.compile(r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.I),
+                PROJECT_NAME_REGEX,
                 _("Must start and end with a letter or digit and may only "
                   "contain letters, digits, and ./-/_"),
                 "invalid",
             ),
         ],
+    )
+
+    # This field will be populated automatically by the database using a
+    #   stored procedure
+    normalized = CaseInsensitiveTextField(_("Normalized name"),
+        unique=True,
+        blank=True,
+        editable=False,
     )
 
     # TODO: Once PyPI legacy is gone we should remove this as it's not a very
