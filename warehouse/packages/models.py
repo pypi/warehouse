@@ -69,3 +69,10 @@ class Project(models.Model):
         default="pypi-explicit",
         max_length=20,
     )
+
+    class Meta:
+        verbose_name = _("Project")
+        verbose_name_plural = _("Projects")
+
+    def __str__(self):
+        return self.name
