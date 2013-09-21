@@ -23,3 +23,4 @@ omit =
 
     # Migrations don't make sense to include in coverage
     warehouse/accounts/migrations/*
+    warehouse/packages/migrations/*
