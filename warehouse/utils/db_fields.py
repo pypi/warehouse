@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from django import forms
+from django.core import validators
 from django.db import connections
 from django.db.models import fields
+from django.utils.translation import ugettext_lazy as _
 
 from south.modelsinspector import add_introspection_rules
 
@@ -36,9 +39,29 @@ class CaseInsensitiveTextField(fields.TextField):
         return "citext"
 
 
+class URLTextField(fields.TextField):
+    default_validators = [validators.URLValidator()]
+    description = _("URL")
+
+    def db_type(self, connection):
+        return "text"
+
+    def formfield(self, **kwargs):
+        # As with CharField, this will cause URL validation to be performed
+        # twice.
+        defaults = {
+            'form_class': forms.URLField,
+        }
+        defaults.update(kwargs)
+        return super(URLTextField, self).formfield(**defaults)
+
+
 add_introspection_rules([],
     ["^warehouse\.utils\.db_fields\.CaseInsensitiveCharField"],
 )
 add_introspection_rules([],
     ["^warehouse\.utils\.db_fields\.CaseInsensitiveTextField"],
+)
+add_introspection_rules([],
+    ["^warehouse\.utils\.db_fields\.URLTextField"],
 )

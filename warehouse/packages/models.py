@@ -17,7 +17,7 @@ from django.core import validators
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from warehouse.utils.db_fields import CaseInsensitiveTextField
+from warehouse.utils.db_fields import CaseInsensitiveTextField, URLTextField
 
 
 # TODO: Move this to Forklift
@@ -31,7 +31,6 @@ class Project(models.Model):
 
   # TODO: Add a DB CONSTRAINT for Project.name regex
   # TODO: Normalize the name and store it in the normalized field
-  # TODO: Migrate bugtrack_url to something that does not have a length limit
 
     name = CaseInsensitiveTextField(_("Name"),
         unique=True,
@@ -61,7 +60,7 @@ class Project(models.Model):
     )
 
     # TODO: Once PyPI legacy is gone we should move this somewhere better.
-    bugtrack_url = models.URLField(_("Bug Tracker URL"), blank=True)
+    bugtrack_url = URLTextField(_("Bug Tracker URL"), blank=True)
 
     hosting_mode = models.CharField(_("Hosting mode"),
         choices=[
