@@ -30,6 +30,7 @@ class Settings(BaseSettings):
         # Warehouse Apps
         "warehouse",
         "warehouse.accounts",
+        "warehouse.packages",
         "warehouse.utils",
     ]
 
