@@ -29,7 +29,6 @@ PROJECT_NAME_REGEX = re.compile(
 
 class Project(models.Model):
 
-  # TODO: Add a DB CONSTRAINT for Project.name regex
   # TODO: Normalize the name and store it in the normalized field
 
     name = CaseInsensitiveTextField(_("Name"),
