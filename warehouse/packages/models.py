@@ -29,8 +29,6 @@ PROJECT_NAME_REGEX = re.compile(
 
 class Project(models.Model):
 
-  # TODO: Normalize the name and store it in the normalized field
-
     name = CaseInsensitiveTextField(_("Name"),
         unique=True,
         help_text=_("Letters, digits, and ./-/_ only."),
