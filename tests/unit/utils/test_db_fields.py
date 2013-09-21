@@ -23,7 +23,6 @@ from warehouse.utils.db_fields import (
 @pytest.mark.parametrize(("field", "expected"), [
     (CaseInsensitiveCharField, "citext"),
     (CaseInsensitiveTextField, "citext"),
-    (URLTextField, "text"),
 ])
 def test_db_type(field, expected):
     assert field().db_type(None) == expected

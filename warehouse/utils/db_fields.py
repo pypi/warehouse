@@ -43,9 +43,6 @@ class URLTextField(fields.TextField):
     default_validators = [validators.URLValidator()]
     description = _("URL")
 
-    def db_type(self, connection):
-        return "text"
-
     def formfield(self, **kwargs):
         # As with CharField, this will cause URL validation to be performed
         # twice.
