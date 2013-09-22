@@ -14,11 +14,15 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import argparse
+import collections
 import os.path
 
+import six
 import yaml
 
 import warehouse
+import warehouse.cli
 
 from warehouse.utils import merge_dict
 
@@ -43,3 +47,34 @@ class Warehouse(object):
                 merge_dict(config, yaml.safe_load(configfile))
 
         return cls(config=config)
+
+    @classmethod
+    def from_cli(cls, argv):
+        def _generate_parser(parser, commands):
+            # Generate our commands
+            subparsers = parser.add_subparsers()
+            for name, command in six.iteritems(commands):
+                cmd_parser = subparsers.add_parser(name)
+
+                if hasattr(command, "create_parser"):
+                    command.create_parser(cmd_parser)
+                    cmd_parser.set_defaults(_cmd=command)
+
+                if isinstance(command, collections.Mapping):
+                    _generate_parser(cmd_parser, command)
+
+        parser = argparse.ArgumentParser(prog="warehouse")
+        parser.add_argument("-c", "--config", action="append", dest="_configs")
+
+        _generate_parser(parser, warehouse.cli.__commands__)
+
+        args = parser.parse_args(argv)
+
+        configs = args._configs if args._configs is not None else []
+        app = cls.from_yaml(*configs)
+
+        return args._cmd(
+            app,
+            *args._get_args(),
+            **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
+        )
