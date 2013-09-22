@@ -19,21 +19,33 @@ import collections
 import six
 
 
-def merge_dict(base, additional):
+class AttributeDict(dict):
+
+    def __getattr__(self, name):
+        if not name in self:
+            raise AttributeError("'{}' object has no attribute '{}'".format(
+                self.__class__,
+                name,
+            ))
+
+        return self[name]
+
+
+def merge_dict(base, additional, dict_class=AttributeDict):
     if base is None:
-        return additional
+        return dict_class(additional)
 
     if additional is None:
-        return base
+        return dict_class(base)
 
     if not (isinstance(base, collections.Mapping)
             and isinstance(additional, collections.Mapping)):
-        return additional
+        return dict_class(additional)
 
-    merged = dict(base)
+    merged = dict_class(base)
     for key, value in six.iteritems(additional):
         if isinstance(value, collections.Mapping):
-            merged[key] = merge_dict(merged.get(key), value)
+            merged[key] = merge_dict(merged.get(key), value, dict_class)
         else:
             merged[key] = value
 
