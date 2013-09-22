@@ -46,7 +46,7 @@ def run_migrations_online():
     """
     options = config.get_section(config.config_ini_section)
     url = options.pop("url")
-    engine = create_engine(url, poolclass=pool.NullPool, **options)
+    engine = create_engine(url, poolclass=pool.NullPool)
 
     connection = engine.connect()
     context.configure(
