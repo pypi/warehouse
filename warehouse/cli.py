@@ -17,10 +17,6 @@ from __future__ import unicode_literals
 import warehouse.migrations.cli
 
 
-def include(module):
-    return getattr(module, "__commands__", {})
-
-
 __commands__ = {
-    "migrate": include(warehouse.migrations.cli),
+    "migrate": warehouse.migrations.cli.__commands__,
 }
