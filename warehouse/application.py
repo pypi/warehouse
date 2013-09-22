@@ -34,10 +34,10 @@ class Warehouse(object):
 
     @classmethod
     def from_yaml(cls, *paths):
-        default = os.path.join(
+        default = os.path.abspath(os.path.join(
             os.path.dirname(warehouse.__file__),
             "config.yml",
-        )
+        ))
 
         paths = [default] + list(paths)
 
