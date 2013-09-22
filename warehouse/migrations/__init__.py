@@ -13,14 +13,3 @@
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
-
-import warehouse.migrations.cli
-
-
-def include(module):
-    return getattr(module, "__commands__", {})
-
-
-__commands__ = {
-    "migrate": include(warehouse.migrations.cli),
-}
