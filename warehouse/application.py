@@ -58,10 +58,11 @@ class Warehouse(object):
 
                 if hasattr(command, "create_parser"):
                     command.create_parser(cmd_parser)
-                    cmd_parser.set_defaults(_cmd=command)
 
                 if isinstance(command, collections.Mapping):
                     _generate_parser(cmd_parser, command)
+                else:
+                    cmd_parser.set_defaults(_cmd=command)
 
         parser = argparse.ArgumentParser(prog="warehouse")
         parser.add_argument("-c", "--config", action="append", dest="_configs")
