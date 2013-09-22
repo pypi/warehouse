@@ -44,7 +44,7 @@ class Warehouse(object):
         config = {}
         for path in paths:
             with open(path) as configfile:
-                merge_dict(config, yaml.safe_load(configfile))
+                config = merge_dict(config, yaml.safe_load(configfile))
 
         return cls(config=config)
 
