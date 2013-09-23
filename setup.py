@@ -59,4 +59,12 @@ setup(
         "sqlalchemy-citext",
         "Werkzeug",
     ],
+
+    entry_points={
+        "console_scripts": [
+            "warehouse = warehouse.__main__:main",
+        ],
+    },
+
+    zip_safe=False,
 )
