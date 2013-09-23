@@ -1,2 +1,4 @@
 # Install Warehouse itself
 -e .
+
+tox
