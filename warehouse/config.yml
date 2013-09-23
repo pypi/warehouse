@@ -1,2 +1,3 @@
+debug: false
 database:
     migrations: "warehouse:migrations"
