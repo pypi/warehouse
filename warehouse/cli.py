@@ -14,9 +14,44 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import werkzeug.serving
+
 import warehouse.migrations.cli
+
+
+class ServeCommand(object):
+
+    def __call__(self, app, host, port, reloader, debugger):
+        werkzeug.serving.run_simple(host, port, app,
+            use_reloader=reloader,
+            use_debugger=debugger,
+        )
+
+    def create_parser(self, parser):
+        parser.add_argument("-H", "--host",
+            default="localhost",
+            help="The host to bind the server to, defaults to localhost",
+        )
+        parser.add_argument("-p", "--port",
+            default=6000,
+            type=int,
+            help="The port to bind the server to, defaults to 6000",
+        )
+        parser.add_argument("--no-reload",
+            default=True,
+            action="store_false",
+            dest="reloader",
+            help="Disable automatic reloader",
+        )
+        parser.add_argument("--no-debugger",
+            default=True,
+            action="store_false",
+            dest="debugger",
+            help="Disable Werkzeug debugger",
+        )
 
 
 __commands__ = {
     "migrate": warehouse.migrations.cli.__commands__,
+    "serve": ServeCommand(),
 }
