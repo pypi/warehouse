@@ -19,18 +19,31 @@ import collections
 import os.path
 
 import six
+import sqlalchemy
 import yaml
 
 import warehouse
 import warehouse.cli
+import warehouse.packaging.models
 
-from warehouse.utils import merge_dict
+from warehouse.utils import AttributeDict, merge_dict
 
 
 class Warehouse(object):
 
     def __init__(self, config):
         self.config = config
+
+        # Setup our models
+        models = {
+            # warehouse.packaging
+            "packages": warehouse.packaging.models.packages,
+        }
+
+        self.metadata = sqlalchemy.MetaData()
+        self.models = AttributeDict({
+            k: v.bind_metadata(self.metadata) for k, v in six.iteritems(models)
+        })
 
     @classmethod
     def from_yaml(cls, *paths):
