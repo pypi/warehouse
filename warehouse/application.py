@@ -16,12 +16,16 @@ from __future__ import unicode_literals
 
 import argparse
 import collections
+import importlib
 import os.path
 
 import jinja2
 import six
 import sqlalchemy
 import yaml
+
+from werkzeug.routing import Map, Rule, Submount
+from werkzeug.wrappers import Request
 
 import warehouse
 import warehouse.cli
@@ -46,6 +50,13 @@ class Warehouse(object):
             k: v.bind_metadata(self.metadata) for k, v in six.iteritems(models)
         })
 
+        # Setup our URL routing
+        self.urls = Map([
+            Submount("/simple", [
+                Rule("/", endpoint="warehouse.legacy.simple.index"),
+            ]),
+        ])
+
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
             auto_reload=self.config.debug,
@@ -53,6 +64,12 @@ class Warehouse(object):
                 "legacy": jinja2.PackageLoader("warehouse.legacy"),
             }),
         )
+
+    def __call__(self, environ, start_response):
+        """
+        Shortcut for :attr:`wsgi_app`.
+        """
+        return self.wsgi_app(environ, start_response)
 
     @classmethod
     def from_yaml(cls, *paths):
@@ -101,3 +118,41 @@ class Warehouse(object):
             *args._get_args(),
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
+
+    def wsgi_app(self, environ, start_response):
+        """
+        The actual WSGI application.  This is not implemented in
+        `__call__` so that middlewares can be applied without losing a
+        reference to the class.  So instead of doing this::
+
+            app = MyMiddleware(app)
+
+        It's a better idea to do this instead::
+
+            app.wsgi_app = MyMiddleware(app.wsgi_app)
+
+        Then you still have the original application object around and
+        can continue to call methods on it.
+
+        :param environ: a WSGI environment
+        :param start_response: a callable accepting a status code,
+                               a list of headers and an optional
+                               exception context to start the response
+        """
+        # Figure out what endpoint to call
+        urls = self.urls.bind_to_environ(environ)
+        endpoint, kwargs = urls.match()
+
+        # Load our view function
+        modname, viewname = endpoint.rsplit(".", 1)
+        module = importlib.import_module(modname)
+        view = getattr(module, viewname)
+
+        # Create our request object
+        request = Request(environ)
+
+        # Dispatch to our view
+        response = view(self, request, **kwargs)
+
+        # Finally return our response
+        return response(environ, start_response)
