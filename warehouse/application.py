@@ -39,6 +39,9 @@ class Warehouse(object):
     def __init__(self, config):
         self.config = config
 
+        # Connect to the database
+        self.engine = sqlalchemy.create_engine(self.config.database.url)
+
         # Setup our models
         models = {
             # warehouse.packaging
@@ -156,3 +159,9 @@ class Warehouse(object):
 
         # Finally return our response
         return response(environ, start_response)
+
+    @property
+    def connection(self):
+        if not hasattr(self, "_connection"):
+            self._connection = self.engine.connect()
+        return self._connection
