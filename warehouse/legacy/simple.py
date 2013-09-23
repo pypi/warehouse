@@ -14,15 +14,14 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+from sqlalchemy import sql
 from werkzeug.wrappers import Response
-
-from warehouse.models import sql
 
 
 def index(app, request):
     query = (
-        sql.select([app.models.packages.c.name])
-           .order_by(app.models.packages.c.name)
+        sql.select([app.tables["packages"].c.name])
+           .order_by(app.tables["packages"].c.name)
     )
     template = app.templates.get_template("legacy/simple/index.html")
 

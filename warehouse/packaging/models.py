@@ -14,35 +14,28 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from warehouse import models
+from sqlalchemy import Table, Column, CheckConstraint
+from sqlalchemy import Boolean, UnicodeText
+from sqlalchemy import sql
+
+from warehouse.application import Warehouse
 
 
-packages = models.Table("packages",
-    models.Column("name",
-        models.UnicodeText(),
-        primary_key=True,
-        nullable=False,
-    ),
-    models.Column("stable_version", models.UnicodeText()),
-    models.Column("normalized_name", models.UnicodeText()),
-    models.Column("autohide",
-        models.Boolean(),
-        server_default=models.sql.true(),
-    ),
-    models.Column("comments",
-        models.Boolean(),
-        server_default=models.sql.true(),
-    ),
-    models.Column("bugtrack_url", models.UnicodeText()),
-    models.Column("hosting_mode",
-        models.UnicodeText(),
+packages = Table("packages", Warehouse.metadata,
+    Column("name", UnicodeText(), primary_key=True, nullable=False),
+    Column("stable_version", UnicodeText()),
+    Column("normalized_name", UnicodeText()),
+    Column("autohide", Boolean(), server_default=sql.true()),
+    Column("comments", Boolean(), server_default=sql.true()),
+    Column("bugtrack_url", UnicodeText()),
+    Column("hosting_mode", UnicodeText(),
         nullable=False,
         server_default="pypi-explicit",
     ),
 
     # Validate that packages begin and end with an alpha numeric and contain
     #   only alpha numeric, ., _, and -.
-    models.CheckConstraint(
+    CheckConstraint(
         "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
         name="packages_valid_name",
     ),

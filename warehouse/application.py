@@ -29,12 +29,17 @@ from werkzeug.wrappers import Request
 
 import warehouse
 import warehouse.cli
-import warehouse.packaging.models
 
-from warehouse.utils import AttributeDict, merge_dict
+from warehouse.utils import merge_dict
 
 
 class Warehouse(object):
+
+    metadata = sqlalchemy.MetaData()
+
+    model_names = [
+        "warehouse.packaging.models",
+    ]
 
     def __init__(self, config):
         self.config = config
@@ -42,16 +47,9 @@ class Warehouse(object):
         # Connect to the database
         self.engine = sqlalchemy.create_engine(self.config.database.url)
 
-        # Setup our models
-        models = {
-            # warehouse.packaging
-            "packages": warehouse.packaging.models.packages,
-        }
-
-        self.metadata = sqlalchemy.MetaData()
-        self.models = AttributeDict({
-            k: v.bind_metadata(self.metadata) for k, v in six.iteritems(models)
-        })
+        # Import our models
+        for name in self.model_names:
+            importlib.import_module(name)
 
         # Setup our URL routing
         self.urls = Map([
@@ -121,6 +119,10 @@ class Warehouse(object):
             *args._get_args(),
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
+
+    @property
+    def tables(self):
+        return self.metadata.tables
 
     def wsgi_app(self, environ, start_response):
         """
