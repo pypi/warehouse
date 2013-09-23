@@ -18,6 +18,7 @@ import argparse
 import collections
 import os.path
 
+import jinja2
 import six
 import sqlalchemy
 import yaml
@@ -44,6 +45,14 @@ class Warehouse(object):
         self.models = AttributeDict({
             k: v.bind_metadata(self.metadata) for k, v in six.iteritems(models)
         })
+
+        # Setup our Jinja2 Environment
+        self.templates = jinja2.Environment(
+            auto_reload=self.config.debug,
+            loader=jinja2.PrefixLoader({
+                "legacy": jinja2.PackageLoader("warehouse.legacy"),
+            }),
+        )
 
     @classmethod
     def from_yaml(cls, *paths):

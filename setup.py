@@ -52,6 +52,7 @@ setup(
 
     install_requires=[
         "alembic",
+        "Jinja2",
         "PyYAML",
         "six",
         "SQLAlchemy",
