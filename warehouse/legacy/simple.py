@@ -49,10 +49,10 @@ def project(app, request, project):
     # Get the real project name for this project
     query = (
         sql.select([packages.c.name])
-            .where(
-                packages.c.normalized_name == sql.func.lower(
-                    sql.func.regexp_replace(project, "_", "-", "ig"),
-                )
+        .where(
+            packages.c.normalized_name == sql.func.lower(
+                sql.func.regexp_replace(project, "_", "-", "ig"),
+            )
         )
     )
     project = app.connection.execute(query).scalar()

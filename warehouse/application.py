@@ -55,7 +55,10 @@ class Warehouse(object):
         self.urls = Map([
             Submount("/simple", [
                 Rule("/", endpoint="warehouse.legacy.simple.index"),
-                Rule("/<project>/", endpoint="warehouse.legacy.simple.project"),
+                Rule(
+                    "/<project>/",
+                    endpoint="warehouse.legacy.simple.project",
+                ),
             ]),
         ])
 
