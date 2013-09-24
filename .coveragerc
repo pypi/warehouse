@@ -1,2 +1,22 @@
 [run]
 branch = True
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain if non-runnable code isn't run
+    if __name__ == .__main__.:
+
+
+# Paths to omit from consideration
+omit =
+    # __main__.py exists only as a very basic wrapper around warehouse.cli
+    #   and exists only to provide setuptools and python -m a place to point
+    #   at.
+    warehouse/__main__.py
+
+    # Migrations don't make sense to include in coverage
+    warehouse/migrations/env.py
