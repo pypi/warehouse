@@ -13,20 +13,18 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Links for {{ project }}</title>
-    <meta name="api-version" value="2" />
-    <style>a { display: block; }</style>
-  </head>
-  <body>
-    <h1>Links for {{ project }}</h1>
-    {% for file in files -%}
-      <a rel="internal" href="{{ file.url }}">{{ file.name }}</a>
-    {% endfor %}
-    {% for url in project_urls -%}
-      <a href="{{ url.rel }}" href="{{ url.url }}">{{ url.name }}</a>
-    {% endfor %}
-  </body>
-</html>
+{% extends "legacy/simple/base.html" %}
+
+{% block title %}Links for {{ project }}{% endblock %}
+
+{% block content %}
+  <h1>Links for {{ project }}</h1>
+
+  {% for file in files -%}
+    <a rel="internal" href="{{ file.url }}">{{ file.name }}</a>
+  {% endfor %}
+
+  {% for url in project_urls -%}
+    <a href="{{ url.rel }}" href="{{ url.url }}">{{ url.name }}</a>
+  {% endfor %}
+{% endblock %}
