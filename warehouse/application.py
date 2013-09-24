@@ -30,7 +30,7 @@ from werkzeug.wrappers import Request
 import warehouse
 import warehouse.cli
 
-from warehouse.utils import merge_dict
+from warehouse.utils import merge_dict, convert_to_attr_dict
 
 
 class Warehouse(object):
@@ -42,7 +42,7 @@ class Warehouse(object):
     ]
 
     def __init__(self, config):
-        self.config = config
+        self.config = convert_to_attr_dict(config)
 
         # Connect to the database
         self.engine = sqlalchemy.create_engine(self.config.database.url)
