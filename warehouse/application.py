@@ -54,9 +54,14 @@ class Warehouse(object):
         # Setup our URL routing
         self.urls = Map([
             Submount("/simple", [
-                Rule("/", endpoint="warehouse.legacy.simple.index"),
+                Rule(
+                    "/",
+                    methods=["GET"],
+                    endpoint="warehouse.legacy.simple.index",
+                ),
                 Rule(
                     "/<project>/",
+                    methods=["GET"],
                     endpoint="warehouse.legacy.simple.project",
                 ),
             ]),
