@@ -36,7 +36,7 @@ class ServeCommand(object):
         )
         parser.add_argument(
             "-p", "--port",
-            default=6000,
+            default=9000,
             type=int,
             help="The port to bind the server to, defaults to 6000",
         )
