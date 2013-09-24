@@ -1,1 +1,14 @@
-include README.rst
+include AUTHORS
+include LICENSE
+include tox.ini
+include requirements.txt
+include .coveragerc
+recursive-include dev *.yml
+recursive-include docs *.empty
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-include warehouse *.html
+recursive-include warehouse *.mako
+recursive-include warehouse config.yml
+recursive-include warehouse/migrations/versions *.py
