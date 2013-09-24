@@ -31,22 +31,32 @@ class AttributeDict(dict):
         return self[name]
 
 
-def merge_dict(base, additional, dict_class=AttributeDict):
+def merge_dict(base, additional):
     if base is None:
-        return dict_class(additional)
+        return additional
 
     if additional is None:
-        return dict_class(base)
+        return base
 
     if not (isinstance(base, collections.Mapping)
             and isinstance(additional, collections.Mapping)):
-        return dict_class(additional)
+        return additional
 
-    merged = dict_class(base)
+    merged = base
     for key, value in six.iteritems(additional):
         if isinstance(value, collections.Mapping):
-            merged[key] = merge_dict(merged.get(key), value, dict_class)
+            merged[key] = merge_dict(merged.get(key), value)
         else:
             merged[key] = value
 
     return merged
+
+
+def convert_to_attr_dict(dictionary):
+    output = {}
+    for key, value in six.iteritems(dictionary):
+        if isinstance(value, collections.Mapping):
+            output[key] = convert_to_attr_dict(value)
+        else:
+            output[key] = value
+    return AttributeDict(output)
