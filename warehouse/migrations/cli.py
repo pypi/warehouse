@@ -45,7 +45,8 @@ class CurrentCommand(AlembicCommand):
     command = alembic.command.current
 
     def create_parser(self, parser):
-        parser.add_argument("--head-only",
+        parser.add_argument(
+            "--head-only",
             action="store_true",
             dest="head_only",
             help=("Only show current version and whether or not this is the "
@@ -58,7 +59,8 @@ class DowngradeCommand(AlembicCommand):
     command = alembic.command.downgrade
 
     def create_parser(self, parser):
-        parser.add_argument("revision",
+        parser.add_argument(
+            "revision",
             help="revision identifier",
         )
 
@@ -68,7 +70,8 @@ class HistoryCommand(AlembicCommand):
     command = alembic.command.history
 
     def create_parser(self, parser):
-        parser.add_argument("-r", "--rev-range",
+        parser.add_argument(
+            "-r", "--rev-range",
             dest="rev_range",
             help="Specify a revision range; format is [start]:[end]",
         )
@@ -79,11 +82,13 @@ class RevisionCommand(AlembicCommand):
     command = alembic.command.revision
 
     def create_parser(self, parser):
-        parser.add_argument("-m", "--message",
+        parser.add_argument(
+            "-m", "--message",
             dest="message",
             help="Message string to use with 'revision'",
         )
-        parser.add_argument("-a", "--autogenerate",
+        parser.add_argument(
+            "-a", "--autogenerate",
             action="store_true",
             dest="autogenerate",
             help=("Populate revision script with candidate migration "
@@ -96,9 +101,7 @@ class StampCommand(AlembicCommand):
     command = alembic.command.stamp
 
     def create_parser(self, parser):
-        parser.add_argument("revision",
-            help="revision identifier",
-        )
+        parser.add_argument("revision", help="revision identifier")
 
 
 class UpgradeCommand(AlembicCommand):
@@ -106,9 +109,7 @@ class UpgradeCommand(AlembicCommand):
     command = alembic.command.upgrade
 
     def create_parser(self, parser):
-        parser.add_argument("revision",
-            help="revision identifier",
-        )
+        parser.add_argument("revision", help="revision identifier")
 
 
 __commands__ = {
