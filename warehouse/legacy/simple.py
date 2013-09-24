@@ -18,7 +18,8 @@ import os.path
 
 from sqlalchemy import sql
 from werkzeug.exceptions import NotFound
-from werkzeug.wrappers import Response
+
+from warehouse.utils import render_response
 
 
 def index(app, request):
@@ -26,16 +27,11 @@ def index(app, request):
         sql.select([app.tables["packages"].c.name])
            .order_by(app.tables["packages"].c.name)
     )
-    template = app.templates.get_template("legacy/simple/index.html")
-
     results = app.connection.execute(query)
-    try:
-        return Response(
-            template.render(projects=(r[0] for r in results)),
-            content_type="text/html",
-        )
-    finally:
-        results.close()
+
+    return render_response(app, "legacy/simple/index.html",
+        projects=[r["name"] for r in results],
+    )
 
 
 def project(app, request, project):
@@ -136,13 +132,9 @@ def project(app, request, project):
     )
     external_urls = [r["url"] for r in app.connection.execute(query)]
 
-    template = app.templates.get_template("legacy/simple/detail.html")
-    return Response(
-        template.render(
-            project=project,
-            files=file_urls,
-            project_urls=project_urls,
-            externals=external_urls,
-        ),
-        content_type="text/html",
+    return render_response(app, "legacy/simple/detail.html",
+        project=project,
+        files=file_urls,
+        project_urls=project_urls,
+        externals=external_urls,
     )

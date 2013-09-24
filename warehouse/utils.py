@@ -18,6 +18,8 @@ import collections
 
 import six
 
+from werkzeug.wrappers import Response
+
 
 class AttributeDict(dict):
 
@@ -60,3 +62,8 @@ def convert_to_attr_dict(dictionary):
         else:
             output[key] = value
     return AttributeDict(output)
+
+
+def render_response(app, template, **variables):
+    template = app.templates.get_template(template)
+    return Response(template.render(**variables), content_type="text/html")
