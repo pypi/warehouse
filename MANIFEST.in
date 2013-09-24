@@ -12,3 +12,5 @@ recursive-include warehouse *.html
 recursive-include warehouse *.mako
 recursive-include warehouse config.yml
 recursive-include warehouse/migrations/versions *.py
+recursive-include tests *.py
+recursive-include tests *.yml
