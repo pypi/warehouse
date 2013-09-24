@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
 
@@ -48,7 +47,12 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
 
-    packages=find_packages(exclude=["tests", "tests.*"]),
+    packages=find_packages(),
+    package_data={
+        "warehouse": ["*.yml"],
+        "warehouse.legacy": ["templates/*.html"],
+        "warehouse.migrations": ["*.mako", "versions/*.py"],
+    },
 
     install_requires=[
         "alembic",
