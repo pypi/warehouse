@@ -29,7 +29,7 @@ def index(app, request):
     )
     results = app.connection.execute(query)
 
-    return render_response(app, "legacy/simple/index.html",
+    return render_response(app, request, "legacy/simple/index.html",
         projects=[r["name"] for r in results],
     )
 
@@ -132,7 +132,9 @@ def project(app, request, project):
     )
     external_urls = [r["url"] for r in app.connection.execute(query)]
 
-    return render_response(app, "legacy/simple/detail.html",
+    return render_response(
+        app, request,
+        "legacy/simple/detail.html",
         project=project,
         files=file_urls,
         project_urls=project_urls,

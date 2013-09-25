@@ -164,6 +164,7 @@ class Warehouse(object):
 
         # Create our request object
         request = Request(environ)
+        request.url_adapter = urls
 
         # Dispatch to our view
         response = view(self, request, **kwargs)

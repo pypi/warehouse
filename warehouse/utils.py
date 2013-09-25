@@ -15,10 +15,13 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import collections
+import functools
 
 import six
 
 from werkzeug.wrappers import Response
+
+from warehouse import helpers
 
 
 class AttributeDict(dict):
@@ -64,6 +67,12 @@ def convert_to_attr_dict(dictionary):
     return AttributeDict(output)
 
 
-def render_response(app, template, **variables):
+def render_response(app, request, template, **variables):
     template = app.templates.get_template(template)
-    return Response(template.render(**variables), content_type="text/html")
+
+    context = {
+        "url_for": functools.partial(helpers.url_for, request),
+    }
+    context.update(variables)
+
+    return Response(template.render(**context), content_type="text/html")
