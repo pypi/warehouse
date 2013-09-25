@@ -20,3 +20,11 @@ script:
 
 after_success:
     - coveralls
+
+
+notifications:
+    irc:
+        channels:
+            - "irc.freenode.org#warehouse"
+        use_notice: true
+        skip_join: true
