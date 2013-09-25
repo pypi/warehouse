@@ -57,7 +57,7 @@ setup(
     install_requires=[
         "alembic",
         "Jinja2",
-        "psycopg2",
+        "psycopg2cffi-compat",
         "PyYAML",
         "six",
         "SQLAlchemy",
