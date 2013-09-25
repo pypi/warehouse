@@ -16,7 +16,7 @@ omit =
     # __main__.py exists only as a very basic wrapper around warehouse.cli
     #   and exists only to provide setuptools and python -m a place to point
     #   at.
-    warehouse/__main__.py
+    */warehouse/__main__.py
 
     # Migrations don't make sense to include in coverage
-    warehouse/migrations/env.py
+    */warehouse/migrations/env.py
