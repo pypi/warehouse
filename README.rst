@@ -52,6 +52,14 @@ Warehouse uses tox to run the test suite. You can run all the tests by using:
     $ tox
 
 
+Resources
+---------
+
+* `Documentation <https://warehouse.readthedocs.org/>`_
+* `IRC <http://webchat.freenode.net?channels=%23warehouse>`_
+  (#warehouse - irc.freenode.net)
+
+
 Contributing
 ------------
 
