@@ -57,11 +57,11 @@ setup(
     install_requires=[
         "alembic",
         "Jinja2",
-        "psycopg2",
+        "psycopg2cffi-compat>=1.1",
         "PyYAML",
         "six",
         "SQLAlchemy",
-        "sqlalchemy-citext",
+        "sqlalchemy-citext>=1.1.0",
         "Werkzeug",
     ],
 
