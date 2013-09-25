@@ -6,6 +6,7 @@ env:
     - TOXENV=pypy
     - TOXENV=pep8
     - TOXENV=docs
+    - TOXENV=packaging
 
 install:
     - "[[ ${TOXENV} == pypy ]] && sudo add-apt-repository -y ppa:pypy/ppa || true"
