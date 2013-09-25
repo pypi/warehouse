@@ -1,4 +1,6 @@
 # Install Warehouse itself
 -e .
 
+# Install our development requirements
+invoke
 tox
