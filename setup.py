@@ -61,7 +61,7 @@ setup(
         "PyYAML",
         "six",
         "SQLAlchemy",
-        "sqlalchemy-citext",
+        "sqlalchemy-citext>=1.1.0",
         "Werkzeug",
     ],
 
