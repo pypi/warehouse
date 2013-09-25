@@ -20,8 +20,3 @@ script:
 
 after_success:
     - coveralls
-
-
-matrix:
-    allow_failures:
-        - env: TOXENV=pypy
