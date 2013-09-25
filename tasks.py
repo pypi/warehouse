@@ -25,7 +25,20 @@ def _out(name, message):
     print("[\033[1;37m{}\033[0m] {}".format(name, message))
 
 
-@invoke.task
+@invoke.task(name="test")
+def release_test():
+    out = functools.partial(_out, "release.test")
+
+    # Run all our various tests one last time before
+    envs = invoke.run("tox -l", hide="out").stdout.split()
+    out("Running tests: {}".format(", ".join(envs)))
+
+    for env in envs:
+        out("Running the {} tests".format(env))
+        invoke.run("tox -e {}".format(env), hide="out")
+
+
+@invoke.task(pre=["release.test"])
 def build():
     """
     Builds the source distribution.
@@ -132,4 +145,6 @@ def build():
     out("warehouse/__about__.py generated with development values")
 
 
-ns = invoke.Collection(release=invoke.Collection(build))
+ns = invoke.Collection(
+    release=invoke.Collection(release_test, build),
+)
