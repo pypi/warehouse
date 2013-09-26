@@ -137,7 +137,7 @@ def release_build(**kwargs):
     invoke.run("git tag -s -m 'Released version v{0} ({1})' v{0}".format(
         version,
         build_tag,
-    ), hide="both")
+    ), hide=True)
 
     out("Creating a temporary directory to export Warehouse to")
     curdir = os.getcwd()
@@ -150,7 +150,7 @@ def release_build(**kwargs):
         ).stdout.strip()
 
         # Checkout our tag
-        invoke.run("git checkout v{}".format(version), hide="out")
+        invoke.run("git checkout v{}".format(version), hide=True)
 
         # Export our repository into a temporary directory
         invoke.run("git checkout-index -f -a --prefix={}".format(tmpdir),
@@ -158,7 +158,7 @@ def release_build(**kwargs):
         )
 
         # Switch back to our original branch
-        invoke.run("git checkout {}".format(current_branch), hide="out")
+        invoke.run("git checkout {}".format(current_branch), hide=True)
 
         # Change to the temporary directory
         os.chdir(tmpdir)
