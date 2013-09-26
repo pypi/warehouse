@@ -137,7 +137,7 @@ def release_build(**kwargs):
     invoke.run("git tag -s -m 'Released version v{0} ({1})' v{0}".format(
         version,
         build_tag,
-    ), hide="out")
+    ), hide="both")
 
     out("Creating a temporary directory to export Warehouse to")
     curdir = os.getcwd()
@@ -212,7 +212,8 @@ def release_upload(repository=None, **kwargs):
     out("Uploading to {}".format("PyPI" if repository is None else repository))
     invoke.run("twine upload --sign{} dist/*".format(
         "" if repository is None else " -r {}".format(repository)
-    ), hide="out")
+    ), hide="both")
+    out("Uploaded.")
 
 
 @invoke.task(
