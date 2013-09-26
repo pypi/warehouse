@@ -106,7 +106,10 @@ def release_build(**kwargs):
 
     # Render warehouse/__about__.py with the release version
     with open(about_path, "w") as about:
-        about.write(about_template.format(version=version, build=build_tag))
+        about.write(about_template.format(
+            version=version,
+            build=build_tag,
+        ).lstrip())
     invoke.run("git add warehouse/__about__.py", hide="out")
     invoke.run("git commit -m 'Generate the release __about__.py (version={} "
                "build={})'".format(version, build_tag),
@@ -133,7 +136,7 @@ def release_build(**kwargs):
         about.write(about_template.format(
             version=next_version,
             build=build_tag,
-        ))
+        ).lstrip())
     invoke.run("git add warehouse/__about__.py", hide="out")
     invoke.run(
         "git commit -m 'Generate the development __about__.py'".format(
