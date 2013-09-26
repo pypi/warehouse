@@ -132,15 +132,44 @@ def release_build(**kwargs):
     )
     out("warehouse/__about__.py generated with release values")
 
-    # Create our distributions
-    shutil.rmtree(os.path.abspath("dist"), ignore_errors=True)
-    os.makedirs(os.path.abspath("dist"))
+    # Create a tag
+    invoke.run("git tag -s -m 'Released version v{0} ({1})' v{0}".format(
+        version,
+        build_tag,
+    ))
 
-    for dist_type in ["sdist", "bdist_wheel"]:
-        filenames = set(os.listdir("dist"))
-        invoke.run("python setup.py {}".format(dist_type), hide="out")
-        filename = (set(os.listdir("dist")) - filenames).pop()
-        out("Generated {} ({})".format(dist_type, filename))
+    out("Creating a temporary directory to export Warehouse to")
+    curdir = os.getcwd()
+    tmpdir = tempfile.mkdtemp()
+    tmpdir = tmpdir if tmpdir.endswith("/") else tmpdir + "/"
+    try:
+        # Export our repository into a temporary directory
+        invoke.run("git checkout-index -f -a --prefix={}".format(tmpdir),
+            hide="out",
+        )
+
+        # Change to the temporary directory
+        os.chdir(tmpdir)
+
+        # Create our distributions
+        for dist_type in ["sdist", "bdist_wheel"]:
+            filenames = set(os.listdir("dist"))
+            invoke.run("python setup.py {}".format(dist_type), hide="out")
+            filename = (set(os.listdir("dist")) - filenames).pop()
+            out("Generated {} ({})".format(dist_type, filename))
+
+        # Change back to our normal directory
+        os.chdir(curdir)
+
+        # Move the built distributions into our dist directory
+        shutil.rmtree(os.path.abspath("dist"), ignore_errors=True)
+        shutil.move(
+            os.path.join(tmpdir, "dist"),
+            os.path.abspath("dist"),
+        )
+    finally:
+        os.chdir(curdir)
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
     # Render warehouse/__about__.py with the development versions
     next_version = ".".join([version_series, str(version_num + 1)])
