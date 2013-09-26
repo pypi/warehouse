@@ -164,6 +164,7 @@ def release_build(**kwargs):
         os.chdir(tmpdir)
 
         # Create our distributions
+        os.makedirs("dist")
         for dist_type in ["sdist", "bdist_wheel"]:
             filenames = set(os.listdir("dist"))
             invoke.run("python setup.py {}".format(dist_type), hide="out")
