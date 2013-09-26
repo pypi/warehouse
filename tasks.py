@@ -42,7 +42,8 @@ def release_test(**kwargs):
         os.chdir(tmpdir)
 
         # Run all our various tests one last time before
-        envs = invoke.run("tox -l", hide="out").stdout.split()
+        envs = set(invoke.run("tox -l", hide="out").stdout.split())
+        envs -= {"packaging"}  # Packaging tests require a git clone
         out("Running tests: {}".format(", ".join(envs)))
 
         for env in envs:
