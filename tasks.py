@@ -143,10 +143,21 @@ def release_build(**kwargs):
     tmpdir = tempfile.mkdtemp()
     tmpdir = tmpdir if tmpdir.endswith("/") else tmpdir + "/"
     try:
+        # Store our current branch
+        current_branch = invoke.run("git rev-parse --abbrev-ref HEAD",
+            hide="out",
+        ).stdout.strip()
+
+        # Checkout our tag
+        invoke.run("git checkout v{}".format(version), hide="out")
+
         # Export our repository into a temporary directory
         invoke.run("git checkout-index -f -a --prefix={}".format(tmpdir),
             hide="out",
         )
+
+        # Switch back to our original branch
+        invoke.run("git checkout {}".format(current_branch), hide="out")
 
         # Change to the temporary directory
         os.chdir(tmpdir)
