@@ -205,8 +205,8 @@ def release_build(**kwargs):
 
 @invoke.task(name="upload")
 def release_upload(repository=None, **kwargs):
-    invoke.run("twine upload --sign {}dist/*".format(
-        "" if repository is None else repository + " "
+    invoke.run("twine upload --sign{} dist/*".format(
+        "" if repository is None else " -r {}".format(repository)
     ))
 
 
