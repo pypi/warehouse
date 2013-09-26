@@ -17,6 +17,7 @@ import os
 import os.path
 import shutil
 import textwrap
+import tempfile
 
 import invoke
 
@@ -29,13 +30,27 @@ def _out(name, message):
 def release_test(**kwargs):
     out = functools.partial(_out, "release.test")
 
-    # Run all our various tests one last time before
-    envs = invoke.run("tox -l", hide="out").stdout.split()
-    out("Running tests: {}".format(", ".join(envs)))
+    out("Creating a temporary directory to export Warehouse to")
+    curdir = os.getcwd()
+    tmpdir = tempfile.mkdtemp()
+    tmpdir = tmpdir if tmpdir.endswith("/") else tmpdir + "/"
 
-    for env in envs:
-        out("Running the {} tests".format(env))
-        invoke.run("tox -e {}".format(env), hide="out")
+    try:
+        invoke.run("git checkout-index -f -a --prefix={}".format(tmpdir),
+            hide="out",
+        )
+        os.chdir(tmpdir)
+
+        # Run all our various tests one last time before
+        envs = invoke.run("tox -l", hide="out").stdout.split()
+        out("Running tests: {}".format(", ".join(envs)))
+
+        for env in envs:
+            out("Running the {} tests".format(env))
+            invoke.run("tox -e {}".format(env), hide="out")
+    finally:
+        os.chdir(curdir)
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 @invoke.task(name="build")
