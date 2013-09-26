@@ -207,6 +207,9 @@ def release_build(**kwargs):
 
 @invoke.task(name="upload")
 def release_upload(repository=None, **kwargs):
+    out = functools.partial(_out, "release.upload")
+
+    out("Uploading to {}".format("PyPI" if repository is None else repository))
     invoke.run("twine upload --sign{} dist/*".format(
         "" if repository is None else " -r {}".format(repository)
     ), hide="out")
