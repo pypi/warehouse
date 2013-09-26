@@ -26,7 +26,7 @@ def _out(name, message):
 
 
 @invoke.task(name="test")
-def release_test():
+def release_test(**kwargs):
     out = functools.partial(_out, "release.test")
 
     # Run all our various tests one last time before
@@ -38,8 +38,8 @@ def release_test():
         invoke.run("tox -e {}".format(env), hide="out")
 
 
-@invoke.task(pre=["release.test"])
-def build():
+@invoke.task(name="build")
+def release_build(**kwargs):
     """
     Builds the source distribution.
     """
@@ -145,6 +145,27 @@ def build():
     out("warehouse/__about__.py generated with development values")
 
 
+@invoke.task(name="upload")
+def release_upload(repository=None, **kwargs):
+    invoke.run("twine upload --sign {}dist/*".format(
+        "" if repository is None else repository + " "
+    ))
+
+
+@invoke.task(
+    default=True,
+    name="all",
+    pre=["release.test", "release.build", "release.upload"],
+)
+def release_all(repository=None, **kwargs):
+    pass
+
+
 ns = invoke.Collection(
-    release=invoke.Collection(release_test, build),
+    release=invoke.Collection(
+        release_test,
+        release_build,
+        release_upload,
+        release_all,
+    ),
 )
