@@ -38,7 +38,7 @@ class Warehouse(object):
     metadata = sqlalchemy.MetaData()
 
     model_names = [
-        "warehouse.packaging.models",
+        "warehouse.packaging.tables",
     ]
 
     def __init__(self, config):
