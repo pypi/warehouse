@@ -21,7 +21,8 @@ from warehouse.utils import render_response
 
 def index(app, request):
     projects = app.models.packaging.all_projects()
-    return render_response(app, request, "legacy/simple/index.html",
+    return render_response(
+        app, request, "legacy/simple/index.html",
         projects=projects,
     )
 
