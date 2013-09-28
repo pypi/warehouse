@@ -15,7 +15,7 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 
-class BaseStore(object):
+class Model(object):
 
     def __init__(self, metadata, engine):
         self.metadata = metadata

@@ -37,12 +37,8 @@ class Warehouse(object):
 
     metadata = sqlalchemy.MetaData()
 
-    model_names = [
-        "warehouse.packaging.tables",
-    ]
-
-    store_names = {
-        "packaging": "warehouse.packaging.store:Store",
+    model_names = {
+        "packaging": "warehouse.packaging.models:Model",
     }
 
     def __init__(self, config):
@@ -51,16 +47,12 @@ class Warehouse(object):
         # Connect to the database
         self.engine = sqlalchemy.create_engine(self.config.database.url)
 
-        # Import our models
-        for name in self.model_names:
-            importlib.import_module(name)
-
         # Create our Store instance and associate our store modules with it
-        self.store = AttributeDict()
-        for name, mod_path in six.iteritems(self.store_names):
+        self.models = AttributeDict()
+        for name, mod_path in six.iteritems(self.model_names):
             mod_name, klass = mod_path.rsplit(":", 1)
             mod = importlib.import_module(mod_name)
-            self.store[name] = getattr(mod, klass)(self.metadata, self.engine)
+            self.models[name] = getattr(mod, klass)(self.metadata, self.engine)
 
         # Setup our URL routing
         self.urls = Map([
@@ -140,10 +132,6 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
-    @property
-    def tables(self):
-        return self.metadata.tables
-
     def wsgi_app(self, environ, start_response):
         """
         The actual WSGI application.  This is not implemented in
@@ -182,9 +170,3 @@ class Warehouse(object):
 
         # Finally return our response
         return response(environ, start_response)
-
-    @property
-    def connection(self):
-        if not hasattr(self, "_connection"):
-            self._connection = self.engine.connect()
-        return self._connection

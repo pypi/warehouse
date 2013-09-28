@@ -21,10 +21,10 @@ from collections import namedtuple
 from six.moves import urllib_parse
 from sqlalchemy.sql import select, func
 
+from warehouse import models
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls,
 )
-from warehouse.store import BaseStore
 
 
 Project = namedtuple("Project", ["name"])
@@ -32,7 +32,7 @@ Project = namedtuple("Project", ["name"])
 FileURL = namedtuple("FileURL", ["filename", "url"])
 
 
-class Store(BaseStore):
+class Model(models.Model):
 
     def all_projects(self):
         query = select([packages.c.name]).order_by(packages.c.name)
