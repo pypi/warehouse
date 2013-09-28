@@ -30,7 +30,7 @@ from werkzeug.wrappers import Request
 import warehouse
 import warehouse.cli
 
-from warehouse.utils import merge_dict, convert_to_attr_dict
+from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
 class Warehouse(object):
@@ -40,6 +40,10 @@ class Warehouse(object):
     model_names = [
         "warehouse.packaging.tables",
     ]
+
+    store_names = {
+        "packaging": "warehouse.packaging.store:Store",
+    }
 
     def __init__(self, config):
         self.config = convert_to_attr_dict(config)
@@ -51,6 +55,13 @@ class Warehouse(object):
         for name in self.model_names:
             importlib.import_module(name)
 
+        # Create our Store instance and associate our store modules with it
+        self.store = AttributeDict()
+        for name, mod_path in six.iteritems(self.store_names):
+            mod_name, klass = mod_path.rsplit(":", 1)
+            mod = importlib.import_module(mod_name)
+            self.store[name] = getattr(mod, klass)(self.metadata, self.engine)
+
         # Setup our URL routing
         self.urls = Map([
             Submount("/simple", [
@@ -60,7 +71,7 @@ class Warehouse(object):
                     endpoint="warehouse.legacy.simple.index",
                 ),
                 Rule(
-                    "/<project>/",
+                    "/<project_name>/",
                     methods=["GET"],
                     endpoint="warehouse.legacy.simple.project",
                 ),

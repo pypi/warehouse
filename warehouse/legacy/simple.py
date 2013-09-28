@@ -14,8 +14,6 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
-
 from sqlalchemy import sql
 from werkzeug.exceptions import NotFound
 
@@ -23,74 +21,26 @@ from warehouse.utils import render_response
 
 
 def index(app, request):
-    query = (
-        sql.select([app.tables["packages"].c.name])
-           .order_by(app.tables["packages"].c.name)
-    )
-    results = app.connection.execute(query)
-
+    projects = app.store.packaging.all_projects()
     return render_response(app, request, "legacy/simple/index.html",
-        projects=[r["name"] for r in results],
+        projects=projects,
     )
 
 
-def project(app, request, project):
-    packages = app.tables["packages"]
-    releases = app.tables["releases"]
-    release_files = app.tables["release_files"]
-    description_urls = app.tables["description_urls"]
-
+def project(app, request, project_name):
     file_urls, project_urls, external_urls = [], [], []
 
     # Get the real project name for this project
-    query = (
-        sql.select([packages.c.name])
-        .where(
-            packages.c.normalized_name == sql.func.lower(
-                sql.func.regexp_replace(project, "_", "-", "ig"),
-            )
-        )
-    )
-    project = app.connection.execute(query).scalar()
+    project = app.store.packaging.get_project(project_name)
 
-    # If the project doesn't exist we should raise a 404
     if project is None:
-        raise NotFound("{} does not exist".format(project))
+        raise NotFound("{} does not exist".format(project.name))
 
     # Generate the Package URLs for the packages we've hosted
-    query = (
-        sql.select([
-            release_files.c.name,
-            release_files.c.filename,
-            release_files.c.python_version,
-            release_files.c.md5_digest,
-        ])
-        .where(release_files.c.name == project)
-        .order_by(release_files.c.filename.desc())
-    )
-    results = app.connection.execute(query)
-
-    file_urls = [
-        {
-            "name": r["filename"],
-            "url": os.path.join(
-                "../../packages",
-                r["python_version"],
-                r["name"][0],
-                r["name"],
-                r["filename"]
-            ) + "#md5={}".format(r["md5_digest"]),
-        }
-        for r in results
-    ]
+    file_urls = app.store.packaging.get_file_urls(project.name)
 
     # Determine what the hosting mode is for this package
-    query = (
-        sql.select([packages.c.hosting_mode])
-           .where(packages.c.name == project)
-    )
-    results = app.connection.execute(query)
-    hosting_mode = results.scalar()
+    hosting_mode = app.store.packaging.get_hosting_mode(project.name)
 
     if hosting_mode in {"pypi-scrape-crawl", "pypi-scrape"}:
         rel_prefix = "" if hosting_mode == "pypi-scrape-crawl" else "ext-"
@@ -98,18 +48,8 @@ def project(app, request, project):
         download_rel = "{}download".format(rel_prefix)
 
         # Generate the Homepage and Download URL links
-        query = (
-            sql.select([
-                releases.c.version,
-                releases.c.home_page,
-                releases.c.download_url,
-            ])
-            .where(releases.c.name == project)
-            .order_by(releases.c.version.desc())
-        )
-        results = app.connection.execute(query)
-
-        for version, home_page, download_url in results:
+        release_urls = app.store.packaging.get_release_urls(project.name)
+        for version, (home_page, download_url) in release_urls:
             if home_page and home_page != "UNKNOWN":
                 project_urls.append({
                     "rel": home_rel,
@@ -125,12 +65,7 @@ def project(app, request, project):
                 })
 
     # Fetch the explicitly provided URLs
-    query = (
-        sql.select([description_urls.c.url])
-           .where(description_urls.c.name == project)
-           .order_by(description_urls.c.version.desc(), description_urls.c.url)
-    )
-    external_urls = [r["url"] for r in app.connection.execute(query)]
+    external_urls = app.store.packaging.get_external_urls(project.name)
 
     return render_response(
         app, request,
