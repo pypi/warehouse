@@ -1,8 +1,13 @@
 debug: true
+
 database:
     url: "postgresql://localhost/warehouse"
+
 paths:
     packages: "data/packages"
+
 cache:
     varnish:
         packages: 120
+
+fastly: true

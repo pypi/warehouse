@@ -25,7 +25,7 @@ from werkzeug.wrappers import Response
 from werkzeug.wsgi import wrap_file
 
 from warehouse.helpers import url_for
-from warehouse.utils import render_response
+from warehouse.utils import cache, render_response
 
 
 def index(app, request):
@@ -105,7 +105,9 @@ def project(app, request, project_name):
     return resp
 
 
+@cache("packages")
 def package(app, request, path):
+    # Get our filename and filepath from the request path
     filename = os.path.basename(path)
     filepath = safe_join(
         os.path.abspath(app.config.paths.packages),
@@ -134,19 +136,13 @@ def package(app, request, path):
 
     # Standard response headers
     headers = {
-        "Cache-Control": "public, max-age={}".format(
-            app.config.cache.browser.packages,
-        ),
         "Content-MD5": content_md5,
         "Last-Modified": http_date(os.path.getmtime(filepath)),
     }
 
-    # Add in additional headers if we're using varnish
-    if app.config.cache.varnish:
+    # Add in additional headers if we're using Fastly
+    if app.config.fastly:
         headers.update({
-            "Surrogate-Control": "public, max-age={}".format(
-                app.config.cache.varnish.packages,
-            ),
             "Surrogate-Key": " ".join([
                 "package",
                 "package~{}".format(normalized),

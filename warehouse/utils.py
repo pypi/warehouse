@@ -76,3 +76,30 @@ def render_response(app, request, template, **variables):
     context.update(variables)
 
     return Response(template.render(**context), content_type="text/html")
+
+
+def cache(key):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(app, request, *args, **kwargs):
+            resp = fn(app, request, *args, **kwargs)
+
+            # Add in our standard Cache-Control headers
+            if app.config.cache.browser.get(key) is not None:
+                resp.headers.update({
+                    "Cache-Control": "public, max-age={}".format(
+                        app.config.cache.browser[key],
+                    ),
+                })
+
+            # Add in additional headers if we're using varnish
+            if app.config.cache.varnish.get(key) is not None:
+                resp.headers.update({
+                    "Surrogate-Control": "public, max-age={}".format(
+                        app.config.cache.varnish[key],
+                    ),
+                })
+
+            return resp
+        return wrapper
+    return deco

@@ -1,7 +1,11 @@
 debug: false
+
 database:
     migrations: "warehouse:migrations"
+
 cache:
     browser:
         packages: 0
     varnish: false
+
+fastly: false
