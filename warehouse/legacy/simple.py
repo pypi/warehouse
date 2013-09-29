@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 from werkzeug.exceptions import NotFound
 
+from warehouse.helpers import url_for
 from warehouse.utils import render_response
 
 
@@ -66,7 +67,7 @@ def project(app, request, project_name):
     # Fetch the explicitly provided URLs
     external_urls = app.models.packaging.get_external_urls(project.name)
 
-    return render_response(
+    resp = render_response(
         app, request,
         "legacy/simple/detail.html",
         project=project,
@@ -74,3 +75,13 @@ def project(app, request, project_name):
         project_urls=project_urls,
         externals=external_urls,
     )
+
+    # Add a Link header to point at the canonical URL
+    can_url = url_for(
+        request, "warehouse.legacy.simple.project",
+        project_name=project.name,
+        _force_external=True,
+    )
+    resp.headers["Link"] = "<{}>; rel=\"canonical\"".format(can_url)
+
+    return resp
