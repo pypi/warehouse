@@ -19,7 +19,6 @@ import os.path
 import re
 
 from werkzeug.exceptions import NotFound
-from werkzeug.http import http_date
 from werkzeug.security import safe_join
 from werkzeug.wsgi import wrap_file
 
@@ -134,11 +133,7 @@ def package(app, request, path):
     # Get the MD5 hash of the file
     content_md5 = app.models.packaging.get_filename_md5(filename)
 
-    # Standard response headers
-    headers = {
-        "Content-MD5": content_md5,
-        "Last-Modified": http_date(os.path.getmtime(filepath)),
-    }
+    headers = {}
 
     # Add in additional headers if we're using Fastly
     if app.config.fastly:
@@ -161,6 +156,12 @@ def package(app, request, path):
         mimetype=mimetypes.guess_type(filename)[0],
         direct_passthrough=True,
     )
+
+    # Setup the Last-Modified header
+    resp.last_modified = os.path.getmtime(filepath)
+
+    # Setup the Content-MD5 headers
+    resp.content_md5 = content_md5
 
     # Setup Conditional Responses
     resp.set_etag(content_md5)
