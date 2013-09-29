@@ -39,7 +39,7 @@ def project(app, request, project_name):
     project = app.models.packaging.get_project(project_name)
 
     if project is None:
-        raise NotFound("{} does not exist".format(project.name))
+        raise NotFound("{} does not exist".format(project_name))
 
     # Generate the Package URLs for the packages we've hosted
     file_urls = app.models.packaging.get_file_urls(project.name)
