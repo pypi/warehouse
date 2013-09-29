@@ -21,10 +21,10 @@ import re
 from werkzeug.exceptions import NotFound
 from werkzeug.http import http_date
 from werkzeug.security import safe_join
-from werkzeug.wrappers import Response
 from werkzeug.wsgi import wrap_file
 
 from warehouse.helpers import url_for
+from warehouse.http import Response
 from warehouse.utils import cache, render_response
 
 
@@ -155,7 +155,8 @@ def package(app, request, path):
         headers["X-PyPI-Last-Serial"] = serial
 
     # Pass through the data directly to the response object
-    resp = Response(data,
+    resp = Response(
+        data,
         headers=headers,
         mimetype=mimetypes.guess_type(filename)[0],
         direct_passthrough=True,

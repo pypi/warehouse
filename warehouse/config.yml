@@ -4,8 +4,7 @@ database:
     migrations: "warehouse:migrations"
 
 cache:
-    browser:
-        packages: 0
+    browser: false
     varnish: false
 
 fastly: false

@@ -19,9 +19,8 @@ import functools
 
 import six
 
-from werkzeug.wrappers import Response
-
 from warehouse import helpers
+from warehouse.http import Response
 
 
 class AttributeDict(dict):
@@ -85,20 +84,16 @@ def cache(key):
             resp = fn(app, request, *args, **kwargs)
 
             # Add in our standard Cache-Control headers
-            if app.config.cache.browser.get(key) is not None:
-                resp.headers.update({
-                    "Cache-Control": "public, max-age={}".format(
-                        app.config.cache.browser[key],
-                    ),
-                })
+            if (app.config.cache.browser
+                    and app.config.cache.browser.get(key) is not None):
+                resp.cache_control.public = True
+                resp.cache_control.max_age = app.config.cache.browser[key]
 
             # Add in additional headers if we're using varnish
-            if app.config.cache.varnish.get(key) is not None:
-                resp.headers.update({
-                    "Surrogate-Control": "public, max-age={}".format(
-                        app.config.cache.varnish[key],
-                    ),
-                })
+            if (app.config.cache.varnish
+                    and app.config.cache.varnish.get(key) is not None):
+                resp.surrogate_control.public = True
+                resp.surrogate_control.max_age = app.config.cache.varnish[key]
 
             return resp
         return wrapper
