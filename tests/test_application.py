@@ -42,14 +42,3 @@ def test_yaml_instantiation():
 def test_cli_instantiation():
     with pytest.raises(SystemExit):
         Warehouse.from_cli(["-h"])
-
-
-def test_tables_attribute():
-    app = Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
-
-    assert app.tables is app.metadata.tables
