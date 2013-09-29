@@ -22,10 +22,16 @@ from warehouse.utils import render_response
 
 def index(app, request):
     projects = app.models.packaging.all_projects()
-    return render_response(
+    resp = render_response(
         app, request, "legacy/simple/index.html",
         projects=projects,
     )
+
+    # Add a header that points to the last serial
+    serial = app.models.packaging.get_last_serial()
+    resp.headers["X-PyPI-Last-Serial"] = serial
+
+    return resp
 
 
 def project(app, request, project_name):
@@ -75,6 +81,10 @@ def project(app, request, project_name):
         project_urls=project_urls,
         externals=external_urls,
     )
+
+    # Add a header that points to the last serial
+    serial = app.models.packaging.get_last_serial(project.name)
+    resp.headers["X-PyPI-Last-Serial"] = serial
 
     # Add a Link header to point at the canonical URL
     can_url = url_for(

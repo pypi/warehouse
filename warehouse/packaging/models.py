@@ -21,7 +21,7 @@ from sqlalchemy.sql import select, func
 
 from warehouse import models
 from warehouse.packaging.tables import (
-    packages, releases, release_files, description_urls,
+    packages, releases, release_files, description_urls, journals,
 )
 
 
@@ -124,3 +124,12 @@ class Model(models.Model):
                 )
                 for r in results
             ]
+
+    def get_last_serial(self, name=None):
+        query = select([func.max(journals.c.id)])
+
+        if name is not None:
+            query = query.where(journals.c.name == name)
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()

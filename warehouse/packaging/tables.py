@@ -14,9 +14,10 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+from citext import CIText
 from sqlalchemy import (
     Table, Column, CheckConstraint, ForeignKey, Index, UniqueConstraint,
-    ForeignKeyConstraint
+    ForeignKeyConstraint, Sequence,
 )
 from sqlalchemy import Boolean, DateTime, Integer, UnicodeText
 from sqlalchemy import sql
@@ -146,6 +147,25 @@ description_urls = Table(
 
     Index("description_urls_name_idx", "name"),
     Index("description_urls_name_version_idx", "name", "version"),
+)
+
+
+journals = Table(
+    "journals",
+    Warehouse.metadata,
+
+    Column("id", Integer(), Sequence("journals_id_seq")),
+    Column("name", UnicodeText()),
+    Column("version", UnicodeText()),
+    Column("action", UnicodeText()),
+    Column("submitted_date", DateTime()),
+    Column("submitted_by", CIText()),  # Needs a FK to accounts_user
+    Column("submitted_from", UnicodeText()),
+
+    Index("journals_name_idx", "name"),
+    Index("journals_version_idx", "version"),
+    Index("journals_changelog", "submitted_date", "name", "version", "action"),
+    Index("journals_latest_releases", "submitted_date", "name", "version"),
 )
 
 
