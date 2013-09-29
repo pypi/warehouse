@@ -16,4 +16,8 @@ from __future__ import unicode_literals
 
 
 def url_for(request, endpoint, **values):
-    return request.url_adapter.build(endpoint, values)
+    force_external = values.pop("_force_external", False)
+    return request.url_adapter.build(
+        endpoint, values,
+        force_external=force_external,
+    )
