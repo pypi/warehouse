@@ -125,6 +125,24 @@ class Model(models.Model):
                 for r in results
             ]
 
+    def get_project_for_filename(self, filename):
+        query = (
+            select([release_files.c.name])
+            .where(release_files.c.filename == filename)
+        )
+
+        with self.engine.connect() as conn:
+            return Project(conn.execute(query).scalar())
+
+    def get_filename_md5(self, filename):
+        query = (
+            select([release_files.c.md5_digest])
+            .where(release_files.c.filename == filename)
+        )
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
     def get_last_serial(self, name=None):
         query = select([func.max(journals.c.id)])
 

@@ -1,3 +1,10 @@
 debug: true
 database:
     url: "postgresql://localhost/warehouse"
+paths:
+    packages: "data/packages"
+cache:
+    browser:
+        packages: 900
+    varnish:
+        packages: 86400

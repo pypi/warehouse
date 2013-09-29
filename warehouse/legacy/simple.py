@@ -14,13 +14,15 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import posixpath
+import mimetypes
+import os.path
 import re
 
-from distlib.util import split_filename
-from six.moves import urllib_parse
 from werkzeug.exceptions import NotFound
+from werkzeug.http import http_date
+from werkzeug.security import safe_join
 from werkzeug.wrappers import Response
+from werkzeug.wsgi import wrap_file
 
 from warehouse.helpers import url_for
 from warehouse.utils import render_response
@@ -104,24 +106,67 @@ def project(app, request, project_name):
 
 
 def package(app, request, path):
-    # Use X-Accel-Redirect to serve package data
+    filename = os.path.basename(path)
+    filepath = safe_join(
+        os.path.abspath(app.config.paths.packages),
+        path
+    )
+
+    # If we cannot safely join the requested path with our directory
+    #   return a 404
+    if filepath is None:
+        raise NotFound("{} was not found".format(filename))
+
+    # Open the file and attempt to wrap in the wsgi.file_wrapper if it's
+    #   available, otherwise read it directly.
+    try:
+        with open(filepath, "rb") as fp:
+            data = wrap_file(request.environ, fp)
+    except IOError:
+        raise NotFound("{} was not found".format(filename))
+
+    # Get the project name and normalize it
+    project = app.models.packaging.get_project_for_filename(filename)
+    normalized = re.sub("_", "-", project.name, re.I).lower()
+
+    # Get the MD5 hash of the file
+    content_md5 = app.models.packaging.get_filename_md5(filename)
+
+    # Standard response headers
     headers = {
-        "X-Accel-Redirect": urllib_parse.urljoin("/raw-packages/", path),
+        "Cache-Control": "public, max-age={}".format(
+            app.config.cache.browser.packages,
+        ),
+        "Content-MD5": content_md5,
+        "Last-Modified": http_date(os.path.getmtime(filepath)),
     }
 
-    # Extract the project from the filename
-    filename, _ = posixpath.splitext(posixpath.basename(path))
-    project, _, _ = split_filename(filename)
+    # Add in additional headers if we're using varnish
+    if app.config.cache.varnish:
+        headers.update({
+            "Surrogate-Control": "public, max-age={}".format(
+                app.config.cache.varnish.packages,
+            ),
+            "Surrogate-Key": " ".join([
+                "package",
+                "package~{}".format(normalized),
+            ]),
+        })
 
-    # Add a Surrogate-Key header so we can purge this response
-    headers["Surrogate-Key"] = " ".join([
-        "package",
-        "package~{}".format(re.sub("_", "-", project, re.I).lower()),
-    ])
-
-    # Add the X-PyPI-Last-Serial header if we have a serial for this project
-    serial = app.models.packaging.get_last_serial(project)
+    # Look up the last serial for this file
+    serial = app.models.packaging.get_last_serial(project.name)
     if serial is not None:
         headers["X-PyPI-Last-Serial"] = serial
 
-    return Response(headers=headers)
+    # Pass through the data directly to the response object
+    resp = Response(data,
+        headers=headers,
+        mimetype=mimetypes.guess_type(filename)[0],
+        direct_passthrough=True,
+    )
+
+    # Setup Conditional Responses
+    resp.set_etag(content_md5)
+    resp.make_conditional(request)
+
+    return resp

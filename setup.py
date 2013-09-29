@@ -56,7 +56,6 @@ setup(
 
     install_requires=[
         "alembic",
-        "distlib",
         "Jinja2",
         "psycopg2cffi-compat>=1.1",
         "PyYAML",
