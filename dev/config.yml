@@ -4,7 +4,5 @@ database:
 paths:
     packages: "data/packages"
 cache:
-    browser:
-        packages: 900
     varnish:
         packages: 86400
