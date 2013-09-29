@@ -14,7 +14,12 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import posixpath
+
+from distlib.util import split_filename
+from six.moves import urllib_parse
 from werkzeug.exceptions import NotFound
+from werkzeug.wrappers import Response
 
 from warehouse.helpers import url_for
 from warehouse.utils import render_response
@@ -95,3 +100,20 @@ def project(app, request, project_name):
     resp.headers["Link"] = "<{}>; rel=\"canonical\"".format(can_url)
 
     return resp
+
+
+def package(app, request, path):
+    # Use X-Accel-Redirect to serve package data
+    headers = {
+        "X-Accel-Redirect": urllib_parse.urljoin("/raw-packages/", path),
+    }
+
+    # Extract the project from the filename
+    filename, _ = posixpath.splitext(posixpath.basename(path))
+    proj, _, _ = split_filename(filename)
+    if proj is not None:
+        headers.update({
+            "X-PyPI-Last-Serial": app.models.packaging.get_last_serial(proj),
+        })
+
+    return Response(headers=headers)

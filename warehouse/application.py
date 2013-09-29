@@ -68,6 +68,11 @@ class Warehouse(object):
                     endpoint="warehouse.legacy.simple.project",
                 ),
             ]),
+            Rule(
+                "/packages/<path:path>",
+                methods=["GET"],
+                endpoint="warehouse.legacy.simple.package",
+            ),
         ])
 
         # Setup our Jinja2 Environment
