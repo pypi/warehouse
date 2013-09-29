@@ -25,11 +25,11 @@ import sqlalchemy
 import yaml
 
 from werkzeug.routing import Map, Rule, Submount
-from werkzeug.wrappers import Request
 
 import warehouse
 import warehouse.cli
 
+from warehouse.http import Request
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 

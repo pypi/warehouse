@@ -17,9 +17,25 @@ from __future__ import unicode_literals
 from werkzeug.datastructures import ResponseCacheControl
 from werkzeug.http import parse_cache_control_header
 from werkzeug.wrappers import (
+    BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin,
+    AuthorizationMixin, CommonRequestDescriptorsMixin,
     BaseResponse, ETagResponseMixin, ResponseStreamMixin,
     CommonResponseDescriptorsMixin, WWWAuthenticateMixin,
 )
+
+
+class Request(BaseRequest, AcceptMixin, ETagRequestMixin,
+              UserAgentMixin, AuthorizationMixin,
+              CommonRequestDescriptorsMixin):
+    """
+    Full featured request object implementing the following mixins:
+
+    - :class:`AcceptMixin` for accept header parsing
+    - :class:`ETagRequestMixin` for etag and cache control handling
+    - :class:`UserAgentMixin` for user agent introspection
+    - :class:`AuthorizationMixin` for http auth handling
+    - :class:`CommonRequestDescriptorsMixin` for common headers
+    """
 
 
 class Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin,
