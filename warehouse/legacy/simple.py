@@ -15,6 +15,7 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import posixpath
+import re
 
 from distlib.util import split_filename
 from six.moves import urllib_parse
@@ -110,10 +111,17 @@ def package(app, request, path):
 
     # Extract the project from the filename
     filename, _ = posixpath.splitext(posixpath.basename(path))
-    proj, _, _ = split_filename(filename)
-    if proj is not None:
-        headers.update({
-            "X-PyPI-Last-Serial": app.models.packaging.get_last_serial(proj),
-        })
+    project, _, _ = split_filename(filename)
+
+    # Add a Surrogate-Key header so we can purge this response
+    headers["Surrogate-Key"] = " ".join([
+        "package",
+        "package~{}".format(re.sub("_", "-", project, re.I).lower()),
+    ])
+
+    # Add the X-PyPI-Last-Serial header if we have a serial for this project
+    serial = app.models.packaging.get_last_serial(project)
+    if serial is not None:
+        headers["X-PyPI-Last-Serial"] = serial
 
     return Response(headers=headers)
