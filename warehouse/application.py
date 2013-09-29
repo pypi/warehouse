@@ -24,7 +24,7 @@ import six
 import sqlalchemy
 import yaml
 
-from werkzeug.routing import Map, Rule, Submount
+from werkzeug.routing import Map
 
 import warehouse
 import warehouse.cli
@@ -41,6 +41,10 @@ class Warehouse(object):
         "packaging": "warehouse.packaging.models:Model",
     }
 
+    url_names = [
+        "warehouse.legacy.urls",
+    ]
+
     def __init__(self, config):
         self.config = convert_to_attr_dict(config)
 
@@ -55,25 +59,11 @@ class Warehouse(object):
             self.models[name] = getattr(mod, klass)(self.metadata, self.engine)
 
         # Setup our URL routing
-        self.urls = Map([
-            Submount("/simple", [
-                Rule(
-                    "/",
-                    methods=["GET"],
-                    endpoint="warehouse.legacy.simple.index",
-                ),
-                Rule(
-                    "/<project_name>/",
-                    methods=["GET"],
-                    endpoint="warehouse.legacy.simple.project",
-                ),
-            ]),
-            Rule(
-                "/packages/<path:path>",
-                methods=["GET"],
-                endpoint="warehouse.legacy.simple.package",
-            ),
-        ])
+        url_rules = []
+        for name in self.url_names:
+            mod = importlib.import_module(name)
+            url_rules.extend(getattr(mod, "__urls__"))
+        self.urls = Map(url_rules)
 
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
