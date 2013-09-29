@@ -14,8 +14,6 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
-
 from collections import namedtuple
 
 from six.moves import urllib_parse
@@ -114,13 +112,13 @@ class Model(models.Model):
                 FileURL(
                     filename=r["filename"],
                     url=urllib_parse.urljoin(
-                        os.path.join(
+                        "/".join([
                             "../../packages",
                             r["python_version"],
                             r["name"][0],
                             r["name"],
-                            r["filename"]
-                        ),
+                            r["filename"],
+                        ]),
                         "#md5={}".format(r["md5_digest"]),
                     ),
                 )
