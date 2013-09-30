@@ -83,7 +83,10 @@ class Warehouse(object):
         return self.wsgi_app(environ, start_response)
 
     @classmethod
-    def from_yaml(cls, *paths, override=None, **kwargs):
+    def from_yaml(cls, *paths, **kwargs):
+        # Pull out other keyword arguments
+        override = kwargs.pop("override", None)
+
         default = os.path.abspath(os.path.join(
             os.path.dirname(warehouse.__file__),
             "config.yml",
