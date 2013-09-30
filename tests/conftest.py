@@ -67,8 +67,9 @@ def _database(request):
         pytest.skip("No database provided")
 
     # Configure our engine so that we can create a database
-    database_url = (database_url_option or database_url_environ
-                        or database_url_ini)
+    database_url = (
+        database_url_option or database_url_environ or database_url_ini
+    )
     engine = sqlalchemy.create_engine(
         database_url,
         isolation_level="AUTOCOMMIT",
