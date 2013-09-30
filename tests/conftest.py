@@ -123,28 +123,24 @@ def _database(request):
     return test_database_url
 
 
-@pytest.fixture
-def database(request, _database):
-    # Create our engine
-    engine = sqlalchemy.create_engine(
+@pytest.fixture(scope="session")
+def engine(_database):
+    return sqlalchemy.create_engine(
         _database,
         poolclass=sqlalchemy.pool.AssertionPool,
     )
 
-    # Get a connection to the database
-    connection = engine.connect()
-    connection.connect = lambda: connection
 
-    # Start a transaction
+@pytest.fixture
+def database(request, _database, engine):
+    connection = engine.connect()
     transaction = connection.begin()
 
-    # Register a finalizer that will rollback the transaction and close the
-    #   connections
-    def _end():
+    def end():
         transaction.rollback()
         connection.close()
-        engine.dispose()
-    request.addfinalizer(_end)
+
+    request.addfinalizer(end)
 
     return connection
 
