@@ -35,7 +35,7 @@ before_script:
     - psql -c 'create database warehouse;' -U postgres
 
 script:
-    - WAREHOUSE_DATABASE_URL=postgresql://localhost/warehouse tox
+    - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse tox
 
 after_success:
     - coveralls
