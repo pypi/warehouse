@@ -27,6 +27,7 @@ from warehouse.http import Response
 from warehouse.utils import cache, render_response
 
 
+@cache("simple")
 def index(app, request):
     projects = app.models.packaging.all_projects()
     resp = render_response(
@@ -34,9 +35,13 @@ def index(app, request):
         projects=projects,
     )
 
+    # Add our surrogate key headers for Fastly
+    if app.config.fastly:
+        resp.headers.add("Surrogate-Key", "simple-index")
+
     # Add a header that points to the last serial
     serial = app.models.packaging.get_last_serial()
-    resp.headers["X-PyPI-Last-Serial"] = serial
+    resp.headers.add("X-PyPI-Last-Serial", serial)
 
     return resp
 
