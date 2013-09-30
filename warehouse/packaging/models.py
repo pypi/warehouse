@@ -33,7 +33,7 @@ FileURL = namedtuple("FileURL", ["filename", "url"])
 class Model(models.Model):
 
     def all_projects(self):
-        query = select([packages.c.name]).order_by(packages.c.name)
+        query = select([packages.c.name]).order_by(func.lower(packages.c.name))
 
         with self.engine.connect() as conn:
             return [Project(r["name"]) for r in conn.execute(query)]

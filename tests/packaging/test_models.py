@@ -31,7 +31,9 @@ def test_all_projects(projects, dbapp):
     for project in projects:
         dbapp.engine.execute(packages.insert().values(name=project))
 
-    all_projects = [Project(p) for p in sorted(projects)]
+    all_projects = [
+        Project(p) for p in sorted(projects, key=lambda x: x.lower())
+    ]
     assert dbapp.models.packaging.all_projects() == all_projects
 
 
