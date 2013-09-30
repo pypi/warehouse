@@ -83,7 +83,7 @@ def _database(request):
 
     # Create the database
     with engine.connect() as conn:
-        conn.execute("CREATE DATABASE {}".format(name))
+        conn.execute("CREATE DATABASE {} ENCODING 'UTF8'".format(name))
 
     # Create a new database_url with the name replaced
     parsed = urllib_parse.urlparse(database_url)
