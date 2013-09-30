@@ -32,7 +32,7 @@ install:
     - pip install tox coveralls
 
 before_script:
-    - psql -c 'CREATE DATABASE warehouse ENCODING 'UTF8';' -U postgres
+    - psql -c "CREATE DATABASE warehouse ENCODING 'UTF8';" -U postgres
 
 script:
     - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse tox
