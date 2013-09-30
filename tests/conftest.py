@@ -147,3 +147,13 @@ def database(request, _database):
     request.addfinalizer(_end)
 
     return connection
+
+
+@pytest.fixture
+def dbapp(database, _database):
+    from warehouse.application import Warehouse
+
+    return Warehouse.from_yaml(
+        override={"database": {"url": _database}},
+        engine=database,
+    )
