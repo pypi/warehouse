@@ -82,10 +82,9 @@ class Model(models.Model):
 
     def get_external_urls(self, name):
         query = (
-            select([description_urls.c.url])
+            select([description_urls.c.url], distinct=description_urls.c.url)
             .where(description_urls.c.name == name)
             .order_by(
-                description_urls.c.version.desc(),
                 description_urls.c.url,
             )
         )
