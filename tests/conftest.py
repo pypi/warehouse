@@ -14,6 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import os
 import random
 import string
 
@@ -58,13 +59,16 @@ def _database(request):
             return name not in [r[0] for r in results]
 
     database_url_ini = request.config.getini("database_url")
+    database_url_environ = os.environ.get("WAREHOUSE_DATABASE_URL")
     database_url_option = request.config.getvalue("database_url")
 
-    if not database_url_ini and not database_url_option:
+    if (not database_url_ini and not database_url_environ
+            and not database_url_option):
         pytest.skip("No database provided")
 
     # Configure our engine so that we can create a database
-    database_url = database_url_option or database_url_ini
+    database_url = (database_url_option or database_url_environ
+                        or database_url_ini)
     engine = sqlalchemy.create_engine(
         database_url,
         isolation_level="AUTOCOMMIT",
