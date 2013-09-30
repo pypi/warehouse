@@ -8,8 +8,10 @@ paths:
 
 cache:
     browser:
+        simple: 1
         packages: 1
     varnish:
+        simple: 120
         packages: 120
 
 fastly: true

@@ -41,9 +41,11 @@ def index(app, request):
     return resp
 
 
+@cache("simple")
 def project(app, request, project_name):
     # Get the real project name for this project
     project = app.models.packaging.get_project(project_name)
+    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     if project is None:
         raise NotFound("{} does not exist".format(project_name))
@@ -88,6 +90,13 @@ def project(app, request, project_name):
         project_urls=project_urls,
         externals=external_urls,
     )
+
+    # Add our surrogate key headers for Fastly
+    if app.config.fastly:
+        resp.headers.add(
+            "Surrogate-Key",
+            " ".join(["simple", "simple~{}".format(normalized)]),
+        )
 
     # Add a header that points to the last serial
     serial = app.models.packaging.get_last_serial(project.name)
