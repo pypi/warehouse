@@ -45,11 +45,14 @@ class Warehouse(object):
         "warehouse.legacy.urls",
     ]
 
-    def __init__(self, config):
+    def __init__(self, config, engine=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
-        self.engine = sqlalchemy.create_engine(self.config.database.url)
+        if engine is None:
+            engine = sqlalchemy.create_engine(self.config.database.url)
+
+        self.engine = engine
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
@@ -80,7 +83,7 @@ class Warehouse(object):
         return self.wsgi_app(environ, start_response)
 
     @classmethod
-    def from_yaml(cls, *paths):
+    def from_yaml(cls, *paths, override=None, **kwargs):
         default = os.path.abspath(os.path.join(
             os.path.dirname(warehouse.__file__),
             "config.yml",
@@ -93,7 +96,10 @@ class Warehouse(object):
             with open(path) as configfile:
                 config = merge_dict(config, yaml.safe_load(configfile))
 
-        return cls(config=config)
+        if override:
+            config = merge_dict(config, override)
+
+        return cls(config=config, **kwargs)
 
     @classmethod
     def from_cli(cls, argv):
