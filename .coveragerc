@@ -19,4 +19,5 @@ omit =
     */warehouse/__main__.py
 
     # Migrations don't make sense to include in coverage
+    */warehouse/migrations/versions/*
     */warehouse/migrations/env.py
