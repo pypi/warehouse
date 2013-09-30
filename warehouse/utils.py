@@ -74,7 +74,7 @@ def render_response(app, request, template, **variables):
     }
     context.update(variables)
 
-    return Response(template.render(**context), content_type="text/html")
+    return Response(template.render(**context), mimetype="text/html")
 
 
 def cache(key):

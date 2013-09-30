@@ -91,7 +91,7 @@ def project(app, request, project_name):
 
     # Add a header that points to the last serial
     serial = app.models.packaging.get_last_serial(project.name)
-    resp.headers["X-PyPI-Last-Serial"] = serial
+    resp.headers.add("X-PyPI-Last-Serial", serial)
 
     # Add a Link header to point at the canonical URL
     can_url = url_for(
@@ -99,7 +99,7 @@ def project(app, request, project_name):
         project_name=project.name,
         _force_external=True,
     )
-    resp.headers["Link"] = "<{}>; rel=\"canonical\"".format(can_url)
+    resp.headers.add("Link", can_url, rel="canonical")
 
     return resp
 
