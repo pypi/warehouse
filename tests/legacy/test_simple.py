@@ -76,7 +76,8 @@ def test_index(fastly, monkeypatch):
     [
         (True, "foo", "pypi-explicit", [], []),
         (False, "foo", "pypi-explicit", [], []),
-        (True, "foo", "pypi-scrape",
+        (
+            True, "foo", "pypi-scrape",
             [
                 ("1.0", (
                     "http://example.com/home/",
