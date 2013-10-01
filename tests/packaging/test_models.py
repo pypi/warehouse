@@ -50,6 +50,10 @@ def test_get_project(name, normalized, dbapp):
     assert dbapp.models.packaging.get_project(normalized) == Project(name)
 
 
+def test_get_project_missing(dbapp):
+    assert dbapp.models.packaging.get_project("missing") is None
+
+
 @pytest.mark.parametrize(("name", "mode"), [
     ("foo", "pypi-explicit"),
     ("bar", "pypi-scrape"),
