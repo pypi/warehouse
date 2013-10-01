@@ -50,10 +50,12 @@ def index(app, request):
 def project(app, request, project_name):
     # Get the real project name for this project
     project = app.models.packaging.get_project(project_name)
-    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     if project is None:
         raise NotFound("{} does not exist".format(project_name))
+
+    # Normalize the project name
+    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     # Generate the Package URLs for the packages we've hosted
     file_urls = app.models.packaging.get_file_urls(project.name)
@@ -113,7 +115,7 @@ def project(app, request, project_name):
         project_name=project.name,
         _force_external=True,
     )
-    resp.headers.add("Link", can_url, rel="canonical")
+    resp.headers.add("Link", "<" + can_url + ">", rel="canonical")
 
     return resp
 
@@ -136,7 +138,9 @@ def package(app, request, path):
     #   available, otherwise read it directly.
     try:
         with open(filepath, "rb") as fp:
-            data = wrap_file(request.environ, fp)
+            # setup no cover because of:
+            #    https://bitbucket.org/ned/coveragepy/issue/146/
+            data = wrap_file(request.environ, fp)  # pragma: no cover
     except IOError:
         raise NotFound("{} was not found".format(filename))
 
