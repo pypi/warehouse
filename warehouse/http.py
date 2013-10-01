@@ -60,11 +60,11 @@ class Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin,
         def on_update(surrogate_control):
             if not surrogate_control and "surrogate-control" in self.headers:
                 del self.headers["surrogate-control"]
-            elif surrogate_control:
+            elif surrogate_control:  # pragma: no cover
                 self.headers["Surrogate-Control"] = \
                     surrogate_control.to_header()
         return parse_cache_control_header(
-            self.headers.get("cache-control"),
+            self.headers.get("surrogate-control"),
             on_update,
             ResponseCacheControl,
         )
