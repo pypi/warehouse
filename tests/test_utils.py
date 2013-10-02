@@ -19,7 +19,8 @@ import pretend
 import pytest
 
 from warehouse.utils import (
-    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache
+    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
+    get_wsgi_application
 )
 
 
@@ -110,3 +111,19 @@ def test_cache_deco(browser, varnish):
 
     if varnish:
         assert resp.surrogate_control.max_age == varnish["test"]
+
+
+@pytest.mark.parametrize("environ", [
+    {"WAREHOUSE_CONF": "/tmp/config.yml"},
+    {},
+])
+def test_get_wsgi_application(environ):
+    obj = pretend.stub()
+    klass = pretend.stub(from_yaml=pretend.call_recorder(lambda *a, **k: obj))
+
+    app = get_wsgi_application(environ, klass)
+    config = environ.get("WAREHOUSE_CONF")
+    configs = [config] if config else []
+
+    assert app is obj
+    assert klass.from_yaml.calls == [pretend.call(*configs)]

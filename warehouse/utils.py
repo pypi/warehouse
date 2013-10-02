@@ -98,3 +98,12 @@ def cache(key):
             return resp
         return wrapper
     return deco
+
+
+def get_wsgi_application(environ, app_class):
+    if "WAREHOUSE_CONF" in environ:
+        configs = [environ["WAREHOUSE_CONF"]]
+    else:
+        configs = []
+
+    return app_class.from_yaml(*configs)

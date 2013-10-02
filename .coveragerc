@@ -16,8 +16,11 @@ omit =
     # __main__.py exists only as a very basic wrapper around warehouse.cli
     #   and exists only to provide setuptools and python -m a place to point
     #   at.
-    */warehouse/__main__.py
+    warehouse/__main__.py
+
+    # The wsgi module is all app level and cannot be tested
+    warehouse/wsgi.py
 
     # Migrations don't make sense to include in coverage
-    */warehouse/migrations/versions/*
-    */warehouse/migrations/env.py
+    warehouse/migrations/versions/*
+    warehouse/migrations/env.py

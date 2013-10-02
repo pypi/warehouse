@@ -137,10 +137,8 @@ def package(app, request, path):
     # Open the file and attempt to wrap in the wsgi.file_wrapper if it's
     #   available, otherwise read it directly.
     try:
-        with open(filepath, "rb") as fp:
-            # setup no cover because of:
-            #    https://bitbucket.org/ned/coveragepy/issue/146/
-            data = wrap_file(request.environ, fp)  # pragma: no cover
+        fp = open(filepath, "rb")
+        data = wrap_file(request.environ, fp)
     except IOError:
         raise NotFound("{} was not found".format(filename))
 
