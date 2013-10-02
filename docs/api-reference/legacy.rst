@@ -2,8 +2,8 @@ Legacy API
 ==========
 
 
-Simple Index
-------------
+Simple Project API
+------------------
 
 .. http:get:: /simple/
 
@@ -44,9 +44,6 @@ Simple Index
                                    project.
     :statuscode 200: no error
 
-
-Project URLs
-------------
 
 .. http:get:: /simple/<project>/
 
