@@ -97,7 +97,11 @@ class Warehouse(object):
         config = {}
         for path in paths:
             with open(path) as configfile:
-                config = merge_dict(config, yaml.safe_load(configfile))
+                # Use no cover to work around a coverage bug
+                config = merge_dict(  # pragma: no cover
+                    config,
+                    yaml.safe_load(configfile)
+                )
 
         if override:
             config = merge_dict(config, override)

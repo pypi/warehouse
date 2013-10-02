@@ -20,6 +20,7 @@ import string
 
 import alembic.config
 import alembic.command
+import pretend
 import pytest
 import sqlalchemy
 import sqlalchemy.pool
@@ -157,4 +158,21 @@ def dbapp(database, _database):
     return Warehouse.from_yaml(
         override={"database": {"url": _database}},
         engine=database,
+    )
+
+
+@pytest.fixture
+def app():
+    from warehouse.application import Warehouse
+
+    def connect():
+        raise RuntimeError(
+            "Cannot access the database through the app fixture"
+        )
+
+    engine = pretend.stub(connect=connect)
+
+    return Warehouse.from_yaml(
+        override={"database": {"url": "postgresql:///nonexistant"}},
+        engine=engine,
     )
