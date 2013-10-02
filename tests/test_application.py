@@ -21,6 +21,7 @@ import mock
 import pretend
 import pytest
 
+from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.test import create_environ
 
 from warehouse import cli
@@ -101,3 +102,38 @@ def test_wsgi_app(app, monkeypatch):
     assert import_module.calls == [pretend.call("warehouse.fake")]
     assert fake_view.calls == [pretend.call(app, mock.ANY)]
     assert response.calls == [pretend.call(environ, start_response)]
+
+
+def test_wsgi_app_exception(app, monkeypatch):
+    match = pretend.stub(
+        match=pretend.call_recorder(lambda: ("warehouse.fake.view", {}))
+    )
+    urls = pretend.stub(bind_to_environ=pretend.call_recorder(lambda e: match))
+    response = pretend.call_recorder(lambda e, s: None)
+
+    class FakeException(HTTPException):
+
+        #@pretend.call_recorder
+        def __call__(self, *args, **kwargs):
+            return response
+
+    @pretend.call_recorder
+    def fake_view(*args, **kwargs):
+        raise FakeException("An error has occurred")
+
+    fake_module = pretend.stub(view=fake_view)
+    import_module = pretend.call_recorder(lambda mod: fake_module)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+
+    environ = create_environ()
+    start_response = pretend.stub()
+
+    app.urls = urls
+
+    app.wsgi_app(environ, start_response)
+
+    assert match.match.calls == [pretend.call()]
+    assert urls.bind_to_environ.calls == [pretend.call(environ)]
+    assert import_module.calls == [pretend.call("warehouse.fake")]
+    assert fake_view.calls == [pretend.call(app, mock.ANY)]
