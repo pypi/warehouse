@@ -14,31 +14,31 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
-
+import pretend
 import pytest
 
-from warehouse.application import Warehouse
+from warehouse.helpers import url_for
 
 
-def test_basic_instantiation():
-    Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
-
-
-def test_yaml_instantiation():
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
+@pytest.mark.parametrize(("external",), [(False,), (True,)])
+def test_url_for(external):
+    request = pretend.stub(
+        url_adapter=pretend.stub(
+            build=pretend.call_recorder(lambda *a, **k: "/foo/"),
+        ),
     )
 
+    assert url_for(
+        request,
+        "warehouse.test",
+        foo="bar",
+        _force_external=external,
+    ) == "/foo/"
 
-def test_cli_instantiation():
-    with pytest.raises(SystemExit):
-        Warehouse.from_cli(["-h"])
+    assert request.url_adapter.build.calls == [
+        pretend.call(
+            "warehouse.test",
+            {"foo": "bar"},
+            force_external=external,
+        ),
+    ]

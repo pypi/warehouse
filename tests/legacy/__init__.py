@@ -13,32 +13,3 @@
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
-
-import os.path
-
-import pytest
-
-from warehouse.application import Warehouse
-
-
-def test_basic_instantiation():
-    Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
-
-
-def test_yaml_instantiation():
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-    )
-
-
-def test_cli_instantiation():
-    with pytest.raises(SystemExit):
-        Warehouse.from_cli(["-h"])

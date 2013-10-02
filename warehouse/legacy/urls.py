@@ -14,31 +14,14 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
+from werkzeug.routing import Rule, EndpointPrefix, Submount
 
-import pytest
-
-from warehouse.application import Warehouse
-
-
-def test_basic_instantiation():
-    Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
-
-
-def test_yaml_instantiation():
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-    )
-
-
-def test_cli_instantiation():
-    with pytest.raises(SystemExit):
-        Warehouse.from_cli(["-h"])
+__urls__ = [
+    EndpointPrefix("warehouse.legacy.simple.", [
+        Submount("/simple", [
+            Rule("/", methods=["GET"], endpoint="index"),
+            Rule("/<project_name>/", methods=["GET"], endpoint="project"),
+        ]),
+        Rule("/packages/<path:path>", methods=["GET"], endpoint="package"),
+    ]),
+]

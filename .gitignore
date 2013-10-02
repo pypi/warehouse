@@ -23,3 +23,6 @@ pip-log.txt
 .coverage
 .tox
 .cache
+
+# Developer local files
+data/

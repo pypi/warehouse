@@ -1,3 +1,10 @@
 debug: false
+
 database:
     migrations: "warehouse:migrations"
+
+cache:
+    browser: false
+    varnish: false
+
+fastly: false

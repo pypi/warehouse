@@ -15,12 +15,20 @@
 -#}
 {% extends "legacy/simple/base.html" %}
 
-{% block title %}Simple Index{% endblock %}
+{% block title %}Links for {{ project.name }}{% endblock %}
 
 {% block content %}
-  {% for project in projects -%}
-    <a href="{{ url_for('warehouse.legacy.simple.project', project_name=project.name) }}">
-      {{ project.name }}
-    </a>
+  <h1>Links for {{ project.name }}</h1>
+
+  {% for file in files -%}
+    <a rel="internal" href="{{ file.url }}">{{ file.filename }}</a>
+  {% endfor %}
+
+  {% for url in project_urls -%}
+    <a rel="{{ url.rel }}" href="{{ url.url }}">{{ url.name }}</a>
+  {% endfor %}
+
+  {% for url in external_urls -%}
+    <a rel="external" href="{{ url }}">{{ url }}</a>
   {% endfor %}
 {% endblock %}

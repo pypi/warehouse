@@ -14,31 +14,139 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from sqlalchemy import Table, Column, CheckConstraint
-from sqlalchemy import Boolean, UnicodeText
-from sqlalchemy import sql
+from collections import namedtuple
 
-from warehouse.application import Warehouse
+from six.moves import urllib_parse
+from sqlalchemy.sql import select, func
 
-
-packages = Table("packages", Warehouse.metadata,
-    Column("name", UnicodeText(), primary_key=True, nullable=False),
-    Column("stable_version", UnicodeText()),
-    Column("normalized_name", UnicodeText()),
-    Column("autohide", Boolean(), server_default=sql.true()),
-    Column("comments", Boolean(), server_default=sql.true()),
-    Column("bugtrack_url", UnicodeText()),
-    Column(
-        "hosting_mode",
-        UnicodeText(),
-        nullable=False,
-        server_default="pypi-explicit",
-    ),
-
-    # Validate that packages begin and end with an alpha numeric and contain
-    #   only alpha numeric, ., _, and -.
-    CheckConstraint(
-        "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
-        name="packages_valid_name",
-    ),
+from warehouse import models
+from warehouse.packaging.tables import (
+    packages, releases, release_files, description_urls, journals,
 )
+
+
+Project = namedtuple("Project", ["name"])
+
+FileURL = namedtuple("FileURL", ["filename", "url"])
+
+
+class Model(models.Model):
+
+    def all_projects(self):
+        query = select([packages.c.name]).order_by(func.lower(packages.c.name))
+
+        with self.engine.connect() as conn:
+            return [Project(r["name"]) for r in conn.execute(query)]
+
+    def get_project(self, name):
+        query = (
+            select([packages.c.name])
+            .where(
+                packages.c.normalized_name == func.lower(
+                    func.regexp_replace(name, "_", "-", "ig"),
+                )
+            )
+        )
+
+        with self.engine.connect() as conn:
+            result = conn.execute(query).scalar()
+
+            if result is not None:
+                return Project(result)
+
+    def get_hosting_mode(self, name):
+        query = (
+            select([packages.c.hosting_mode])
+            .where(packages.c.name == name)
+        )
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    def get_release_urls(self, name):
+        query = (
+            select([
+                releases.c.version,
+                releases.c.home_page,
+                releases.c.download_url,
+            ])
+            .where(releases.c.name == name)
+            .order_by(releases.c.version.desc())
+        )
+
+        with self.engine.connect() as conn:
+            return {
+                r["version"]: (r["home_page"], r["download_url"])
+                for r in conn.execute(query)
+            }
+
+    def get_external_urls(self, name):
+        query = (
+            select([description_urls.c.url], distinct=description_urls.c.url)
+            .where(description_urls.c.name == name)
+            .order_by(
+                description_urls.c.url,
+            )
+        )
+
+        with self.engine.connect() as conn:
+            return [r["url"] for r in conn.execute(query)]
+
+    def get_file_urls(self, name):
+        query = (
+            select([
+                release_files.c.name,
+                release_files.c.filename,
+                release_files.c.python_version,
+                release_files.c.md5_digest,
+            ])
+            .where(release_files.c.name == name)
+            .order_by(release_files.c.filename.desc())
+        )
+
+        with self.engine.connect() as conn:
+            results = conn.execute(query)
+
+            return [
+                FileURL(
+                    filename=r["filename"],
+                    url=urllib_parse.urljoin(
+                        "/".join([
+                            "../../packages",
+                            r["python_version"],
+                            r["name"][0],
+                            r["name"],
+                            r["filename"],
+                        ]),
+                        "#md5={}".format(r["md5_digest"]),
+                    ),
+                )
+                for r in results
+            ]
+
+    def get_project_for_filename(self, filename):
+        query = (
+            select([release_files.c.name])
+            .where(release_files.c.filename == filename)
+        )
+
+        with self.engine.connect() as conn:
+            return Project(conn.execute(query).scalar())
+
+    def get_filename_md5(self, filename):
+        query = (
+            select([release_files.c.md5_digest])
+            .where(release_files.c.filename == filename)
+        )
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    def get_last_serial(self, name=None):
+        query = select([func.max(journals.c.id)])
+
+        if name is not None:
+            query = query.where(journals.c.name == name)
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
