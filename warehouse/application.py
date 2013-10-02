@@ -24,7 +24,9 @@ import six
 import sqlalchemy
 import yaml
 
+from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
+from werkzeug.wsgi import responder
 
 import warehouse
 import warehouse.cli
@@ -140,6 +142,7 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
+    @responder
     def wsgi_app(self, environ, start_response):
         """
         The actual WSGI application.  This is not implemented in
@@ -160,21 +163,21 @@ class Warehouse(object):
                                a list of headers and an optional
                                exception context to start the response
         """
-        # Figure out what endpoint to call
-        urls = self.urls.bind_to_environ(environ)
-        endpoint, kwargs = urls.match()
+        try:
+            # Figure out what endpoint to call
+            urls = self.urls.bind_to_environ(environ)
+            endpoint, kwargs = urls.match()
 
-        # Load our view function
-        modname, viewname = endpoint.rsplit(".", 1)
-        module = importlib.import_module(modname)
-        view = getattr(module, viewname)
+            # Load our view function
+            modname, viewname = endpoint.rsplit(".", 1)
+            module = importlib.import_module(modname)
+            view = getattr(module, viewname)
 
-        # Create our request object
-        request = Request(environ)
-        request.url_adapter = urls
+            # Create our request object
+            request = Request(environ)
+            request.url_adapter = urls
 
-        # Dispatch to our view
-        response = view(self, request, **kwargs)
-
-        # Finally return our response
-        return response(environ, start_response)
+            # Dispatch to our view
+            return view(self, request, **kwargs)
+        except HTTPException as exc:
+            return exc
