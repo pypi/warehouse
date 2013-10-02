@@ -16,9 +16,12 @@ from __future__ import unicode_literals
 
 import os.path
 
+import importlib
 import mock
 import pretend
 import pytest
+
+from werkzeug.test import create_environ
 
 from warehouse import cli
 from warehouse.application import Warehouse
@@ -73,3 +76,28 @@ def test_calling_application_is_wsgi_app(app):
     app(environ, start_response)
 
     assert app.wsgi_app.calls == [pretend.call(environ, start_response)]
+
+
+def test_wsgi_app(app, monkeypatch):
+    match = pretend.stub(
+        match=pretend.call_recorder(lambda: ("warehouse.fake.view", {}))
+    )
+    urls = pretend.stub(bind_to_environ=pretend.call_recorder(lambda e: match))
+    response = pretend.call_recorder(lambda e, s: None)
+    fake_view = pretend.call_recorder(lambda *a, **k: response)
+    fake_module = pretend.stub(view=fake_view)
+    import_module = pretend.call_recorder(lambda mod: fake_module)
+
+    monkeypatch.setattr(importlib, "import_module", import_module)
+
+    environ = create_environ()
+    start_response = pretend.stub()
+
+    app.urls = urls
+    app.wsgi_app(environ, start_response)
+
+    assert match.match.calls == [pretend.call()]
+    assert urls.bind_to_environ.calls == [pretend.call(environ)]
+    assert import_module.calls == [pretend.call("warehouse.fake")]
+    assert fake_view.calls == [pretend.call(app, mock.ANY)]
+    assert response.calls == [pretend.call(environ, start_response)]
