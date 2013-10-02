@@ -66,14 +66,7 @@ def test_running_cli_command(monkeypatch):
     assert commands["serve"].calls == [pretend.call(mock.ANY)]
 
 
-def test_calling_application_is_wsgi_app():
-    app = Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-    )
-
+def test_calling_application_is_wsgi_app(app):
     app.wsgi_app = pretend.call_recorder(lambda e, s: None)
 
     environ, start_response = pretend.stub(), pretend.stub()
