@@ -22,9 +22,9 @@ from warehouse.packaging.tables import (
 )
 
 
-@pytest.mark.parametrize(("projects",), [
-    (["foo", "bar", "zap"],),
-    (["fail", "win", "YeS"],),
+@pytest.mark.parametrize("projects", [
+    ["foo", "bar", "zap"],
+    ["fail", "win", "YeS"],
 ])
 def test_all_projects(projects, dbapp):
     # Insert some data into the database
