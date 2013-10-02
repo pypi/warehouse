@@ -39,6 +39,11 @@ def test_yaml_instantiation():
     )
 
 
-def test_cli_instantiation():
+def test_cli_instantiation(capsys):
     with pytest.raises(SystemExit):
         Warehouse.from_cli(["-h"])
+
+    out, err = capsys.readouterr()
+
+    assert "usage: warehouse" in out
+    assert not err
