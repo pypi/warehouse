@@ -172,4 +172,7 @@ def app():
 
     engine = pretend.stub(connect=connect)
 
-    return Warehouse.from_yaml(engine=engine)
+    return Warehouse.from_yaml(
+        override={"database": {"url": "postgresql:///nonexistant"}},
+        engine=engine,
+    )
