@@ -16,9 +16,11 @@ from __future__ import unicode_literals
 
 import os.path
 
+import mock
 import pretend
 import pytest
 
+from warehouse import cli
 from warehouse.application import Warehouse
 
 
@@ -48,6 +50,20 @@ def test_cli_instantiation(capsys):
 
     assert "usage: warehouse" in out
     assert not err
+
+
+def test_running_cli_command(monkeypatch):
+    commands = {"serve": pretend.call_recorder(lambda *a, **k: None)}
+    monkeypatch.setattr(cli, "__commands__", commands)
+
+    config = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        "test_config.yml",
+    ))
+
+    Warehouse.from_cli(["-c", config, "serve"])
+
+    assert commands["serve"].calls == [pretend.call(mock.ANY)]
 
 
 def test_calling_application_is_wsgi_app():
