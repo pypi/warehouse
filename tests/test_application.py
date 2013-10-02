@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 import os.path
 
+import pretend
 import pytest
 
 from warehouse.application import Warehouse
@@ -47,3 +48,19 @@ def test_cli_instantiation(capsys):
 
     assert "usage: warehouse" in out
     assert not err
+
+
+def test_calling_application_is_wsgi_app():
+    app = Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+    )
+
+    app.wsgi_app = pretend.call_recorder(lambda e, s: None)
+
+    environ, start_response = pretend.stub(), pretend.stub()
+    app(environ, start_response)
+
+    assert app.wsgi_app.calls == [pretend.call(environ, start_response)]
