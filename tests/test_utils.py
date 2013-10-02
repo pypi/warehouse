@@ -14,9 +14,13 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import mock
+import pretend
 import pytest
 
-from warehouse.utils import AttributeDict, convert_to_attr_dict, merge_dict
+from warehouse.utils import (
+    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache
+)
 
 
 def test_basic_attribute_dict_access():
@@ -56,3 +60,53 @@ def test_convert_to_attribute_dict():
     assert adict.a == {"b": 1, "c": 2}
     assert adict.a.b == 1
     assert adict.a.c == 2
+
+
+def test_render_response():
+    template = pretend.stub(render=pretend.call_recorder(lambda **k: "test"))
+    app = pretend.stub(
+        templates=pretend.stub(
+            get_template=pretend.call_recorder(lambda t: template),
+        ),
+    )
+    request = pretend.stub()
+
+    resp = render_response(app, request, "template.html", foo="bar")
+
+    assert resp.data == b"test"
+    assert app.templates.get_template.calls == [pretend.call("template.html")]
+    assert template.render.calls == [pretend.call(foo="bar", url_for=mock.ANY)]
+
+
+@pytest.mark.parametrize(("browser", "varnish"), [
+    ({}, {}),
+    ({"test": 120}, {}),
+    ({}, {"test": 120}),
+    ({"test": 120}, {"test": 120}),
+])
+def test_cache_deco(browser, varnish):
+    response = pretend.stub(
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
+    view = pretend.call_recorder(lambda *a, **kw: response)
+
+    app = pretend.stub(
+        config=pretend.stub(
+            cache=pretend.stub(
+                browser=browser,
+                varnish=varnish,
+            ),
+        ),
+    )
+    request = pretend.stub()
+
+    resp = cache("test")(view)(app, request)
+
+    assert resp is response
+
+    if browser:
+        assert resp.cache_control.max_age == browser["test"]
+
+    if varnish:
+        assert resp.surrogate_control.max_age == varnish["test"]

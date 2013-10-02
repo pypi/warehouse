@@ -6,3 +6,4 @@ check-manifest
 invoke
 tox
 wheel
+sphinxcontrib-httpdomain2

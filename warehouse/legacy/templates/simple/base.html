@@ -13,14 +13,15 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "legacy/simple/base.html" %}
-
-{% block title %}Simple Index{% endblock %}
-
-{% block content %}
-  {% for project in projects -%}
-    <a href="{{ url_for('warehouse.legacy.simple.project', project_name=project.name) }}">
-      {{ project.name }}
-    </a>
-  {% endfor %}
-{% endblock %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="api-version" value="2" />
+    <style>a { display: block; }</style>
+  </head>
+  <body>
+    {% block content %}
+    {% endblock content %}
+  </body>
+</html>

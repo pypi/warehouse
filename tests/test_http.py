@@ -14,31 +14,29 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
 
-import pytest
-
-from warehouse.application import Warehouse
+from warehouse.http import Response
 
 
-def test_basic_instantiation():
-    Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
+def test_response_surrogate_control():
+    resp = Response()
+
+    assert "Surrogate-Control" not in resp.headers
+
+    resp.surrogate_control.public = True
+    resp.surrogate_control.max_age = 120
+
+    assert set(resp.headers["Surrogate-Control"].split(", ")) == {
+        "max-age=120",
+        "public",
+    }
 
 
-def test_yaml_instantiation():
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-    )
+def test_response_surrogate_control_remove():
+    resp = Response(headers={"Surrogate-Control": "max-age=120"})
 
+    assert resp.headers["Surrogate-Control"] == "max-age=120"
 
-def test_cli_instantiation():
-    with pytest.raises(SystemExit):
-        Warehouse.from_cli(["-h"])
+    resp.surrogate_control.max_age = None
+
+    assert "Surrogate-Control" not in resp.headers

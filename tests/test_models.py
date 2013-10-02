@@ -14,31 +14,12 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import os.path
-
-import pytest
-
-from warehouse.application import Warehouse
+from warehouse import models
 
 
-def test_basic_instantiation():
-    Warehouse({
-        "debug": False,
-        "database": {
-            "url": "postgres:///test_warehouse",
-        }
-    })
+def test_model_basic():
+    metadata, engine = object(), object()
+    m = models.Model(metadata, engine)
 
-
-def test_yaml_instantiation():
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-    )
-
-
-def test_cli_instantiation():
-    with pytest.raises(SystemExit):
-        Warehouse.from_cli(["-h"])
+    assert m.metadata is metadata
+    assert m.engine is engine

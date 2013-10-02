@@ -15,8 +15,12 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import collections
+import functools
 
 import six
+
+from warehouse import helpers
+from warehouse.http import Response
 
 
 class AttributeDict(dict):
@@ -60,3 +64,37 @@ def convert_to_attr_dict(dictionary):
         else:
             output[key] = value
     return AttributeDict(output)
+
+
+def render_response(app, request, template, **variables):
+    template = app.templates.get_template(template)
+
+    context = {
+        "url_for": functools.partial(helpers.url_for, request),
+    }
+    context.update(variables)
+
+    return Response(template.render(**context), mimetype="text/html")
+
+
+def cache(key):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(app, request, *args, **kwargs):
+            resp = fn(app, request, *args, **kwargs)
+
+            # Add in our standard Cache-Control headers
+            if (app.config.cache.browser
+                    and app.config.cache.browser.get(key) is not None):
+                resp.cache_control.public = True
+                resp.cache_control.max_age = app.config.cache.browser[key]
+
+            # Add in additional headers if we're using varnish
+            if (app.config.cache.varnish
+                    and app.config.cache.varnish.get(key) is not None):
+                resp.surrogate_control.public = True
+                resp.surrogate_control.max_age = app.config.cache.varnish[key]
+
+            return resp
+        return wrapper
+    return deco

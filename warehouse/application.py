@@ -24,39 +24,49 @@ import six
 import sqlalchemy
 import yaml
 
-from werkzeug.routing import Map, Rule, Submount
-from werkzeug.wrappers import Request
+from werkzeug.routing import Map
 
 import warehouse
 import warehouse.cli
 
-from warehouse.utils import merge_dict, convert_to_attr_dict
+from warehouse.http import Request
+from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
 class Warehouse(object):
 
     metadata = sqlalchemy.MetaData()
 
-    model_names = [
-        "warehouse.packaging.models",
+    model_names = {
+        "packaging": "warehouse.packaging.models:Model",
+    }
+
+    url_names = [
+        "warehouse.legacy.urls",
     ]
 
-    def __init__(self, config):
+    def __init__(self, config, engine=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
-        self.engine = sqlalchemy.create_engine(self.config.database.url)
+        if engine is None:
+            engine = sqlalchemy.create_engine(self.config.database.url)
 
-        # Import our models
-        for name in self.model_names:
-            importlib.import_module(name)
+        self.engine = engine
+
+        # Create our Store instance and associate our store modules with it
+        self.models = AttributeDict()
+        for name, mod_path in six.iteritems(self.model_names):
+            mod_name, klass = mod_path.rsplit(":", 1)
+            mod = importlib.import_module(mod_name)
+            self.models[name] = getattr(mod, klass)(self.metadata, self.engine)
 
         # Setup our URL routing
-        self.urls = Map([
-            Submount("/simple", [
-                Rule("/", endpoint="warehouse.legacy.simple.index"),
-            ]),
-        ])
+        url_rules = []
+        for name in self.url_names:
+            mod = importlib.import_module(name)
+            url_rules.extend(getattr(mod, "__urls__"))
+        self.urls = Map(url_rules)
 
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
@@ -73,7 +83,10 @@ class Warehouse(object):
         return self.wsgi_app(environ, start_response)
 
     @classmethod
-    def from_yaml(cls, *paths):
+    def from_yaml(cls, *paths, **kwargs):
+        # Pull out other keyword arguments
+        override = kwargs.pop("override", None)
+
         default = os.path.abspath(os.path.join(
             os.path.dirname(warehouse.__file__),
             "config.yml",
@@ -86,7 +99,10 @@ class Warehouse(object):
             with open(path) as configfile:
                 config = merge_dict(config, yaml.safe_load(configfile))
 
-        return cls(config=config)
+        if override:
+            config = merge_dict(config, override)
+
+        return cls(config=config, **kwargs)
 
     @classmethod
     def from_cli(cls, argv):
@@ -120,10 +136,6 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
-    @property
-    def tables(self):
-        return self.metadata.tables
-
     def wsgi_app(self, environ, start_response):
         """
         The actual WSGI application.  This is not implemented in
@@ -155,15 +167,10 @@ class Warehouse(object):
 
         # Create our request object
         request = Request(environ)
+        request.url_adapter = urls
 
         # Dispatch to our view
         response = view(self, request, **kwargs)
 
         # Finally return our response
         return response(environ, start_response)
-
-    @property
-    def connection(self):
-        if not hasattr(self, "_connection"):
-            self._connection = self.engine.connect()
-        return self._connection
