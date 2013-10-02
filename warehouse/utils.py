@@ -101,11 +101,12 @@ def cache(key):
 
 
 def get_wsgi_application(environ):
-    from warehouse.application import Warehouse
-
     if "WAREHOUSE_CONF" in environ:
         configs = [environ["WAREHOUSE_CONF"]]
     else:
         configs = []
 
     return Warehouse.from_yaml(*configs)
+
+
+from warehouse.application import Warehouse

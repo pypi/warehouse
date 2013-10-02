@@ -19,7 +19,8 @@ import pretend
 import pytest
 
 from warehouse.utils import (
-    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache
+    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
+    get_wsgi_application
 )
 
 
