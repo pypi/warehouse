@@ -100,13 +100,10 @@ def cache(key):
     return deco
 
 
-def get_wsgi_application(environ):
+def get_wsgi_application(environ, app_class):
     if "WAREHOUSE_CONF" in environ:
         configs = [environ["WAREHOUSE_CONF"]]
     else:
         configs = []
 
-    return Warehouse.from_yaml(*configs)
-
-
-from warehouse.application import Warehouse
+    return app_class.from_yaml(*configs)

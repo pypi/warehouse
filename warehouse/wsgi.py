@@ -16,7 +16,8 @@ from __future__ import unicode_literals
 
 import os
 
+from warehouse.application import Warehouse
 from warehouse.utils import get_wsgi_application
 
 
-application = get_wsgi_application(os.environ)
+application = get_wsgi_application(os.environ, Warehouse)
