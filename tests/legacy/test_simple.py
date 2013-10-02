@@ -27,7 +27,7 @@ from warehouse.packaging.models import Project
 from warehouse.legacy import simple
 
 
-@pytest.mark.parametrize(("fastly",), [(True,), (False,)])
+@pytest.mark.parametrize("fastly", [True, False])
 def test_index(fastly, monkeypatch):
     response = pretend.stub(headers=Headers())
     render = pretend.call_recorder(lambda *a, **k: response)
