@@ -21,7 +21,7 @@ import mock
 import pretend
 import pytest
 
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ
 
 from warehouse import cli

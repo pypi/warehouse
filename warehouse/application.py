@@ -24,7 +24,7 @@ import six
 import sqlalchemy
 import yaml
 
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
 from werkzeug.wsgi import responder
 
