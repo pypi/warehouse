@@ -14,7 +14,6 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import mimetypes
 import os.path
 import re
 
@@ -24,7 +23,7 @@ from werkzeug.wsgi import wrap_file
 
 from warehouse.helpers import url_for
 from warehouse.http import Response
-from warehouse.utils import cache, render_response
+from warehouse.utils import cache, get_mimetype, render_response
 
 
 @cache("simple")
@@ -169,7 +168,7 @@ def package(app, request, path):
     resp = Response(
         data,
         headers=headers,
-        mimetype=mimetypes.guess_type(filename)[0],
+        mimetype=get_mimetype(filename),
         direct_passthrough=True,
     )
 

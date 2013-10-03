@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 import collections
 import functools
+import mimetypes
 
 import six
 
@@ -107,3 +108,11 @@ def get_wsgi_application(environ, app_class):
         configs = []
 
     return app_class.from_yaml(*configs)
+
+
+def get_mimetype(filename):
+    # Figure out our mimetype
+    mimetype = mimetypes.guess_type(filename)[0]
+    if not mimetype:
+        mimetype = "application/octet-stream"
+    return mimetype

@@ -20,7 +20,7 @@ import pytest
 
 from warehouse.utils import (
     AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
-    get_wsgi_application
+    get_wsgi_application, get_mimetype,
 )
 
 
@@ -127,3 +127,11 @@ def test_get_wsgi_application(environ):
 
     assert app is obj
     assert klass.from_yaml.calls == [pretend.call(*configs)]
+
+
+@pytest.mark.parametrize(("filename", "expected"), [
+    ("warehouse-13.10.0.tar.gz", "application/x-tar"),
+    ("warehouse-13.10.0-py2.py3-none-any.whl", "application/octet-stream"),
+])
+def test_get_mimetype(filename, expected):
+    assert get_mimetype(filename) == expected
