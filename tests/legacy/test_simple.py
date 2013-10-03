@@ -74,16 +74,16 @@ def test_index(fastly, monkeypatch):
         "e_project_urls",
     ),
     [
-        (True, "foo", "pypi-explicit", [], []),
-        (False, "foo", "pypi-explicit", [], []),
+        (True, "foo", "pypi-explicit", {}, []),
+        (False, "foo", "pypi-explicit", {}, []),
         (
             True, "foo", "pypi-scrape",
-            [
-                ("1.0", (
+            {
+                "1.0": (
                     "http://example.com/home/",
                     "http://example.com/download/",
-                )),
-            ],
+                ),
+            },
             [
                 {
                     "name": "1.0 home_page",
@@ -97,7 +97,7 @@ def test_index(fastly, monkeypatch):
                 },
             ],
         ),
-        (True, "foo", "pypi-scrape", [("1.0", ("UNKNOWN", "UNKNOWN"))], []),
+        (True, "foo", "pypi-scrape", {"1.0": ("UNKNOWN", "UNKNOWN")}, []),
     ],
 )
 def test_project(fastly, project_name, hosting_mode, release_urls,
