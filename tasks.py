@@ -199,7 +199,7 @@ def release_build(verbose=False, **kwargs):
 
     # Render warehouse/__about__.py with the development versions
     next_version = ".".join([version_series, str(version_num + 1)])
-    next_version = ".".join([str(int(x)) for x in version.split(".")])
+    next_version = ".".join([str(int(x)) for x in next_version.split(".")])
     next_version += ".dev0"
     build_tag = "<development>"
     with open(about_path, "w") as about:
