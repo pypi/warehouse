@@ -50,7 +50,7 @@ setup(
     packages=find_packages(),
     package_data={
         "warehouse": ["*.yml"],
-        "warehouse.legacy": ["templates/*.html"],
+        "warehouse.legacy": ["templates/*/*.html"],
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
