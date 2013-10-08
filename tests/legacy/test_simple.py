@@ -205,11 +205,13 @@ def test_package(fastly, serial, monkeypatch):
     _open = pretend.call_recorder(lambda *a, **k: _fp)
     wrap_file = lambda *a, **k: None
     mtime = pretend.call_recorder(lambda f: 123457)
+    getsize = pretend.call_recorder(lambda f: 54321)
 
     monkeypatch.setattr(simple, "safe_join", safe_join)
     monkeypatch.setattr(simple, "open", _open, raising=False)
     monkeypatch.setattr(simple, "wrap_file", wrap_file)
     monkeypatch.setattr(os.path, "getmtime", mtime)
+    monkeypatch.setattr(os.path, "getsize", getsize)
 
     gpff = pretend.call_recorder(lambda p: Project("test"))
     get_md5 = pretend.call_recorder(
@@ -245,6 +247,8 @@ def test_package(fastly, serial, monkeypatch):
     else:
         assert "Surrogate-Key" not in resp.headers
 
+    assert resp.headers["Content-Length"] == "54321"
+
     assert safe_join.calls == [
         pretend.call("/tmp", "packages/any/t/test-1.0.tar.gz"),
     ]
@@ -252,6 +256,9 @@ def test_package(fastly, serial, monkeypatch):
         pretend.call("/tmp/packages/any/t/test-1.0.tar.gz", "rb"),
     ]
     assert mtime.calls == [pretend.call("/tmp/packages/any/t/test-1.0.tar.gz")]
+    assert getsize.calls == [
+        pretend.call("/tmp/packages/any/t/test-1.0.tar.gz"),
+    ]
     assert gpff.calls == [pretend.call("test-1.0.tar.gz")]
     assert get_md5.calls == [pretend.call("test-1.0.tar.gz")]
     assert get_last_serial.calls == [pretend.call("test")]
