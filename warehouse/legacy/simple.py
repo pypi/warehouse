@@ -177,6 +177,9 @@ def package(app, request, path):
     # Setup the Last-Modified header
     resp.last_modified = os.path.getmtime(filepath)
 
+    # Setup the Content-Length header
+    resp.content_length = os.path.getsize(filepath)
+
     # Setup the Content-MD5 headers
     resp.content_md5 = content_md5
 
