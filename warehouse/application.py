@@ -74,9 +74,10 @@ class Warehouse(object):
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
             auto_reload=self.config.debug,
-            loader=jinja2.PrefixLoader({
-                "legacy": jinja2.PackageLoader("warehouse.legacy"),
-            }),
+            loader=jinja2.ChoiceLoader([
+                jinja2.PackageLoader("warehouse.ui"),
+                jinja2.PackageLoader("warehouse.legacy"),
+            ]),
         )
 
         # Add our Powered By Middleware
