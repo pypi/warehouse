@@ -1,5 +1,8 @@
 debug: true
 
+assets:
+    directory: "static"
+
 database:
     url: "postgresql://localhost/warehouse"
 

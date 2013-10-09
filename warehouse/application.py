@@ -24,9 +24,11 @@ import six
 import sqlalchemy
 import yaml
 
+from webassets import Environment as AssetsEnvironment
+from webassets.ext.jinja2 import AssetsExtension
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
-from werkzeug.wsgi import responder
+from werkzeug.wsgi import SharedDataMiddleware, responder
 
 import warehouse
 import warehouse.cli
@@ -80,9 +82,27 @@ class Warehouse(object):
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
             auto_reload=self.config.debug,
+            extensions=[
+                AssetsExtension,
+            ],
             loader=jinja2.ChoiceLoader(
                 [jinja2.PackageLoader(tp) for tp in self.template_packages]
             ),
+        )
+
+        # Setup our web assets environment
+        asset_config = self.config.assets
+        asset_config.setdefault("debug", self.config.debug)
+        asset_config.setdefault("auto_build", self.config.debug)
+        self.templates.assets_environment = AssetsEnvironment(**asset_config)
+
+        # Load our static directories
+        static_path = os.path.abspath(
+            os.path.join(os.path.dirname(warehouse.__file__), "static"),
+        )
+        self.templates.assets_environment.append_path(
+            static_path,
+            self.config.assets.url,
         )
 
         # Add our Powered By Middleware
@@ -90,6 +110,13 @@ class Warehouse(object):
             warehouse.__version__,
             warehouse.__build__,
         ))
+
+        # Serve the static files if we're in debug
+        if self.config.debug:
+            self.wsgi_app = SharedDataMiddleware(
+                self.wsgi_app,
+                {"/static/": static_path},
+            )
 
     def __call__(self, environ, start_response):
         """

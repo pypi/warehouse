@@ -62,6 +62,7 @@ setup(
         "six",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
+        "webassets",
         "Werkzeug",
     ],
 

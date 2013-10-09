@@ -1,5 +1,8 @@
 debug: false
 
+assets:
+    url: /static/
+
 database:
     migrations: "warehouse:migrations"
 
