@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="../../assets/ico/favicon.png">
+
+    <title>{% block title %}{% endblock %} &middot; {{ config.site.name }}</title>
+
+    {% assets output="bootstrap.css", "bootstrap/dist/css/bootstrap.css" %}
+      <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %}
+
+    {% assets output="warehouse.css",
+              filters="less",
+              debug=config.debug,
+              "warehouse/sticky-footer.less",
+              "warehouse/app.less" %}
+      <link rel="stylesheet{% if config.debug %}/less{% endif %}" href="{{ ASSET_URL }}" />
+    {% endassets %}
+
+    {% if config.debug %}
+      <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.4.1/less.min.js"></script>
+    {% endif %}
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      {% assets output="ie.js", "html5shiv/dist/html5shiv.js", "respond/respond.src.js" %}
+        <script src="{{ ASSET_URL }}"></script>
+      {% endassets %}
+    <![endif]-->
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">{{ config.site.name }}</a>
+          </div>
+          <div class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li class="divider"></li>
+                  <li class="dropdown-header">Nav header</li>
+                  <li><a href="#">Separated link</a></li>
+                  <li><a href="#">One more separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+      </div>
+    </div>
+
+    {% assets output="jquery.js", "jquery/jquery.js" %}
+      <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    {% assets output="bootstrap.js", "bootstrap/dist/js/bootstrap.js" %}
+      <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+  </body>
+</html>
