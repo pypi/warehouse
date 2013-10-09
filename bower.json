@@ -1,0 +1,14 @@
+{
+  "name": "warehouse",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "warehouse/static",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.0.0"
+  }
+}
