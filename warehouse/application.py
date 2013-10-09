@@ -94,6 +94,8 @@ class Warehouse(object):
         asset_config = self.config.assets
         asset_config.setdefault("debug", self.config.debug)
         asset_config.setdefault("auto_build", self.config.debug)
+        asset_config.setdefault("less_run_in_debug", False)
+
         self.templates.assets_environment = AssetsEnvironment(**asset_config)
 
         # Load our static directories
