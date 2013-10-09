@@ -71,6 +71,7 @@ def render_response(app, request, template, **variables):
     template = app.templates.get_template(template)
 
     context = {
+        "config": app.config,
         "url_for": functools.partial(helpers.url_for, request),
     }
     context.update(variables)
