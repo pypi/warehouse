@@ -1,5 +1,8 @@
 debug: false
 
+site:
+    name: Warehouse
+
 assets:
     url: /static/
 

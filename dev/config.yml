@@ -1,5 +1,8 @@
 debug: true
 
+site:
+    name: Warehouse (dev)
+
 assets:
     directory: "static"
 
