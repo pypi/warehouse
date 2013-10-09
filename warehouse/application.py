@@ -48,6 +48,12 @@ class Warehouse(object):
         "warehouse.legacy.urls",
     ]
 
+    template_packages = [
+        "warehouse.ui",
+        "warehouse.legacy",
+        "warehouse",
+    ]
+
     def __init__(self, config, engine=None):
         self.config = convert_to_attr_dict(config)
 
@@ -74,10 +80,9 @@ class Warehouse(object):
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
             auto_reload=self.config.debug,
-            loader=jinja2.ChoiceLoader([
-                jinja2.PackageLoader("warehouse.ui"),
-                jinja2.PackageLoader("warehouse.legacy"),
-            ]),
+            loader=jinja2.ChoiceLoader(
+                [jinja2.PackageLoader(tp) for tp in self.template_packages]
+            ),
         )
 
         # Add our Powered By Middleware
