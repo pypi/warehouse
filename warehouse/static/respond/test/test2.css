@@ -1,8 +1,0 @@
-/* this stylesheet was referenced via a link that had a media attr defined
-it should only apply on screen > 600px */
-#attribute-test {
-	display: block;
-	color: #fff;
-	background: black;
-	text-align: center;
-}
