@@ -19,6 +19,7 @@ import collections
 import importlib
 import os.path
 
+import babel.dates
 import jinja2
 import redis as redispy
 import six
@@ -92,6 +93,13 @@ class Warehouse(object):
             ],
             loader=jinja2.PackageLoader("warehouse"),
         )
+
+        # Install Babel
+        self.templates.filters.update({
+            "format_date": babel.dates.format_date,
+            "format_datetime": babel.dates.format_datetime,
+            "format_time": babel.dates.format_time,
+        })
 
         # Install our translations
         self.templates.install_null_translations(newstyle=True)
