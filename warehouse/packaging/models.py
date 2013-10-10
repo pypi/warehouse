@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 from collections import namedtuple
 
 from six.moves import urllib_parse
-from sqlalchemy.sql import select, func
+from sqlalchemy.sql import and_, select, func
 
 from warehouse import models
 from warehouse.packaging.tables import (
@@ -150,3 +150,40 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
+
+    def get_project_versions(self, project):
+        query = (
+            select([releases.c.version])
+            .where(releases.c.name == project)
+            .order_by(releases.c._pypi_ordering.desc())
+        )
+
+        with self.engine.connect() as conn:
+            return [r["version"] for r in conn.execute(query)]
+
+    def get_release(self, project, version):
+        query = (
+            select([
+                releases.c.name,
+                releases.c.version,
+                releases.c.author,
+                releases.c.author_email,
+                releases.c.maintainer,
+                releases.c.maintainer_email,
+                releases.c.home_page,
+                releases.c.license,
+                releases.c.summary,
+                releases.c.description,
+                releases.c.keywords,
+                releases.c.platform,
+                releases.c.download_url,
+                releases.c.requires_python,
+            ])
+            .where(and_(
+                releases.c.name == project,
+                releases.c.version == version,
+            ))
+        )
+
+        with self.engine.connect() as conn:
+            return dict(conn.execute(query).first())
