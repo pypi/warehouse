@@ -76,6 +76,7 @@ class Warehouse(object):
 
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
+            autoescape=True,
             auto_reload=self.config.debug,
             extensions=[
                 AssetsExtension,
