@@ -14,6 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import re
+
 import jinja2
 
 from recliner import htmlize
@@ -31,6 +33,9 @@ def project_detail(app, request, project_name, version=None):
 
     if project is None:
         raise NotFound("Cannot find a project named {}".format(project_name))
+
+    # Normalize the project name
+    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     # Look up the version of the given project
     versions = app.models.packaging.get_project_versions(project.name)
@@ -84,10 +89,23 @@ def project_detail(app, request, project_name, version=None):
     # Mark our description_html as safe as it's already been cleaned by bleach
     description_html = jinja2.Markup(description_html)
 
-    return render_response(
+    resp = render_response(
         app, request, "projects/detail.html",
         project=project,
         release=release,
         versions=versions,
         description_html=description_html,
     )
+
+    # Add our surrogate key headers for Fastly
+    if app.config.fastly:
+        resp.headers.add(
+            "Surrogate-Key",
+            " ".join([
+                "project-detail",
+                "project-detail~{}".format(normalized),
+                "project-detail~{}~{}".format(normalized, version),
+            ]),
+        )
+
+    return resp
