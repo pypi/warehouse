@@ -2,6 +2,7 @@ debug: false
 
 site:
     name: Warehouse
+    url: /
 
 assets:
     url: /static/
