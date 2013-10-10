@@ -95,6 +95,7 @@ def project_detail(app, request, project_name, version=None):
         release=release,
         versions=versions,
         description_html=description_html,
+        downloads=app.models.packaging.get_downloads(project.name),
     )
 
     # Add our surrogate key headers for Fastly

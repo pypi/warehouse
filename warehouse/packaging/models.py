@@ -14,6 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import datetime
+
 from collections import namedtuple
 
 from six.moves import urllib_parse
@@ -187,3 +189,65 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return dict(conn.execute(query).first())
+
+    def get_downloads(self, project, precisions=None):
+        def _make_key(precision, datetime, key):
+            return "downloads:{}:{}:{}".format(
+                precision[0],
+                datetime.strftime(precision[1]),
+                key,
+            )
+
+        if precisions is None:
+            precisions = [
+                ("hour", "%y-%m-%d-%H"),
+                ("daily", "%y-%m-%d"),
+            ]
+
+        # Get the current utc time
+        current = datetime.datetime.utcnow()
+
+        # Get the download count for the last 24 hours (roughly)
+        keys = [
+            _make_key(
+                precisions[0],
+                current - datetime.timedelta(hours=x),
+                project,
+            )
+            for x in range(25)
+        ]
+        last_1 = sum(
+            [int(x) for x in self.redis.mget(*keys) if x is not None]
+        )
+
+        # Get the download count for the last 7 days (roughly)
+        keys = [
+            _make_key(
+                precisions[1],
+                current - datetime.timedelta(days=x),
+                project,
+            )
+            for x in range(8)
+        ]
+        last_7 = sum(
+            [int(x) for x in self.redis.mget(*keys) if x is not None]
+        )
+
+        # Get the download count for the last month (roughly)
+        keys = [
+            _make_key(
+                precisions[1],
+                current - datetime.timedelta(days=x),
+                project,
+            )
+            for x in range(31)
+        ]
+        last_30 = sum(
+            [int(x) for x in self.redis.mget(*keys) if x is not None]
+        )
+
+        return {
+            "last_day": last_1,
+            "last_week": last_7,
+            "last_month": last_30,
+        }

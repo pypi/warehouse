@@ -20,11 +20,19 @@
   </header>
 
   <div class="row">
-    <div class="col-md-8 project-description">
+    <div class="col-md-9 project-description">
      {{ description_html }}
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
+      <div class="download-counts">
+        <h2 class="sr-only">{{ gettext('Downloads') }}</h2>
+        <ul class="list-unstyled">
+          <li>{{ gettext('%(count)s downloads in the last day', count=downloads.last_day) }}</li>
+          <li>{{ gettext('%(count)s downloads in the last week', count=downloads.last_week) }}</li>
+          <li>{{ gettext('%(count)s downloads in the last month', count=downloads.last_month) }}</li>
+        </ul>
+      </div>
     </div>
   </div>
 {% endblock %}
