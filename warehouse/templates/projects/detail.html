@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+  <header class="page-header project-header">
+    <h1>
+      <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name) }}">
+        {{ project.name }}
+      </a>
+      <small>{{ release.version }}</small>
+    </h1>
+    {% if release.summary %}
+      <h2 class="text-muted">{{ release.summary }}</h2>
+    {% endif %}
+  </header>
+
+  <div class="row">
+    <div class="col-md-8">
+     {{ description_html }}
+    </div>
+
+    <div class="col-md-4">
+    </div>
+  </div>
+{% endblock %}
