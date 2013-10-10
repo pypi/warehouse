@@ -47,13 +47,8 @@ class Warehouse(object):
     }
 
     url_names = [
+        "warehouse.ui.urls",
         "warehouse.legacy.urls",
-    ]
-
-    template_packages = [
-        "warehouse.ui",
-        "warehouse.legacy",
-        "warehouse",
     ]
 
     def __init__(self, config, engine=None):
@@ -85,9 +80,7 @@ class Warehouse(object):
             extensions=[
                 AssetsExtension,
             ],
-            loader=jinja2.ChoiceLoader(
-                [jinja2.PackageLoader(tp) for tp in self.template_packages]
-            ),
+            loader=jinja2.PackageLoader("warehouse"),
         )
 
         # Setup our web assets environment
