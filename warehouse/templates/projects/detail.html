@@ -2,6 +2,10 @@
 
 {% block title %}{{ project.name }}{% endblock %}
 
+{% block extra_head %}
+  <link rel="canonical" href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=release.version, _force_external=True) }}">
+{% endblock %}
+
 {% block content %}
   <header class="page-header project-header">
     <h1>

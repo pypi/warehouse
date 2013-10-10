@@ -23,6 +23,9 @@
     {% if config.debug %}
       <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.4.1/less.min.js"></script>
     {% endif %}
+
+    {% block extra_head %}
+    {% endblock %}
   </head>
 
   <body>
