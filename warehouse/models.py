@@ -17,7 +17,8 @@ from __future__ import unicode_literals
 
 class Model(object):
 
-    def __init__(self, metadata, engine, redis):
+    def __init__(self, app, metadata, engine, redis):
+        self.app = app
         self.metadata = metadata
         self.engine = engine
         self.redis = redis

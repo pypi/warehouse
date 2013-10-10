@@ -24,6 +24,39 @@
       <div class="description">
         {{ description_html }}
       </div>
+      {% if downloads %}
+        <div id="downloads" class="downloads">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">{{ gettext('Downloads') }}</h3>
+            </div>
+            <div class="panel-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Type</th>
+                    <th>Python Version</th>
+                    <th>Uploaded On</th>
+                    <th>Size</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for download in downloads %}
+                    <tr>
+                      <td><a href="{{ download.url }}">{{ download.filename }}</a></td>
+                      <td>{{ download.packagetype }}</td>
+                      <td>{{ download.python_version }}</td>
+                      <td>{{ download.upload_time|format_date() }}</td>
+                      <td>{{ download.size|filesizeformat() }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
     </div>
 
     <div class="col-md-3">

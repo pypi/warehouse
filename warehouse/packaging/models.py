@@ -15,6 +15,7 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import datetime
+import os.path
 
 from collections import namedtuple
 
@@ -162,6 +163,53 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return [r["version"] for r in conn.execute(query)]
+
+    def get_downloads(self, project, version):
+        query = (
+            select([
+                release_files.c.name,
+                release_files.c.version,
+                release_files.c.python_version,
+                release_files.c.packagetype,
+                release_files.c.comment_text,
+                release_files.c.filename,
+                release_files.c.md5_digest,
+                release_files.c.downloads,
+                release_files.c.upload_time,
+            ])
+            .where(and_(
+                release_files.c.name == project,
+                release_files.c.version == version,
+            ))
+            .order_by(
+                release_files.c.packagetype,
+                release_files.c.python_version,
+                release_files.c.upload_time,
+            )
+        )
+
+        results = []
+        with self.engine.connect() as conn:
+            for r in conn.execute(query):
+                result = dict(r)
+                result["filepath"] = os.path.join(
+                    self.app.config.paths.packages,
+                    result["python_version"],
+                    result["name"][0],
+                    result["name"],
+                    result["filename"],
+                )
+                result["url"] = "/".join([
+                    "/packages",
+                    result["python_version"],
+                    result["name"][0],
+                    result["name"],
+                    result["filename"],
+                ])
+                result["size"] = os.path.getsize(result["filepath"])
+                results.append(result)
+
+        return results
 
     def get_release(self, project, version):
         query = (

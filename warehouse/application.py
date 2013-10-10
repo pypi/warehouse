@@ -71,6 +71,7 @@ class Warehouse(object):
             mod_name, klass = mod_path.rsplit(":", 1)
             mod = importlib.import_module(mod_name)
             self.models[name] = getattr(mod, klass)(
+                self,
                 self.metadata,
                 self.engine,
                 self.redis,
