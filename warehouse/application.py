@@ -26,7 +26,6 @@ import sqlalchemy
 import yaml
 
 from webassets import Environment as AssetsEnvironment
-from webassets.ext.jinja2 import AssetsExtension
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
 from werkzeug.wsgi import SharedDataMiddleware, responder
@@ -88,10 +87,14 @@ class Warehouse(object):
             autoescape=True,
             auto_reload=self.config.debug,
             extensions=[
-                AssetsExtension,
+                "jinja2.ext.i18n",
+                "webassets.ext.jinja2.AssetsExtension",
             ],
             loader=jinja2.PackageLoader("warehouse"),
         )
+
+        # Install our translations
+        self.templates.install_null_translations(newstyle=True)
 
         # Setup our web assets environment
         asset_config = self.config.assets
