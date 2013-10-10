@@ -20,6 +20,7 @@ import importlib
 import os.path
 
 import jinja2
+import redis as redispy
 import six
 import sqlalchemy
 import yaml
@@ -51,21 +52,29 @@ class Warehouse(object):
         "warehouse.legacy.urls",
     ]
 
-    def __init__(self, config, engine=None):
+    def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
         if engine is None:
             engine = sqlalchemy.create_engine(self.config.database.url)
-
         self.engine = engine
+
+        # Create our redis connection
+        if redis is None:
+            redis = redispy.StrictRedis.from_url(self.config.redis.url)
+        self.redis = redis
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
         for name, mod_path in six.iteritems(self.model_names):
             mod_name, klass = mod_path.rsplit(":", 1)
             mod = importlib.import_module(mod_name)
-            self.models[name] = getattr(mod, klass)(self.metadata, self.engine)
+            self.models[name] = getattr(mod, klass)(
+                self.metadata,
+                self.engine,
+                self.redis,
+            )
 
         # Setup our URL routing
         url_rules = []

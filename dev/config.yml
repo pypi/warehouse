@@ -9,6 +9,9 @@ assets:
 database:
     url: "postgresql://localhost/warehouse"
 
+redis:
+    url: "redis://localhost:6379/0"
+
 paths:
     packages: "data/packages"
 

@@ -60,6 +60,7 @@ setup(
         "psycopg2cffi-compat>=1.1",
         "PyYAML",
         "recliner",
+        "redis",
         "six",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
