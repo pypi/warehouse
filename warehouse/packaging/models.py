@@ -190,7 +190,7 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return dict(conn.execute(query).first())
 
-    def get_downloads(self, project, precisions=None):
+    def get_download_counts(self, project, precisions=None):
         def _make_key(precision, datetime, key):
             return "downloads:{}:{}:{}".format(
                 precision[0],
