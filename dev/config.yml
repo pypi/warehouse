@@ -16,8 +16,10 @@ cache:
     browser:
         simple: 1
         packages: 1
+        project_detail: 1
     varnish:
         simple: 120
         packages: 120
+        project_detail: 120
 
 fastly: true
