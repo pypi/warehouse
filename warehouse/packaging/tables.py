@@ -25,6 +25,51 @@ from sqlalchemy import sql
 from warehouse.application import Warehouse
 
 
+classifiers = Table(
+    "trove_classifiers",
+    Warehouse.metadata,
+
+    Column(
+        "id",
+        Integer(),
+        autoincrement=False,
+        primary_key=True,
+        nullable=False,
+    ),
+    Column("classifier", UnicodeText()),
+    Column("l2", Integer()),
+    Column("l3", Integer()),
+    Column("l4", Integer()),
+    Column("l5", Integer()),
+
+    UniqueConstraint("classifier", name="trove_classifiers_classifier_key"),
+
+    Index("trove_class_id_idx", "id"),
+    Index("trove_class_class_idx", "classifier"),
+)
+
+
+release_classifiers = Table(
+    "release_classifiers",
+    Warehouse.metadata,
+
+    Column("name", UnicodeText()),
+    Column("version", UnicodeText()),
+    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
+
+    ForeignKeyConstraint(
+        ["name", "version"],
+        ["releases.name", "releases.version"],
+        onupdate="CASCADE",
+    ),
+
+    Index("rel_class_name_idx", "name"),
+    Index("rel_class_version_id_idx", "version"),
+    Index("rel_class_name_version_idx", "name", "version"),
+    Index("rel_class_trove_id_idx", "trove_id"),
+)
+
+
 packages = Table(
     "packages",
     Warehouse.metadata,

@@ -25,6 +25,7 @@ from sqlalchemy.sql import and_, select, func
 from warehouse import models
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals,
+    classifiers, release_classifiers,
 )
 
 
@@ -299,3 +300,17 @@ class Model(models.Model):
             "last_week": last_7,
             "last_month": last_30,
         }
+
+    def get_classifiers(self, project, version):
+        query = (
+            select([classifiers.c.classifier])
+            .where(and_(
+                release_classifiers.c.name == project,
+                release_classifiers.c.version == version,
+                release_classifiers.c.trove_id == classifiers.c.id,
+            ))
+            .order_by(classifiers.c.classifier)
+        )
+
+        with self.engine.connect() as conn:
+            return [r["classifier"] for r in conn.execute(query)]
