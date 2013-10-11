@@ -20,7 +20,7 @@
   </header>
 
   <div class="row">
-    <div class="col-md-9 project-body">
+    <div class="col-md-8 project-body">
       <div class="description">
         {{ description_html }}
       </div>
@@ -59,7 +59,7 @@
       {% endif %}
     </div>
 
-    <div class="col-md-3">
+    <div class="col-md-4">
       <div class="download-counts">
         <h2 class="sr-only">{{ gettext('Download Counts') }}</h2>
         <ul class="list-unstyled">
@@ -67,6 +67,75 @@
           <li>{{ gettext('%(count)s downloads in the last week', count=download_counts.last_week) }}</li>
           <li>{{ gettext('%(count)s downloads in the last month', count=download_counts.last_month) }}</li>
         </ul>
+      </div>
+
+      <div class="metadata">
+        <h2 class="sr-only">{{ gettext('Project Information') }}</h2>
+        <dl>
+          {% if release.author %}
+            <dt>{{ gettext('Author') }}</dt>
+            <dd>{{ release.author }}</dd>
+          {% endif %}
+
+          {% if release.maintainer %}
+            <dt>{{ gettext('Maintainer') }}</dt>
+            <dd>{{ release.maintainer }}</dd>
+          {% endif %}
+
+          {% if release.home_page %}
+            <dt>{{ gettext('Home page') }}</dt>
+            <dd><a rel="nofollow" href="{{ release.home_page }}">{{ release.home_page }}</a></dd>
+          {% endif %}
+
+          {% if documentation %}
+            <dt>{{ gettext('Documentation') }}</dt>
+            <dd>
+              <a ref="nofollow" href="{{ documentation }}">
+                {{ gettext('%(project)s documentation', project=project.name) }}
+              </a>
+            </dd>
+          {% endif %}
+
+          {% if bugtracker %}
+            <dt>{{ gettext('Bug tracker') }}</dt>
+            <dd>
+              <a href="nofollow" href="{{ bugtracker }}">
+                {{ gettext('%(project)s bug tracker', project=project.name) }}
+              </a>
+            </dd>
+          {% endif %}
+
+          {% if release.download_url %}
+            <dt>{{ gettext('Download URL') }}</dt>
+            <dd><a rel="nofollow" href="{{ release.download_url }}">{{ release.download_url }}</a></dd>
+          {% endif %}
+
+          {% if release.license %}
+            <dt>{{ gettext('License') }}</dt>
+            <dd>{{ release.license }}</dd>
+          {% endif %}
+
+          {% if release.keywords %}
+            <dt>{{ gettext('Keywords') }}</dt>
+            <dd>{{ release.keywords }}</dd>
+          {% endif %}
+
+          {% if release.platform %}
+            <dt>{{ gettext('Platform') }}</dt>
+            <dd>{{ release.platform|replace("\n", ", ") }}</dd>
+          {% endif %}
+
+          {% if classifiers %}
+            <dt>{{ gettext('Classifiers') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for c in classifiers %}
+                  <li><a href="#">{{ c }}</a></li>
+                {% endfor %}
+              </ul>
+            </dd>
+          {% endif %}
+        </dl>
       </div>
     </div>
   </div>
