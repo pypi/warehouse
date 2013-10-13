@@ -46,7 +46,11 @@
                     <tr>
                       <td><a href="{{ download.url }}">{{ download.filename }}</a></td>
                       <td>{{ download.packagetype }}</td>
-                      <td>{{ download.python_version }}</td>
+                      <td>
+                        {% if download.python_version != "source" %}
+                          {{ download.python_version }}
+                        {% endif %}
+                      </td>
                       <td>{{ download.upload_time|format_date() }}</td>
                       <td>{{ download.size|filesizeformat() }}</td>
                     </tr>
