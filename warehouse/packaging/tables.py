@@ -14,6 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import enum
+
 from citext import CIText
 from sqlalchemy import (
     Table, Column, CheckConstraint, ForeignKey, Index, UniqueConstraint,
@@ -23,6 +25,20 @@ from sqlalchemy import Boolean, DateTime, Integer, UnicodeText
 from sqlalchemy import sql
 
 from warehouse.application import Warehouse
+
+
+class ReleaseDependencyKind(int, enum.Enum):
+
+    requires = 1
+    provides = 2
+    obsoletes = 3
+    requires_dist = 4
+    provides_dist = 5
+    obsoletes_dist = 6
+    requires_external = 7
+
+    # WHY
+    project_url = 8
 
 
 classifiers = Table(
@@ -142,6 +158,27 @@ releases = Table(
     Index("release_name_idx", "name"),
     Index("release_version_idx", "version"),
     Index("release_pypi_hidden_idx", "_pypi_hidden"),
+)
+
+
+release_dependencies = Table(
+    "release_dependencies",
+    Warehouse.metadata,
+
+    Column("name", UnicodeText()),
+    Column("version", UnicodeText()),
+    Column("kind", Integer()),
+    Column("specifier", UnicodeText()),
+
+    ForeignKeyConstraint(
+        ["name", "version"],
+        ["releases.name", "releases.version"],
+        onupdate="CASCADE",
+    ),
+
+    Index("rel_dep_name_idx", "name"),
+    Index("rel_dep_name_version_idx", "name", "version"),
+    Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
 )
 
 

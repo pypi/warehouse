@@ -82,32 +82,48 @@
             <dd>{{ release.maintainer }}</dd>
           {% endif %}
 
-          {% if release.home_page %}
-            <dt>{{ gettext('Home page') }}</dt>
-            <dd><a rel="nofollow" href="{{ release.home_page }}">{{ release.home_page }}</a></dd>
-          {% endif %}
-
-          {% if documentation %}
-            <dt>{{ gettext('Documentation') }}</dt>
+          {% if release.home_page
+              or documentation
+              or bugtracker
+              or release.download_url
+              or release.project_url %}
+            <dt>{{ gettext('Project URLs') }}</dt>
             <dd>
-              <a ref="nofollow" href="{{ documentation }}">
-                {{ gettext('%(project)s documentation', project=project.name) }}
-              </a>
-            </dd>
-          {% endif %}
+              {# These are purposely left untranslated for symmetry with project_urls #}
+              <ul class="list-unstyled">
+                {% if release.home_page %}
+                  <li>
+                    <a rel="nofollow" href="{{ release.home_page }}">{{ gettext('Home page') }}</a>
+                  </li>
+                {% endif %}
 
-          {% if bugtracker %}
-            <dt>{{ gettext('Bug tracker') }}</dt>
-            <dd>
-              <a href="nofollow" href="{{ bugtracker }}">
-                {{ gettext('%(project)s bug tracker', project=project.name) }}
-              </a>
-            </dd>
-          {% endif %}
+                {% if documentation %}
+                  <li>
+                    <a ref="nofollow" href="{{ documentation }}">{{ gettext('Documentation') }}</a>
+                  </li>
+                {% endif %}
 
-          {% if release.download_url %}
-            <dt>{{ gettext('Download URL') }}</dt>
-            <dd><a rel="nofollow" href="{{ release.download_url }}">{{ release.download_url }}</a></dd>
+                {% if bugtracker %}
+                  <li><a href="nofollow" href="{{ bugtracker }}">{{ gettext('Bug tracker') }}</a></li>
+                {% endif %}
+
+                {% if release.download_url %}
+                  <li>
+                    <a rel="nofollow" href="{{ release.download_url }}">
+                      {{ gettext('Download URL') }}
+                    </a>
+                  </li>
+                {% endif %}
+
+                {% if release.project_url %}
+                  {% for label, url in release.project_url.items() %}
+                    <li>
+                      <a rel="nofollow" href="{{ url }}">{{ label }}</a>
+                    </li>
+                  {% endfor %}
+                {% endif %}
+              </ul>
+            </dd>
           {% endif %}
 
           {% if release.license %}
@@ -123,6 +139,27 @@
           {% if release.platform %}
             <dt>{{ gettext('Platform') }}</dt>
             <dd>{{ release.platform|replace("\n", ", ") }}</dd>
+          {% endif %}
+
+          {% if release.requires_dist %}
+            <dt>{{ gettext('Requires Distribution') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for requires in release.requires_dist %}
+                  <li>{{ requires }}</li>
+                {% endfor %}
+              </ul>
+          {% endif %}
+
+          {% if release.provides_dist %}
+            <dt>{{ gettest('Provides Distribution') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for provides in release.provides_dist %}
+                  <li>{{ provides }}</li>
+                {% endfor %}
+              </ul>
+            </dd>
           {% endif %}
 
           {% if classifiers %}

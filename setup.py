@@ -57,6 +57,7 @@ setup(
     install_requires=[
         "alembic",
         "babel",
+        "enum34",
         "Jinja2",
         "psycopg2cffi-compat>=1.1",
         "PyYAML",

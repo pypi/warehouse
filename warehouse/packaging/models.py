@@ -23,9 +23,10 @@ from six.moves import urllib_parse
 from sqlalchemy.sql import and_, select, func
 
 from warehouse import models
+from warehouse.packaging.tables import ReleaseDependencyKind
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals,
-    classifiers, release_classifiers,
+    classifiers, release_classifiers, release_dependencies,
 )
 
 
@@ -213,6 +214,7 @@ class Model(models.Model):
         return results
 
     def get_release(self, project, version):
+        # Get the release data itself
         query = (
             select([
                 releases.c.name,
@@ -237,7 +239,46 @@ class Model(models.Model):
         )
 
         with self.engine.connect() as conn:
-            return dict(conn.execute(query).first())
+            result = dict(conn.execute(query).first())
+
+        # Get the release dependency information
+        query = (
+            select([
+                release_dependencies.c.kind,
+                release_dependencies.c.specifier,
+            ])
+            .where(and_(
+                release_dependencies.c.name == project,
+                release_dependencies.c.version == version,
+            ))
+        )
+
+        with self.engine.connect() as conn:
+            for dependency in conn.execute(query):
+                kind = ReleaseDependencyKind(dependency["kind"])
+
+                if kind in {
+                        ReleaseDependencyKind.requires_dist,
+                        ReleaseDependencyKind.provides_dist,
+                        ReleaseDependencyKind.obsoletes_dist}:
+                    value = result.setdefault(kind.name, [])
+                    value.append(dependency["specifier"])
+
+                if kind in {
+                        ReleaseDependencyKind.requires,
+                        ReleaseDependencyKind.provides,
+                        ReleaseDependencyKind.obsoletes}:
+                    value = result.setdefault(kind.name, [])
+                    value.append(dependency["specifier"])
+
+                if kind is ReleaseDependencyKind.project_url:
+                    value = result.setdefault(kind.name, {})
+                    value.update({
+                        k: v
+                        for k, v in [dependency["specifier"].split(",", 1)]
+                    })
+
+        return result
 
     def get_download_counts(self, project, precisions=None):
         def _make_key(precision, datetime, key):
