@@ -60,15 +60,6 @@
     </div>
 
     <div class="col-md-4">
-      <div class="download-counts">
-        <h2 class="sr-only">{{ gettext('Download Counts') }}</h2>
-        <ul class="list-unstyled">
-          <li>{{ gettext('%(count)s downloads in the last day', count=download_counts.last_day) }}</li>
-          <li>{{ gettext('%(count)s downloads in the last week', count=download_counts.last_week) }}</li>
-          <li>{{ gettext('%(count)s downloads in the last month', count=download_counts.last_month) }}</li>
-        </ul>
-      </div>
-
       <div class="metadata">
         <h2 class="sr-only">{{ gettext('Project Information') }}</h2>
         <dl>
@@ -172,6 +163,21 @@
               </ul>
             </dd>
           {% endif %}
+
+          <dt>{{ gettext('Download Counts') }}</dt>
+          <dd>
+            <ul class="list-unstyled">
+              <li>
+                {{ gettext('%(count)s downloads in the last day', count=download_counts.last_day) }}
+              </li>
+              <li>
+                {{ gettext('%(count)s downloads in the last week', count=download_counts.last_week) }}
+              </li>
+              <li>
+                {{ gettext('%(count)s downloads in the last month', count=download_counts.last_month) }}
+              </li>
+            </ul>
+          </dd>
         </dl>
       </div>
     </div>
