@@ -20,6 +20,7 @@ import importlib
 import os.path
 
 import babel.dates
+import babel.support
 import jinja2
 import redis as redispy
 import six
@@ -84,6 +85,9 @@ class Warehouse(object):
             url_rules.extend(getattr(mod, "__urls__"))
         self.urls = Map(url_rules)
 
+        # Initialize our Translations engine
+        self.trans = babel.support.NullTranslations()
+
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
             autoescape=True,
@@ -103,7 +107,7 @@ class Warehouse(object):
         })
 
         # Install our translations
-        self.templates.install_null_translations(newstyle=True)
+        self.templates.install_gettext_translations(self.trans, newstyle=True)
 
         # Setup our web assets environment
         asset_config = self.config.assets
