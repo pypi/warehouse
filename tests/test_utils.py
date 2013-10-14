@@ -66,6 +66,7 @@ def test_convert_to_attribute_dict():
 def test_render_response():
     template = pretend.stub(render=pretend.call_recorder(lambda **k: "test"))
     app = pretend.stub(
+        config=pretend.stub(),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
@@ -76,7 +77,9 @@ def test_render_response():
 
     assert resp.data == b"test"
     assert app.templates.get_template.calls == [pretend.call("template.html")]
-    assert template.render.calls == [pretend.call(foo="bar", url_for=mock.ANY)]
+    assert template.render.calls == [
+        pretend.call(foo="bar", url_for=mock.ANY, config=app.config),
+    ]
 
 
 @pytest.mark.parametrize(("browser", "varnish"), [

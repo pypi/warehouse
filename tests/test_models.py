@@ -18,8 +18,10 @@ from warehouse import models
 
 
 def test_model_basic():
-    metadata, engine = object(), object()
-    m = models.Model(metadata, engine)
+    app, metadata, engine, redis = object(), object(), object(), object()
+    m = models.Model(app, metadata, engine, redis)
 
+    assert m.app is app
     assert m.metadata is metadata
     assert m.engine is engine
+    assert m.redis is redis

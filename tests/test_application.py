@@ -31,9 +31,16 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
+        "assets": {
+            "directory": "static",
+            "url": "/static/",
+        },
         "database": {
             "url": "postgres:///test_warehouse",
-        }
+        },
+        "redis": {
+            "url": "redis://localhost:6379/0"
+        },
     })
 
 
