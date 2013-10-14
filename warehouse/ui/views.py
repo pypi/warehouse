@@ -20,10 +20,9 @@ import jinja2
 
 from recliner import htmlize
 from werkzeug.exceptions import NotFound
-from werkzeug.utils import redirect
 
 from warehouse.helpers import url_for
-from warehouse.utils import cache, render_response
+from warehouse.utils import cache, redirect, render_response
 
 
 @cache("project_detail")
@@ -53,7 +52,7 @@ def project_detail(app, request, project_name, version=None):
     if project.name != project_name:
         # We've found the project, and the version exists, but the project name
         # isn't quite right so we'll redirect them to the correct one.
-        return redirect(
+        resp = redirect(
             url_for(
                 request,
                 "warehouse.ui.views.project_detail",
@@ -62,6 +61,18 @@ def project_detail(app, request, project_name, version=None):
             ),
             code=301,
         )
+
+        # Add our surrogate key headers for Fastly
+        if app.config.fastly:
+            resp.headers.add(
+                "Surrogate-Key",
+                " ".join([
+                    "project-detail",
+                    "project-detail~{}".format(normalized),
+                ]),
+            )
+
+        return resp
 
     if version is None:
         # If there's no version specified, then we use the latest version
@@ -110,7 +121,6 @@ def project_detail(app, request, project_name, version=None):
             " ".join([
                 "project-detail",
                 "project-detail~{}".format(normalized),
-                "project-detail~{}~{}".format(normalized, version),
             ]),
         )
 
