@@ -59,7 +59,10 @@
                 <tbody>
                   {% for download in downloads %}
                     <tr>
-                      <td><a href="{{ download.url }}">{{ download.filename }}</a></td>
+                      <td>
+                        <a href="{{ download.url }}">{{ download.filename }}</a>
+                        (<a data-toggle="modal" href="#hash-{{ download.md5_digest }}">{{ gettext('hash') }}</a>)
+                      </td>
                       <td>{{ download.packagetype }}</td>
                       <td>
                         {% if download.python_version != "source" %}
@@ -200,4 +203,24 @@
       </div>
     </div>
   </div>
+
+
+  {% for download in downloads %}
+    <div class="modal fade" id="hash-{{ download.md5_digest }}" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(filename)s hashes', filename=download.filename) }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">{{ download.filename }}</h4>
+          </div>
+          <div class="modal-body">
+            <dl>
+              <dt>{{ gettext('MD5 Hash') }}</dt>
+              <dd>{{ download.md5_digest }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
 {% endblock %}
