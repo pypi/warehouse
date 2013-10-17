@@ -210,6 +210,10 @@ class Model(models.Model):
                     result["filename"],
                 ])
                 result["size"] = os.path.getsize(result["filepath"])
+
+                if os.path.exists(result["filepath"] + ".asc"):
+                    result["pgp_url"] = result["url"] + ".asc"
+
                 results.append(result)
 
         return results
