@@ -419,3 +419,12 @@ class Model(models.Model):
                 self.app.config.urls.documentation,
                 project
             )
+
+    def get_bugtrack_url(self, project):
+        query = (
+            select([packages.c.bugtrack_url])
+            .where(packages.c.name == project)
+        )
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
