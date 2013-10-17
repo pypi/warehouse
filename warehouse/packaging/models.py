@@ -322,7 +322,10 @@ class Model(models.Model):
             }
 
         for result in results:
+            # Add the values from release_dependencies
             result.update(dependencies[(result["name"], result["version"])])
+
+            # Add the creation date
             result["created"] = creation_dates.get(
                 (result["name"], result["version"]),
             )
