@@ -113,6 +113,7 @@ def project_detail(app, request, project_name, version=None):
             project.name,
             version,
         ),
+        documentation=app.models.packaging.get_documentation_url(project.name),
     )
 
     # Add our surrogate key headers for Fastly

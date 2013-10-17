@@ -407,3 +407,15 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return [r["classifier"] for r in conn.execute(query)]
+
+    def get_documentation_url(self, project):
+        path_parts = [
+            self.app.config.paths.documentation,
+            project,
+            "index.html",
+        ]
+        if os.path.exists(os.path.join(*path_parts)):
+            return urllib_parse.urljoin(
+                self.app.config.urls.documentation,
+                project
+            )

@@ -13,7 +13,11 @@ redis:
     url: "redis://localhost:6379/0"
 
 paths:
+    documentation: "data/packagedocs"
     packages: "data/packages"
+
+urls:
+    documentation: "http://pythonhosted.org/"
 
 cache:
     browser:
