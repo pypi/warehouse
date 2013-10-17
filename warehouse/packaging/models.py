@@ -14,6 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import collections
 import datetime
 import os.path
 
@@ -214,6 +215,13 @@ class Model(models.Model):
         return results
 
     def get_release(self, project, version):
+        results = self._get_releases(project, version)
+        return results[0] if results else None
+
+    def get_releases(self, project):
+        return self._get_releases(project)
+
+    def _get_releases(self, project, version=None):
         # Get the release data itself
         query = (
             select([
@@ -232,26 +240,30 @@ class Model(models.Model):
                 releases.c.download_url,
                 releases.c.requires_python,
             ])
-            .where(and_(
-                releases.c.name == project,
-                releases.c.version == version,
-            ))
+            .where(releases.c.name == project)
         )
 
+        if version is not None:
+            query = query.where(releases.c.version == version)
+
         with self.engine.connect() as conn:
-            result = dict(conn.execute(query).first())
+            results = [dict(r) for r in conn.execute(query)]
 
         # Get the release dependency information
         query = (
             select([
+                release_dependencies.c.name,
+                release_dependencies.c.version,
                 release_dependencies.c.kind,
                 release_dependencies.c.specifier,
             ])
-            .where(and_(
-                release_dependencies.c.name == project,
-                release_dependencies.c.version == version,
-            ))
+            .where(release_dependencies.c.name == project)
         )
+
+        if version is not None:
+            query = query.where(release_dependencies.c.version == version)
+
+        dependencies = collections.defaultdict(dict)
 
         with self.engine.connect() as conn:
             for dependency in conn.execute(query):
@@ -261,24 +273,61 @@ class Model(models.Model):
                         ReleaseDependencyKind.requires_dist,
                         ReleaseDependencyKind.provides_dist,
                         ReleaseDependencyKind.obsoletes_dist}:
-                    value = result.setdefault(kind.name, [])
+                    value = dependencies[(
+                        dependency["name"],
+                        dependency["version"]
+                    )].setdefault(kind.name, [])
                     value.append(dependency["specifier"])
 
                 if kind in {
                         ReleaseDependencyKind.requires,
                         ReleaseDependencyKind.provides,
                         ReleaseDependencyKind.obsoletes}:
-                    value = result.setdefault(kind.name, [])
+                    value = dependencies[(
+                        dependency["name"],
+                        dependency["version"]
+                    )].setdefault(kind.name, [])
                     value.append(dependency["specifier"])
 
                 if kind is ReleaseDependencyKind.project_url:
-                    value = result.setdefault(kind.name, {})
+                    value = dependencies[(
+                        dependency["name"],
+                        dependency["version"]
+                    )].setdefault(kind.name, {})
                     value.update({
                         k: v
                         for k, v in [dependency["specifier"].split(",", 1)]
                     })
 
-        return result
+        # Get the release Creation date
+        query = (
+            select([
+                journals.c.name,
+                journals.c.version,
+                journals.c.submitted_date,
+            ])
+            .where(and_(
+                journals.c.name == project,
+                journals.c.action == "new release",
+            ))
+        )
+
+        if version is not None:
+            query = query.where(journals.c.version == version)
+
+        with self.engine.connect() as conn:
+            creation_dates = {
+                (e["name"], e["version"]): e["submitted_date"]
+                for e in conn.execute(query)
+            }
+
+        for result in results:
+            result.update(dependencies[(result["name"], result["version"])])
+            result["created"] = creation_dates.get(
+                (result["name"], result["version"]),
+            )
+
+        return results
 
     def get_download_counts(self, project, precisions=None):
         def _make_key(precision, datetime, key):

@@ -104,6 +104,7 @@ def project_detail(app, request, project_name, version=None):
         app, request, "projects/detail.html",
         project=project,
         release=release,
+        releases=app.models.packaging.get_releases(project.name),
         versions=versions,
         description_html=description_html,
         download_counts=app.models.packaging.get_download_counts(project.name),
