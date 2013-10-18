@@ -29,7 +29,7 @@ from warehouse.legacy import simple
 
 @pytest.mark.parametrize("fastly", [True, False])
 def test_index(fastly, monkeypatch):
-    response = pretend.stub(headers=Headers())
+    response = pretend.stub(status_code=200, headers=Headers())
     render = pretend.call_recorder(lambda *a, **k: response)
     monkeypatch.setattr(simple, "render_response", render)
 
@@ -102,7 +102,7 @@ def test_index(fastly, monkeypatch):
 )
 def test_project(fastly, project_name, hosting_mode, release_urls,
         e_project_urls, monkeypatch):
-    response = pretend.stub(headers=Headers())
+    response = pretend.stub(status_code=200, headers=Headers())
     render = pretend.call_recorder(lambda *a, **k: response)
     url_for = lambda *a, **k: "/foo/"
 

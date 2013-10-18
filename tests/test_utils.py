@@ -90,6 +90,7 @@ def test_render_response():
 ])
 def test_cache_deco(browser, varnish):
     response = pretend.stub(
+        status_code=200,
         cache_control=pretend.stub(),
         surrogate_control=pretend.stub(),
     )
