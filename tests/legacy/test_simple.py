@@ -191,13 +191,17 @@ def test_project_not_found():
     assert app.models.packaging.get_project.calls == [pretend.call("foo")]
 
 
-@pytest.mark.parametrize(("fastly", "serial"), [
-    (True, 999),
-    (False, 999),
-    (True, None),
-    (False, None),
+@pytest.mark.parametrize(("fastly", "serial", "md5_hash"), [
+    (True, 999, "d41d8cd98f00b204e9800998ecf8427f"),
+    (False, 999, "d41d8cd98f00b204e9800998ecf8427f"),
+    (True, None, "d41d8cd98f00b204e9800998ecf8427f"),
+    (False, None, "d41d8cd98f00b204e9800998ecf8427f"),
+    (True, 999, None),
+    (False, 999, None),
+    (True, None, None),
+    (False, None, None),
 ])
-def test_package(fastly, serial, monkeypatch):
+def test_package(fastly, serial, md5_hash, monkeypatch):
     safe_join = pretend.call_recorder(
         lambda *a, **k: "/tmp/packages/any/t/test-1.0.tar.gz"
     )
@@ -215,7 +219,7 @@ def test_package(fastly, serial, monkeypatch):
 
     gpff = pretend.call_recorder(lambda p: Project("test"))
     get_md5 = pretend.call_recorder(
-        lambda p: "d41d8cd98f00b204e9800998ecf8427f"
+        lambda p: md5_hash
     )
     get_last_serial = pretend.call_recorder(lambda p: serial)
 
