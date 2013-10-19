@@ -17,10 +17,11 @@ from __future__ import unicode_literals
 import mock
 import pretend
 import pytest
+import six
 
 from warehouse.utils import (
     AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
-    get_wsgi_application, get_mimetype,
+    get_wsgi_application, get_mimetype, redirect
 )
 
 
@@ -144,3 +145,15 @@ def test_get_wsgi_application(environ):
 ])
 def test_get_mimetype(filename, expected):
     assert get_mimetype(filename) == expected
+
+
+def test_redirect_bytes():
+    resp = redirect(b"/foo/")
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/foo/"
+
+
+def test_redirect_unicode():
+    resp = redirect(six.text_type("/foo/"))
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/foo/"
