@@ -82,15 +82,19 @@ def test_render_response():
     ]
 
 
-@pytest.mark.parametrize(("browser", "varnish"), [
-    ({}, {}),
-    ({"test": 120}, {}),
-    ({}, {"test": 120}),
-    ({"test": 120}, {"test": 120}),
+@pytest.mark.parametrize(("browser", "varnish", "status"), [
+    ({}, {}, 200),
+    ({"test": 120}, {}, 200),
+    ({}, {"test": 120}, 200),
+    ({"test": 120}, {"test": 120}, 200),
+    ({}, {}, 400),
+    ({"test": 120}, {}, 400),
+    ({}, {"test": 120}, 400),
+    ({"test": 120}, {"test": 120}, 400),
 ])
-def test_cache_deco(browser, varnish):
+def test_cache_deco(browser, varnish, status):
     response = pretend.stub(
-        status_code=200,
+        status_code=status,
         cache_control=pretend.stub(),
         surrogate_control=pretend.stub(),
     )
@@ -110,11 +114,12 @@ def test_cache_deco(browser, varnish):
 
     assert resp is response
 
-    if browser:
-        assert resp.cache_control.max_age == browser["test"]
+    if 200 <= resp.status_code < 400:
+        if browser:
+            assert resp.cache_control.max_age == browser["test"]
 
-    if varnish:
-        assert resp.surrogate_control.max_age == varnish["test"]
+        if varnish:
+            assert resp.surrogate_control.max_age == varnish["test"]
 
 
 @pytest.mark.parametrize("environ", [
