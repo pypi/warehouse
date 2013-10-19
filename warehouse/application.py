@@ -37,6 +37,7 @@ import warehouse.cli
 
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
+from warehouse.packaging import helpers as packaging_helpers
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
@@ -101,6 +102,8 @@ class Warehouse(object):
 
         # Install Babel
         self.templates.filters.update({
+            "package_type_display": packaging_helpers.package_type_display,
+
             "format_date": babel.dates.format_date,
             "format_datetime": babel.dates.format_datetime,
             "format_time": babel.dates.format_time,

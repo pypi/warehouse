@@ -64,7 +64,7 @@
                         (<a data-toggle="modal" href="#hash-{{ download.md5_digest }}">{{ gettext('hash') }}</a>)
                         {% if download.pgp_url %}(<a href="{{ download.pgp_url }}">pgp</a>){% endif %}
                       </td>
-                      <td>{{ download.packagetype }}</td>
+                      <td>{{ download.packagetype|package_type_display() }}</td>
                       <td>
                         {% if download.python_version != "source" %}
                           {{ download.python_version }}
