@@ -96,7 +96,7 @@ def project(app, request, project_name):
         project=project,
         files=file_urls,
         project_urls=project_urls,
-        externals=external_urls,
+        external_urls=external_urls,
     )
 
     # Add our surrogate key headers for Fastly

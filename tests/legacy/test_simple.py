@@ -148,7 +148,7 @@ def test_project(fastly, project_name, hosting_mode, release_urls,
             project=project,
             project_urls=e_project_urls,
             files=[],
-            externals=[],
+            external_urls=[],
         ),
     ]
     assert app.models.packaging.get_project.calls == [
