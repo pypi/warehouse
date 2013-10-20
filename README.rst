@@ -60,7 +60,7 @@ development web server using:
 
     $ bin/warehouse -c dev/config.yml serve
 
-6. Open browser at `http://localhost:9000/`_
+6. Open browser at `http://localhost:9000/ <http://localhost:9000/>`_
 
 
 Running the tests
