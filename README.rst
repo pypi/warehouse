@@ -19,27 +19,48 @@ The default development configuration shipped as part of this repository
 assumes that you have it running locally, with a database named ``warehouse``,
 and that no password is required.
 
+You may have to enable `CITEXT <http://www.postgresql.org/docs/9.2/static/citext.html>`_ extension:
+
+.. code:: bash
+
+    $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
+
 To work on Warehouse you can gain a checkout of the repository and run the
 development web server using:
+
 
 1. Get a checkout of the source
 
 .. code:: bash
 
-    $ git clone https://github.com/dstufft/warehouse.git warehouse
+    $ git clone https://github.com/dstufft/warehouse.git warehouse && cd warehouse
 
-
-2. Install the requirements
-
-.. code:: bash
-
-    $ pip install -r requirements.txt
-
-3. Run the development server
+2. Create `virtualenv`
 
 .. code:: bash
 
-    $ warehouse -c dev/config.yml serve
+    $ virtualenv .
+
+3. Install the requirements
+
+.. code:: bash
+
+    $ bin/pip install -r requirements.txt
+
+4. Populate database
+
+.. code:: bash
+
+    $ bin/warehouse -c dev/config.yml migrate upgrade head
+
+
+5. Run the development server
+
+.. code:: bash
+
+    $ bin/warehouse -c dev/config.yml serve
+
+6. Open browser at `http://localhost:9000/`_
 
 
 Running the tests
