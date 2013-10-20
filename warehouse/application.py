@@ -32,6 +32,7 @@ import warehouse
 import warehouse.cli
 
 from warehouse.http import Request
+from warehouse.middleware import PoweredBy
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
@@ -77,6 +78,12 @@ class Warehouse(object):
                 "legacy": jinja2.PackageLoader("warehouse.legacy"),
             }),
         )
+
+        # Add our Powered By Middleware
+        self.wsgi_app = PoweredBy(self.wsgi_app, "Warehouse {} ({})".format(
+            warehouse.__version__,
+            warehouse.__build__,
+        ))
 
     def __call__(self, environ, start_response):
         """

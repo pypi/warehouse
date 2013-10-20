@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
 
-from warehouse.__about__ import (
-    __title__, __summary__, __uri__, __version__, __author__, __email__,
-    __license__, __copyright__, __build__,
-)
 
-__all__ = [
-    "__title__", "__summary__", "__uri__", "__version__", "__author__",
-    "__email__", "__license__", "__copyright__", "__build__",
-]
+class PoweredBy(object):
+
+    def __init__(self, app, powered_by):
+        self.app = app
+        self.powered_by = powered_by
+
+    def __call__(self, environ, start_response):
+        def _start_response(status, headers, exc_info=None):
+            headers.append(("X-Powered-By", self.powered_by))
+            return start_response(status, headers, exc_info)
+
+        return self.app(environ, _start_response)
