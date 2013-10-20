@@ -213,6 +213,8 @@ class Model(models.Model):
 
                 if os.path.exists(result["filepath"] + ".asc"):
                     result["pgp_url"] = result["url"] + ".asc"
+                else:
+                    result["pgp_url"] = None
 
                 results.append(result)
 
@@ -242,9 +244,9 @@ class Model(models.Model):
                 releases.c.keywords,
                 releases.c.platform,
                 releases.c.download_url,
-                releases.c.requires_python,
             ])
             .where(releases.c.name == project)
+            .order_by(releases.c._pypi_ordering.desc())
         )
 
         if version is not None:
@@ -262,6 +264,10 @@ class Model(models.Model):
                 release_dependencies.c.specifier,
             ])
             .where(release_dependencies.c.name == project)
+            .order_by(
+                release_dependencies.c.kind,
+                release_dependencies.c.specifier,
+            )
         )
 
         if version is not None:
@@ -277,16 +283,6 @@ class Model(models.Model):
                         ReleaseDependencyKind.requires_dist,
                         ReleaseDependencyKind.provides_dist,
                         ReleaseDependencyKind.obsoletes_dist}:
-                    value = dependencies[(
-                        dependency["name"],
-                        dependency["version"]
-                    )].setdefault(kind.name, [])
-                    value.append(dependency["specifier"])
-
-                if kind in {
-                        ReleaseDependencyKind.requires,
-                        ReleaseDependencyKind.provides,
-                        ReleaseDependencyKind.obsoletes}:
                     value = dependencies[(
                         dependency["name"],
                         dependency["version"]
@@ -314,6 +310,7 @@ class Model(models.Model):
                 journals.c.name == project,
                 journals.c.action == "new release",
             ))
+            .order_by(journals.c.submitted_date)
         )
 
         if version is not None:
@@ -336,7 +333,7 @@ class Model(models.Model):
 
         return results
 
-    def get_download_counts(self, project, precisions=None):
+    def get_download_counts(self, project):
         def _make_key(precision, datetime, key):
             return "downloads:{}:{}:{}".format(
                 precision[0],
@@ -344,11 +341,10 @@ class Model(models.Model):
                 key,
             )
 
-        if precisions is None:
-            precisions = [
-                ("hour", "%y-%m-%d-%H"),
-                ("daily", "%y-%m-%d"),
-            ]
+        precisions = [
+            ("hour", "%y-%m-%d-%H"),
+            ("daily", "%y-%m-%d"),
+        ]
 
         # Get the current utc time
         current = datetime.datetime.utcnow()
@@ -422,7 +418,7 @@ class Model(models.Model):
             return urllib_parse.urljoin(
                 self.app.config.urls.documentation,
                 project
-            )
+            ) + "/"
 
     def get_bugtrack_url(self, project):
         query = (

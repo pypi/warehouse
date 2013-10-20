@@ -15,3 +15,9 @@ cache:
     varnish: false
 
 fastly: false
+
+paths:
+    documentation: data/packagedocs
+
+urls:
+    documentation: "https://pythonhosted.org"

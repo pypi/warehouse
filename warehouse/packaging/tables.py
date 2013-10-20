@@ -29,13 +29,13 @@ from warehouse.application import Warehouse
 
 class ReleaseDependencyKind(int, enum.Enum):
 
-    requires = 1
-    provides = 2
-    obsoletes = 3
+    requires = 1  # Unused
+    provides = 2  # Unused
+    obsoletes = 3  # Unused
     requires_dist = 4
     provides_dist = 5
-    obsoletes_dist = 6
-    requires_external = 7
+    obsoletes_dist = 6  # Unused
+    requires_external = 7  # Unused
 
     # WHY
     project_url = 8
