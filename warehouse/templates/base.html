@@ -14,16 +14,11 @@
 
     {% assets output="warehouse.%(version)s.css",
               filters="less",
-              debug=config.debug,
               "warehouse/sticky-footer.less",
               "warehouse/pygments.friendly.less",
               "warehouse/app.less" %}
-      <link rel="stylesheet{% if config.debug %}/less{% endif %}" href="{{ ASSET_URL }}" />
+      <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
-
-    {% if config.debug %}
-      <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.4.1/less.min.js"></script>
-    {% endif %}
 
     {% block extra_head %}
     {% endblock %}

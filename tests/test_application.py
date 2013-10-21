@@ -42,6 +42,9 @@ def test_basic_instantiation():
         "redis": {
             "url": "redis://localhost:6379/0"
         },
+        "security": {
+            "csp": {},
+        },
     })
 
 

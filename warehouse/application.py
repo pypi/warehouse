@@ -21,6 +21,7 @@ import os.path
 
 import babel.dates
 import babel.support
+import guard
 import jinja2
 
 import redis as redispy
@@ -117,7 +118,6 @@ class Warehouse(object):
         asset_config = self.config.assets
         asset_config.setdefault("debug", self.config.debug)
         asset_config.setdefault("auto_build", self.config.debug)
-        asset_config.setdefault("less_run_in_debug", False)
 
         self.templates.assets_environment = AssetsEnvironment(**asset_config)
 
@@ -136,11 +136,21 @@ class Warehouse(object):
             warehouse.__build__,
         ))
 
+        # Add our Content Security Policy Middleware
+        self.wsgi_app = guard.ContentSecurityPolicy(
+            self.wsgi_app,
+            self.config.security.csp,
+        )
+
         # Serve the static files if we're in debug
         if self.config.debug:
             self.wsgi_app = SharedDataMiddleware(
                 self.wsgi_app,
                 {"/static/": static_path},
+            )
+            self.wsgi_app = SharedDataMiddleware(
+                self.wsgi_app,
+                {"/static/": self.config.assets.directory},
             )
 
     def __call__(self, environ, start_response):

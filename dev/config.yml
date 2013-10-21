@@ -4,7 +4,7 @@ site:
     name: Warehouse (dev)
 
 assets:
-    directory: "static"
+    directory: "data/static"
 
 database:
     url: "postgresql://localhost/warehouse"
@@ -28,3 +28,10 @@ cache:
         simple: 120
         packages: 120
         project_detail: 120
+
+
+security:
+    csp:
+        default-src:
+            - self
+            - "localhost:9000"
