@@ -8,11 +8,11 @@
 
     <title>{% block title %}{% endblock %} &middot; {{ config.site.name }}</title>
 
-    {% assets output="bootstrap.css", "bootstrap/dist/css/bootstrap.css" %}
+    {% assets output="bootstrap.%(version)s.css", "bootstrap/dist/css/bootstrap.css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 
-    {% assets output="warehouse.css",
+    {% assets output="warehouse.%(version)s.css",
               filters="less",
               debug=config.debug,
               "warehouse/sticky-footer.less",
@@ -60,11 +60,11 @@
       </div>
     </div>
 
-    {% assets output="jquery.js", "jquery/jquery.js" %}
+    {% assets output="jquery.%(version)s.js", "jquery/jquery.js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
 
-    {% assets output="bootstrap.js", "bootstrap/dist/js/bootstrap.js" %}
+    {% assets output="bootstrap.%(version)s.js", "bootstrap/dist/js/bootstrap.js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
   </body>
