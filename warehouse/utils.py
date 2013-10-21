@@ -18,8 +18,6 @@ import collections
 import functools
 import mimetypes
 
-import six
-
 from werkzeug.urls import iri_to_uri
 from werkzeug.utils import escape
 
