@@ -17,8 +17,6 @@ from __future__ import unicode_literals
 import os.path
 import re
 
-import six
-
 from werkzeug.exceptions import NotFound
 from werkzeug.security import safe_join
 from werkzeug.wsgi import wrap_file
@@ -72,7 +70,7 @@ def project(app, request, project_name):
 
         # Generate the Homepage and Download URL links
         release_urls = app.models.packaging.get_release_urls(project.name)
-        for version, (home_page, download_url) in six.iteritems(release_urls):
+        for version, (home_page, download_url) in release_urls.items():
             if home_page and home_page != "UNKNOWN":
                 project_urls.append({
                     "rel": home_rel,

@@ -51,7 +51,7 @@ def merge_dict(base, additional):
         return additional
 
     merged = base
-    for key, value in six.iteritems(additional):
+    for key, value in additional.items():
         if isinstance(value, collections.Mapping):
             merged[key] = merge_dict(merged.get(key), value)
         else:
@@ -62,7 +62,7 @@ def merge_dict(base, additional):
 
 def convert_to_attr_dict(dictionary):
     output = {}
-    for key, value in six.iteritems(dictionary):
+    for key, value in dictionary.items():
         if isinstance(value, collections.Mapping):
             output[key] = convert_to_attr_dict(value)
         else:
@@ -139,7 +139,7 @@ def redirect(location, code=302):
     :param code: the redirect status code. defaults to 302.
     """
     display_location = escape(location)
-    if isinstance(location, six.text_type):
+    if isinstance(location, str):
         location = iri_to_uri(location)
     response = Response(
         '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
