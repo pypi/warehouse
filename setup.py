@@ -25,11 +25,13 @@ with open("warehouse/__about__.py") as fp:
     exec(fp.read(), about)
 
 
-def recursive_glob(path, pattern):
+def recursive_glob(path, pattern, cutdirs=0):
     matches = []
     for root, dirnames, filenames in os.walk(path):
         for filename in fnmatch.filter(filenames, pattern):
-            matches.append(os.path.join(root, filename))
+            filepath = os.path.join(root, filename)
+            filepath = "/".join(filepath.split("/")[cutdirs:])
+            matches.append(filepath)
     return matches
 
 
@@ -55,8 +57,10 @@ setup(
 
     packages=find_packages(),
     package_data={
-        "warehouse": ["*.yml"] + recursive_glob("warehouse/static", "*.*"),
-        "warehouse": recursive_glob("warehouse/templates", "*.*"),
+        "warehouse": (
+            ["*.yml"] + recursive_glob("warehouse/static", "*.*", 1) +
+            recursive_glob("warehouse/templates", "*.*", 1)
+        ),
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
