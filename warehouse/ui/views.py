@@ -14,27 +14,23 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import re
-
 import jinja2
 
 from recliner import htmlize
 from werkzeug.exceptions import NotFound
 
 from warehouse.helpers import url_for
-from warehouse.utils import cache, redirect, render_response
+from warehouse.utils import cache, fastly, redirect, render_response
 
 
 @cache("project_detail")
+@fastly("project-detail", "project-detail~{project_name!n}")
 def project_detail(app, request, project_name, version=None):
     # Get the real project name for this project
     project = app.models.packaging.get_project(project_name)
 
     if project is None:
         raise NotFound("Cannot find a project named {}".format(project_name))
-
-    # Normalize the project name
-    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     # Look up the version of the given project
     versions = app.models.packaging.get_project_versions(project.name)
@@ -52,7 +48,7 @@ def project_detail(app, request, project_name, version=None):
     if project.name != project_name:
         # We've found the project, and the version exists, but the project name
         # isn't quite right so we'll redirect them to the correct one.
-        resp = redirect(
+        return redirect(
             url_for(
                 request,
                 "warehouse.ui.views.project_detail",
@@ -61,18 +57,6 @@ def project_detail(app, request, project_name, version=None):
             ),
             code=301,
         )
-
-        # Add our surrogate key headers for Fastly
-        if app.config.fastly:
-            resp.headers.add(
-                "Surrogate-Key",
-                " ".join([
-                    "project-detail",
-                    "project-detail~{}".format(normalized),
-                ]),
-            )
-
-        return resp
 
     if version is None:
         # If there's no version specified, then we use the latest version
@@ -100,7 +84,7 @@ def project_detail(app, request, project_name, version=None):
     # Mark our description_html as safe as it's already been cleaned by bleach
     description_html = jinja2.Markup(description_html)
 
-    resp = render_response(
+    return render_response(
         app, request, "projects/detail.html",
         project=project,
         release=release,
@@ -116,15 +100,3 @@ def project_detail(app, request, project_name, version=None):
         documentation=app.models.packaging.get_documentation_url(project.name),
         bugtracker=app.models.packaging.get_bugtrack_url(project.name),
     )
-
-    # Add our surrogate key headers for Fastly
-    if app.config.fastly:
-        resp.headers.add(
-            "Surrogate-Key",
-            " ".join([
-                "project-detail",
-                "project-detail~{}".format(normalized),
-            ]),
-        )
-
-    return resp

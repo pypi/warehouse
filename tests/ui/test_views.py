@@ -71,15 +71,13 @@ def test_project_detail_no_versions():
     ]
 
 
-@pytest.mark.parametrize("fastly", [True, False])
-def test_project_detail_redirects(fastly):
+def test_project_detail_redirects():
     app = pretend.stub(
         config=pretend.stub(
             cache=pretend.stub(
                 browser=False,
                 varnish=False,
             ),
-            fastly=fastly,
         ),
         models=pretend.stub(
             packaging=pretend.stub(
@@ -103,16 +101,13 @@ def test_project_detail_redirects(fastly):
     project_name = "test-Project"
     normalized = "test-project"
 
-    resp = project_detail(app, request, project_name)
+    resp = project_detail(app, request, project_name=project_name)
 
     assert resp.status_code == 301
     assert resp.headers["Location"] == "/projects/test-project/"
 
-    if fastly:
-        assert resp.headers["Surrogate-Key"] == \
-            "project-detail project-detail~{}".format(normalized)
-    else:
-        assert "Surrogate-Key" not in resp.headers
+    assert resp.headers["Surrogate-Key"] == \
+        "project-detail project-detail~{}".format(normalized)
 
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-Project"),
@@ -163,7 +158,7 @@ def test_project_detail_invalid_version():
     ]
 
 
-@pytest.mark.parametrize(("version", "description", "fastly"), [
+@pytest.mark.parametrize(("version", "description"), [
     (
         None,
         textwrap.dedent("""
@@ -172,17 +167,6 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
-        True,
-    ),
-    (
-        None,
-        textwrap.dedent("""
-            Test Project
-            ============
-
-            This is a test project
-        """),
-        False,
     ),
     (
         "1.0",
@@ -192,24 +176,11 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
-        True,
     ),
-    (
-        "1.0",
-        textwrap.dedent("""
-            Test Project
-            ============
-
-            This is a test project
-        """),
-        False,
-    ),
-    (None, ".. code-fail::\n    wat", True),
-    (None, ".. code-fail::\n    wat", False),
-    ("1.0", ".. code-fail::\n    wat", True),
-    ("1.0", ".. code-fail::\n    wat", False),
+    (None, ".. code-fail::\n    wat"),
+    ("1.0", ".. code-fail::\n    wat"),
 ])
-def test_project_detail_valid(version, description, fastly):
+def test_project_detail_valid(version, description):
     release = {
         "description": description,
     }
@@ -224,7 +195,6 @@ def test_project_detail_valid(version, description, fastly):
                 browser=False,
                 varnish=False,
             ),
-            fastly=fastly,
         ),
         models=pretend.stub(
             packaging=pretend.stub(
@@ -262,15 +232,17 @@ def test_project_detail_valid(version, description, fastly):
     project_name = "test-project"
     normalized = "test-project"
 
-    resp = project_detail(app, request, project_name, version)
+    resp = project_detail(
+        app,
+        request,
+        project_name=project_name,
+        version=version,
+    )
 
     assert resp.status_code == 200
 
-    if fastly:
-        assert resp.headers["Surrogate-Key"] == \
-            "project-detail project-detail~{}".format(normalized)
-    else:
-        assert "Surrogate-Key" not in resp.headers
+    assert resp.headers["Surrogate-Key"] == \
+        "project-detail project-detail~{}".format(normalized)
 
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-project"),

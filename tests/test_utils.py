@@ -20,8 +20,8 @@ import pytest
 import six
 
 from warehouse.utils import (
-    AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
-    get_wsgi_application, get_mimetype, redirect
+    AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
+    render_response, cache, get_wsgi_application, get_mimetype, redirect
 )
 
 
@@ -157,3 +157,8 @@ def test_redirect_unicode():
     resp = redirect(six.text_type("/foo/"))
     assert resp.status_code == 302
     assert resp.headers["Location"] == "/foo/"
+
+
+def test_fastly_formatter():
+    assert FastlyFormatter().format("{0}", "Foo") == "Foo"
+    assert FastlyFormatter().format("{0!n}", "Foo") == "foo"
