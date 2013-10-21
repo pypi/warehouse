@@ -72,7 +72,7 @@ setup(
         "Jinja2",
         "psycopg2cffi-compat>=1.1",
         "PyYAML",
-        "recliner>=0.2",
+        "recliner>=0.3.1",
         "redis",
         "six",
         "SQLAlchemy",
