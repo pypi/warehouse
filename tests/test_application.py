@@ -101,7 +101,7 @@ def test_wsgi_app(app, monkeypatch):
     assert urls.bind_to_environ.calls == [pretend.call(environ)]
     assert import_module.calls == [pretend.call("warehouse.fake")]
     assert fake_view.calls == [pretend.call(app, mock.ANY)]
-    assert response.calls == [pretend.call(environ, start_response)]
+    assert response.calls == [pretend.call(environ, mock.ANY)]
 
 
 def test_wsgi_app_exception(app, monkeypatch):

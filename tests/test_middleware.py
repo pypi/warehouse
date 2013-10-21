@@ -14,12 +14,22 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from warehouse.__about__ import (
-    __title__, __summary__, __uri__, __version__, __author__, __email__,
-    __license__, __copyright__, __build__,
-)
+import mock
+import pretend
 
-__all__ = [
-    "__title__", "__summary__", "__uri__", "__version__", "__author__",
-    "__email__", "__license__", "__copyright__", "__build__",
-]
+from warehouse.middleware import PoweredBy
+
+
+def test_powered_by():
+    app = pretend.call_recorder(lambda environ, start_response: start_response)
+    powered_by = PoweredBy(app, "Test Powered By")
+
+    environ = pretend.stub()
+    start_response = pretend.call_recorder(lambda *a: None)
+
+    powered_by(environ, start_response)(200, [])
+
+    assert app.calls == [pretend.call(environ, mock.ANY)]
+    assert start_response.calls == [
+        pretend.call(200, [("X-Powered-By", "Test Powered By")], None),
+    ]
