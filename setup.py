@@ -55,8 +55,8 @@ setup(
 
     packages=find_packages(),
     package_data={
-        "warehouse": ["*.yml"] + recursive_glob("static", "*.*"),
-        "warehouse.legacy": ["templates/*/*.html"],
+        "warehouse": ["*.yml"] + recursive_glob("warehouse/static", "*.*"),
+        "warehouse": recursive_glob("warehouse/templates", "*.*"),
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
