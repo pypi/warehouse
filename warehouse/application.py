@@ -118,7 +118,6 @@ class Warehouse(object):
         asset_config = self.config.assets
         asset_config.setdefault("debug", self.config.debug)
         asset_config.setdefault("auto_build", self.config.debug)
-        asset_config.setdefault("less_run_in_debug", False)
 
         self.templates.assets_environment = AssetsEnvironment(**asset_config)
 
@@ -148,6 +147,10 @@ class Warehouse(object):
             self.wsgi_app = SharedDataMiddleware(
                 self.wsgi_app,
                 {"/static/": static_path},
+            )
+            self.wsgi_app = SharedDataMiddleware(
+                self.wsgi_app,
+                {"/static/": self.config.assets.directory},
             )
 
     def __call__(self, environ, start_response):
