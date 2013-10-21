@@ -19,20 +19,25 @@ import collections
 import importlib
 import os.path
 
+import babel.dates
+import babel.support
 import jinja2
+import redis as redispy
 import six
 import sqlalchemy
 import yaml
 
+from webassets import Environment as AssetsEnvironment
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
-from werkzeug.wsgi import responder
+from werkzeug.wsgi import SharedDataMiddleware, responder
 
 import warehouse
 import warehouse.cli
 
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
+from warehouse.packaging import helpers as packaging_helpers
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
@@ -45,24 +50,34 @@ class Warehouse(object):
     }
 
     url_names = [
+        "warehouse.ui.urls",
         "warehouse.legacy.urls",
     ]
 
-    def __init__(self, config, engine=None):
+    def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
         if engine is None:
             engine = sqlalchemy.create_engine(self.config.database.url)
-
         self.engine = engine
+
+        # Create our redis connection
+        if redis is None:
+            redis = redispy.StrictRedis.from_url(self.config.redis.url)
+        self.redis = redis
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
         for name, mod_path in six.iteritems(self.model_names):
             mod_name, klass = mod_path.rsplit(":", 1)
             mod = importlib.import_module(mod_name)
-            self.models[name] = getattr(mod, klass)(self.metadata, self.engine)
+            self.models[name] = getattr(mod, klass)(
+                self,
+                self.metadata,
+                self.engine,
+                self.redis,
+            )
 
         # Setup our URL routing
         url_rules = []
@@ -71,12 +86,47 @@ class Warehouse(object):
             url_rules.extend(getattr(mod, "__urls__"))
         self.urls = Map(url_rules)
 
+        # Initialize our Translations engine
+        self.trans = babel.support.NullTranslations()
+
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
+            autoescape=True,
             auto_reload=self.config.debug,
-            loader=jinja2.PrefixLoader({
-                "legacy": jinja2.PackageLoader("warehouse.legacy"),
-            }),
+            extensions=[
+                "jinja2.ext.i18n",
+                "webassets.ext.jinja2.AssetsExtension",
+            ],
+            loader=jinja2.PackageLoader("warehouse"),
+        )
+
+        # Install Babel
+        self.templates.filters.update({
+            "package_type_display": packaging_helpers.package_type_display,
+
+            "format_date": babel.dates.format_date,
+            "format_datetime": babel.dates.format_datetime,
+            "format_time": babel.dates.format_time,
+        })
+
+        # Install our translations
+        self.templates.install_gettext_translations(self.trans, newstyle=True)
+
+        # Setup our web assets environment
+        asset_config = self.config.assets
+        asset_config.setdefault("debug", self.config.debug)
+        asset_config.setdefault("auto_build", self.config.debug)
+        asset_config.setdefault("less_run_in_debug", False)
+
+        self.templates.assets_environment = AssetsEnvironment(**asset_config)
+
+        # Load our static directories
+        static_path = os.path.abspath(
+            os.path.join(os.path.dirname(warehouse.__file__), "static"),
+        )
+        self.templates.assets_environment.append_path(
+            static_path,
+            self.config.assets.url,
         )
 
         # Add our Powered By Middleware
@@ -84,6 +134,13 @@ class Warehouse(object):
             warehouse.__version__,
             warehouse.__build__,
         ))
+
+        # Serve the static files if we're in debug
+        if self.config.debug:
+            self.wsgi_app = SharedDataMiddleware(
+                self.wsgi_app,
+                {"/static/": static_path},
+            )
 
     def __call__(self, environ, start_response):
         """

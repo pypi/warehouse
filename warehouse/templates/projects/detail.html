@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block extra_head %}
+  <link rel="canonical" href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=release.version, _force_external=True) }}">
+{% endblock %}
+
+{% block content %}
+  <div class="row project-header">
+    <header class="col-md-9">
+      <h1>
+        <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name) }}">
+          {{ project.name }}
+        </a>
+        <small>{{ release.version }}</small>
+      </h1>
+      {% if release.summary %}
+        <h2 class="text-muted">{{ release.summary }}</h2>
+      {% endif %}
+    </header>
+
+    <div class="col-md-3 download-button">
+      {% if downloads|length() == 1 %}
+        {% set download = downloads|first() %}
+        <a href="{{ download.url }}" class="btn btn-success btn-lg2 pull-right">
+          {{ gettext('Download %(filename)s', filename=download.filename) }}
+        </a>
+      {% elif downloads|length() >= 2 %}
+        <a href="#downloads" class="btn btn-success btn-lg2 pull-right">
+          {{ gettext('Downloads') }} &darr;
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-9 project-body">
+      <div class="description">
+        {{ description_html }}
+      </div>
+      {% if downloads %}
+        <div id="downloads" class="downloads">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title"><a name="downloads"></a>{{ gettext('Downloads') }}</h3>
+            </div>
+            <div class="panel-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>{{ gettext('File') }}</th>
+                    <th>{{ gettext('Type') }}</th>
+                    <th>{{ gettext('Python Version') }}</th>
+                    <th>{{ gettext('Uploaded On') }}</th>
+                    <th>{{ gettext('Size') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for download in downloads %}
+                    <tr>
+                      <td>
+                        <a href="{{ download.url }}">{{ download.filename }}</a>
+                        (<a data-toggle="modal" href="#hash-{{ download.md5_digest }}">{{ gettext('hash') }}</a>)
+                        {% if download.pgp_url %}(<a href="{{ download.pgp_url }}">pgp</a>){% endif %}
+                      </td>
+                      <td>{{ download.packagetype|package_type_display() }}</td>
+                      <td>
+                        {% if download.python_version != "source" %}
+                          {{ download.python_version }}
+                        {% endif %}
+                      </td>
+                      <td>{{ download.upload_time|format_date() }}</td>
+                      <td>{{ download.size|filesizeformat() }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-3">
+      <div class="metadata">
+        <h2 class="sr-only">{{ gettext('Project Information') }}</h2>
+        <dl>
+          {% if release.author %}
+            <dt>{{ gettext('Author') }}</dt>
+            <dd>{{ release.author }}</dd>
+          {% endif %}
+
+          {% if release.maintainer %}
+            <dt>{{ gettext('Maintainer') }}</dt>
+            <dd>{{ release.maintainer }}</dd>
+          {% endif %}
+
+          {% if release.home_page
+              or documentation
+              or bugtracker
+              or release.download_url
+              or release.project_url %}
+            <dt>{{ gettext('Project URLs') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% if release.home_page %}
+                  <li>
+                    <a rel="nofollow" href="{{ release.home_page }}">{{ gettext('Home page') }}</a>
+                  </li>
+                {% endif %}
+
+                {% if documentation %}
+                  <li>
+                    <a ref="nofollow" href="{{ documentation }}">{{ gettext('Documentation') }}</a>
+                  </li>
+                {% endif %}
+
+                {% if bugtracker %}
+                  <li><a ref="nofollow" href="{{ bugtracker }}">{{ gettext('Bug tracker') }}</a></li>
+                {% endif %}
+
+                {% if release.download_url %}
+                  <li>
+                    <a rel="nofollow" href="{{ release.download_url }}">
+                      {{ gettext('Download URL') }}
+                    </a>
+                  </li>
+                {% endif %}
+
+                {% if release.project_url %}
+                  {% for label, url in release.project_url.items() %}
+                    <li>
+                      <a rel="nofollow" href="{{ url }}">{{ label }}</a>
+                    </li>
+                  {% endfor %}
+                {% endif %}
+              </ul>
+            </dd>
+          {% endif %}
+
+          {% if release.license %}
+            <dt>{{ gettext('License') }}</dt>
+            <dd>{{ release.license }}</dd>
+          {% endif %}
+
+          {% if release.keywords %}
+            <dt>{{ gettext('Keywords') }}</dt>
+            <dd>{{ release.keywords }}</dd>
+          {% endif %}
+
+          {% if release.platform %}
+            <dt>{{ gettext('Platform') }}</dt>
+            <dd>{{ release.platform|replace("\n", ", ") }}</dd>
+          {% endif %}
+
+          {% if release.requires_dist %}
+            <dt>{{ gettext('Requires Distribution') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for requires in release.requires_dist %}
+                  <li>{{ requires }}</li>
+                {% endfor %}
+              </ul>
+          {% endif %}
+
+          {% if release.provides_dist %}
+            <dt>{{ gettest('Provides Distribution') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for provides in release.provides_dist %}
+                  <li>{{ provides }}</li>
+                {% endfor %}
+              </ul>
+            </dd>
+          {% endif %}
+
+          {% if classifiers %}
+            <dt>{{ gettext('Classifiers') }}</dt>
+            <dd>
+              <ul class="list-unstyled">
+                {% for c in classifiers %}
+                  <li>{{ c }}</li>
+                {% endfor %}
+              </ul>
+            </dd>
+          {% endif %}
+
+          <dt>{{ gettext('Download Counts') }}</dt>
+          <dd>
+            <ul class="list-unstyled">
+              <li>
+                {{ gettext('%(count)s downloads in the last day', count=download_counts.last_day) }}
+              </li>
+              <li>
+                {{ gettext('%(count)s downloads in the last week', count=download_counts.last_week) }}
+              </li>
+              <li>
+                {{ gettext('%(count)s downloads in the last month', count=download_counts.last_month) }}
+              </li>
+            </ul>
+          </dd>
+
+          <dt>{{ gettext('Versions') }}</dt>
+          <dd>
+            <ul class="list-unstyled">
+              {% for r in releases[:5] %}
+                <li>
+                  <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <span class="text-muted">{{ r.created|format_date() }}</span>
+                </li>
+              {% endfor %}
+              {% if versions|count() > 5 %}
+                <li><a data-toggle="modal" href="#all-versions">{{ gettext('All Versions') }}</a></li>
+              {% endif %}
+            </ul>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+
+  {% for download in downloads %}
+    <div class="modal fade" id="hash-{{ download.md5_digest }}" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(filename)s hashes', filename=download.filename) }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">{{ download.filename }}</h4>
+          </div>
+          <div class="modal-body">
+            <dl>
+              <dt>{{ gettext('MD5 Hash') }}</dt>
+              <dd>{{ download.md5_digest }}</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+  {% if versions|count() > 5 %}
+    <div class="modal fade" id="all-versions" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(project)s versions', project=project.name) }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">{{ gettext('All Versions') }}</h4>
+          </div>
+          <div class="modal-body">
+            <ul class="list-unstyled">
+              {% for r in releases %}
+                <li>
+                  <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <span class="text-muted">{{ r.created|format_date() }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

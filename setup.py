@@ -14,12 +14,23 @@
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
 
+import fnmatch
+import os
+
 from setuptools import setup, find_packages
 
 
 about = {}
 with open("warehouse/__about__.py") as fp:
     exec(fp.read(), about)
+
+
+def recursive_glob(path, pattern):
+    matches = []
+    for root, dirnames, filenames in os.walk(path):
+        for filename in fnmatch.filter(filenames, pattern):
+            matches.append(os.path.join(root, filename))
+    return matches
 
 
 setup(
@@ -49,19 +60,24 @@ setup(
 
     packages=find_packages(),
     package_data={
-        "warehouse": ["*.yml"],
+        "warehouse": ["*.yml"] + recursive_glob("static", "*.*"),
         "warehouse.legacy": ["templates/*/*.html"],
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
     install_requires=[
         "alembic",
+        "babel",
+        "enum34",
         "Jinja2",
         "psycopg2cffi-compat>=1.1",
         "PyYAML",
+        "recliner>=0.3.1",
+        "redis",
         "six",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
+        "webassets-py3k==0.9.dev",
         "Werkzeug",
     ],
 

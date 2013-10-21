@@ -17,10 +17,11 @@ from __future__ import unicode_literals
 import mock
 import pretend
 import pytest
+import six
 
 from warehouse.utils import (
     AttributeDict, convert_to_attr_dict, merge_dict, render_response, cache,
-    get_wsgi_application, get_mimetype,
+    get_wsgi_application, get_mimetype, redirect
 )
 
 
@@ -66,6 +67,7 @@ def test_convert_to_attribute_dict():
 def test_render_response():
     template = pretend.stub(render=pretend.call_recorder(lambda **k: "test"))
     app = pretend.stub(
+        config=pretend.stub(),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
@@ -76,17 +78,24 @@ def test_render_response():
 
     assert resp.data == b"test"
     assert app.templates.get_template.calls == [pretend.call("template.html")]
-    assert template.render.calls == [pretend.call(foo="bar", url_for=mock.ANY)]
+    assert template.render.calls == [
+        pretend.call(foo="bar", url_for=mock.ANY, config=app.config),
+    ]
 
 
-@pytest.mark.parametrize(("browser", "varnish"), [
-    ({}, {}),
-    ({"test": 120}, {}),
-    ({}, {"test": 120}),
-    ({"test": 120}, {"test": 120}),
+@pytest.mark.parametrize(("browser", "varnish", "status"), [
+    ({}, {}, 200),
+    ({"test": 120}, {}, 200),
+    ({}, {"test": 120}, 200),
+    ({"test": 120}, {"test": 120}, 200),
+    ({}, {}, 400),
+    ({"test": 120}, {}, 400),
+    ({}, {"test": 120}, 400),
+    ({"test": 120}, {"test": 120}, 400),
 ])
-def test_cache_deco(browser, varnish):
+def test_cache_deco(browser, varnish, status):
     response = pretend.stub(
+        status_code=status,
         cache_control=pretend.stub(),
         surrogate_control=pretend.stub(),
     )
@@ -106,11 +115,12 @@ def test_cache_deco(browser, varnish):
 
     assert resp is response
 
-    if browser:
-        assert resp.cache_control.max_age == browser["test"]
+    if 200 <= resp.status_code < 400:
+        if browser:
+            assert resp.cache_control.max_age == browser["test"]
 
-    if varnish:
-        assert resp.surrogate_control.max_age == varnish["test"]
+        if varnish:
+            assert resp.surrogate_control.max_age == varnish["test"]
 
 
 @pytest.mark.parametrize("environ", [
@@ -135,3 +145,15 @@ def test_get_wsgi_application(environ):
 ])
 def test_get_mimetype(filename, expected):
     assert get_mimetype(filename) == expected
+
+
+def test_redirect_bytes():
+    resp = redirect(b"/foo/")
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/foo/"
+
+
+def test_redirect_unicode():
+    resp = redirect(six.text_type("/foo/"))
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/foo/"

@@ -100,6 +100,7 @@ def _database(request):
     app = Warehouse.from_yaml(
         override={"database": {"url": test_database_url}},
         engine=test_engine,
+        redis=False,
     )
     with app.engine.connect() as conn:
         conn.execute("CREATE EXTENSION IF NOT EXISTS citext")
@@ -158,6 +159,7 @@ def dbapp(database, _database):
     return Warehouse.from_yaml(
         override={"database": {"url": _database}},
         engine=database,
+        redis=False,
     )
 
 
@@ -175,4 +177,5 @@ def app():
     return Warehouse.from_yaml(
         override={"database": {"url": "postgresql:///nonexistant"}},
         engine=engine,
+        redis=False,
     )

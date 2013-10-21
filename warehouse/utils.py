@@ -20,6 +20,9 @@ import mimetypes
 
 import six
 
+from werkzeug.urls import iri_to_uri
+from werkzeug.utils import escape
+
 from warehouse import helpers
 from warehouse.http import Response
 
@@ -71,6 +74,7 @@ def render_response(app, request, template, **variables):
     template = app.templates.get_template(template)
 
     context = {
+        "config": app.config,
         "url_for": functools.partial(helpers.url_for, request),
     }
     context.update(variables)
@@ -84,17 +88,19 @@ def cache(key):
         def wrapper(app, request, *args, **kwargs):
             resp = fn(app, request, *args, **kwargs)
 
-            # Add in our standard Cache-Control headers
-            if (app.config.cache.browser
-                    and app.config.cache.browser.get(key) is not None):
-                resp.cache_control.public = True
-                resp.cache_control.max_age = app.config.cache.browser[key]
+            if 200 <= resp.status_code < 400:
+                # Add in our standard Cache-Control headers
+                if (app.config.cache.browser
+                        and app.config.cache.browser.get(key) is not None):
+                    resp.cache_control.public = True
+                    resp.cache_control.max_age = app.config.cache.browser[key]
 
-            # Add in additional headers if we're using varnish
-            if (app.config.cache.varnish
-                    and app.config.cache.varnish.get(key) is not None):
-                resp.surrogate_control.public = True
-                resp.surrogate_control.max_age = app.config.cache.varnish[key]
+                # Add in additional headers if we're using varnish
+                if (app.config.cache.varnish
+                        and app.config.cache.varnish.get(key) is not None):
+                    resp.surrogate_control.public = True
+                    resp.surrogate_control.max_age = \
+                        app.config.cache.varnish[key]
 
             return resp
         return wrapper
@@ -116,3 +122,31 @@ def get_mimetype(filename):
     if not mimetype:
         mimetype = "application/octet-stream"
     return mimetype
+
+
+def redirect(location, code=302):
+    """Return a response object (a WSGI application) that, if called,
+    redirects the client to the target location.  Supported codes are 301,
+    302, 303, 305, and 307.  300 is not supported because it's not a real
+    redirect and 304 because it's the answer for a request with a request
+    with defined If-Modified-Since headers.
+
+    .. versionadded:: 0.6
+       The location can now be a unicode string that is encoded using
+       the :func:`iri_to_uri` function.
+
+    :param location: the location the response should redirect to.
+    :param code: the redirect status code. defaults to 302.
+    """
+    display_location = escape(location)
+    if isinstance(location, six.text_type):
+        location = iri_to_uri(location)
+    response = Response(
+        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
+        '<title>Redirecting...</title>\n'
+        '<h1>Redirecting...</h1>\n'
+        '<p>You should be redirected automatically to target URL: '
+        '<a href="%s">%s</a>.  If not click the link.' %
+        (escape(location), display_location), code, mimetype="text/html")
+    response.headers["Location"] = location
+    return response

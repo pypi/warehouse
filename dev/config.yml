@@ -1,17 +1,32 @@
 debug: true
 
+site:
+    name: Warehouse (dev)
+
+assets:
+    directory: "static"
+
 database:
     url: "postgresql://localhost/warehouse"
 
+redis:
+    url: "redis://localhost:6379/0"
+
 paths:
+    documentation: "data/packagedocs"
     packages: "data/packages"
+
+urls:
+    documentation: "http://pythonhosted.org/"
 
 cache:
     browser:
         simple: 1
         packages: 1
+        project_detail: 1
     varnish:
         simple: 120
         packages: 120
+        project_detail: 120
 
 fastly: true

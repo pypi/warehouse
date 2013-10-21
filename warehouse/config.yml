@@ -1,5 +1,12 @@
 debug: false
 
+site:
+    name: Warehouse
+    url: /
+
+assets:
+    url: /static/
+
 database:
     migrations: "warehouse:migrations"
 
@@ -8,3 +15,9 @@ cache:
     varnish: false
 
 fastly: false
+
+paths:
+    documentation: data/packagedocs
+
+urls:
+    documentation: "https://pythonhosted.org"

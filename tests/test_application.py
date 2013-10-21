@@ -23,6 +23,7 @@ import pytest
 
 from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ
+from werkzeug.wsgi import SharedDataMiddleware
 
 from warehouse import cli
 from warehouse.application import Warehouse
@@ -31,9 +32,16 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
+        "assets": {
+            "directory": "static",
+            "url": "/static/",
+        },
         "database": {
             "url": "postgres:///test_warehouse",
-        }
+        },
+        "redis": {
+            "url": "redis://localhost:6379/0"
+        },
     })
 
 
@@ -137,3 +145,15 @@ def test_wsgi_app_exception(app, monkeypatch):
     assert urls.bind_to_environ.calls == [pretend.call(environ)]
     assert import_module.calls == [pretend.call("warehouse.fake")]
     assert fake_view.calls == [pretend.call(app, mock.ANY)]
+
+
+def test_shared_static():
+    app = Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+        override={"debug": True},
+    )
+
+    assert isinstance(app.wsgi_app, SharedDataMiddleware)

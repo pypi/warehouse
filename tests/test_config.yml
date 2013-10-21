@@ -1,2 +1,8 @@
+assets:
+    directory: "static"
+
 database:
     url: "postgresql://localhost/test_warehouse"
+
+redis:
+    url: "redis://localhost:6379/0"

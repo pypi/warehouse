@@ -12,6 +12,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+node_modules
 
 # Documentation build directory
 docs/_build

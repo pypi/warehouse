@@ -144,7 +144,8 @@ def package(app, request, path):
         raise NotFound("{} was not found".format(filename))
 
     # Get the project name and normalize it
-    project = app.models.packaging.get_project_for_filename(filename)
+    lookup_filename = filename[:-4] if filename.endswith(".asc") else filename
+    project = app.models.packaging.get_project_for_filename(lookup_filename)
     normalized = re.sub("_", "-", project.name, re.I).lower()
 
     # Get the MD5 hash of the file
@@ -180,11 +181,12 @@ def package(app, request, path):
     # Setup the Content-Length header
     resp.content_length = os.path.getsize(filepath)
 
-    # Setup the Content-MD5 headers
-    resp.content_md5 = content_md5
+    if content_md5:
+        # Setup the Content-MD5 headers
+        resp.content_md5 = content_md5
 
-    # Setup Conditional Responses
-    resp.set_etag(content_md5)
-    resp.make_conditional(request)
+        # Setup Conditional Responses
+        resp.set_etag(content_md5)
+        resp.make_conditional(request)
 
     return resp
