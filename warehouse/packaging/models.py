@@ -17,10 +17,10 @@ from __future__ import unicode_literals
 import collections
 import datetime
 import os.path
+import urllib.parse
 
 from collections import namedtuple
 
-from six.moves import urllib_parse
 from sqlalchemy.sql import and_, select, func
 
 from warehouse import models
@@ -116,7 +116,7 @@ class Model(models.Model):
             return [
                 FileURL(
                     filename=r["filename"],
-                    url=urllib_parse.urljoin(
+                    url=urllib.parse.urljoin(
                         "/".join([
                             "../../packages",
                             r["python_version"],
@@ -415,7 +415,7 @@ class Model(models.Model):
             "index.html",
         ]
         if os.path.exists(os.path.join(*path_parts)):
-            return urllib_parse.urljoin(
+            return urllib.parse.urljoin(
                 self.app.config.urls.documentation,
                 project
             ) + "/"

@@ -22,8 +22,9 @@ import os.path
 import babel.dates
 import babel.support
 import jinja2
+
 import redis as redispy
-import six
+
 import sqlalchemy
 import yaml
 
@@ -69,7 +70,7 @@ class Warehouse(object):
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
-        for name, mod_path in six.iteritems(self.model_names):
+        for name, mod_path in self.model_names.items():
             mod_name, klass = mod_path.rsplit(":", 1)
             mod = importlib.import_module(mod_name)
             self.models[name] = getattr(mod, klass)(
@@ -179,7 +180,7 @@ class Warehouse(object):
         def _generate_parser(parser, commands):
             # Generate our commands
             subparsers = parser.add_subparsers()
-            for name, command in six.iteritems(commands):
+            for name, command in commands.items():
                 cmd_parser = subparsers.add_parser(name)
 
                 if hasattr(command, "create_parser"):
