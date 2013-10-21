@@ -84,10 +84,6 @@ Resources
 Contributing
 ------------
 
-Currently focusing on modeling and reconstructing the data from the current
-PyPI database. Pull Requests that are not focused on that are likely to be
-declined.
-
 1. Fork the `repository`_ on GitHub.
 2. Make a branch off of master and commit your changes to it.
 3. Ensure that your name is added to the end of the AUTHORS file using the
