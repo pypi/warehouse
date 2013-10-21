@@ -68,6 +68,7 @@ setup(
         "alembic",
         "babel",
         "enum34",
+        "guard",
         "Jinja2",
         "psycopg2",
         "PyYAML",

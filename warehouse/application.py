@@ -21,6 +21,7 @@ import os.path
 
 import babel.dates
 import babel.support
+import guard
 import jinja2
 
 import redis as redispy
@@ -135,6 +136,12 @@ class Warehouse(object):
             warehouse.__version__,
             warehouse.__build__,
         ))
+
+        # Add our Content Security Policy Middleware
+        self.wsgi_app = guard.ContentSecurityPolicy(
+            self.wsgi_app,
+            self.config.security.csp,
+        )
 
         # Serve the static files if we're in debug
         if self.config.debug:

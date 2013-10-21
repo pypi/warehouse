@@ -19,3 +19,8 @@ paths:
 
 urls:
     documentation: "https://pythonhosted.org"
+
+security:
+    csp:
+        default-src:
+            - self
