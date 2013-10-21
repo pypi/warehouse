@@ -77,7 +77,7 @@ setup(
         "six",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
-        "webassets",
+        "webassets-py3k==0.9.dev",
         "Werkzeug",
     ],
 
