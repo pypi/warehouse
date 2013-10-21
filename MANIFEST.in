@@ -19,21 +19,10 @@ include warehouse/static/bootstrap/LICENSE
 
 recursive-include warehouse *.html
 recursive-include warehouse *.mako
-recursive-include warehouse *.css
-recursive-include warehouse *.eot
-recursive-include warehouse *.gitignore
-recursive-include warehouse *.jpg
-recursive-include warehouse *.js
-recursive-include warehouse *.json
-recursive-include warehouse *.less
-recursive-include warehouse *.map
-recursive-include warehouse *.md
-recursive-include warehouse *.png
-recursive-include warehouse *.svg
-recursive-include warehouse *.ttf
-recursive-include warehouse *.woff
 recursive-include warehouse config.yml
 recursive-include warehouse/migrations/versions *.py
+
+graft warehouse/static
 
 recursive-include tests *.py
 recursive-include tests *.yml
