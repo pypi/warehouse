@@ -15,7 +15,6 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import os.path
-import re
 
 from werkzeug.exceptions import NotFound
 from werkzeug.security import safe_join
@@ -23,20 +22,19 @@ from werkzeug.wsgi import wrap_file
 
 from warehouse.helpers import url_for
 from warehouse.http import Response
-from warehouse.utils import cache, get_mimetype, render_response
+from warehouse.utils import (
+    cache, fastly, get_mimetype, normalize, render_response,
+)
 
 
 @cache("simple")
+@fastly("simple-index")
 def index(app, request):
     projects = app.models.packaging.all_projects()
     resp = render_response(
         app, request, "legacy/simple/index.html",
         projects=projects,
     )
-
-    # Add our surrogate key headers for Fastly
-    if app.config.fastly:
-        resp.headers.add("Surrogate-Key", "simple-index")
 
     # Add a header that points to the last serial
     serial = app.models.packaging.get_last_serial()
@@ -46,15 +44,13 @@ def index(app, request):
 
 
 @cache("simple")
+@fastly("simple", "simple~{project_name!n}")
 def project(app, request, project_name):
     # Get the real project name for this project
     project = app.models.packaging.get_project(project_name)
 
     if project is None:
         raise NotFound("{} does not exist".format(project_name))
-
-    # Normalize the project name
-    normalized = re.sub("_", "-", project.name, re.I).lower()
 
     # Generate the Package URLs for the packages we've hosted
     file_urls = app.models.packaging.get_file_urls(project.name)
@@ -97,13 +93,6 @@ def project(app, request, project_name):
         external_urls=external_urls,
     )
 
-    # Add our surrogate key headers for Fastly
-    if app.config.fastly:
-        resp.headers.add(
-            "Surrogate-Key",
-            " ".join(["simple", "simple~{}".format(normalized)]),
-        )
-
     # Add a header that points to the last serial
     serial = app.models.packaging.get_last_serial(project.name)
     resp.headers.add("X-PyPI-Last-Serial", serial)
@@ -144,7 +133,7 @@ def package(app, request, path):
     # Get the project name and normalize it
     lookup_filename = filename[:-4] if filename.endswith(".asc") else filename
     project = app.models.packaging.get_project_for_filename(lookup_filename)
-    normalized = re.sub("_", "-", project.name, re.I).lower()
+    normalized = normalize(project.name)
 
     # Get the MD5 hash of the file
     content_md5 = app.models.packaging.get_filename_md5(filename)
@@ -152,13 +141,12 @@ def package(app, request, path):
     headers = {}
 
     # Add in additional headers if we're using Fastly
-    if app.config.fastly:
-        headers.update({
-            "Surrogate-Key": " ".join([
-                "package",
-                "package~{}".format(normalized),
-            ]),
-        })
+    headers.update({
+        "Surrogate-Key": " ".join([
+            "package",
+            "package~{}".format(normalized),
+        ]),
+    })
 
     # Look up the last serial for this file
     serial = app.models.packaging.get_last_serial(project.name)

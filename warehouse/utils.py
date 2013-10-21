@@ -17,6 +17,8 @@ from __future__ import unicode_literals
 import collections
 import functools
 import mimetypes
+import re
+import string
 
 from werkzeug.urls import iri_to_uri
 from werkzeug.utils import escape
@@ -148,3 +150,39 @@ def redirect(location, code=302):
         (escape(location), display_location), code, mimetype="text/html")
     response.headers["Location"] = location
     return response
+
+
+def normalize(value):
+    return re.sub("_", "-", value, re.I).lower()
+
+
+class FastlyFormatter(string.Formatter):
+
+    def convert_field(self, value, conversion):
+        if conversion == "n":
+            return normalize(value)
+        return super(FastlyFormatter, self).convert_field(value, conversion)
+
+
+def fastly(*keys):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(app, request, *args, **kwargs):
+            # Get the response from the view
+            resp = fn(app, request, *args, **kwargs)
+
+            # Resolve our surrogate keys
+            ctx = {"app": app, "request": request}
+            ctx.update(kwargs)
+            surrogate_keys = [
+                FastlyFormatter().format(key, **ctx)
+                for key in keys
+            ]
+
+            # Set our Fastly Surrogate-Key header
+            resp.headers["Surrogate-Key"] = " ".join(surrogate_keys)
+
+            # Return the modified response
+            return resp
+        return wrapper
+    return decorator

@@ -14,8 +14,6 @@ cache:
     browser: false
     varnish: false
 
-fastly: false
-
 paths:
     documentation: data/packagedocs
 

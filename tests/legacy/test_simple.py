@@ -27,8 +27,7 @@ from warehouse.packaging.models import Project
 from warehouse.legacy import simple
 
 
-@pytest.mark.parametrize("fastly", [True, False])
-def test_index(fastly, monkeypatch):
+def test_index(monkeypatch):
     response = pretend.stub(status_code=200, headers=Headers())
     render = pretend.call_recorder(lambda *a, **k: response)
     monkeypatch.setattr(simple, "render_response", render)
@@ -37,7 +36,6 @@ def test_index(fastly, monkeypatch):
 
     app = pretend.stub(
         config=pretend.stub(
-            fastly=fastly,
             cache=pretend.stub(browser=False, varnish=False),
         ),
         models=pretend.stub(
@@ -53,11 +51,7 @@ def test_index(fastly, monkeypatch):
 
     assert resp is response
     assert resp.headers["X-PyPI-Last-Serial"] == "9999"
-
-    if fastly:
-        assert resp.headers["Surrogate-Key"] == "simple-index"
-    else:
-        assert "Surrogate-Key" not in resp.headers
+    assert resp.headers["Surrogate-Key"] == "simple-index"
 
     assert render.calls == [
         pretend.call(
@@ -69,15 +63,12 @@ def test_index(fastly, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    (
-        "fastly", "project_name", "hosting_mode", "release_urls",
-        "e_project_urls",
-    ),
+    ("project_name", "hosting_mode", "release_urls", "e_project_urls"),
     [
-        (True, "foo", "pypi-explicit", {}, []),
-        (False, "foo", "pypi-explicit", {}, []),
+        ("foo", "pypi-explicit", {}, []),
+        ("foo", "pypi-explicit", {}, []),
         (
-            True, "foo", "pypi-scrape",
+            "foo", "pypi-scrape",
             {
                 "1.0": (
                     "http://example.com/home/",
@@ -97,10 +88,10 @@ def test_index(fastly, monkeypatch):
                 },
             ],
         ),
-        (True, "foo", "pypi-scrape", {"1.0": ("UNKNOWN", "UNKNOWN")}, []),
+        ("foo", "pypi-scrape", {"1.0": ("UNKNOWN", "UNKNOWN")}, []),
     ],
 )
-def test_project(fastly, project_name, hosting_mode, release_urls,
+def test_project(project_name, hosting_mode, release_urls,
         e_project_urls, monkeypatch):
     response = pretend.stub(status_code=200, headers=Headers())
     render = pretend.call_recorder(lambda *a, **k: response)
@@ -113,7 +104,6 @@ def test_project(fastly, project_name, hosting_mode, release_urls,
 
     app = pretend.stub(
         config=pretend.stub(
-            fastly=fastly,
             cache=pretend.stub(browser=False, varnish=False),
         ),
         models=pretend.stub(
@@ -135,12 +125,8 @@ def test_project(fastly, project_name, hosting_mode, release_urls,
 
     assert resp is response
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
-
-    if fastly:
-        surrogate = "simple simple~{}".format(project_name)
-        assert resp.headers["Surrogate-Key"] == surrogate
-    else:
-        assert "Surrogate-Key" not in resp.headers
+    assert (resp.headers["Surrogate-Key"] ==
+        "simple simple~{}".format(project_name))
 
     assert render.calls == [
         pretend.call(
@@ -191,17 +177,13 @@ def test_project_not_found():
     assert app.models.packaging.get_project.calls == [pretend.call("foo")]
 
 
-@pytest.mark.parametrize(("fastly", "serial", "md5_hash"), [
-    (True, 999, "d41d8cd98f00b204e9800998ecf8427f"),
-    (False, 999, "d41d8cd98f00b204e9800998ecf8427f"),
-    (True, None, "d41d8cd98f00b204e9800998ecf8427f"),
-    (False, None, "d41d8cd98f00b204e9800998ecf8427f"),
-    (True, 999, None),
-    (False, 999, None),
-    (True, None, None),
-    (False, None, None),
+@pytest.mark.parametrize(("serial", "md5_hash"), [
+    (999, "d41d8cd98f00b204e9800998ecf8427f"),
+    (None, "d41d8cd98f00b204e9800998ecf8427f"),
+    (999, None),
+    (None, None),
 ])
-def test_package(fastly, serial, md5_hash, monkeypatch):
+def test_package(serial, md5_hash, monkeypatch):
     safe_join = pretend.call_recorder(
         lambda *a, **k: "/tmp/packages/any/t/test-1.0.tar.gz"
     )
@@ -225,7 +207,6 @@ def test_package(fastly, serial, md5_hash, monkeypatch):
 
     app = pretend.stub(
         config=pretend.stub(
-            fastly=fastly,
             cache=pretend.stub(browser=False, varnish=False),
             paths=pretend.stub(packages="/tmp"),
         ),
@@ -246,11 +227,7 @@ def test_package(fastly, serial, md5_hash, monkeypatch):
     else:
         assert "X-PyPI-Last-Serial" not in resp.headers
 
-    if fastly:
-        assert resp.headers["Surrogate-Key"] == "package package~test"
-    else:
-        assert "Surrogate-Key" not in resp.headers
-
+    assert resp.headers["Surrogate-Key"] == "package package~test"
     assert resp.headers["Content-Length"] == "54321"
 
     assert safe_join.calls == [
