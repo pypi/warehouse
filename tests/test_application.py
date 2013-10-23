@@ -103,7 +103,7 @@ def test_wsgi_app(app, monkeypatch):
     monkeypatch.setattr(importlib, "import_module", import_module)
 
     environ = create_environ()
-    start_response = pretend.stub(__name__="start_response")
+    start_response = pretend.stub(__name__=str("start_response"))
 
     app.urls = urls
     app.wsgi_app(environ, start_response)
@@ -138,7 +138,7 @@ def test_wsgi_app_exception(app, monkeypatch):
     monkeypatch.setattr(importlib, "import_module", import_module)
 
     environ = create_environ()
-    start_response = pretend.stub(__name__="start_response")
+    start_response = pretend.stub(__name__=str("start_response"))
 
     app.urls = urls
 
