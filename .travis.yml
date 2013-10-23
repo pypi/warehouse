@@ -1,11 +1,14 @@
 language: python
 python: 2.7
 env:
-    - TOXENV=py27
-    - TOXENV=pypy
-    - TOXENV=pep8
-    - TOXENV=docs
-    - TOXENV=packaging
+    global:
+        - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse
+    matrix:
+        - TOXENV=py27
+        - TOXENV=pypy
+        - TOXENV=pep8
+        - TOXENV=docs
+        - TOXENV=packaging
 
 install:
     # Add the PyPy repository
@@ -34,7 +37,7 @@ before_script:
     - psql -c "CREATE DATABASE warehouse ENCODING 'UTF8';" -U postgres
 
 script:
-    - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse tox
+    - tox
 
 branches:
     only:
