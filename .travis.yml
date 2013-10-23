@@ -1,25 +1,40 @@
 language: python
 python: 3.3
 env:
-    - TOXENV=py33
+    - TOXENV=py27
+    - TOXENV=pypy
     - TOXENV=pep8
     - TOXENV=docs
     - TOXENV=packaging
 
+
 install:
+    - "[[ ${TOX_ENV} == pypy ]] && sudo add-apt-repository -y ppa:pypy/ppa || true"
+    - "[[ ${TOX_ENV} == pypy ]] && sudo apt-get -y update && sudo apt-get -y install pypy || true"
+    # This is required because we need to get rid of the Travis installed PyPy
+    # or it'll take precedence over the PPA installed one.
+    - "[[ ${TOX_ENV} == pypy ]] && sudo rm -rf /usr/local/pypy/bin || true"
+
+install:
+    # Upgrade PyPy
+    - "[[ ${TOX_ENV} == pypy ]] && sudo add-apt-repository -y ppa:pypy/ppa || true"
+    - "[[ ${TOX_ENV} == pypy ]] && sudo apt-get -y update && sudo apt-get -y install pypy || true"
+    # This is required because we need to get rid of the Travis installed PyPy
+    # or it'll take precedence over the PPA installed one.
+    - "[[ ${TOX_ENV} == pypy ]] && sudo rm -rf /usr/local/pypy/bin || true"
     # Upgrade PostgreSQL to 9.2
-    - "if [[ $TOXENV == 'py33' ]]; then source /etc/lsb-release; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo /etc/init.d/postgresql stop; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo cp /etc/postgresql/9.1/main/pg_hba.conf ./; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo apt-get remove postgresql postgresql-9.1 -qq --purge; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then echo \"deb http://apt.postgresql.org/pub/repos/apt/ $DISTRIB_CODENAME-pgdg main\" > pgdg.list; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo mv pgdg.list /etc/apt/sources.list.d/; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo apt-get update; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confnew' install postgresql-9.2 postgresql-contrib-9.2 -qq; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo /etc/init.d/postgresql stop; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo cp ./pg_hba.conf /etc/postgresql/9.2/main; fi"
-    - "if [[ $TOXENV == 'py33' ]]; then sudo /etc/init.d/postgresql start; fi"
+    - source /etc/lsb-release
+    - sudo /etc/init.d/postgresql stop
+    - sudo cp /etc/postgresql/9.1/main/pg_hba.conf ./
+    - sudo apt-get remove postgresql postgresql-9.1 -qq --purge
+    - echo "deb http://apt.postgresql.org/pub/repos/apt/ $DISTRIB_CODENAME-pgdg main" > pgdg.list
+    - sudo mv pgdg.list /etc/apt/sources.list.d/
+    - wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confnew' install postgresql-9.2 postgresql-contrib-9.2 -qq
+    - sudo /etc/init.d/postgresql stop
+    - sudo cp ./pg_hba.conf /etc/postgresql/9.2/main
+    - sudo /etc/init.d/postgresql start
     # Install tox and coveralls
     - pip install tox coveralls
 

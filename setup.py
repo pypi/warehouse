@@ -36,28 +36,6 @@ def recursive_glob(path, pattern, cutdirs=0):
     return matches
 
 
-install_requires = [
-    "alembic",
-    "babel",
-    "enum34",
-    "guard",
-    "Jinja2",
-    "PyYAML",
-    "recliner>=0.3.1",
-    "redis",
-    "SQLAlchemy",
-    "sqlalchemy-citext>=1.2.0",
-    "webassets",
-    "Werkzeug",
-]
-
-
-if platform.python_implementation() == "PyPy":
-    install_requires += ["psycopg2cffi"]
-else:
-    install_requires += ["psycopg2"]
-
-
 setup(
     name=about["__title__"],
     version=about["__version__"],
@@ -87,7 +65,21 @@ setup(
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
-    install_requires=install_requires,
+    install_requires=[
+        "alembic",
+        "babel",
+        "enum34",
+        "guard",
+        "Jinja2",
+        "psycopg2cffi",
+        "PyYAML",
+        "recliner>=0.3.1",
+        "redis",
+        "SQLAlchemy",
+        "sqlalchemy-citext>=1.2.0",
+        "webassets",
+        "Werkzeug",
+    ],
 
     entry_points={
         "console_scripts": [
