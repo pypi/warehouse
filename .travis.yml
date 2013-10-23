@@ -28,16 +28,13 @@ install:
     # This is required because we need to get rid of the Travis installed PyPy
     # or it'll take precedence over the PPA installed one.
     - "if [[ $TOXENV == 'pypy' ]]; then sudo rm -rf /usr/local/pypy/bin; fi"
-    - pip install tox coveralls
+    - pip install tox
 
 before_script:
     - psql -c "CREATE DATABASE warehouse ENCODING 'UTF8';" -U postgres
 
 script:
     - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse tox
-
-after_success:
-    - coveralls
 
 branches:
     only:

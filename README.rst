@@ -4,9 +4,6 @@ Warehouse
 .. image:: https://travis-ci.org/dstufft/warehouse.png?branch=master
    :target: https://travis-ci.org/dstufft/warehouse
 
-.. image:: https://coveralls.io/repos/dstufft/warehouse/badge.png?branch=master
-   :target: https://coveralls.io/r/dstufft/warehouse?branch=master
-
 
 Warehouse is a next generation Python Package Repository designed to replace
 the legacy code base that currently powers `PyPI <https://pypi.python.org>`_.
