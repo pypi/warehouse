@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 import collections
 import datetime
 import os.path
-import urllib.parse
+import urlparse
 
 from collections import namedtuple
 
@@ -116,7 +116,7 @@ class Model(models.Model):
             return [
                 FileURL(
                     filename=r["filename"],
-                    url=urllib.parse.urljoin(
+                    url=urlparse.urljoin(
                         "/".join([
                             "../../packages",
                             r["python_version"],
@@ -415,7 +415,7 @@ class Model(models.Model):
             "index.html",
         ]
         if os.path.exists(os.path.join(*path_parts)):
-            return urllib.parse.urljoin(
+            return urlparse.urljoin(
                 self.app.config.urls.documentation,
                 project
             ) + "/"
