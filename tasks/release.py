@@ -111,7 +111,7 @@ def build():
 
 @invoke.task
 def upload():
-    invoke.run("twine upload --sign -r testpypi dist/*")
+    invoke.run("twine upload --sign dist/*")
 
 
 @invoke.task
