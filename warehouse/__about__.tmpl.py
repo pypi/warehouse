@@ -27,7 +27,7 @@ __summary__ = "Next Generation Python Package Repository"
 __uri__ = "https://github.com/dstufft/warehouse"
 
 __version__ = "{version}"
-__build__ = "<development>"
+__build__ = "{build}"
 
 __author__ = "Donald Stufft"
 __email__ = "donald@stufft.io"
