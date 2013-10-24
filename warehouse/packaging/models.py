@@ -271,31 +271,37 @@ class Model(models.Model):
 
         return results
 
-    def get_release(self, project, version):
-        results = self._get_releases(project, version)
+    def get_release(self, project, version, description=True):
+        results = self._get_releases(project, version, description=description)
         return results[0] if results else None
 
-    def get_releases(self, project):
-        return self._get_releases(project)
+    def get_releases(self, project, description=False):
+        return self._get_releases(project, description=description)
 
-    def _get_releases(self, project, version=None):
+    def _get_releases(self, project, version=None, description=False):
+        select_fields = [
+            releases.c.name,
+            releases.c.version,
+            releases.c.author,
+            releases.c.author_email,
+            releases.c.maintainer,
+            releases.c.maintainer_email,
+            releases.c.home_page,
+            releases.c.license,
+            releases.c.summary,
+            releases.c.keywords,
+            releases.c.platform,
+            releases.c.download_url,
+        ]
+
+        if description:
+            select_fields += [
+                releases.c.description,
+            ]
+
         # Get the release data itself
         query = (
-            select([
-                releases.c.name,
-                releases.c.version,
-                releases.c.author,
-                releases.c.author_email,
-                releases.c.maintainer,
-                releases.c.maintainer_email,
-                releases.c.home_page,
-                releases.c.license,
-                releases.c.summary,
-                releases.c.description,
-                releases.c.keywords,
-                releases.c.platform,
-                releases.c.download_url,
-            ])
+            select(select_fields)
             .where(releases.c.name == project)
             .order_by(releases.c._pypi_ordering.desc())
         )
