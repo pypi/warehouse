@@ -13,7 +13,8 @@
 # limitations under the License.
 import invoke
 
+from . import deploy
 from . import release
 
 
-ns = invoke.Collection(release)
+ns = invoke.Collection(deploy, release)
