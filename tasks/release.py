@@ -21,12 +21,8 @@ import invoke
 import pkg_resources
 
 
-def _out(name, message):
-    print("[\033[1;37m{}\033[0m] {}".format(name, message))
-
-
-@invoke.task(name="version")
-def release_version():
+@invoke.task
+def version():
     """
     Bumps the version in warehouse.__about__
     """
@@ -66,8 +62,8 @@ def release_version():
     )
 
 
-@invoke.task(name="build")
-def release_build():
+@invoke.task
+def build():
     """
     Builds the source distribution.
     """
@@ -113,13 +109,13 @@ def release_build():
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
-@invoke.task(name="upload")
-def release_upload():
+@invoke.task
+def upload():
     invoke.run("twine upload --sign -r testpypi dist/*")
 
 
-@invoke.task(name="development")
-def release_development():
+@invoke.task
+def development():
     """
     Bumps the version in warehouse.__about__ to a development release
     """
@@ -151,22 +147,10 @@ def release_development():
 
 @invoke.task(
     default=True,
-    name="all",
     pre=[
         "release.version", "release.build", "release.upload",
         "release.development",
     ],
 )
-def release_all():
+def all():
     pass
-
-
-ns = invoke.Collection(
-    release=invoke.Collection(
-        release_version,
-        release_build,
-        release_upload,
-        release_development,
-        release_all,
-    ),
-)
