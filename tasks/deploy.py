@@ -35,6 +35,7 @@ def _bootstrap_environment():
     # Install requirements
     ssh.run("apt-get install -q -y pypy libpq-dev libffi-dev rubygems")
     ssh.run("apt-get install -q -y git dpkg-sig reprepro nginx")
+    ssh.run("apt-get install node-less")
     ssh.run(
         "curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py "
         "| pypy"
@@ -84,6 +85,21 @@ def _build_package():
         "/opt/warehouse/bin/pip install "
         "--use-wheel --no-allow-external --download-cache=~/.pip/cache "
         "warehouse"
+    )
+
+    # Write out Build Time Configuration
+    ssh.put(
+        io.BytesIO(textwrap.dedent("""
+            assets:
+                directory: /opt/warehouse/var/www/static
+        """).strip() + "\n"),
+        "/opt/warehouse/etc/warehouse.build.yml",
+    )
+
+    # Run the collectstatic command
+    ssh.run(
+        "/opt/warehouse/bin/warehouse "
+        "-c /opt/warehouse/etc/warehouse.build.yml collectstatic"
     )
 
     # Get the installed version of warehouse
