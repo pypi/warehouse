@@ -49,10 +49,9 @@ def upgrade():
         UPDATE packages AS pkg
         SET created = j.submitted_date
         FROM (
-            SELECT name, max(submitted_date) submitted_date
+            SELECT name, submitted_date
             FROM journals
             WHERE action = 'create'
-            GROUP BY name
         ) j
         WHERE j.name = pkg.name
     """)
