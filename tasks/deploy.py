@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
-import os
+import io
+import json
+import textwrap
 
 import fabric.api as ssh
 import fabric.state
@@ -33,7 +34,7 @@ def _bootstrap_environment():
 
     # Install requirements
     ssh.run("apt-get install -q -y pypy libpq-dev libffi-dev rubygems")
-    ssh.run("apt-get install -q -y git-core")
+    ssh.run("apt-get install -q -y git dpkg-sig reprepro nginx")
     ssh.run(
         "curl https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py "
         "| pypy"
@@ -45,10 +46,30 @@ def _bootstrap_environment():
     ssh.run("gem install --no-ri --no-rdoc fpm")
     ssh.run("pip install virtualenv")
 
+    # Upload our private key
+    ssh.put("warehouse.key", "~/warehouse.key")
+
+    # Import our private key
+    ssh.run("gpg --allow-secret-key-import --import ~/warehouse.key")
+
+    ssh.put(
+        io.BytesIO(textwrap.dedent("""
+            server {
+                listen 80 default_server;
+                root /var/www/warehouse-repository;
+                autoindex on;
+            }
+        """)),
+        "/etc/nginx/sites-available/default",
+    )
+
+    ssh.run("/etc/init.d/nginx restart")
+
 
 def _build_package():
-    # Add our User
-    ssh.run("useradd warehouse")
+    # Clean any existing builds
+    ssh.run("rm -rf /opt/warehouse")
+    ssh.run("rm -rf ~/packages")
 
     # Create target directories
     ssh.run("mkdir -p /opt/warehouse")
@@ -61,7 +82,8 @@ def _build_package():
     # Install the latest Warehouse into environment
     ssh.run(
         "/opt/warehouse/bin/pip install "
-        "--use-wheel --no-allow-external warehouse"
+        "--use-wheel --no-allow-external --download-cache=~/.pip/cache "
+        "warehouse"
     )
 
     # Get the installed version of warehouse
@@ -78,71 +100,96 @@ def _build_package():
             "fpm -t deb -s dir -n warehouse -v {} --iteration 1 "
             "-m 'Donald Stufft <donald@stufft.io>' "
             "-d pypy -d libpq5 -d libffi6 "
-            "--deb-user warehouse --deb-group warehouse "
             "/opt/warehouse".format(version),
         )
 
 
-def _upload_package(storage):
-    # Install depot which we need to manage the cloud files repository
-    ssh.run("pip install git+https://github.com/dstufft/depot.git@cloudfiles")
+def _upload_package():
+    # Create the repository coniguration
+    ssh.run("mkdir -p /var/www/warehouse-repository/conf")
+    ssh.put(
+        io.BytesIO(textwrap.dedent("""
+            Codename: precise
+            Components: main
+            Architectures: amd64
+            SignWith: yes
+        """).strip()),
+        "/var/www/warehouse-repository/conf/distributions",
+    )
 
-    # Upload our private key
-    ssh.put("warehouse.key", "~/warehouse.key")
+    # Sign the built packages
+    ssh.run("dpkg-sig -k 024D2E77 --sign builder ~/packages/*.deb")
 
-    # Import our private key
-    ssh.run("gpg --allow-secret-key-import --import ~/warehouse.key")
-
-    with ssh.cd("~/packages"):
-        with ssh.shell_env(DEPOT_STORAGE=storage):
-            ssh.run("depot -c precise -k 024D2E77 *")
+    # Add the package to the repository
+    ssh.run(
+        "reprepro -Vb /var/www/warehouse-repository --keepunreferencedfiles "
+        "includedeb precise ~/packages/*.deb",
+    )
 
 
 @invoke.task
-def build():
+def provision():
     # Set the credentials for pyrax
     pyrax.set_setting("identity_type", "rackspace")
     pyrax.set_credential_file(".pyrax.cfg")
 
     # Provision the server with Rackspace
-    server = pyrax.cloudservers.servers.create("build-{}".format(
-        hashlib.md5(os.urandom(10)).hexdigest()[:7]),
+    server = pyrax.cloudservers.servers.create(
+        "warehouse-repository",
         IMAGE_ID,
         FLAVOR_ID,
     )
 
-    print("[local] Building server")
+    # Store the password
+    fabric.state.env.password = server.adminPass
 
-    try:
-        # Store the password
-        fabric.state.env.password = server.adminPass
+    # Wait until the server is built
+    server = pyrax.utils.wait_for_build(server)
 
-        # Wait until the server is built
-        server = pyrax.utils.wait_for_build(server)
+    fabric.state.env.host_string = "root@{}".format(
+        filter(lambda x: "." in x, server.networks["public"])[0],
+    )
 
-        fabric.state.env.host_string = "root@{}".format(
-            filter(lambda x: "." in x, server.networks["public"])[0],
+    # Bootstrap our environment
+    _bootstrap_environment()
+
+    # Write out our config
+    with open(".rackspace.json", "w") as rs:
+        json.dump(
+            {
+                "host_string": fabric.state.env.host_string,
+                "password": fabric.state.env.password,
+            },
+            rs,
         )
 
-        # Construct our storage url
-        storage = "cloudfiles-us://{}:{}@warehouse-apt".format(
-            pyrax.identity.username,
-            pyrax.identity.password,
-        )
 
-        # Bootstrap our environment
-        _bootstrap_environment()
+@invoke.task
+def build():
+    # Load our credentials
+    with open(".rackspace.json") as rs:
+        creds = json.load(rs)
 
-        # Build the package
-        _build_package()
+    fabric.state.env.host_string = creds["host_string"]
+    fabric.state.env.password = creds["password"]
 
-        # Upload package
-        _upload_package(storage)
-    finally:
-        # We're done with the server, so delete it
-        server.delete()
+    # Update our environment
+    ssh.run("apt-get update -q -y")
+    ssh.run("apt-get dist-upgrade -q -y")
+
+    # Build the package
+    _build_package()
+
+    # Upload package
+    _upload_package()
 
 
-@invoke.task(default=True, pre=["deploy.build"])
+@invoke.task()
+def chef():
+    fabric.state.env.host_string = "pypi.psf.io"
+    ssh.sudo("chef-client")
+
+
+@invoke.task(default=True, pre=["deploy.build", "deploy.chef"])
 def all():
     pass
