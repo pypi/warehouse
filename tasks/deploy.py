@@ -76,6 +76,7 @@ def _build_package():
     ssh.run("mkdir -p /opt/warehouse")
     ssh.run("mkdir -p /opt/warehouse/etc")
     ssh.run("mkdir -p /opt/warehouse/var/www")
+    ssh.run("mkdir -p /opt/warehouse/var/run")
 
     # Create a virtual environment
     ssh.run("virtualenv -p pypy /opt/warehouse")
@@ -108,6 +109,34 @@ def _build_package():
         "'import warehouse; print(warehouse.__version__)'",
     ).strip()
 
+    # Make a file that will be ran after the install of the package completes
+    ssh.put(
+        io.BytesIO(textwrap.dedent("""
+            #!/bin/sh
+            set -e
+
+            # Create our user if we need too
+            if ! getent group warehouse > /dev/null 2>&1; then
+                useradd -d /opt/warehouse -M -r warehouse
+            fi
+
+            # Fix up directory permissions
+            chown -Rf root:warehouse /opt/warehouse
+
+        """).strip() + "\n"),
+        "/opt/warehouse.postinst",
+    )
+
+    ssh.run("chmod +x /opt/warehouse.postinst")
+
+    # Fix permissions
+    ssh.run("find /opt/warehouse -type d -exec chmod 750 {} \\;")
+    ssh.run("find /opt/warehouse -type f -exec chmod 640 {} \\;")
+    ssh.run("chmod -R 750 /opt/warehouse/bin")
+    ssh.run("chmod 777 /opt/warehouse/var/run")
+    ssh.run("find /opt/warehouse/var/www -type d -exec chmod 755 {} \\;")
+    ssh.run("find /opt/warehouse/var/www -type f -exec chmod 644 {} \\;")
+
     # Make a directory for our built packages to go in
     ssh.run("mkdir -p ~/packages")
 
@@ -116,6 +145,7 @@ def _build_package():
             "fpm -t deb -s dir -n warehouse -v {} --iteration 1 "
             "-m 'Donald Stufft <donald@stufft.io>' "
             "-d pypy -d libpq5 -d libffi6 "
+            "--after-install /opt/warehouse.postinst "
             "/opt/warehouse".format(version),
         )
 
