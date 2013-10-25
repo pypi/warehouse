@@ -28,4 +28,5 @@ pip-log.txt
 # Developer local files
 data/
 .pyrax.cfg
+.rackspace.json
 warehouse.key
