@@ -17,6 +17,8 @@ from __future__ import unicode_literals
 from alembic import context
 from sqlalchemy import create_engine, pool
 
+from warehouse.application import Warehouse
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,7 +28,7 @@ config = context.config
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = Warehouse.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
