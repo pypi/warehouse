@@ -102,7 +102,12 @@ packages = Table(
         nullable=False,
         server_default="pypi-explicit",
     ),
-    Column("created", DateTime(), server_default=sql.func.now()),
+    Column(
+        "created",
+        DateTime(),
+        nullable=False,
+        server_default=sql.func.now(),
+    ),
 
     # Validate that packages begin and end with an alpha numeric and contain
     #   only alpha numeric, ., _, and -.
@@ -155,7 +160,12 @@ releases = Table(
     ),
     Column("requires_python", UnicodeText()),
     Column("description_from_readme", Boolean()),
-    Column("created", DateTime(), server_default=sql.func.now()),
+    Column(
+        "created",
+        DateTime(),
+        nullable=False,
+        server_default=sql.func.now(),
+    ),
 
     Index("release_name_idx", "name"),
     Index("release_version_idx", "version"),

@@ -27,8 +27,11 @@ down_revision = "77e04097be5"
 from alembic import op
 import sqlalchemy as sa
 
+from warehouse.packaging.tables import packages
+
 
 def upgrade():
+    # Migrate Schema
     op.add_column(
         "packages",
         sa.Column("created", sa.DateTime(), nullable=True),
@@ -40,6 +43,43 @@ def upgrade():
         sa.Column("created", sa.DateTime(), nullable=True),
     )
     op.alter_column("releases", "created", server_default=sa.func.now())
+
+    # Backfill data
+    op.execute("""
+        UPDATE packages AS pkg
+        SET created = j.submitted_date
+        FROM (
+            SELECT name, max(submitted_date) submitted_date
+            FROM journals
+            WHERE action = 'create' AND version IS NULL
+            GROUP BY name
+        ) j
+        WHERE j.name = pkg.name
+    """)
+
+    op.execute("""
+        UPDATE releases AS r
+        SET created = j.submitted_date
+        FROM (
+            SELECT name, version, max(submitted_date) submitted_date
+            FROM journals
+            WHERE action = 'new release' AND version IS NOT NULL
+            GROUP BY name, version
+        ) j
+        WHERE j.name = r.name AND j.version = r.version
+    """)
+
+    # Clean up Invalid Data
+    op.execute(
+        "UPDATE packages SET created = '-infinity' WHERE created IS NULL"
+    )
+    op.execute(
+        "UPDATE releases SET created = '-infinity' WHERE created IS NULL"
+    )
+
+    # Modify tables so NULLs are not allowed
+    op.alter_column("packages", "created", nullable=False)
+    op.alter_column("releases", "created", nullable=False)
 
 
 def downgrade():
