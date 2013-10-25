@@ -271,98 +271,96 @@ class Model(models.Model):
 
         return results
 
-    def get_release(self, project, version, compact=False):
-        results = self._get_releases(project, version, compact=compact)
-        return results[0] if results else None
-
-    def get_releases(self, project, compact=True):
-        return self._get_releases(project, compact=compact)
-
-    def _get_releases(self, project, version=None, compact=False):
-        select_fields = [
-            releases.c.name,
-            releases.c.version,
-            releases.c.author,
-            releases.c.author_email,
-            releases.c.maintainer,
-            releases.c.maintainer_email,
-            releases.c.home_page,
-            releases.c.license,
-            releases.c.summary,
-            releases.c.keywords,
-            releases.c.platform,
-            releases.c.download_url,
-            releases.c.created,
-        ]
-
-        if not compact:
-            select_fields += [
-                releases.c.description,
-            ]
-
-        # Get the release data itself
+    def get_release(self, project, version):
         query = (
-            select(select_fields)
+            select([
+                releases.c.name,
+                releases.c.version,
+                releases.c.author,
+                releases.c.author_email,
+                releases.c.maintainer,
+                releases.c.maintainer_email,
+                releases.c.home_page,
+                releases.c.license,
+                releases.c.summary,
+                releases.c.description,
+                releases.c.keywords,
+                releases.c.platform,
+                releases.c.download_url,
+                releases.c.created,
+            ])
+            .where(and_(
+                releases.c.name == project,
+                releases.c.version == version,
+            ))
+            .order_by(releases.c._pypi_ordering.desc())
+            .limit(1)
+        )
+
+        with self.engine.connect() as conn:
+            result = [dict(r) for r in conn.execute(query)][0]
+
+        # Load dependency information
+        query = (
+            select([
+                release_dependencies.c.name,
+                release_dependencies.c.version,
+                release_dependencies.c.kind,
+                release_dependencies.c.specifier,
+            ])
+            .where(and_(
+                release_dependencies.c.name == project,
+                release_dependencies.c.version == version,
+            ))
+            .order_by(
+                release_dependencies.c.kind,
+                release_dependencies.c.specifier,
+            )
+        )
+
+        dependency_data = {}
+        with self.engine.connect() as conn:
+            for dependency in conn.execute(query):
+                kind = ReleaseDependencyKind(dependency["kind"])
+
+                if kind in {
+                        ReleaseDependencyKind.requires_dist,
+                        ReleaseDependencyKind.provides_dist,
+                        ReleaseDependencyKind.obsoletes_dist}:
+                    value = dependency_data.setdefault(kind.name, [])
+                    value.append(dependency["specifier"])
+
+                if kind is ReleaseDependencyKind.project_url:
+                    value = dependency_data.setdefault(kind.name, {})
+                    value.update(dict(dependency["specifier"].split(",", 1)))
+        result.update(dependency_data)
+
+        return result
+
+    def get_releases(self, project):
+        # Get the release data
+        query = (
+            select([
+                releases.c.name,
+                releases.c.version,
+                releases.c.author,
+                releases.c.author_email,
+                releases.c.maintainer,
+                releases.c.maintainer_email,
+                releases.c.home_page,
+                releases.c.license,
+                releases.c.summary,
+                releases.c.keywords,
+                releases.c.platform,
+                releases.c.download_url,
+                releases.c.created,
+            ])
             .where(releases.c.name == project)
             .order_by(releases.c._pypi_ordering.desc())
         )
 
-        if version is not None:
-            query = query.where(releases.c.version == version)
-
         with self.engine.connect() as conn:
             results = [dict(r) for r in conn.execute(query)]
-
-        # Get the release dependency information
-        if not compact:
-            query = (
-                select([
-                    release_dependencies.c.name,
-                    release_dependencies.c.version,
-                    release_dependencies.c.kind,
-                    release_dependencies.c.specifier,
-                ])
-                .where(release_dependencies.c.name == project)
-                .order_by(
-                    release_dependencies.c.kind,
-                    release_dependencies.c.specifier,
-                )
-            )
-
-            if version is not None:
-                query = query.where(release_dependencies.c.version == version)
-
-            dependencies = collections.defaultdict(dict)
-
-            with self.engine.connect() as conn:
-                for dependency in conn.execute(query):
-                    kind = ReleaseDependencyKind(dependency["kind"])
-
-                    if kind in {
-                            ReleaseDependencyKind.requires_dist,
-                            ReleaseDependencyKind.provides_dist,
-                            ReleaseDependencyKind.obsoletes_dist}:
-                        value = dependencies[(
-                            dependency["name"],
-                            dependency["version"]
-                        )].setdefault(kind.name, [])
-                        value.append(dependency["specifier"])
-
-                    if kind is ReleaseDependencyKind.project_url:
-                        value = dependencies[(
-                            dependency["name"],
-                            dependency["version"]
-                        )].setdefault(kind.name, {})
-                        value.update({
-                            k: v
-                            for k, v in [dependency["specifier"].split(",", 1)]
-                        })
-
-            for result in results:
-                # Add the values from release_dependencies
-                result.update(
-                    dependencies[(result["name"], result["version"])],
-                )
 
         return results
 
