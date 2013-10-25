@@ -154,6 +154,7 @@ releases = Table(
     ),
     Column("requires_python", UnicodeText()),
     Column("description_from_readme", Boolean()),
+    Column("created", DateTime(), server_default=sql.func.now()),
 
     Index("release_name_idx", "name"),
     Index("release_version_idx", "version"),
