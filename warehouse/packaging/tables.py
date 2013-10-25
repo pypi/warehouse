@@ -102,6 +102,7 @@ packages = Table(
         nullable=False,
         server_default="pypi-explicit",
     ),
+    Column("created", DateTime(), server_default=sql.func.now()),
 
     # Validate that packages begin and end with an alpha numeric and contain
     #   only alpha numeric, ., _, and -.

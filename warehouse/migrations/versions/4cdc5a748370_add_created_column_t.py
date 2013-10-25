@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Add created column to releases table
+Add created column to packages and releases table
 
 Revision ID: 4cdc5a748370
 Revises: 77e04097be5
@@ -30,6 +30,12 @@ import sqlalchemy as sa
 
 def upgrade():
     op.add_column(
+        "packages",
+        sa.Column("created", sa.DateTime(), nullable=True),
+    )
+    op.alter_column("packages", "created", server_default=sa.func.now())
+
+    op.add_column(
         "releases",
         sa.Column("created", sa.DateTime(), nullable=True),
     )
@@ -37,4 +43,5 @@ def upgrade():
 
 
 def downgrade():
+    op.drop_column("packages", "created")
     op.drop_column("releases", "created")
