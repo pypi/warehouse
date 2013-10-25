@@ -32,15 +32,15 @@ def project_detail(app, request, project_name, version=None):
     if project is None:
         raise NotFound("Cannot find a project named {}".format(project_name))
 
-    # Look up the version of the given project
-    versions = app.models.packaging.get_project_versions(project.name)
+    # Look up all the releases for the given project
+    releases = app.models.packaging.get_releases(project.name)
 
-    if not versions:
-        # If there are no versions then we need to return a simpler response
+    if not releases:
+        # If there are no releases then we need to return a simpler response
         # that simply states the project exists but that there is no versions
         # registered.
         raise NotFound(
-            "There are no versions registered for the {} project".format(
+            "There are no releases registered for the {} project".format(
                 project.name,
             ),
         )
@@ -60,8 +60,8 @@ def project_detail(app, request, project_name, version=None):
 
     if version is None:
         # If there's no version specified, then we use the latest version
-        version = versions[0]
-    elif not version in versions:
+        version = releases[0]["version"]
+    elif not version in (r["version"] for r in releases):
         # If a version was specified then we need to ensure it's one of the
         # versions this project has, else raise a NotFound
         raise NotFound(
@@ -88,8 +88,7 @@ def project_detail(app, request, project_name, version=None):
         app, request, "projects/detail.html",
         project=project,
         release=release,
-        releases=app.models.packaging.get_releases(project.name),
-        versions=versions,
+        releases=releases,
         description_html=description_html,
         download_counts=app.models.packaging.get_download_counts(project.name),
         downloads=app.models.packaging.get_downloads(project.name, version),

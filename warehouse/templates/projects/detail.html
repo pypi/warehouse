@@ -221,7 +221,7 @@
                   <span class="text-muted">{{ r.created|format_date() }}</span>
                 </li>
               {% endfor %}
-              {% if versions|count() > 5 %}
+              {% if releases|count() > 5 %}
                 <li><a data-toggle="modal" href="#all-versions">{{ gettext('All Versions') }}</a></li>
               {% endif %}
             </ul>
@@ -264,7 +264,7 @@
     </div>
   {% endfor %}
 
-  {% if versions|count() > 5 %}
+  {% if releases|count() > 5 %}
     <div class="modal fade" id="all-versions" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(project)s versions', project=project.name) }}" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">

@@ -271,14 +271,14 @@ class Model(models.Model):
 
         return results
 
-    def get_release(self, project, version, description=True):
-        results = self._get_releases(project, version, description=description)
+    def get_release(self, project, version, compact=False):
+        results = self._get_releases(project, version, compact=compact)
         return results[0] if results else None
 
-    def get_releases(self, project, description=False):
-        return self._get_releases(project, description=description)
+    def get_releases(self, project, compact=True):
+        return self._get_releases(project, compact=compact)
 
-    def _get_releases(self, project, version=None, description=False):
+    def _get_releases(self, project, version=None, compact=False):
         select_fields = [
             releases.c.name,
             releases.c.version,
@@ -295,7 +295,7 @@ class Model(models.Model):
             releases.c.created,
         ]
 
-        if description:
+        if not compact:
             select_fields += [
                 releases.c.description,
             ]
@@ -314,52 +314,55 @@ class Model(models.Model):
             results = [dict(r) for r in conn.execute(query)]
 
         # Get the release dependency information
-        query = (
-            select([
-                release_dependencies.c.name,
-                release_dependencies.c.version,
-                release_dependencies.c.kind,
-                release_dependencies.c.specifier,
-            ])
-            .where(release_dependencies.c.name == project)
-            .order_by(
-                release_dependencies.c.kind,
-                release_dependencies.c.specifier,
+        if not compact:
+            query = (
+                select([
+                    release_dependencies.c.name,
+                    release_dependencies.c.version,
+                    release_dependencies.c.kind,
+                    release_dependencies.c.specifier,
+                ])
+                .where(release_dependencies.c.name == project)
+                .order_by(
+                    release_dependencies.c.kind,
+                    release_dependencies.c.specifier,
+                )
             )
-        )
 
-        if version is not None:
-            query = query.where(release_dependencies.c.version == version)
+            if version is not None:
+                query = query.where(release_dependencies.c.version == version)
 
-        dependencies = collections.defaultdict(dict)
+            dependencies = collections.defaultdict(dict)
 
-        with self.engine.connect() as conn:
-            for dependency in conn.execute(query):
-                kind = ReleaseDependencyKind(dependency["kind"])
+            with self.engine.connect() as conn:
+                for dependency in conn.execute(query):
+                    kind = ReleaseDependencyKind(dependency["kind"])
 
-                if kind in {
-                        ReleaseDependencyKind.requires_dist,
-                        ReleaseDependencyKind.provides_dist,
-                        ReleaseDependencyKind.obsoletes_dist}:
-                    value = dependencies[(
-                        dependency["name"],
-                        dependency["version"]
-                    )].setdefault(kind.name, [])
-                    value.append(dependency["specifier"])
+                    if kind in {
+                            ReleaseDependencyKind.requires_dist,
+                            ReleaseDependencyKind.provides_dist,
+                            ReleaseDependencyKind.obsoletes_dist}:
+                        value = dependencies[(
+                            dependency["name"],
+                            dependency["version"]
+                        )].setdefault(kind.name, [])
+                        value.append(dependency["specifier"])
 
-                if kind is ReleaseDependencyKind.project_url:
-                    value = dependencies[(
-                        dependency["name"],
-                        dependency["version"]
-                    )].setdefault(kind.name, {})
-                    value.update({
-                        k: v
-                        for k, v in [dependency["specifier"].split(",", 1)]
-                    })
+                    if kind is ReleaseDependencyKind.project_url:
+                        value = dependencies[(
+                            dependency["name"],
+                            dependency["version"]
+                        )].setdefault(kind.name, {})
+                        value.update({
+                            k: v
+                            for k, v in [dependency["specifier"].split(",", 1)]
+                        })
 
-        for result in results:
-            # Add the values from release_dependencies
-            result.update(dependencies[(result["name"], result["version"])])
+            for result in results:
+                # Add the values from release_dependencies
+                result.update(
+                    dependencies[(result["name"], result["version"])],
+                )
 
         return results
 
