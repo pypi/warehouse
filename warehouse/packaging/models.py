@@ -292,6 +292,7 @@ class Model(models.Model):
             releases.c.keywords,
             releases.c.platform,
             releases.c.download_url,
+            releases.c.created,
         ]
 
         if description:
@@ -356,37 +357,9 @@ class Model(models.Model):
                         for k, v in [dependency["specifier"].split(",", 1)]
                     })
 
-        # Get the release Creation date
-        query = (
-            select([
-                journals.c.name,
-                journals.c.version,
-                journals.c.submitted_date,
-            ])
-            .where(and_(
-                journals.c.name == project,
-                journals.c.action == "new release",
-            ))
-            .order_by(journals.c.submitted_date)
-        )
-
-        if version is not None:
-            query = query.where(journals.c.version == version)
-
-        with self.engine.connect() as conn:
-            creation_dates = {
-                (e["name"], e["version"]): e["submitted_date"]
-                for e in conn.execute(query)
-            }
-
         for result in results:
             # Add the values from release_dependencies
             result.update(dependencies[(result["name"], result["version"])])
-
-            # Add the creation date
-            result["created"] = creation_dates.get(
-                (result["name"], result["version"]),
-            )
 
         return results
 
