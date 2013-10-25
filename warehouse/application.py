@@ -60,12 +60,12 @@ class Warehouse(object):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
-        if engine is None:
+        if engine is None and self.config.get("database", {}).get("url"):
             engine = sqlalchemy.create_engine(self.config.database.url)
         self.engine = engine
 
         # Create our redis connection
-        if redis is None:
+        if redis is None and self.config.get("redis", {}).get("url"):
             redis = redispy.StrictRedis.from_url(self.config.redis.url)
         self.redis = redis
 
