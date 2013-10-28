@@ -18,6 +18,7 @@ import collections
 import datetime
 import os.path
 import urlparse
+import logging
 
 from collections import namedtuple
 
@@ -30,6 +31,7 @@ from warehouse.packaging.tables import (
     classifiers, release_classifiers, release_dependencies,
 )
 
+log = logging.getLogger(__name__)
 
 Project = namedtuple("Project", ["name"])
 
@@ -202,6 +204,10 @@ class Model(models.Model):
                     result["name"],
                     result["filename"],
                 )
+                if not os.path.exists(result["filepath"]):
+                    log.error('{filepath} missing for package {name} '
+                        '{version}'.format(**result))
+                    continue
                 result["url"] = "/".join([
                     "/packages",
                     result["python_version"],
