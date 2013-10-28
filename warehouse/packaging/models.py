@@ -205,8 +205,11 @@ class Model(models.Model):
                     result["filename"],
                 )
                 if not os.path.exists(result["filepath"]):
-                    log.error('{filepath} missing for package {name} '
-                        '{version}'.format(**result))
+                    log.error(
+                        "%s missing for package %s %s",
+                        result["filepath"],
+                        result["name"],
+                        result["version"])
                     continue
                 result["url"] = "/".join([
                     "/packages",
