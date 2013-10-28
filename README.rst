@@ -22,6 +22,16 @@ You may have to enable `CITEXT <http://www.postgresql.org/docs/9.2/static/citext
 
     $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
 
+Warehouse also uses less.css. This is typically installed using (for the
+easiest, global installation)
+
+.. code:: bash
+
+    npm install -g less
+
+This will probably mean you need to install node.js as well. "brew install
+node" on OS X or whatever on other platforms.
+
 To work on Warehouse you can gain a checkout of the repository and run the
 development web server using:
 
