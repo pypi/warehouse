@@ -22,6 +22,16 @@ You may have to enable `CITEXT <http://www.postgresql.org/docs/9.2/static/citext
 
     $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
 
+Warehouse also uses less.css. This is typically installed using (for the
+easiest, global installation)
+
+.. code:: bash
+
+    npm install -g less
+
+This will probably mean you need to install node.js as well. "brew install
+node" on OS X or whatever on other platforms.
+
 To work on Warehouse you can gain a checkout of the repository and run the
 development web server using:
 
@@ -32,17 +42,17 @@ development web server using:
 
     $ git clone https://github.com/dstufft/warehouse.git warehouse && cd warehouse
 
-2. Create `virtualenv`
+2. Create `virtualenv` using Python 2.7
 
 .. code:: bash
 
-    $ virtualenv .
+    $ mkvirtualenv warehouse
 
-3. Install the requirements
+3. Install the requirements (assuming you're now in that venv)
 
 .. code:: bash
 
-    $ bin/pip install -r requirements.txt
+    $ pip install -r requirements.txt
 
 4. Populate database
 

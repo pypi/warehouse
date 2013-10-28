@@ -20,7 +20,7 @@ import os.path
 import pretend
 import pytest
 
-from warehouse.packaging.models import Project, FileURL
+from warehouse.packaging.models import Project, FileURL, log
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
     release_classifiers, release_dependencies,
@@ -311,12 +311,18 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
         upload_time=datetime.datetime(year=2013, month=1, day=30),
     ))
 
-    os_exists = pretend.call_recorder(lambda p: pgp)
+    def os_exists():
+        yield       # start
+        yield True  # whether download file exists
+        yield pgp   # whether .asc pgp file exists
+    f = os_exists().send
+    f(None)     # start it off
+    os_exists = pretend.call_recorder(f)
 
     monkeypatch.setattr(os.path, "exists", os_exists)
     monkeypatch.setattr(os.path, "getsize", lambda x: 10)
 
-    dbapp.config.paths.packages = "data/fake-packages"
+    dbapp.config.paths.packages = "fake"
 
     downloads = dbapp.models.packaging.get_downloads("test-project", "1.0")
 
@@ -327,8 +333,7 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
             "name": "test-project",
             "version": "1.0",
             "filename": "test-project-1.0.tar.gz",
-            "filepath": ("data/fake-packages/source/t/test-project/"
-                         "test-project-1.0.tar.gz"),
+            "filepath": "fake/source/t/test-project/test-project-1.0.tar.gz",
             "comment_text": None,
             "downloads": 10,
             "upload_time": datetime.datetime(year=2013, month=1, day=30),
@@ -340,7 +345,56 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
             "pgp_url": pgp_url if pgp else None,
         },
     ]
-    assert os_exists.calls == [pretend.call(downloads[0]["filepath"] + ".asc")]
+    assert os_exists.calls == [
+        pretend.call(downloads[0]["filepath"]),
+        pretend.call(downloads[0]["filepath"] + ".asc")
+    ]
+
+
+def test_get_downloads_missing(dbapp, monkeypatch):
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(releases.insert().values(
+        name="test-project",
+        version="1.0",
+    ))
+    dbapp.engine.execute(release_files.insert().values(
+        name="test-project",
+        version="1.0",
+        filename="test-project-1.0.tar.gz",
+        python_version="source",
+        packagetype="sdist",
+        md5_digest="0cc175b9c0f1b6a831c399e269772661",
+        downloads=10,
+        upload_time=datetime.datetime(year=2013, month=1, day=30),
+    ))
+
+    # file does not exist
+    os_exists = pretend.call_recorder(lambda p: False)
+
+    # we match the specific arguments below - no need forcing them here as well
+    log_error = pretend.call_recorder(lambda *a: None)
+
+    monkeypatch.setattr(os.path, "exists", os_exists)
+    # log from warehouse.packaging.models
+    monkeypatch.setattr(log, "error", log_error)
+
+    dbapp.config.paths.packages = "fake"
+
+    downloads = dbapp.models.packaging.get_downloads("test-project", "1.0")
+
+    assert downloads == []
+    filepath = "fake/source/t/test-project/test-project-1.0.tar.gz"
+    assert os_exists.calls == [pretend.call(filepath)]
+
+    # actual error message may vary, so just assert that the logging was called
+    assert log_error.calls == [
+        pretend.call(
+            "%s missing for package %s %s",
+            filepath,
+            "test-project",
+            "1.0",
+        ),
+    ]
 
 
 def test_get_download_counts(dbapp):
