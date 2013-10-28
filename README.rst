@@ -69,6 +69,12 @@ Warehouse uses tox to run the test suite. You can run all the tests by using:
 
     $ tox
 
+Or if you want to run them with the database:
+
+.. code:: bash
+
+    $ WAREHOUSE_DATABASE_URL=postgresql://localhost/warehouse tox
+
 
 Resources
 ---------
