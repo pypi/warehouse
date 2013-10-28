@@ -42,17 +42,17 @@ development web server using:
 
     $ git clone https://github.com/dstufft/warehouse.git warehouse && cd warehouse
 
-2. Create `virtualenv`
+2. Create `virtualenv` using Python 2.7
 
 .. code:: bash
 
-    $ virtualenv .
+    $ mkvirtualenv warehouse
 
-3. Install the requirements
+3. Install the requirements (assuming you're now in that venv)
 
 .. code:: bash
 
-    $ bin/pip install -r requirements.txt
+    $ pip install -r requirements.txt
 
 4. Populate database
 
