@@ -22,7 +22,7 @@ urls = [
         Rule(
             "/~<username>/",
             methods=["GET"],
-            endpoint="user_detail",
+            endpoint="user_profile",
         ),
     ]),
 ]

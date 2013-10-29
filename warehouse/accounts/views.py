@@ -20,7 +20,7 @@ from warehouse.helpers import url_for
 from warehouse.utils import cache, fastly, redirect, render_response
 
 
-def user_detail(app, request, username):
+def user_profile(app, request, username):
     user = app.models.accounts.get_user(username)
 
     if user is None:
@@ -30,7 +30,7 @@ def user_detail(app, request, username):
         return redirect(
             url_for(
                 request,
-                "warehouse.accounts.views.user_detail",
+                "warehouse.accounts.views.user_profile",
                 username=user["username"],
             ),
             code=301,
