@@ -28,6 +28,7 @@ security:
             - "*"
 
 logging:
+    version: 1
     formatters:
         timeAndLevel:
             format: '%(asctime)s - %(levelname)s: %(message)s'
