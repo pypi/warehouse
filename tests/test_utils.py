@@ -79,7 +79,12 @@ def test_render_response():
     assert resp.data == b"test"
     assert app.templates.get_template.calls == [pretend.call("template.html")]
     assert template.render.calls == [
-        pretend.call(foo="bar", url_for=mock.ANY, config=app.config),
+        pretend.call(
+            foo="bar",
+            config=app.config,
+            gravatar_url=mock.ANY,
+            url_for=mock.ANY,
+        ),
     ]
 
 
