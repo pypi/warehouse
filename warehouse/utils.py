@@ -75,6 +75,7 @@ def render_response(app, request, template, **variables):
 
     context = {
         "config": app.config,
+        "gravatar_url": helpers.gravatar_url,
         "url_for": functools.partial(helpers.url_for, request),
     }
     context.update(variables)

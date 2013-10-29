@@ -14,24 +14,15 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import hashlib
-import urllib
+from werkzeug.routing import Rule, EndpointPrefix
 
 
-def url_for(request, endpoint, **values):
-    force_external = values.pop("_force_external", False)
-    return request.url_adapter.build(
-        endpoint, values,
-        force_external=force_external,
-    )
-
-
-def gravatar_url(email, size=80):
-    email_hash = hashlib.md5(email.strip().lower()).hexdigest()
-
-    url = "https://secure.gravatar.com/avatar/{}".format(email_hash)
-    params = {
-        "size": size,
-    }
-
-    return "?".join([url, urllib.urlencode(params)])
+urls = [
+    EndpointPrefix("warehouse.accounts.views.", [
+        Rule(
+            "/~<username>/",
+            methods=["GET"],
+            endpoint="user_profile",
+        ),
+    ]),
+]

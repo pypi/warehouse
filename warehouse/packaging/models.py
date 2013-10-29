@@ -62,6 +62,26 @@ class Model(models.Model):
             if result is not None:
                 return Project(result)
 
+    def get_projects_for_user(self, username):
+        query = """
+            SELECT DISTINCT ON (lower(name)) name, summary
+            FROM (
+                SELECT package_name
+                FROM roles
+                WHERE user_name = %(username)s
+            ) roles
+            INNER JOIN (
+                SELECT name, summary
+                FROM releases
+                ORDER BY _pypi_ordering DESC
+            ) releases
+            ON (releases.name = roles.package_name)
+            ORDER BY lower(name);
+        """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, username=username)]
+
     def get_hosting_mode(self, name):
         query = (
             select([packages.c.hosting_mode])

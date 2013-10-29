@@ -20,10 +20,11 @@ import os.path
 import pretend
 import pytest
 
+from warehouse.accounts.tables import users
 from warehouse.packaging.models import Project, FileURL, log
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
-    release_classifiers, release_dependencies,
+    release_classifiers, release_dependencies, roles,
 )
 
 
@@ -57,6 +58,44 @@ def test_get_project(name, normalized, dbapp):
 
 def test_get_project_missing(dbapp):
     assert dbapp.models.packaging.get_project("missing") is None
+
+
+def test_get_projects_for_user(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        password="!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(releases.insert().values(
+        name="test-project",
+        version="1.0",
+        summary="test summmary",
+        _pypi_ordering=1,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="test-project",
+        version="2.0",
+        summary="test summmary 2.0",
+        _pypi_ordering=2,
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Owner",
+    ))
+
+    assert dbapp.models.packaging.get_projects_for_user("test-user") == [
+        {"name": "test-project", "summary": "test summmary 2.0"},
+    ]
+
+
+def test_get_projects_for_user_missing(dbapp):
+    assert dbapp.models.packaging.get_projects_for_user("missing") == []
 
 
 @pytest.mark.parametrize(("name", "mode"), [
