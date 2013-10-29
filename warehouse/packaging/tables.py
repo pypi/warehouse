@@ -244,6 +244,25 @@ description_urls = Table(
 )
 
 
+roles = Table(
+    "roles",
+    Warehouse.metadata,
+
+    Column("role_name", UnicodeText()),
+    Column("user_name",
+        CIText(),
+        ForeignKey("accounts_user.username", onupdate="CASCADE"),
+    ),
+    Column("package_name",
+        UnicodeText(),
+        ForeignKey("packages.name", onupdate="CASCADE"),
+    ),
+
+    Index("roles_pack_name_idx", "package_name"),
+    Index("roles_user_name_idx", "user_name"),
+)
+
+
 journals = Table(
     "journals",
     Warehouse.metadata,
