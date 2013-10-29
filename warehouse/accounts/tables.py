@@ -18,7 +18,7 @@ from citext import CIText
 from sqlalchemy import (
     Table, Column, CheckConstraint, ForeignKey, Index, UniqueConstraint,
 )
-from sqlalchemy import Boolean, DateTime, Integer, String, UnicodeText
+from sqlalchemy import Boolean, DateTime, Integer, String, Unicode, UnicodeText
 from sqlalchemy import sql
 
 from warehouse.application import Warehouse
@@ -33,7 +33,7 @@ users = Table(
     Column("last_login", DateTime(timezone=True), nullable=False),
     Column("is_superuser", Boolean(), nullable=False),
     Column("username", CIText(), nullable=False, unique=True),
-    Column("name", UnicodeText(length=100), nullable=False),
+    Column("name", Unicode(length=100), nullable=False),
     Column("is_staff", Boolean(), nullable=False),
     Column("is_active", Boolean(), nullable=False),
     Column(
@@ -62,7 +62,7 @@ emails = Table(
         ),
         nullable=False,
     ),
-    Column("email", UnicodeText(length=254), nullable=False),
+    Column("email", Unicode(length=254), nullable=False),
     Column("primary", Boolean(), nullable=False),
     Column("verified", Boolean(), nullable=False),
 
