@@ -17,7 +17,23 @@ from __future__ import unicode_literals
 import pretend
 import pytest
 
-from warehouse.helpers import url_for
+from warehouse.helpers import gravatar_url, url_for
+
+
+@pytest.mark.parametrize(("kwargs", "expected"), [
+    (
+        {},
+        ("https://secure.gravatar.com/avatar/3664adb7d1eea0bd7d0b134577663889"
+         "?size=80"),
+    ),
+    (
+        {"size": 1000},
+        ("https://secure.gravatar.com/avatar/3664adb7d1eea0bd7d0b134577663889"
+         "?size=1000"),
+    ),
+])
+def test_gravatar_url(kwargs, expected):
+    assert gravatar_url("test-user@example.com", **kwargs) == expected
 
 
 @pytest.mark.parametrize(("external",), [(False,), (True,)])

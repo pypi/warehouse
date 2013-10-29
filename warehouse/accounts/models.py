@@ -24,14 +24,18 @@ class Model(models.Model):
 
     def get_user(self, name):
         query = (
-            select([
-                users.c.username,
-                users.c.name,
-                users.c.date_joined,
-                emails.c.email,
-            ])
+            select(
+                [
+                    users.c.username,
+                    users.c.name,
+                    users.c.date_joined,
+                    emails.c.email,
+                ],
+                from_obj=users.outerjoin(
+                    emails, emails.c.user_id == users.c.id,
+                ),
+            )
             .where(and_(
-                emails.c.user_id == users.c.id,
                 users.c.username == name,
             ))
             .limit(1)
