@@ -18,7 +18,7 @@ from citext import CIText
 from sqlalchemy import (
     Table, Column, CheckConstraint, ForeignKey, Index, UniqueConstraint,
 )
-from sqlalchemy import Boolean, DateTime, Integer, String, Unicode, UnicodeText
+from sqlalchemy import Boolean, DateTime, Integer, String, Unicode
 from sqlalchemy import sql
 
 from warehouse.application import Warehouse
