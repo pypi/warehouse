@@ -30,7 +30,7 @@
         <ul>
           {% for project in projects %}
             <li>
-              <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name) }}">
+              <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name) }}">
                 {{ project.name }}
               </a>
               {{ project.summary }}

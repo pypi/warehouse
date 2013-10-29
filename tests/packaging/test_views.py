@@ -22,7 +22,7 @@ import pytest
 from werkzeug.exceptions import NotFound
 
 from warehouse.packaging.models import Project
-from warehouse.ui.views import project_detail
+from warehouse.packaging.views import project_detail
 
 
 def test_project_detail_missing_project():
@@ -117,7 +117,7 @@ def test_project_detail_redirects():
     ]
     assert request.url_adapter.build.calls == [
         pretend.call(
-            "warehouse.ui.views.project_detail",
+            "warehouse.packaging.views.project_detail",
             {"project_name": "test-project", "version": None},
             force_external=False,
         ),

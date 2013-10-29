@@ -44,7 +44,7 @@ from warehouse.packaging import helpers as packaging_helpers
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 from warehouse.accounts.urls import urls as accounts_urls
-from warehouse.ui.urls import urls as ui_urls
+from warehouse.packaging.urls import urls as packaging_urls
 from warehouse.legacy.urls import urls as legacy_urls
 
 
@@ -83,7 +83,7 @@ class Warehouse(object):
             )
 
         # Set up our URL routing
-        self.urls = Map(accounts_urls + ui_urls + legacy_urls)
+        self.urls = Map(accounts_urls + packaging_urls + legacy_urls)
 
         # Initialize our Translations engine
         self.trans = babel.support.NullTranslations()

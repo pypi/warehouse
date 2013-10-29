@@ -3,14 +3,14 @@
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block extra_head %}
-  <link rel="canonical" href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=release.version, _force_external=True) }}">
+  <link rel="canonical" href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=release.version, _force_external=True) }}">
 {% endblock %}
 
 {% block content %}
   <div class="row project-header">
     <header class="col-md-9">
       <h1>
-        <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name) }}">
+        <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name) }}">
           {{ project.name }}
         </a>
         <small>{{ release.version }}</small>
@@ -206,7 +206,7 @@
             <ul class="list-unstyled">
               {% for r in releases[:5] %}
                 <li>
-                  <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
                   <span class="text-muted">{{ r.created|format_date() }}</span>
                 </li>
               {% endfor %}
@@ -251,7 +251,7 @@
             <ul class="list-unstyled">
               {% for r in releases %}
                 <li>
-                  <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
                   <span class="text-muted">{{ r.created|format_date() }}</span>
                 </li>
               {% endfor %}
