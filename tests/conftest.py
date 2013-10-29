@@ -59,17 +59,17 @@ def _database_url(request):
             )
             return name not in [r[0] for r in results]
 
-    database_url_ini = request.config.getini("database_url")
+    database_url_default = 'postgresql://localhost/test_warehouse'
     database_url_environ = os.environ.get("WAREHOUSE_DATABASE_URL")
     database_url_option = request.config.getvalue("database_url")
 
-    if (not database_url_ini and not database_url_environ
+    if (not database_url_default and not database_url_environ
             and not database_url_option):
         pytest.skip("No database provided")
 
     # Configure our engine so that we can create a database
     database_url = (
-        database_url_option or database_url_environ or database_url_ini
+        database_url_option or database_url_environ or database_url_default
     )
     engine = sqlalchemy.create_engine(
         database_url,
