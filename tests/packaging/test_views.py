@@ -221,6 +221,7 @@ def test_project_detail_valid(version, description):
                     lambda proj: None,
                 ),
                 get_bugtrack_url=pretend.call_recorder(lambda proj: None),
+                get_users_for_project=pretend.call_recorder(lambda proj: []),
             ),
         ),
         templates=pretend.stub(
@@ -248,5 +249,8 @@ def test_project_detail_valid(version, description):
         pretend.call("test-project"),
     ]
     assert app.models.packaging.get_project_versions.calls == [
+        pretend.call("test-project"),
+    ]
+    assert app.models.packaging.get_users_for_project.calls == [
         pretend.call("test-project"),
     ]
