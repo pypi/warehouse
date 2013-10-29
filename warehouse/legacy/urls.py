@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 
 from werkzeug.routing import Rule, EndpointPrefix, Submount
 
-__urls__ = [
+urls = [
     EndpointPrefix("warehouse.legacy.simple.", [
         Submount("/simple", [
             Rule("/", methods=["GET"], endpoint="index"),
