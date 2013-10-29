@@ -30,6 +30,8 @@ import redis as redispy
 import sqlalchemy
 import yaml
 
+from raven import Client
+from raven.middleware import Sentry
 from webassets import Environment as AssetsEnvironment
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map
@@ -137,6 +139,9 @@ class Warehouse(object):
             self.wsgi_app,
             self.config.security.csp,
         )
+
+        if "sentry" in self.config:
+            self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
 
         # Serve the static files if we're in debug
         if self.config.debug:
