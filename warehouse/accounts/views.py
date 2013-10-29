@@ -14,24 +14,29 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import hashlib
-import urllib
+from werkzeug.exceptions import NotFound
+
+from warehouse.helpers import url_for
+from warehouse.utils import cache, fastly, redirect, render_response
 
 
-def url_for(request, endpoint, **values):
-    force_external = values.pop("_force_external", False)
-    return request.url_adapter.build(
-        endpoint, values,
-        force_external=force_external,
+def user_detail(app, request, username):
+    user = app.models.accounts.get_user(username)
+
+    if user is None:
+        raise NotFound("Could not find user {}".format(username))
+
+    if user["username"] != username:
+        return redirect(
+            url_for(
+                request,
+                "warehouse.accounts.views.user_detail",
+                username=user["username"],
+            ),
+            code=301,
+        )
+
+    return render_response(
+        app, request, "accounts/profile.html",
+        user=user,
     )
-
-
-def gravatar_url(email, size=80):
-    email_hash = hashlib.md5(email.strip().lower()).hexdigest()
-
-    url = "https://secure.gravatar.com/avatar/{}".format(email_hash)
-    params = {
-        "size": size,
-    }
-
-    return "?".join([url, urllib.urlencode(params)])

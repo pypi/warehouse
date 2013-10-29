@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block content %}
+  <header class="page-header">
+    <h1>{{ user.username }}</h1>
+  </header>
+  <div class="row">
+    <div class="col-md-4 col-md-push-8">
+      <img src="{{ gravatar_url(user.email, size=350) }}"  class="img-rounded img-responsive" />
+    </div>
+
+    <div class="col-md-8 col-md-pull-4">
+      <h2 class="sr-only">{{ gettext('User Details') }}</h2>
+      <dl class="user-details dl-horizontal">
+        {% if user.name %}
+          <dt>{{ gettext('Full Name') }}</dt>
+          <dd>{{ user.name }}</dd>
+        {% endif %}
+
+        {% if user.date_joined %}
+          <dt>{{ gettext('Joined') }}</dt>
+          <dd>{{ user.date_joined|format_date() }}</dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+{% endblock %}
