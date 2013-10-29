@@ -14,7 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, and_
 
 from warehouse import models
 from warehouse.accounts.tables import users, emails
@@ -30,7 +30,10 @@ class Model(models.Model):
                 users.c.date_joined,
                 emails.c.email,
             ])
-            .where(users.c.username == name)
+            .where(and_(
+                emails.c.user_id == users.c.id,
+                users.c.username == name,
+            ))
             .limit(1)
         )
 
