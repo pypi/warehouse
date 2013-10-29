@@ -42,7 +42,7 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def _database(request):
+def _database_url(request):
     from warehouse.application import Warehouse
 
     def _get_name():
@@ -59,17 +59,17 @@ def _database(request):
             )
             return name not in [r[0] for r in results]
 
-    database_url_ini = request.config.getini("database_url")
+    database_url_default = 'postgresql://localhost/test_warehouse'
     database_url_environ = os.environ.get("WAREHOUSE_DATABASE_URL")
     database_url_option = request.config.getvalue("database_url")
 
-    if (not database_url_ini and not database_url_environ
+    if (not database_url_default and not database_url_environ
             and not database_url_option):
         pytest.skip("No database provided")
 
     # Configure our engine so that we can create a database
     database_url = (
-        database_url_option or database_url_environ or database_url_ini
+        database_url_option or database_url_environ or database_url_default
     )
     engine = sqlalchemy.create_engine(
         database_url,
@@ -131,15 +131,15 @@ def _database(request):
 
 
 @pytest.fixture(scope="session")
-def engine(_database):
+def engine(_database_url):
     return sqlalchemy.create_engine(
-        _database,
+        _database_url,
         poolclass=sqlalchemy.pool.AssertionPool,
     )
 
 
 @pytest.fixture
-def database(request, _database, engine):
+def database(request, _database_url, engine):
     connection = engine.connect()
     transaction = connection.begin()
 
@@ -153,11 +153,11 @@ def database(request, _database, engine):
 
 
 @pytest.fixture
-def dbapp(database, _database):
+def dbapp(database, _database_url):
     from warehouse.application import Warehouse
 
     return Warehouse.from_yaml(
-        override={"database": {"url": _database}},
+        override={"database": {"url": _database_url}},
         engine=database,
         redis=False,
     )
