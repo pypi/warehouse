@@ -51,6 +51,7 @@ class Warehouse(object):
     metadata = sqlalchemy.MetaData()
 
     model_names = {
+        "accounts": "warehouse.accounts.models:Model",
         "packaging": "warehouse.packaging.models:Model",
     }
 
