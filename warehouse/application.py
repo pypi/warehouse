@@ -155,7 +155,6 @@ class Warehouse(object):
             )
 
         # configure logging
-        self.config.logging.setdefault('version', 1)
         logging.config.dictConfig(self.config.logging)
 
     def __call__(self, environ, start_response):

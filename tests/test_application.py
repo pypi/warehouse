@@ -45,7 +45,9 @@ def test_basic_instantiation():
         "security": {
             "csp": {},
         },
-        "logging": {},
+        "logging": {
+            "version": 1,
+        },
     })
 
 
