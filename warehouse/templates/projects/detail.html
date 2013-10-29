@@ -36,6 +36,16 @@
 
   <div class="row">
     <div class="col-md-9 project-body">
+      {% if release.version != releases[0].version %}
+        <div class="alert alert-warning">
+          {% set latest_version = releases[0].version %}
+          {% set latest_url = url_for('warehouse.packaging.views.project_detail', project_name=project.name) %}
+          {% set latest_link = '<a href="%(url)s">%(version)s</a>'|format(url=latest_url, version=latest_version)|safe %}
+
+          {{ gettext('The latest version of this package is %(latest)s', latest=latest_link) }}
+        </div>
+      {% endif %}
+
       <div class="description">
         {{ description_html }}
       </div>
