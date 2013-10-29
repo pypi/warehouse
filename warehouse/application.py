@@ -42,6 +42,8 @@ from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
+from warehouse.ui.urls import urls as ui_urls
+from warehouse.legacy.urls import urls as legacy_urls
 
 
 class Warehouse(object):
@@ -51,11 +53,6 @@ class Warehouse(object):
     model_names = {
         "packaging": "warehouse.packaging.models:Model",
     }
-
-    url_names = [
-        "warehouse.ui.urls",
-        "warehouse.legacy.urls",
-    ]
 
     def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
@@ -82,12 +79,8 @@ class Warehouse(object):
                 self.redis,
             )
 
-        # Setup our URL routing
-        url_rules = []
-        for name in self.url_names:
-            mod = importlib.import_module(name)
-            url_rules.extend(getattr(mod, "__urls__"))
-        self.urls = Map(url_rules)
+        # Set up our URL routing
+        self.urls = Map(ui_urls + legacy_urls)
 
         # Initialize our Translations engine
         self.trans = babel.support.NullTranslations()
@@ -106,7 +99,6 @@ class Warehouse(object):
         # Install Babel
         self.templates.filters.update({
             "package_type_display": packaging_helpers.package_type_display,
-
             "format_date": babel.dates.format_date,
             "format_datetime": babel.dates.format_datetime,
             "format_time": babel.dates.format_time,

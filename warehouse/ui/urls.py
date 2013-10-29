@@ -16,8 +16,7 @@ from __future__ import unicode_literals
 
 from werkzeug.routing import Rule, EndpointPrefix
 
-
-__urls__ = [
+urls = [
     EndpointPrefix("warehouse.ui.views.", [
         Rule(
             "/projects/<project_name>/",
