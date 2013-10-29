@@ -51,7 +51,7 @@ def project_detail(app, request, project_name, version=None):
         return redirect(
             url_for(
                 request,
-                "warehouse.ui.views.project_detail",
+                "warehouse.packaging.views.project_detail",
                 project_name=project.name,
                 version=version,
             ),

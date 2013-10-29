@@ -13,3 +13,20 @@
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
+
+from werkzeug.routing import Rule, EndpointPrefix
+
+urls = [
+    EndpointPrefix("warehouse.packaging.views.", [
+        Rule(
+            "/projects/<project_name>/",
+            methods=["GET"],
+            endpoint="project_detail",
+        ),
+        Rule(
+            "/projects/<project_name>/<version>/",
+            methods=["GET"],
+            endpoint="project_detail",
+        ),
+    ]),
+]
