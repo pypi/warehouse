@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 from werkzeug.routing import Rule, EndpointPrefix
 
 
-__urls__ = [
+urls = [
     EndpointPrefix("warehouse.accounts.views.", [
         Rule(
             "/~<username>/",
