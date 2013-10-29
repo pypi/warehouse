@@ -35,3 +35,20 @@ security:
         default-src:
             - self
             - "localhost:9000"
+
+logging:
+    formatters:
+        timeAndLevel:
+            format: '%(asctime)s - %(levelname)s: %(message)s'
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: timeAndLevel
+            level: DEBUG
+            stream: ext://sys.stdout
+    loggers:
+        warehouse:
+            level: DEBUG
+    root:
+        level: INFO
+        handlers: [console]

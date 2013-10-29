@@ -26,3 +26,21 @@ security:
             - self
         img-src:
             - "*"
+
+logging:
+    version: 1
+    formatters:
+        timeAndLevel:
+            format: '%(asctime)s - %(levelname)s: %(message)s'
+    handlers:
+        console:
+            class: logging.StreamHandler
+            formatter: timeAndLevel
+            level: DEBUG
+            stream: ext://sys.stdout
+    loggers:
+        warehouse:
+            level: INFO
+    root:
+        level: ERROR
+        handlers: [console]

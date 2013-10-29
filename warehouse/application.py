@@ -18,6 +18,7 @@ import argparse
 import collections
 import importlib
 import os.path
+import logging.config
 
 import babel.dates
 import babel.support
@@ -152,6 +153,9 @@ class Warehouse(object):
                 self.wsgi_app,
                 {"/static/": self.config.assets.directory},
             )
+
+        # configure logging
+        logging.config.dictConfig(self.config.logging)
 
     def __call__(self, environ, start_response):
         """
