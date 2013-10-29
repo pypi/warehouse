@@ -79,7 +79,11 @@ Warehouse uses tox to run the test suite. You can run all the tests by using:
 
     $ tox
 
-Or if you want to run them with the database:
+The models tests require a database which by default is located at the URL::
+
+    postgresql://localhost/test_warehouse
+
+This may be overridden using an environment variable
 
 .. code:: bash
 
