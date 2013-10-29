@@ -28,7 +28,7 @@ from warehouse import models
 from warehouse.packaging.tables import ReleaseDependencyKind
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals,
-    classifiers, release_classifiers, release_dependencies, roles,
+    classifiers, release_classifiers, release_dependencies,
 )
 
 log = logging.getLogger(__name__)

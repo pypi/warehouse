@@ -56,7 +56,8 @@ emails = Table(
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("user_id",
         Integer(),
-        ForeignKey("accounts_user.id",
+        ForeignKey(
+            "accounts_user.id",
             deferrable=True,
             initially="DEFERRED",
         ),
