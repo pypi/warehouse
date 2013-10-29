@@ -24,6 +24,20 @@
           <dd>{{ user.date_joined|format_date() }}</dd>
         {% endif %}
       </dl>
+
+      {% if projects %}
+        <h2>{{ gettext('Projects by %(username)s', username=user.username) }}</h2>
+        <ul>
+          {% for project in projects %}
+            <li>
+              <a href="{{ url_for('warehouse.ui.views.project_detail', project_name=project.name) }}">
+                {{ project.name }}
+              </a>
+              {{ project.summary }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
   </div>
 {% endblock %}

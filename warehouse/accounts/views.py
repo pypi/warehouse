@@ -39,4 +39,5 @@ def user_detail(app, request, username):
     return render_response(
         app, request, "accounts/profile.html",
         user=user,
+        projects=app.models.packaging.get_projects_for_user(user["username"]),
     )
