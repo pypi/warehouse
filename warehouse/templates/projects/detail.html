@@ -172,6 +172,7 @@
                   <li>{{ requires }}</li>
                 {% endfor %}
               </ul>
+            </dd>
           {% endif %}
 
           {% if release.provides_dist %}
@@ -224,6 +225,20 @@
                 <li><a data-toggle="modal" href="#all-versions">{{ gettext('All Versions') }}</a></li>
               {% endif %}
             </ul>
+          </dd>
+
+          <dt>{{ gettext('Maintainers') }}</dt>
+          <dd>
+            <ul class="list-inline maintainers">
+              {% for maintainer in maintainers %}
+                <li>
+                  <a href="{{ url_for('warehouse.accounts.views.user_profile', username=maintainer.username) }}" title="{{ maintainer.username }}">
+                    <img src="{{ gravatar_url(maintainer.email, size=50) }}" alt="{{ maintainer.username}}" height="50" width="50" class="img-rounded" />
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </dd>
         </dl>
       </div>
     </div>

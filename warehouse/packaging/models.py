@@ -25,10 +25,11 @@ from collections import namedtuple
 from sqlalchemy.sql import and_, select, func
 
 from warehouse import models
+from warehouse.accounts.tables import users, emails
 from warehouse.packaging.tables import ReleaseDependencyKind
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals,
-    classifiers, release_classifiers, release_dependencies,
+    classifiers, release_classifiers, release_dependencies, roles
 )
 
 log = logging.getLogger(__name__)
@@ -81,6 +82,27 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, username=username)]
+
+    def get_users_for_project(self, project):
+        query = (
+            select(
+                [users.c.username, emails.c.email],
+                from_obj=users.outerjoin(
+                    emails, emails.c.user_id == users.c.id,
+                ),
+            )
+            .where(and_(
+                users.c.username == roles.c.user_name,
+                roles.c.package_name == project,
+            ))
+            .order_by(
+                roles.c.role_name.desc(),
+                func.lower(roles.c.user_name),
+            )
+        )
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query)]
 
     def get_hosting_mode(self, name):
         query = (

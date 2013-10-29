@@ -99,4 +99,5 @@ def project_detail(app, request, project_name, version=None):
         ),
         documentation=app.models.packaging.get_documentation_url(project.name),
         bugtracker=app.models.packaging.get_bugtrack_url(project.name),
+        maintainers=app.models.packaging.get_users_for_project(project.name),
     )
