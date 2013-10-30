@@ -52,16 +52,16 @@ though some actions are also POST actions.
 **could be nuked without fuss**
   - `display` was used to display a package version but was replaced ages ago
     by the /<package>/<version> URL structure
-  - all the user-based stuff like 'register_form', 'user', 'user_form',
-    'forgotten_password_form', 'login', 'logout',
-    'forgotten_password', 'password_reset', 'pw_reset' and 'pw_reset_change' will most likely be
+  - all the user-based stuff like `register_form`, `user`, `user_form`,
+    `forgotten_password_form`, `login`, `logout`, `forgotten_password`,
+    `password_reset`, `pw_reset` and `pw_reset_change` will most likely be
     replaced by newer mechanisms in warehouse
   - `openid_endpoint`, `openid_decide_post` could also be replaced by something
     saner
   - `home` is the old home page thing and completely unnecessary
   - `index` is just stupid given the number of packages
-  - `browse` and `search` are *probably* only referenced by internal links so should be safe
-    to nuke
+  - `browse` and `search` are *probably* only referenced by internal links so
+    should be safe to nuke
   - `submit_pkg_info` and `display_pkginfo` probably aren't used
   - `submit_form` and `pkg_edit` will be changing anyway
   - `files`, `urls`, `role`, `role_form` are old style and will be changing
@@ -80,7 +80,7 @@ though some actions are also POST actions.
   - `exception` heh
 
 **will need to retain**
-  - `rss` and `packages_rss` will be in a bunch of peoples' RSS readers
+  - `rss` and `packages_rss` will be in a bunch of peoples` RSS readers
   - `doap` is most likely referred to
   - `show_md5` ?
 
