@@ -331,7 +331,7 @@ class Model(models.Model):
 
                 if kind is ReleaseDependencyKind.project_url:
                     value = dependency_data.setdefault(kind.name, {})
-                    value.update(dict(dependency["specifier"].split(",", 1)))
+                    value.update(dict([dependency["specifier"].split(",", 1)]))
         result.update(dependency_data)
 
         return result

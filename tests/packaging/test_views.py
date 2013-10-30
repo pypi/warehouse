@@ -52,7 +52,7 @@ def test_project_detail_no_versions():
                 get_project=pretend.call_recorder(
                     lambda proj: Project("test-project"),
                 ),
-                get_project_versions=pretend.call_recorder(lambda proj: []),
+                get_releases=pretend.call_recorder(lambda proj: []),
             ),
         ),
     )
@@ -66,7 +66,7 @@ def test_project_detail_no_versions():
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_project_versions.calls == [
+    assert app.models.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
 
@@ -84,8 +84,8 @@ def test_project_detail_redirects():
                 get_project=pretend.call_recorder(
                     lambda proj: Project("test-project"),
                 ),
-                get_project_versions=pretend.call_recorder(
-                    lambda proj: ["1.0"],
+                get_releases=pretend.call_recorder(
+                    lambda proj: [{"version": "1.0"}],
                 ),
             ),
         ),
@@ -112,7 +112,7 @@ def test_project_detail_redirects():
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-Project"),
     ]
-    assert app.models.packaging.get_project_versions.calls == [
+    assert app.models.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
     assert request.url_adapter.build.calls == [
@@ -137,8 +137,8 @@ def test_project_detail_invalid_version():
                 get_project=pretend.call_recorder(
                     lambda proj: Project("test-project"),
                 ),
-                get_project_versions=pretend.call_recorder(
-                    lambda proj: ["1.0"],
+                get_releases=pretend.call_recorder(
+                    lambda proj: [{"version": "1.0"}],
                 ),
             ),
         ),
@@ -153,7 +153,7 @@ def test_project_detail_invalid_version():
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_project_versions.calls == [
+    assert app.models.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
 
@@ -201,13 +201,12 @@ def test_project_detail_valid(version, description):
                 get_project=pretend.call_recorder(
                     lambda proj: Project("test-project"),
                 ),
-                get_project_versions=pretend.call_recorder(
-                    lambda proj: ["2.0", "1.0"],
+                get_releases=pretend.call_recorder(
+                    lambda proj: [{"version": "2.0"}, {"version": "1.0"}],
                 ),
                 get_release=pretend.call_recorder(
                     lambda proj, version: release,
                 ),
-                get_releases=pretend.call_recorder(lambda proj: [release]),
                 get_download_counts=pretend.call_recorder(
                     lambda proj: {
                         "last_day": 1,
@@ -248,7 +247,7 @@ def test_project_detail_valid(version, description):
     assert app.models.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_project_versions.calls == [
+    assert app.models.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
     assert app.models.packaging.get_users_for_project.calls == [
