@@ -24,6 +24,8 @@ import werkzeug.serving
 import warehouse
 import warehouse.migrations.cli
 
+from warehouse.serving import WSGIRequestHandler
+
 
 class ServeCommand:
 
@@ -32,6 +34,7 @@ class ServeCommand:
             host, port, app,
             use_reloader=reloader,
             use_debugger=debugger,
+            request_handler=WSGIRequestHandler,
         )
 
     def create_parser(self, parser):

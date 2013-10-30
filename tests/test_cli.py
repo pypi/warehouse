@@ -22,11 +22,12 @@ import webassets.script
 import werkzeug.serving
 
 from warehouse.cli import ServeCommand, CollectStaticCommand
+from warehouse.serving import WSGIRequestHandler
 
 
 def test_serve(monkeypatch):
     run_simple = pretend.call_recorder(
-        lambda host, port, app, use_reloader, use_debugger: None,
+        lambda *a, **kw: None,
     )
     monkeypatch.setattr(werkzeug.serving, "run_simple", run_simple)
 
@@ -44,6 +45,7 @@ def test_serve(monkeypatch):
             host, port, app,
             use_reloader=use_reloader,
             use_debugger=use_debugger,
+            request_handler=WSGIRequestHandler,
         ),
     ]
 
