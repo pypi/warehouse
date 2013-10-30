@@ -25,7 +25,7 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.test import create_environ
 from werkzeug.wsgi import SharedDataMiddleware
 
-from warehouse import cli
+from warehouse import application, cli
 from warehouse.application import Warehouse
 
 
@@ -163,3 +163,25 @@ def test_shared_static():
     )
 
     assert isinstance(app.wsgi_app, SharedDataMiddleware)
+
+
+def test_sentry_middleware(monkeypatch):
+    Sentry = pretend.call_recorder(lambda app, client: app)
+    client_obj = pretend.stub()
+    Client = pretend.call_recorder(lambda **kw: client_obj)
+
+    monkeypatch.setattr(application, "Sentry", Sentry)
+    monkeypatch.setattr(application, "Client", Client)
+
+    Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+        override={"sentry": {"dsn": "http://public:secret@example.com/1"}}
+    )
+
+    assert Sentry.calls == [pretend.call(mock.ANY, client_obj)]
+    assert Client.calls == [
+        pretend.call(dsn="http://public:secret@example.com/1"),
+    ]

@@ -73,6 +73,7 @@ setup(
         "psycopg2cffi",
         "PyYAML",
         "recliner>=0.3.1",
+        "raven",
         "redis",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
