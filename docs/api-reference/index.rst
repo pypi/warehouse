@@ -53,15 +53,15 @@ though some actions are also POST actions.
   - `display` was used to display a package version but was replaced ages ago
     by the /<package>/<version> URL structure
   - all the user-based stuff like `register_form`, `user`, `user_form`,
-    `forgotten_password_form`, `login`, `logout`,
-    `forgotten_password`, `password_reset`, `pw_reset` and `pw_reset_change` will most likely be
+    `forgotten_password_form`, `login`, `logout`, `forgotten_password`,
+    `password_reset`, `pw_reset` and `pw_reset_change` will most likely be
     replaced by newer mechanisms in warehouse
   - `openid_endpoint`, `openid_decide_post` could also be replaced by something
     saner
   - `home` is the old home page thing and completely unnecessary
   - `index` is just stupid given the number of packages
-  - `browse` and `search` are *probably* only referenced by internal links so should be safe
-    to nuke
+  - `browse` and `search` are *probably* only referenced by internal links so
+    should be safe to nuke
   - `submit_pkg_info` and `display_pkginfo` probably aren't used
   - `submit_form` and `pkg_edit` will be changing anyway
   - `files`, `urls`, `role`, `role_form` are old style and will be changing
@@ -70,10 +70,10 @@ though some actions are also POST actions.
     support and will be changing
   - `clear_auth` yeah, lol ("clears" Basic Auth)
   - `addkey`, `delkey` will be changing if we even keep supporting ssh submit
-  - `verify` probably isn`t actually used by anyone
+  - `verify` probably isn't actually used by anyone
   - `lasthour` is a pubsubhubbub thing - does this even exist any longer?
   - `json` is never used as a :action invocation, only ever /<package>/json
-  - `gae_file` I`m pretty sure this is not necessary
+  - `gae_file` I'm pretty sure this is not necessary
   - `rss_regen` manually regens the RSS cached files, not needed
   - `about` can die
   - `delete_user` yes, you can die too
