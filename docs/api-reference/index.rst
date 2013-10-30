@@ -52,9 +52,9 @@ though some actions are also POST actions.
 **could be nuked without fuss**
   - `display` was used to display a package version but was replaced ages ago
     by the /<package>/<version> URL structure
-  - all the user-based stuff like 'register_form', 'user', 'user_form',
-    'forgotten_password_form', 'login', 'logout',
-    'forgotten_password', 'password_reset', 'pw_reset' and 'pw_reset_change' will most likely be
+  - all the user-based stuff like `register_form`, `user`, `user_form`,
+    `forgotten_password_form`, `login`, `logout`,
+    `forgotten_password`, `password_reset`, `pw_reset` and `pw_reset_change` will most likely be
     replaced by newer mechanisms in warehouse
   - `openid_endpoint`, `openid_decide_post` could also be replaced by something
     saner
@@ -70,17 +70,17 @@ though some actions are also POST actions.
     support and will be changing
   - `clear_auth` yeah, lol ("clears" Basic Auth)
   - `addkey`, `delkey` will be changing if we even keep supporting ssh submit
-  - `verify` probably isn't actually used by anyone
+  - `verify` probably isn`t actually used by anyone
   - `lasthour` is a pubsubhubbub thing - does this even exist any longer?
   - `json` is never used as a :action invocation, only ever /<package>/json
-  - `gae_file` I'm pretty sure this is not necessary
+  - `gae_file` I`m pretty sure this is not necessary
   - `rss_regen` manually regens the RSS cached files, not needed
   - `about` can die
   - `delete_user` yes, you can die too
   - `exception` heh
 
 **will need to retain**
-  - `rss` and `packages_rss` will be in a bunch of peoples' RSS readers
+  - `rss` and `packages_rss` will be in a bunch of peoples` RSS readers
   - `doap` is most likely referred to
   - `show_md5` ?
 
