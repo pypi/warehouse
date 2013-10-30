@@ -30,7 +30,8 @@ URL           Purpose
 /packages     Serve up a package file
 /mirrors      Page listing legacy mirrors (not to be retained)
 /serversig    Legacy mirroring support (no-one uses it: not to be retained)
-/raw-packages nginx specific hackery (not to be retained)
+/raw-packages nginx implementation specific hackery (entirely internal; not to
+              be retained)
 /stats        Web stats. Whatever. Probably dead.
 /local-stats  Package download stats. All the legacy mirrors have this.
 /static       Static files (CSS, images) in support of the web interface.
