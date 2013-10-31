@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 import datetime
 import os.path
 
+import mock
 import pretend
 import pytest
 
@@ -26,6 +27,166 @@ from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
     release_classifiers, release_dependencies, roles,
 )
+
+
+def test_get_project_count(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+
+    assert dbapp.models.packaging.get_project_count() == 3
+
+
+def test_get_download_count(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo"))
+    dbapp.engine.execute(releases.insert().values(name="foo", version="1.0"))
+    dbapp.engine.execute(release_files.insert().values(
+        name="foo",
+        version="1.0",
+        filename="foo-1.0.tar.gz",
+        downloads=15,
+    ))
+    dbapp.engine.execute(release_files.insert().values(
+        name="foo",
+        version="1.0",
+        filename="foo-1.0.tar.bz2",
+        downloads=12,
+    ))
+
+    assert dbapp.models.packaging.get_download_count() == 27
+
+
+def test_get_recently_updated(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+    dbapp.engine.execute(packages.insert().values(name="foo4"))
+    dbapp.engine.execute(packages.insert().values(name="foo5"))
+    dbapp.engine.execute(packages.insert().values(name="foo6"))
+    dbapp.engine.execute(packages.insert().values(name="foo7"))
+    dbapp.engine.execute(packages.insert().values(name="foo8"))
+    dbapp.engine.execute(packages.insert().values(name="foo9"))
+    dbapp.engine.execute(packages.insert().values(name="foo10"))
+    dbapp.engine.execute(packages.insert().values(name="foo11"))
+    dbapp.engine.execute(packages.insert().values(name="foo12"))
+
+    now = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="2.0", created=now,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="1.0",
+        created=now - datetime.timedelta(seconds=5),
+    ))
+
+    dbapp.engine.execute(releases.insert().values(
+        name="foo2", version="1.0",
+        created=now - datetime.timedelta(seconds=10),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo3", version="1.0",
+        created=now - datetime.timedelta(seconds=15),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo4", version="1.0",
+        created=now - datetime.timedelta(seconds=20),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo5", version="1.0",
+        created=now - datetime.timedelta(seconds=25),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo6", version="1.0",
+        created=now - datetime.timedelta(seconds=30),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo7", version="1.0",
+        created=now - datetime.timedelta(seconds=35),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo8", version="1.0",
+        created=now - datetime.timedelta(seconds=40),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo9", version="1.0",
+        created=now - datetime.timedelta(seconds=45),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo10", version="1.0",
+        created=now - datetime.timedelta(seconds=50),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo11", version="1.0",
+        created=now - datetime.timedelta(seconds=55),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo12", version="1.0",
+        created=now - datetime.timedelta(seconds=60),
+    ))
+
+    assert dbapp.models.packaging.get_recently_updated() == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "summary": None,
+            "created": now,
+        },
+        {
+            "name": "foo2",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=10),
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=15),
+        },
+        {
+            "name": "foo4",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=20),
+        },
+        {
+            "name": "foo5",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=25),
+        },
+        {
+            "name": "foo6",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=30),
+        },
+        {
+            "name": "foo7",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=35),
+        },
+        {
+            "name": "foo8",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=40),
+        },
+        {
+            "name": "foo9",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=45),
+        },
+        {
+            "name": "foo10",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=50),
+        },
+    ]
 
 
 @pytest.mark.parametrize("projects", [
