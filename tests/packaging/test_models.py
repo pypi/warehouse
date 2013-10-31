@@ -19,6 +19,7 @@ import os.path
 
 import pretend
 import pytest
+import pytz
 
 from warehouse.accounts.tables import users, emails
 from warehouse.packaging.models import Project, FileURL, log
@@ -322,7 +323,7 @@ def test_get_project_versions(dbapp):
 
 
 def test_get_release(dbapp):
-    created = datetime.datetime.utcnow()
+    created = pytz.utc.localize(datetime.datetime.utcnow())
 
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(
@@ -421,7 +422,7 @@ def test_get_release(dbapp):
 
 
 def test_get_releases(dbapp):
-    created = datetime.datetime.utcnow()
+    created = pytz.utc.localize(datetime.datetime.utcnow())
 
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(
@@ -599,7 +600,10 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
         packagetype="sdist",
         md5_digest="0cc175b9c0f1b6a831c399e269772661",
         downloads=10,
-        upload_time=datetime.datetime(year=2013, month=1, day=30),
+        upload_time=datetime.datetime(
+            year=2013, month=1, day=30,
+            tzinfo=pytz.utc,
+        ),
     ))
 
     def os_exists():
@@ -627,7 +631,10 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
             "filepath": "fake/source/t/test-project/test-project-1.0.tar.gz",
             "comment_text": None,
             "downloads": 10,
-            "upload_time": datetime.datetime(year=2013, month=1, day=30),
+            "upload_time": datetime.datetime(
+                year=2013, month=1, day=30,
+                tzinfo=pytz.utc,
+            ),
             "python_version": "source",
             "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
             "url": "/packages/source/t/test-project/test-project-1.0.tar.gz",
