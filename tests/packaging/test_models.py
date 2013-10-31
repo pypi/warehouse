@@ -17,7 +17,6 @@ from __future__ import unicode_literals
 import datetime
 import os.path
 
-import mock
 import pretend
 import pytest
 
