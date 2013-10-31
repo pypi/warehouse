@@ -104,7 +104,7 @@ packages = Table(
     ),
     Column(
         "created",
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=sql.func.now(),
     ),
@@ -162,7 +162,7 @@ releases = Table(
     Column("description_from_readme", Boolean()),
     Column(
         "created",
-        DateTime(timezone=True),
+        DateTime(),
         nullable=False,
         server_default=sql.func.now(),
     ),
@@ -206,7 +206,7 @@ release_files = Table(
     Column("filename", UnicodeText()),
     Column("md5_digest", UnicodeText()),
     Column("downloads", Integer(), server_default=sql.text("0")),
-    Column("upload_time", DateTime(timezone=True)),
+    Column("upload_time", DateTime()),
 
     UniqueConstraint("filename", name="release_files_filename_key"),
     UniqueConstraint("md5_digest", name="release_files_md5_digest_key"),
@@ -273,7 +273,7 @@ journals = Table(
     Column("name", UnicodeText()),
     Column("version", UnicodeText()),
     Column("action", UnicodeText()),
-    Column("submitted_date", DateTime(timezone=True)),
+    Column("submitted_date", DateTime()),
     Column("submitted_by", CIText()),  # Needs a FK to accounts_user
     Column("submitted_from", UnicodeText()),
 
