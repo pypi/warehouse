@@ -14,9 +14,11 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from warehouse.utils import render_response
+from warehouse.utils import cache, fastly, render_response
 
 
+@cache("index")
+@fastly("index")
 def index(app, request):
     return render_response(
         app, request, "index.html",
