@@ -53,7 +53,7 @@ class Model(models.Model):
             return conn.execute(query).scalar()
 
     def get_recently_updated(self, num=10):
-        query = (
+        subquery = (
             select(
                 [
                     releases.c.name,
@@ -61,9 +61,26 @@ class Model(models.Model):
                     releases.c.summary,
                     releases.c.created,
                 ],
-                distinct=[releases.c.created, releases.c.name],
+                distinct=releases.c.name,
             )
-            .order_by(releases.c.created.desc(), releases.c.name)
+            .where(
+                # We only consider releases made in the last 7 days, otherwise
+                #   we have to do a Sequence Scan against the entire table
+                #   and it takes 5+ seconds to complete. This shouldn't be a
+                #   big deal as it is highly unlikely we'll have a week without
+                #   at least 10 releases.
+                releases.c.created >= (
+                    datetime.datetime.utcnow() - datetime.timedelta(days=7)
+                )
+            )
+            .order_by(releases.c.name, releases.c.created.desc())
+            .alias("r")
+        )
+
+        query = (
+            select("*")
+            .select_from(subquery)
+            .order_by(subquery.c.created.desc())
             .limit(num)
         )
 
