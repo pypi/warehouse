@@ -22,4 +22,5 @@ def index(app, request):
         app, request, "index.html",
         project_count=app.models.packaging.get_project_count(),
         download_count=app.models.packaging.get_download_count(),
+        recently_updated=app.models.packaging.get_recently_updated(),
     )

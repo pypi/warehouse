@@ -31,5 +31,21 @@
         {{ gettext('%(downloads)s downloads', downloads=download_count|format_number()) }}
       </div>
     </div>
+
+    <div class="row updates">
+      <div class="col-md-6">
+        <h2>{{ gettext('Recently Updated') }}</h2>
+        <ul>
+          {% for project in recently_updated %}
+            <li>
+              <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name) }}">
+              {{ project.name }}
+              </a>
+              <span class="text-muted">{{ project.summary }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
 {% endblock %}

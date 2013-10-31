@@ -52,6 +52,24 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
+    def get_recently_updated(self, num=10):
+        query = (
+            select(
+                [
+                    releases.c.name,
+                    releases.c.version,
+                    releases.c.summary,
+                    releases.c.created,
+                ],
+                distinct=[releases.c.created, releases.c.name],
+            )
+            .order_by(releases.c.created.desc(), releases.c.name)
+            .limit(num)
+        )
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query)]
+
     def all_projects(self):
         query = select([packages.c.name]).order_by(func.lower(packages.c.name))
 
