@@ -35,7 +35,6 @@ from raven import Client
 from raven.middleware import Sentry
 from webassets import Environment as AssetsEnvironment
 from werkzeug.exceptions import HTTPException
-from werkzeug.routing import Map
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
 import warehouse
@@ -83,7 +82,7 @@ class Warehouse(object):
             )
 
         # Set up our URL routing
-        self.urls = Map(urls.urls)
+        self.urls = urls.urls
 
         # Initialize our Translations engine
         self.trans = babel.support.NullTranslations()

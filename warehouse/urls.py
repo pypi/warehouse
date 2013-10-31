@@ -14,7 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from werkzeug.routing import Rule
+from werkzeug.routing import Map, Rule
 
 from warehouse.accounts.urls import urls as accounts_urls
 from warehouse.packaging.urls import urls as packaging_urls
@@ -28,3 +28,6 @@ urls = [
 
 # Extend the URL rules with our other applications
 urls += accounts_urls + packaging_urls + legacy_urls
+
+# Map our urls
+urls = Map(urls)
