@@ -321,27 +321,214 @@ def test_get_project_versions(dbapp):
     ]
 
 
-def test_get_release(dbapp, monkeypatch):
-    release = pretend.stub()
-    get_releases = pretend.call_recorder(lambda p, v: [release])
+def test_get_release(dbapp):
+    created = datetime.datetime.utcnow()
 
-    monkeypatch.setattr(dbapp.models.packaging, "_get_releases", get_releases)
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="1.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=1,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="2.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=2,
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=4,
+        specifier="requests (>=2.0)",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=4,
+        specifier="requests (>=2.0)",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=5,
+        specifier="test-project-old",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=5,
+        specifier="test-project-old",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=8,
+        specifier="Repository,git://git.example.com/",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=8,
+        specifier="Repository,git://git.example.com/",
+    ))
 
-    assert dbapp.models.packaging.get_release("test-project", "1.0") is release
-    assert get_releases.calls == [pretend.call("test-project", "1.0")]
+    test_release = dbapp.models.packaging.get_release("test-project", "1.0")
+
+    assert test_release == {
+        "name": "test-project",
+        "version": "1.0",
+        "author": "John Doe",
+        "author_email": "john.doe@example.com",
+        "maintainer": "Jane Doe",
+        "maintainer_email": "jane.doe@example.com",
+        "home_page": "https://example.com/",
+        "license": "Apache License v2.0",
+        "summary": "A Test Project",
+        "description": "A Longer Test Project",
+        "keywords": "foo,bar,wat",
+        "platform": "All",
+        "download_url": ("https://example.com/downloads/"
+                         "test-project-1.0.tar.gz"),
+        "requires_dist": ["requests (>=2.0)"],
+        "provides_dist": ["test-project-old"],
+        "project_url": {"Repository": "git://git.example.com/"},
+        "created": created,
+    }
 
 
-def test_get_releases(dbapp, monkeypatch):
-    release = pretend.stub()
-    get_releases = pretend.call_recorder(lambda p: [release])
+def test_get_releases(dbapp):
+    created = datetime.datetime.utcnow()
 
-    monkeypatch.setattr(dbapp.models.packaging, "_get_releases", get_releases)
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="1.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=1,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="2.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=2,
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=4,
+        specifier="requests (>=2.0)",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=4,
+        specifier="requests (>=2.0)",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=5,
+        specifier="test-project-old",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=5,
+        specifier="test-project-old",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="1.0",
+        kind=8,
+        specifier="Repository,git://git.example.com/",
+    ))
+    dbapp.engine.execute(release_dependencies.insert().values(
+        name="test-project",
+        version="2.0",
+        kind=8,
+        specifier="Repository,git://git.example.com/",
+    ))
 
-    releases = dbapp.models.packaging.get_releases("test-project")
-
-    assert releases == [release]
-    assert releases[0] is release
-    assert get_releases.calls == [pretend.call("test-project")]
+    assert dbapp.models.packaging.get_releases("test-project") == [
+        {
+            "name": "test-project",
+            "version": "2.0",
+            "author": "John Doe",
+            "author_email": "john.doe@example.com",
+            "maintainer": "Jane Doe",
+            "maintainer_email": "jane.doe@example.com",
+            "home_page": "https://example.com/",
+            "license": "Apache License v2.0",
+            "summary": "A Test Project",
+            "keywords": "foo,bar,wat",
+            "platform": "All",
+            "download_url": ("https://example.com/downloads/"
+                             "test-project-1.0.tar.gz"),
+            "created": created,
+        },
+        {
+            "name": "test-project",
+            "version": "1.0",
+            "author": "John Doe",
+            "author_email": "john.doe@example.com",
+            "maintainer": "Jane Doe",
+            "maintainer_email": "jane.doe@example.com",
+            "home_page": "https://example.com/",
+            "license": "Apache License v2.0",
+            "summary": "A Test Project",
+            "keywords": "foo,bar,wat",
+            "platform": "All",
+            "download_url": ("https://example.com/downloads/"
+                             "test-project-1.0.tar.gz"),
+            "created": created,
+        },
+    ]
 
 
 @pytest.mark.parametrize("exists", [True, False])
@@ -509,129 +696,3 @@ def test_get_download_counts(dbapp):
 
     assert counts == {"last_day": 30, "last_week": 30, "last_month": 30}
     assert len(mget.calls) == 3
-
-
-@pytest.mark.parametrize("version", [True, False])
-def test_real_get_releases_multiple(version, dbapp):
-    dbapp.engine.execute(packages.insert().values(name="test-project"))
-    dbapp.engine.execute(releases.insert().values(
-        name="test-project",
-        version="1.0",
-        author="John Doe",
-        author_email="john.doe@example.com",
-        maintainer="Jane Doe",
-        maintainer_email="jane.doe@example.com",
-        home_page="https://example.com/",
-        license="Apache License v2.0",
-        summary="A Test Project",
-        description="A Longer Test Project",
-        keywords="foo,bar,wat",
-        platform="All",
-        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
-        _pypi_ordering=1,
-    ))
-    dbapp.engine.execute(releases.insert().values(
-        name="test-project",
-        version="2.0",
-        author="John Doe",
-        author_email="john.doe@example.com",
-        maintainer="Jane Doe",
-        maintainer_email="jane.doe@example.com",
-        home_page="https://example.com/",
-        license="Apache License v2.0",
-        summary="A Test Project",
-        description="A Longer Test Project",
-        keywords="foo,bar,wat",
-        platform="All",
-        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
-        _pypi_ordering=2,
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="1.0",
-        kind=4,
-        specifier="requests (>=2.0)",
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="2.0",
-        kind=4,
-        specifier="requests (>=2.0)",
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="1.0",
-        kind=5,
-        specifier="test-project-old",
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="2.0",
-        kind=5,
-        specifier="test-project-old",
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="1.0",
-        kind=8,
-        specifier="Repository,git://git.example.com/",
-    ))
-    dbapp.engine.execute(release_dependencies.insert().values(
-        name="test-project",
-        version="2.0",
-        kind=8,
-        specifier="Repository,git://git.example.com/",
-    ))
-
-    test_releases = dbapp.models.packaging._get_releases(
-        "test-project",
-        "1.0" if version else None,
-    )
-
-    expected = [
-        {
-            "name": "test-project",
-            "version": "2.0",
-            "author": "John Doe",
-            "author_email": "john.doe@example.com",
-            "maintainer": "Jane Doe",
-            "maintainer_email": "jane.doe@example.com",
-            "home_page": "https://example.com/",
-            "license": "Apache License v2.0",
-            "summary": "A Test Project",
-            "description": "A Longer Test Project",
-            "keywords": "foo,bar,wat",
-            "platform": "All",
-            "download_url": ("https://example.com/downloads/"
-                             "test-project-1.0.tar.gz"),
-            "requires_dist": ["requests (>=2.0)"],
-            "provides_dist": ["test-project-old"],
-            "project_url": {"Repository": "git://git.example.com/"},
-            "created": None,
-        },
-        {
-            "name": "test-project",
-            "version": "1.0",
-            "author": "John Doe",
-            "author_email": "john.doe@example.com",
-            "maintainer": "Jane Doe",
-            "maintainer_email": "jane.doe@example.com",
-            "home_page": "https://example.com/",
-            "license": "Apache License v2.0",
-            "summary": "A Test Project",
-            "description": "A Longer Test Project",
-            "keywords": "foo,bar,wat",
-            "platform": "All",
-            "download_url": ("https://example.com/downloads/"
-                             "test-project-1.0.tar.gz"),
-            "requires_dist": ["requests (>=2.0)"],
-            "provides_dist": ["test-project-old"],
-            "project_url": {"Repository": "git://git.example.com/"},
-            "created": None,
-        },
-    ]
-
-    if version:
-        assert test_releases == [expected[1]]
-    else:
-        assert test_releases == expected
