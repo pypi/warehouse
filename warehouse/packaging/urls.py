@@ -19,12 +19,12 @@ from werkzeug.routing import Rule, EndpointPrefix
 urls = [
     EndpointPrefix("warehouse.packaging.views.", [
         Rule(
-            "/projects/<project_name>/",
+            "/project/<project_name>/",
             methods=["GET"],
             endpoint="project_detail",
         ),
         Rule(
-            "/projects/<project_name>/<version>/",
+            "/project/<project_name>/<version>/",
             methods=["GET"],
             endpoint="project_detail",
         ),
