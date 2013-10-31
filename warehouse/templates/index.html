@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title_base %}{{ config.site.name }}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="site-name hidden-xs hidden-sm">{{ config.site.name }}</h1>
+      <form class="main-search">
+        <div class="input-group">
+          <label for="main-search-bar" class="sr-only">{{ gettext('Search') }}</label>
+          <input type="search" class="form-control input-lg" id="main-search-bar" name="q" placeholder="{{ gettext('Search') }}" autofocus>
+
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-lg btn-default">
+              <span class="glyphicon glyphicon-search"></span>
+              <span class="sr-only">{{ gettext('Go') }}</span>
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

@@ -14,17 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from werkzeug.routing import Rule
-
-from warehouse.accounts.urls import urls as accounts_urls
-from warehouse.packaging.urls import urls as packaging_urls
-from warehouse.legacy.urls import urls as legacy_urls
+from warehouse.utils import render_response
 
 
-# Global URL Rules
-urls = [
-    Rule("/", methods=["GET"], endpoint="warehouse.views.index"),
-]
-
-# Extend the URL rules with our other applications
-urls += accounts_urls + packaging_urls + legacy_urls
+def index(app, request):
+    return render_response(app, request, "index.html")
