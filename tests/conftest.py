@@ -27,6 +27,8 @@ import sqlalchemy.pool
 
 from six.moves import urllib_parse
 
+from warehouse.database import TimeZoneListener
+
 
 def pytest_addoption(parser):
     group = parser.getgroup("warehouse")
@@ -134,6 +136,7 @@ def _database_url(request):
 def engine(_database_url):
     return sqlalchemy.create_engine(
         _database_url,
+        listeners=[TimeZoneListener()],
         poolclass=sqlalchemy.pool.AssertionPool,
     )
 

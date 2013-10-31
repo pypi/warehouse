@@ -40,6 +40,7 @@ from werkzeug.wsgi import SharedDataMiddleware, responder
 import warehouse
 import warehouse.cli
 
+from warehouse.database import TimeZoneListener
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
@@ -64,7 +65,10 @@ class Warehouse(object):
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+            engine = sqlalchemy.create_engine(
+                self.config.database.url,
+                listeners=[TimeZoneListener()],
+            )
         self.engine = engine
 
         # Create our redis connection

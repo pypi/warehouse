@@ -72,6 +72,7 @@ setup(
         "Jinja2",
         "psycopg2cffi",
         "PyYAML",
+        "pytz",
         "recliner>=0.3.1",
         "raven",
         "redis",

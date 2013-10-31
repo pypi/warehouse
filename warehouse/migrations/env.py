@@ -18,6 +18,7 @@ from alembic import context
 from sqlalchemy import create_engine, pool
 
 from warehouse.application import Warehouse
+from warehouse.database import TimeZoneListener
 
 
 # this is the Alembic Config object, which provides
@@ -64,7 +65,11 @@ def run_migrations_online():
     """
     options = config.get_section(config.config_ini_section)
     url = options.pop("url")
-    engine = create_engine(url, poolclass=pool.NullPool)
+    engine = create_engine(
+        url,
+        listeners=[TimeZoneListener()],
+        poolclass=pool.NullPool,
+    )
 
     connection = engine.connect()
     context.configure(
