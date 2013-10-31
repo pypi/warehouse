@@ -30,17 +30,13 @@ users = Table(
 
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("password", String(length=128), nullable=False),
-    Column("last_login", DateTime(timezone=True), nullable=False),
+    Column("last_login", DateTime(), nullable=False),
     Column("is_superuser", Boolean(), nullable=False),
     Column("username", CIText(), nullable=False, unique=True),
     Column("name", Unicode(length=100), nullable=False),
     Column("is_staff", Boolean(), nullable=False),
     Column("is_active", Boolean(), nullable=False),
-    Column(
-        "date_joined",
-        DateTime(timezone=True),
-        server_default=sql.func.now(),
-    ),
+    Column("date_joined", DateTime(), server_default=sql.func.now()),
 
     CheckConstraint("length(username) <= 50", name="packages_valid_name"),
     CheckConstraint(
