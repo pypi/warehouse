@@ -18,4 +18,8 @@ from warehouse.utils import render_response
 
 
 def index(app, request):
-    return render_response(app, request, "index.html")
+    return render_response(
+        app, request, "index.html",
+        project_count=app.models.packaging.get_project_count(),
+        download_count=app.models.packaging.get_download_count(),
+    )

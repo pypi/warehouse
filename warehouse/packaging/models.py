@@ -40,6 +40,18 @@ FileURL = namedtuple("FileURL", ["filename", "url"])
 
 class Model(models.Model):
 
+    def get_project_count(self):
+        query = select([func.count()]).select_from(packages)
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    def get_download_count(self):
+        query = select([func.sum(release_files.c.downloads)])
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
     def all_projects(self):
         query = select([packages.c.name]).order_by(func.lower(packages.c.name))
 

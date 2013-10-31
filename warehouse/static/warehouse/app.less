@@ -1,9 +1,23 @@
 #wrap > .container { padding: 60px 15px 0; }
 #footer { background-color: #f5f5f5; }
 
-.site-name {
-  margin: 2em 0 1em 0;
-  font-size: 4em;
+.index-page {
+  .site-name {
+    margin: 2em 0 1em 0;
+    font-size: 4em;
+  }
+
+  .search {
+    @media (max-width: 991px) {
+      margin-top: 2em;
+    }
+
+    margin-bottom: 2em
+  }
+
+  .projects, .downloads {
+    font-size: 1.6em;
+  }
 }
 
 .project-header {

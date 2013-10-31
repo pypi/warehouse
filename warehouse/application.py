@@ -21,6 +21,7 @@ import os.path
 import logging.config
 
 import babel.dates
+import babel.numbers
 import babel.support
 import guard
 import jinja2
@@ -101,6 +102,9 @@ class Warehouse(object):
         # Install Babel
         self.templates.filters.update({
             "package_type_display": packaging_helpers.package_type_display,
+            "format_number": babel.numbers.format_number,
+            "format_decimal": babel.numbers.format_decimal,
+            "format_percent": babel.numbers.format_percent,
             "format_date": babel.dates.format_date,
             "format_datetime": babel.dates.format_datetime,
             "format_time": babel.dates.format_time,

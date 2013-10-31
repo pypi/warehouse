@@ -3,22 +3,33 @@
 {% block title_base %}{{ config.site.name }}{% endblock %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-md-12">
-      <h1 class="site-name hidden-xs hidden-sm">{{ config.site.name }}</h1>
-      <form class="main-search">
-        <div class="input-group">
-          <label for="main-search-bar" class="sr-only">{{ gettext('Search') }}</label>
-          <input type="search" class="form-control input-lg" id="main-search-bar" name="q" placeholder="{{ gettext('Search') }}" autofocus>
+  <div class="index-page">
+    <div class="row">
+      <div class="col-md-12">
+        <h1 class="site-name hidden-xs hidden-sm">{{ config.site.name }}</h1>
+        <form class="search">
+          <div class="input-group">
+            <label for="search-bar" class="sr-only">{{ gettext('Search') }}</label>
+            <input type="search" class="form-control input-lg" id="search-bar" name="q" placeholder="{{ gettext('Search') }}" autofocus>
 
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-lg btn-default">
-              <span class="glyphicon glyphicon-search"></span>
-              <span class="sr-only">{{ gettext('Go') }}</span>
-            </button>
-          </span>
-        </div>
-      </form>
+            <span class="input-group-btn">
+              <button type="submit" class="btn btn-lg btn-default">
+                <span class="glyphicon glyphicon-search"></span>
+                <span class="sr-only">{{ gettext('Go') }}</span>
+              </button>
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-sm-6 projects">
+        {{ gettext('%(num_projects)s projects', num_projects=project_count|format_number()) }}
+      </div>
+      <div class="col-md-6 col-sm-6 downloads">
+        {{ gettext('%(downloads)s downloads', downloads=download_count|format_number()) }}
+      </div>
     </div>
   </div>
 {% endblock %}
