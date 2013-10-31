@@ -40,12 +40,13 @@ security:
 
 logging:
     formatters:
-        timeAndLevel:
-            format: '%(asctime)s - %(levelname)s: %(message)s'
+        console:
+            format: '[%(asctime)s %(levelname)s] %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
     handlers:
         console:
             class: logging.StreamHandler
-            formatter: timeAndLevel
+            formatter: console
             level: DEBUG
             stream: ext://sys.stdout
     loggers:
