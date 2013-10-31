@@ -42,7 +42,7 @@ logging:
     formatters:
         console:
             format: '[%(asctime)s %(levelname)s] %(message)s'
-            datefmt: '%d/%b/%Y %I:%M:%S'
+            datefmt: '%Y-%m-%d %H:%M:%S'
     handlers:
         console:
             class: logging.StreamHandler
