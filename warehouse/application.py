@@ -117,10 +117,11 @@ class Warehouse(object):
         ))
 
         # Add our Content Security Policy Middleware
-        self.wsgi_app = guard.ContentSecurityPolicy(
-            self.wsgi_app,
-            self.config.security.csp,
-        )
+        if not self.config.theme_debug:
+            self.wsgi_app = guard.ContentSecurityPolicy(
+                self.wsgi_app,
+                self.config.security.csp,
+            )
 
         if "sentry" in self.config:
             self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))

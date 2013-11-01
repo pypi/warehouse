@@ -9,7 +9,13 @@
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ config.site.name }}{% endblock %}</title>
 
     <link rel="stylesheet" href="{{ static_url('css/bootstrap.css') }}">
+    {% if not config.theme_debug %}
     <link rel="stylesheet" href="{{ static_url('css/warehouse.css') }}">
+    {% else %}
+    <link rel="stylesheet/less" href="{{ static_url('warehouse/less/warehouse.less') }}">
+    <script src="{{ static_url('less/js/less.js') }}"></script>
+    {% endif %}
+
 
     {% block extra_head %}
     {% endblock %}
