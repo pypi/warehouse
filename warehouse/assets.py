@@ -19,7 +19,7 @@ from webassets import Bundle
 
 bootstrap_css = Bundle(
     "bootstrap/css/bootstrap.css",
-    filters=["cssmin"],
+    filters=["cssrewrite", "cssmin"],
     output="bootstrap.%(version)s.css",
 )
 
