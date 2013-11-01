@@ -77,7 +77,6 @@ setup(
         "redis",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
-        "webassets",
         "Werkzeug",
     ],
 

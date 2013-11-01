@@ -33,8 +33,6 @@ import yaml
 
 from raven import Client
 from raven.middleware import Sentry
-from webassets import Environment as AssetsEnvironment
-from webassets.loaders import PythonLoader
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
@@ -113,26 +111,6 @@ class Warehouse(object):
         # Install our translations
         self.templates.install_gettext_translations(self.trans, newstyle=True)
 
-        # Setup our web assets environment
-        asset_config = self.config.assets
-        asset_config.setdefault("debug", self.config.debug)
-        asset_config.setdefault("auto_build", self.config.debug)
-
-        self.templates.assets_environment = AssetsEnvironment(**asset_config)
-
-        # Register our bundles
-        for name, bundle in PythonLoader(assets).load_bundles().items():
-            self.templates.assets_environment.register(name, bundle)
-
-        # Load our static directories
-        static_path = os.path.abspath(
-            os.path.join(os.path.dirname(warehouse.__file__), "static"),
-        )
-        self.templates.assets_environment.append_path(
-            static_path,
-            self.config.assets.url,
-        )
-
         # Add our Powered By Middleware
         self.wsgi_app = PoweredBy(self.wsgi_app, "Warehouse {} ({})".format(
             warehouse.__version__,
@@ -148,17 +126,19 @@ class Warehouse(object):
         if "sentry" in self.config:
             self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
 
-        # Serve the static files that are packaged as part of Warehouse
-        self.wsgi_app = SharedDataMiddleware(
-            self.wsgi_app,
-            {"/static/": static_path},
-        )
-
-        # Serve the static files that webassets creates
-        self.wsgi_app = SharedDataMiddleware(
-            self.wsgi_app,
-            {"/static/": self.config.assets.directory},
-        )
+        if self.config.debug:
+            # Serve the static files that are packaged as part of Warehouse
+            self.wsgi_app = SharedDataMiddleware(
+                self.wsgi_app,
+                {
+                    "/static/": os.path.abspath(
+                        os.path.join(
+                            os.path.dirname(warehouse.__file__),
+                            "static",
+                        ),
+                    ),
+                },
+            )
 
         # configure logging
         logging.config.dictConfig(self.config.logging)

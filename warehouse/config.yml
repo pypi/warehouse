@@ -18,6 +18,7 @@ paths:
     documentation: data/packagedocs
 
 urls:
+    assets: /static/
     documentation: "https://pythonhosted.org"
 
 security:

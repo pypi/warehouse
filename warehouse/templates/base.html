@@ -8,13 +8,8 @@
 
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ config.site.name }}{% endblock %}</title>
 
-    {% assets "bootstrap_css" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
-
-    {% assets "warehouse_css" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
+    <link rel="stylesheet" href="{{ static_url('css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/warehouse.css') }}">
 
     {% block extra_head %}
     {% endblock %}
@@ -51,12 +46,7 @@
       </div>
     </div>
 
-    {% assets "jquery_js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-
-    {% assets "bootstrap_js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+    <script src="{{ static_url('js/jquery.js') }}"></script>
+    <script src="{{ static_url('js/bootstrap.js') }}"></script>
   </body>
 </html>

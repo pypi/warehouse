@@ -13,6 +13,7 @@ sdist
 develop-eggs
 .installed.cfg
 node_modules
+.wake.json
 
 # Documentation build directory
 docs/_build
