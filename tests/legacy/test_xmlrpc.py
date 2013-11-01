@@ -99,14 +99,41 @@ def test_xmlrpc_list_packages():
     assert result == ['bar', 'foo']
 
 
-def test_xmlrpc_list_packages_with_serial():
-    serials = dict(one=1, two=2, three=3)
-
+@pytest.mark.parametrize(("num", "result"), [
+    (None, [('three', 10000), ('one', 1110), ('two', 22)]),
+    (2, [('three', 10000), ('one', 1110)]),
+])
+def test_xmlrpc_top_packages(num, result):
     app = pretend.stub(
         models=pretend.stub(
             packaging=pretend.stub(
-                get_packages_with_serial=pretend.call_recorder(lambda:
-                    serials),
+                get_top_projects=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    if num:
+        r = interface.top_packages(num)
+        assert app.models.packaging.get_top_projects.calls == [
+            pretend.call(num)
+        ]
+    else:
+        r = interface.top_packages()
+        assert app.models.packaging.get_top_projects.calls == [
+            pretend.call(None)
+        ]
+
+    assert r == result
+
+
+def test_xmlrpc_list_packages_with_serial():
+    d = dict(one=1, two=2, three=3)
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_projects_with_serial=pretend.call_recorder(lambda: d),
             ),
         ),
     )
@@ -115,7 +142,7 @@ def test_xmlrpc_list_packages_with_serial():
 
     result = interface.list_packages_with_serial()
 
-    assert app.models.packaging.get_packages_with_serial.calls == [
+    assert app.models.packaging.get_projects_with_serial.calls == [
         pretend.call(),
     ]
-    assert result == dict(one=1, two=2, three=3)
+    assert result == d

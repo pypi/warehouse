@@ -93,6 +93,18 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [Project(r["name"]) for r in conn.execute(query)]
 
+    def get_top_projects(self, num=None):
+        query = (
+            select([release_files.c.name, func.sum(release_files.c.downloads)])
+            .group_by(release_files.c.name)
+            .order_by(func.sum(release_files.c.downloads).desc())
+        )
+        if num:
+            query = query.limit(num)
+
+        with self.engine.connect() as conn:
+            return [tuple(r) for r in conn.execute(query)]
+
     def get_project(self, name):
         query = (
             select([packages.c.name])
@@ -247,7 +259,7 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
-    def get_packages_with_serial(self):
+    def get_projects_with_serial(self):
         # return list of dict(name: max id)
         query = (
             select([journals.c.name, func.max(journals.c.id)])

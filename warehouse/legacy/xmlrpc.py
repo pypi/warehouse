@@ -47,13 +47,11 @@ class Interface(object):
         self.request = request
 
     def list_packages(self):
-        '''Retrieve a list of the package names registered with the package
-        index.
-
-        Returns a list of name strings.
-        '''
         projects = self.app.models.packaging.all_projects()
         return [project.name for project in projects]
 
     def list_packages_with_serial(self):
-        return self.app.models.packaging.get_packages_with_serial()
+        return self.app.models.packaging.get_projects_with_serial()
+
+    def top_packages(self, num=None):
+        return self.app.models.packaging.get_top_projects(num)

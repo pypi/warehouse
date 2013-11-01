@@ -203,6 +203,28 @@ def test_all_projects(projects, dbapp):
     assert dbapp.models.packaging.all_projects() == all_projects
 
 
+@pytest.mark.parametrize(("num", "result"), [
+    (None, [('three', 10000), ('one', 1110), ('two', 22)]),
+    (2, [('three', 10000), ('one', 1110)]),
+])
+def test_top_projects(num, result, dbapp):
+    # Insert some data into the database
+    files = [
+        ('one', 10, 'one-1.0.zip'),
+        ('one', 100, 'one-1.1.zip'),
+        ('one', 1000, 'one-1.2.zip'),
+        ('two', 2, 'two-1.0.zip'),
+        ('two', 20, 'two-1.2.zip'),
+        ('three', 10000, 'three-1.0.zip'),
+    ]
+    for name, downloads, filename in files:
+        dbapp.engine.execute(release_files.insert().values(name=name,
+            downloads=downloads, filename=filename))
+
+    top = dbapp.models.packaging.get_top_projects(num)
+    assert top == result
+
+
 @pytest.mark.parametrize(("name", "normalized"), [
     ("foo_bar", "foo-bar"),
     ("Bar", "bar"),
@@ -456,12 +478,12 @@ def test_get_last_serial(name, serial, dbapp):
     assert dbapp.models.packaging.get_last_serial(name) == serial
 
 
-def test_get_packages_with_serial(dbapp):
+def test_get_projects_with_serial(dbapp):
     dbapp.engine.execute(journals.insert().values(id=1, name='one'))
     dbapp.engine.execute(journals.insert().values(id=2, name='two'))
     dbapp.engine.execute(journals.insert().values(id=3, name='three'))
 
-    assert dbapp.models.packaging.get_packages_with_serial() == dict(
+    assert dbapp.models.packaging.get_projects_with_serial() == dict(
         one=1,
         two=2,
         three=3
