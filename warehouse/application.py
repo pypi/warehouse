@@ -39,7 +39,7 @@ from werkzeug.wsgi import SharedDataMiddleware, responder
 import warehouse
 import warehouse.cli
 
-from warehouse import assets, urls
+from warehouse import urls
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
@@ -92,7 +92,6 @@ class Warehouse(object):
             auto_reload=self.config.debug,
             extensions=[
                 "jinja2.ext.i18n",
-                "webassets.ext.jinja2.AssetsExtension",
             ],
             loader=jinja2.PackageLoader("warehouse"),
         )
