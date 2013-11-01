@@ -37,7 +37,7 @@ jquery_js = Bundle(
 
 
 warehouse_css = Bundle(
-    "warehouse/app.less",
+    "warehouse/less/warehouse.less",
     filters=["less", "cssmin"],
     output="warehouse.%(version)s.css",
 )
