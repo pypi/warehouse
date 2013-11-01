@@ -64,9 +64,6 @@ def test_xmlrpc_list_packages():
     all_projects = [Project("bar"), Project("foo")]
 
     app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
         models=pretend.stub(
             packaging=pretend.stub(
                 all_projects=pretend.call_recorder(lambda: all_projects),
@@ -81,5 +78,5 @@ def test_xmlrpc_list_packages():
 
     result = interface.list_packages()
 
-    assert app.models.packaging.all_projects.calls
+    assert app.models.packaging.all_projects.calls == [pretend.call()]
     assert result == ['bar', 'foo']
