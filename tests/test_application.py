@@ -32,6 +32,7 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
+        "theme_debug": False,
         "assets": {
             "directory": "static",
             "url": "/static/",

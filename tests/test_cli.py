@@ -14,14 +14,11 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import mock
 import pretend
 
-import webassets.ext.jinja2
-import webassets.script
 import werkzeug.serving
 
-from warehouse.cli import ServeCommand, CollectStaticCommand
+from warehouse.cli import ServeCommand
 from warehouse.serving import WSGIRequestHandler
 
 
@@ -48,39 +45,3 @@ def test_serve(monkeypatch):
             request_handler=WSGIRequestHandler,
         ),
     ]
-
-
-def test_collect_static(monkeypatch):
-    run_build = pretend.call_recorder(lambda production: None)
-    BuildCommand = pretend.call_recorder(lambda env: run_build)
-
-    bundles = [pretend.stub()]
-    load_bundles = pretend.call_recorder(lambda: bundles)
-    jinja2_class = pretend.stub(load_bundles=load_bundles)
-    Jinja2Loader = pretend.call_recorder(lambda env, dirs, jenvs: jinja2_class)
-
-    monkeypatch.setattr(webassets.script, "BuildCommand", BuildCommand)
-    monkeypatch.setattr(webassets.ext.jinja2, "Jinja2Loader", Jinja2Loader)
-
-    app = pretend.stub(
-        config=pretend.stub(debug=False),
-        templates=pretend.stub(
-            assets_environment=pretend.stub(
-                add=pretend.call_recorder(lambda *a: None),
-            ),
-        ),
-    )
-
-    CollectStaticCommand()(app)
-
-    assert BuildCommand.calls == [pretend.call(mock.ANY)]
-    assert run_build.calls == [pretend.call(production=True)]
-
-    assert Jinja2Loader.calls == [
-        pretend.call(
-            app.templates.assets_environment,
-            mock.ANY,
-            [app.templates],
-        ),
-    ]
-    assert load_bundles.calls == [pretend.call()]
