@@ -25,13 +25,13 @@ bootstrap_css = Bundle(
 
 
 bootstrap_js = Bundle(
-    "bootstrap/js/bootstrap.js",
+    "bootstrap/js/bootstrap.min.js",
     output="bootstrap.%(version)s.js",
 )
 
 
 jquery_js = Bundle(
-    "jquery/js/jquery.js",
+    "jquery/js/jquery.min.js",
     output="jquery.%(version)s.js",
 )
 
