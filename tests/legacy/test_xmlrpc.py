@@ -48,7 +48,7 @@ def test_xmlrpc_handler(monkeypatch):
 
     assert xmlrpc.handle_request(app, request) == 'response'
 
-    assert interface.list_packages.calls
+    assert interface.list_packages.calls == [pretend.call()]
     response_xml = Response.calls[0].args[0]
 
     assert response_xml == u'''<?xml version='1.0'?>
