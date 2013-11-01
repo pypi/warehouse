@@ -14,17 +14,23 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from werkzeug.routing import Rule, EndpointPrefix, Submount
+from warehouse.helpers import url_for
+from werkzeug.utils import redirect
 
-urls = [
-    EndpointPrefix("warehouse.legacy.simple.", [
-        Submount("/simple", [
-            Rule("/", methods=["GET"], endpoint="index"),
-            Rule("/<project_name>/", methods=["GET"], endpoint="project"),
-        ]),
-        Rule("/packages/<path:path>", methods=["GET"], endpoint="package"),
-    ]),
-    EndpointPrefix("warehouse.legacy.pypi.", [
-        Rule("/pypi", methods=["GET", "POST"], endpoint="pypi"),
-    ]),
-]
+from . import xmlrpc
+
+
+def pypi(app, request):
+    # if the MIME type of the request is XML then we go into XML-RPC mode
+    if request.headers['Content-Type'] == 'text/xml':
+        return xmlrpc.handle_request(app, request)
+
+    # no XML-RPC and no :action means we render the index, or at least we
+    # redirect to where it moved to
+    return redirect(
+        url_for(
+            request,
+            "warehouse.views.index",
+        ),
+        code=301,
+    )
