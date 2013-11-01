@@ -59,3 +59,19 @@ class Interface(object):
     def package_releases(self, name, show_hidden=False):
         return self.app.models.packaging.get_project_versions(name,
             show_hidden)
+
+    def release_urls(self, name, version):
+        l = []
+        for r in self.app.models.packaging.get_downloads(name, version):
+            l.append(dict(
+                url=r['url'],
+                packagetype=r['packagetype'],
+                filename=r['filename'],
+                size=r['size'],
+                md5_digest=r['md5_digest'],
+                downloads=r['downloads'],
+                has_sig=r['pgp_url'] is not None,
+                python_version=r['python_version'],
+                comment_text=r['comment_text'],
+            ))
+        return l

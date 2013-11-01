@@ -180,3 +180,76 @@ def test_xmlrpc_list_packages_with_serial():
         pretend.call(),
     ]
     assert result == d
+
+
+@pytest.mark.parametrize("pgp", [True, False])
+def test_release_urls(pgp, monkeypatch):
+    downloads = [
+        dict(
+            name="spam",
+            url='/packages/source/t/spam/spam-1.0.tar.gz',
+            version="1.0",
+            filename="spam-1.0.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+            md5_digest="0cc175b9c0f1b6a831c399e269772661",
+            downloads=10,
+            size=1234,
+            pgp_url='/packages/source/t/spam/spam-1.0.tar.gz.sig'
+                if pgp else None,
+            comment_text='download for great justice',
+        ),
+        dict(
+            name="spam",
+            url='/packages/source/t/spam/spam-1.0.zip',
+            version="1.0",
+            filename="spam-1.0.zip",
+            python_version="source",
+            packagetype="sdist",
+            md5_digest="0cc175b3c0f1b6a831c399e269772661",
+            downloads=12,
+            size=1235,
+            pgp_url='/packages/source/t/spam/spam-1.0.zip.sig'
+                if pgp else None,
+            comment_text=None,
+        )
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_downloads=pretend.call_recorder(lambda *a: downloads),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.release_urls('spam', '1.0')
+
+    assert app.models.packaging.get_downloads.calls == [
+        pretend.call('spam', '1.0'),
+    ]
+    assert result == [
+        dict(
+            url='/packages/source/t/spam/spam-1.0.tar.gz',
+            packagetype="sdist",
+            filename="spam-1.0.tar.gz",
+            size=1234,
+            md5_digest="0cc175b9c0f1b6a831c399e269772661",
+            downloads=10,
+            has_sig=pgp,
+            python_version="source",
+            comment_text='download for great justice',
+        ),
+        dict(
+            url='/packages/source/t/spam/spam-1.0.zip',
+            packagetype="sdist",
+            filename="spam-1.0.zip",
+            size=1235,
+            md5_digest="0cc175b3c0f1b6a831c399e269772661",
+            downloads=12,
+            has_sig=pgp,
+            python_version="source",
+            comment_text=None,
+        )
+    ]
