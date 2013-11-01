@@ -14,10 +14,12 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import fnmatch
+
 import pretend
 import pytest
 
-from warehouse.helpers import gravatar_url, url_for
+from warehouse.helpers import gravatar_url, url_for, static_url
 
 
 @pytest.mark.parametrize(("kwargs", "expected"), [
@@ -58,3 +60,20 @@ def test_url_for(external):
             force_external=external,
         ),
     ]
+
+
+@pytest.mark.parametrize(("filename", "expected"), [
+    ("css/warehouse.css", "/static/css/warehouse-*.css"),
+    ("css/fake.css", "/static/css/fake.css"),
+    ("warehouse/css/warehouse.css", "/static/warehouse/css/warehouse.css"),
+])
+def test_static_url(filename, expected):
+    app = pretend.stub(
+        config=pretend.stub(
+            urls=pretend.stub(
+                assets="/static/",
+            ),
+        ),
+    )
+
+    assert fnmatch.fnmatch(static_url(app, filename), expected)
