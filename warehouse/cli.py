@@ -14,11 +14,6 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import logging
-import os.path
-
-import webassets.ext.jinja2
-import webassets.script
 import werkzeug.serving
 
 import warehouse
@@ -65,22 +60,7 @@ class ServeCommand:
         )
 
 
-class CollectStaticCommand:
-
-    def __call__(self, app):
-        env = app.templates.assets_environment
-
-        cmd = webassets.script.BuildCommand(
-            webassets.script.CommandLineEnvironment(
-                env,
-                logging.getLogger("webassets.build"),
-            ),
-        )
-        return cmd(production=not app.config.debug)
-
-
 __commands__ = {
     "migrate": warehouse.migrations.cli.__commands__,
     "serve": ServeCommand(),
-    "collectstatic": CollectStaticCommand(),
 }
