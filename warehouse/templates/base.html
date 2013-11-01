@@ -8,7 +8,7 @@
 
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ config.site.name }}{% endblock %}</title>
 
-    {% assets output="bootstrap.%(version)s.css", "bootstrap/dist/css/bootstrap.css" %}
+    {% assets output="bootstrap.%(version)s.css", "bootstrap/css/bootstrap.css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 
@@ -59,7 +59,7 @@
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
 
-    {% assets output="bootstrap.%(version)s.js", "bootstrap/dist/js/bootstrap.js" %}
+    {% assets output="bootstrap.%(version)s.js", "bootstrap/js/bootstrap.js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
   </body>
