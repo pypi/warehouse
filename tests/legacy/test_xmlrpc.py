@@ -128,6 +128,40 @@ def test_xmlrpc_top_packages(num, result):
     assert r == result
 
 
+@pytest.mark.parametrize(("hidden", "result"), [
+    (True, ['1', '2', '3', '4']),
+    (False, ['1', '2', '3']),
+])
+def test_xmlrpc_package_releases(hidden, result):
+    if hidden:
+        result = ['1', '2', '3', '4']
+    else:
+        result = ['1', '2', '3']
+
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_project_versions=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    if hidden:
+        r = interface.package_releases('name', True)
+        assert app.models.packaging.get_project_versions.calls == [
+            pretend.call('name', True)
+        ]
+    else:
+        r = interface.package_releases('name')
+        assert app.models.packaging.get_project_versions.calls == [
+            pretend.call('name', False)
+        ]
+
+    assert r == result
+
+
 def test_xmlrpc_list_packages_with_serial():
     d = dict(one=1, two=2, three=3)
     app = pretend.stub(

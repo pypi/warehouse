@@ -22,6 +22,7 @@ import logging
 from collections import namedtuple
 
 from sqlalchemy.sql import and_, select, func
+from sqlalchemy.sql.expression import false
 
 from warehouse import models
 from warehouse.accounts.tables import users, emails
@@ -269,12 +270,16 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return dict(r for r in conn.execute(query))
 
-    def get_project_versions(self, project):
+    def get_project_versions(self, project, show_hidden=False):
         query = (
             select([releases.c.version])
             .where(releases.c.name == project)
-            .order_by(releases.c._pypi_ordering.desc())
         )
+
+        if not show_hidden:
+            query = query.where(releases.c._pypi_hidden == false())
+
+        query = query.order_by(releases.c._pypi_ordering.desc())
 
         with self.engine.connect() as conn:
             return [r["version"] for r in conn.execute(query)]

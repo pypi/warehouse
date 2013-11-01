@@ -490,29 +490,39 @@ def test_get_projects_with_serial(dbapp):
     )
 
 
-def test_get_project_versions(dbapp):
+@pytest.mark.parametrize(("show_hidden", "res"), [
+    (True, ["4.0", "3.0", "2.0", "1.0"]),
+    (False, ["3.0", "2.0", "1.0"]),
+])
+def test_get_project_versions(show_hidden, res, dbapp):
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="2.0",
         _pypi_ordering=2,
+        _pypi_hidden=False,
     ))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="1.0",
         _pypi_ordering=1,
+        _pypi_hidden=False,
     ))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="3.0",
         _pypi_ordering=3,
+        _pypi_hidden=False,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="test-project",
+        version="4.0",
+        _pypi_ordering=4,
+        _pypi_hidden=True,
     ))
 
-    assert dbapp.models.packaging.get_project_versions("test-project") == [
-        "3.0",
-        "2.0",
-        "1.0",
-    ]
+    assert dbapp.models.packaging.get_project_versions("test-project",
+        show_hidden) == res
 
 
 def test_get_release(dbapp):
