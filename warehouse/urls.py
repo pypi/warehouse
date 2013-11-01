@@ -21,7 +21,7 @@ from warehouse.packaging.urls import urls as packaging_urls
 from warehouse.legacy.urls import urls as legacy_urls
 
 
-# Global URL Rules
+# Top level URL rules
 urls = [
     Rule("/", methods=["GET"], endpoint="warehouse.views.index"),
 ]
