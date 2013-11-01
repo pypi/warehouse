@@ -20,7 +20,7 @@ from werkzeug.routing import Rule, EndpointPrefix
 urls = [
     EndpointPrefix("warehouse.accounts.views.", [
         Rule(
-            "/~<username>/",
+            "/user/<username>/",
             methods=["GET"],
             endpoint="user_profile",
         ),
