@@ -34,13 +34,14 @@ import yaml
 from raven import Client
 from raven.middleware import Sentry
 from webassets import Environment as AssetsEnvironment
+from webassets.loaders import PythonLoader
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
 import warehouse
 import warehouse.cli
 
-from warehouse import urls
+from warehouse import assets, urls
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
@@ -118,6 +119,10 @@ class Warehouse(object):
         asset_config.setdefault("auto_build", self.config.debug)
 
         self.templates.assets_environment = AssetsEnvironment(**asset_config)
+
+        # Register our bundles
+        for name, bundle in PythonLoader(assets).load_bundles().items():
+            self.templates.assets_environment.register(name, bundle)
 
         # Load our static directories
         static_path = os.path.abspath(

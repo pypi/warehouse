@@ -68,18 +68,7 @@ class ServeCommand:
 class CollectStaticCommand:
 
     def __call__(self, app):
-        template_dir = os.path.abspath(
-            os.path.join(os.path.dirname(warehouse.__file__), "templates"),
-        )
-
         env = app.templates.assets_environment
-        env.add(
-            *webassets.ext.jinja2.Jinja2Loader(
-                env,
-                [template_dir],
-                [app.templates],
-            ).load_bundles()
-        )
 
         cmd = webassets.script.BuildCommand(
             webassets.script.CommandLineEnvironment(
