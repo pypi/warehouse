@@ -349,6 +349,7 @@ class Model(models.Model):
             select([
                 releases.c.name,
                 releases.c.version,
+                packages.c.stable_version,
                 releases.c.author,
                 releases.c.author_email,
                 releases.c.maintainer,
@@ -366,6 +367,7 @@ class Model(models.Model):
                 releases.c.name == project,
                 releases.c.version == version,
             ))
+            .where(packages.c.name == project)
             .order_by(releases.c._pypi_ordering.desc())
             .limit(1)
         )

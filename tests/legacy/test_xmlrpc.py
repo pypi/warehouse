@@ -14,6 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import datetime
+
 import pretend
 import pytest
 
@@ -253,3 +255,82 @@ def test_release_urls(pgp, monkeypatch):
             comment_text=None,
         )
     ]
+
+
+def test_release_data(monkeypatch):
+    resp = dict(
+        name="spam",
+        version="1.0",
+        stable_version="2.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer=None,
+        maintainer_email=None,
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url=("https://example.com/downloads/"
+                         "test-project-1.0.tar.gz"),
+        requires_dist=["requests (>=2.0)"],
+        provides_dist=["test-project-old"],
+        project_url={"Repository": "git://git.example.com/"},
+        created=datetime.datetime.utcnow(),
+    )
+    docs = "https://pythonhosted.org/spam/"
+    cfiers = ['Section A :: Subsection B :: Aisle 3', 'Section B']
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_release=pretend.call_recorder(lambda *a: resp),
+                get_documentation_url=pretend.call_recorder(lambda *a: docs),
+                get_download_counts=pretend.call_recorder(lambda *a: 10),
+                get_classifiers=pretend.call_recorder(lambda *a: cfiers),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.release_data('spam', '1.0')
+
+    assert app.models.packaging.get_release.calls == [
+        pretend.call('spam', '1.0'),
+    ]
+
+    info = dict(resp)
+    del info['created']
+    info.update(
+        package_url='http://pypi.python.org/pypi/spam',
+        release_url='http://pypi.python.org/pypi/spam/1.0',
+        docs_url=docs,
+        downloads=10,
+        classifiers=cfiers,
+        created=resp['created']     # Not in the legacy spec but meh, whatever
+    )
+    assert result == info
+
+
+def test_release_data_missing(monkeypatch):
+    def f(*a):
+        raise IndexError()
+
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_release=pretend.call_recorder(f),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.release_data('spam', '1.0')
+
+    assert app.models.packaging.get_release.calls == [
+        pretend.call('spam', '1.0'),
+    ]
+
+    assert result == {}

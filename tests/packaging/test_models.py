@@ -528,7 +528,8 @@ def test_get_project_versions(show_hidden, res, dbapp):
 def test_get_release(dbapp):
     created = datetime.datetime.utcnow()
 
-    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(packages.insert().values(name="test-project",
+        stable_version='2.0'))
     dbapp.engine.execute(releases.insert().values(
         created=created,
         name="test-project",
@@ -605,6 +606,7 @@ def test_get_release(dbapp):
     assert test_release == {
         "name": "test-project",
         "version": "1.0",
+        "stable_version": "2.0",
         "author": "John Doe",
         "author_email": "john.doe@example.com",
         "maintainer": "Jane Doe",

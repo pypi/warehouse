@@ -75,3 +75,26 @@ class Interface(object):
                 comment_text=r['comment_text'],
             ))
         return l
+
+    def release_data(self, name, version):
+        model = self.app.models.packaging
+        try:
+            info = model.get_release(name, version)
+        except IndexError:
+            # the CURRENT model code will raise an IndexError on missing
+            # package but this should be altered
+            return {}
+
+        info['classifiers'] = model.get_classifiers(name, version)
+        info['package_url'] = 'http://pypi.python.org/pypi/%s' % name
+        info['release_url'] = 'http://pypi.python.org/pypi/%s/%s' % (name,
+            version)
+        info['docs_url'] = model.get_documentation_url(name)
+        info['downloads'] = model.get_download_counts(name)
+
+        # make the data XML-RPC-happy (no explicit null allowed here!)
+        for k in info:
+            if info[k] is None:
+                info[k] = ''
+
+        return info
