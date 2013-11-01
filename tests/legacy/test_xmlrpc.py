@@ -15,6 +15,9 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import pretend
+import pytest
+
+from werkzeug.exceptions import BadRequest
 
 from warehouse.packaging.models import Project
 from warehouse.legacy import xmlrpc
@@ -36,7 +39,10 @@ def test_xmlrpc_handler(monkeypatch):
         <methodName>list_packages</methodName></methodCall>'''
 
     request = pretend.stub(
-        headers={'Content-Type': 'text/xml'},
+        headers={
+            'Content-Type': 'text/xml',
+            'Content-Length': str(len(xml_request)),
+        },
         get_data=lambda **k: xml_request,
     )
 
@@ -80,3 +86,17 @@ def test_xmlrpc_list_packages():
 
     assert app.models.packaging.all_projects.calls == [pretend.call()]
     assert result == ['bar', 'foo']
+
+
+def test_xmlrpc_size(monkeypatch):
+    app = pretend.stub()
+
+    request = pretend.stub(
+        headers={
+            'Content-Type': 'text/xml',
+            'Content-Length': str(10 * 1024 * 1024 + 1)
+        },
+    )
+
+    with pytest.raises(BadRequest):
+        xmlrpc.handle_request(app, request)
