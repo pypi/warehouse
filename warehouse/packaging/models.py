@@ -40,6 +40,53 @@ FileURL = namedtuple("FileURL", ["filename", "url"])
 
 class Model(models.Model):
 
+    def get_project_count(self):
+        query = select([func.count()]).select_from(packages)
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    def get_download_count(self):
+        query = select([func.sum(release_files.c.downloads)])
+
+        with self.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    def get_recently_updated(self, num=10):
+        subquery = (
+            select(
+                [
+                    releases.c.name,
+                    releases.c.version,
+                    releases.c.summary,
+                    releases.c.created,
+                ],
+                distinct=releases.c.name,
+            )
+            .where(
+                # We only consider releases made in the last 7 days, otherwise
+                #   we have to do a Sequence Scan against the entire table
+                #   and it takes 5+ seconds to complete. This shouldn't be a
+                #   big deal as it is highly unlikely we'll have a week without
+                #   at least 10 releases.
+                releases.c.created >= (
+                    datetime.datetime.utcnow() - datetime.timedelta(days=7)
+                )
+            )
+            .order_by(releases.c.name, releases.c.created.desc())
+            .alias("r")
+        )
+
+        query = (
+            select("*")
+            .select_from(subquery)
+            .order_by(subquery.c.created.desc())
+            .limit(num)
+        )
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query)]
+
     def all_projects(self):
         query = select([packages.c.name]).order_by(func.lower(packages.c.name))
 

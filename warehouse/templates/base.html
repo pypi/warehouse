@@ -6,7 +6,7 @@
 
     <link rel="shortcut icon" href="../../assets/ico/favicon.png">
 
-    <title>{% block title %}{% endblock %} &middot; {{ config.site.name }}</title>
+    <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ config.site.name }}{% endblock %}</title>
 
     {% assets output="bootstrap.%(version)s.css", "bootstrap/dist/css/bootstrap.css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}" />

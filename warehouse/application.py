@@ -21,6 +21,7 @@ import os.path
 import logging.config
 
 import babel.dates
+import babel.numbers
 import babel.support
 import guard
 import jinja2
@@ -34,20 +35,16 @@ from raven import Client
 from raven.middleware import Sentry
 from webassets import Environment as AssetsEnvironment
 from werkzeug.exceptions import HTTPException
-from werkzeug.routing import Map
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
 import warehouse
 import warehouse.cli
 
+from warehouse import urls
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
-
-from warehouse.accounts.urls import urls as accounts_urls
-from warehouse.packaging.urls import urls as packaging_urls
-from warehouse.legacy.urls import urls as legacy_urls
 
 
 class Warehouse(object):
@@ -85,7 +82,7 @@ class Warehouse(object):
             )
 
         # Set up our URL routing
-        self.urls = Map(accounts_urls + packaging_urls + legacy_urls)
+        self.urls = urls.urls
 
         # Initialize our Translations engine
         self.trans = babel.support.NullTranslations()
@@ -104,6 +101,9 @@ class Warehouse(object):
         # Install Babel
         self.templates.filters.update({
             "package_type_display": packaging_helpers.package_type_display,
+            "format_number": babel.numbers.format_number,
+            "format_decimal": babel.numbers.format_decimal,
+            "format_percent": babel.numbers.format_percent,
             "format_date": babel.dates.format_date,
             "format_datetime": babel.dates.format_datetime,
             "format_time": babel.dates.format_time,

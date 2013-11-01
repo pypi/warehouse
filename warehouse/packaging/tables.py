@@ -169,6 +169,7 @@ releases = Table(
 
     Index("release_name_idx", "name"),
     Index("release_version_idx", "version"),
+    Index("release_name_created_idx", "name", "version"),
     Index("release_pypi_hidden_idx", "_pypi_hidden"),
 )
 
