@@ -456,6 +456,18 @@ def test_get_last_serial(name, serial, dbapp):
     assert dbapp.models.packaging.get_last_serial(name) == serial
 
 
+def test_get_packages_with_serial(dbapp):
+    dbapp.engine.execute(journals.insert().values(id=1, name='one'))
+    dbapp.engine.execute(journals.insert().values(id=2, name='two'))
+    dbapp.engine.execute(journals.insert().values(id=3, name='three'))
+
+    assert dbapp.models.packaging.get_packages_with_serial() == dict(
+        one=1,
+        two=2,
+        three=3
+    )
+
+
 def test_get_project_versions(dbapp):
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(

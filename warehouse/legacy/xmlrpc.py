@@ -54,3 +54,6 @@ class Interface(object):
         '''
         projects = self.app.models.packaging.all_projects()
         return [project.name for project in projects]
+
+    def list_packages_with_serial(self):
+        return self.app.models.packaging.get_packages_with_serial()

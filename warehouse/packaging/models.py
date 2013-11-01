@@ -247,6 +247,16 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
+    def get_packages_with_serial(self):
+        # return list of dict(name: max id)
+        query = (
+            select([journals.c.name, func.max(journals.c.id)])
+            .group_by(journals.c.name)
+        )
+
+        with self.engine.connect() as conn:
+            return dict(r for r in conn.execute(query))
+
     def get_project_versions(self, project):
         query = (
             select([releases.c.version])

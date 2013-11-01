@@ -66,29 +66,7 @@ def test_xmlrpc_handler(monkeypatch):
     assert Response.calls[0].kwargs == dict(mimetype='text/xml')
 
 
-def test_xmlrpc_list_packages():
-    all_projects = [Project("bar"), Project("foo")]
-
-    app = pretend.stub(
-        models=pretend.stub(
-            packaging=pretend.stub(
-                all_projects=pretend.call_recorder(lambda: all_projects),
-            ),
-        ),
-    )
-    request = pretend.stub(
-        headers={'Content-Type': 'text/xml'}
-    )
-
-    interface = xmlrpc.Interface(app, request)
-
-    result = interface.list_packages()
-
-    assert app.models.packaging.all_projects.calls == [pretend.call()]
-    assert result == ['bar', 'foo']
-
-
-def test_xmlrpc_size(monkeypatch):
+def test_xmlrpc_handler_size_limit(monkeypatch):
     app = pretend.stub()
 
     request = pretend.stub(
@@ -100,3 +78,44 @@ def test_xmlrpc_size(monkeypatch):
 
     with pytest.raises(BadRequest):
         xmlrpc.handle_request(app, request)
+
+
+def test_xmlrpc_list_packages():
+    all_projects = [Project("bar"), Project("foo")]
+
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                all_projects=pretend.call_recorder(lambda: all_projects),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.list_packages()
+
+    assert app.models.packaging.all_projects.calls == [pretend.call()]
+    assert result == ['bar', 'foo']
+
+
+def test_xmlrpc_list_packages_with_serial():
+    serials = dict(one=1, two=2, three=3)
+
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_packages_with_serial=pretend.call_recorder(lambda:
+                    serials),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.list_packages_with_serial()
+
+    assert app.models.packaging.get_packages_with_serial.calls == [
+        pretend.call(),
+    ]
+    assert result == dict(one=1, two=2, three=3)
