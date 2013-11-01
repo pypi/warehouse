@@ -25,6 +25,6 @@ urls = [
         Rule("/packages/<path:path>", methods=["GET"], endpoint="package"),
     ]),
     EndpointPrefix("warehouse.legacy.pypi.", [
-        Rule("/pypi", methods=["GET"], endpoint="pypi"),
+        Rule("/pypi", methods=["GET", "POST"], endpoint="pypi"),
     ]),
 ]
