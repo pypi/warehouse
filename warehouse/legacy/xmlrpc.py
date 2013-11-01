@@ -27,7 +27,7 @@ def handle_request(app, request):
     dispatcher.register_instance(Interface(app, request))
 
     # read in the XML-RPC request data, limiting to a sensible size
-    request.max_content_length = 10*1024*1024
+    request.max_content_length = 10 * 1024 * 1024
     xml_request = request.get_data(cache=False, as_text=True)
 
     # errors here are handled by _marshaled_dispatch
