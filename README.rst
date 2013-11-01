@@ -22,15 +22,6 @@ You may have to enable `CITEXT <http://www.postgresql.org/docs/9.2/static/citext
 
     $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
 
-Warehouse also uses less.css. This is typically installed using (for the
-easiest, global installation)
-
-.. code:: bash
-
-    npm install -g less
-
-This will probably mean you need to install node.js as well. "brew install
-node" on OS X or whatever on other platforms.
 
 To work on Warehouse you can gain a checkout of the repository and run the
 development web server using:
@@ -68,6 +59,22 @@ development web server using:
     $ bin/warehouse -c dev/config.yml serve
 
 6. Open browser at `http://localhost:9000/ <http://localhost:9000/>`_
+
+
+Developing the Design
+---------------------
+
+Warehouse uses less and wake to handle it's CSS and static assets. To install
+these globally execute:
+
+.. code:: bash
+
+    $ npm install -g less wake
+
+To iterate on the less files you can set the ``theme_debug`` setting to true
+which will use less.js to compile the less files in the browser. When you're
+ready to commit the changes you can run ``inv static.build`` to generate the
+release files for the design.
 
 
 Running the tests
