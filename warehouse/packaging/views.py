@@ -75,11 +75,14 @@ def project_detail(app, request, project_name, version=None):
     release = app.models.packaging.get_release(project.name, version)
 
     # Render the project description
-    description_html = htmlize(release["description"])
-
-    # If our description wasn't able to be rendered, wrap it in <pre></pre>
-    if not description_html.rendered:
-        description_html = "<pre>" + description_html + "</pre>"
+    if release["description"] is not None:
+        description_html = htmlize(release["description"])
+    
+        # If our description wasn't able to be rendered, wrap it in <pre></pre>
+        if not description_html.rendered:
+            description_html = "<pre>" + description_html + "</pre>"
+    else:
+        description_html = ""
 
     # Mark our description_html as safe as it's already been cleaned by bleach
     description_html = jinja2.Markup(description_html)
