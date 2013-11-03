@@ -333,6 +333,9 @@ body {
 .project-body .downloads {
   margin-top: 4em;
 }
+.project-body img {
+  max-width: 100%;
+}
 .metadata dl {
   margin-top: 2em;
 }
