@@ -84,6 +84,7 @@ def test_render_response():
             config=app.config,
             gravatar_url=mock.ANY,
             url_for=mock.ANY,
+            static_url=mock.ANY,
         ),
     ]
 

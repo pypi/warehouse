@@ -1,0 +1,35 @@
+{
+  "devDependencies": {
+    "wake": ">=0.2.0"
+  },
+
+  "wake": {
+    "javascript": {
+      "sourceDirectory": "warehouse/static",
+      "targetDirectory": "warehouse/static",
+      "targets": {
+        "js/jquery.js": ["jquery/js/jquery.js"],
+        "js/bootstrap.js": ["bootstrap/js/bootstrap.js"]
+      }
+    },
+    "css": {
+      "sourceDirectory": "warehouse/static",
+      "targetDirectory": "warehouse/static",
+      "sourceRoot":      "static",
+      "targets": {
+        "css/bootstrap.css": ["bootstrap/css/bootstrap.css"],
+        "css/warehouse.css": ["warehouse/css/warehouse.css"]
+      }
+    },
+    "binary": {
+      "sourceDirectory": "warehouse/static",
+      "targetDirectory": "warehouse/static",
+      "targets": {
+        "fonts/glyphicons-halflings-regular.eot": ["bootstrap/fonts/glyphicons-halflings-regular.eot"],
+        "fonts/glyphicons-halflings-regular.svg": ["bootstrap/fonts/glyphicons-halflings-regular.svg"],
+        "fonts/glyphicons-halflings-regular.ttf": ["bootstrap/fonts/glyphicons-halflings-regular.ttf"],
+        "fonts/glyphicons-halflings-regular.woff": ["bootstrap/fonts/glyphicons-halflings-regular.woff"]
+      }
+    }
+  }
+}

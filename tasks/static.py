@@ -11,11 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os.path
+import shutil
+
 import invoke
 
-from . import deploy
-from . import release
-from . import static
 
+@invoke.task
+def build():
+    # Build our CSS files
+    invoke.run(
+        "lessc --relative-urls "
+        "warehouse/static/warehouse/less/warehouse.less "
+        "warehouse/static/warehouse/css/warehouse.css"
+    )
 
-ns = invoke.Collection(deploy, release, static)
+    # Clean existing directories
+    for directory in {"css", "fonts", "js"}:
+        shutil.rmtree(os.path.join("warehouse/static", directory))
+
+    # Run wake to generate our built files
+    invoke.run("wake")
