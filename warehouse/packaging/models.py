@@ -133,6 +133,7 @@ class Model(models.Model):
         query = (
             select(
                 [users.c.username, emails.c.email],
+                distinct=users.c.username,
                 from_obj=users.outerjoin(
                     emails, emails.c.user_id == users.c.id,
                 ),
@@ -141,10 +142,7 @@ class Model(models.Model):
                 users.c.username == roles.c.user_name,
                 roles.c.package_name == project,
             ))
-            .order_by(
-                roles.c.role_name.desc(),
-                func.lower(roles.c.user_name),
-            )
+            .order_by(users.c.username)
         )
 
         with self.engine.connect() as conn:
