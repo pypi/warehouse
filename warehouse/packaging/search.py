@@ -49,3 +49,38 @@ class ProjectMapping(BaseMapping):
 
     def extract_document(self, item):
         return item
+
+    def search(self, query):
+        # TODO: Make a blank query return every item
+        # TODO: Pagination
+        # TODO: Faceting
+        # TODO: Other Features?
+        # TODO: # of Results?
+        if query:
+            body = {
+                "query": {
+                    "bool": {
+                        "should": [
+                            {
+                                "match": {
+                                    "name": {"query": query, "boost": 3.0},
+                                },
+                            },
+                            {
+                                "match": {
+                                    "summary": {"query": query, "boost": 2.0},
+                                },
+                            },
+                            {"match": {"description": {"query": query}}},
+                        ],
+                    }
+                }
+            }
+        else:
+            body = {}
+
+        return self.index.es.search(
+            index=self.index._index,
+            doc_type=self._type,
+            body=body
+        )

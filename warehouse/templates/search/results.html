@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+        <ul>
+          {% for result in results %}
+          <li>
+            <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=result.name) }}">
+              {{ result.name }}
+            </a>
+            <span class="text-muted">{{ result.summary }}</span>
+          </li>
+          {% endfor %}
+    </div>
+  </div>
+{% endblock %}

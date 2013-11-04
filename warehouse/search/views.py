@@ -14,21 +14,21 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from werkzeug.routing import Map, Rule
+from werkzeug.exceptions import NotFound
 
-from warehouse.accounts.urls import urls as accounts_urls
-from warehouse.packaging.urls import urls as packaging_urls
-from warehouse.search.urls import urls as search_urls
-from warehouse.legacy.urls import urls as legacy_urls
+from warehouse.utils import render_response
 
 
-# Top level URL rules
-urls = [
-    Rule("/", methods=["GET"], endpoint="warehouse.views.index"),
-]
+def search(app, request, doctype):
+    if doctype not in app.search.types:
+        raise NotFound
 
-# Extend the URL rules with our other applications
-urls += accounts_urls + packaging_urls + search_urls + legacy_urls
+    query = request.args.get("q")
+    results = app.search.types[doctype].search(query)
 
-# Map our urls
-urls = Map(urls)
+    return render_response(
+        app,
+        request,
+        "search/results.html",
+        results=[r["_source"] for r in results["hits"]["hits"]],
+    )

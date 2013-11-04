@@ -121,3 +121,6 @@ class BaseMapping(object):
                 for item in self.get_indexable()
             ),
         )
+
+    def search(self, query):
+        raise NotImplementedError
