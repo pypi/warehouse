@@ -12,6 +12,11 @@ database:
 redis:
     url: "redis://localhost:6379/0"
 
+search:
+    hosts:
+        - host: 127.0.0.1
+          port: 9200
+
 paths:
     documentation: "data/packagedocs"
     packages: "data/packages"

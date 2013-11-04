@@ -43,6 +43,8 @@ from warehouse import urls
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
+from warehouse.packaging.search import ProjectMapping
+from warehouse.search.indexes import Index
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
@@ -79,6 +81,10 @@ class Warehouse(object):
                 self.engine,
                 self.redis,
             )
+
+        # Create our Search Index instance and associate our mappings with it
+        self.search = Index(self.models, self.config.search)
+        self.search.register(ProjectMapping)
 
         # Set up our URL routing
         self.urls = urls.urls
