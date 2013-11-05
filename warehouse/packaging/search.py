@@ -51,7 +51,6 @@ class ProjectMapping(BaseMapping):
         return item
 
     def search(self, query):
-        # TODO: Make a blank query return every item
         # TODO: Pagination
         # TODO: Faceting
         # TODO: Other Features?
@@ -77,7 +76,9 @@ class ProjectMapping(BaseMapping):
                 }
             }
         else:
-            body = {}
+            body = {
+                "query": {"match_all": {}}
+            }
 
         return self.index.es.search(
             index=self.index._index,
