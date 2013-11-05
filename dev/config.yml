@@ -59,6 +59,10 @@ logging:
     loggers:
         warehouse:
             level: DEBUG
+        elasticsearch:
+            level: DEBUG
+        elasticsearch.trace:
+            level: DEBUG
     root:
         level: INFO
         handlers: [console]
