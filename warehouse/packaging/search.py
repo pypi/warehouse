@@ -25,6 +25,7 @@ class ProjectMapping(BaseMapping):
         return {
             "properties": {
                 "name": {"type": "string"},
+                "name_keyword": {"type": "string", "index": "not_analyzed"},
                 "version": {"type": "string"},
                 "author": {"type": "string"},
                 "author_email": {"type": "string"},
@@ -48,6 +49,7 @@ class ProjectMapping(BaseMapping):
         return item["name"]
 
     def extract_document(self, item):
+        item['name_keyword'] = item['name'].lower()
         return item
 
     def search(self, query):
@@ -60,24 +62,32 @@ class ProjectMapping(BaseMapping):
                 "query": {
                     "bool": {
                         "should": [
+                            # An extra boost for exact matches.
+                            {
+                                "term": {
+                                    "name_keyword": {"value": query},
+                                }
+                            },
                             {
                                 "match": {
-                                    "name": {"query": query, "boost": 3.0},
+                                    "name": {"query": query, "boost": 2.0},
                                 },
                             },
                             {
                                 "match": {
-                                    "summary": {"query": query, "boost": 2.0},
+                                    "summary": {"query": query, "boost": 1.5},
                                 },
                             },
                             {"match": {"description": {"query": query}}},
                         ],
                     }
-                }
+                },
+                "size": 25,
             }
         else:
             body = {
-                "query": {"match_all": {}}
+                "query": {"match_all": {}},
+                "size": 25,
             }
 
         return self.index.es.search(
