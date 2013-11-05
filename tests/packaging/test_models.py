@@ -308,13 +308,18 @@ def test_get_users_for_project(dbapp):
     ))
     dbapp.engine.execute(roles.insert().values(
         package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
         user_name="a-test-user",
         role_name="Maintainer",
     ))
 
     assert dbapp.models.packaging.get_users_for_project("test-project") == [
-        {"username": "test-user", "email": None},
         {"username": "a-test-user", "email": None},
+        {"username": "test-user", "email": None},
         {"username": "test-user2", "email": "test@example.com"},
     ]
 
