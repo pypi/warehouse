@@ -67,6 +67,7 @@ setup(
     install_requires=[
         "alembic",
         "babel",
+        "elasticsearch",
         "enum34",
         "guard",
         "Jinja2",
