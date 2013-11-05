@@ -50,6 +50,9 @@ def test_basic_instantiation():
         "logging": {
             "version": 1,
         },
+        "search": {
+            "hosts": [],
+        },
     })
 
 
