@@ -17,6 +17,10 @@ from __future__ import unicode_literals
 from warehouse.search.indexes import BaseMapping
 
 
+SEARCH_LIMIT = 25
+SEARCH_OFFSET = 0
+
+
 class ProjectMapping(BaseMapping):
 
     _type = "project"
@@ -52,12 +56,15 @@ class ProjectMapping(BaseMapping):
         item['name_keyword'] = item['name'].lower()
         return item
 
-    def search(self, query):
-        # TODO: Pagination
+    def search(self, query, limit=None, offset=None):
         # TODO: Faceting
         # TODO: Other Features?
-        # TODO: # of Results?
+
+        limit = limit or SEARCH_LIMIT
+        offset = offset or SEARCH_OFFSET
+
         if query:
+            query = query.lower()
             body = {
                 "query": {
                     "bool": {
@@ -82,12 +89,14 @@ class ProjectMapping(BaseMapping):
                         ],
                     }
                 },
-                "size": 25,
+                "from": offset,
+                "size": limit,
             }
         else:
             body = {
                 "query": {"match_all": {}},
-                "size": 25,
+                "from": offset,
+                "size": limit,
             }
 
         return self.index.es.search(

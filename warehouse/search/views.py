@@ -14,9 +14,13 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import functools
+
 from werkzeug.exceptions import NotFound
 
-from warehouse.utils import render_response
+from warehouse.helpers import url_for
+from warehouse.packaging.search import SEARCH_LIMIT
+from warehouse.utils import render_response, SearchPagination
 
 
 def search(app, request, doctype):
@@ -24,11 +28,26 @@ def search(app, request, doctype):
         raise NotFound
 
     query = request.args.get("q")
-    results = app.search.types[doctype].search(query)
+    try:
+        page = int(request.args.get("page", 1))
+    except ValueError:
+        raise NotFound
+    if page <= 0:
+        page = 1
+    offset = (page - 1) * SEARCH_LIMIT
+
+    results = app.search.types[doctype].search(query, SEARCH_LIMIT, offset)
+    total = results.get("hits", {}).get("total", 0)
+
+    url_partial = functools.partial(
+        url_for, request, 'warehouse.search.views.search', doctype='project',
+        q=query)
+    pages = SearchPagination(page, total, SEARCH_LIMIT, url_partial)
 
     return render_response(
         app,
         request,
         "search/results.html",
+        query=query, total=total, pages=pages,
         results=[r["_source"] for r in results["hits"]["hits"]],
     )
