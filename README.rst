@@ -1,8 +1,8 @@
 Warehouse
 =========
 
-.. image:: https://travis-ci.org/dstufft/warehouse.png?branch=master
-   :target: https://travis-ci.org/dstufft/warehouse
+.. image:: https://travis-ci.org/pypa/warehouse.png?branch=master
+   :target: https://travis-ci.org/pypa/warehouse
 
 
 Warehouse is a next generation Python Package Repository designed to replace

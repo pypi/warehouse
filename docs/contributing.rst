@@ -111,7 +111,7 @@ Use `tox`_ to build the documentation. For example:
 The HTML documentation index can now be found at ``docs/_build/html/index.html``
 
 
-.. _`GitHub`: https://github.com/dstufft/warehouse
+.. _`GitHub`: https://github.com/pypa/warehouse
 .. _`PEP 8`: http://www.peps.io/8/
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
 .. _`pytest`: https://pypi.python.org/pypi/pytest
