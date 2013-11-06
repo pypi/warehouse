@@ -12,9 +12,8 @@ recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
 
+include compass.rb
 include package.json
-include warehouse/static/bootstrap/CNAME
-include warehouse/static/bootstrap/LICENSE
 
 recursive-include warehouse *.html
 recursive-include warehouse *.mako
