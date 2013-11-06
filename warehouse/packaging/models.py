@@ -408,6 +408,33 @@ class Model(models.Model):
 
         return results
 
+    def get_full_latest_releases(self):
+        query = (
+            select([
+                releases.c.name,
+                releases.c.version,
+                releases.c.author,
+                releases.c.author_email,
+                releases.c.maintainer,
+                releases.c.maintainer_email,
+                releases.c.home_page,
+                releases.c.license,
+                releases.c.summary,
+                releases.c.description,
+                releases.c.keywords,
+                releases.c.platform,
+                releases.c.download_url,
+                releases.c.created,
+            ])
+            .distinct(releases.c.name)
+            .order_by(releases.c.name, releases.c._pypi_ordering.desc())
+        )
+
+        with self.engine.connect() as conn:
+            results = [dict(r) for r in conn.execute(query)]
+
+        return results
+
     def get_download_counts(self, project):
         def _make_key(precision, datetime, key):
             return "downloads:{}:{}:{}".format(

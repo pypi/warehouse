@@ -80,6 +80,13 @@ automatically. Once the changes are ready to be committed run
 ``invoke static.build`` to generate the release artifacts for the design.
 
 
+Search
+------
+
+The search implementation requires Elasticsearch. By default it will assume
+there is one available on port 9200 of localhost.
+
+
 Running the tests
 -----------------
 
