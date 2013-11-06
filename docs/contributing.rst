@@ -49,7 +49,7 @@ dependencies, and the Python development dependencies using:
 
 Finally you can setup the project:
 
-..code-block:: console
+.. code-block:: console
 
     $ # Create a Database
     $ createdb warehouse
