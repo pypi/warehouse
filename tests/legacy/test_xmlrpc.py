@@ -130,16 +130,8 @@ def test_xmlrpc_top_packages(num, result):
     assert r == result
 
 
-@pytest.mark.parametrize(("hidden", "result"), [
-    (True, ['1', '2', '3', '4']),
-    (False, ['1', '2', '3']),
-])
-def test_xmlrpc_package_releases(hidden, result):
-    if hidden:
-        result = ['1', '2', '3', '4']
-    else:
-        result = ['1', '2', '3']
-
+def test_xmlrpc_package_releases():
+    result = ['1', '2', '3', '4']
     app = pretend.stub(
         models=pretend.stub(
             packaging=pretend.stub(
@@ -150,18 +142,38 @@ def test_xmlrpc_package_releases(hidden, result):
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    if hidden:
-        r = interface.package_releases('name', True)
-        assert app.models.packaging.get_project_versions.calls == [
-            pretend.call('name', True)
-        ]
-    else:
-        r = interface.package_releases('name')
-        assert app.models.packaging.get_project_versions.calls == [
-            pretend.call('name', False)
-        ]
+    assert interface.package_releases('name') == ['1', '2', '3', '4']
 
-    assert r == result
+    assert app.models.packaging.get_project_versions.calls == [
+        pretend.call('name')
+    ]
+
+
+def test_xmlrpc_updated_releases():
+    now = datetime.datetime.now()
+
+    result = [
+        dict(name='one', version='1', created=now, summary='text'),
+        dict(name='two', version='2', created=now, summary='text'),
+        dict(name='two', version='3', created=now, summary='text'),
+        dict(name='three', version='4', created=now, summary='text')]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_releases_since=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    old = now = datetime.timedelta(days=1)
+    assert interface.updated_releases(old) == \
+        [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
+
+    assert app.models.packaging.get_releases_since.calls == [
+        pretend.call(old)
+    ]
 
 
 def test_xmlrpc_list_packages_with_serial():

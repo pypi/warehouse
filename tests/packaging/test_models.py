@@ -188,6 +188,56 @@ def test_get_recently_updated(dbapp):
     ]
 
 
+def test_get_releases_since(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+
+    now = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(releases.insert().values(
+        name="foo2", version="1.0",
+        created=now - datetime.timedelta(seconds=10),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo3", version="2.0",
+        created=now - datetime.timedelta(seconds=9),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="1.0",
+        created=now - datetime.timedelta(seconds=4),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo3", version="1.0",
+        created=now - datetime.timedelta(seconds=3),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="2.0", created=now,
+    ))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_releases_since(since) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "summary": None,
+            "created": now,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=3),
+        },
+        {
+            "name": "foo1",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=4),
+        },
+    ]
+
+
 @pytest.mark.parametrize("projects", [
     ["foo", "bar", "zap"],
     ["fail", "win", "YeS"],
@@ -490,39 +540,31 @@ def test_get_projects_with_serial(dbapp):
     )
 
 
-@pytest.mark.parametrize(("show_hidden", "res"), [
-    (True, ["4.0", "3.0", "2.0", "1.0"]),
-    (False, ["3.0", "2.0", "1.0"]),
-])
-def test_get_project_versions(show_hidden, res, dbapp):
+def test_get_project_versions(dbapp):
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="2.0",
         _pypi_ordering=2,
-        _pypi_hidden=False,
     ))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="1.0",
         _pypi_ordering=1,
-        _pypi_hidden=False,
     ))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="3.0",
         _pypi_ordering=3,
-        _pypi_hidden=False,
     ))
     dbapp.engine.execute(releases.insert().values(
         name="test-project",
         version="4.0",
         _pypi_ordering=4,
-        _pypi_hidden=True,
     ))
 
-    assert dbapp.models.packaging.get_project_versions("test-project",
-        show_hidden) == res
+    assert dbapp.models.packaging.get_project_versions("test-project") == \
+        ["4.0", "3.0", "2.0", "1.0"]
 
 
 def test_get_release(dbapp):

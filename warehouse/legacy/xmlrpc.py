@@ -57,8 +57,11 @@ class Interface(object):
         return self.app.models.packaging.get_top_projects(num)
 
     def package_releases(self, name, show_hidden=False):
-        return self.app.models.packaging.get_project_versions(name,
-            show_hidden)
+        return self.app.models.packaging.get_project_versions(name)
+
+    def updated_releases(self, since):
+        result = self.app.models.packaging.get_releases_since(since)
+        return [(row['name'], row['version']) for row in result]
 
     def release_urls(self, name, version):
         l = []

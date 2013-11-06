@@ -31,6 +31,14 @@ Example usage:
     'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
     'url': 'http://pypi.python.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
 
+Changes to Legacy API
+---------------------
+
+``package_releases`` "show_hidden" flag is now ignored. All versions are
+returned.
+
+
+
 Package Querying
 ----------------
 
@@ -39,9 +47,10 @@ Package Querying
   Returns a list of name strings.
 
 ``package_releases(package_name, show_hidden=False)``
-  Retrieve a list of the releases registered for the given package_name.
-  Returns a list with all version strings if show_hidden is True or only the
-  non-hidden ones otherwise.
+  Retrieve a list of the releases registered for the given package_name,
+  ordered by version.
+
+  The "show_hidden" flag is now ignored. All versions are returned.
 
 ``package_roles(package_name)``
   Retrieve a list of users and their attributes roles for a given package_name.
@@ -134,6 +143,10 @@ Package Querying
 ``top_packages([number])``
   Retrieve the sorted list of packages ranked by number of downloads.
   Optionally limit the list to the number given.
+
+``updated_releases(since)``
+  Retrieve a list of package releases made since the given timestamp. The
+  releases will be listed in descending release date.
 
 
 Mirroring Support
