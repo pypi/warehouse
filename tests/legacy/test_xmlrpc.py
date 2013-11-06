@@ -272,13 +272,14 @@ def test_release_data(monkeypatch):
         description="A Longer Test Project",
         keywords="foo,bar,wat",
         platform="All",
-        download_url=("https://example.com/downloads/"
-                         "test-project-1.0.tar.gz"),
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
         requires_dist=["requests (>=2.0)"],
         provides_dist=["test-project-old"],
         project_url={"Repository": "git://git.example.com/"},
         created=datetime.datetime.utcnow(),
     )
+    # snapshot that info now for comparison later
+    info = dict(resp)
     docs = "https://pythonhosted.org/spam/"
     cfiers = ['Section A :: Subsection B :: Aisle 3', 'Section B']
     app = pretend.stub(
@@ -300,15 +301,15 @@ def test_release_data(monkeypatch):
         pretend.call('spam', '1.0'),
     ]
 
-    info = dict(resp)
-    del info['created']
+    # modify the model response data according to the expected mutation
     info.update(
         package_url='http://pypi.python.org/pypi/spam',
         release_url='http://pypi.python.org/pypi/spam/1.0',
         docs_url=docs,
         downloads=10,
         classifiers=cfiers,
-        created=resp['created']     # Not in the legacy spec but meh, whatever
+        maintainer='',              # converted from None
+        maintainer_email='',        # converted from None
     )
     assert result == info
 
