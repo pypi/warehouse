@@ -77,6 +77,13 @@ ready to commit the changes you can run ``inv static.build`` to generate the
 release files for the design.
 
 
+Search
+------
+
+The search implementation requires Elasticsearch. By default it will assume
+there is one available on port 9200 of localhost.
+
+
 Running the tests
 -----------------
 
