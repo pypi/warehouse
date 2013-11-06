@@ -17,10 +17,6 @@ from __future__ import unicode_literals
 from warehouse.search.indexes import BaseMapping
 
 
-SEARCH_LIMIT = 25
-SEARCH_OFFSET = 0
-
-
 class ProjectMapping(BaseMapping):
 
     _type = "project"
@@ -56,12 +52,11 @@ class ProjectMapping(BaseMapping):
         item['name_keyword'] = item['name'].lower()
         return item
 
-    def search(self, query, limit=None, offset=None):
+    def search(self, query, limit=None, offset=0):
         # TODO: Faceting
         # TODO: Other Features?
 
-        limit = limit or SEARCH_LIMIT
-        offset = offset or SEARCH_OFFSET
+        limit = limit or self.SEARCH_LIMIT
 
         if query:
             query = query.lower()

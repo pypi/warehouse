@@ -89,6 +89,8 @@ class Index(object):
 
 class BaseMapping(object):
 
+    SEARCH_LIMIT = 25
+
     def __init__(self, index):
         self.index = index
 
@@ -111,7 +113,7 @@ class BaseMapping(object):
         # Bulk Index our documents
         bulk_index(
             self.index.es,
-            (
+            [
                 {
                     "_index": _index,
                     "_type": self._type,
@@ -119,7 +121,7 @@ class BaseMapping(object):
                     "_source": self.extract_document(item),
                 }
                 for item in self.get_indexable()
-            ),
+            ],
         )
 
     def search(self, query):

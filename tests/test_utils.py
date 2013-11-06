@@ -21,7 +21,8 @@ import six
 
 from warehouse.utils import (
     AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
-    render_response, cache, get_wsgi_application, get_mimetype, redirect
+    render_response, cache, get_wsgi_application, get_mimetype, redirect,
+    SearchPagination,
 )
 
 
@@ -168,3 +169,52 @@ def test_redirect_unicode():
 def test_fastly_formatter():
     assert FastlyFormatter().format("{0}", "Foo") == "Foo"
     assert FastlyFormatter().format("{0!n}", "Foo") == "foo"
+
+
+class TestSearchPagination:
+
+    def test_pages(self):
+        paginator = SearchPagination(total=100, per_page=10, url=None, page=1)
+        assert paginator.pages == 10
+
+    @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
+        (100, 10, 1, False),
+        (100, 10, 2, True),
+    ])
+    def test_has_prev(self, total, per_page, page, has):
+        paginator = SearchPagination(
+            total=total,
+            per_page=per_page,
+            url=None,
+            page=page,
+        )
+        assert paginator.has_prev == has
+
+    @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
+        (100, 10, 10, False),
+        (100, 10, 9, True),
+    ])
+    def test_has_next(self, total, per_page, page, has):
+        paginator = SearchPagination(
+            total=total,
+            per_page=per_page,
+            url=None,
+            page=page,
+        )
+        assert paginator.has_next == has
+
+    def test_prev_url(self):
+        prev_url = pretend.stub()
+        url = pretend.call_recorder(lambda **kw: prev_url)
+        paginator = SearchPagination(total=100, per_page=10, url=url, page=2)
+
+        assert paginator.prev_url is prev_url
+        assert url.calls == [pretend.call(page=1)]
+
+    def test_next_url(self):
+        next_url = pretend.stub()
+        url = pretend.call_recorder(lambda **kw: next_url)
+        paginator = SearchPagination(total=100, per_page=10, url=url, page=1)
+
+        assert paginator.next_url is next_url
+        assert url.calls == [pretend.call(page=2)]
