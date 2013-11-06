@@ -1,5 +1,6 @@
 include AUTHORS
 include LICENSE
+include CONTRIBUTING.rst
 include tox.ini
 include requirements.txt
 include .coveragerc
