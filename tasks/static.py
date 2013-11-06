@@ -20,11 +20,7 @@ import invoke
 @invoke.task
 def build():
     # Build our CSS files
-    invoke.run(
-        "lessc --relative-urls "
-        "warehouse/static/warehouse/less/warehouse.less "
-        "warehouse/static/warehouse/css/warehouse.css"
-    )
+    invoke.run("compass compile -c compass.rb --force")
 
     # Clean existing directories
     for directory in {"css", "fonts", "js"}:
@@ -32,3 +28,12 @@ def build():
 
     # Run wake to generate our built files
     invoke.run("wake")
+
+
+@invoke.task
+def watch():
+    try:
+        # Watch With Compass
+        invoke.run("compass watch -c compass.rb")
+    except KeyboardInterrupt:
+        pass

@@ -64,17 +64,20 @@ development web server using:
 Developing the Design
 ---------------------
 
-Warehouse uses less and wake to handle it's CSS and static assets. To install
-these globally execute:
+Warehouse uses compass and wake to handle it's CSS and static assets. To
+install these globally execute:
 
 .. code:: bash
 
-    $ npm install -g less wake
+    $ npm install -g wake
+    $ gem install compass
 
-To iterate on the less files you can set the ``theme_debug`` setting to true
-which will use less.js to compile the less files in the browser. When you're
-ready to commit the changes you can run ``inv static.build`` to generate the
-release files for the design.
+To iterate on the scss files you can set the ``theme_debug`` setting to true
+which will cause the theme to directly use the compass generated css file. Then
+you can run either ``compass compile -c compass.rb`` to compile the css files
+after changes, or run ``invoke static.watch`` to watch the files for changes
+automatically. Once the changes are ready to be committed run
+``invoke static.build`` to generate the release artifacts for the design.
 
 
 Running the tests
