@@ -92,6 +92,3 @@ html_static_path = ["_static"]
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "Warehousedoc"
-
-# Enable the new ReadTheDocs theme
-RTD_NEW_THEME = True
