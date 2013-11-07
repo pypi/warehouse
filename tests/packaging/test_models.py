@@ -188,6 +188,114 @@ def test_get_recently_updated(dbapp):
     ]
 
 
+def test_get_releases_since(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+
+    now = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(releases.insert().values(
+        name="foo2", version="1.0",
+        created=now - datetime.timedelta(seconds=10),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo3", version="2.0",
+        created=now - datetime.timedelta(seconds=9),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="1.0",
+        created=now - datetime.timedelta(seconds=4),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo3", version="1.0",
+        created=now - datetime.timedelta(seconds=3),
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="2.0", created=now,
+    ))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_releases_since(since) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "summary": None,
+            "created": now,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=3),
+        },
+        {
+            "name": "foo1",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=4),
+        },
+    ]
+
+
+def test_get_changelog(dbapp):
+    now = datetime.datetime.utcnow()
+
+    def create(name, delta):
+        dbapp.engine.execute(packages.insert().values(name=name))
+        dbapp.engine.execute(journals.insert().values(name=name, version=None,
+            submitted_date=now - delta, action="create", id=create.id))
+        create.id += 1
+    create.id = 1
+    create("foo1", datetime.timedelta(seconds=4))
+    create("foo2", datetime.timedelta(seconds=5))
+    create("foo3", datetime.timedelta(seconds=10))
+
+    def release(name, version, delta):
+        dbapp.engine.execute(releases.insert().values(name=name,
+            version=version, created=now - delta))
+        dbapp.engine.execute(journals.insert().values(id=create.id, name=name,
+            version=version, submitted_date=now - delta, action="new release"))
+        create.id += 1
+    release("foo2", "1.0", datetime.timedelta(seconds=10))
+    release("foo3", "2.0", datetime.timedelta(seconds=9))
+    release("foo1", "1.0", datetime.timedelta(seconds=3))
+    release("foo3", "1.0", datetime.timedelta(seconds=2))
+    release("foo1", "2.0", datetime.timedelta(seconds=1))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_changelog(since) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=1),
+            "id": 8,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=2),
+            "id": 7,
+        },
+        {
+            "name": "foo1",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=3),
+            "id": 6,
+        },
+        {
+            "name": "foo1",
+            "version": None,
+            "action": "create",
+            "submitted_date": now - datetime.timedelta(seconds=4),
+            "id": 1,
+        },
+    ]
+
+
 @pytest.mark.parametrize("projects", [
     ["foo", "bar", "zap"],
     ["fail", "win", "YeS"],
@@ -201,6 +309,28 @@ def test_all_projects(projects, dbapp):
         Project(p) for p in sorted(projects, key=lambda x: x.lower())
     ]
     assert dbapp.models.packaging.all_projects() == all_projects
+
+
+@pytest.mark.parametrize(("num", "result"), [
+    (None, [('three', 10000), ('one', 1110), ('two', 22)]),
+    (2, [('three', 10000), ('one', 1110)]),
+])
+def test_top_projects(num, result, dbapp):
+    # Insert some data into the database
+    files = [
+        ('one', 10, 'one-1.0.zip'),
+        ('one', 100, 'one-1.1.zip'),
+        ('one', 1000, 'one-1.2.zip'),
+        ('two', 2, 'two-1.0.zip'),
+        ('two', 20, 'two-1.2.zip'),
+        ('three', 10000, 'three-1.0.zip'),
+    ]
+    for name, downloads, filename in files:
+        dbapp.engine.execute(release_files.insert().values(name=name,
+            downloads=downloads, filename=filename))
+
+    top = dbapp.models.packaging.get_top_projects(num)
+    assert top == result
 
 
 @pytest.mark.parametrize(("name", "normalized"), [
@@ -461,6 +591,18 @@ def test_get_last_serial(name, serial, dbapp):
     assert dbapp.models.packaging.get_last_serial(name) == serial
 
 
+def test_get_projects_with_serial(dbapp):
+    dbapp.engine.execute(journals.insert().values(id=1, name='one'))
+    dbapp.engine.execute(journals.insert().values(id=2, name='two'))
+    dbapp.engine.execute(journals.insert().values(id=3, name='three'))
+
+    assert dbapp.models.packaging.get_projects_with_serial() == dict(
+        one=1,
+        two=2,
+        three=3
+    )
+
+
 def test_get_project_versions(dbapp):
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(releases.insert().values(
@@ -478,12 +620,14 @@ def test_get_project_versions(dbapp):
         version="3.0",
         _pypi_ordering=3,
     ))
+    dbapp.engine.execute(releases.insert().values(
+        name="test-project",
+        version="4.0",
+        _pypi_ordering=4,
+    ))
 
-    assert dbapp.models.packaging.get_project_versions("test-project") == [
-        "3.0",
-        "2.0",
-        "1.0",
-    ]
+    assert dbapp.models.packaging.get_project_versions("test-project") == \
+        ["4.0", "3.0", "2.0", "1.0"]
 
 
 def test_get_release(dbapp):

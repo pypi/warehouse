@@ -66,11 +66,35 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, num=num)]
 
+    def get_releases_since(self, since):
+        query = \
+            """ SELECT name, version, created, summary
+                FROM releases
+                WHERE created > %(since)s
+                ORDER BY created DESC
+            """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, since=since)]
+
     def all_projects(self):
         query = "SELECT name FROM packages ORDER BY lower(name)"
 
         with self.engine.connect() as conn:
             return [Project(r["name"]) for r in conn.execute(query)]
+
+    def get_top_projects(self, num=None):
+        query = \
+            """ SELECT name, sum(downloads)
+                FROM release_files
+                GROUP BY name
+                ORDER BY sum(downloads) DESC
+            """
+        if num:
+            query += "LIMIT %(limit)s"
+
+        with self.engine.connect() as conn:
+            return [tuple(r) for r in conn.execute(query, limit=num)]
 
     def get_project(self, name):
         query = \
@@ -207,6 +231,13 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return conn.execute(query, name=name).scalar()
+
+    def get_projects_with_serial(self):
+        # return list of dict(name: max id)
+        query = "SELECT name, max(id) FROM journals GROUP BY name"
+
+        with self.engine.connect() as conn:
+            return dict(r for r in conn.execute(query))
 
     def get_project_versions(self, project):
         query = \
@@ -440,3 +471,15 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return conn.execute(query, project=project).scalar()
+
+    #
+    # Mirroring support
+    #
+    def get_changelog(self, since):
+        query = '''SELECT name, version, submitted_date, action, id
+            FROM journals
+            WHERE journals.submitted_date > %(since)s
+            ORDER BY submitted_date DESC
+        '''
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, since=since)]
