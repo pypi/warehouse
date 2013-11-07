@@ -84,7 +84,7 @@ Package Querying
   Returns a dict with keys for:
   - name
   - version
-  - stable_version
+  - stable_version (always an empty string)
   - author
   - author_email
   - maintainer
