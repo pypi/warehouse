@@ -47,8 +47,7 @@ class Interface(object):
         self.request = request
 
     def list_packages(self):
-        projects = self.app.models.packaging.all_projects()
-        return [project.name for project in projects]
+        return self.app.models.packaging.all_projects()
 
     def list_packages_with_serial(self):
         return self.app.models.packaging.get_projects_with_serial()
