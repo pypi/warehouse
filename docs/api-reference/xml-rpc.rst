@@ -37,6 +37,8 @@ Changes to Legacy API
 ``package_releases`` "show_hidden" flag is now ignored. All versions are
 returned.
 
+``release_data`` "stable_version" is always an empty string. It was never
+fully supported anyway.
 
 
 Package Querying
