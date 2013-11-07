@@ -21,15 +21,9 @@ import logging
 
 from collections import namedtuple
 
-from sqlalchemy.sql import and_, select, func
-
 from warehouse import models
-from warehouse.accounts.tables import users, emails
 from warehouse.packaging.tables import ReleaseDependencyKind
-from warehouse.packaging.tables import (
-    packages, releases, release_files, description_urls, journals,
-    classifiers, release_classifiers, release_dependencies, roles
-)
+
 
 log = logging.getLogger(__name__)
 
@@ -41,165 +35,150 @@ FileURL = namedtuple("FileURL", ["filename", "url"])
 class Model(models.Model):
 
     def get_project_count(self):
-        query = select([func.count()]).select_from(packages)
+        query = \
+            """ SELECT COUNT(*)
+                FROM packages
+            """
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
     def get_download_count(self):
-        query = select([func.sum(release_files.c.downloads)])
+        query = \
+            """ SELECT SUM(downloads)
+                FROM release_files
+            """
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
     def get_recently_updated(self, num=10):
-        subquery = (
-            select(
-                [
-                    releases.c.name,
-                    releases.c.version,
-                    releases.c.summary,
-                    releases.c.created,
-                ],
-                distinct=releases.c.name,
-            )
-            .where(
-                # We only consider releases made in the last 7 days, otherwise
-                #   we have to do a Sequence Scan against the entire table
-                #   and it takes 5+ seconds to complete. This shouldn't be a
-                #   big deal as it is highly unlikely we'll have a week without
-                #   at least 10 releases.
-                releases.c.created >= (
-                    datetime.datetime.utcnow() - datetime.timedelta(days=7)
-                )
-            )
-            .order_by(releases.c.name, releases.c.created.desc())
-            .alias("r")
-        )
-
-        query = (
-            select("*")
-            .select_from(subquery)
-            .order_by(subquery.c.created.desc())
-            .limit(num)
-        )
+        # We only consider releases made in the last 7 days, otherwise we have
+        #   to do a Sequence Scan against the entire table and it takes 5+
+        #   seconds to complete. This shouldn't be a big deal as it is highly
+        #   unlikely we'll have a week without at least 10 releases.
+        query = \
+            """ SELECT *
+                FROM (
+                    SELECT DISTINCT ON (name) name, version, summary, created
+                    FROM releases
+                    WHERE created >= now() - interval '7 days'
+                    ORDER BY name, created DESC
+                ) r
+                ORDER BY r.created DESC
+                LIMIT %(num)s
+            """
 
         with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query)]
+            return [dict(r) for r in conn.execute(query, num=num)]
 
     def all_projects(self):
-        query = select([packages.c.name]).order_by(func.lower(packages.c.name))
+        query = \
+            """ SELECT name
+                FROM packages
+                ORDER BY lower(name)
+            """
 
         with self.engine.connect() as conn:
             return [Project(r["name"]) for r in conn.execute(query)]
 
     def get_project(self, name):
-        query = (
-            select([packages.c.name])
-            .where(
-                packages.c.normalized_name == func.lower(
-                    func.regexp_replace(name, "_", "-", "ig"),
+        query = \
+            """ SELECT name
+                FROM packages
+                WHERE normalized_name = lower(
+                    regexp_replace(%(name)s, '_', '-', 'ig')
                 )
-            )
-        )
+            """
 
         with self.engine.connect() as conn:
-            result = conn.execute(query).scalar()
+            result = conn.execute(query, name=name).scalar()
 
             if result is not None:
                 return Project(result)
 
     def get_projects_for_user(self, username):
-        query = """
-            SELECT DISTINCT ON (lower(name)) name, summary
-            FROM (
-                SELECT package_name
-                FROM roles
-                WHERE user_name = %(username)s
-            ) roles
-            INNER JOIN (
-                SELECT name, summary
-                FROM releases
-                ORDER BY _pypi_ordering DESC
-            ) releases
-            ON (releases.name = roles.package_name)
-            ORDER BY lower(name);
-        """
+        query = \
+            """ SELECT DISTINCT ON (lower(name)) name, summary
+                FROM (
+                    SELECT package_name
+                    FROM roles
+                    WHERE user_name = %(username)s
+                ) roles
+                INNER JOIN (
+                    SELECT name, summary
+                    FROM releases
+                    ORDER BY _pypi_ordering DESC
+                ) releases
+                ON (releases.name = roles.package_name)
+                ORDER BY lower(name)
+            """
 
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, username=username)]
 
     def get_users_for_project(self, project):
-        query = (
-            select(
-                [users.c.username, emails.c.email],
-                distinct=users.c.username,
-                from_obj=users.outerjoin(
-                    emails, emails.c.user_id == users.c.id,
-                ),
-            )
-            .where(and_(
-                users.c.username == roles.c.user_name,
-                roles.c.package_name == project,
-            ))
-            .order_by(users.c.username)
-        )
+        query = \
+            """ SELECT DISTINCT ON (u.username) u.username, u.email
+                FROM (
+                    SELECT username, email
+                    FROM accounts_user
+                    LEFT OUTER JOIN accounts_email ON (
+                        accounts_email.user_id = accounts_user.id
+                    )
+                ) u
+                INNER JOIN roles ON (u.username = roles.user_name)
+                WHERE roles.package_name = %(project)s
+            """
 
         with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query)]
+            return [dict(r) for r in conn.execute(query, project=project)]
 
     def get_hosting_mode(self, name):
-        query = (
-            select([packages.c.hosting_mode])
-            .where(packages.c.name == name)
-        )
+        query = \
+            """ SELECT hosting_mode
+                FROM packages
+                WHERE name = %(project)s
+            """
 
         with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            return conn.execute(query, project=name).scalar()
 
     def get_release_urls(self, name):
-        query = (
-            select([
-                releases.c.version,
-                releases.c.home_page,
-                releases.c.download_url,
-            ])
-            .where(releases.c.name == name)
-            .order_by(releases.c.version.desc())
-        )
+        query = \
+            """ SELECT version, home_page, download_url
+                FROM releases
+                WHERE name = %(project)s
+                ORDER BY version DESC
+            """
 
         with self.engine.connect() as conn:
             return {
                 r["version"]: (r["home_page"], r["download_url"])
-                for r in conn.execute(query)
+                for r in conn.execute(query, project=name)
             }
 
     def get_external_urls(self, name):
-        query = (
-            select([description_urls.c.url], distinct=description_urls.c.url)
-            .where(description_urls.c.name == name)
-            .order_by(
-                description_urls.c.url,
-            )
-        )
+        query = \
+            """ SELECT DISTINCT ON (url) url
+                FROM description_urls
+                WHERE name = %(project)s
+                ORDER BY url
+            """
 
         with self.engine.connect() as conn:
-            return [r["url"] for r in conn.execute(query)]
+            return [r["url"] for r in conn.execute(query, project=name)]
 
     def get_file_urls(self, name):
-        query = (
-            select([
-                release_files.c.name,
-                release_files.c.filename,
-                release_files.c.python_version,
-                release_files.c.md5_digest,
-            ])
-            .where(release_files.c.name == name)
-            .order_by(release_files.c.filename.desc())
-        )
+        query = \
+            """ SELECT name, filename, python_version, md5_digest
+                FROM release_files
+                WHERE name = %(project)s
+                ORDER BY filename DESC
+            """
 
         with self.engine.connect() as conn:
-            results = conn.execute(query)
+            results = conn.execute(query, project=name)
 
             return [
                 FileURL(
@@ -219,69 +198,58 @@ class Model(models.Model):
             ]
 
     def get_project_for_filename(self, filename):
-        query = (
-            select([release_files.c.name])
-            .where(release_files.c.filename == filename)
-        )
+        query = \
+            """ SELECT name
+                FROM release_files
+                WHERE filename = %(filename)s
+            """
 
         with self.engine.connect() as conn:
-            return Project(conn.execute(query).scalar())
+            return Project(conn.execute(query, filename=filename).scalar())
 
     def get_filename_md5(self, filename):
-        query = (
-            select([release_files.c.md5_digest])
-            .where(release_files.c.filename == filename)
-        )
+        query = \
+            """ SELECT md5_digest
+                FROM release_files
+                WHERE filename = %(filename)s
+            """
 
         with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            return conn.execute(query, filename=filename).scalar()
 
     def get_last_serial(self, name=None):
-        query = select([func.max(journals.c.id)])
-
         if name is not None:
-            query = query.where(journals.c.name == name)
+            query = "SELECT MAX(id) FROM journals WHERE name = %(name)s"
+        else:
+            query = "SELECT MAX(id) FROM journals"
 
         with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            return conn.execute(query, name=name).scalar()
 
     def get_project_versions(self, project):
-        query = (
-            select([releases.c.version])
-            .where(releases.c.name == project)
-            .order_by(releases.c._pypi_ordering.desc())
-        )
+        query = \
+            """ SELECT version
+                FROM releases
+                WHERE name = %(project)s
+                ORDER BY _pypi_ordering DESC
+            """
 
         with self.engine.connect() as conn:
-            return [r["version"] for r in conn.execute(query)]
+            return [r["version"] for r in conn.execute(query, project=project)]
 
     def get_downloads(self, project, version):
-        query = (
-            select([
-                release_files.c.name,
-                release_files.c.version,
-                release_files.c.python_version,
-                release_files.c.packagetype,
-                release_files.c.comment_text,
-                release_files.c.filename,
-                release_files.c.md5_digest,
-                release_files.c.downloads,
-                release_files.c.upload_time,
-            ])
-            .where(and_(
-                release_files.c.name == project,
-                release_files.c.version == version,
-            ))
-            .order_by(
-                release_files.c.packagetype,
-                release_files.c.python_version,
-                release_files.c.upload_time,
-            )
-        )
+        query = \
+            """ SELECT
+                    name, version, python_version, packagetype, comment_text,
+                    filename, md5_digest, downloads, upload_time
+                FROM release_files
+                WHERE name = %(project)s AND version = %(version)s
+                ORDER BY packagetype, python_version, upload_time
+            """
 
         results = []
         with self.engine.connect() as conn:
-            for r in conn.execute(query):
+            for r in conn.execute(query, project=project, version=version):
                 result = dict(r)
                 result["filepath"] = os.path.join(
                     self.app.config.paths.packages,
@@ -316,55 +284,37 @@ class Model(models.Model):
         return results
 
     def get_release(self, project, version):
-        query = (
-            select([
-                releases.c.name,
-                releases.c.version,
-                releases.c.author,
-                releases.c.author_email,
-                releases.c.maintainer,
-                releases.c.maintainer_email,
-                releases.c.home_page,
-                releases.c.license,
-                releases.c.summary,
-                releases.c.description,
-                releases.c.keywords,
-                releases.c.platform,
-                releases.c.download_url,
-                releases.c.created,
-            ])
-            .where(and_(
-                releases.c.name == project,
-                releases.c.version == version,
-            ))
-            .order_by(releases.c._pypi_ordering.desc())
-            .limit(1)
-        )
+        query = \
+            """ SELECT
+                    name, version, author, author_email, maintainer,
+                    maintainer_email, home_page, license, summary, description,
+                    keywords, platform, download_url, created
+                FROM releases
+                WHERE name = %(project)s AND version = %(version)s
+                ORDER BY _pypi_ordering DESC
+                LIMIT 1
+            """
 
         with self.engine.connect() as conn:
-            result = [dict(r) for r in conn.execute(query)][0]
+            result = [
+                dict(r)
+                for r in conn.execute(query, project=project, version=version)
+            ][0]
 
         # Load dependency information
-        query = (
-            select([
-                release_dependencies.c.name,
-                release_dependencies.c.version,
-                release_dependencies.c.kind,
-                release_dependencies.c.specifier,
-            ])
-            .where(and_(
-                release_dependencies.c.name == project,
-                release_dependencies.c.version == version,
-            ))
-            .order_by(
-                release_dependencies.c.kind,
-                release_dependencies.c.specifier,
-            )
-        )
+        query = \
+            """ SELECT name, version, kind, specifier
+                FROM release_dependencies
+                WHERE name = %(project)s AND version = %(version)s
+                ORDER BY kind, specifier
+            """
 
         dependency_data = {}
         with self.engine.connect() as conn:
-            for dependency in conn.execute(query):
+            for dependency in conn.execute(
+                    query,
+                    project=project,
+                    version=version):
                 kind = ReleaseDependencyKind(dependency["kind"])
 
                 if kind in {
@@ -383,52 +333,30 @@ class Model(models.Model):
 
     def get_releases(self, project):
         # Get the release data
-        query = (
-            select([
-                releases.c.name,
-                releases.c.version,
-                releases.c.author,
-                releases.c.author_email,
-                releases.c.maintainer,
-                releases.c.maintainer_email,
-                releases.c.home_page,
-                releases.c.license,
-                releases.c.summary,
-                releases.c.keywords,
-                releases.c.platform,
-                releases.c.download_url,
-                releases.c.created,
-            ])
-            .where(releases.c.name == project)
-            .order_by(releases.c._pypi_ordering.desc())
-        )
+        query = \
+            """ SELECT
+                    name, version, author, author_email, maintainer,
+                    maintainer_email, home_page, license, summary, keywords,
+                    platform, download_url, created
+                FROM releases
+                WHERE name = %(project)s
+                ORDER BY _pypi_ordering DESC
+            """
 
         with self.engine.connect() as conn:
-            results = [dict(r) for r in conn.execute(query)]
+            results = [dict(r) for r in conn.execute(query, project=project)]
 
         return results
 
     def get_full_latest_releases(self):
-        query = (
-            select([
-                releases.c.name,
-                releases.c.version,
-                releases.c.author,
-                releases.c.author_email,
-                releases.c.maintainer,
-                releases.c.maintainer_email,
-                releases.c.home_page,
-                releases.c.license,
-                releases.c.summary,
-                releases.c.description,
-                releases.c.keywords,
-                releases.c.platform,
-                releases.c.download_url,
-                releases.c.created,
-            ])
-            .distinct(releases.c.name)
-            .order_by(releases.c.name, releases.c._pypi_ordering.desc())
-        )
+        query = \
+            """ SELECT DISTINCT ON (name)
+                    name, version, author, author_email, maintainer,
+                    maintainer_email, home_page, license, summary, description,
+                    keywords, platform, download_url, created
+                FROM releases
+                ORDER BY name, _pypi_ordering DESC
+            """
 
         with self.engine.connect() as conn:
             results = [dict(r) for r in conn.execute(query)]
@@ -497,18 +425,21 @@ class Model(models.Model):
         }
 
     def get_classifiers(self, project, version):
-        query = (
-            select([classifiers.c.classifier])
-            .where(and_(
-                release_classifiers.c.name == project,
-                release_classifiers.c.version == version,
-                release_classifiers.c.trove_id == classifiers.c.id,
-            ))
-            .order_by(classifiers.c.classifier)
-        )
+        query = \
+            """ SELECT classifier
+                FROM release_classifiers
+                INNER JOIN trove_classifiers ON (
+                    release_classifiers.trove_id = trove_classifiers.id
+                )
+                WHERE name = %(project)s AND version = %(version)s
+                ORDER BY classifier
+            """
 
         with self.engine.connect() as conn:
-            return [r["classifier"] for r in conn.execute(query)]
+            return [
+                r["classifier"]
+                for r in conn.execute(query, project=project, version=version)
+            ]
 
     def get_documentation_url(self, project):
         path_parts = [
@@ -523,10 +454,7 @@ class Model(models.Model):
             ) + "/"
 
     def get_bugtrack_url(self, project):
-        query = (
-            select([packages.c.bugtrack_url])
-            .where(packages.c.name == project)
-        )
+        query = "SELECT bugtrack_url FROM packages WHERE name = %(project)s"
 
         with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            return conn.execute(query, project=project).scalar()
