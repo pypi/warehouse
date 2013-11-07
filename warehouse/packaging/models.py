@@ -35,19 +35,13 @@ FileURL = namedtuple("FileURL", ["filename", "url"])
 class Model(models.Model):
 
     def get_project_count(self):
-        query = \
-            """ SELECT COUNT(*)
-                FROM packages
-            """
+        query = "SELECT COUNT(*) FROM packages"
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
 
     def get_download_count(self):
-        query = \
-            """ SELECT SUM(downloads)
-                FROM release_files
-            """
+        query = "SELECT SUM(downloads) FROM release_files"
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
@@ -73,11 +67,7 @@ class Model(models.Model):
             return [dict(r) for r in conn.execute(query, num=num)]
 
     def all_projects(self):
-        query = \
-            """ SELECT name
-                FROM packages
-                ORDER BY lower(name)
-            """
+        query = "SELECT name FROM packages ORDER BY lower(name)"
 
         with self.engine.connect() as conn:
             return [Project(r["name"]) for r in conn.execute(query)]
@@ -135,11 +125,7 @@ class Model(models.Model):
             return [dict(r) for r in conn.execute(query, project=project)]
 
     def get_hosting_mode(self, name):
-        query = \
-            """ SELECT hosting_mode
-                FROM packages
-                WHERE name = %(project)s
-            """
+        query = "SELECT hosting_mode FROM packages WHERE name = %(project)s"
 
         with self.engine.connect() as conn:
             return conn.execute(query, project=name).scalar()
@@ -198,11 +184,7 @@ class Model(models.Model):
             ]
 
     def get_project_for_filename(self, filename):
-        query = \
-            """ SELECT name
-                FROM release_files
-                WHERE filename = %(filename)s
-            """
+        query = "SELECT name FROM release_files WHERE filename = %(filename)s"
 
         with self.engine.connect() as conn:
             return Project(conn.execute(query, filename=filename).scalar())
