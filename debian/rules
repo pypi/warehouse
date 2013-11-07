@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-DH_VIRTUALENV_INSTALL_ROOT=/opt/
+export DH_VIRTUALENV_INSTALL_ROOT=/opt/
 
 %:
 	dh $@ --with python-virtualenv
