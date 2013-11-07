@@ -98,7 +98,10 @@ def _database_url(request):
         poolclass=sqlalchemy.pool.NullPool,
     )
     app = Warehouse.from_yaml(
-        override={"database": {"url": test_database_url}},
+        override={
+            "database": {"url": test_database_url},
+            "search": {"hosts": []},
+        },
         engine=test_engine,
         redis=False,
     )
@@ -157,7 +160,10 @@ def dbapp(database, _database_url):
     from warehouse.application import Warehouse
 
     return Warehouse.from_yaml(
-        override={"database": {"url": _database_url}},
+        override={
+            "database": {"url": _database_url},
+            "search": {"hosts": []},
+        },
         engine=database,
         redis=False,
     )
@@ -175,7 +181,10 @@ def app():
     engine = pretend.stub(connect=connect)
 
     return Warehouse.from_yaml(
-        override={"database": {"url": "postgresql:///nonexistant"}},
+        override={
+            "database": {"url": "postgresql:///nonexistant"},
+            "search": {"hosts": []},
+        },
         engine=engine,
         redis=False,
     )

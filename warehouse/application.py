@@ -33,7 +33,6 @@ import yaml
 
 from raven import Client
 from raven.middleware import Sentry
-from webassets import Environment as AssetsEnvironment
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
@@ -44,6 +43,8 @@ from warehouse import urls
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
+from warehouse.packaging.search import ProjectMapping
+from warehouse.search.indexes import Index
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 
@@ -81,6 +82,10 @@ class Warehouse(object):
                 self.redis,
             )
 
+        # Create our Search Index instance and associate our mappings with it
+        self.search = Index(self.models, self.config.search)
+        self.search.register(ProjectMapping)
+
         # Set up our URL routing
         self.urls = urls.urls
 
@@ -93,7 +98,6 @@ class Warehouse(object):
             auto_reload=self.config.debug,
             extensions=[
                 "jinja2.ext.i18n",
-                "webassets.ext.jinja2.AssetsExtension",
             ],
             loader=jinja2.PackageLoader("warehouse"),
         )
@@ -112,22 +116,6 @@ class Warehouse(object):
         # Install our translations
         self.templates.install_gettext_translations(self.trans, newstyle=True)
 
-        # Setup our web assets environment
-        asset_config = self.config.assets
-        asset_config.setdefault("debug", self.config.debug)
-        asset_config.setdefault("auto_build", self.config.debug)
-
-        self.templates.assets_environment = AssetsEnvironment(**asset_config)
-
-        # Load our static directories
-        static_path = os.path.abspath(
-            os.path.join(os.path.dirname(warehouse.__file__), "static"),
-        )
-        self.templates.assets_environment.append_path(
-            static_path,
-            self.config.assets.url,
-        )
-
         # Add our Powered By Middleware
         self.wsgi_app = PoweredBy(self.wsgi_app, "Warehouse {} ({})".format(
             warehouse.__version__,
@@ -135,23 +123,27 @@ class Warehouse(object):
         ))
 
         # Add our Content Security Policy Middleware
-        self.wsgi_app = guard.ContentSecurityPolicy(
-            self.wsgi_app,
-            self.config.security.csp,
-        )
+        if not self.config.theme_debug:
+            self.wsgi_app = guard.ContentSecurityPolicy(
+                self.wsgi_app,
+                self.config.security.csp,
+            )
 
         if "sentry" in self.config:
             self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
 
-        # Serve the static files if we're in debug
         if self.config.debug:
+            # Serve the static files that are packaged as part of Warehouse
             self.wsgi_app = SharedDataMiddleware(
                 self.wsgi_app,
-                {"/static/": static_path},
-            )
-            self.wsgi_app = SharedDataMiddleware(
-                self.wsgi_app,
-                {"/static/": self.config.assets.directory},
+                {
+                    "/static/": os.path.abspath(
+                        os.path.join(
+                            os.path.dirname(warehouse.__file__),
+                            "static",
+                        ),
+                    ),
+                },
             )
 
         # configure logging

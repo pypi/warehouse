@@ -76,6 +76,7 @@ def render_response(app, request, template, **variables):
     context = {
         "config": app.config,
         "gravatar_url": helpers.gravatar_url,
+        "static_url": functools.partial(helpers.static_url, app),
         "url_for": functools.partial(helpers.url_for, request),
     }
     context.update(variables)
@@ -187,3 +188,32 @@ def fastly(*keys):
             return resp
         return wrapper
     return decorator
+
+
+class SearchPagination(object):
+
+    def __init__(self, page, total, per_page, url):
+        self.page = page
+        self.total = total
+        self.per_page = per_page
+        self.url = url
+
+    @property
+    def pages(self):
+        return max(0, self.total - 1) // self.per_page + 1
+
+    @property
+    def has_prev(self):
+        return self.page > 1
+
+    @property
+    def has_next(self):
+        return self.page < self.pages
+
+    @property
+    def prev_url(self):
+        return self.url(page=self.page - 1)
+
+    @property
+    def next_url(self):
+        return self.url(page=self.page + 1)

@@ -15,7 +15,12 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import hashlib
+import json
+import os.path
 import urllib
+import urlparse
+
+import warehouse.application
 
 
 def url_for(request, endpoint, **values):
@@ -35,3 +40,30 @@ def gravatar_url(email, size=80):
     }
 
     return "?".join([url, urllib.urlencode(params)])
+
+
+def static_url(app, filename):
+    """
+    static_url('css/bootstrap.css')
+    """
+    static_dir = os.path.join(
+        os.path.dirname(os.path.abspath(warehouse.application.__file__)),
+        "static",
+    )
+
+    filepath = os.path.join(static_dir, filename)
+    manifest_path = os.path.join(os.path.dirname(filepath), ".manifest.json")
+
+    if os.path.exists(manifest_path):
+        # Load our on disk manifest
+        with open(manifest_path) as fp:
+            manifest = json.load(fp)
+
+        # Get the base name for this file
+        basename = manifest.get(os.path.basename(filename))
+
+        # If we were able to get a base name, then create a filename with it
+        if basename is not None:
+            filename = os.path.join(os.path.dirname(filename), basename)
+
+    return urlparse.urljoin(app.config.urls.assets, filename)

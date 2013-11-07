@@ -438,13 +438,18 @@ def test_get_users_for_project(dbapp):
     ))
     dbapp.engine.execute(roles.insert().values(
         package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
         user_name="a-test-user",
         role_name="Maintainer",
     ))
 
     assert dbapp.models.packaging.get_users_for_project("test-project") == [
-        {"username": "test-user", "email": None},
         {"username": "a-test-user", "email": None},
+        {"username": "test-user", "email": None},
         {"username": "test-user2", "email": "test@example.com"},
     ]
 
@@ -1002,3 +1007,64 @@ def test_get_download_counts(dbapp):
 
     assert counts == {"last_day": 30, "last_week": 30, "last_month": 30}
     assert len(mget.calls) == 3
+
+
+def test_get_full_latest_releases(dbapp):
+    created = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="1.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=1,
+    ))
+    dbapp.engine.execute(releases.insert().values(
+        created=created,
+        name="test-project",
+        version="2.0",
+        author="John Doe",
+        author_email="john.doe@example.com",
+        maintainer="Jane Doe",
+        maintainer_email="jane.doe@example.com",
+        home_page="https://example.com/",
+        license="Apache License v2.0",
+        summary="A Test Project",
+        description="A Longer Test Project",
+        keywords="foo,bar,wat",
+        platform="All",
+        download_url="https://example.com/downloads/test-project-1.0.tar.gz",
+        _pypi_ordering=2,
+    ))
+
+    assert dbapp.models.packaging.get_full_latest_releases() == [
+        {
+            "created": created,
+            "name": "test-project",
+            "version": "2.0",
+            "author": "John Doe",
+            "author_email": "john.doe@example.com",
+            "maintainer": "Jane Doe",
+            "maintainer_email": "jane.doe@example.com",
+            "home_page": "https://example.com/",
+            "license": "Apache License v2.0",
+            "summary": "A Test Project",
+            "description": "A Longer Test Project",
+            "keywords": "foo,bar,wat",
+            "platform": "All",
+            "download_url": (
+                "https://example.com/downloads/test-project-1.0.tar.gz"
+            ),
+        }
+    ]

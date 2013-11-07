@@ -18,6 +18,7 @@ from werkzeug.routing import Map, Rule
 
 from warehouse.accounts.urls import urls as accounts_urls
 from warehouse.packaging.urls import urls as packaging_urls
+from warehouse.search.urls import urls as search_urls
 from warehouse.legacy.urls import urls as legacy_urls
 
 
@@ -27,7 +28,7 @@ urls = [
 ]
 
 # Extend the URL rules with our other applications
-urls += accounts_urls + packaging_urls + legacy_urls
+urls += accounts_urls + packaging_urls + search_urls + legacy_urls
 
 # Map our urls
 urls = Map(urls)

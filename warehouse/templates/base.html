@@ -8,17 +8,13 @@
 
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ config.site.name }}{% endblock %}</title>
 
-    {% assets output="bootstrap.%(version)s.css", "bootstrap/dist/css/bootstrap.css" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
+    <link rel="stylesheet" href="{{ static_url('css/bootstrap.css') }}">
+    {% if not config.theme_debug %}
+    <link rel="stylesheet" href="{{ static_url('css/warehouse.css') }}">
+    {% else %}
+    <link rel="stylesheet" href="{{ static_url('warehouse/css/warehouse.css') }}">
+    {% endif %}
 
-    {% assets output="warehouse.%(version)s.css",
-              filters="less",
-              "warehouse/sticky-footer.less",
-              "warehouse/pygments.friendly.less",
-              "warehouse/app.less" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}" />
-    {% endassets %}
 
     {% block extra_head %}
     {% endblock %}
@@ -55,12 +51,7 @@
       </div>
     </div>
 
-    {% assets output="jquery.%(version)s.js", "jquery/jquery.js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-
-    {% assets output="bootstrap.%(version)s.js", "bootstrap/dist/js/bootstrap.js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
+    <script src="{{ static_url('js/jquery.js') }}"></script>
+    <script src="{{ static_url('js/bootstrap.js') }}"></script>
   </body>
 </html>

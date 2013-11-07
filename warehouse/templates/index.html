@@ -7,7 +7,7 @@
     <div class="row">
       <div class="col-md-12">
         <h1 class="site-name hidden-xs hidden-sm">{{ config.site.name }}</h1>
-        <form class="search">
+        <form class="search" method="GET" action="{{ url_for('warehouse.search.views.search', doctype='project') }}">
           <div class="input-group">
             <label for="search-bar" class="sr-only">{{ gettext('Search') }}</label>
             <input type="search" class="form-control input-lg" id="search-bar" name="q" placeholder="{{ gettext('Search') }}" autofocus>

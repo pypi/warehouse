@@ -179,6 +179,8 @@ def test_project_detail_invalid_version():
     ),
     (None, ".. code-fail::\n    wat"),
     ("1.0", ".. code-fail::\n    wat"),
+    (None, None),
+    ("1.0", None),
 ])
 def test_project_detail_valid(version, description):
     release = {

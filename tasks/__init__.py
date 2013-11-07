@@ -15,6 +15,7 @@ import invoke
 
 from . import deploy
 from . import release
+from . import static
 
 
-ns = invoke.Collection(deploy, release)
+ns = invoke.Collection(deploy, release, static)

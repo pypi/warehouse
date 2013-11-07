@@ -1,5 +1,6 @@
 include AUTHORS
 include LICENSE
+include CONTRIBUTING.rst
 include tox.ini
 include requirements.txt
 include .coveragerc
@@ -12,10 +13,8 @@ recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
 
-include .bowerrc
-include bower.json
-include warehouse/static/bootstrap/CNAME
-include warehouse/static/bootstrap/LICENSE
+include compass.rb
+include package.json
 
 recursive-include warehouse *.html
 recursive-include warehouse *.mako

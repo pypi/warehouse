@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 import os.path
 
+import guard
 import importlib
 import mock
 import pretend
@@ -32,6 +33,7 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
+        "theme_debug": False,
         "assets": {
             "directory": "static",
             "url": "/static/",
@@ -47,6 +49,9 @@ def test_basic_instantiation():
         },
         "logging": {
             "version": 1,
+        },
+        "search": {
+            "hosts": [],
         },
     })
 
@@ -185,3 +190,34 @@ def test_sentry_middleware(monkeypatch):
     assert Client.calls == [
         pretend.call(dsn="http://public:secret@example.com/1"),
     ]
+
+
+def test_guard_middleware(monkeypatch):
+    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
+
+    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
+
+    Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+    )
+
+    assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
+
+
+def test_guard_middleware_theme_debug(monkeypatch):
+    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
+
+    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
+
+    Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+        override={"theme_debug": True},
+    )
+
+    assert ContentSecurityPolicy.calls == []

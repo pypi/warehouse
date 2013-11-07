@@ -24,7 +24,7 @@ __all__ = [
 
 __title__ = "warehouse"
 __summary__ = "Next Generation Python Package Repository"
-__uri__ = "https://github.com/dstufft/warehouse"
+__uri__ = "https://github.com/pypa/warehouse"
 
 __version__ = "{version}"
 __build__ = "{build}"

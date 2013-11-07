@@ -67,6 +67,7 @@ setup(
     install_requires=[
         "alembic",
         "babel",
+        "elasticsearch",
         "enum34",
         "guard",
         "Jinja2",
@@ -77,7 +78,6 @@ setup(
         "redis",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
-        "webassets",
         "Werkzeug",
     ],
 

@@ -1,0 +1,93 @@
+html, body { height: 100%; /* The html and body elements cannot have any padding or margin. */ }
+
+/* Wrapper for page content to push down footer */
+#wrap { min-height: 100%; height: auto !important; height: 100%; /* Negative indent footer by its height */ margin: 0 auto -60px; /* Pad bottom by footer height */ padding: 0 0 60px; }
+
+/* Set the fixed height of the footer here */
+#footer { height: 60px; }
+
+.project-body { /* Comment */ /* Error */ /* Keyword */ /* Operator */ /* Comment.Multiline */ /* Comment.Preproc */ /* Comment.Single */ /* Comment.Special */ /* Generic.Deleted */ /* Generic.Emph */ /* Generic.Error */ /* Generic.Heading */ /* Generic.Inserted */ /* Generic.Output */ /* Generic.Prompt */ /* Generic.Strong */ /* Generic.Subheading */ /* Generic.Traceback */ /* Keyword.Constant */ /* Keyword.Declaration */ /* Keyword.Namespace */ /* Keyword.Pseudo */ /* Keyword.Reserved */ /* Keyword.Type */ /* Literal.Number */ /* Literal.String */ /* Name.Attribute */ /* Name.Builtin */ /* Name.Class */ /* Name.Constant */ /* Name.Decorator */ /* Name.Entity */ /* Name.Exception */ /* Name.Function */ /* Name.Label */ /* Name.Namespace */ /* Name.Tag */ /* Name.Variable */ /* Operator.Word */ /* Text.Whitespace */ /* Literal.Number.Float */ /* Literal.Number.Hex */ /* Literal.Number.Integer */ /* Literal.Number.Oct */ /* Literal.String.Backtick */ /* Literal.String.Char */ /* Literal.String.Doc */ /* Literal.String.Double */ /* Literal.String.Escape */ /* Literal.String.Heredoc */ /* Literal.String.Interpol */ /* Literal.String.Other */ /* Literal.String.Regex */ /* Literal.String.Single */ /* Literal.String.Symbol */ /* Name.Builtin.Pseudo */ /* Name.Variable.Class */ /* Name.Variable.Global */ /* Name.Variable.Instance */ /* Literal.Number.Integer.Long */ }
+.project-body .hll { background-color: #ffffcc; }
+.project-body .c { color: #60a0b0; font-style: italic; }
+.project-body .err { border: 1px solid red; }
+.project-body .k { color: #007020; font-weight: bold; }
+.project-body .o { color: #666666; }
+.project-body .cm { color: #60a0b0; font-style: italic; }
+.project-body .cp { color: #007020; }
+.project-body .c1 { color: #60a0b0; font-style: italic; }
+.project-body .cs { color: #60a0b0; background-color: #fff0f0; }
+.project-body .gd { color: #a00000; }
+.project-body .ge { font-style: italic; }
+.project-body .gr { color: red; }
+.project-body .gh { color: #000080; font-weight: bold; }
+.project-body .gi { color: #00a000; }
+.project-body .go { color: gray; }
+.project-body .gp { color: #c65d09; font-weight: bold; }
+.project-body .gs { font-weight: bold; }
+.project-body .gu { color: #800080; font-weight: bold; }
+.project-body .gt { color: #0040d0; }
+.project-body .kc { color: #007020; font-weight: bold; }
+.project-body .kd { color: #007020; font-weight: bold; }
+.project-body .kn { color: #007020; font-weight: bold; }
+.project-body .kp { color: #007020; }
+.project-body .kr { color: #007020; font-weight: bold; }
+.project-body .kt { color: #902000; }
+.project-body .m { color: #40a070; }
+.project-body .s { color: #4070a0; }
+.project-body .na { color: #4070a0; }
+.project-body .nb { color: #007020; }
+.project-body .nc { color: #0e84b5; font-weight: bold; }
+.project-body .no { color: #60add5; }
+.project-body .nd { color: #555555; font-weight: bold; }
+.project-body .ni { color: #d55537; font-weight: bold; }
+.project-body .ne { color: #007020; }
+.project-body .nf { color: #06287e; }
+.project-body .nl { color: #002070; font-weight: bold; }
+.project-body .nn { color: #0e84b5; font-weight: bold; }
+.project-body .nt { color: #062873; font-weight: bold; }
+.project-body .nv { color: #bb60d5; }
+.project-body .ow { color: #007020; font-weight: bold; }
+.project-body .w { color: #bbbbbb; }
+.project-body .mf { color: #40a070; }
+.project-body .mh { color: #40a070; }
+.project-body .mi { color: #40a070; }
+.project-body .mo { color: #40a070; }
+.project-body .sb { color: #4070a0; }
+.project-body .sc { color: #4070a0; }
+.project-body .sd { color: #4070a0; font-style: italic; }
+.project-body .s2 { color: #4070a0; }
+.project-body .se { color: #4070a0; font-weight: bold; }
+.project-body .sh { color: #4070a0; }
+.project-body .si { color: #70a0d0; font-style: italic; }
+.project-body .sx { color: #c65d09; }
+.project-body .sr { color: #235388; }
+.project-body .s1 { color: #4070a0; }
+.project-body .ss { color: #517918; }
+.project-body .bp { color: #007020; }
+.project-body .vc { color: #bb60d5; }
+.project-body .vg { color: #bb60d5; }
+.project-body .vi { color: #bb60d5; }
+.project-body .il { color: #40a070; }
+
+#wrap > .container { padding: 60px 15px 0; }
+
+#footer { background-color: #f5f5f5; }
+
+.index-page .site-name { margin: 2em 0 1em 0; font-size: 4em; }
+.index-page .search { margin-bottom: 2em; }
+@media (max-width: 991px) { .index-page .search { margin-top: 2em; } }
+.index-page .projects, .index-page .downloads { font-size: 1.6em; }
+@media (min-width: 992px) { .index-page .updates { margin-top: 4em; } }
+
+.project-header { margin-top: 1em; margin-bottom: 1em; border-bottom: 1px solid #EEEEEE; }
+.project-header header a { color: #333333; text-decoration: none; }
+.project-header header h2 { font-size: 1em; margin-top: 0; }
+.project-header .download-button { margin-top: 2em; }
+
+.project-body { margin-bottom: 6em; }
+.project-body .downloads { margin-top: 4em; }
+.project-body img { max-width: 100%; }
+
+.metadata dl { margin-top: 2em; }
+.metadata dt { margin-top: 0.5em; }
+.metadata .maintainers > li { padding: 4px 2px 2px 0px; }
