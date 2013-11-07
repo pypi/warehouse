@@ -18,7 +18,7 @@
 {% block content %}
   <div class="row">
     <div class="col-md-12">
-      <p>You searched for "{{ query }}". {{ total }} results found.</p>
+      <p>{{ gettext('You searched for "%(query)s". %(total)s results found.', query=query, total=total) }}</p>
       <ul>
         {% for result in results %}
         <li>
@@ -30,8 +30,8 @@
         {% endfor %}
       </ul>
       <p>
-        {% if pages.has_prev %}<a href="{{ pages.prev_url }}">{% endif %}&laquo;&nbsp;Prev{% if pages.has_prev %}</a>{% endif %} |
-        {% if pages.has_next %}<a href="{{ pages.next_url }}">{% endif %}Next&nbsp;&raquo;{% if pages.has_next %}</a>{% endif %}
+        {% if pages.has_prev %}<a href="{{ pages.prev_url }}">{% endif %}{{ gettext('&laquo;&nbsp;Prev') }}{% if pages.has_prev %}</a>{% endif %} |
+        {% if pages.has_next %}<a href="{{ pages.next_url }}">{% endif %}{{ gettext('Next&nbsp;&raquo;') }}{% if pages.has_next %}</a>{% endif %}
     </div>
   </div>
 {% endblock %}
