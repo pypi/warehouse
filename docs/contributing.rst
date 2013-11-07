@@ -43,6 +43,10 @@ it should use
             WHERE foo != 'bar'
         """
 
+Further more you *MUST* use parametrized queries and should use the named
+interpolation format (``%(foo)s``) instead of the positional interpolation
+format (``%s``).
+
 
 Development Environment
 -----------------------
