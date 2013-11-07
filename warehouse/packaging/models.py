@@ -541,3 +541,15 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return conn.execute(query).scalar()
+
+    #
+    # Mirroring support
+    #
+    def get_changelog(self, since):
+        query = '''SELECT name, version, submitted_date, action, id
+            FROM journals
+            WHERE journals.submitted_date > %s
+            ORDER BY submitted_date DESC
+        '''
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, since)]

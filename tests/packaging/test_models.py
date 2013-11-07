@@ -238,6 +238,64 @@ def test_get_releases_since(dbapp):
     ]
 
 
+def test_get_changelog(dbapp):
+    now = datetime.datetime.utcnow()
+
+    def create(name, delta):
+        dbapp.engine.execute(packages.insert().values(name=name))
+        dbapp.engine.execute(journals.insert().values(name=name, version=None,
+            submitted_date=now - delta, action="create", id=create.id))
+        create.id += 1
+    create.id = 1
+    create("foo1", datetime.timedelta(seconds=4))
+    create("foo2", datetime.timedelta(seconds=5))
+    create("foo3", datetime.timedelta(seconds=10))
+
+    def release(name, version, delta):
+        dbapp.engine.execute(releases.insert().values(name=name,
+            version=version, created=now - delta))
+        dbapp.engine.execute(journals.insert().values(id=create.id, name=name,
+            version=version, submitted_date=now - delta, action="new release"))
+        create.id += 1
+    release("foo2", "1.0", datetime.timedelta(seconds=10))
+    release("foo3", "2.0", datetime.timedelta(seconds=9))
+    release("foo1", "1.0", datetime.timedelta(seconds=3))
+    release("foo3", "1.0", datetime.timedelta(seconds=2))
+    release("foo1", "2.0", datetime.timedelta(seconds=1))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_changelog(since) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=1),
+            "id": 8,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=2),
+            "id": 7,
+        },
+        {
+            "name": "foo1",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=3),
+            "id": 6,
+        },
+        {
+            "name": "foo1",
+            "version": None,
+            "action": "create",
+            "submitted_date": now - datetime.timedelta(seconds=4),
+            "id": 1,
+        },
+    ]
+
+
 @pytest.mark.parametrize("projects", [
     ["foo", "bar", "zap"],
     ["fail", "win", "YeS"],

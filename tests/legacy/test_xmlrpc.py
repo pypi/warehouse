@@ -149,7 +149,75 @@ def test_xmlrpc_package_releases():
     ]
 
 
+@pytest.mark.parametrize("with_ids", [False, True])
+def test_xmlrpc_changelog(with_ids):
+    now = datetime.datetime.now()
+    old = datetime.datetime.now() - datetime.timedelta(days=1)
+    now_plus_1 = datetime.datetime.now() + datetime.timedelta(days=1)
+    now_plus_2 = datetime.datetime.now() + datetime.timedelta(days=2)
+    data = [
+        dict(name='one', version='1', submitted_date=now,
+            action='created', id=1),
+        dict(name='two', version='2', submitted_date=now,
+            action='new release', id=2),
+        dict(name='one', version='2', submitted_date=now_plus_1,
+            action='new release', id=3),
+        dict(name='one', version='3', submitted_date=now_plus_2,
+            action='new release', id=4),
+    ]
+    result = [
+        ('one', '1', now, 'created', 1),
+        ('two', '2', now, 'new release', 2),
+        ('one', '2', now_plus_1, 'new release', 3),
+        ('one', '3', now_plus_2, 'new release', 4),
+    ]
+    if not with_ids:
+        result = [r[:4] for r in result]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_changelog=pretend.call_recorder(lambda *a: data),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.changelog(old, with_ids) == result
+
+    assert app.models.packaging.get_changelog.calls == [
+        pretend.call(old)
+    ]
+
+
 def test_xmlrpc_updated_releases():
+    now = datetime.datetime.now()
+
+    result = [
+        dict(name='one', version='1', created=now, summary='text'),
+        dict(name='two', version='2', created=now, summary='text'),
+        dict(name='two', version='3', created=now, summary='text'),
+        dict(name='three', version='4', created=now, summary='text')]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_releases_since=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    old = now = datetime.timedelta(days=1)
+    assert interface.updated_releases(old) == \
+        [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
+
+    assert app.models.packaging.get_releases_since.calls == [
+        pretend.call(old)
+    ]
+
+
+def test_xmlrpc_update_releases():
     now = datetime.datetime.now()
 
     result = [

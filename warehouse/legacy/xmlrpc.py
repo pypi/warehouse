@@ -63,6 +63,13 @@ class Interface(object):
         result = self.app.models.packaging.get_releases_since(since)
         return [(row['name'], row['version']) for row in result]
 
+    def changelog(self, since, with_ids=False):
+        result = self.app.models.packaging.get_changelog(since)
+        keys = 'name version submitted_date action'.split()
+        if with_ids:
+            keys.append('id')
+        return [tuple(row[key] for key in keys) for row in result]
+
     def release_urls(self, name, version):
         l = []
         for r in self.app.models.packaging.get_downloads(name, version):
