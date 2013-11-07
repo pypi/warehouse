@@ -341,7 +341,6 @@ def test_release_data(monkeypatch):
     resp = dict(
         name="spam",
         version="1.0",
-        stable_version="2.0",
         author="John Doe",
         author_email="john.doe@example.com",
         maintainer=None,
@@ -390,6 +389,7 @@ def test_release_data(monkeypatch):
         classifiers=cfiers,
         maintainer='',              # converted from None
         maintainer_email='',        # converted from None
+        stable_version='',          # filled in as no-op
     )
     assert result == info
 

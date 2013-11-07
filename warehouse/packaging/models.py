@@ -299,12 +299,11 @@ class Model(models.Model):
     def get_release(self, project, version):
         query = \
             """ SELECT
-                    r.name, version, stable_version, author, author_email,
-                    maintainer, maintainer_email, home_page, license, summary,
-                    description, keywords, platform, download_url, r.created
-                FROM releases r, packages p
-                WHERE r.name = %(project)s AND version = %(version)s
-                  AND r.name = p.name
+                    name, version, author, author_email, maintainer,
+                    maintainer_email, home_page, license, summary, description,
+                    keywords, platform, download_url, created
+                FROM releases
+                WHERE name = %(project)s AND version = %(version)s
                 ORDER BY _pypi_ordering DESC
                 LIMIT 1
             """

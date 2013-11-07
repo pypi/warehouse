@@ -95,6 +95,7 @@ class Interface(object):
             # package but this should be altered
             return {}
 
+        info['stable_version'] = ''     # legacy; never actually correct
         info['classifiers'] = model.get_classifiers(name, version)
         info['package_url'] = 'http://pypi.python.org/pypi/%s' % name
         info['release_url'] = 'http://pypi.python.org/pypi/%s/%s' % (name,
