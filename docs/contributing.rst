@@ -28,6 +28,22 @@ Additionally, every Python code file must contain
     from __future__ import unicode_literals
 
 
+SQL
+---
+
+SQL statements should use uppercase statement names and lowercase names for
+tables, columns, etc. If a SQL statement must be split over multiple lines
+it should use
+
+.. code-block:: python
+
+    query = \
+        """ SELECT *
+            FROM table_name
+            WHERE foo != 'bar'
+        """
+
+
 Development Environment
 -----------------------
 
