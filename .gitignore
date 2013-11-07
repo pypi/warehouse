@@ -13,6 +13,7 @@ sdist
 develop-eggs
 .installed.cfg
 node_modules
+htmlcov
 
 # Documentation build directory
 docs/_build
