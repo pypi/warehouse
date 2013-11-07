@@ -2,7 +2,7 @@
 PyPI's XML-RPC methods
 ======================
 
-Example usage:
+Example usage::
 
   >>> import xmlrpclib
   >>> import pprint
