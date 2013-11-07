@@ -30,7 +30,10 @@ class Index(object):
     def __init__(self, models, config):
         self.models = models
         self.config = config
-        self.es = Elasticsearch(hosts=self.config.hosts)
+        self.es = Elasticsearch(
+            hosts=self.config.hosts,
+            **self.config.get("client_options", {})
+        )
 
         self.types = AttributeDict()
 
