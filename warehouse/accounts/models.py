@@ -14,35 +14,24 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from sqlalchemy.sql import select, and_
-
 from warehouse import models
-from warehouse.accounts.tables import users, emails
 
 
 class Model(models.Model):
 
     def get_user(self, name):
-        query = (
-            select(
-                [
-                    users.c.username,
-                    users.c.name,
-                    users.c.date_joined,
-                    emails.c.email,
-                ],
-                from_obj=users.outerjoin(
-                    emails, emails.c.user_id == users.c.id,
-                ),
-            )
-            .where(and_(
-                users.c.username == name,
-            ))
-            .limit(1)
-        )
+        query = \
+            """ SELECT username, name, date_joined, email
+                FROM accounts_user
+                LEFT OUTER JOIN accounts_email ON (
+                    accounts_email.user_id = accounts_user.id
+                )
+                WHERE username = %(username)s
+                LIMIT 1
+            """
 
         with self.engine.connect() as conn:
-            result = conn.execute(query).first()
+            result = conn.execute(query, username=name).first()
 
             if result is not None:
                 result = dict(result)
