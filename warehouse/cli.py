@@ -18,6 +18,7 @@ import werkzeug.serving
 
 import warehouse
 import warehouse.migrations.cli
+import warehouse.search.cli
 
 from warehouse.serving import WSGIRequestHandler
 
@@ -62,5 +63,6 @@ class ServeCommand:
 
 __commands__ = {
     "migrate": warehouse.migrations.cli.__commands__,
+    "search": warehouse.search.cli.__commands__,
     "serve": ServeCommand(),
 }
