@@ -15,18 +15,18 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}{{ project.name }}{% endblock %}
+{% block title %}{{ project }}{% endblock %}
 
 {% block extra_head %}
-  <link rel="canonical" href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=release.version, _force_external=True) }}">
+  <link rel="canonical" href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project, version=release.version, _force_external=True) }}">
 {% endblock %}
 
 {% block content %}
   <div class="row project-header">
     <header class="col-md-9">
       <h1>
-        <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name) }}">
-          {{ project.name }}
+        <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project) }}">
+          {{ project }}
         </a>
         <small>{{ release.version }}</small>
       </h1>
@@ -54,7 +54,7 @@
       {% if release.version != releases[0].version %}
         <div class="alert alert-warning">
           {% set latest_version = releases[0].version %}
-          {% set latest_url = url_for('warehouse.packaging.views.project_detail', project_name=project.name) %}
+          {% set latest_url = url_for('warehouse.packaging.views.project_detail', project_name=project) %}
           {% set latest_link = '<a href="%(url)s">%(version)s</a>'|format(url=latest_url, version=latest_version)|safe %}
 
           {{ gettext('The latest version of this package is %(latest)s', latest=latest_link) }}
@@ -232,7 +232,7 @@
             <ul class="list-unstyled">
               {% for r in releases[:5] %}
                 <li>
-                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project, version=r.version) }}">{{ r.version }}</a>
                   <span class="text-muted">{{ r.created|format_date() }}</span>
                 </li>
               {% endfor %}
@@ -280,7 +280,7 @@
   {% endfor %}
 
   {% if releases|count() > 5 %}
-    <div class="modal fade" id="all-versions" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(project)s versions', project=project.name) }}" aria-hidden="true">
+    <div class="modal fade" id="all-versions" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(project)s versions', project=project) }}" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -291,7 +291,7 @@
             <ul class="list-unstyled">
               {% for r in releases %}
                 <li>
-                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project.name, version=r.version) }}">{{ r.version }}</a>
+                  <a href="{{ url_for('warehouse.packaging.views.project_detail', project_name=project, version=r.version) }}">{{ r.version }}</a>
                   <span class="text-muted">{{ r.created|format_date() }}</span>
                 </li>
               {% endfor %}

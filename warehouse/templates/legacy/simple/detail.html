@@ -15,10 +15,10 @@
 -#}
 {% extends "legacy/simple/base.html" %}
 
-{% block title %}Links for {{ project.name }}{% endblock %}
+{% block title %}Links for {{ project }}{% endblock %}
 
 {% block content %}
-  <h1>Links for {{ project.name }}</h1>
+  <h1>Links for {{ project }}</h1>
 
   {% for file in files -%}
     <a rel="internal" href="{{ file.url }}">{{ file.filename }}</a>

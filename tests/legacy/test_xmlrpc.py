@@ -21,7 +21,6 @@ import pytest
 
 from werkzeug.exceptions import BadRequest
 
-from warehouse.packaging.models import Project
 from warehouse.legacy import xmlrpc
 
 
@@ -83,7 +82,7 @@ def test_xmlrpc_handler_size_limit(monkeypatch):
 
 
 def test_xmlrpc_list_packages():
-    all_projects = [Project("bar"), Project("foo")]
+    all_projects = ["bar", "foo"]
 
     app = pretend.stub(
         models=pretend.stub(

@@ -23,7 +23,6 @@ from werkzeug.datastructures import Headers
 from werkzeug.exceptions import NotFound
 from werkzeug.test import create_environ
 
-from warehouse.packaging.models import Project
 from warehouse.legacy import simple
 
 
@@ -32,7 +31,7 @@ def test_index(monkeypatch):
     render = pretend.call_recorder(lambda *a, **k: response)
     monkeypatch.setattr(simple, "render_response", render)
 
-    all_projects = [Project("bar"), Project("foo")]
+    all_projects = ["bar", "foo"]
 
     app = pretend.stub(
         config=pretend.stub(
@@ -100,15 +99,13 @@ def test_project(project_name, hosting_mode, release_urls,
     monkeypatch.setattr(simple, "render_response", render)
     monkeypatch.setattr(simple, "url_for", url_for)
 
-    project = Project(project_name)
-
     app = pretend.stub(
         config=pretend.stub(
             cache=pretend.stub(browser=False, varnish=False),
         ),
         models=pretend.stub(
             packaging=pretend.stub(
-                get_project=pretend.call_recorder(lambda p: project),
+                get_project=pretend.call_recorder(lambda p: project_name),
                 get_file_urls=pretend.call_recorder(lambda p: []),
                 get_hosting_mode=pretend.call_recorder(
                     lambda p: hosting_mode,
@@ -131,7 +128,7 @@ def test_project(project_name, hosting_mode, release_urls,
     assert render.calls == [
         pretend.call(
             app, request, "legacy/simple/detail.html",
-            project=project,
+            project=project_name,
             project_urls=e_project_urls,
             files=[],
             external_urls=[],
@@ -199,7 +196,7 @@ def test_package(serial, md5_hash, monkeypatch):
     monkeypatch.setattr(os.path, "getmtime", mtime)
     monkeypatch.setattr(os.path, "getsize", getsize)
 
-    gpff = pretend.call_recorder(lambda p: Project("test"))
+    gpff = pretend.call_recorder(lambda p: "test")
     get_md5 = pretend.call_recorder(
         lambda p: md5_hash
     )
