@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 import re
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 
+import arrow
 from werkzeug.exceptions import BadRequest
 
 from warehouse.http import Response
@@ -60,10 +61,12 @@ class Interface(object):
         return self.app.models.packaging.get_project_versions(name)
 
     def updated_releases(self, since):
+        since = arrow.get(since).datetime
         result = self.app.models.packaging.get_releases_since(since)
         return [(row['name'], row['version']) for row in result]
 
     def changelog(self, since, with_ids=False):
+        since = arrow.get(since).datetime
         result = self.app.models.packaging.get_changelog(since)
         keys = 'name version submitted_date action'.split()
         if with_ids:

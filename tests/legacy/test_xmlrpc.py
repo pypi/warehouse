@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+import arrow
 import pretend
 import pytest
 
@@ -183,8 +184,10 @@ def test_xmlrpc_changelog(with_ids):
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    assert interface.changelog(old, with_ids) == result
+    old_timestamp = arrow.get(old).timestamp
+    assert interface.changelog(old_timestamp, with_ids) == result
 
+    old = arrow.get(old_timestamp).datetime
     assert app.models.packaging.get_changelog.calls == [
         pretend.call(old)
     ]
@@ -208,12 +211,12 @@ def test_xmlrpc_updated_releases():
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    old = now = datetime.timedelta(days=1)
-    assert interface.updated_releases(old) == \
+    old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
+    assert interface.updated_releases(old_timestamp) == \
         [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
 
     assert app.models.packaging.get_releases_since.calls == [
-        pretend.call(old)
+        pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
 
@@ -235,12 +238,12 @@ def test_xmlrpc_update_releases():
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    old = now = datetime.timedelta(days=1)
-    assert interface.updated_releases(old) == \
+    old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
+    assert interface.updated_releases(old_timestamp) == \
         [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
 
     assert app.models.packaging.get_releases_since.calls == [
-        pretend.call(old)
+        pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
 
