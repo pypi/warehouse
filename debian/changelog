@@ -1,0 +1,5 @@
+warehouse (13.11.2-1) precise; urgency=low
+
+  * Initial debian package creation
+
+ -- Donald Stufft <donald@stufft.io>  Thu, 07 Nov 2013 17:15:00 +0000

@@ -1,8 +1,9 @@
 include AUTHORS
 include LICENSE
+include README.rst
 include CONTRIBUTING.rst
 include tox.ini
-include requirements.txt
+include dev-requirements.txt
 include .coveragerc
 
 recursive-include dev *.yml
@@ -25,3 +26,5 @@ graft warehouse/static
 
 recursive-include tests *.py
 recursive-include tests *.yml
+
+graft debian

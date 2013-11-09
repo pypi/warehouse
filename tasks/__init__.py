@@ -13,9 +13,8 @@
 # limitations under the License.
 import invoke
 
-from . import deploy
 from . import release
 from . import static
 
 
-ns = invoke.Collection(deploy, release, static)
+ns = invoke.Collection(release, static)
