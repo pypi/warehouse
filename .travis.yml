@@ -3,6 +3,7 @@ python: 2.7
 env:
     global:
         - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse
+        - secure: "gf4gNhmaicVY8/6OTZZcc8TCtIpZO58M0N+vAdT/KmsMBOxZY6PakuMQV8DmDfWskSImQQXdaLGE+Um5KanXsPvE4MyaZ7VpRTd7xJ646uoNdFcmMPKasdR8xz+k5ioTbZ4i2iSxgXhMixaEt1aiT7JsaKHhAmOSVltAp4IW8Bg="
     matrix:
         - TOXENV=py27
         - TOXENV=pypy
@@ -38,6 +39,9 @@ before_script:
 
 script:
     - tox
+
+after_success:
+    - "if [[ $TRAVIS_BRANCH == 'master' ]]; then curl $WAREHOUSE_DEPLOY_URL > /dev/null 2>&1; fi"
 
 branches:
     only:
