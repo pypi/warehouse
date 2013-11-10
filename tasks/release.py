@@ -47,7 +47,8 @@ def version():
     # Commit our new version and tag it
     invoke.run("git add warehouse/__about__.py", hide="out")
     invoke.run(
-        "git commit -m 'Generate the release (version={} build={})'".format(
+        "git commit -m 'Generate the release (version={} build={}) "
+        "[ci skip]'".format(
             version,
             build_tag,
         ),
@@ -140,7 +141,10 @@ def development():
     # Commit our new version and tag it
     invoke.run("git add warehouse/__about__.py", hide="out")
     invoke.run(
-        "git commit -m 'Restart development'".format(version, build_tag),
+        "git commit -m 'Restart development [ci skip]'".format(
+            version,
+            build_tag,
+        ),
         hide="out",
     )
 
