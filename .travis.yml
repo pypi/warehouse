@@ -41,7 +41,7 @@ script:
     - tox
 
 after_success:
-    - "if [[ $TRAVIS_BRANCH == 'master' ]]; then curl $WAREHOUSE_DEPLOY_URL > /dev/null 2>&1; fi"
+    - "if [[ $TRAVIS_BRANCH == 'master' ]] && [[ $TOXENV == 'pypy' ]]; then curl $WAREHOUSE_DEPLOY_URL > /dev/null 2>&1; fi"
 
 branches:
     only:
