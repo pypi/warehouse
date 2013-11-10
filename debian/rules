@@ -8,4 +8,4 @@ export DH_VIRTUALENV_INSTALL_ROOT=/opt/
 override_dh_virtualenv:
 	dh_virtualenv --python pypy
 	# This is a hack to cause psycopg2cffi to compile
-	opt/warehouse/bin/python -c "import warehouse"
+	debian/warehouse/opt/warehouse/bin/python -c "import warehouse"
