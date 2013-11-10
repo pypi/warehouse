@@ -20,7 +20,7 @@ the Warehouse servers. The process is:
 3. Jenkins will generate a new Python source distribution and Wheel of the
    latest release.
 4. Jenkins will generate a new Debian package of the latest version, bundling
-   Warehouse and all if it's dependencies into a single virtual environment
+   Warehouse and all if its dependencies into a single virtual environment
    which, when installed, will end up in ``/opt/warehouse``.
 5. If generating both the Python packages and the Debian package was successful
    then Jenkins will publish the Python packages to PyPI, the Debian packages
@@ -33,7 +33,7 @@ Environment
 -----------
 
 Warehouse is deployed on Ubuntu 12.04 with the PyPy interpreter. It uses
-PostgreSQL as it's database and Elasticsearch for it's search implementation.
+PostgreSQL as its database and Elasticsearch for its search implementation.
 
 
 Debian Packages and Virtual Environments
@@ -44,7 +44,7 @@ application servers. This allows us to easily generate a build artifact and
 then deploy that built artifact to the application server.
 
 Using a modified `dh-virtualenv`_ the build process for the Debian package
-creates a new virtual environment, installs Warehouse and all of it's
+creates a new virtual environment, installs Warehouse and all of its
 dependencies into that virtual environment, and then packages the resulting
 environment into a single debian package.
 
