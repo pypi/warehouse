@@ -336,6 +336,10 @@ def test_release_urls(pgp, monkeypatch):
 
 
 def test_release_data(monkeypatch):
+    # arrow conversion is messy, make sure we are comparing the same thing
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
+
     resp = dict(
         name="spam",
         version="1.0",
@@ -353,7 +357,7 @@ def test_release_data(monkeypatch):
         requires_dist=["requests (>=2.0)"],
         provides_dist=["test-project-old"],
         project_url={"Repository": "git://git.example.com/"},
-        created=datetime.datetime.utcnow(),
+        created=now,
     )
     # snapshot that info now for comparison later
     info = dict(resp)
@@ -388,6 +392,7 @@ def test_release_data(monkeypatch):
         maintainer='',              # converted from None
         maintainer_email='',        # converted from None
         stable_version='',          # filled in as no-op
+        created=now_timestamp,
     )
     assert result == info
 

@@ -110,6 +110,9 @@ class Interface(object):
         info['docs_url'] = model.get_documentation_url(name)
         info['downloads'] = model.get_download_counts(name)
 
+        # XML-RPC has no datetime; work only with UNIX timestamps
+        info['created'] = arrow.get(info['created']).timestamp
+
         # make the data XML-RPC-happy (no explicit null allowed here!)
         for k in info:
             if info[k] is None:
