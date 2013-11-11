@@ -238,6 +238,29 @@ def test_get_releases_since(dbapp):
     ]
 
 
+def test_get_changed_since(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+
+    now = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(journals.insert().values(
+        name="foo2", submitted_date=now - datetime.timedelta(seconds=10),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo1", submitted_date=now - datetime.timedelta(seconds=4),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo3", submitted_date=now - datetime.timedelta(seconds=3),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo1", submitted_date=now, ))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_changed_since(since) == ["foo1", "foo3"]
+
+
 def test_get_changelog(dbapp):
     now = datetime.datetime.utcnow()
 

@@ -77,6 +77,17 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
 
+    def get_changed_since(self, since):
+        query = \
+            """SELECT name, max(submitted_date) FROM journals
+               WHERE submitted_date > %(since)s
+               GROUP BY name
+               ORDER BY max(submitted_date) DESC
+            """
+
+        with self.engine.connect() as conn:
+            return [r[0] for r in conn.execute(query, since=since)]
+
     def all_projects(self):
         query = "SELECT name FROM packages ORDER BY lower(name)"
 

@@ -65,6 +65,10 @@ class Interface(object):
         result = self.app.models.packaging.get_releases_since(since)
         return [(row['name'], row['version']) for row in result]
 
+    def changed_packages(self, since):
+        since = arrow.get(since).datetime
+        return self.app.models.packaging.get_changed_since(since)
+
     def changelog(self, since, with_ids=False):
         since = arrow.get(since).datetime
         result = self.app.models.packaging.get_changelog(since)

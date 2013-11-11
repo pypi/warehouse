@@ -150,6 +150,11 @@ Package Querying
   Retrieve a list of package releases made since the given timestamp. The
   releases will be listed in descending release date.
 
+``changed_packages(since)``
+  Retrieve a list of package names where those packages have been changed
+  since the given timestamp. The packages will be listed in descending date
+  of most recent change.
+
 
 Mirroring Support
 -----------------

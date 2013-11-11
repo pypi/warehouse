@@ -220,18 +220,14 @@ def test_xmlrpc_updated_releases():
     ]
 
 
-def test_xmlrpc_update_releases():
+def test_xmlrpc_changed_packages():
     now = datetime.datetime.now()
 
-    result = [
-        dict(name='one', version='1', created=now, summary='text'),
-        dict(name='two', version='2', created=now, summary='text'),
-        dict(name='two', version='3', created=now, summary='text'),
-        dict(name='three', version='4', created=now, summary='text')]
+    result = ['one', 'two', 'three']
     app = pretend.stub(
         models=pretend.stub(
             packaging=pretend.stub(
-                get_releases_since=pretend.call_recorder(lambda *a: result),
+                get_changed_since=pretend.call_recorder(lambda *a: result),
             ),
         ),
     )
@@ -239,10 +235,9 @@ def test_xmlrpc_update_releases():
     interface = xmlrpc.Interface(app, pretend.stub())
 
     old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
-    assert interface.updated_releases(old_timestamp) == \
-        [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
+    assert interface.changed_packages(old_timestamp) == result
 
-    assert app.models.packaging.get_releases_since.calls == [
+    assert app.models.packaging.get_changed_since.calls == [
         pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
