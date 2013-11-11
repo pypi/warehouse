@@ -152,10 +152,13 @@ def test_xmlrpc_package_releases():
 
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
-    now = datetime.datetime.now()
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
     old = datetime.datetime.now() - datetime.timedelta(days=1)
-    now_plus_1 = datetime.datetime.now() + datetime.timedelta(days=1)
-    now_plus_2 = datetime.datetime.now() + datetime.timedelta(days=2)
+    old_timestamp = arrow.get(old).timestamp
+    old = arrow.get(old_timestamp).datetime
+    now_plus_1 = now + datetime.timedelta(days=1)
+    now_plus_2 = now + datetime.timedelta(days=2)
     data = [
         dict(name='one', version='1', submitted_date=now,
             action='created', id=1),
@@ -167,10 +170,10 @@ def test_xmlrpc_changelog(with_ids):
             action='new release', id=4),
     ]
     result = [
-        ('one', '1', now, 'created', 1),
-        ('two', '2', now, 'new release', 2),
-        ('one', '2', now_plus_1, 'new release', 3),
-        ('one', '3', now_plus_2, 'new release', 4),
+        ('one', '1', arrow.get(now).timestamp, 'created', 1),
+        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
+        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
+        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
     ]
     if not with_ids:
         result = [r[:4] for r in result]
@@ -194,9 +197,10 @@ def test_xmlrpc_changelog(with_ids):
 
 
 def test_xmlrpc_changelog_serial():
-    now = datetime.datetime.now()
-    now_plus_1 = datetime.datetime.now() + datetime.timedelta(days=1)
-    now_plus_2 = datetime.datetime.now() + datetime.timedelta(days=2)
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
+    now_plus_1 = now + datetime.timedelta(days=1)
+    now_plus_2 = now + datetime.timedelta(days=2)
     data = [
         dict(name='one', version='1', submitted_date=now,
             action='created', id=1),
@@ -208,10 +212,10 @@ def test_xmlrpc_changelog_serial():
             action='new release', id=4),
     ]
     result = [
-        ('one', '1', now, 'created', 1),
-        ('two', '2', now, 'new release', 2),
-        ('one', '2', now_plus_1, 'new release', 3),
-        ('one', '3', now_plus_2, 'new release', 4),
+        ('one', '1', arrow.get(now).timestamp, 'created', 1),
+        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
+        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
+        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
     ]
     app = pretend.stub(
         models=pretend.stub(

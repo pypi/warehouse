@@ -75,12 +75,20 @@ class Interface(object):
         keys = 'name version submitted_date action'.split()
         if with_ids:
             keys.append('id')
-        return [tuple(row[key] for key in keys) for row in result]
+        mapped = []
+        for row in result:
+            row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
+            mapped.append(tuple(row[key] for key in keys))
+        return mapped
 
     def changelog_since_serial(self, since):
         result = self.app.models.packaging.get_changelog_serial(since)
         keys = 'name version submitted_date action id'.split()
-        return [tuple(row[key] for key in keys) for row in result]
+        mapped = []
+        for row in result:
+            row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
+            mapped.append(tuple(row[key] for key in keys))
+        return mapped
 
     def release_urls(self, name, version):
         l = []
