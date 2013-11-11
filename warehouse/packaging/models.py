@@ -494,3 +494,12 @@ class Model(models.Model):
         '''
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
+
+    def get_changelog_serial(self, since):
+        query = '''SELECT name, version, submitted_date, action, id
+            FROM journals
+            WHERE journals.id > %(since)s
+            ORDER BY submitted_date DESC
+        '''
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, since=since)]

@@ -193,6 +193,43 @@ def test_xmlrpc_changelog(with_ids):
     ]
 
 
+def test_xmlrpc_changelog_serial():
+    now = datetime.datetime.now()
+    now_plus_1 = datetime.datetime.now() + datetime.timedelta(days=1)
+    now_plus_2 = datetime.datetime.now() + datetime.timedelta(days=2)
+    data = [
+        dict(name='one', version='1', submitted_date=now,
+            action='created', id=1),
+        dict(name='two', version='2', submitted_date=now,
+            action='new release', id=2),
+        dict(name='one', version='2', submitted_date=now_plus_1,
+            action='new release', id=3),
+        dict(name='one', version='3', submitted_date=now_plus_2,
+            action='new release', id=4),
+    ]
+    result = [
+        ('one', '1', now, 'created', 1),
+        ('two', '2', now, 'new release', 2),
+        ('one', '2', now_plus_1, 'new release', 3),
+        ('one', '3', now_plus_2, 'new release', 4),
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_changelog_serial=pretend.call_recorder(lambda *a: data),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.changelog_since_serial(1) == result
+
+    assert app.models.packaging.get_changelog_serial.calls == [
+        pretend.call(1)
+    ]
+
+
 def test_xmlrpc_updated_releases():
     now = datetime.datetime.now()
 

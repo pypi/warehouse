@@ -77,6 +77,11 @@ class Interface(object):
             keys.append('id')
         return [tuple(row[key] for key in keys) for row in result]
 
+    def changelog_since_serial(self, since):
+        result = self.app.models.packaging.get_changelog_serial(since)
+        keys = 'name version submitted_date action id'.split()
+        return [tuple(row[key] for key in keys) for row in result]
+
     def release_urls(self, name, version):
         l = []
         for r in self.app.models.packaging.get_downloads(name, version):
