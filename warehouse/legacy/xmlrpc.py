@@ -68,6 +68,9 @@ class Interface(object):
         result = self.app.models.packaging.get_roles_for_project(name)
         return [(r['user_name'], r['role_name']) for r in result]
 
+    def package_hosting_mode(self, name):
+        return self.app.models.packaging.get_hosting_mode(name)
+
     def updated_releases(self, since):
         since = arrow.get(since).datetime
         result = self.app.models.packaging.get_releases_since(since)

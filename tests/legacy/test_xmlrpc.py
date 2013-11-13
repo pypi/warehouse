@@ -198,6 +198,24 @@ def test_xmlrpc_user_packages():
     ]
 
 
+def test_xmlrpc_package_hosting_mode():
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_hosting_mode=pretend.call_recorder(lambda *a: 'yes!'),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.package_hosting_mode('name') == 'yes!'
+
+    assert app.models.packaging.get_hosting_mode.calls == [
+        pretend.call('name')
+    ]
+
+
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
     now_timestamp = arrow.now().timestamp
