@@ -62,7 +62,6 @@ class Interface(object):
 
     def package_roles(self, name):
         result = self.app.models.packaging.get_roles_for_project(name)
-        print (result)
         return [(r['user_name'], r['role_name']) for r in result]
 
     def updated_releases(self, since):
