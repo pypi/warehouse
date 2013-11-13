@@ -57,6 +57,10 @@ class Interface(object):
     def top_packages(self, num=None):
         return self.app.models.packaging.get_top_projects(num)
 
+    def user_packages(self, user):
+        result = self.app.models.packaging.get_roles_for_user(user)
+        return [(r['package_name'], r['role_name']) for r in result]
+
     def package_releases(self, name, show_hidden=False):
         return self.app.models.packaging.get_project_versions(name)
 

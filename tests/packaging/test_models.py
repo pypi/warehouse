@@ -566,12 +566,6 @@ def test_get_roles_for_project(dbapp):
         is_superuser=False,
         is_staff=False,
     ))
-    dbapp.engine.execute(emails.insert().values(
-        user_id=3,
-        email="test@example.com",
-        primary=True,
-        verified=True,
-    ))
     dbapp.engine.execute(packages.insert().values(name="test-project"))
     dbapp.engine.execute(roles.insert().values(
         package_name="test-project",
@@ -593,6 +587,58 @@ def test_get_roles_for_project(dbapp):
         {"user_name": "a-test-user", "role_name": 'Maintainer'},
         {"user_name": "test-user", "role_name": 'Maintainer'},
         {"user_name": "test-user", "role_name": "Owner"},
+    ]
+
+
+def test_get_roles_for_user(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=2,
+        password="!",
+        username="a-test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(packages.insert().values(name="test-project2"))
+    dbapp.engine.execute(packages.insert().values(name="test-project3"))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Owner",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project2",
+        user_name="a-test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project2",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+
+    assert dbapp.models.packaging.get_roles_for_user("test-user") == [
+        {"package_name": "test-project", "role_name": 'Maintainer'},
+        {"package_name": "test-project", "role_name": "Owner"},
+        {"package_name": "test-project2", "role_name": 'Maintainer'},
     ]
 
 
