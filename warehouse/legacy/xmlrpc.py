@@ -120,6 +120,10 @@ class Interface(object):
             ))
         return l
 
+    def release_downloads(self, name, version):
+        results = self.app.models.packaging.get_downloads(name, version)
+        return [(r['filename'], r['downloads']) for r in results]
+
     def release_data(self, name, version):
         model = self.app.models.packaging
         try:

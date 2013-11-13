@@ -216,6 +216,30 @@ def test_xmlrpc_package_hosting_mode():
     ]
 
 
+def test_xmlrpc_release_downloads():
+    results = [
+        dict(filename='one', downloads=1),
+        dict(filename='two', downloads=2),
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_downloads=pretend.call_recorder(lambda *a: results),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.release_downloads('name', '1.0') == [
+        ('one', 1), ('two', 2)
+    ]
+
+    assert app.models.packaging.get_downloads.calls == [
+        pretend.call('name', '1.0')
+    ]
+
+
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
     now_timestamp = arrow.now().timestamp
