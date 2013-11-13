@@ -196,6 +196,24 @@ def test_xmlrpc_changelog(with_ids):
     ]
 
 
+def test_xmlrpc_changelog_last_serial():
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_last_changelog_serial=pretend.call_recorder(lambda *a: 2),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.changelog_last_serial() == 2
+
+    assert app.models.packaging.get_last_changelog_serial.calls == [
+        pretend.call()
+    ]
+
+
 def test_xmlrpc_changelog_serial():
     now_timestamp = arrow.now().timestamp
     now = arrow.get(now_timestamp).datetime

@@ -81,6 +81,9 @@ class Interface(object):
             mapped.append(tuple(row[key] for key in keys))
         return mapped
 
+    def changelog_last_serial(self):
+        return self.app.models.packaging.get_last_changelog_serial()
+
     def changelog_since_serial(self, since):
         result = self.app.models.packaging.get_changelog_serial(since)
         keys = 'name version submitted_date action id'.split()

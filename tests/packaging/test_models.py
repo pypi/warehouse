@@ -319,6 +319,14 @@ def test_get_changelog(dbapp):
     ]
 
 
+def test_get_last_changelog_serial(dbapp):
+    dbapp.engine.execute(journals.insert().values(id=1))
+    dbapp.engine.execute(journals.insert().values(id=2))
+    dbapp.engine.execute(journals.insert().values(id=3))
+
+    assert dbapp.models.packaging.get_last_changelog_serial() == 3
+
+
 def test_get_changelog_serial(dbapp):
     now = datetime.datetime.utcnow()
 

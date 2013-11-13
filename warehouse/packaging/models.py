@@ -495,6 +495,10 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
 
+    def get_last_changelog_serial(self):
+        with self.engine.connect() as conn:
+            return conn.execute('SELECT max(id) FROM journals').scalar()
+
     def get_changelog_serial(self, since):
         query = '''SELECT name, version, submitted_date, action, id
             FROM journals
