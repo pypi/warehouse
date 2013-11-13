@@ -535,6 +535,67 @@ def test_get_users_for_project(dbapp):
     ]
 
 
+def test_get_roles_for_project(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=2,
+        password="!",
+        username="a-test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=3,
+        password="!",
+        username="test-user2",
+        name="Test User2",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(emails.insert().values(
+        user_id=3,
+        email="test@example.com",
+        primary=True,
+        verified=True,
+    ))
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Owner",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="a-test-user",
+        role_name="Maintainer",
+    ))
+
+    assert dbapp.models.packaging.get_roles_for_project("test-project") == [
+        {"user_name": "a-test-user", "role_name": 'Maintainer'},
+        {"user_name": "test-user", "role_name": 'Maintainer'},
+        {"user_name": "test-user", "role_name": "Owner"},
+    ]
+
+
 def test_get_users_for_project_missing(dbapp):
     assert dbapp.models.packaging.get_users_for_project("test-project") == []
 

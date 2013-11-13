@@ -60,6 +60,11 @@ class Interface(object):
     def package_releases(self, name, show_hidden=False):
         return self.app.models.packaging.get_project_versions(name)
 
+    def package_roles(self, name):
+        result = self.app.models.packaging.get_roles_for_project(name)
+        print (result)
+        return [(r['user_name'], r['role_name']) for r in result]
+
     def updated_releases(self, since):
         since = arrow.get(since).datetime
         result = self.app.models.packaging.get_releases_since(since)

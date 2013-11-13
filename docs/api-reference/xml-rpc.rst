@@ -55,7 +55,7 @@ Package Querying
   The "show_hidden" flag is now ignored. All versions are returned.
 
 ``package_roles(package_name)``
-  Retrieve a list of users and their attributes roles for a given package_name.
+  Retrieve a list of tuples of users and their roles for a given package_name.
   Role is either 'Maintainer' or 'Owner'.
 
 ``user_packages(user)``

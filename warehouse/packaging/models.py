@@ -159,6 +159,17 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, project=project)]
 
+    def get_roles_for_project(self, project):
+        query = \
+            """ SELECT user_name, role_name
+                FROM roles
+                WHERE package_name = %(project)s
+                ORDER BY role_name, user_name
+            """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, project=project)]
+
     def get_hosting_mode(self, name):
         query = "SELECT hosting_mode FROM packages WHERE name = %(project)s"
 

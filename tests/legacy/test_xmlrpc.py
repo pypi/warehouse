@@ -150,6 +150,30 @@ def test_xmlrpc_package_releases():
     ]
 
 
+def test_xmlrpc_package_roles():
+    result = [
+        dict(user_name='one', role_name='Owner'),
+        dict(user_name='two', role_name='Maintainer')
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_roles_for_project=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.package_roles('name') == [
+        ('one', 'Owner'), ('two', 'Maintainer')
+    ]
+
+    assert app.models.packaging.get_roles_for_project.calls == [
+        pretend.call('name')
+    ]
+
+
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
     now_timestamp = arrow.now().timestamp
