@@ -487,6 +487,57 @@ class Model(models.Model):
                 for r in conn.execute(query, project=project, version=version)
             ]
 
+    def get_classifier_ids(self, classifiers):
+        placeholders = ', '.join(['%s'] * len(classifiers))
+        query = \
+            """SELECT classifier, id
+                 FROM trove_classifiers
+                WHERE classifier IN (%s)
+            """ % placeholders
+
+        with self.engine.connect() as conn:
+            return dict((r['classifier'], r['id'])
+                for r in conn.execute(query, *classifiers))
+
+    def search_by_classifier(self, selected_classifiers):
+        # Note: selected_classifiers is a list of ids from trove_classifiers
+        if not selected_classifiers:
+            return []
+
+        # generate trove id -> level mapping
+        trove = {}
+        query = "SELECT * FROM trove_classifiers"
+        with self.engine.connect() as conn:
+            for id, classifier, l2, l3, l4, l5 in conn.execute(query):
+                if id == l2:
+                    trove[id] = 2
+                elif id == l3:
+                    trove[id] = 3
+                elif id == l4:
+                    trove[id] = 4
+                else:
+                    trove[id] = 5
+
+        # compute a statement to produce all packages selected
+        query = "SELECT name, version FROM releases"
+        for c in selected_classifiers:
+            level = trove[c]
+            query = \
+                """ SELECT DISTINCT a.name, a.version
+                    FROM (%s) a, release_classifiers rc, trove_classifiers t
+                    WHERE a.name=rc.name
+                    AND a.version=rc.version
+                    AND rc.trove_id=t.id
+                    AND t.l%d=%d
+                """ % (query, level, c)
+
+        releases = []
+        with self.engine.connect() as conn:
+            for name, version in conn.execute(query):
+                releases.append((name.decode('utf-8'), version))
+
+        return releases
+
     def get_documentation_url(self, project):
         path_parts = [
             self.app.config.paths.documentation,

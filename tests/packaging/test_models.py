@@ -1081,6 +1081,101 @@ def test_get_classifiers(dbapp):
     assert test_classifiers == ["Test :: Classifier"]
 
 
+def test_get_classifier_ids(dbapp):
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="Test :: Classifier",
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=2,
+        classifier="Test :: Another",
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=3,
+        classifier="Test :: The Other One",
+    ))
+
+    test_classifiers = dbapp.models.packaging.get_classifier_ids(
+        ["Test :: Classifier", "Test :: The Other One"]
+    )
+
+    assert test_classifiers == {
+        "Test :: Classifier": 1,
+        "Test :: The Other One": 3
+    }
+
+
+@pytest.mark.parametrize(("search", "result"), [
+    ([], []),
+    ([1], [("one", "1"), ("two", "1"), ("four-six", "1")]),
+    ([4], [("four-six", "1")]),
+    ([7], [("seven", "1")]),
+    ([4, 6], [("four-six", "1")]),
+])
+def test_search_by_classifier(search, result, dbapp):
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="Test :: Classifier",
+        l2=1,
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=2,
+        classifier="Test :: Classifier :: More",
+        l2=1,
+        l3=2
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=5,
+        classifier="Test :: Classifier :: Alternative",
+        l2=1,
+        l3=5
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=3,
+        classifier="Test :: Classifier :: More :: Wow",
+        l2=1,
+        l3=2,
+        l4=3
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=4,
+        classifier="Test :: Classifier :: More :: Wow :: So Classifier",
+        l2=1,
+        l3=2,
+        l4=3,
+        l5=4
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=6,
+        classifier="Other :: Thing",
+        l2=6
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=7,
+        classifier="Other :: Thing :: Moar",
+        l2=6,
+        l3=7
+    ))
+
+    def add_project(name, classifiers):
+        dbapp.engine.execute(packages.insert().values(name=name))
+        dbapp.engine.execute(releases.insert().values(name=name, version="1"))
+        for trove_id in classifiers:
+            dbapp.engine.execute(release_classifiers.insert().values(
+                name=name,
+                version="1",
+                trove_id=trove_id,
+            ))
+
+    add_project('one', [1])
+    add_project('two', [2])
+    add_project('four-six', [4, 6])
+    add_project('seven', [7])
+
+    response = dbapp.models.packaging.search_by_classifier(search)
+    assert sorted(response) == sorted(result)
+
+
 @pytest.mark.parametrize("pgp", [True, False])
 def test_get_downloads(pgp, dbapp, monkeypatch):
     dbapp.engine.execute(packages.insert().values(name="test-project"))

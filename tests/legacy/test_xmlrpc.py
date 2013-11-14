@@ -567,3 +567,50 @@ def test_release_data_missing(monkeypatch):
     ]
 
     assert result == {}
+
+
+def test_xmlrpc_browse():
+    cids = {'hello': 1, 'there': 2}
+    results = [('one', 1), ('two', 2)]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_classifier_ids=pretend.call_recorder(lambda *a: cids),
+                search_by_classifier=pretend.call_recorder(lambda *a: results),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.browse(['hello', 'there']) == results
+
+    assert app.models.packaging.get_classifier_ids.calls == [
+        pretend.call(['hello', 'there'])
+    ]
+    assert app.models.packaging.search_by_classifier.calls == [
+        pretend.call([2, 1])
+    ]
+
+
+def test_xmlrpc_browse_invalid_arg():
+    interface = xmlrpc.Interface(pretend.stub(), pretend.stub())
+
+    with pytest.raises(TypeError):
+        interface.browse('hello')
+
+
+def test_xmlrpc_browse_invalid_classifier():
+    cids = {'hello': 1}
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_classifier_ids=pretend.call_recorder(lambda *a: cids),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    with pytest.raises(ValueError):
+        interface.browse(['hello', 'spam'])

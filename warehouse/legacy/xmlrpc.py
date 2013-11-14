@@ -150,3 +150,16 @@ class Interface(object):
                 info[k] = ''
 
         return info
+
+    def browse(self, categories):
+        if not isinstance(categories, list):
+            raise TypeError("Parameter categories must be a list")
+
+        model = self.app.models.packaging
+        classifier_ids = model.get_classifier_ids(categories)
+        if len(classifier_ids) != len(categories):
+            missing = list(set(categories) - set(classifier_ids))
+            missing = ', '.join("%s" % c for c in missing)
+            raise ValueError('Unknown classifier(s): ' + missing)
+
+        return model.search_by_classifier(classifier_ids.values())
