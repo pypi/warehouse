@@ -33,7 +33,7 @@ def project_detail(app, request, project_name, version=None):
         raise NotFound("Cannot find a project named {}".format(project_name))
 
     # Look up all the releases for the given project
-    releases = app.models.packaging.get_releases(project.name)
+    releases = app.models.packaging.get_releases(project)
 
     if not releases:
         # If there are no releases then we need to return a simpler response
@@ -41,18 +41,18 @@ def project_detail(app, request, project_name, version=None):
         # registered.
         raise NotFound(
             "There are no releases registered for the {} project".format(
-                project.name,
+                project,
             ),
         )
 
-    if project.name != project_name:
+    if project != project_name:
         # We've found the project, and the version exists, but the project name
         # isn't quite right so we'll redirect them to the correct one.
         return redirect(
             url_for(
                 request,
                 "warehouse.packaging.views.project_detail",
-                project_name=project.name,
+                project_name=project,
                 version=version,
             ),
             code=301,
@@ -67,12 +67,12 @@ def project_detail(app, request, project_name, version=None):
         raise NotFound(
             "Cannot find the {} version of the {} project".format(
                 version,
-                project.name,
+                project,
             ),
         )
 
     # Get the release data for the version
-    release = app.models.packaging.get_release(project.name, version)
+    release = app.models.packaging.get_release(project, version)
 
     if release.get("description"):
         # Render the project description
@@ -93,13 +93,10 @@ def project_detail(app, request, project_name, version=None):
         release=release,
         releases=releases,
         description_html=description_html,
-        download_counts=app.models.packaging.get_download_counts(project.name),
-        downloads=app.models.packaging.get_downloads(project.name, version),
-        classifiers=app.models.packaging.get_classifiers(
-            project.name,
-            version,
-        ),
-        documentation=app.models.packaging.get_documentation_url(project.name),
-        bugtracker=app.models.packaging.get_bugtrack_url(project.name),
-        maintainers=app.models.packaging.get_users_for_project(project.name),
+        download_counts=app.models.packaging.get_download_counts(project),
+        downloads=app.models.packaging.get_downloads(project, version),
+        classifiers=app.models.packaging.get_classifiers(project, version),
+        documentation=app.models.packaging.get_documentation_url(project),
+        bugtracker=app.models.packaging.get_bugtrack_url(project),
+        maintainers=app.models.packaging.get_users_for_project(project),
     )

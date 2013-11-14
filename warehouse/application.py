@@ -132,19 +132,18 @@ class Warehouse(object):
         if "sentry" in self.config:
             self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
 
-        if self.config.debug:
-            # Serve the static files that are packaged as part of Warehouse
-            self.wsgi_app = SharedDataMiddleware(
-                self.wsgi_app,
-                {
-                    "/static/": os.path.abspath(
-                        os.path.join(
-                            os.path.dirname(warehouse.__file__),
-                            "static",
-                        ),
+        # Serve the static files that are packaged as part of Warehouse
+        self.wsgi_app = SharedDataMiddleware(
+            self.wsgi_app,
+            {
+                "/static/": os.path.abspath(
+                    os.path.join(
+                        os.path.dirname(warehouse.__file__),
+                        "static",
                     ),
-                },
-            )
+                ),
+            },
+        )
 
         # configure logging
         logging.config.dictConfig(self.config.logging)

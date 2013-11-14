@@ -19,8 +19,8 @@
 
 {% block content %}
   {% for project in projects -%}
-    <a href="{{ url_for('warehouse.legacy.simple.project', project_name=project.name) }}">
-      {{ project.name }}
+    <a href="{{ url_for('warehouse.legacy.simple.project', project_name=project) }}">
+      {{ project }}
     </a>
   {% endfor %}
 {% endblock %}

@@ -19,17 +19,11 @@ import os.path
 import urlparse
 import logging
 
-from collections import namedtuple
-
 from warehouse import models
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
 log = logging.getLogger(__name__)
-
-Project = namedtuple("Project", ["name"])
-
-FileURL = namedtuple("FileURL", ["filename", "url"])
 
 
 class Model(models.Model):
@@ -92,7 +86,7 @@ class Model(models.Model):
         query = "SELECT name FROM packages ORDER BY lower(name)"
 
         with self.engine.connect() as conn:
-            return [Project(r["name"]) for r in conn.execute(query)]
+            return [r["name"] for r in conn.execute(query)]
 
     def get_top_projects(self, num=None):
         query = \
@@ -117,10 +111,7 @@ class Model(models.Model):
             """
 
         with self.engine.connect() as conn:
-            result = conn.execute(query, name=name).scalar()
-
-            if result is not None:
-                return Project(result)
+            return conn.execute(query, name=name).scalar()
 
     def get_projects_for_user(self, username):
         query = \
@@ -224,9 +215,9 @@ class Model(models.Model):
             results = conn.execute(query, project=name)
 
             return [
-                FileURL(
-                    filename=r["filename"],
-                    url=urlparse.urljoin(
+                {
+                    "filename": r["filename"],
+                    "url": urlparse.urljoin(
                         "/".join([
                             "../../packages",
                             r["python_version"],
@@ -236,7 +227,7 @@ class Model(models.Model):
                         ]),
                         "#md5={}".format(r["md5_digest"]),
                     ),
-                )
+                }
                 for r in results
             ]
 
@@ -244,7 +235,7 @@ class Model(models.Model):
         query = "SELECT name FROM release_files WHERE filename = %(filename)s"
 
         with self.engine.connect() as conn:
-            return Project(conn.execute(query, filename=filename).scalar())
+            return conn.execute(query, filename=filename).scalar()
 
     def get_filename_md5(self, filename):
         query = \

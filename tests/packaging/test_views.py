@@ -21,7 +21,6 @@ import pytest
 
 from werkzeug.exceptions import NotFound
 
-from warehouse.packaging.models import Project
 from warehouse.packaging.views import project_detail
 
 
@@ -50,7 +49,7 @@ def test_project_detail_no_versions():
         models=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: Project("test-project"),
+                    lambda proj: "test-project",
                 ),
                 get_releases=pretend.call_recorder(lambda proj: []),
             ),
@@ -82,7 +81,7 @@ def test_project_detail_redirects():
         models=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: Project("test-project"),
+                    lambda proj: "test-project",
                 ),
                 get_releases=pretend.call_recorder(
                     lambda proj: [{"version": "1.0"}],
@@ -135,7 +134,7 @@ def test_project_detail_invalid_version():
         models=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: Project("test-project"),
+                    lambda proj: "test-project",
                 ),
                 get_releases=pretend.call_recorder(
                     lambda proj: [{"version": "1.0"}],
@@ -201,7 +200,7 @@ def test_project_detail_valid(version, description):
         models=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: Project("test-project"),
+                    lambda proj: "test-project",
                 ),
                 get_releases=pretend.call_recorder(
                     lambda proj: [{"version": "2.0"}, {"version": "1.0"}],

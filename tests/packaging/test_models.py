@@ -21,7 +21,7 @@ import pretend
 import pytest
 
 from warehouse.accounts.tables import users, emails
-from warehouse.packaging.models import Project, FileURL, log
+from warehouse.packaging.models import log
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
     release_classifiers, release_dependencies, roles,
@@ -386,9 +386,8 @@ def test_all_projects(projects, dbapp):
     for project in projects:
         dbapp.engine.execute(packages.insert().values(name=project))
 
-    all_projects = [
-        Project(p) for p in sorted(projects, key=lambda x: x.lower())
-    ]
+    all_projects = sorted(projects, key=lambda x: x.lower())
+
     assert dbapp.models.packaging.all_projects() == all_projects
 
 
@@ -424,7 +423,7 @@ def test_get_project(name, normalized, dbapp):
         packages.insert().values(name=name, normalized_name=normalized)
     )
 
-    assert dbapp.models.packaging.get_project(normalized) == Project(name)
+    assert dbapp.models.packaging.get_project(normalized) == name
 
 
 def test_get_project_missing(dbapp):
@@ -740,7 +739,7 @@ def test_get_file_urls(name, values, urls, dbapp):
         dbapp.engine.execute(release_files.insert().values(name=name, **value))
 
     assert dbapp.models.packaging.get_file_urls(name) == [
-        FileURL(f, u) for f, u in sorted(set(urls), reverse=True)
+        {"filename": f, "url": u} for f, u in sorted(set(urls), reverse=True)
     ]
 
 
@@ -753,8 +752,7 @@ def test_get_project_for_filename(name, filename, dbapp):
         release_files.insert().values(name=name, filename=filename)
     )
 
-    assert (dbapp.models.packaging.get_project_for_filename(filename)
-            == Project(name))
+    assert dbapp.models.packaging.get_project_for_filename(filename) == name
 
 
 @pytest.mark.parametrize(("filename", "md5"), [
