@@ -16,6 +16,7 @@ from __future__ import unicode_literals
 
 import datetime
 
+import arrow
 import pretend
 import pytest
 
@@ -148,12 +149,105 @@ def test_xmlrpc_package_releases():
     ]
 
 
+def test_xmlrpc_package_roles():
+    result = [
+        dict(user_name='one', role_name='Owner'),
+        dict(user_name='two', role_name='Maintainer')
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_roles_for_project=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.package_roles('name') == [
+        ('one', 'Owner'), ('two', 'Maintainer')
+    ]
+
+    assert app.models.packaging.get_roles_for_project.calls == [
+        pretend.call('name')
+    ]
+
+
+def test_xmlrpc_user_packages():
+    result = [
+        dict(package_name='one', role_name='Owner'),
+        dict(package_name='two', role_name='Maintainer')
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_roles_for_user=pretend.call_recorder(lambda *a: result),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.user_packages('name') == [
+        ('one', 'Owner'), ('two', 'Maintainer')
+    ]
+
+    assert app.models.packaging.get_roles_for_user.calls == [
+        pretend.call('name')
+    ]
+
+
+def test_xmlrpc_package_hosting_mode():
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_hosting_mode=pretend.call_recorder(lambda *a: 'yes!'),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.package_hosting_mode('name') == 'yes!'
+
+    assert app.models.packaging.get_hosting_mode.calls == [
+        pretend.call('name')
+    ]
+
+
+def test_xmlrpc_release_downloads():
+    results = [
+        dict(filename='one', downloads=1),
+        dict(filename='two', downloads=2),
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_downloads=pretend.call_recorder(lambda *a: results),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.release_downloads('name', '1.0') == [
+        ('one', 1), ('two', 2)
+    ]
+
+    assert app.models.packaging.get_downloads.calls == [
+        pretend.call('name', '1.0')
+    ]
+
+
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
-    now = datetime.datetime.now()
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
     old = datetime.datetime.now() - datetime.timedelta(days=1)
-    now_plus_1 = datetime.datetime.now() + datetime.timedelta(days=1)
-    now_plus_2 = datetime.datetime.now() + datetime.timedelta(days=2)
+    old_timestamp = arrow.get(old).timestamp
+    old = arrow.get(old_timestamp).datetime
+    now_plus_1 = now + datetime.timedelta(days=1)
+    now_plus_2 = now + datetime.timedelta(days=2)
     data = [
         dict(name='one', version='1', submitted_date=now,
             action='created', id=1),
@@ -165,10 +259,10 @@ def test_xmlrpc_changelog(with_ids):
             action='new release', id=4),
     ]
     result = [
-        ('one', '1', now, 'created', 1),
-        ('two', '2', now, 'new release', 2),
-        ('one', '2', now_plus_1, 'new release', 3),
-        ('one', '3', now_plus_2, 'new release', 4),
+        ('one', '1', arrow.get(now).timestamp, 'created', 1),
+        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
+        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
+        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
     ]
     if not with_ids:
         result = [r[:4] for r in result]
@@ -182,10 +276,68 @@ def test_xmlrpc_changelog(with_ids):
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    assert interface.changelog(old, with_ids) == result
+    old_timestamp = arrow.get(old).timestamp
+    assert interface.changelog(old_timestamp, with_ids) == result
 
+    old = arrow.get(old_timestamp).datetime
     assert app.models.packaging.get_changelog.calls == [
         pretend.call(old)
+    ]
+
+
+def test_xmlrpc_changelog_last_serial():
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_last_changelog_serial=pretend.call_recorder(lambda *a: 2),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.changelog_last_serial() == 2
+
+    assert app.models.packaging.get_last_changelog_serial.calls == [
+        pretend.call()
+    ]
+
+
+def test_xmlrpc_changelog_serial():
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
+    now_plus_1 = now + datetime.timedelta(days=1)
+    now_plus_2 = now + datetime.timedelta(days=2)
+    data = [
+        dict(name='one', version='1', submitted_date=now,
+            action='created', id=1),
+        dict(name='two', version='2', submitted_date=now,
+            action='new release', id=2),
+        dict(name='one', version='2', submitted_date=now_plus_1,
+            action='new release', id=3),
+        dict(name='one', version='3', submitted_date=now_plus_2,
+            action='new release', id=4),
+    ]
+    result = [
+        ('one', '1', arrow.get(now).timestamp, 'created', 1),
+        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
+        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
+        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
+    ]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_changelog_serial=pretend.call_recorder(lambda *a: data),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.changelog_since_serial(1) == result
+
+    assert app.models.packaging.get_changelog_serial.calls == [
+        pretend.call(1)
     ]
 
 
@@ -207,39 +359,34 @@ def test_xmlrpc_updated_releases():
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    old = now = datetime.timedelta(days=1)
-    assert interface.updated_releases(old) == \
+    old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
+    assert interface.updated_releases(old_timestamp) == \
         [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
 
     assert app.models.packaging.get_releases_since.calls == [
-        pretend.call(old)
+        pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
 
-def test_xmlrpc_update_releases():
+def test_xmlrpc_changed_packages():
     now = datetime.datetime.now()
 
-    result = [
-        dict(name='one', version='1', created=now, summary='text'),
-        dict(name='two', version='2', created=now, summary='text'),
-        dict(name='two', version='3', created=now, summary='text'),
-        dict(name='three', version='4', created=now, summary='text')]
+    result = ['one', 'two', 'three']
     app = pretend.stub(
         models=pretend.stub(
             packaging=pretend.stub(
-                get_releases_since=pretend.call_recorder(lambda *a: result),
+                get_changed_since=pretend.call_recorder(lambda *a: result),
             ),
         ),
     )
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    old = now = datetime.timedelta(days=1)
-    assert interface.updated_releases(old) == \
-        [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
+    old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
+    assert interface.changed_packages(old_timestamp) == result
 
-    assert app.models.packaging.get_releases_since.calls == [
-        pretend.call(old)
+    assert app.models.packaging.get_changed_since.calls == [
+        pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
 
@@ -337,6 +484,10 @@ def test_release_urls(pgp, monkeypatch):
 
 
 def test_release_data(monkeypatch):
+    # arrow conversion is messy, make sure we are comparing the same thing
+    now_timestamp = arrow.now().timestamp
+    now = arrow.get(now_timestamp).datetime
+
     resp = dict(
         name="spam",
         version="1.0",
@@ -354,7 +505,7 @@ def test_release_data(monkeypatch):
         requires_dist=["requests (>=2.0)"],
         provides_dist=["test-project-old"],
         project_url={"Repository": "git://git.example.com/"},
-        created=datetime.datetime.utcnow(),
+        created=now,
     )
     # snapshot that info now for comparison later
     info = dict(resp)
@@ -389,6 +540,7 @@ def test_release_data(monkeypatch):
         maintainer='',              # converted from None
         maintainer_email='',        # converted from None
         stable_version='',          # filled in as no-op
+        created=now_timestamp,
     )
     assert result == info
 
@@ -414,3 +566,50 @@ def test_release_data_missing(monkeypatch):
     ]
 
     assert result == {}
+
+
+def test_xmlrpc_browse():
+    cids = {'hello': 1, 'there': 2}
+    results = [('one', 1), ('two', 2)]
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_classifier_ids=pretend.call_recorder(lambda *a: cids),
+                search_by_classifier=pretend.call_recorder(lambda *a: results),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    assert interface.browse(['hello', 'there']) == results
+
+    assert app.models.packaging.get_classifier_ids.calls == [
+        pretend.call(['hello', 'there'])
+    ]
+    assert app.models.packaging.search_by_classifier.calls == [
+        pretend.call([2, 1])
+    ]
+
+
+def test_xmlrpc_browse_invalid_arg():
+    interface = xmlrpc.Interface(pretend.stub(), pretend.stub())
+
+    with pytest.raises(TypeError):
+        interface.browse('hello')
+
+
+def test_xmlrpc_browse_invalid_classifier():
+    cids = {'hello': 1}
+    app = pretend.stub(
+        models=pretend.stub(
+            packaging=pretend.stub(
+                get_classifier_ids=pretend.call_recorder(lambda *a: cids),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    with pytest.raises(ValueError):
+        interface.browse(['hello', 'spam'])

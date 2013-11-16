@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 import re
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 
+import arrow
 from werkzeug.exceptions import BadRequest
 
 from warehouse.http import Response
@@ -55,19 +56,52 @@ class Interface(object):
     def top_packages(self, num=None):
         return self.app.models.packaging.get_top_projects(num)
 
+    def user_packages(self, user):
+        result = self.app.models.packaging.get_roles_for_user(user)
+        return [(r['package_name'], r['role_name']) for r in result]
+
     def package_releases(self, name, show_hidden=False):
         return self.app.models.packaging.get_project_versions(name)
 
+    def package_roles(self, name):
+        result = self.app.models.packaging.get_roles_for_project(name)
+        return [(r['user_name'], r['role_name']) for r in result]
+
+    def package_hosting_mode(self, name):
+        return self.app.models.packaging.get_hosting_mode(name)
+
     def updated_releases(self, since):
+        since = arrow.get(since).datetime
         result = self.app.models.packaging.get_releases_since(since)
         return [(row['name'], row['version']) for row in result]
 
+    def changed_packages(self, since):
+        since = arrow.get(since).datetime
+        return self.app.models.packaging.get_changed_since(since)
+
     def changelog(self, since, with_ids=False):
+        since = arrow.get(since).datetime
         result = self.app.models.packaging.get_changelog(since)
         keys = 'name version submitted_date action'.split()
         if with_ids:
             keys.append('id')
-        return [tuple(row[key] for key in keys) for row in result]
+        mapped = []
+        for row in result:
+            row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
+            mapped.append(tuple(row[key] for key in keys))
+        return mapped
+
+    def changelog_last_serial(self):
+        return self.app.models.packaging.get_last_changelog_serial()
+
+    def changelog_since_serial(self, since):
+        result = self.app.models.packaging.get_changelog_serial(since)
+        keys = 'name version submitted_date action id'.split()
+        mapped = []
+        for row in result:
+            row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
+            mapped.append(tuple(row[key] for key in keys))
+        return mapped
 
     def release_urls(self, name, version):
         l = []
@@ -84,6 +118,10 @@ class Interface(object):
                 comment_text=r['comment_text'],
             ))
         return l
+
+    def release_downloads(self, name, version):
+        results = self.app.models.packaging.get_downloads(name, version)
+        return [(r['filename'], r['downloads']) for r in results]
 
     def release_data(self, name, version):
         model = self.app.models.packaging
@@ -102,9 +140,25 @@ class Interface(object):
         info['docs_url'] = model.get_documentation_url(name)
         info['downloads'] = model.get_download_counts(name)
 
+        # XML-RPC has no datetime; work only with UNIX timestamps
+        info['created'] = arrow.get(info['created']).timestamp
+
         # make the data XML-RPC-happy (no explicit null allowed here!)
         for k in info:
             if info[k] is None:
                 info[k] = ''
 
         return info
+
+    def browse(self, categories):
+        if not isinstance(categories, list):
+            raise TypeError("Parameter categories must be a list")
+
+        model = self.app.models.packaging
+        classifier_ids = model.get_classifier_ids(categories)
+        if len(classifier_ids) != len(categories):
+            missing = list(set(categories) - set(classifier_ids))
+            missing = ', '.join("%s" % c for c in missing)
+            raise ValueError('Unknown classifier(s): ' + missing)
+
+        return model.search_by_classifier(classifier_ids.values())

@@ -55,7 +55,7 @@ Package Querying
   The "show_hidden" flag is now ignored. All versions are returned.
 
 ``package_roles(package_name)``
-  Retrieve a list of users and their attributes roles for a given package_name.
+  Retrieve a list of tuples of users and their roles for a given package_name.
   Role is either 'Maintainer' or 'Owner'.
 
 ``user_packages(user)``
@@ -149,6 +149,11 @@ Package Querying
 ``updated_releases(since)``
   Retrieve a list of package releases made since the given timestamp. The
   releases will be listed in descending release date.
+
+``changed_packages(since)``
+  Retrieve a list of package names where those packages have been changed
+  since the given timestamp. The packages will be listed in descending date
+  of most recent change.
 
 
 Mirroring Support

@@ -238,6 +238,29 @@ def test_get_releases_since(dbapp):
     ]
 
 
+def test_get_changed_since(dbapp):
+    dbapp.engine.execute(packages.insert().values(name="foo1"))
+    dbapp.engine.execute(packages.insert().values(name="foo2"))
+    dbapp.engine.execute(packages.insert().values(name="foo3"))
+
+    now = datetime.datetime.utcnow()
+
+    dbapp.engine.execute(journals.insert().values(
+        name="foo2", submitted_date=now - datetime.timedelta(seconds=10),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo1", submitted_date=now - datetime.timedelta(seconds=4),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo3", submitted_date=now - datetime.timedelta(seconds=3),
+    ))
+    dbapp.engine.execute(journals.insert().values(
+        name="foo1", submitted_date=now, ))
+
+    since = now - datetime.timedelta(seconds=5)
+    assert dbapp.models.packaging.get_changed_since(since) == ["foo1", "foo3"]
+
+
 def test_get_changelog(dbapp):
     now = datetime.datetime.utcnow()
 
@@ -292,6 +315,64 @@ def test_get_changelog(dbapp):
             "action": "create",
             "submitted_date": now - datetime.timedelta(seconds=4),
             "id": 1,
+        },
+    ]
+
+
+def test_get_last_changelog_serial(dbapp):
+    dbapp.engine.execute(journals.insert().values(id=1))
+    dbapp.engine.execute(journals.insert().values(id=2))
+    dbapp.engine.execute(journals.insert().values(id=3))
+
+    assert dbapp.models.packaging.get_last_changelog_serial() == 3
+
+
+def test_get_changelog_serial(dbapp):
+    now = datetime.datetime.utcnow()
+
+    def create(name, delta):
+        dbapp.engine.execute(packages.insert().values(name=name))
+        dbapp.engine.execute(journals.insert().values(name=name, version=None,
+            submitted_date=now - delta, action="create", id=create.id))
+        create.id += 1
+    create.id = 1
+    create("foo1", datetime.timedelta(seconds=4))
+    create("foo2", datetime.timedelta(seconds=5))
+    create("foo3", datetime.timedelta(seconds=10))
+
+    def release(name, version, delta):
+        dbapp.engine.execute(releases.insert().values(name=name,
+            version=version, created=now - delta))
+        dbapp.engine.execute(journals.insert().values(id=create.id, name=name,
+            version=version, submitted_date=now - delta, action="new release"))
+        create.id += 1
+    release("foo2", "1.0", datetime.timedelta(seconds=10))
+    release("foo3", "2.0", datetime.timedelta(seconds=9))
+    release("foo1", "1.0", datetime.timedelta(seconds=3))
+    release("foo3", "1.0", datetime.timedelta(seconds=2))
+    release("foo1", "2.0", datetime.timedelta(seconds=1))
+
+    assert dbapp.models.packaging.get_changelog_serial(5) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=1),
+            "id": 8,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=2),
+            "id": 7,
+        },
+        {
+            "name": "foo1",
+            "version": "1.0",
+            "action": "new release",
+            "submitted_date": now - datetime.timedelta(seconds=3),
+            "id": 6,
         },
     ]
 
@@ -450,6 +531,113 @@ def test_get_users_for_project(dbapp):
         {"username": "a-test-user", "email": None},
         {"username": "test-user", "email": None},
         {"username": "test-user2", "email": "test@example.com"},
+    ]
+
+
+def test_get_roles_for_project(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=2,
+        password="!",
+        username="a-test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=3,
+        password="!",
+        username="test-user2",
+        name="Test User2",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Owner",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="a-test-user",
+        role_name="Maintainer",
+    ))
+
+    assert dbapp.models.packaging.get_roles_for_project("test-project") == [
+        {"user_name": "a-test-user", "role_name": 'Maintainer'},
+        {"user_name": "test-user", "role_name": 'Maintainer'},
+        {"user_name": "test-user", "role_name": "Owner"},
+    ]
+
+
+def test_get_roles_for_user(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(users.insert().values(
+        id=2,
+        password="!",
+        username="a-test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.engine.execute(packages.insert().values(name="test-project"))
+    dbapp.engine.execute(packages.insert().values(name="test-project2"))
+    dbapp.engine.execute(packages.insert().values(name="test-project3"))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Owner",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project2",
+        user_name="a-test-user",
+        role_name="Maintainer",
+    ))
+    dbapp.engine.execute(roles.insert().values(
+        package_name="test-project2",
+        user_name="test-user",
+        role_name="Maintainer",
+    ))
+
+    assert dbapp.models.packaging.get_roles_for_user("test-user") == [
+        {"package_name": "test-project", "role_name": 'Maintainer'},
+        {"package_name": "test-project", "role_name": "Owner"},
+        {"package_name": "test-project2", "role_name": 'Maintainer'},
     ]
 
 
@@ -889,6 +1077,101 @@ def test_get_classifiers(dbapp):
     )
 
     assert test_classifiers == ["Test :: Classifier"]
+
+
+def test_get_classifier_ids(dbapp):
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="Test :: Classifier",
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=2,
+        classifier="Test :: Another",
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=3,
+        classifier="Test :: The Other One",
+    ))
+
+    test_classifiers = dbapp.models.packaging.get_classifier_ids(
+        ["Test :: Classifier", "Test :: The Other One"]
+    )
+
+    assert test_classifiers == {
+        "Test :: Classifier": 1,
+        "Test :: The Other One": 3
+    }
+
+
+@pytest.mark.parametrize(("search", "result"), [
+    ([], []),
+    ([1], [("one", "1"), ("two", "1"), ("four-six", "1")]),
+    ([4], [("four-six", "1")]),
+    ([7], [("seven", "1")]),
+    ([4, 6], [("four-six", "1")]),
+])
+def test_search_by_classifier(search, result, dbapp):
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="Test :: Classifier",
+        l2=1,
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=2,
+        classifier="Test :: Classifier :: More",
+        l2=1,
+        l3=2
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=5,
+        classifier="Test :: Classifier :: Alternative",
+        l2=1,
+        l3=5
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=3,
+        classifier="Test :: Classifier :: More :: Wow",
+        l2=1,
+        l3=2,
+        l4=3
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=4,
+        classifier="Test :: Classifier :: More :: Wow :: So Classifier",
+        l2=1,
+        l3=2,
+        l4=3,
+        l5=4
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=6,
+        classifier="Other :: Thing",
+        l2=6
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=7,
+        classifier="Other :: Thing :: Moar",
+        l2=6,
+        l3=7
+    ))
+
+    def add_project(name, classifiers):
+        dbapp.engine.execute(packages.insert().values(name=name))
+        dbapp.engine.execute(releases.insert().values(name=name, version="1"))
+        for trove_id in classifiers:
+            dbapp.engine.execute(release_classifiers.insert().values(
+                name=name,
+                version="1",
+                trove_id=trove_id,
+            ))
+
+    add_project('one', [1])
+    add_project('two', [2])
+    add_project('four-six', [4, 6])
+    add_project('seven', [7])
+
+    response = dbapp.models.packaging.search_by_classifier(search)
+    assert sorted(response) == sorted(result)
 
 
 @pytest.mark.parametrize("pgp", [True, False])

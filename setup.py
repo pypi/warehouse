@@ -66,6 +66,7 @@ setup(
 
     install_requires=[
         "alembic",
+        "arrow",
         "babel",
         "elasticsearch",
         "enum34",

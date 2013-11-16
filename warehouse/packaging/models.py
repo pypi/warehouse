@@ -71,6 +71,17 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
 
+    def get_changed_since(self, since):
+        query = \
+            """SELECT name, max(submitted_date) FROM journals
+               WHERE submitted_date > %(since)s
+               GROUP BY name
+               ORDER BY max(submitted_date) DESC
+            """
+
+        with self.engine.connect() as conn:
+            return [r[0] for r in conn.execute(query, since=since)]
+
     def all_projects(self):
         query = "SELECT name FROM packages ORDER BY lower(name)"
 
@@ -138,6 +149,28 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, project=project)]
+
+    def get_roles_for_project(self, project):
+        query = \
+            """ SELECT user_name, role_name
+                FROM roles
+                WHERE package_name = %(project)s
+                ORDER BY role_name, user_name
+            """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, project=project)]
+
+    def get_roles_for_user(self, user):
+        query = \
+            """ SELECT package_name, role_name
+                FROM roles
+                WHERE user_name = %(user)s
+                ORDER BY package_name, role_name
+            """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, user=user)]
 
     def get_hosting_mode(self, name):
         query = "SELECT hosting_mode FROM packages WHERE name = %(project)s"
@@ -445,6 +478,57 @@ class Model(models.Model):
                 for r in conn.execute(query, project=project, version=version)
             ]
 
+    def get_classifier_ids(self, classifiers):
+        placeholders = ', '.join(['%s'] * len(classifiers))
+        query = \
+            """SELECT classifier, id
+                 FROM trove_classifiers
+                WHERE classifier IN (%s)
+            """ % placeholders
+
+        with self.engine.connect() as conn:
+            return dict((r['classifier'], r['id'])
+                for r in conn.execute(query, *classifiers))
+
+    def search_by_classifier(self, selected_classifiers):
+        # Note: selected_classifiers is a list of ids from trove_classifiers
+        if not selected_classifiers:
+            return []
+
+        # generate trove id -> level mapping
+        trove = {}
+        query = "SELECT * FROM trove_classifiers"
+        with self.engine.connect() as conn:
+            for id, classifier, l2, l3, l4, l5 in conn.execute(query):
+                if id == l2:
+                    trove[id] = 2
+                elif id == l3:
+                    trove[id] = 3
+                elif id == l4:
+                    trove[id] = 4
+                else:
+                    trove[id] = 5
+
+        # compute a statement to produce all packages selected
+        query = "SELECT name, version FROM releases"
+        for c in selected_classifiers:
+            level = trove[c]
+            query = \
+                """ SELECT DISTINCT a.name, a.version
+                    FROM (%s) a, release_classifiers rc, trove_classifiers t
+                    WHERE a.name=rc.name
+                    AND a.version=rc.version
+                    AND rc.trove_id=t.id
+                    AND t.l%d=%d
+                """ % (query, level, c)
+
+        releases = []
+        with self.engine.connect() as conn:
+            for name, version in conn.execute(query):
+                releases.append((name.decode('utf-8'), version))
+
+        return releases
+
     def get_documentation_url(self, project):
         path_parts = [
             self.app.config.paths.documentation,
@@ -470,6 +554,19 @@ class Model(models.Model):
         query = '''SELECT name, version, submitted_date, action, id
             FROM journals
             WHERE journals.submitted_date > %(since)s
+            ORDER BY submitted_date DESC
+        '''
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, since=since)]
+
+    def get_last_changelog_serial(self):
+        with self.engine.connect() as conn:
+            return conn.execute('SELECT max(id) FROM journals').scalar()
+
+    def get_changelog_serial(self, since):
+        query = '''SELECT name, version, submitted_date, action, id
+            FROM journals
+            WHERE journals.id > %(since)s
             ORDER BY submitted_date DESC
         '''
         with self.engine.connect() as conn:
