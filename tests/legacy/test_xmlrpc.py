@@ -241,9 +241,9 @@ def test_xmlrpc_release_downloads():
 
 @pytest.mark.parametrize("with_ids", [False, True])
 def test_xmlrpc_changelog(with_ids):
-    now_timestamp = arrow.now().timestamp
+    now_timestamp = arrow.utcnow().timestamp
     now = arrow.get(now_timestamp).datetime
-    old = datetime.datetime.now() - datetime.timedelta(days=1)
+    old = datetime.datetime.utcnow() - datetime.timedelta(days=1)
     old_timestamp = arrow.get(old).timestamp
     old = arrow.get(old_timestamp).datetime
     now_plus_1 = now + datetime.timedelta(days=1)
@@ -304,7 +304,7 @@ def test_xmlrpc_changelog_last_serial():
 
 
 def test_xmlrpc_changelog_serial():
-    now_timestamp = arrow.now().timestamp
+    now_timestamp = arrow.utcnow().timestamp
     now = arrow.get(now_timestamp).datetime
     now_plus_1 = now + datetime.timedelta(days=1)
     now_plus_2 = now + datetime.timedelta(days=2)
@@ -342,7 +342,7 @@ def test_xmlrpc_changelog_serial():
 
 
 def test_xmlrpc_updated_releases():
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
 
     result = [
         dict(name='one', version='1', created=now, summary='text'),
@@ -369,7 +369,7 @@ def test_xmlrpc_updated_releases():
 
 
 def test_xmlrpc_changed_packages():
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
 
     result = ['one', 'two', 'three']
     app = pretend.stub(
@@ -485,7 +485,7 @@ def test_release_urls(pgp, monkeypatch):
 
 def test_release_data(monkeypatch):
     # arrow conversion is messy, make sure we are comparing the same thing
-    now_timestamp = arrow.now().timestamp
+    now_timestamp = arrow.utcnow().timestamp
     now = arrow.get(now_timestamp).datetime
 
     resp = dict(
