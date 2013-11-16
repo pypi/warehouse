@@ -30,7 +30,7 @@ def test_xmlrpc_handler(monkeypatch):
     monkeypatch.setattr(xmlrpc, "Response", Response)
 
     interface = pretend.stub(
-        list_packages=pretend.call_recorder(lambda *a, **k: 'one two'.split())
+        list_packages=pretend.call_recorder(lambda *a, **k: ['one', 'two'])
     )
     Interface = lambda a, r: interface
     monkeypatch.setattr(xmlrpc, "Interface", Interface)

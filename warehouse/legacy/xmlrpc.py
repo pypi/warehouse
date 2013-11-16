@@ -82,7 +82,7 @@ class Interface(object):
     def changelog(self, since, with_ids=False):
         since = arrow.get(since).datetime
         result = self.app.models.packaging.get_changelog(since)
-        keys = 'name version submitted_date action'.split()
+        keys = ['name', 'version', 'submitted_date', 'action']
         if with_ids:
             keys.append('id')
         mapped = []
@@ -96,7 +96,7 @@ class Interface(object):
 
     def changelog_since_serial(self, since):
         result = self.app.models.packaging.get_changelog_serial(since)
-        keys = 'name version submitted_date action id'.split()
+        keys = ['name', 'version', 'submitted_date', 'action', 'id']
         mapped = []
         for row in result:
             row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
