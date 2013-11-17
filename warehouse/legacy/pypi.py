@@ -17,12 +17,12 @@ from __future__ import unicode_literals
 from warehouse.helpers import url_for
 from werkzeug.utils import redirect
 
-from . import xmlrpc
+from warehouse.legacy import xmlrpc
 
 
 def pypi(app, request):
     # if the MIME type of the request is XML then we go into XML-RPC mode
-    if request.headers['Content-Type'] == 'text/xml':
+    if request.headers.get('Content-Type') == 'text/xml':
         return xmlrpc.handle_request(app, request)
 
     # no XML-RPC and no :action means we render the index, or at least we
