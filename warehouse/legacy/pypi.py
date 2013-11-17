@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 from warehouse.helpers import url_for
 from werkzeug.utils import redirect
 
-from . import xmlrpc
+from warehouse.legacy import xmlrpc
 
 
 def pypi(app, request):
