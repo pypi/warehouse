@@ -15,14 +15,21 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import pretend
+import pytest
 
 from warehouse.legacy import pypi
 
 
-def test_pypi_index():
+@pytest.mark.parametrize("content_type", [None, "text/html", "__empty__"])
+def test_pypi_index(content_type):
+    headers = {}
+
+    if content_type != "__empty__":
+        headers["Content-Type"] = content_type
+
     app = pretend.stub()
     request = pretend.stub(
-        headers={'Content-Type': None},     # GET request has no content-type
+        headers=headers,
         url_adapter=pretend.stub(
             build=pretend.call_recorder(
                 lambda *a, **kw: "/",

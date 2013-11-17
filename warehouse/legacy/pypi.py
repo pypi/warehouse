@@ -22,7 +22,7 @@ from . import xmlrpc
 
 def pypi(app, request):
     # if the MIME type of the request is XML then we go into XML-RPC mode
-    if request.headers['Content-Type'] == 'text/xml':
+    if request.headers.get('Content-Type') == 'text/xml':
         return xmlrpc.handle_request(app, request)
 
     # no XML-RPC and no :action means we render the index, or at least we
