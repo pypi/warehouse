@@ -32,6 +32,9 @@ def url_for(request, endpoint, **values):
 
 
 def gravatar_url(email, size=80):
+    if email is None:
+        email = ""
+
     email_hash = hashlib.md5(email.strip().lower()).hexdigest()
 
     url = "https://secure.gravatar.com/avatar/{}".format(email_hash)

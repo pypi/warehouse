@@ -22,20 +22,28 @@ import pytest
 from warehouse.helpers import gravatar_url, url_for, static_url
 
 
-@pytest.mark.parametrize(("kwargs", "expected"), [
+@pytest.mark.parametrize(("email", "kwargs", "expected"), [
     (
+        "test-user@example.com",
         {},
         ("https://secure.gravatar.com/avatar/3664adb7d1eea0bd7d0b134577663889"
          "?size=80"),
     ),
     (
+        "test-user@example.com",
         {"size": 1000},
         ("https://secure.gravatar.com/avatar/3664adb7d1eea0bd7d0b134577663889"
          "?size=1000"),
     ),
+    (
+        None,
+        {},
+        ("https://secure.gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e"
+         "?size=80"),
+    )
 ])
-def test_gravatar_url(kwargs, expected):
-    assert gravatar_url("test-user@example.com", **kwargs) == expected
+def test_gravatar_url(email, kwargs, expected):
+    assert gravatar_url(email, **kwargs) == expected
 
 
 @pytest.mark.parametrize(("external",), [(False,), (True,)])
