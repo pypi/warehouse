@@ -1,3 +1,4 @@
+# -*- encoding: utf8 -*-
 # Copyright 2013 Donald Stufft
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
 
 import datetime
 
@@ -29,8 +29,11 @@ def test_xmlrpc_handler(monkeypatch):
     Response = pretend.call_recorder(lambda *a, **k: 'response')
     monkeypatch.setattr(xmlrpc, "Response", Response)
 
+    # I'm aware that list_packages shouldn't return data with unicode strings
+    # but for the purposes of this test I'm just ensuring that unicode data is
+    # handled sanely
     interface = pretend.stub(
-        list_packages=pretend.call_recorder(lambda *a, **k: ['one', 'two'])
+        list_packages=pretend.call_recorder(lambda *a, **k: ['one', 'unicod€'])
     )
     Interface = lambda a, r: interface
     monkeypatch.setattr(xmlrpc, "Interface", Interface)
@@ -51,21 +54,22 @@ def test_xmlrpc_handler(monkeypatch):
     assert xmlrpc.handle_request(app, request) == 'response'
 
     assert interface.list_packages.calls == [pretend.call()]
-    response_xml = Response.calls[0].args[0]
 
-    assert response_xml == u'''<?xml version='1.0'?>
+    response_xml = Response.calls[0].args[0]
+    assert response_xml == '''<?xml version='1.0'?>
 <methodResponse>
 <params>
 <param>
 <value><array><data>
 <value><string>one</string></value>
-<value><string>two</string></value>
+<value><string>unicod\xe2\x82\xac</string></value>
 </data></array></value>
 </param>
 </params>
 </methodResponse>
 '''
-    assert Response.calls[0].kwargs == dict(mimetype='text/xml')
+
+    assert Response.calls[0].kwargs == dict(mimetype='text/xml; charset=utf-8')
 
 
 def test_xmlrpc_handler_size_limit(monkeypatch):
@@ -250,13 +254,13 @@ def test_xmlrpc_changelog(with_ids):
     now_plus_2 = now + datetime.timedelta(days=2)
     data = [
         dict(name='one', version='1', submitted_date=now,
-            action='created', id=1),
+             action='created', id=1),
         dict(name='two', version='2', submitted_date=now,
-            action='new release', id=2),
+             action='new release', id=2),
         dict(name='one', version='2', submitted_date=now_plus_1,
-            action='new release', id=3),
+             action='new release', id=3),
         dict(name='one', version='3', submitted_date=now_plus_2,
-            action='new release', id=4),
+             action='new release', id=4),
     ]
     result = [
         ('one', '1', arrow.get(now).timestamp, 'created', 1),
@@ -310,13 +314,13 @@ def test_xmlrpc_changelog_serial():
     now_plus_2 = now + datetime.timedelta(days=2)
     data = [
         dict(name='one', version='1', submitted_date=now,
-            action='created', id=1),
+             action='created', id=1),
         dict(name='two', version='2', submitted_date=now,
-            action='new release', id=2),
+             action='new release', id=2),
         dict(name='one', version='2', submitted_date=now_plus_1,
-            action='new release', id=3),
+             action='new release', id=3),
         dict(name='one', version='3', submitted_date=now_plus_2,
-            action='new release', id=4),
+             action='new release', id=4),
     ]
     result = [
         ('one', '1', arrow.get(now).timestamp, 'created', 1),
@@ -498,7 +502,7 @@ def test_release_data(monkeypatch):
         home_page="https://example.com/",
         license="Apache License v2.0",
         summary="A Test Project",
-        description="A Longer Test Project",
+        description="A Longer Test Project and let's have some üñìçøđé",
         keywords="foo,bar,wat",
         platform="All",
         download_url="https://example.com/downloads/test-project-1.0.tar.gz",
