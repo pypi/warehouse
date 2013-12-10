@@ -22,10 +22,23 @@ import json
 import logging
 import posixpath
 import re
+import sys
+import uuid
 from collections import namedtuple
 from email.utils import parsedate
 
+from alchimia import TWISTED_STRATEGY
+
 from setuptools.package_index import distros_for_url
+
+from sqlalchemy import MetaData, Table, Column, UnicodeText, Text, Enum, DateTime, create_engine
+from sqlalchemy.dialects.postgresql import UUID
+
+from twisted.internet.defer import Deferred
+from twisted.internet.endpoints import StandardIOEndpoint
+from twisted.internet.protocol import Factory
+from twisted.internet.task import react
+from twisted.protocols.basic import LineReceiver
 
 
 logger = logging.getLogger(__name__)
@@ -152,3 +165,100 @@ def compute_distribution_type(filename):
             "filename": filename
         }))
         return None
+
+
+class DownloadStaticsModels(object):
+    def __init__(self, uri, reactor):
+        self.metadata = MetaData()
+        self.downloads = Table(
+            "downloads", self.metadata,
+            Column("id", UUID(), primary_key=True, nullable=False),
+
+            Column("package_name", UnicodeText(), nullable=False),
+            Column("package_version", UnicodeText()),
+            Column(
+                "distribution_type",
+                Enum(
+                    "sdist",
+                    "wheel",
+                    "exe",
+                    "egg",
+                    "msi",
+                    name="distribution_type"
+                )
+            ),
+
+            Column(
+                "python_type",
+                Enum("cpython", "pypy", "jython", "ironpython", name="python_type")
+            ),
+            Column("python_release", Text()),
+            Column("python_version", Text()),
+
+            Column(
+                "installer_type",
+                Enum(
+                    "browser",
+                    "pip",
+                    "setuptools",
+                    "distribute",
+                    "bandersnatch",
+                    name="installer_type"
+                )
+            ),
+            Column("installer_version", Text()),
+
+            Column("operating_system", Text()),
+            Column("operating_system_version", Text()),
+
+            Column("download_time", DateTime(), nullable=False),
+        )
+        self.engine = create_engine(
+            uri, reactor=reactor, strategy=TWISTED_STRATEGY
+        )
+
+
+class FastlySyslogProtocol(LineReceiver):
+    def __init__(self, models):
+        self._models = models
+
+    def lineReceived(self, line):
+        parsed = parse_log_line(line)
+        if parsed is None:
+            return
+
+        ua = parsed.user_agent
+        self._models.engine.execute(self._models.downloads.insert().values(
+            id=str(uuid.uuid4()),
+            package_name=parsed.package_name,
+            package_version=parsed.package_version,
+            distribution_type=parsed.distribution_type,
+            python_type=ua.python_type,
+            python_release=ua.python_release,
+            python_version=ua.python_version,
+            installer_type=ua.installer_type,
+            installer_version=ua.installer_version,
+            operating_system=ua.operating_system,
+            operating_system_version=ua.operating_system_version,
+            download_time=parsed.download_time,
+        ))
+
+
+class FastlySyslogProtocolFactory(Factory):
+    def __init__(self, models):
+        self._models = models
+
+    def buildProtocol(self, addr):
+        return FastlySyslogProtocol(self._models)
+
+
+def main(reactor):
+    # TODO: ...
+    uri = "postgresql://vagrant:@/pypi"
+    endpoint = StandardIOEndpoint(reactor)
+    endpoint.listen(FastlySyslogProtocolFactory(DownloadStaticsModels(uri)))
+    return Deferred()
+
+
+if __name__ == "__main__":
+    react(main, sys.argv)
