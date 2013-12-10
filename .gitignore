@@ -33,3 +33,4 @@ data/
 .pyrax.cfg
 .rackspace.json
 warehouse.key
+.venv
