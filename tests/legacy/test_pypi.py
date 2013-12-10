@@ -14,6 +14,8 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import time
+
 import pretend
 import pytest
 
@@ -69,3 +71,14 @@ def test_pypi_route_xmlrpc(monkeypatch):
 
     assert xmlrpc.handle_request.calls == [pretend.call(app, request)]
     assert resp == 'success'
+
+
+def test_daytime(monkeypatch):
+    app = pretend.stub()
+    request = pretend.stub()
+
+    monkeypatch.setattr(time, 'time', lambda: 0)
+
+    resp = pypi.daytime(app, request)
+
+    assert resp.response[0] == '19700101T00:00:00\n'

@@ -14,8 +14,11 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import time
+
 from warehouse.helpers import url_for
 from werkzeug.utils import redirect
+from warehouse.http import Response
 
 from warehouse.legacy import xmlrpc
 
@@ -34,3 +37,8 @@ def pypi(app, request):
         ),
         code=301,
     )
+
+
+def daytime(app, request):
+    response = time.strftime("%Y%m%dT%H:%M:%S\n", time.gmtime(time.time()))
+    return Response(response, mimetype="text/plain")

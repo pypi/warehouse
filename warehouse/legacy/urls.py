@@ -26,5 +26,6 @@ urls = [
     ]),
     EndpointPrefix("warehouse.legacy.pypi.", [
         Rule("/pypi", methods=["GET", "POST"], endpoint="pypi"),
+        Rule("/daytime", methods=["GET"], endpoint="daytime"),
     ]),
 ]
