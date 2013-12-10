@@ -44,6 +44,7 @@ FakeDownload = namedtuple("FakeDownload", [
     "download_time",
 ])
 
+
 class FakeDownloadStatisticsModels(object):
     def __init__(self):
         self.downloads = []
