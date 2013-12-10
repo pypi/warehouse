@@ -154,3 +154,12 @@ class TestParsing(object):
                 operating_system_version="2.6.32-042stab061.2",
             )
         )
+
+    def test_parse_log_line_not_download(self):
+        # The URL path doesn't point at a package download
+        line = (
+            '2013-12-08T23:24:34Z cache-v43 pypi-cdn[18322]: 162.243.117.93 '
+            '"Sun, 08 Dec 2013 23:24:33 GMT" "-" "GET /simple/icalendar/3.5" '
+            'HTTP/1.1 301 0 0 MISS 0 "(null)" "(null)" "Python-urllib/2.7"'
+        )
+        assert parse_log_line(line) is None
