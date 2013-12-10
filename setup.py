@@ -65,6 +65,7 @@ setup(
     },
 
     install_requires=[
+        "alchimia",
         "alembic",
         "arrow",
         "babel",
