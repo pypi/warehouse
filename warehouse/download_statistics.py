@@ -146,3 +146,9 @@ def parse_log_line(line):
 def compute_distribution_type(filename):
     if filename.endswith(".tar.gz"):
         return "sdist"
+    else:
+        logger.info(json.dumps({
+            "event": "download_statitics.compute_distribution_type.ignore",
+            "filename": filename
+        }))
+        return None
