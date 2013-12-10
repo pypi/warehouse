@@ -26,7 +26,7 @@ import pytest
 from warehouse.download_statistics import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
     compute_distribution_type, DownloadStatisticsModels, FastlySyslogProtocol,
-    FastlySyslogProtocolFactory
+    FastlySyslogProtocolFactory, main
 )
 
 
@@ -221,7 +221,7 @@ class TestModels(object):
         DownloadStatisticsModels(_database_url, fake_reactor)
 
 
-class TestFastlySyslogProtocol(object):
+class TestFastlySyslog(object):
     def test_lineReceived(self):
         line = (
             '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
@@ -264,8 +264,12 @@ class TestFastlySyslogProtocol(object):
 
         assert models.downloads == []
 
-    def test_buildProtocol(self):
+    def test_factory_buildProtocol(self):
         models = FakeDownloadStatisticsModels()
         factory = FastlySyslogProtocolFactory(models)
         protocol = factory.buildProtocol(None)
         assert protocol._models is models
+
+    def test_main(self):
+        fake_reactor = pretend.stub()
+        main(fake_reactor)

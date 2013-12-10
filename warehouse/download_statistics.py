@@ -287,7 +287,8 @@ def main(reactor):
     # TODO: ...
     uri = "postgresql://vagrant:@/pypi"
     endpoint = StandardIOEndpoint(reactor)
-    endpoint.listen(FastlySyslogProtocolFactory(DownloadStatisticsModels(uri)))
+    models = DownloadStatisticsModels(uri, reactor)
+    endpoint.listen(FastlySyslogProtocolFactory(models))
     return Deferred()
 
 
