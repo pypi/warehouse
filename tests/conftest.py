@@ -25,8 +25,6 @@ import pytest
 import sqlalchemy
 import sqlalchemy.pool
 
-from six.moves import urllib_parse
-
 
 def pytest_addoption(parser):
     group = parser.getgroup("warehouse")
