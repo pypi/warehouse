@@ -1,5 +1,9 @@
 language: python
 python: 2.7
+
+addons:
+  postgresql: 9.3
+
 env:
     global:
         - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse
@@ -12,29 +16,15 @@ env:
         - TOXENV=packaging
 
 install:
-    # Add the PyPy repository
     - "if [[ $TOXENV == 'pypy' ]]; then sudo add-apt-repository -y ppa:pypy/ppa; fi"
-    # Upgrade PostgreSQL to 9.2
-    - source /etc/lsb-release
-    - sudo /etc/init.d/postgresql stop
-    - sudo cp /etc/postgresql/9.1/main/pg_hba.conf ./
-    - sudo apt-get remove postgresql postgresql-9.1 -qq --purge
-    - echo "deb http://apt.postgresql.org/pub/repos/apt/ $DISTRIB_CODENAME-pgdg main" > pgdg.list
-    - sudo mv pgdg.list /etc/apt/sources.list.d/
-    - wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
-    - sudo apt-get update
-    - sudo apt-get -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install postgresql-9.2 postgresql-contrib-9.2 -qq
-    - sudo /etc/init.d/postgresql stop
-    - sudo cp ./pg_hba.conf /etc/postgresql/9.2/main
-    - sudo /etc/init.d/postgresql start
-    # Upgrade PyPy
-    - "if [[ $TOXENV == 'pypy' ]]; then sudo apt-get -y install pypy; fi"
+    - "if [[ $TOXENV == 'pypy' ]]; then sudo apt-get -y update && sudo apt-get -y install pypy; fi"
     # This is required because we need to get rid of the Travis installed PyPy
     # or it'll take precedence over the PPA installed one.
     - "if [[ $TOXENV == 'pypy' ]]; then sudo rm -rf /usr/local/pypy/bin; fi"
     - pip install tox
 
 before_script:
+    - psql --version
     - psql -c "CREATE DATABASE warehouse ENCODING 'UTF8';" -U postgres
 
 script:
