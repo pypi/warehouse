@@ -23,7 +23,6 @@ import logging
 import posixpath
 import re
 import sys
-import uuid
 from collections import namedtuple
 from email.utils import parsedate
 
@@ -35,6 +34,7 @@ from sqlalchemy import (
     MetaData, Table, Column, UnicodeText, Text, Enum, DateTime, create_engine
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
 
 from twisted.internet.defer import Deferred
 from twisted.internet.endpoints import StandardIOEndpoint
@@ -174,7 +174,13 @@ class DownloadStatisticsModels(object):
         self.metadata = MetaData()
         self.downloads = Table(
             "downloads", self.metadata,
-            Column("id", UUID(), primary_key=True, nullable=False),
+            Column(
+                "id",
+                UUID(),
+                primary_key=True,
+                nullable=False,
+                server_default=func.uuid_generate_v4()
+            ),
 
             Column("package_name", UnicodeText(), nullable=False),
             Column("package_version", UnicodeText()),
@@ -225,13 +231,11 @@ class DownloadStatisticsModels(object):
             uri, reactor=reactor, strategy=TWISTED_STRATEGY
         )
 
-    def create_download(self, id, package_name, package_version,
-                        distribution_type, python_type, python_release,
-                        python_version, installer_type, installer_version,
-                        operating_system, operating_system_version,
-                        download_time):
+    def create_download(self, package_name, package_version, distribution_type,
+                        python_type, python_release, python_version,
+                        installer_type, installer_version, operating_system,
+                        operating_system_version, download_time):
         return self.engine.execute(self.downloads.insert().values(
-            id=id,
             package_name=package_name,
             package_version=package_version,
             distribution_type=distribution_type,
@@ -258,7 +262,6 @@ class FastlySyslogProtocol(LineReceiver):
 
         ua = parsed.user_agent
         self._models.create_download(
-            id=str(uuid.uuid4()),
             package_name=parsed.package_name,
             package_version=parsed.package_version,
             distribution_type=parsed.distribution_type,

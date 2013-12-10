@@ -30,7 +30,6 @@ from warehouse.download_statistics import (
 
 
 FakeDownload = namedtuple("FakeDownload", [
-    "id",
     "package_name",
     "package_version",
     "distribution_type",
@@ -48,13 +47,11 @@ class FakeDownloadStatisticsModels(object):
     def __init__(self):
         self.downloads = []
 
-    def create_download(self, id, package_name, package_version,
-                        distribution_type, python_type, python_release,
-                        python_version, installer_type, installer_version,
-                        operating_system, operating_system_version,
-                        download_time):
+    def create_download(self, package_name, package_version, distribution_type,
+                        python_type, python_release, python_version,
+                        installer_type, installer_version, operating_system,
+                        operating_system_version, download_time):
         self.downloads.append(FakeDownload(
-            id=id,
             package_name=package_name,
             package_version=package_version,
             distribution_type=distribution_type,
@@ -238,7 +235,6 @@ class TestFastlySyslogProtocol(object):
 
         assert models.downloads == [
             FakeDownload(
-                id=models.downloads[0].id,
                 package_name="INITools",
                 package_version="0.2",
                 distribution_type="sdist",
