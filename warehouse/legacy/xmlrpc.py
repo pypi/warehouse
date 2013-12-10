@@ -14,7 +14,6 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import re
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 
 import arrow
@@ -36,8 +35,11 @@ def handle_request(app, request):
 
     # errors here are handled by _marshaled_dispatch
     response = dispatcher._marshaled_dispatch(xml_request)
+
     # legacy; remove non-printable ASCII control codes from the response
-    response = re.sub('([\x00-\x08]|[\x0b-\x0c]|[\x0e-\x1f])+', '', response)
+    # RJ: disabled this as it's a giant, unreliable hack that doesn't work and
+    # I can't even remember why it's in here to start with
+    # response = re.sub('([\x00-\x08]|[\x0b-\x0c]|[\x0e-\x1f])+', '', response)
 
     return Response(response, mimetype="text/xml")
 
@@ -136,7 +138,7 @@ class Interface(object):
         info['classifiers'] = model.get_classifiers(name, version)
         info['package_url'] = 'http://pypi.python.org/pypi/%s' % name
         info['release_url'] = 'http://pypi.python.org/pypi/%s/%s' % (name,
-            version)
+                                                                     version)
         info['docs_url'] = model.get_documentation_url(name)
         info['downloads'] = model.get_download_counts(name)
 
