@@ -21,7 +21,8 @@ import datetime
 import pytest
 
 from warehouse.download_statistics import (
-    ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line
+    ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
+    compute_distribution_type
 )
 
 
@@ -163,3 +164,10 @@ class TestParsing(object):
             'HTTP/1.1 301 0 0 MISS 0 "(null)" "(null)" "Python-urllib/2.7"'
         )
         assert parse_log_line(line) is None
+
+    @pytest.mark.parametrize(("filename", "expected"), [
+        ("foo.tar.gz", "sdist"),
+        ("foo", None)
+    ])
+    def test_compute_distribution_type(self, filename, expected):
+        assert compute_distribution_type(filename) == expected
