@@ -18,11 +18,13 @@ from __future__ import (
 
 import datetime
 
+import pretend
+
 import pytest
 
 from warehouse.download_statistics import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
-    compute_distribution_type
+    compute_distribution_type, DownloadStatisticsModels
 )
 
 
@@ -171,3 +173,9 @@ class TestParsing(object):
     ])
     def test_compute_distribution_type(self, filename, expected):
         assert compute_distribution_type(filename) == expected
+
+
+class TestModels(object):
+    def test_instantiate(self, _database_url):
+        fake_reactor = pretend.stub()
+        DownloadStatisticsModels(_database_url, fake_reactor)

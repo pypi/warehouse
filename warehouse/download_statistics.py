@@ -169,7 +169,7 @@ def compute_distribution_type(filename):
         return None
 
 
-class DownloadStaticsModels(object):
+class DownloadStatisticsModels(object):
     def __init__(self, uri, reactor):
         self.metadata = MetaData()
         self.downloads = Table(
@@ -264,7 +264,7 @@ def main(reactor):
     # TODO: ...
     uri = "postgresql://vagrant:@/pypi"
     endpoint = StandardIOEndpoint(reactor)
-    endpoint.listen(FastlySyslogProtocolFactory(DownloadStaticsModels(uri)))
+    endpoint.listen(FastlySyslogProtocolFactory(DownloadStatisticsModels(uri)))
     return Deferred()
 
 
