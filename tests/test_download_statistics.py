@@ -283,7 +283,6 @@ class TestModels(object):
             models.metadata.drop_all(bind=engine)
 
 
-
 class TestFastlySyslog(object):
     def test_lineReceived(self):
         line = (
