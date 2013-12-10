@@ -31,7 +31,9 @@ from alchimia import TWISTED_STRATEGY
 
 from setuptools.package_index import distros_for_url
 
-from sqlalchemy import MetaData, Table, Column, UnicodeText, Text, Enum, DateTime, create_engine
+from sqlalchemy import (
+    MetaData, Table, Column, UnicodeText, Text, Enum, DateTime, create_engine
+)
 from sqlalchemy.dialects.postgresql import UUID
 
 from twisted.internet.defer import Deferred
@@ -190,7 +192,13 @@ class DownloadStaticsModels(object):
 
             Column(
                 "python_type",
-                Enum("cpython", "pypy", "jython", "ironpython", name="python_type")
+                Enum(
+                    "cpython",
+                    "pypy",
+                    "jython",
+                    "ironpython",
+                    name="python_type"
+                )
             ),
             Column("python_release", Text()),
             Column("python_version", Text()),
