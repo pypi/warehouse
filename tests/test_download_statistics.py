@@ -23,6 +23,11 @@ import pretend
 
 import pytest
 
+from sqlalchemy import create_engine
+from sqlalchemy.sql import func
+
+from twisted.python.failure import Failure
+
 from warehouse.download_statistics import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
     compute_distribution_type, DownloadStatisticsModels, FastlySyslogProtocol,
@@ -66,6 +71,24 @@ class FakeDownloadStatisticsModels(object):
             operating_system_version=operating_system_version,
             download_time=download_time,
         ))
+
+
+class FakeThreaderedReactor(object):
+    def getThreadPool(self):
+        return FakeThreadPool()
+
+    def callFromThread(self, f, *args, **kwargs):
+        return f(*args, **kwargs)
+
+
+class FakeThreadPool(object):
+    def callInThreadWithCallback(self, cb, f, *args, **kwargs):
+        try:
+            result = f(*args, **kwargs)
+        except Exception as e:
+            cb(False, Failure(e))
+        else:
+            cb(True, result)
 
 
 class TestParsing(object):
@@ -216,9 +239,49 @@ class TestParsing(object):
 
 
 class TestModels(object):
+    def success_result_of(self, d):
+        x = []
+
+        def cb(result):
+            x.append(result)
+            return result
+
+        d.addCallback(cb)
+        assert x
+        return x[0]
+
     def test_instantiate(self, _database_url):
         fake_reactor = pretend.stub()
         DownloadStatisticsModels(_database_url, fake_reactor)
+
+    def test_create_download(self, _database_url):
+        engine = create_engine(_database_url)
+        models = DownloadStatisticsModels(
+            _database_url, FakeThreaderedReactor()
+        )
+        models.metadata.create_all(bind=engine)
+        try:
+            models.create_download(
+                package_name="foo",
+                package_version="1.0",
+                distribution_type="sdist",
+                python_type="cpython",
+                python_release=None,
+                python_version="2.7",
+                installer_type="pip",
+                installer_version="1.4",
+                operating_system=None,
+                operating_system_version=None,
+                download_time=datetime.datetime.utcnow(),
+            )
+
+            d = models.engine.execute(func.count(models.downloads.c.id))
+            res = self.success_result_of(d)
+            d = res.scalar()
+            assert self.success_result_of(d) == 1
+        finally:
+            models.metadata.drop_all(bind=engine)
+
 
 
 class TestFastlySyslog(object):

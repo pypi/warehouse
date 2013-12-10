@@ -92,6 +92,7 @@ def _database_url(request):
         conn.execute("DROP SCHEMA public CASCADE")
         conn.execute("CREATE SCHEMA public")
         conn.execute("CREATE EXTENSION IF NOT EXISTS citext")
+        conn.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option(
         "script_location",
