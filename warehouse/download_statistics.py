@@ -105,4 +105,3 @@ def parse_useragent(ua):
         operating_system=operating_system,
         operating_system_version=operating_system_version,
     )
-
