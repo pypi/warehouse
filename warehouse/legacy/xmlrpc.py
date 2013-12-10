@@ -25,6 +25,7 @@ from warehouse.http import Response
 def handle_request(app, request):
     '''Wrap an invocation of the XML-RPC dispatcher.
     '''
+    # unicode strings will be encoded in utf-8 by xmlrpclib
     dispatcher = SimpleXMLRPCDispatcher()
     dispatcher.register_instance(Interface(app, request))
 
@@ -41,7 +42,7 @@ def handle_request(app, request):
     # I can't even remember why it's in here to start with
     # response = re.sub('([\x00-\x08]|[\x0b-\x0c]|[\x0e-\x1f])+', '', response)
 
-    return Response(response, mimetype="text/xml")
+    return Response(response, mimetype="text/xml; charset=utf-8")
 
 
 class Interface(object):
