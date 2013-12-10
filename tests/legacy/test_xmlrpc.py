@@ -69,7 +69,7 @@ def test_xmlrpc_handler(monkeypatch):
 </methodResponse>
 '''
 
-    assert Response.calls[0].kwargs == dict(mimetype='text/xml')
+    assert Response.calls[0].kwargs == dict(mimetype='text/xml; charset=utf-8')
 
 
 def test_xmlrpc_handler_size_limit(monkeypatch):
