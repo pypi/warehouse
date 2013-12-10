@@ -40,6 +40,12 @@ PYTHON_IMPL_RELEASE_TO_VERSION = {
     ("pypy", "2.2.1"): "2.7.3",
 }
 
+BANDERSNATCH_RE = re.compile(r"""
+\((?P<python_type>.*?)\ (?P<python_version>.*?),
+\ (?P<operating_system>.*?)\ (?P<operating_system_version>.*?)\)
+""", re.VERBOSE)
+
+
 def parse_useragent(ua):
     python_type = None
     python_version = None
@@ -65,7 +71,11 @@ def parse_useragent(ua):
     elif ua.startswith("bandersnatch"):
         bander_part, rest = ua.split(" ", 1)
         installer_type, installer_version = bander_part.split("/")
-        python_type, python_version, operating_system, operating_system_version = re.match(r"\((.*?) (.*?), (.*?) (.*?)\)", rest).groups()
+        match = BANDERSNATCH_RE.match(rest)
+        python_type = match.group("python_type")
+        python_version = match.group("python_version")
+        operating_system = match.group("operating_system")
+        operating_system_version = match.group("operating_system_version")
     elif "Mozilla" in ua:
         installer_type = "browser"
     else:

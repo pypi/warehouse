@@ -94,7 +94,8 @@ class TestParsing(object):
             )
         ),
         (
-            "bandersnatch/1.1 (CPython 2.7.3-final0, Linux 3.8.0-31-generic x86_64)",
+            ("bandersnatch/1.1 (CPython 2.7.3-final0, "
+             "Linux 3.8.0-31-generic x86_64)"),
             ParsedUserAgent(
                 python_version="2.7.3-final0",
                 python_release=None,
