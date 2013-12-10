@@ -142,6 +142,7 @@ def parse_log_line(line):
         user_agent=parse_useragent(ua)
     )
 
+
 def compute_distribution_type(filename):
     if filename.endswith(".tar.gz"):
         return "sdist"
