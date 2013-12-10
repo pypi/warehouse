@@ -17,6 +17,7 @@ from __future__ import (
 )
 
 import datetime
+from collections import namedtuple
 
 import pretend
 
@@ -24,8 +25,48 @@ import pytest
 
 from warehouse.download_statistics import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
-    compute_distribution_type, DownloadStatisticsModels
+    compute_distribution_type, DownloadStatisticsModels, FastlySyslogProtocol
 )
+
+
+FakeDownload = namedtuple("FakeDownload", [
+    "id",
+    "package_name",
+    "package_version",
+    "distribution_type",
+    "python_type",
+    "python_release",
+    "python_version",
+    "installer_type",
+    "installer_version",
+    "operating_system",
+    "operating_system_version",
+    "download_time",
+])
+
+class FakeDownloadStatisticsModels(object):
+    def __init__(self):
+        self.downloads = []
+
+    def create_download(self, id, package_name, package_version,
+                        distribution_type, python_type, python_release,
+                        python_version, installer_type, installer_version,
+                        operating_system, operating_system_version,
+                        download_time):
+        self.downloads.append(FakeDownload(
+            id=id,
+            package_name=package_name,
+            package_version=package_version,
+            distribution_type=distribution_type,
+            python_type=python_type,
+            python_release=python_release,
+            python_version=python_version,
+            installer_type=installer_type,
+            installer_version=installer_version,
+            operating_system=operating_system,
+            operating_system_version=operating_system_version,
+            download_time=download_time,
+        ))
 
 
 class TestParsing(object):
@@ -179,3 +220,35 @@ class TestModels(object):
     def test_instantiate(self, _database_url):
         fake_reactor = pretend.stub()
         DownloadStatisticsModels(_database_url, fake_reactor)
+
+
+class TestFastlySyslogProtocol(object):
+    def test_lineReceived(self):
+        line = (
+            '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
+            '"Sun, 08 Dec 2013 23:24:40 GMT" "-" "GET '
+            '/packages/source/I/INITools/INITools-0.2.tar.gz" HTTP/1.1 200 '
+            '16930 156751 HIT 326 "(null)" "(null)" "pip/1.5rc1 PyPy/2.2.1 '
+            'Linux/2.6.32-042stab061.2"\n'
+        )
+
+        models = FakeDownloadStatisticsModels()
+        protocol = FastlySyslogProtocol(models)
+        protocol.lineReceived(line)
+
+        assert models.downloads == [
+            FakeDownload(
+                id=models.downloads[0].id,
+                package_name="INITools",
+                package_version="0.2",
+                distribution_type="sdist",
+                download_time=datetime.datetime(2013, 12, 8, 23, 24, 40),
+                python_version="2.7.3",
+                python_release="2.2.1",
+                python_type="pypy",
+                installer_type="pip",
+                installer_version="1.5rc1",
+                operating_system="Linux",
+                operating_system_version="2.6.32-042stab061.2",
+            )
+        ]

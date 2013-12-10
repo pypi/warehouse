@@ -225,6 +225,27 @@ class DownloadStatisticsModels(object):
             uri, reactor=reactor, strategy=TWISTED_STRATEGY
         )
 
+    def create_download(self, id, package_name, package_version,
+                        distribution_type, python_type, python_release,
+                        python_version, installer_type, installer_version,
+                        operating_system, operating_system_version,
+                        download_time):
+        return self.engine.execute(self.downloads.insert().values(
+            id=id,
+            package_name=package_name,
+            package_version=package_version,
+            distribution_type=distribution_type,
+            python_type=python_type,
+            python_release=python_release,
+            python_version=python_version,
+            installer_type=installer_type,
+            installer_version=installer_version,
+            operating_system=operating_system,
+            operating_system_version=operating_system_version,
+            download_time=download_time,
+        ))
+
+
 
 class FastlySyslogProtocol(LineReceiver):
     def __init__(self, models):
@@ -236,7 +257,7 @@ class FastlySyslogProtocol(LineReceiver):
             return
 
         ua = parsed.user_agent
-        self._models.engine.execute(self._models.downloads.insert().values(
+        self._models.create_download(
             id=str(uuid.uuid4()),
             package_name=parsed.package_name,
             package_version=parsed.package_version,
@@ -249,7 +270,7 @@ class FastlySyslogProtocol(LineReceiver):
             operating_system=ua.operating_system,
             operating_system_version=ua.operating_system_version,
             download_time=parsed.download_time,
-        ))
+        )
 
 
 class FastlySyslogProtocolFactory(Factory):
