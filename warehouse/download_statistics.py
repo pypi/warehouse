@@ -25,6 +25,8 @@ import re
 from collections import namedtuple
 from email.utils import parsedate
 
+from setuptools.package_index import distros_for_url
+
 
 logger = logging.getLogger(__name__)
 
@@ -133,9 +135,13 @@ def parse_log_line(line):
     directory, filename = posixpath.split(path)
     project = posixpath.basename(directory)
     return ParsedLogLine(
-        project_name=project,
-        project_version=compute_project_version(project, filename),
-        distribution_type=compute_distribution_type(project, filename),
+        package_name=project,
+        package_version=next(distros_for_url(filename)).version,
+        distribution_type=compute_distribution_type(filename),
         download_time=download_time,
         user_agent=parse_useragent(ua)
     )
+
+def compute_distribution_type(filename):
+    if filename.endswith(".tar.gz"):
+        return "sdist"
