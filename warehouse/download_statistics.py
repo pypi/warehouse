@@ -250,7 +250,6 @@ class DownloadStatisticsModels(object):
         ))
 
 
-
 class FastlySyslogProtocol(LineReceiver):
     def __init__(self, models):
         self._models = models
