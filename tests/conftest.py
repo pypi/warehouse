@@ -69,11 +69,6 @@ def _database_url(request):
     database_url = (
         database_url_option or database_url_environ or database_url_default
     )
-    engine = sqlalchemy.create_engine(
-        database_url,
-        isolation_level="AUTOCOMMIT",
-        poolclass=sqlalchemy.pool.NullPool
-    )
 
     # Create the database schema
     engine = sqlalchemy.create_engine(
