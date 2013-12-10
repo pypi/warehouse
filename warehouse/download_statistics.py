@@ -16,10 +16,14 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import csv
+import datetime
 import json
 import logging
+import posixpath
 import re
 from collections import namedtuple
+from email.utils import parsedate
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +38,13 @@ ParsedUserAgent = namedtuple("ParsedUserAgent", [
 
     "operating_system",
     "operating_system_version",
+])
+ParsedLogLine = namedtuple("ParsedLogLine", [
+    "package_name",
+    "package_version",
+    "distribution_type",
+    "download_time",
+    "user_agent",
 ])
 
 PYTHON_IMPL_RELEASE_TO_VERSION = {
@@ -104,4 +115,27 @@ def parse_useragent(ua):
 
         operating_system=operating_system,
         operating_system_version=operating_system_version,
+    )
+
+
+def parse_log_line(line):
+    row = list(csv.reader([line], delimiter=str(" ")))[0]
+    timestamp = row[4]
+    req = row[6]
+    ua = row[15]
+
+    path = req.split(" ", 1)[1]
+
+    if not path.startswith("/packages/"):
+        return
+
+    download_time = datetime.datetime(*parsedate(timestamp)[:6])
+    directory, filename = posixpath.split(path)
+    project = posixpath.basename(directory)
+    return ParsedLogLine(
+        project_name=project,
+        project_version=compute_project_version(project, filename),
+        distribution_type=compute_distribution_type(project, filename),
+        download_time=download_time,
+        user_agent=parse_useragent(ua)
     )

@@ -16,9 +16,13 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import datetime
+
 import pytest
 
-from warehouse.download_statistics import ParsedUserAgent, parse_useragent
+from warehouse.download_statistics import (
+    ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line
+)
 
 
 class TestParsing(object):
@@ -126,3 +130,27 @@ class TestParsing(object):
     ])
     def test_parse_useragent(self, ua, expected):
         assert parse_useragent(ua) == expected
+
+    def test_parse_log_line(self):
+        line = (
+            '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
+            '"Sun, 08 Dec 2013 23:24:40 GMT" "-" "GET '
+            '/packages/source/I/INITools/INITools-0.2.tar.gz" HTTP/1.1 200 '
+            '16930 156751 HIT 326 "(null)" "(null)" "pip/1.5rc1 PyPy/2.2.1 '
+            'Linux/2.6.32-042stab061.2"\n'
+        )
+        assert parse_log_line(line) == ParsedLogLine(
+            package_name="INITools",
+            package_version="0.2",
+            distribution_type="sdist",
+            download_time=datetime.datetime(2013, 12, 8, 23, 24, 40),
+            user_agent=ParsedUserAgent(
+                python_version="2.7.3",
+                python_release="2.2.1",
+                python_type="pypy",
+                installer_type="pip",
+                installer_version="1.5rc1",
+                operating_system="Linux",
+                operating_system_version="2.6.32-042stab061.2",
+            )
+        )
