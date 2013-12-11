@@ -18,12 +18,16 @@ from __future__ import (
 import csv
 import datetime
 import json
+import logging
 import posixpath
 import re
 from collections import namedtuple
 from email.utils import parsedate
 
 from setuptools.package_index import distros_for_url
+
+
+logger = logging.getLogger(__name__)
 
 
 ParsedUserAgent = namedtuple("ParsedUserAgent", [
