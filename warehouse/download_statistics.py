@@ -28,7 +28,6 @@ from sqlalchemy import (
 logger = logging.getLogger(__name__)
 
 
-
 class DownloadStatisticsModels(object):
     def __init__(self, uri, reactor):
         self.metadata = MetaData()

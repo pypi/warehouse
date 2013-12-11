@@ -29,7 +29,7 @@ from sqlalchemy.sql import func
 from twisted.python.failure import Failure
 
 from warehouse.download_statistics.cli import (
-    FastlySyslogProtocol, FastlySyslogProtocolFactory
+    ProcessLogsCommand, FastlySyslogProtocol, FastlySyslogProtocolFactory
 )
 from warehouse.download_statistics.helpers import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
@@ -336,4 +336,4 @@ class TestFastlySyslog(object):
 
     def test_main(self):
         fake_reactor = pretend.stub()
-        main(fake_reactor)
+        ProcessLogsCommand().main(None, fake_reactor)

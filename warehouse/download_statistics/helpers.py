@@ -26,7 +26,6 @@ from email.utils import parsedate
 from setuptools.package_index import distros_for_url
 
 
-
 ParsedUserAgent = namedtuple("ParsedUserAgent", [
     "python_type",
     "python_release",

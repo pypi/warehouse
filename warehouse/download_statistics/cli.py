@@ -63,7 +63,7 @@ class ProcessLogsCommand(object):
     def __call__(self, app):
         react(self.main, [app] + sys.argv)
 
-    def main(reactor, app):
+    def main(self, reactor, app):
         # TODO: ...
         uri = "postgresql://vagrant:@/pypi"
         endpoint = StandardIOEndpoint(reactor)
