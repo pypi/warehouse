@@ -28,10 +28,12 @@ from sqlalchemy.sql import func
 
 from twisted.python.failure import Failure
 
-from warehouse.download_statistics import (
+from warehouse.download_statistics.cli import (
+    FastlySyslogProtocol, FastlySyslogProtocolFactory
+)
+from warehouse.download_statistics.helpers import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
-    compute_distribution_type, DownloadStatisticsModels, FastlySyslogProtocol,
-    FastlySyslogProtocolFactory, main
+    compute_distribution_type
 )
 
 
