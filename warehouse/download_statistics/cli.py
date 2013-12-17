@@ -65,11 +65,12 @@ class FastlySyslogProtocolFactory(Factory):
 
 
 class TwistedCommand(object):
-    def __init__(self, main_func):
+    def __init__(self, main_func, reactor=None):
         self._main_func = main_func
+        self._reactor = reactor
 
     def __call__(self, app):
-        react(self._main_func, [app])
+        react(self._main_func, [app], _reactor=self._reactor)
 
 
 def process_logs_main(reactor, app):
