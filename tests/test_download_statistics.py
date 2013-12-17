@@ -32,7 +32,7 @@ from twisted.python.failure import Failure
 
 from warehouse.download_statistics import tables
 from warehouse.download_statistics.cli import (
-    ProcessLogsCommand, FastlySyslogProtocol, FastlySyslogProtocolFactory
+    FastlySyslogProtocol, FastlySyslogProtocolFactory, process_logs_main
 )
 from warehouse.download_statistics.helpers import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
@@ -344,4 +344,4 @@ class TestFastlySyslog(object):
             )
         )
         fake_reactor = pretend.stub()
-        ProcessLogsCommand().main(fake_reactor, app)
+        process_logs_main(fake_reactor, app)

@@ -15,8 +15,6 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import sys
-
 import alchimia
 
 import sqlalchemy
@@ -66,21 +64,25 @@ class FastlySyslogProtocolFactory(Factory):
         )
 
 
-class ProcessLogsCommand(object):
-    def __call__(self, app):
-        react(self.main, [app] + sys.argv)
+class TwistedCommand(object):
+    def __init__(self, main_func):
+        self._main_func = main_func
 
-    def main(self, reactor, app):
-        download_statistic_engine = sqlalchemy.create_engine(
-            app.config.database.download_statistics_url,
-            strategy=alchimia.TWISTED_STRATEGY,
-            reactor=reactor
-        )
-        endpoint = StandardIOEndpoint(reactor)
-        endpoint.listen(FastlySyslogProtocolFactory(download_statistic_engine))
-        return Deferred()
+    def __call__(self, app):
+        react(self._main_func, [app])
+
+
+def process_logs_main(reactor, app):
+    download_statistic_engine = sqlalchemy.create_engine(
+        app.config.database.download_statistics_url,
+        strategy=alchimia.TWISTED_STRATEGY,
+        reactor=reactor
+    )
+    endpoint = StandardIOEndpoint(reactor)
+    endpoint.listen(FastlySyslogProtocolFactory(download_statistic_engine))
+    return Deferred()
 
 
 __commands__ = {
-    "process-logs": ProcessLogsCommand(),
+    "process-logs": TwistedCommand(process_logs_main),
 }
