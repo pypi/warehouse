@@ -15,6 +15,9 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+import json
+import logging
+
 import alchimia
 
 import sqlalchemy
@@ -23,17 +26,28 @@ from twisted.internet.defer import Deferred
 from twisted.internet.endpoints import StandardIOEndpoint
 from twisted.internet.protocol import Factory
 from twisted.internet.task import react
-from twisted.protocols.basic import LineReceiver
+from twisted.protocols.basic import LineOnlyReceiver
 
 from warehouse.download_statistics.helpers import parse_log_line
 from warehouse.download_statistics.models import DownloadStatisticsModels
 
 
-class FastlySyslogProtocol(LineReceiver):
+logger = logging.getLogger(__name__)
+
+
+class FastlySyslogProtocol(LineOnlyReceiver):
     def __init__(self, models):
         self._models = models
 
     def lineReceived(self, line):
+        try:
+            self.handle_line(line)
+        except Exception:
+            logger.exception(json.dumps({
+                "event": "download_statistics.lineReceived.exception"
+            }))
+
+    def handle_line(self, line):
         parsed = parse_log_line(line)
         if parsed is None:
             return

@@ -289,7 +289,7 @@ class TestModels(object):
 
 
 class TestFastlySyslog(object):
-    def test_lineReceived(self):
+    def test_handle_line(self):
         line = (
             '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
             '"Sun, 08 Dec 2013 23:24:40 GMT" "-" "GET '
@@ -300,7 +300,7 @@ class TestFastlySyslog(object):
 
         models = FakeDownloadStatisticsModels()
         protocol = FastlySyslogProtocol(models)
-        protocol.lineReceived(line)
+        protocol.handle_line(line)
 
         assert models.downloads == [
             FakeDownload(
@@ -318,7 +318,7 @@ class TestFastlySyslog(object):
             )
         ]
 
-    def test_lineReceived_not_download(self):
+    def test_handle_line_not_download(self):
         # The URL path doesn't point at a package download
         line = (
             '2013-12-08T23:24:34Z cache-v43 pypi-cdn[18322]: 162.243.117.93 '
@@ -327,9 +327,23 @@ class TestFastlySyslog(object):
         )
         models = FakeDownloadStatisticsModels()
         protocol = FastlySyslogProtocol(models)
-        protocol.lineReceived(line)
+        protocol.handle_line(line)
 
         assert models.downloads == []
+
+    def test_lineReceived_error(self):
+        line = (
+            '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
+            '"Sun, 08 Dec 2013 23:24:40 GMT" "-" "GET '
+            '/packages/source/I/INITools/INITools-0.2.tar.gz" HTTP/1.1 200 '
+            '16930 156751 HIT 326 "(null)" "(null)" "pip/1.5rc1 PyPy/2.2.1 '
+            'Linux/2.6.32-042stab061.2"\n'
+        )
+
+        models = pretend.stub(create_download=pretend.raiser(ValueError))
+        protocol = FastlySyslogProtocol(models)
+        protocol.lineReceived(line)
+        # No exception was raised
 
     def test_factory_buildProtocol(self):
         engine = pretend.stub()
