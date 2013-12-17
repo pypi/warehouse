@@ -24,7 +24,7 @@ from sqlalchemy.sql import func
 from warehouse.application import Warehouse
 
 
-Table(
+downloads = Table(
     "downloads", Warehouse.metadata,
     Column(
         "id",

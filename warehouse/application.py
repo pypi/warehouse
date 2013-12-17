@@ -20,10 +20,14 @@ import importlib
 import os.path
 import logging.config
 
+import alchimia
+
 import babel.dates
 import babel.numbers
 import babel.support
+
 import guard
+
 import jinja2
 
 import redis as redispy
@@ -57,7 +61,7 @@ class Warehouse(object):
         "packaging": "warehouse.packaging.models:Model",
     }
 
-    def __init__(self, config, engine=None, redis=None):
+    def __init__(self, config, engine=None, redis=None, reactor=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
@@ -69,6 +73,15 @@ class Warehouse(object):
         if redis is None and self.config.get("redis", {}).get("url"):
             redis = redispy.StrictRedis.from_url(self.config.redis.url)
         self.redis = redis
+
+        if reactor is not None:
+            download_statistic_engine = sqlalchemy.create_engine(
+                self.config.database.download_statistics_url,
+                strategy=alchimia.TWISTED_STRATEGY
+            )
+        else:
+            download_statistics_egine = None
+        self.download_statistics_egine = download_statistics_egine
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()

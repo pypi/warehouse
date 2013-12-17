@@ -77,7 +77,10 @@ def _database_url(request):
     )
     app = Warehouse.from_yaml(
         override={
-            "database": {"url": database_url},
+            "database": {
+                "url": database_url,
+                "download_statistics_url": database_url,
+            },
             "search": {"hosts": []},
         },
         engine=engine,

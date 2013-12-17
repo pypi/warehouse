@@ -24,6 +24,7 @@ from twisted.internet.task import react
 from twisted.protocols.basic import LineReceiver
 
 from warehouse.download_statistics.helpers import parse_log_line
+from warehouse.download_statistics.models import DownloadStatisticsModels
 
 
 class FastlySyslogProtocol(LineReceiver):
@@ -52,11 +53,13 @@ class FastlySyslogProtocol(LineReceiver):
 
 
 class FastlySyslogProtocolFactory(Factory):
-    def __init__(self, models):
-        self._models = models
+    def __init__(self, app):
+        self._app = app
 
     def buildProtocol(self, addr):
-        return FastlySyslogProtocol(self._models)
+        return FastlySyslogProtocol(
+            DownloadStatisticsModels(self._app.download_statistics_engine)
+        )
 
 
 class ProcessLogsCommand(object):
@@ -64,10 +67,8 @@ class ProcessLogsCommand(object):
         react(self.main, [app] + sys.argv)
 
     def main(self, reactor, app):
-        # TODO: ...
-        uri = "postgresql://vagrant:@/pypi"
         endpoint = StandardIOEndpoint(reactor)
-        endpoint.listen(FastlySyslogProtocolFactory(models))
+        endpoint.listen(FastlySyslogProtocolFactory(app))
         return Deferred()
 
 

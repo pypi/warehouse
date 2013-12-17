@@ -19,6 +19,8 @@ from __future__ import (
 import datetime
 from collections import namedtuple
 
+import alchimia
+
 import pretend
 
 import pytest
@@ -28,6 +30,7 @@ from sqlalchemy.sql import func
 
 from twisted.python.failure import Failure
 
+from warehouse.download_statistics import tables
 from warehouse.download_statistics.cli import (
     ProcessLogsCommand, FastlySyslogProtocol, FastlySyslogProtocolFactory
 )
@@ -35,6 +38,7 @@ from warehouse.download_statistics.helpers import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
     compute_distribution_type
 )
+from warehouse.download_statistics.models import DownloadStatisticsModels
 
 
 FakeDownload = namedtuple("FakeDownload", [
@@ -252,16 +256,15 @@ class TestModels(object):
         assert x
         return x[0]
 
-    def test_instantiate(self, _database_url):
-        fake_reactor = pretend.stub()
-        DownloadStatisticsModels(_database_url, fake_reactor)
-
     def test_create_download(self, _database_url):
         engine = create_engine(_database_url)
-        models = DownloadStatisticsModels(
-            _database_url, FakeThreaderedReactor()
+        tw_engine = create_engine(
+            _database_url,
+            strategy=alchimia.TWISTED_STRATEGY,
+            reactor=FakeThreaderedReactor()
         )
-        models.metadata.create_all(bind=engine)
+        models = DownloadStatisticsModels(tw_engine)
+        tables.downloads.create(bind=engine)
         try:
             models.create_download(
                 package_name="foo",
@@ -277,12 +280,10 @@ class TestModels(object):
                 download_time=datetime.datetime.utcnow(),
             )
 
-            d = models.engine.execute(func.count(models.downloads.c.id))
-            res = self.success_result_of(d)
-            d = res.scalar()
-            assert self.success_result_of(d) == 1
+            res = engine.execute(func.count(tables.downloads.c.id))
+            assert res.scalar() == 1
         finally:
-            models.metadata.drop_all(bind=engine)
+            tables.downloads.drop(bind=engine)
 
 
 class TestFastlySyslog(object):
@@ -329,11 +330,13 @@ class TestFastlySyslog(object):
         assert models.downloads == []
 
     def test_factory_buildProtocol(self):
-        models = FakeDownloadStatisticsModels()
-        factory = FastlySyslogProtocolFactory(models)
+        engine = pretend.stub()
+        app = pretend.stub(download_statistics_engine=engine)
+        factory = FastlySyslogProtocolFactory(app)
         protocol = factory.buildProtocol(None)
-        assert protocol._models is models
+        assert protocol._models._engine is engine
 
     def test_main(self):
+        app = pretend.stub(download_statistics_engine=None)
         fake_reactor = pretend.stub()
-        ProcessLogsCommand().main(None, fake_reactor)
+        ProcessLogsCommand().main(fake_reactor, app)
