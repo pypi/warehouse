@@ -14,6 +14,7 @@
 
 from warehouse.download_statistics.tables import downloads
 
+
 class DownloadStatisticsModels(object):
     def __init__(self, engine):
         self._engine = engine
