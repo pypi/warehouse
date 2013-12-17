@@ -17,6 +17,10 @@ from __future__ import (
 
 import sys
 
+import alchimia
+
+import sqlalchemy
+
 from twisted.internet.defer import Deferred
 from twisted.internet.endpoints import StandardIOEndpoint
 from twisted.internet.protocol import Factory
@@ -53,12 +57,12 @@ class FastlySyslogProtocol(LineReceiver):
 
 
 class FastlySyslogProtocolFactory(Factory):
-    def __init__(self, app):
-        self._app = app
+    def __init__(self, engine):
+        self._engine = engine
 
     def buildProtocol(self, addr):
         return FastlySyslogProtocol(
-            DownloadStatisticsModels(self._app.download_statistics_engine)
+            DownloadStatisticsModels(self._engine)
         )
 
 
@@ -67,8 +71,13 @@ class ProcessLogsCommand(object):
         react(self.main, [app] + sys.argv)
 
     def main(self, reactor, app):
+        download_statistic_engine = sqlalchemy.create_engine(
+            app.config.database.download_statistics_url,
+            strategy=alchimia.TWISTED_STRATEGY,
+            reactor=reactor
+        )
         endpoint = StandardIOEndpoint(reactor)
-        endpoint.listen(FastlySyslogProtocolFactory(app))
+        endpoint.listen(FastlySyslogProtocolFactory(download_statistic_engine))
         return Deferred()
 
 

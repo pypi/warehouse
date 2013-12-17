@@ -331,12 +331,17 @@ class TestFastlySyslog(object):
 
     def test_factory_buildProtocol(self):
         engine = pretend.stub()
-        app = pretend.stub(download_statistics_engine=engine)
-        factory = FastlySyslogProtocolFactory(app)
+        factory = FastlySyslogProtocolFactory(engine)
         protocol = factory.buildProtocol(None)
         assert protocol._models._engine is engine
 
-    def test_main(self):
-        app = pretend.stub(download_statistics_engine=None)
+    def test_main(self, _database_url):
+        app = pretend.stub(
+            config=pretend.stub(
+                database=pretend.stub(
+                    download_statistics_url=_database_url
+                )
+            )
+        )
         fake_reactor = pretend.stub()
         ProcessLogsCommand().main(fake_reactor, app)
