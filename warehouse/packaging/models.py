@@ -101,6 +101,32 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [tuple(r) for r in conn.execute(query, limit=num)]
 
+    def get_recent_projects(self, num=10):
+        # We only consider projects registered in the last 7 days (see
+        # get_recently_updated for reasoning)
+        query = \
+            """ SELECT
+                    p.name, r.version, p.created, r.summary
+                FROM releases r, (
+                    SELECT packages.name, max_order, packages.created
+                    FROM packages
+                    JOIN (
+                       SELECT name, max(_pypi_ordering) AS max_order
+                         FROM releases
+                        WHERE created >= now() - interval '7 days'
+                        GROUP BY name
+                    ) mo ON packages.name = mo.name
+                ) p
+                WHERE p.name = r.name
+                  AND p.max_order = r._pypi_ordering
+                  AND p.created >= now() - interval '7 days'
+                ORDER BY p.created DESC
+                LIMIT %(num)s
+            """
+
+        with self.engine.connect() as conn:
+            return [dict(r) for r in conn.execute(query, num=num)]
+
     def get_project(self, name):
         query = \
             """ SELECT name
@@ -488,7 +514,7 @@ class Model(models.Model):
 
         with self.engine.connect() as conn:
             return dict((r['classifier'], r['id'])
-                for r in conn.execute(query, *classifiers))
+                        for r in conn.execute(query, *classifiers))
 
     def search_by_classifier(self, selected_classifiers):
         # Note: selected_classifiers is a list of ids from trove_classifiers

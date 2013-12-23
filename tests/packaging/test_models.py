@@ -413,6 +413,56 @@ def test_top_projects(num, result, dbapp):
     assert top == result
 
 
+def test_get_recent_projects(dbapp):
+    def create_package(name, version, ordering, created):
+        dbapp.engine.execute(packages.insert().values(
+            name=name, created=created))
+        dbapp.engine.execute(releases.insert().values(
+            name=name, version=version, _pypi_ordering=ordering,
+            created=created))
+
+    now = datetime.datetime.utcnow()
+    create_package("foo1", "2.0", 2, now)
+    create_package("foo2", "1.0", 1, now - datetime.timedelta(seconds=45))
+    create_package("foo3", "1.0", 1, now - datetime.timedelta(seconds=15))
+    create_package("foo4", "1.0", 1, now - datetime.timedelta(seconds=40))
+    create_package("foo5", "1.0", 1, now - datetime.timedelta(seconds=25))
+    create_package("foo6", "1.0", 1, now - datetime.timedelta(seconds=30))
+    create_package("foo7", "1.0", 1, now - datetime.timedelta(seconds=35))
+
+    dbapp.engine.execute(releases.insert().values(
+        name="foo1", version="1.0", _pypi_ordering=1,
+        created=now - datetime.timedelta(seconds=5),
+    ))
+
+    assert dbapp.models.packaging.get_recent_projects(num=4) == [
+        {
+            "name": "foo1",
+            "version": "2.0",
+            "summary": None,
+            "created": now,
+        },
+        {
+            "name": "foo3",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=15),
+        },
+        {
+            "name": "foo5",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=25),
+        },
+        {
+            "name": "foo6",
+            "version": "1.0",
+            "summary": None,
+            "created": now - datetime.timedelta(seconds=30),
+        },
+    ]
+
+
 @pytest.mark.parametrize(("name", "normalized"), [
     ("foo_bar", "foo-bar"),
     ("Bar", "bar"),
