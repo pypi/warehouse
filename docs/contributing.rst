@@ -65,7 +65,7 @@ dependencies, and the Python development dependencies using:
 
 .. code-block:: console
 
-    $ pip install -r requirements.txt
+    $ pip install -r dev-requirements.txt
 
 Finally you can setup the project:
 
