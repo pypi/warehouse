@@ -38,7 +38,7 @@ class Model(models.Model):
         query = "SELECT SUM(downloads) FROM release_files"
 
         with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            return conn.execute(query).scalar() or 0
 
     def get_recently_updated(self, num=10):
         # We only consider releases made in the last 7 days, otherwise we have
