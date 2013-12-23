@@ -123,10 +123,10 @@ def test_json(monkeypatch, callback):
     expected = '''{
     "info": {
         "some": "data"
-    }, 
+    }, \n\
     "urls": [
         {
-            "upload_time": "1970-01-01T00:00:00", 
+            "upload_time": "1970-01-01T00:00:00", \n\
             "some": "url"
         }
     ]
