@@ -23,7 +23,9 @@ from werkzeug.exceptions import NotFound, BadRequest
 from warehouse.helpers import url_for
 from warehouse.http import Response
 from warehouse.legacy import xmlrpc
-from warehouse.utils import cache, fastly, is_valid_json_callback_name
+from warehouse.utils import (
+    cache, fastly, is_valid_json_callback_name, render_response,
+)
 
 
 def pypi(app, request):
@@ -85,4 +87,46 @@ def project_json(app, request, project_name):
 
     response = Response(data, mimetype="application/json")
     response.headers['Content-Disposition'] = 'inline'
+    return response
+
+
+# @cache("simple")
+# @fastly("simple", "simple~{project_name!n}")
+def rss(app, request):
+    """Dump the last N days' updates as an RSS feed.
+    """
+    releases = app.db.packaging.get_recently_updated(num=40)
+    for release in releases:
+        values = dict(project_name=release['name'], version=release['version'])
+        url = app.urls.build('warehouse.packaging.views.project_detail',
+                             values, force_external=True)
+        release.update(dict(url=url))
+
+    response = render_response(
+        app, request, "legacy/rss.xml", description='package updates',
+        releases=releases, site=app.config['site']
+    )
+    response.mimetype = 'text/xml; charset=utf-8'
+    # TODO: throw in a last-modified header too?
+    return response
+
+
+# @cache("simple")
+# @fastly("simple", "simple~{project_name!n}")
+def packages_rss(app, request):
+    """Dump the last N days' new projects as an RSS feed.
+    """
+    releases = app.db.packaging.get_recent_projects(num=40)
+    for release in releases:
+        values = dict(project_name=release['name'])
+        url = app.urls.build('warehouse.packaging.views.project_detail',
+                             values, force_external=True)
+        release.update(dict(url=url))
+
+    response = render_response(
+        app, request, "legacy/rss.xml", description='new projects',
+        releases=releases, site=app.config['site']
+    )
+    response.mimetype = 'text/xml; charset=utf-8'
+    # TODO: throw in a last-modified header too?
     return response
