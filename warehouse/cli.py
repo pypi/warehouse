@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 import werkzeug.serving
 
 import warehouse
+import warehouse.download_statistics.cli
 import warehouse.migrations.cli
 import warehouse.search.cli
 
