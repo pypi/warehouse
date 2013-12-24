@@ -229,6 +229,29 @@ class TestParsing(object):
             )
         )
 
+        line = (
+            '2013-12-08T23:27:24Z cache-c31 pypi-cdn[11386]: 199.182.120.6 '
+            '"Sun, 08 Dec 2013 23:27:24 GMT" "-" '
+            '"GET /packages/2.7/w/wheel/wheel-0.22.0-py2.py3-none-any.whl" '
+            'HTTP/1.1 200 54823 329778 HIT 42 "(null)" "(null)" '
+            '"pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"'
+        )
+        assert parse_log_line(line) == ParsedLogLine(
+            package_name="wheel",
+            package_version="0.22.0",
+            distribution_type="wheel",
+            download_time=datetime.datetime(2013, 12, 9, 23, 27, 24),
+            user_agent=ParsedUserAgent(
+                python_version="2.7.3",
+                python_release="2.2.1",
+                python_type="pypy",
+                installer_type="pip",
+                installer_version="1.5rc1",
+                operating_system="Linux",
+                operating_system_version="2.6.32-042stab061.2"
+            )
+        )
+
     def test_parse_log_line_not_download(self):
         # The URL path doesn't point at a package download
         line = (
