@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.download_statistics.tables import downloads
-
 
 class DownloadStatisticsModels(object):
     def __init__(self, engine):
@@ -23,6 +21,9 @@ class DownloadStatisticsModels(object):
                         python_type, python_release, python_version,
                         installer_type, installer_version, operating_system,
                         operating_system_version, download_time):
+
+        from warehouse.download_statistics.tables import downloads
+
         return self._engine.execute(downloads.insert().values(
             package_name=package_name,
             package_version=package_version,
