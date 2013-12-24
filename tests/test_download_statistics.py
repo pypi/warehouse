@@ -301,6 +301,12 @@ class TestParsing(object):
 
     @pytest.mark.parametrize(("filename", "expected"), [
         ("foo.tar.gz", "sdist"),
+        ("foo.tar.bz2", "sdist"),
+        ("foo.tgz", "sdist"),
+        ("foo.zip", "sdist"),
+        ("foo.tar.gz#md5=blah", "sdist"),
+        ("foo.egg", "egg"),
+        ("foo.exe", "exe"),
         ("foo", None)
     ])
     def test_compute_distribution_type(self, filename, expected):

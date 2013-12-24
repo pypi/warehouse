@@ -154,8 +154,14 @@ def parse_log_line(line):
 
 
 def compute_distribution_type(filename):
-    if filename.endswith(".tar.gz"):
+    # Strip off #md5=... and the like
+    filename, _, _ = filename.partition("#")
+    if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
+    elif filename.endswith(".egg"):
+        return "egg"
+    elif filename.endswith(".exe"):
+        return "exe"
     else:
         logger.info(json.dumps({
             "event": "download_statitics.compute_distribution_type.ignore",
