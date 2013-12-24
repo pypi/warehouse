@@ -70,13 +70,13 @@ def project_json(app, request, project_name):
     for url in d['urls']:
         url['upload_time'] = url['upload_time'].strftime('%Y-%m-%dT%H:%M:%S')
 
-    data = json.dumps(d, indent=4)
+    data = json.dumps(d)
 
     # write the JSONP extra crap if necessary
     callback = request.args.get('callback')
     if callback:
         data = '%s(%s)' % (callback, data)
 
-    response = Response(data, mimetype="application/json; charset=utf-8")
+    response = Response(data, mimetype="application/json")
     response.headers['Content-Disposition'] = 'inline'
     return response
