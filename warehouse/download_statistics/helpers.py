@@ -58,6 +58,18 @@ BANDERSNATCH_RE = re.compile(r"""
 \ (?P<operating_system>.*?)\ (?P<operating_system_version>.*?)\)
 """, re.VERBOSE)
 
+IGNORED_UAS = re.compile(r"""
+(^Go\ .*?\ package\ http) |
+(^Wget/) |
+(^curl/) |
+(^python-requests/) |
+(^Homebrew) |
+(^Chef\ Client/) |
+(^fetch\ libfetch/) |
+(^MacPorts) |
+(^\(null\)$)
+""", re.VERBOSE)
+
 
 def parse_useragent(ua):
     python_type = None
@@ -89,13 +101,16 @@ def parse_useragent(ua):
         python_version = match.group("python_version")
         operating_system = match.group("operating_system")
         operating_system_version = match.group("operating_system_version")
-    elif "Mozilla" in ua:
+    elif ua.startswith(("z3c.pypimirror", "pep381client")):
+        installer_type, installer_version = ua.split("/")
+    elif "Mozilla" in ua or ua.startswith(("BlackBerry", "Opera")):
         installer_type = "browser"
     else:
-        logger.info(json.dumps({
-            "event": "download_statitics.parse_useragent.ignore",
-            "user_agent": ua,
-        }))
+        if not IGNORED_UAS.search(ua):
+            logger.info(json.dumps({
+                "event": "download_statitics.parse_useragent.ignore",
+                "user_agent": ua,
+            }))
 
     if python_type is not None:
         python_type = python_type.lower()

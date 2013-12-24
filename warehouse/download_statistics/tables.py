@@ -56,6 +56,8 @@ downloads = Table(
             "setuptools",
             "distribute",
             "bandersnatch",
+            "z3c.pypimirror",
+            "pep381client",
             name="installer_type"
         )
     ),

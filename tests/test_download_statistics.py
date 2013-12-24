@@ -199,7 +199,62 @@ class TestParsing(object):
                 operating_system=None,
                 operating_system_version=None,
             )
+        ),
+        (
+            "BlackBerry9700/5.0.0.743",
+            ParsedUserAgent(
+                python_version=None,
+                python_release=None,
+                python_type=None,
 
+                installer_type="browser",
+                installer_version=None,
+
+                operating_system=None,
+                operating_system_version=None,
+            )
+        ),
+        (
+            "z3c.pypimirror/1.0.16",
+            ParsedUserAgent(
+                python_version=None,
+                python_release=None,
+                python_type=None,
+
+                installer_type="z3c.pypimirror",
+                installer_version="1.0.16",
+
+                operating_system=None,
+                operating_system_version=None,
+            )
+        ),
+        (
+            "pep381client/1.5",
+            ParsedUserAgent(
+                python_version=None,
+                python_release=None,
+                python_type=None,
+
+                installer_type="pep381client",
+                installer_version="1.5",
+
+                operating_system=None,
+                operating_system_version=None,
+            )
+        ),
+        (
+            "Go 1.1 package http",
+            ParsedUserAgent(
+                python_version=None,
+                python_release=None,
+                python_type=None,
+
+                installer_type=None,
+                installer_version=None,
+
+                operating_system=None,
+                operating_system_version=None,
+            )
         ),
         (
             "errant nonsense here",
