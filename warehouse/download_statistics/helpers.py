@@ -124,7 +124,11 @@ def parse_log_line(line):
     row = list(csv.reader([line], delimiter=str(" ")))[0]
     timestamp = row[4]
     req = row[6]
+    response_status = row[8]
     ua = row[15]
+
+    if int(response_status) != 200:
+        return
 
     path = req.split(" ", 1)[1]
 
@@ -133,6 +137,8 @@ def parse_log_line(line):
 
     download_time = datetime.datetime(*parsedate(timestamp)[:6])
     directory, filename = posixpath.split(path)
+    if not filename:
+        return
     project = posixpath.basename(directory)
     return ParsedLogLine(
         package_name=project,

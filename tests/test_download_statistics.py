@@ -238,6 +238,24 @@ class TestParsing(object):
         )
         assert parse_log_line(line) is None
 
+        line = (
+            '2013-12-08T23:24:46Z cache-fra1232 pypi-cdn[7902]: 193.183.99.5 '
+            '"Sun, 08 Dec 2013 23:20:28 GMT" "-" "GET '
+            '/packages/source/p/pymongo/" HTTP/1.1 200 9944 33573 HIT 1 '
+            '"(null)" "en" "Lynx/2.8.8dev.9 libwww-FM/2.14 SSL-MM/1.4.1 '
+            'GNUTLS/2.12.14"'
+        )
+        assert parse_log_line(line) is None
+
+        line = (
+            '2013-12-08T23:25:04Z cache-ty68 pypi-cdn[18322]: 1.72.6.148 '
+            '"Sun, 08 Dec 2013 23:25:03 GMT" "-" '
+            '"GET /packages/source/P/PyMySQL/PyMySQL-0.6.1.tar.gzwget" '
+            'HTTP/1.0 301 0 0 MISS 0 "(null)" "(null)" '
+            '"Wget/1.12 (solaris2.11)"'
+        )
+        assert parse_log_line(line) is None
+
     @pytest.mark.parametrize(("filename", "expected"), [
         ("foo.tar.gz", "sdist"),
         ("foo", None)
