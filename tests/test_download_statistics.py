@@ -200,6 +200,20 @@ class TestParsing(object):
                 operating_system_version=None,
             )
 
+        ),
+        (
+            "errant nonsense here",
+            ParsedUserAgent(
+                python_version=None,
+                python_release=None,
+                python_type=None,
+
+                installer_type=None,
+                installer_version=None,
+
+                operating_system=None,
+                operating_system_version=None,
+            )
         )
     ])
     def test_parse_useragent(self, ua, expected):
