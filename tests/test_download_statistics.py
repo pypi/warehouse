@@ -294,17 +294,6 @@ class TestParsing(object):
 
 
 class TestModels(object):
-    def success_result_of(self, d):
-        x = []
-
-        def cb(result):
-            x.append(result)
-            return result
-
-        d.addCallback(cb)
-        assert x
-        return x[0]
-
     def test_create_download(self, _database_url):
         engine = create_engine(_database_url)
         tw_engine = create_engine(
