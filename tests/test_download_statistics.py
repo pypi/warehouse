@@ -256,6 +256,12 @@ class TestParsing(object):
         )
         assert parse_log_line(line) is None
 
+        line = (
+            '2013-12-08T23:24:35.150361+00:00 cache-c32 pypi-cdn[11386]: last '
+            'message repeated 2 times'
+        )
+        assert parse_log_line(line) is None
+
     @pytest.mark.parametrize(("filename", "expected"), [
         ("foo.tar.gz", "sdist"),
         ("foo", None)
