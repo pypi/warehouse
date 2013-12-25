@@ -77,7 +77,6 @@ WHEEL_RE = re.compile(r"""
 """, re.VERBOSE)
 
 
-
 def parse_useragent(ua):
     python_type = None
     python_version = None
