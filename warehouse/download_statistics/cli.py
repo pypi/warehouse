@@ -36,6 +36,8 @@ logger = logging.getLogger(__name__)
 
 
 class FastlySyslogProtocol(LineOnlyReceiver):
+    delimiter = "\n"
+
     def __init__(self, models):
         self._models = models
 

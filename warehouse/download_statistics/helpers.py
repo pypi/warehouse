@@ -51,6 +51,8 @@ ParsedLogLine = namedtuple("ParsedLogLine", [
 
 PYTHON_IMPL_RELEASE_TO_VERSION = {
     ("pypy", "2.2.1"): "2.7.3",
+    ("pypy", "2.2.0"): "2.7.3",
+    ("pypy", "2.1.0"): "2.7.3",
 }
 
 BANDERSNATCH_RE = re.compile(r"""
