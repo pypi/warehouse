@@ -38,7 +38,7 @@ from warehouse.download_statistics.cli import (
 )
 from warehouse.download_statistics.helpers import (
     ParsedUserAgent, ParsedLogLine, parse_useragent, parse_log_line,
-    compute_distribution_type
+    compute_version, compute_distribution_type
 )
 from warehouse.download_statistics.models import DownloadStatisticsModels
 
@@ -309,7 +309,7 @@ class TestParsing(object):
             package_name="wheel",
             package_version="0.22.0",
             distribution_type="wheel",
-            download_time=datetime.datetime(2013, 12, 9, 23, 27, 24),
+            download_time=datetime.datetime(2013, 12, 8, 23, 27, 24),
             user_agent=ParsedUserAgent(
                 python_version="2.7.3",
                 python_release="2.2.1",
@@ -355,11 +355,19 @@ class TestParsing(object):
         assert parse_log_line(line) is None
 
     @pytest.mark.parametrize(("filename", "expected"), [
+        ("INITools-0.2.tar.gz", "0.2"),
+        ("wheel-0.22.0-py2.py3-none-any.whl", "0.22.0"),
+    ])
+    def test_compute_version(self, filename, expected):
+        assert compute_version(filename) == expected
+
+    @pytest.mark.parametrize(("filename", "expected"), [
         ("foo.tar.gz", "sdist"),
         ("foo.tar.bz2", "sdist"),
         ("foo.tgz", "sdist"),
         ("foo.zip", "sdist"),
         ("foo.tar.gz#md5=blah", "sdist"),
+        ("foo.whl", "wheel"),
         ("foo.egg", "egg"),
         ("foo.exe", "exe"),
         ("foo", None)

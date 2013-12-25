@@ -70,6 +70,13 @@ IGNORED_UAS = re.compile(r"""
 (^\(null\)$)
 """, re.VERBOSE)
 
+WHEEL_RE = re.compile(r"""
+^(?P<namever>(?P<name>.+?)(-(?P<ver>\d.+?))?)
+((-(?P<build>\d.*?))?-(?P<pyver>.+?)-(?P<abi>.+?)-(?P<plat>.+?)
+\.whl|\.dist-info)$
+""", re.VERBOSE)
+
+
 
 def parse_useragent(ua):
     python_type = None
@@ -161,11 +168,18 @@ def parse_log_line(line):
     project = posixpath.basename(directory)
     return ParsedLogLine(
         package_name=project,
-        package_version=next(distros_for_url(filename)).version,
+        package_version=compute_version(filename),
         distribution_type=compute_distribution_type(filename),
         download_time=download_time,
         user_agent=parse_useragent(ua)
     )
+
+
+def compute_version(filename):
+    match = WHEEL_RE.match(filename)
+    if match:
+        return match.group("ver")
+    return next(distros_for_url(filename)).version
 
 
 def compute_distribution_type(filename):
@@ -177,6 +191,8 @@ def compute_distribution_type(filename):
         return "egg"
     elif filename.endswith(".exe"):
         return "exe"
+    elif filename.endswith(".whl"):
+        return "wheel"
     else:
         logger.info(json.dumps({
             "event": "download_statitics.compute_distribution_type.ignore",
