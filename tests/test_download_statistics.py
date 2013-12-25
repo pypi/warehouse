@@ -357,6 +357,7 @@ class TestParsing(object):
     @pytest.mark.parametrize(("filename", "expected"), [
         ("INITools-0.2.tar.gz", "0.2"),
         ("wheel-0.22.0-py2.py3-none-any.whl", "0.22.0"),
+        ("Twisted-12.0.0.win32-py2.7.msi", "12.0.0"),
     ])
     def test_compute_version(self, filename, expected):
         assert compute_version(filename) == expected
