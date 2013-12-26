@@ -92,7 +92,7 @@ def parse_useragent(ua):
         pip_part, python_part, system_part = ua.split(" ")
         installer_type, installer_version = pip_part.split("/")
         python_type, python_release = python_part.split("/")
-        operating_system, operating_system_version = system_part.split("/")
+        operating_system, operating_system_version = system_part.split("/", 1)
     elif "setuptools/" in ua or "distribute/" in ua:
         urllib_parse, installer_part = ua.split(" ")
         _, python_version = urllib_parse.split("/")

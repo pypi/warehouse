@@ -172,6 +172,20 @@ class TestParsing(object):
             )
         ),
         (
+            "pip/1.4.1 CPython/2.7.3 CYGWIN_NT-6.1-WOW64/1.7.25(0.270/5/3)",
+            ParsedUserAgent(
+                python_version="2.7.3",
+                python_release=None,
+                python_type="cpython",
+
+                installer_type="pip",
+                installer_version="1.4.1",
+
+                operating_system="CYGWIN_NT-6.1-WOW64",
+                operating_system_version="1.7.25(0.270/5/3)",
+            )
+        ),
+        (
             ("bandersnatch/1.1 (CPython 2.7.3-final0, "
              "Linux 3.8.0-31-generic x86_64)"),
             ParsedUserAgent(
