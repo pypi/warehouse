@@ -47,7 +47,7 @@ class FastlySyslogProtocol(LineOnlyReceiver):
         except Exception:
             logger.exception(json.dumps({
                 "event": "download_statistics.lineReceived.exception",
-                "line": line
+                "line": repr(line)
             }))
 
     def handle_line(self, line):
