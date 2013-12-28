@@ -145,7 +145,7 @@ def parse_useragent(ua):
 
 def parse_log_line(line):
     # Some weird syslog/fastly thing, just ignore it
-    if "last message repeated" in line:
+    if b"last message repeated" in line:
         return
 
     row = list(csv.reader([line], delimiter=str(" ")))[0]

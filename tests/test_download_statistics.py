@@ -368,6 +368,14 @@ class TestParsing(object):
         )
         assert parse_log_line(line) is None
 
+    def test_parse_log_line_non_ascii(self):
+        line = (
+            b'2013-12-08T23:24:34Z cache-v43 pypi-cdn[18322]: 162.243.117.93 '
+            b'"Sun, 08 Dec 2013 23:24:33 GMT" "-" "GET /simple/icalendar/3.5" '
+            b'HTTP/1.1 200 0 0 MISS 0 "(null)" "(\xff)" "Python-urllib/2.7"'
+        )
+        assert parse_log_line(line) is None
+
     @pytest.mark.parametrize(("filename", "expected"), [
         ("INITools-0.2.tar.gz", "0.2"),
         ("wheel-0.22.0-py2.py3-none-any.whl", "0.22.0"),
