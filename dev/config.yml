@@ -1,4 +1,5 @@
 debug: true
+theme_debug: true
 
 site:
     name: Warehouse (dev)
