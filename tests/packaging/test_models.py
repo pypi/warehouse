@@ -37,6 +37,8 @@ def test_get_project_count(dbapp):
 
 
 def test_get_download_count(dbapp):
+    assert dbapp.models.packaging.get_download_count() == 0
+
     dbapp.engine.execute(packages.insert().values(name="foo"))
     dbapp.engine.execute(releases.insert().values(name="foo", version="1.0"))
     dbapp.engine.execute(release_files.insert().values(
