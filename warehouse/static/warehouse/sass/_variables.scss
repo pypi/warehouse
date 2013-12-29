@@ -1,3 +1,15 @@
 $font-family-primary: 'Whitney SSm A', 'Whitney SSm B' !default;
 $font-family-secondary: 'Gotham Narrow SSm A', 'Gotham Narrow SSm B' !default;
 $font-family-monospace: Consolas, 'Liberation Mono', Courier, monospace !default;
+
+$font-size-base: 14px !default;
+$font-size-large: ceil($font-size-base * 1.25) !default; // ~18px
+$font-size-small: ceil($font-size-base * 0.85) !default; // ~12px
+
+$line-height-base: 1.428571429 !default; // 20/14
+$line-height-computed: floor($font-size-base * $line-height-base) !default; // ~20px
+
+$headings-font-color: #333 !default;
+$headings-font-family: $font-family-secondary !default;
+$headings-font-weight: 400 !default;
+$headings-line-height: 1.1 !default;
