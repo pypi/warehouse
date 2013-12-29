@@ -4,17 +4,6 @@
 @import "pygments-friendly";
 
 
-body {
-  font-family: $font-family-primary;
-}
-h1, h2, h3, h4, h5, h6 {
-  font-family: $font-family-secondary;
-}
-code, kbd, pre, samp {
-  font-family: $font-family-monospace;
-}
-
-
 #wrap > .container { padding: 60px 15px 0; }
 #footer { background-color: #f5f5f5; }
 
