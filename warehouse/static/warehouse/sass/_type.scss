@@ -1,0 +1,34 @@
+h1, h2, h3, h4, h5, h6 {
+  color: $headings-font-color;
+  font-family: $headings-font-family;
+  font-weight: $headings-font-weight;
+  line-height: $headings-line-height;
+
+  small {
+    font-weight: normal;
+    line-height: 1;
+  }
+}
+
+h1, h2, h3 {
+  margin-top: $line-height-computed;
+  margin-bottom: ($line-height-computed / 2);
+}
+h4, h5, h6 {
+  margin-top: ($line-height-computed / 2);
+  margin-bottom: ($line-height-computed / 2);
+}
+
+h1 {
+  font-size: floor($font-size-base * 2.60); // ~36px
+  letter-spacing: -1px;
+}
+h2 { font-size: floor($font-size-base * 2.15); } // ~30px
+h3 { font-size: ceil($font-size-base * 1.70); } // ~24px
+h4 { font-size: ceil($font-size-base * 1.25); } // ~18px
+h5 { font-size: $font-size-base; }
+h6 { font-size: ceil($font-size-base * 0.85); } // ~12px
+
+h1 small { font-size: ceil($font-size-base * 1.70); } // ~24px
+h2 small { font-size: ceil($font-size-base * 1.25); } // ~18px
+h3 small, h4 small { font-size: $font-size-base; }
