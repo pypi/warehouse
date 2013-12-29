@@ -6,7 +6,7 @@ $font-size-base: 14px !default;
 $font-size-large: ceil($font-size-base * 1.25) !default; // ~18px
 $font-size-small: ceil($font-size-base * 0.85) !default; // ~12px
 
-$line-height-base: 1.428571429 !default; // 20/14
+$line-height-base: 1.602 !default;
 $line-height-computed: floor($font-size-base * $line-height-base) !default; // ~20px
 
 $headings-font-color: #333 !default;
