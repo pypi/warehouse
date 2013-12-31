@@ -59,7 +59,7 @@ class Warehouse(object):
         "packaging": "warehouse.packaging.models:Model",
     }
 
-    def __init__(self, config, engine=None, redis=None, reactor=None):
+    def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
 
         # Connect to the database
