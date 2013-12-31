@@ -67,4 +67,5 @@ downloads = Table(
     Column("operating_system_version", Text()),
 
     Column("download_time", DateTime(), nullable=False),
+    Column("raw_user_agent", Text(), nullable=False),
 )

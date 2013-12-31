@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 
 
 ParsedUserAgent = namedtuple("ParsedUserAgent", [
+    "raw_user_agent",
+
     "python_type",
     "python_release",
     "python_version",
@@ -140,6 +142,8 @@ def parse_useragent(ua):
 
         operating_system=operating_system,
         operating_system_version=operating_system_version,
+
+        raw_user_agent=ua,
     )
 
 

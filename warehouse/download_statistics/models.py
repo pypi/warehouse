@@ -20,7 +20,8 @@ class DownloadStatisticsModels(object):
     def create_download(self, package_name, package_version, distribution_type,
                         python_type, python_release, python_version,
                         installer_type, installer_version, operating_system,
-                        operating_system_version, download_time):
+                        operating_system_version, download_time,
+                        raw_user_agent):
 
         from warehouse.download_statistics.tables import downloads
 
@@ -36,4 +37,5 @@ class DownloadStatisticsModels(object):
             operating_system=operating_system,
             operating_system_version=operating_system_version,
             download_time=download_time,
+            raw_user_agent=raw_user_agent,
         ))

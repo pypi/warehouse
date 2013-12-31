@@ -113,6 +113,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="Python-urllib/2.7 setuptools/2.0",
             )
         ),
         (
@@ -127,6 +128,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="Python-urllib/2.6 distribute/0.6.10",
             )
         ),
         (
@@ -141,6 +143,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="Python-urllib/2.7",
             )
         ),
         (
@@ -155,6 +158,7 @@ class TestParsing(object):
 
                 operating_system="Darwin",
                 operating_system_version="12.5.0",
+                raw_user_agent="pip/1.4.1 CPython/2.7.6 Darwin/12.5.0",
             )
         ),
         (
@@ -169,6 +173,9 @@ class TestParsing(object):
 
                 operating_system="Linux",
                 operating_system_version="2.6.32-042stab061.2",
+                raw_user_agent=(
+                    "pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"
+                ),
             )
         ),
         (
@@ -183,6 +190,10 @@ class TestParsing(object):
 
                 operating_system="CYGWIN_NT-6.1-WOW64",
                 operating_system_version="1.7.25(0.270/5/3)",
+                raw_user_agent=(
+                    "pip/1.4.1 CPython/2.7.3 "
+                    "CYGWIN_NT-6.1-WOW64/1.7.25(0.270/5/3)"
+                ),
             )
         ),
         (
@@ -198,6 +209,10 @@ class TestParsing(object):
 
                 operating_system="Linux",
                 operating_system_version="3.8.0-31-generic x86_64",
+                raw_user_agent=(
+                    "bandersnatch/1.1 (CPython 2.7.3-final0, "
+                    "Linux 3.8.0-31-generic x86_64)"
+                ),
             )
         ),
         (
@@ -212,6 +227,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8)"
             )
         ),
         (
@@ -226,6 +242,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="BlackBerry9700/5.0.0.743",
             )
         ),
         (
@@ -240,6 +257,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="z3c.pypimirror/1.0.16",
             )
         ),
         (
@@ -254,6 +272,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="pep381client/1.5",
             )
         ),
         (
@@ -268,6 +287,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="Go 1.1 package http",
             )
         ),
         (
@@ -282,6 +302,7 @@ class TestParsing(object):
 
                 operating_system=None,
                 operating_system_version=None,
+                raw_user_agent="errant nonsense here",
             )
         )
     ])
@@ -309,6 +330,9 @@ class TestParsing(object):
                 installer_version="1.5rc1",
                 operating_system="Linux",
                 operating_system_version="2.6.32-042stab061.2",
+                raw_user_agent=(
+                    "pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"
+                ),
             )
         )
 
@@ -331,7 +355,10 @@ class TestParsing(object):
                 installer_type="pip",
                 installer_version="1.5rc1",
                 operating_system="Linux",
-                operating_system_version="2.6.32-042stab061.2"
+                operating_system_version="2.6.32-042stab061.2",
+                raw_user_agent=(
+                    "pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"
+                ),
             )
         )
 
@@ -422,6 +449,7 @@ class TestModels(object):
                 operating_system=None,
                 operating_system_version=None,
                 download_time=datetime.datetime.utcnow(),
+                raw_user_agent="foo",
             )
 
             res = engine.execute(func.count(tables.downloads.c.id))
