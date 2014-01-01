@@ -52,12 +52,16 @@ from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 import warehouse.accounts.tables
 import warehouse.packaging.tables
 
+# Get the various models
+import warehouse.accounts.models
+import warehouse.packaging.models
+
 
 class Warehouse(object):
 
-    model_names = {
-        "accounts": "warehouse.accounts.models:Model",
-        "packaging": "warehouse.packaging.models:Model",
+    model_classes = {
+        "accounts": warehouse.accounts.models.Model,
+        "packaging": warehouse.packaging.models.Model,
     }
 
     def __init__(self, config, engine=None, redis=None):
@@ -77,10 +81,8 @@ class Warehouse(object):
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
-        for name, mod_path in self.model_names.items():
-            mod_name, klass = mod_path.rsplit(":", 1)
-            mod = importlib.import_module(mod_name)
-            self.models[name] = getattr(mod, klass)(
+        for name, klass in self.model_classes.items():
+            self.models[name] = klass(
                 self,
                 self.metadata,
                 self.engine,
