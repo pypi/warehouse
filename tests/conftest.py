@@ -69,11 +69,6 @@ def _database_url(request):
     database_url = (
         database_url_option or database_url_environ or database_url_default
     )
-    engine = sqlalchemy.create_engine(
-        database_url,
-        isolation_level="AUTOCOMMIT",
-        poolclass=sqlalchemy.pool.NullPool
-    )
 
     # Create the database schema
     engine = sqlalchemy.create_engine(
@@ -82,7 +77,10 @@ def _database_url(request):
     )
     app = Warehouse.from_yaml(
         override={
-            "database": {"url": database_url},
+            "database": {
+                "url": database_url,
+                "download_statistics_url": database_url,
+            },
             "search": {"hosts": []},
         },
         engine=engine,
@@ -92,6 +90,7 @@ def _database_url(request):
         conn.execute("DROP SCHEMA public CASCADE")
         conn.execute("CREATE SCHEMA public")
         conn.execute("CREATE EXTENSION IF NOT EXISTS citext")
+        conn.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option(
         "script_location",
