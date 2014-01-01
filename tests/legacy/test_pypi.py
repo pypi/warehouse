@@ -19,7 +19,7 @@ import datetime
 
 import pretend
 import pytest
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
 from warehouse.legacy import pypi, xmlrpc
 
@@ -123,8 +123,15 @@ def test_json(monkeypatch, callback):
     expected = '{"info": {"some": "data"}, "urls": [{"upload_time": "1970-01-'\
         '01T00:00:00", "some": "url"}]}'
     if callback:
-        expected = '%s(%s)' % (callback, expected)
+        expected = '/**/ %s(%s);' % (callback, expected)
     assert resp.data == expected
+
+
+def test_jsonp_invalid():
+    app = pretend.stub()
+    request = pretend.stub(args={'callback': 'quite invalid'})
+    with pytest.raises(BadRequest):
+        pypi.project_json(app, request, 'spam')
 
 
 @pytest.mark.parametrize("project", [None, pretend.stub(name="spam")])
@@ -139,7 +146,7 @@ def test_json_missing(monkeypatch, project):
             )
         )
     )
-    request = pretend.stub()
+    request = pretend.stub(args={})
 
     with pytest.raises(NotFound):
         pypi.project_json(app, request, 'spam')
