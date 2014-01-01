@@ -21,12 +21,12 @@ from sqlalchemy import (
 from sqlalchemy import Boolean, DateTime, Integer, String, Unicode
 from sqlalchemy import sql
 
-from warehouse.application import Warehouse
+from warehouse import db
 
 
 users = Table(
     "accounts_user",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("password", String(length=128), nullable=False),
@@ -47,7 +47,7 @@ users = Table(
 
 emails = Table(
     "accounts_email",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("user_id",
