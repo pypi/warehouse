@@ -48,6 +48,10 @@ from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
+# Register the SQLAlchemy tables by importing them
+import warehouse.accounts.tables
+import warehouse.packaging.tables
+
 
 class Warehouse(object):
 
