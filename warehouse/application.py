@@ -40,6 +40,7 @@ import warehouse
 import warehouse.cli
 
 from warehouse import urls
+from warehouse import db
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
@@ -50,8 +51,6 @@ from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 class Warehouse(object):
 
-    metadata = sqlalchemy.MetaData()
-
     model_names = {
         "accounts": "warehouse.accounts.models:Model",
         "packaging": "warehouse.packaging.models:Model",
@@ -59,6 +58,8 @@ class Warehouse(object):
 
     def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
+
+        self.metadata = db.metadata
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):

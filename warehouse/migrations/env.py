@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-from warehouse.application import Warehouse
+from warehouse import db
 
 
 # this is the Alembic Config object, which provides
@@ -28,7 +28,7 @@ config = context.config
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Warehouse.metadata
+target_metadata = db.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
