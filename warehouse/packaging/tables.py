@@ -24,7 +24,7 @@ from sqlalchemy import (
 from sqlalchemy import Boolean, DateTime, Integer, UnicodeText
 from sqlalchemy import sql
 
-from warehouse.application import Warehouse
+from warehouse import db
 
 
 class ReleaseDependencyKind(int, enum.Enum):
@@ -43,7 +43,7 @@ class ReleaseDependencyKind(int, enum.Enum):
 
 classifiers = Table(
     "trove_classifiers",
-    Warehouse.metadata,
+    db.metadata,
 
     Column(
         "id",
@@ -67,7 +67,7 @@ classifiers = Table(
 
 release_classifiers = Table(
     "release_classifiers",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("name", UnicodeText()),
     Column("version", UnicodeText()),
@@ -88,7 +88,7 @@ release_classifiers = Table(
 
 packages = Table(
     "packages",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("name", UnicodeText(), primary_key=True, nullable=False),
     Column("stable_version", UnicodeText()),
@@ -119,7 +119,7 @@ packages = Table(
 
 releases = Table(
     "releases",
-    Warehouse.metadata,
+    db.metadata,
 
     Column(
         "name",
@@ -176,7 +176,7 @@ releases = Table(
 
 release_dependencies = Table(
     "release_dependencies",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("name", UnicodeText()),
     Column("version", UnicodeText()),
@@ -197,7 +197,7 @@ release_dependencies = Table(
 
 release_files = Table(
     "release_files",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("name", UnicodeText()),
     Column("version", UnicodeText()),
@@ -227,7 +227,7 @@ release_files = Table(
 
 description_urls = Table(
     "description_urls",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("name", UnicodeText()),
@@ -247,7 +247,7 @@ description_urls = Table(
 
 roles = Table(
     "roles",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("role_name", UnicodeText()),
     Column(
@@ -268,7 +268,7 @@ roles = Table(
 
 journals = Table(
     "journals",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("id", Integer(), Sequence("journals_id_seq")),
     Column("name", UnicodeText()),
@@ -287,7 +287,7 @@ journals = Table(
 
 cheesecake_main_indices = Table(
     "cheesecake_main_indices",
-    Warehouse.metadata,
+    db.metadata,
 
     Column("id", Integer(), primary_key=True, nullable=False),
     Column("absolute", Integer(), nullable=False),

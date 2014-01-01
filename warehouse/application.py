@@ -40,6 +40,7 @@ import warehouse
 import warehouse.cli
 
 from warehouse import urls
+from warehouse import db
 from warehouse.http import Request
 from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
@@ -47,18 +48,26 @@ from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
+# Register the SQLAlchemy tables by importing them
+import warehouse.accounts.tables
+import warehouse.packaging.tables
+
+# Get the various models
+import warehouse.accounts.models
+import warehouse.packaging.models
+
 
 class Warehouse(object):
 
-    metadata = sqlalchemy.MetaData()
-
-    model_names = {
-        "accounts": "warehouse.accounts.models:Model",
-        "packaging": "warehouse.packaging.models:Model",
+    model_classes = {
+        "accounts": warehouse.accounts.models.Model,
+        "packaging": warehouse.packaging.models.Model,
     }
 
     def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
+
+        self.metadata = db.metadata
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
@@ -72,10 +81,8 @@ class Warehouse(object):
 
         # Create our Store instance and associate our store modules with it
         self.models = AttributeDict()
-        for name, mod_path in self.model_names.items():
-            mod_name, klass = mod_path.rsplit(":", 1)
-            mod = importlib.import_module(mod_name)
-            self.models[name] = getattr(mod, klass)(
+        for name, klass in self.model_classes.items():
+            self.models[name] = klass(
                 self,
                 self.metadata,
                 self.engine,
