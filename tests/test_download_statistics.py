@@ -428,34 +428,30 @@ class TestParsing(object):
 
 class TestModels(object):
     def test_create_download(self, _database_url):
-        engine = create_engine(_database_url)
         tw_engine = create_engine(
             _database_url,
             strategy=alchimia.TWISTED_STRATEGY,
             reactor=FakeThreaderedReactor()
         )
         models = DownloadStatisticsModels(tw_engine)
-        tables.downloads.create(bind=engine)
-        try:
-            models.create_download(
-                package_name="foo",
-                package_version="1.0",
-                distribution_type="sdist",
-                python_type="cpython",
-                python_release=None,
-                python_version="2.7",
-                installer_type="pip",
-                installer_version="1.4",
-                operating_system=None,
-                operating_system_version=None,
-                download_time=datetime.datetime.utcnow(),
-                raw_user_agent="foo",
-            )
+        models.create_download(
+            package_name="foo",
+            package_version="1.0",
+            distribution_type="sdist",
+            python_type="cpython",
+            python_release=None,
+            python_version="2.7",
+            installer_type="pip",
+            installer_version="1.4",
+            operating_system=None,
+            operating_system_version=None,
+            download_time=datetime.datetime.utcnow(),
+            raw_user_agent="foo",
+        )
 
-            res = engine.execute(func.count(tables.downloads.c.id))
-            assert res.scalar() == 1
-        finally:
-            tables.downloads.drop(bind=engine)
+        engine = create_engine(_database_url)
+        res = engine.execute(func.count(tables.downloads.c.id))
+        assert res.scalar() == 1
 
 
 class TestFastlySyslog(object):
