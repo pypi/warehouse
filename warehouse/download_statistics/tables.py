@@ -21,11 +21,11 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 
-from warehouse.application import Warehouse
+from warehouse import db
 
 
 downloads = Table(
-    "downloads", Warehouse.metadata,
+    "downloads", db.metadata,
     Column(
         "id",
         UUID(),
