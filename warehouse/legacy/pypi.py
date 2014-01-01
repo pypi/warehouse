@@ -17,10 +17,10 @@ from __future__ import unicode_literals
 import json
 import time
 
-from warehouse.helpers import url_for
+from warehouse.helpers import url_for, is_valid_json_callback_name
 from werkzeug.utils import redirect
 from warehouse.http import Response
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 
 from warehouse.legacy import xmlrpc
 
@@ -49,6 +49,12 @@ def daytime(app, request):
 # @cache("simple")
 # @fastly("simple", "simple~{project_name!n}")
 def project_json(app, request, project_name):
+    # fail early if callback is invalid
+    callback = request.args.get('callback')
+    if callback:
+        if not is_valid_json_callback_name(callback):
+            raise BadRequest('invalid JSONP callback name')
+
     # Get the real project name for this project
     project = app.models.packaging.get_project(project_name)
 
@@ -73,9 +79,8 @@ def project_json(app, request, project_name):
     data = json.dumps(d)
 
     # write the JSONP extra crap if necessary
-    callback = request.args.get('callback')
     if callback:
-        data = '%s(%s)' % (callback, data)
+        data = '/**/ %s(%s);' % (callback, data)
 
     response = Response(data, mimetype="application/json")
     response.headers['Content-Disposition'] = 'inline'
