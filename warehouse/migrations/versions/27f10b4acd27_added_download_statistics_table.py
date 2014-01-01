@@ -25,6 +25,7 @@ revision = '27f10b4acd27'
 down_revision = '23515b7500af'
 
 from alembic import op
+
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import func
@@ -32,14 +33,53 @@ from sqlalchemy.sql import func
 
 def upgrade():
     op.create_table('downloads',
-        sa.Column('id', postgresql.UUID(), server_default=func.uuid_generate_v4(), nullable=False),
+        sa.Column(
+            'id',
+            postgresql.UUID(),
+            server_default=func.uuid_generate_v4(),
+            nullable=False
+        ),
         sa.Column('package_name', sa.UnicodeText(), nullable=False),
         sa.Column('package_version', sa.UnicodeText(), nullable=True),
-        sa.Column('distribution_type', sa.Enum(u'sdist', u'wheel', u'exe', u'egg', u'msi', name='distribution_type'), nullable=True),
-        sa.Column('python_type', sa.Enum(u'cpython', u'pypy', u'jython', u'ironpython', name='python_type'), nullable=True),
+        sa.Column(
+            'distribution_type',
+            sa.Enum(
+                u'sdist',
+                u'wheel',
+                u'exe',
+                u'egg',
+                u'msi',
+                name='distribution_type'
+            ),
+            nullable=True
+        ),
+        sa.Column(
+            'python_type',
+            sa.Enum(
+                u'cpython',
+                u'pypy',
+                u'jython',
+                u'ironpython',
+                name='python_type'
+            ),
+            nullable=True
+        ),
         sa.Column('python_release', sa.Text(), nullable=True),
         sa.Column('python_version', sa.Text(), nullable=True),
-        sa.Column('installer_type', sa.Enum(u'browser', u'pip', u'setuptools', u'distribute', u'bandersnatch', u'z3c.pypimirror', u'pep381client', name='installer_type'), nullable=True),
+        sa.Column(
+            'installer_type',
+            sa.Enum(
+                u'browser',
+                u'pip',
+                u'setuptools',
+                u'distribute',
+                u'bandersnatch',
+                u'z3c.pypimirror',
+                u'pep381client',
+                name='installer_type'
+            ),
+            nullable=True
+        ),
         sa.Column('installer_version', sa.Text(), nullable=True),
         sa.Column('operating_system', sa.Text(), nullable=True),
         sa.Column('operating_system_version', sa.Text(), nullable=True),
