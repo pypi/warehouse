@@ -8,6 +8,7 @@ assets:
 
 database:
     url: "postgresql://localhost/warehouse"
+    download_statistics_url: "postgresql://localhost/warehouse"
 
 redis:
     url: "redis://localhost:6379/0"
