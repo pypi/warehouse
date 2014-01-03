@@ -68,6 +68,7 @@ class FastlySyslogProtocol(LineOnlyReceiver):
             operating_system=ua.operating_system,
             operating_system_version=ua.operating_system_version,
             download_time=parsed.download_time,
+            raw_user_agent=ua.raw_user_agent,
         )
 
 
