@@ -55,6 +55,7 @@ FakeDownload = namedtuple("FakeDownload", [
     "operating_system",
     "operating_system_version",
     "download_time",
+    "raw_user_agent",
 ])
 
 
@@ -65,7 +66,8 @@ class FakeDownloadStatisticsModels(object):
     def create_download(self, package_name, package_version, distribution_type,
                         python_type, python_release, python_version,
                         installer_type, installer_version, operating_system,
-                        operating_system_version, download_time):
+                        operating_system_version, download_time,
+                        raw_user_agent):
         self.downloads.append(FakeDownload(
             package_name=package_name,
             package_version=package_version,
@@ -78,6 +80,7 @@ class FakeDownloadStatisticsModels(object):
             operating_system=operating_system,
             operating_system_version=operating_system_version,
             download_time=download_time,
+            raw_user_agent=raw_user_agent,
         ))
 
 
@@ -481,6 +484,9 @@ class TestFastlySyslog(object):
                 installer_version="1.5rc1",
                 operating_system="Linux",
                 operating_system_version="2.6.32-042stab061.2",
+                raw_user_agent=(
+                    "pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"
+                ),
             )
         ]
 
