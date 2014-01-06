@@ -58,6 +58,7 @@ downloads = Table(
             "bandersnatch",
             "z3c.pypimirror",
             "pep381client",
+            "devpi",
             name="installer_type"
         )
     ),

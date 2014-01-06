@@ -62,6 +62,10 @@ BANDERSNATCH_RE = re.compile(r"""
 \ (?P<operating_system>.*?)\ (?P<operating_system_version>.*?)\)
 """, re.VERBOSE)
 
+DEVPI_RE = re.compile(r"""
+\(py(?P<python_version>.*?);\ (?P<operating_system_version>.*?)\)
+""", re.VERBOSE)
+
 IGNORED_UAS = re.compile(r"""
 (^Go\ .*?\ package\ http) |
 (^Wget/) |
@@ -110,6 +114,13 @@ def parse_useragent(ua):
         python_type = match.group("python_type")
         python_version = match.group("python_version")
         operating_system = match.group("operating_system")
+        operating_system_version = match.group("operating_system_version")
+    elif ua.startswith("devpi-server"):
+        devpi_part, rest = ua.split(" ", 1)
+        _, installer_version = devpi_part.split("/")
+        installer_type = "devpi"
+        match = DEVPI_RE.match(rest)
+        python_version = match.group("python_version")
         operating_system_version = match.group("operating_system_version")
     elif ua.startswith(("z3c.pypimirror", "pep381client")):
         installer_type, installer_version = ua.split("/")
