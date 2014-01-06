@@ -26,8 +26,8 @@ __title__ = "warehouse"
 __summary__ = "Next Generation Python Package Repository"
 __uri__ = "https://github.com/pypa/warehouse"
 
-__version__ = "14.1.3"
-__build__ = "e05c2b9"
+__version__ = "14.1.4"
+__build__ = "b2ee7fd"
 
 __author__ = "Donald Stufft"
 __email__ = "donald@stufft.io"
