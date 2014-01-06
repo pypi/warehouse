@@ -32,4 +32,4 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    raise RuntimeError("This migration cannot be downgraded")
