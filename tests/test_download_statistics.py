@@ -279,6 +279,21 @@ class TestParsing(object):
             )
         ),
         (
+            "devpi-server/1.2.1 (py2.7.3rc2; linux2)",
+            ParsedUserAgent(
+                python_version="2.7.3rc2",
+                python_release=None,
+                python_type=None,
+
+                installer_type="devpi",
+                installer_version="1.2.1",
+
+                operating_system=None,
+                operating_system_version="linux2",
+                raw_user_agent="devpi-server/1.2.1 (py2.7.3rc2; linux2)",
+            )
+        ),
+        (
             "Go 1.1 package http",
             ParsedUserAgent(
                 python_version=None,
