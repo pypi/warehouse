@@ -213,11 +213,17 @@ def compute_distribution_type(filename):
     if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
     elif filename.endswith(".egg"):
-        return "egg"
+        return "bdist_egg"
     elif filename.endswith(".exe"):
-        return "exe"
+        return "bdist_wininst"
     elif filename.endswith(".whl"):
-        return "wheel"
+        return "bdist_wheel"
+    elif filename.endswith(".msi"):
+        return "bdist_msi"
+    elif filename.endswith(".dmg"):
+        return "bdist_dmg"
+    elif filename.endswith(".rpm"):
+        return "bdist_rpm"
     else:
         logger.info(json.dumps({
             "event": "download_statitics.compute_distribution_type.ignore",
