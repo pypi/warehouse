@@ -28,6 +28,7 @@ from alembic import op
 
 
 def upgrade():
+    op.execute("COMMIT")  # See https://bitbucket.org/zzzeek/alembic/issue/123
     op.execute("""ALTER TYPE installer_type ADD VALUE 'devpi'""")
 
 
