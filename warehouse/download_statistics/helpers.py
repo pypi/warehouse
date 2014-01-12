@@ -214,6 +214,9 @@ def compute_version(filename):
 
 
 def compute_distribution_type(filename):
+    if filename.endswith(".asc"):
+        return
+
     if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
     elif filename.endswith(".egg"):
