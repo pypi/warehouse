@@ -21,6 +21,8 @@ import json
 import logging
 import posixpath
 import re
+import urlparse
+
 from collections import namedtuple
 from email.utils import parsedate
 
@@ -172,7 +174,7 @@ def parse_log_line(line):
     if int(response_status) != 200:
         return
 
-    path = req.split(" ", 1)[1]
+    path = urlparse.urlparse(req.split(" ", 1)[1]).path
 
     if not path.startswith("/packages/"):
         return
@@ -208,8 +210,6 @@ def compute_version(filename):
 
 
 def compute_distribution_type(filename):
-    # Strip off #md5=... and the like
-    filename, _, _ = filename.partition("#")
     if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
     elif filename.endswith(".egg"):
