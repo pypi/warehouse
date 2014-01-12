@@ -185,8 +185,10 @@ def parse_log_line(line):
 
     download_time = datetime.datetime(*parsedate(timestamp)[:6])
     directory, filename = posixpath.split(path)
-    if not filename:
+
+    if not filename or filename.endswith(".asc"):
         return
+
     project = posixpath.basename(directory)
     return ParsedLogLine(
         package_name=project,
@@ -204,19 +206,16 @@ def compute_version(filename):
     try:
         distro = next(distros_for_url(filename))
     except StopIteration:
-        logger.info({
-            "event": "download_statitics.compute_version.ignore",
-            "filename": filename
-        })
+        # logger.info({
+        #     "event": "download_statitics.compute_version.ignore",
+        #     "filename": filename
+        # })
         return None
     else:
         return distro.version
 
 
 def compute_distribution_type(filename):
-    if filename.endswith(".asc"):
-        return
-
     if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
     elif filename.endswith(".egg"):
