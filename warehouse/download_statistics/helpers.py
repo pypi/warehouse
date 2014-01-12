@@ -206,10 +206,10 @@ def compute_version(filename):
     try:
         distro = next(distros_for_url(filename))
     except StopIteration:
-        # logger.info({
-        #     "event": "download_statitics.compute_version.ignore",
-        #     "filename": filename
-        # })
+        logger.info({
+            "event": "download_statitics.compute_version.ignore",
+            "filename": filename
+        })
         return None
     else:
         return distro.version
