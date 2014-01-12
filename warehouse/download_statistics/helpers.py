@@ -171,7 +171,11 @@ def parse_log_line(line):
     response_status = row[8]
     ua = row[15]
 
-    if int(response_status) != 200:
+    try:
+        if int(response_status) != 200:
+            return
+    except ValueError:
+        # Broken log lines cause this
         return
 
     path = urlparse.urlparse(req.split(" ", 1)[1]).path
