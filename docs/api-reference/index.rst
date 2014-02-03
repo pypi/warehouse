@@ -27,7 +27,7 @@ URL           Purpose
 /security     Page giving contact and other information regarding site security
 /id           OpenID endpoint
 /oauth        OAuth endpoint
-/simple       Simple API as given in `legacy`_
+/simple       Simple API as given in :doc:`legacy`
 /packages     Serve up a package file
 /mirrors      Page listing legacy mirrors (not to be retained)
 /serversig    Legacy mirroring support (no-one uses it: not to be retained)
@@ -87,6 +87,3 @@ though some actions are also POST actions.
 
 **can be deprecated carefully**
   - `submit`, `upload`, `doc_upload`, `file_upload`,
-
-
-.. _`legacy`: legacy.html
