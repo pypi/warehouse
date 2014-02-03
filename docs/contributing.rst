@@ -4,8 +4,8 @@ Contributing
 Process
 -------
 
-As an open source project, Warehouse welcomes contributions of all
-forms. These can include:
+As an open source project, Warehouse welcomes contributions of many forms.
+Contributions can include:
 
 * Bug reports and feature requests
 * Pull requests for both code and documentation
@@ -20,7 +20,8 @@ Code
 When in doubt, refer to `PEP 8`_ for Python code.
 
 Every code file must start with the boilerplate notice of the Apache License.
-Additionally, every Python code file must contain
+Additionally, every Python code file must contain these `future statements`_:
+
 
 .. code-block:: python
 
@@ -43,7 +44,7 @@ it should use
             WHERE foo != 'bar'
         """
 
-Further more you *MUST* use parametrized queries and should use the named
+Furthermore, you *MUST* use parametrized queries and should use the named
 interpolation format (``%(foo)s``) instead of the positional interpolation
 format (``%s``).
 
@@ -51,16 +52,16 @@ format (``%s``).
 Development Environment
 -----------------------
 
-Workong on Warehouse requires the installation of a few external non Python
+Warehouse development requires the installation of several external non-Python
 dependencies. These are:
 
-* PostgreSQL 9.2+
-* Redis
-* Elasticsearch
-* Compass (Only for design development)
-* Wake (Only for design development)
+* `PostgreSQL`_ 9.2+
+* `Redis`_
+* `Elasticsearch`_
+* `Compass`_ (used only for design development)
+* `Wake`_ (used only for design development)
 
-Once you have all of the above you can install Warehouse, all of it's
+Once you have all of the above you can install Warehouse, all of its install
 dependencies, and the Python development dependencies using:
 
 .. code-block:: console
@@ -73,10 +74,13 @@ Finally you can setup the project:
 
     $ # Create a Database
     $ createdb warehouse
+    
     $ # Install the CIText extension
     $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
+    
     $ # Migrate the database to the latest schema
     $ warehouse -c dev/config.yml migrate upgrade head
+    
     $ # Serve Warehouse at http://localhost:9000/
     $ warehouse -c dev/config.yml serve
 
@@ -93,13 +97,13 @@ you have to do is:
     $ py.test
 
 This runs the tests with the default Python interpreter and require an empty
-database to exist named test_warehouse by default. The name of the test
+database to exist named ``test_warehouse`` by default. The name of the test
 database may be overridden using the ``WAREHOUSE_DATABASE_URL`` environment
 variable.
 
 You can also verify that the tests pass on other supported Python interpreters.
 For this we use `tox`_, which will automatically create a `virtualenv`_ for
-each supported Python version and run the tests. For example:
+each supported Python version and run the tests.  For example:
 
 .. code-block:: console
 
@@ -133,6 +137,12 @@ The HTML documentation index can now be found at ``docs/_build/html/index.html``
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`PEP 8`: http://www.peps.io/8/
+.. _`future statements`: http://docs.python.org/2/reference/simple_stmts.html#future-statements
+.. _`PostgreSQL`: https://github.com/postgres/postgres
+.. _`Redis`: https://github.com/antirez/redis
+.. _`Elasticsearch`: https://github.com/elasticsearch/elasticsearch
+.. _`Compass`: https://github.com/chriseppstein/compass
+.. _`Wake`: https://github.com/jcoglan/wake
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
 .. _`pytest`: https://pypi.python.org/pypi/pytest
 .. _`tox`: https://pypi.python.org/pypi/tox
