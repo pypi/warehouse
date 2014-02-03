@@ -34,11 +34,11 @@ Example usage::
 Changes to Legacy API
 ---------------------
 
-``package_releases`` "show_hidden" flag is now ignored. All versions are
+``package_releases`` The `show_hidden` flag is now ignored. All versions are
 returned.
 
-``release_data`` "stable_version" is always an empty string. It was never
-fully supported anyway.
+``release_data`` The `stable_version` flag is always an empty string. It was
+never fully supported anyway.
 
 
 Package Querying
@@ -49,25 +49,25 @@ Package Querying
   Returns a list of name strings.
 
 ``package_releases(package_name, show_hidden=False)``
-  Retrieve a list of the releases registered for the given package_name,
+  Retrieve a list of the releases registered for the given `package_name`,
   ordered by version.
 
-  The "show_hidden" flag is now ignored. All versions are returned.
+  The `show_hidden` flag is now ignored. All versions are returned.
 
 ``package_roles(package_name)``
-  Retrieve a list of [role_name, user] for a given package_name.
-  Role is either 'Maintainer' or 'Owner'.
+  Retrieve a list of `[role, user]` for a given `package_name`.
+  Role is either `Maintainer` or `Owner`.
 
 ``user_packages(user)``
-  Retrieve a list of [role_name, package_name] for a given username.
-  Role is either 'Maintainer' or 'Owner'.
+  Retrieve a list of `[role, package_name]` for a given `user`.
+  Role is either `Maintainer` or `Owner`.
 
-``release_downloads(package_name, version)``
-  Retrieve a list of files and download count for a given package and release
-  version.
+``release_downloads(package_name, release_version)``
+  Retrieve a list of files and download count for a given `package_name` and
+  `release_version`.
 
-``release_urls(package_name, version)``
-  Retrieve a list of download URLs for the given package release.
+``release_urls(package_name, release_version)``
+  Retrieve a list of download URLs for the given `release_version`.
   Returns a list of dicts with the following keys:
   - url
   - packagetype ('sdist', 'bdist', etc)
@@ -79,8 +79,8 @@ Package Querying
   - python_version (required version, or 'source', or 'any')
   - comment_text
 
-``release_data(package_name, version)``
-  Retrieve metadata describing a specific package release.
+``release_data(package_name, release_version)``
+  Retrieve metadata describing a specific `release_version`.
   Returns a dict with keys for:
   - name
   - version
@@ -110,9 +110,9 @@ Package Querying
   If the release does not exist, an empty dictionary is returned.
 
 ``search(spec[, operator])``
-  Search the package database using the indicated search spec.
+  Search the package database using the indicated search `spec`.
 
-  The spec may include any of the keywords described in the above list (except
+  The `spec` may include any of the keywords described in the above list (except
   'stable_version' and 'classifiers'), for example: {'description': 'spam'}
   will search description fields. Within the spec, a field's value can be a
   string or a list of strings (the values within the list are combined with an
@@ -138,13 +138,13 @@ Package Querying
   package release version, 'summary': package release summary}
 
 ``browse(classifiers)``
-  Retrieve a list of (name, version) pairs of all releases classified with all
-  of the given classifiers. 'classifiers' must be a list of Trove classifier
+  Retrieve a list of `(name, version)` pairs of all releases classified with all
+  of the given classifiers. `classifiers` must be a list of Trove classifier
   strings.
 
 ``top_packages([number])``
   Retrieve the sorted list of packages ranked by number of downloads.
-  Optionally limit the list to the number given.
+  Optionally limit the list to the `number` given.
 
 ``updated_releases(since)``
   Retrieve a list of package releases made since the given timestamp. The
@@ -160,7 +160,7 @@ Mirroring Support
 -----------------
 
 ``changelog(since, with_ids=False)``
-  Retrieve a list of four-tuples (name, version, timestamp, action), or
+  Retrieve a list of four-tuples `(name, version, timestamp, action)`, or
   five-tuple including the serial id if ids are requested, since the given
   timestamp. All timestamps are UTC values. The argument is a UTC integer
   seconds since the epoch.
@@ -169,7 +169,7 @@ Mirroring Support
   Retrieve the last event's serial id.
 
 ``changelog_since_serial(since_serial)``
-  Retrieve a list of five-tuples (name, version, timestamp, action, serial)
+  Retrieve a list of five-tuples `(name, version, timestamp, action, serial)`
   since the event identified by the given serial. All timestamps are UTC
   values. The argument is a UTC integer seconds since the epoch.
 
