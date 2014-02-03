@@ -89,4 +89,4 @@ though some actions are also POST actions.
   - `submit`, `upload`, `doc_upload`, `file_upload`,
 
 
-.. _`legacy`: legacy.rst
+.. _`legacy`: legacy.html
