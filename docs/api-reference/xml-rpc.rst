@@ -63,50 +63,53 @@ Package Querying
   Role is either `Maintainer` or `Owner`.
 
 ``release_downloads(package_name, release_version)``
-  Retrieve a list of files and download count for a given `package_name` and
-  `release_version`.
+  Retrieve a list of `[filename, download_count]` for a given `package_name`
+  and `release_version`.
 
 ``release_urls(package_name, release_version)``
   Retrieve a list of download URLs for the given `release_version`.
   Returns a list of dicts with the following keys:
-  - url
-  - packagetype ('sdist', 'bdist', etc)
-  - filename
-  - size
-  - md5_digest
-  - downloads
-  - has_sig
-  - python_version (required version, or 'source', or 'any')
-  - comment_text
+  
+  * url
+  * packagetype ('sdist', 'bdist_wheel', etc)
+  * filename
+  * size
+  * md5_digest
+  * downloads
+  * has_sig
+  * python_version (required version, or 'source', or 'any')
+  * comment_text
 
 ``release_data(package_name, release_version)``
   Retrieve metadata describing a specific `release_version`.
   Returns a dict with keys for:
-  - name
-  - version
-  - stable_version (always an empty string)
-  - author
-  - author_email
-  - maintainer
-  - maintainer_email
-  - home_page
-  - license
-  - summary
-  - description
-  - keywords
-  - platform
-  - download_url
-  - classifiers (list of classifier strings)
-  - requires
-  - requires_dist
-  - provides
-  - provides_dist
-  - requires_external
-  - requires_python
-  - obsoletes
-  - obsoletes_dist
-  - project_url
-  - docs_url (URL of the packages.python.org docs if they've been supplied)
+  
+  * name
+  * version
+  * stable_version (always an empty string)
+  * author
+  * author_email
+  * maintainer
+  * maintainer_email
+  * home_page
+  * license
+  * summary
+  * description
+  * keywords
+  * platform
+  * download_url
+  * classifiers (list of classifier strings)
+  * requires
+  * requires_dist
+  * provides
+  * provides_dist
+  * requires_external
+  * requires_python
+  * obsoletes
+  * obsoletes_dist
+  * project_url
+  * docs_url (URL of the packages.python.org docs if they've been supplied)
+  
   If the release does not exist, an empty dictionary is returned.
 
 ``search(spec[, operator])``
@@ -118,19 +121,20 @@ Package Querying
   string or a list of strings (the values within the list are combined with an
   OR), for example: {'name': ['foo', 'bar']}. Valid keys for the spec dict are
   listed here. Invalid keys are ignored:
-  - name
-  - version
-  - author
-  - author_email
-  - maintainer
-  - maintainer_email
-  - home_page
-  - license
-  - summary
-  - description
-  - keywords
-  - platform
-  - download_url
+  
+  * name
+  * version
+  * author
+  * author_email
+  * maintainer
+  * maintainer_email
+  * home_page
+  * license
+  * summary
+  * description
+  * keywords
+  * platform
+  * download_url
 
   Arguments for different fields are combined using either "and" (the default)
   or "or". Example: search({'name': 'foo', 'description': 'bar'}, 'or'). The
@@ -138,8 +142,8 @@ Package Querying
   package release version, 'summary': package release summary}
 
 ``browse(classifiers)``
-  Retrieve a list of `(name, version)` pairs of all releases classified with all
-  of the given classifiers. `classifiers` must be a list of Trove classifier
+  Retrieve a list of `[name, version]` of all releases classified with all of
+  the given classifiers. `classifiers` must be a list of Trove classifier
   strings.
 
 ``top_packages([number])``
@@ -160,17 +164,17 @@ Mirroring Support
 -----------------
 
 ``changelog(since, with_ids=False)``
-  Retrieve a list of four-tuples `(name, version, timestamp, action)`, or
-  five-tuple including the serial id if ids are requested, since the given
-  timestamp. All timestamps are UTC values. The argument is a UTC integer
+  Retrieve a list of `[name, version, timestamp, action]`, or
+  `[name, version, timestamp, action, id]` if `with_ids=True`, since the given
+  `since`. All `since` timestamps are UTC values. The argument is a UTC integer
   seconds since the epoch.
 
 ``changelog_last_serial()``
   Retrieve the last event's serial id.
 
 ``changelog_since_serial(since_serial)``
-  Retrieve a list of five-tuples `(name, version, timestamp, action, serial)`
-  since the event identified by the given serial. All timestamps are UTC
+  Retrieve a list of `(name, version, timestamp, action, serial)` since the
+  event identified by the given `since_serial` All timestamps are UTC
   values. The argument is a UTC integer seconds since the epoch.
 
 ``list_packages_with_serial()``
