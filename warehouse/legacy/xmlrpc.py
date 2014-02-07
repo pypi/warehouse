@@ -61,14 +61,14 @@ class Interface(object):
 
     def user_packages(self, user):
         result = self.app.models.packaging.get_roles_for_user(user)
-        return [(r['package_name'], r['role_name']) for r in result]
+        return [[r['package_name'], r['role_name']] for r in result]
 
     def package_releases(self, name, show_hidden=False):
         return self.app.models.packaging.get_project_versions(name)
 
     def package_roles(self, name):
         result = self.app.models.packaging.get_roles_for_project(name)
-        return [(r['user_name'], r['role_name']) for r in result]
+        return [[r['user_name'], r['role_name']] for r in result]
 
     def package_hosting_mode(self, name):
         return self.app.models.packaging.get_hosting_mode(name)
@@ -76,7 +76,7 @@ class Interface(object):
     def updated_releases(self, since):
         since = arrow.get(since).datetime
         result = self.app.models.packaging.get_releases_since(since)
-        return [(row['name'], row['version']) for row in result]
+        return [[row['name'], row['version']] for row in result]
 
     def changed_packages(self, since):
         since = arrow.get(since).datetime
@@ -91,7 +91,7 @@ class Interface(object):
         mapped = []
         for row in result:
             row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
-            mapped.append(tuple(row[key] for key in keys))
+            mapped.append(list(row[key] for key in keys))
         return mapped
 
     def changelog_last_serial(self):
@@ -103,7 +103,7 @@ class Interface(object):
         mapped = []
         for row in result:
             row['submitted_date'] = arrow.get(row['submitted_date']).timestamp
-            mapped.append(tuple(row[key] for key in keys))
+            mapped.append(list(row[key] for key in keys))
         return mapped
 
     def release_urls(self, name, version):
@@ -124,7 +124,7 @@ class Interface(object):
 
     def release_downloads(self, name, version):
         results = self.app.models.packaging.get_downloads(name, version)
-        return [(r['filename'], r['downloads']) for r in results]
+        return [[r['filename'], r['downloads']] for r in results]
 
     def release_data(self, name, version):
         model = self.app.models.packaging

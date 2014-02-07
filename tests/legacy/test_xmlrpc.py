@@ -169,7 +169,7 @@ def test_xmlrpc_package_roles():
     interface = xmlrpc.Interface(app, pretend.stub())
 
     assert interface.package_roles('name') == [
-        ('one', 'Owner'), ('two', 'Maintainer')
+        ['one', 'Owner'], ['two', 'Maintainer']
     ]
 
     assert app.models.packaging.get_roles_for_project.calls == [
@@ -193,7 +193,7 @@ def test_xmlrpc_user_packages():
     interface = xmlrpc.Interface(app, pretend.stub())
 
     assert interface.user_packages('name') == [
-        ('one', 'Owner'), ('two', 'Maintainer')
+        ['one', 'Owner'], ['two', 'Maintainer']
     ]
 
     assert app.models.packaging.get_roles_for_user.calls == [
@@ -235,7 +235,7 @@ def test_xmlrpc_release_downloads():
     interface = xmlrpc.Interface(app, pretend.stub())
 
     assert interface.release_downloads('name', '1.0') == [
-        ('one', 1), ('two', 2)
+        ['one', 1], ['two', 2]
     ]
 
     assert app.models.packaging.get_downloads.calls == [
@@ -263,10 +263,10 @@ def test_xmlrpc_changelog(with_ids):
              action='new release', id=4),
     ]
     result = [
-        ('one', '1', arrow.get(now).timestamp, 'created', 1),
-        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
-        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
-        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
+        ['one', '1', arrow.get(now).timestamp, 'created', 1],
+        ['two', '2', arrow.get(now).timestamp, 'new release', 2],
+        ['one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3],
+        ['one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4],
     ]
     if not with_ids:
         result = [r[:4] for r in result]
@@ -323,10 +323,10 @@ def test_xmlrpc_changelog_serial():
              action='new release', id=4),
     ]
     result = [
-        ('one', '1', arrow.get(now).timestamp, 'created', 1),
-        ('two', '2', arrow.get(now).timestamp, 'new release', 2),
-        ('one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3),
-        ('one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4),
+        ['one', '1', arrow.get(now).timestamp, 'created', 1],
+        ['two', '2', arrow.get(now).timestamp, 'new release', 2],
+        ['one', '2', arrow.get(now_plus_1).timestamp, 'new release', 3],
+        ['one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4],
     ]
     app = pretend.stub(
         models=pretend.stub(
@@ -365,7 +365,7 @@ def test_xmlrpc_updated_releases():
 
     old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
     assert interface.updated_releases(old_timestamp) == \
-        [('one', '1'), ('two', '2'), ('two', '3'), ('three', '4')]
+        [['one', '1'], ['two', '2'], ['two', '3'], ['three', '4']]
 
     assert app.models.packaging.get_releases_since.calls == [
         pretend.call(arrow.get(old_timestamp).datetime)
@@ -574,7 +574,7 @@ def test_release_data_missing(monkeypatch):
 
 def test_xmlrpc_browse():
     cids = {'hello': 1, 'there': 2}
-    results = [('one', 1), ('two', 2)]
+    results = [['one', 1], ['two', 2]]
     app = pretend.stub(
         models=pretend.stub(
             packaging=pretend.stub(
