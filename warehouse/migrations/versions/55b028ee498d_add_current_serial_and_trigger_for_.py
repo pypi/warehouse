@@ -60,11 +60,6 @@ def upgrade():
         SET current_serial = (SELECT MAX(id) FROM journals WHERE name = packages.name)
         WHERE current_serial IS NULL;
     """)
-    op.alter_column(
-        "packages",
-        "current_serial",
-        nullable=False,
-    )
 
 def downgrade():
    op.execute("""
