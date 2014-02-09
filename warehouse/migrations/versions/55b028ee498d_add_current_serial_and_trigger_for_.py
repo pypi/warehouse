@@ -57,7 +57,8 @@ def upgrade():
     """)
     op.execute("""
         UPDATE packages
-        SET current_serial = (SELECT MAX(id) FROM journals WHERE name = packages.name);
+        SET current_serial = (SELECT MAX(id) FROM journals WHERE name = packages.name)
+        WHERE current_serial IS NULL;
     """)
 
 def downgrade():
