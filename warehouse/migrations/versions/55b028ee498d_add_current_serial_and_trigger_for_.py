@@ -37,13 +37,8 @@ def upgrade():
         CREATE OR REPLACE FUNCTION update_packages_current_serial() RETURNS TRIGGER
         AS $journals$
             BEGIN
-                IF TG_OP = 'DELETE' THEN
-                  UPDATE packages
-                  SET    current_serial = (SELECT MAX(id) FROM journals WHERE name = OLD.name);
-                ELSE
-                  UPDATE packages
-                  SET    current_serial = (SELECT MAX(id) FROM journals WHERE name = NEW.name);
-                END IF;
+                UPDATE packages
+                SET    current_serial = (SELECT MAX(id) FROM journals WHERE name = NEW.name);
                 RETURN NULL;
             END;
         $journals$
@@ -51,7 +46,7 @@ def upgrade():
     """)
     op.execute("""
         CREATE TRIGGER update_packages_current_serial
-        AFTER UPDATE OR INSERT OR DELETE ON journals
+        AFTER UPDATE OR INSERT ON journals
         FOR EACH ROW
         EXECUTE PROCEDURE update_packages_current_serial();
     """)
