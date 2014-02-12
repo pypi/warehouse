@@ -592,7 +592,7 @@ def test_xmlrpc_browse():
         pretend.call(['hello', 'there'])
     ]
     assert app.models.packaging.search_by_classifier.calls == [
-        pretend.call([2, 1])
+        pretend.call(set([2, 1]))
     ]
 
 

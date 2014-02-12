@@ -164,4 +164,4 @@ class Interface(object):
             missing = ', '.join("%s" % c for c in missing)
             raise ValueError('Unknown classifier(s): ' + missing)
 
-        return model.search_by_classifier(classifier_ids.values())
+        return model.search_by_classifier(set(classifier_ids.values()))
