@@ -14,7 +14,7 @@ recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
 
-include compass.rb
+include config.rb
 include package.json
 
 recursive-include warehouse *.html
