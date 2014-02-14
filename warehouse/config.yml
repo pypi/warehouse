@@ -4,9 +4,6 @@ site:
     name: Warehouse
     url: /
 
-assets:
-    url: /static/
-
 database:
     migrations: "warehouse:migrations"
 
@@ -18,7 +15,6 @@ paths:
     documentation: data/packagedocs
 
 urls:
-    assets: /static/
     documentation: "https://pythonhosted.org"
 
 security:

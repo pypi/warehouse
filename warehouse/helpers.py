@@ -70,4 +70,4 @@ def static_url(app, filename):
         if basename is not None:
             filename = os.path.join(os.path.dirname(filename), basename)
 
-    return urlparse.urljoin(app.config.urls.assets, filename)
+    return urlparse.urljoin("/static/", filename)
