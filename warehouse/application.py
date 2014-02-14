@@ -150,6 +150,7 @@ class Warehouse(object):
                     os.path.join(
                         os.path.dirname(warehouse.__file__),
                         "static",
+                        "compiled",
                     ),
                 ),
             },

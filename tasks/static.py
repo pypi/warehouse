@@ -19,15 +19,11 @@ import invoke
 
 @invoke.task
 def build():
+    # Clean existing directories
+    shutil.rmtree("warehouse/static/compiled", ignore_errors=True)
+
     # Build our CSS files
     invoke.run("compass compile -c compass.rb --force")
-
-    # Clean existing directories
-    for directory in {"css", "fonts", "js"}:
-        shutil.rmtree(os.path.join("warehouse/static", directory))
-
-    # Run wake to generate our built files
-    invoke.run("wake")
 
 
 @invoke.task
