@@ -58,7 +58,7 @@ def static_url(app, filename):
     filepath = os.path.join(static_dir, filename)
     manifest_path = os.path.join(os.path.dirname(filepath), ".manifest.json")
 
-    if not app.config.theme_debug:
+    if not app.config.debug:
         # Load our on disk manifest
         with open(manifest_path) as fp:
             manifest = json.load(fp)
