@@ -364,7 +364,7 @@ class TestParsing(object):
         assert parse_log_line(line) == ParsedLogLine(
             package_name="wheel",
             package_version="0.22.0",
-            distribution_type="wheel",
+            distribution_type="bdist_wheel",
             download_time=datetime.datetime(2013, 12, 8, 23, 27, 24),
             user_agent=ParsedUserAgent(
                 python_version="2.7.3",
@@ -421,6 +421,16 @@ class TestParsing(object):
         )
         assert parse_log_line(line) is None
 
+    def test_parse_log_line_bad_quoting(self):
+        line = (
+            '2013-12-08T23:27:24Z cache-c31 pypi-cdn[11386]: 199.182.120.6 '
+            '"Sun, 08 Dec 2013 23:27:24 GMT" "-" '
+            '"GET /packages/2.7/" /wheel/wheel-0.22.0-py2.py3-none-any.whl" '
+            'HTTP/1.1 200 54823 329778 HIT 42 "(null)" "(null)" '
+            '"pip/1.5rc1 PyPy/2.2.1 Linux/2.6.32-042stab061.2"'
+        )
+        assert parse_log_line(line) is None
+
     @pytest.mark.parametrize(("filename", "expected"), [
         ("INITools-0.2.tar.gz", "0.2"),
         ("wheel-0.22.0-py2.py3-none-any.whl", "0.22.0"),
@@ -434,10 +444,12 @@ class TestParsing(object):
         ("foo.tar.bz2", "sdist"),
         ("foo.tgz", "sdist"),
         ("foo.zip", "sdist"),
-        ("foo.tar.gz#md5=blah", "sdist"),
-        ("foo.whl", "wheel"),
-        ("foo.egg", "egg"),
-        ("foo.exe", "exe"),
+        ("foo.whl", "bdist_wheel"),
+        ("foo.egg", "bdist_egg"),
+        ("foo.exe", "bdist_wininst"),
+        ("foo.msi", "bdist_msi"),
+        ("foo.dmg", "bdist_dmg"),
+        ("foo.rpm", "bdist_rpm"),
         ("foo", None)
     ])
     def test_compute_distribution_type(self, filename, expected):
@@ -473,6 +485,14 @@ class TestModels(object):
 
 
 class TestFastlySyslog(object):
+
+    def test_connection_lost(self):
+        deferred = pretend.stub(callback=pretend.call_recorder(lambda x: None))
+        protocol = FastlySyslogProtocol(pretend.stub(), deferred)
+        protocol.connectionLost(None)
+
+        assert deferred.callback.calls == [pretend.call(None)]
+
     def test_handle_line(self):
         line = (
             '2013-12-08T23:24:40Z cache-c31 pypi-cdn[18322]: 199.182.120.6 '
@@ -483,7 +503,7 @@ class TestFastlySyslog(object):
         )
 
         models = FakeDownloadStatisticsModels()
-        protocol = FastlySyslogProtocol(models)
+        protocol = FastlySyslogProtocol(models, None)
         protocol.handle_line(line)
 
         assert models.downloads == [
@@ -513,7 +533,7 @@ class TestFastlySyslog(object):
             'HTTP/1.1 301 0 0 MISS 0 "(null)" "(null)" "Python-urllib/2.7"'
         )
         models = FakeDownloadStatisticsModels()
-        protocol = FastlySyslogProtocol(models)
+        protocol = FastlySyslogProtocol(models, None)
         protocol.handle_line(line)
 
         assert models.downloads == []
@@ -528,13 +548,13 @@ class TestFastlySyslog(object):
         )
 
         models = pretend.stub(create_download=pretend.raiser(ValueError))
-        protocol = FastlySyslogProtocol(models)
+        protocol = FastlySyslogProtocol(models, None)
         protocol.lineReceived(line)
         # No exception was raised
 
     def test_factory_buildProtocol(self):
         engine = pretend.stub()
-        factory = FastlySyslogProtocolFactory(engine)
+        factory = FastlySyslogProtocolFactory(engine, None)
         protocol = factory.buildProtocol(None)
         assert protocol._models._engine is engine
 

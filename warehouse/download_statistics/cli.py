@@ -38,8 +38,12 @@ logger = logging.getLogger(__name__)
 class FastlySyslogProtocol(LineOnlyReceiver):
     delimiter = b"\n"
 
-    def __init__(self, models):
+    def __init__(self, models, finished):
         self._models = models
+        self._finished = finished
+
+    def connectionLost(self, reason):
+        self._finished.callback(None)
 
     def lineReceived(self, line):
         try:
@@ -73,12 +77,14 @@ class FastlySyslogProtocol(LineOnlyReceiver):
 
 
 class FastlySyslogProtocolFactory(Factory):
-    def __init__(self, engine):
+    def __init__(self, engine, finished):
         self._engine = engine
+        self._finished = finished
 
     def buildProtocol(self, addr):
         return FastlySyslogProtocol(
-            DownloadStatisticsModels(self._engine)
+            DownloadStatisticsModels(self._engine),
+            self._finished,
         )
 
 
@@ -92,14 +98,18 @@ class TwistedCommand(object):
 
 
 def process_logs_main(reactor, app):
+    finished = Deferred()
+
     download_statistic_engine = sqlalchemy.create_engine(
         app.config.database.download_statistics_url,
         strategy=alchimia.TWISTED_STRATEGY,
         reactor=reactor
     )
     endpoint = StandardIOEndpoint(reactor)
-    endpoint.listen(FastlySyslogProtocolFactory(download_statistic_engine))
-    return Deferred()
+    endpoint.listen(
+        FastlySyslogProtocolFactory(download_statistic_engine, finished),
+    )
+    return finished
 
 
 __commands__ = {

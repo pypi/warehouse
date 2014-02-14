@@ -21,6 +21,8 @@ import json
 import logging
 import posixpath
 import re
+import urlparse
+
 from collections import namedtuple
 from email.utils import parsedate
 
@@ -169,18 +171,24 @@ def parse_log_line(line):
     response_status = row[8]
     ua = row[15]
 
-    if int(response_status) != 200:
+    try:
+        if int(response_status) != 200:
+            return
+    except ValueError:
+        # Broken log lines cause this
         return
 
-    path = req.split(" ", 1)[1]
+    path = urlparse.urlparse(req.split(" ", 1)[1]).path
 
     if not path.startswith("/packages/"):
         return
 
     download_time = datetime.datetime(*parsedate(timestamp)[:6])
     directory, filename = posixpath.split(path)
-    if not filename:
+
+    if not filename or filename.endswith(".asc"):
         return
+
     project = posixpath.basename(directory)
     return ParsedLogLine(
         package_name=project,
@@ -208,16 +216,20 @@ def compute_version(filename):
 
 
 def compute_distribution_type(filename):
-    # Strip off #md5=... and the like
-    filename, _, _ = filename.partition("#")
     if filename.endswith((".tar.gz", ".tar.bz2", ".tgz", ".zip")):
         return "sdist"
     elif filename.endswith(".egg"):
-        return "egg"
+        return "bdist_egg"
     elif filename.endswith(".exe"):
-        return "exe"
+        return "bdist_wininst"
     elif filename.endswith(".whl"):
-        return "wheel"
+        return "bdist_wheel"
+    elif filename.endswith(".msi"):
+        return "bdist_msi"
+    elif filename.endswith(".dmg"):
+        return "bdist_dmg"
+    elif filename.endswith(".rpm"):
+        return "bdist_rpm"
     else:
         logger.info(json.dumps({
             "event": "download_statitics.compute_distribution_type.ignore",
