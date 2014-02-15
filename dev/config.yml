@@ -29,12 +29,14 @@ cache:
         packages: 1
         project_detail: 1
         user_profile: 1
+        legacy_json: 1
     varnish:
         index: 120
         simple: 120
         packages: 120
         project_detail: 120
         user_profile: 120
+        legacy_json: 120
 
 
 security:

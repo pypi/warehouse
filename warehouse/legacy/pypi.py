@@ -23,7 +23,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from warehouse.helpers import url_for
 from warehouse.http import Response
 from warehouse.legacy import xmlrpc
-from warehouse.utils import is_valid_json_callback_name
+from warehouse.utils import cache, fastly, is_valid_json_callback_name
 
 
 def pypi(app, request):
@@ -47,8 +47,8 @@ def daytime(app, request):
     return Response(response, mimetype="text/plain")
 
 
-# @cache("simple")
-# @fastly("simple", "simple~{project_name!n}")
+@cache("legacy_json")
+@fastly("legacy-json", "legacy-json~{project_name!n}")
 def project_json(app, request, project_name):
     # fail early if callback is invalid
     callback = request.args.get('callback')

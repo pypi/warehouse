@@ -91,6 +91,7 @@ def test_json(monkeypatch, callback):
     get_project = pretend.call_recorder(lambda n: pretend.stub(name='spam'))
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
     app = pretend.stub(
+        config=pretend.stub(cache=pretend.stub(browser=False, varnish=False)),
         models=pretend.stub(
             packaging=pretend.stub(
                 get_project=get_project,
@@ -114,7 +115,7 @@ def test_json(monkeypatch, callback):
 
     monkeypatch.setattr(xmlrpc, 'Interface', Interface)
 
-    resp = pypi.project_json(app, request, 'spam')
+    resp = pypi.project_json(app, request, project_name='spam')
 
     assert get_project.calls == [pretend.call('spam')]
     assert get_project_versions.calls == [pretend.call('spam')]
@@ -131,7 +132,7 @@ def test_jsonp_invalid():
     app = pretend.stub()
     request = pretend.stub(args={'callback': 'quite invalid'})
     with pytest.raises(BadRequest):
-        pypi.project_json(app, request, 'spam')
+        pypi.project_json(app, request, project_name='spam')
 
 
 @pytest.mark.parametrize("project", [None, pretend.stub(name="spam")])
@@ -149,4 +150,4 @@ def test_json_missing(monkeypatch, project):
     request = pretend.stub(args={})
 
     with pytest.raises(NotFound):
-        pypi.project_json(app, request, 'spam')
+        pypi.project_json(app, request, project_name='spam')
