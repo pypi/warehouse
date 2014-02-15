@@ -88,7 +88,7 @@ def test_daytime(monkeypatch):
 
 @pytest.mark.parametrize("callback", [None, 'yes'])
 def test_json(monkeypatch, callback):
-    get_project = pretend.call_recorder(lambda n: pretend.stub(name='spam'))
+    get_project = pretend.call_recorder(lambda n: 'spam')
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
     app = pretend.stub(
         config=pretend.stub(cache=pretend.stub(browser=False, varnish=False)),
