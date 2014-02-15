@@ -14,13 +14,16 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import json
 import time
 
-from warehouse.helpers import url_for
 from werkzeug.utils import redirect
-from warehouse.http import Response
+from werkzeug.exceptions import NotFound, BadRequest
 
+from warehouse.helpers import url_for
+from warehouse.http import Response
 from warehouse.legacy import xmlrpc
+from warehouse.utils import cache, fastly, is_valid_json_callback_name
 
 
 def pypi(app, request):
@@ -42,3 +45,44 @@ def pypi(app, request):
 def daytime(app, request):
     response = time.strftime("%Y%m%dT%H:%M:%S\n", time.gmtime(time.time()))
     return Response(response, mimetype="text/plain")
+
+
+@cache("legacy_json")
+@fastly("legacy-json", "legacy-json~{project_name!n}")
+def project_json(app, request, project_name):
+    # fail early if callback is invalid
+    callback = request.args.get('callback')
+    if callback:
+        if not is_valid_json_callback_name(callback):
+            raise BadRequest('invalid JSONP callback name')
+
+    # Get the real project name for this project
+    project = app.models.packaging.get_project(project_name)
+
+    if project is None:
+        raise NotFound("{} does not exist".format(project_name))
+
+    # we're looking for the latest version
+    versions = app.models.packaging.get_project_versions(project)
+    if not versions:
+        raise NotFound("{} has no releases".format(project))
+    version = versions[0]
+
+    rpc = xmlrpc.Interface(app, request)
+
+    d = dict(
+        info=rpc.release_data(project, version),
+        urls=rpc.release_urls(project, version),
+    )
+    for url in d['urls']:
+        url['upload_time'] = url['upload_time'].strftime('%Y-%m-%dT%H:%M:%S')
+
+    data = json.dumps(d, sort_keys=True)
+
+    # write the JSONP extra crap if necessary
+    if callback:
+        data = '/**/ %s(%s);' % (callback, data)
+
+    response = Response(data, mimetype="application/json")
+    response.headers['Content-Disposition'] = 'inline'
+    return response
