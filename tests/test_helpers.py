@@ -70,17 +70,15 @@ def test_url_for(external):
     ]
 
 
-@pytest.mark.parametrize(("filename", "expected"), [
-    ("css/warehouse.css", "/static/css/warehouse-*.css"),
-    ("css/fake.css", "/static/css/fake.css"),
-    ("warehouse/css/warehouse.css", "/static/warehouse/css/warehouse.css"),
+@pytest.mark.parametrize(("filename", "debug", "expected"), [
+    ("css/warehouse.css", False, "/static/css/warehouse-*.css"),
+    ("css/warehouse.css", True, "/static/css/warehouse.css"),
+    ("css/fake.css", False, "/static/css/fake.css"),
 ])
-def test_static_url(filename, expected):
+def test_static_url(filename, debug, expected):
     app = pretend.stub(
         config=pretend.stub(
-            urls=pretend.stub(
-                assets="/static/",
-            ),
+            debug=debug,
         ),
     )
 
