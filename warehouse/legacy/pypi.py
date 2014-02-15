@@ -17,12 +17,13 @@ from __future__ import unicode_literals
 import json
 import time
 
-from warehouse.helpers import url_for, is_valid_json_callback_name
+from warehouse.helpers import url_for
 from werkzeug.utils import redirect
 from warehouse.http import Response
 from werkzeug.exceptions import NotFound, BadRequest
 
 from warehouse.legacy import xmlrpc
+from warehouse.utils import is_valid_json_callback_name
 
 
 def pypi(app, request):

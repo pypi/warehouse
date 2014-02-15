@@ -22,7 +22,7 @@ import six
 from warehouse.utils import (
     AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
     render_response, cache, get_wsgi_application, get_mimetype, redirect,
-    SearchPagination,
+    SearchPagination, is_valid_json_callback_name,
 )
 
 
@@ -218,3 +218,14 @@ class TestSearchPagination:
 
         assert paginator.next_url is next_url
         assert url.calls == [pretend.call(page=2)]
+
+
+@pytest.mark.parametrize(("callback", "expected"), [
+    ("", False),
+    ("too long" * 50, False),
+    ("somehack()", False),
+    ("break", False),
+    ("valid", True),
+])
+def test_is_valid_json_callback_name(callback, expected):
+    assert is_valid_json_callback_name(callback) == expected

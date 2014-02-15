@@ -19,8 +19,7 @@ import fnmatch
 import pretend
 import pytest
 
-from warehouse.helpers import (gravatar_url, url_for, static_url,
-                               is_valid_json_callback_name)
+from warehouse.helpers import gravatar_url, url_for, static_url
 
 
 @pytest.mark.parametrize(("email", "kwargs", "expected"), [
@@ -84,14 +83,3 @@ def test_static_url(filename, debug, expected):
     )
 
     assert fnmatch.fnmatch(static_url(app, filename), expected)
-
-
-@pytest.mark.parametrize(("callback", "expected"), [
-    ("", False),
-    ("too long" * 50, False),
-    ("somehack()", False),
-    ("break", False),
-    ("valid", True),
-])
-def test_is_valid_json_callback_name(callback, expected):
-    assert is_valid_json_callback_name(callback) == expected

@@ -217,3 +217,39 @@ class SearchPagination(object):
     @property
     def next_url(self):
         return self.url(page=self.page + 1)
+
+
+VALID_CALLBACK_RE = re.compile(r'^[$a-z_][0-9a-z_\.\[\]]*$', re.I)
+
+# Reserved words list from http://javascript.about.com/library/blreserved.htm
+JSONP_RESERVED_WORDS = frozenset((
+    'abstract', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class',
+    'const', 'continue', 'debugger', 'default', 'delete', 'do', 'double',
+    'else', 'enum', 'export', 'extends', 'false', 'final', 'finally', 'float',
+    'for', 'function', 'goto', 'if', 'implements', 'import', 'in',
+    'instanceof', 'int', 'interface', 'long', 'native', 'new', 'null',
+    'package', 'private', 'protected', 'public', 'return', 'short', 'static',
+    'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient',
+    'true', 'try', 'typeof', 'var', 'void', 'volatile', 'while', 'with',
+))
+
+
+def is_valid_json_callback_name(callback_name):
+    if not callback_name:
+        return False
+
+    # Callbacks longer than 50 characters are suspicious.
+    # There isn't a legit reason for a callback longer.
+    # The length is arbitrary too.
+    # It's technically possible to construct malicious payloads using
+    # only ascii characters, so we just block this.
+    if len(callback_name) > 50:
+        return False
+
+    if not VALID_CALLBACK_RE.match(callback_name):
+        return False
+
+    if callback_name in JSONP_RESERVED_WORDS:
+        return False
+
+    return True
