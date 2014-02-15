@@ -121,8 +121,8 @@ def test_json(monkeypatch, callback):
     assert get_project_versions.calls == [pretend.call('spam')]
     assert release_data.calls == [pretend.call('spam', '2.0')]
     assert release_urls.calls == [pretend.call('spam', '2.0')]
-    expected = '{"info": {"some": "data"}, "urls": [{"upload_time": "1970-01-'\
-        '01T00:00:00", "some": "url"}]}'
+    expected = '{"info": {"some": "data"}, "urls": [{"some": "url", '\
+        '"upload_time": "1970-01-01T00:00:00"}]}'
     if callback:
         expected = '/**/ %s(%s);' % (callback, expected)
     assert resp.data == expected

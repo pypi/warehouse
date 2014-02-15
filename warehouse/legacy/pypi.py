@@ -77,7 +77,7 @@ def project_json(app, request, project_name):
     for url in d['urls']:
         url['upload_time'] = url['upload_time'].strftime('%Y-%m-%dT%H:%M:%S')
 
-    data = json.dumps(d)
+    data = json.dumps(d, sort_keys=True)
 
     # write the JSONP extra crap if necessary
     if callback:
