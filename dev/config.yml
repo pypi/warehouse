@@ -3,9 +3,6 @@ debug: true
 site:
     name: Warehouse (dev)
 
-assets:
-    directory: "data/static"
-
 database:
     url: "postgresql://localhost/warehouse"
     download_statistics_url: "postgresql://localhost/warehouse"

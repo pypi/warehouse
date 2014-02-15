@@ -52,12 +52,13 @@ def static_url(app, filename):
     static_dir = os.path.join(
         os.path.dirname(os.path.abspath(warehouse.application.__file__)),
         "static",
+        "compiled",
     )
 
     filepath = os.path.join(static_dir, filename)
     manifest_path = os.path.join(os.path.dirname(filepath), ".manifest.json")
 
-    if os.path.exists(manifest_path):
+    if not app.config.debug:
         # Load our on disk manifest
         with open(manifest_path) as fp:
             manifest = json.load(fp)
@@ -69,4 +70,4 @@ def static_url(app, filename):
         if basename is not None:
             filename = os.path.join(os.path.dirname(filename), basename)
 
-    return urlparse.urljoin(app.config.urls.assets, filename)
+    return urlparse.urljoin("/static/", filename)

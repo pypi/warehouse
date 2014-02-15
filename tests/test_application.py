@@ -183,6 +183,7 @@ def test_static_middleware(monkeypatch):
                     os.path.join(
                         os.path.dirname(warehouse.__file__),
                         "static",
+                        "compiled",
                     ),
                 ),
             },
@@ -225,19 +226,3 @@ def test_guard_middleware(monkeypatch):
     )
 
     assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
-
-
-def test_guard_middleware_theme_debug(monkeypatch):
-    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
-
-    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
-
-    Warehouse.from_yaml(
-        os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "test_config.yml",
-        )),
-        override={"theme_debug": True},
-    )
-
-    assert ContentSecurityPolicy.calls == []

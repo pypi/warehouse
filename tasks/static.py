@@ -22,13 +22,6 @@ def build():
     # Build our CSS files
     invoke.run("compass compile -c compass.rb --force")
 
-    # Clean existing directories
-    for directory in {"css", "fonts", "js"}:
-        shutil.rmtree(os.path.join("warehouse/static", directory))
-
-    # Run wake to generate our built files
-    invoke.run("wake")
-
 
 @invoke.task
 def watch():
