@@ -20,13 +20,13 @@ import invoke
 @invoke.task
 def build():
     # Build our CSS files
-    invoke.run("compass compile -c compass.rb --force")
+    invoke.run("compass compile -c config.rb --force")
 
 
 @invoke.task
 def watch():
     try:
         # Watch With Compass
-        invoke.run("compass watch -c compass.rb")
+        invoke.run("compass watch -c config.rb")
     except KeyboardInterrupt:
         pass
