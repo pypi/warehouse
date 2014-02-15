@@ -19,7 +19,6 @@ import json
 import os.path
 import urllib
 import urlparse
-import re
 
 import warehouse.application
 
