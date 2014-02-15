@@ -41,8 +41,13 @@ cache:
 security:
     csp:
         default-src:
-            - self
-            - "localhost:9000"
+            - "'self'"
+        style-src:
+            - "'self'"
+            - cloud.typography.com
+        font-src:
+            - "'self'"
+            - "data:"
 
 logging:
     formatters:
