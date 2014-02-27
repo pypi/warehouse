@@ -15,8 +15,8 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import jinja2
+import readme.rst
 
-from recliner import htmlize
 from werkzeug.exceptions import NotFound
 
 from warehouse.helpers import url_for
@@ -76,11 +76,7 @@ def project_detail(app, request, project_name, version=None):
 
     if release.get("description"):
         # Render the project description
-        description_html = htmlize(release["description"])
-
-        # If our description wasn't able to be rendered, wrap it in <pre></pre>
-        if not description_html.rendered:
-            description_html = "<pre>" + description_html + "</pre>"
+        description_html = readme.rst.render(release["description"])
     else:
         description_html = ""
 
