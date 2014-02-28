@@ -29,7 +29,7 @@ def test_index(monkeypatch):
         config=pretend.stub(
             cache=pretend.stub(browser=False, varnish=False),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project_count=pretend.call_recorder(
                     lambda: project_count,
@@ -51,9 +51,9 @@ def test_index(monkeypatch):
     resp = index(app, request)
 
     assert resp is response
-    assert app.models.packaging.get_project_count.calls == [pretend.call()]
-    assert app.models.packaging.get_download_count.calls == [pretend.call()]
-    assert app.models.packaging.get_recently_updated.calls == [pretend.call()]
+    assert app.db.packaging.get_project_count.calls == [pretend.call()]
+    assert app.db.packaging.get_download_count.calls == [pretend.call()]
+    assert app.db.packaging.get_recently_updated.calls == [pretend.call()]
     assert render_response.calls == [
         pretend.call(
             app, request, "index.html",

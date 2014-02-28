@@ -23,7 +23,7 @@ from warehouse.utils import cache, fastly, redirect, render_response
 @cache("user_profile")
 @fastly("user-profile", "user-profile~{username}")
 def user_profile(app, request, username):
-    user = app.models.accounts.get_user(username)
+    user = app.db.accounts.get_user(username)
 
     if user is None:
         raise NotFound("Could not find user {}".format(username))
@@ -41,5 +41,5 @@ def user_profile(app, request, username):
     return render_response(
         app, request, "accounts/profile.html",
         user=user,
-        projects=app.models.packaging.get_projects_for_user(user["username"]),
+        projects=app.db.packaging.get_projects_for_user(user["username"]),
     )

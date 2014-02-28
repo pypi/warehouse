@@ -37,7 +37,7 @@ def test_index(monkeypatch):
         config=pretend.stub(
             cache=pretend.stub(browser=False, varnish=False),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 all_projects=pretend.call_recorder(lambda: all_projects),
                 get_last_serial=pretend.call_recorder(lambda: 9999),
@@ -103,7 +103,7 @@ def test_project(project_name, hosting_mode, release_urls,
         config=pretend.stub(
             cache=pretend.stub(browser=False, varnish=False),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(lambda p: project_name),
                 get_file_urls=pretend.call_recorder(lambda p: []),
@@ -134,33 +134,33 @@ def test_project(project_name, hosting_mode, release_urls,
             external_urls=[],
         ),
     ]
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call(project_name),
     ]
-    assert app.models.packaging.get_file_urls.calls == [
+    assert app.db.packaging.get_file_urls.calls == [
         pretend.call(project_name),
     ]
-    assert app.models.packaging.get_hosting_mode.calls == [
+    assert app.db.packaging.get_hosting_mode.calls == [
         pretend.call(project_name),
     ]
-    assert app.models.packaging.get_external_urls.calls == [
+    assert app.db.packaging.get_external_urls.calls == [
         pretend.call(project_name),
     ]
-    assert app.models.packaging.get_last_serial.calls == [
+    assert app.db.packaging.get_last_serial.calls == [
         pretend.call(project_name),
     ]
 
     if hosting_mode == "pypi-explicit":
-        assert app.models.packaging.get_release_urls.calls == []
+        assert app.db.packaging.get_release_urls.calls == []
     else:
-        assert app.models.packaging.get_release_urls.calls == [
+        assert app.db.packaging.get_release_urls.calls == [
             pretend.call(project_name),
         ]
 
 
 def test_project_not_found():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(lambda p: None),
             ),
@@ -171,7 +171,7 @@ def test_project_not_found():
     with pytest.raises(NotFound):
         simple.project(app, request, project_name="foo")
 
-    assert app.models.packaging.get_project.calls == [pretend.call("foo")]
+    assert app.db.packaging.get_project.calls == [pretend.call("foo")]
 
 
 @pytest.mark.parametrize(("serial", "md5_hash"), [
@@ -207,7 +207,7 @@ def test_package(serial, md5_hash, monkeypatch):
             cache=pretend.stub(browser=False, varnish=False),
             paths=pretend.stub(packages="/tmp"),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project_for_filename=gpff,
                 get_filename_md5=get_md5,

@@ -22,7 +22,7 @@ from warehouse.utils import cache, fastly, render_response
 def index(app, request):
     return render_response(
         app, request, "index.html",
-        project_count=app.models.packaging.get_project_count(),
-        download_count=app.models.packaging.get_download_count(),
-        recently_updated=app.models.packaging.get_recently_updated(),
+        project_count=app.db.packaging.get_project_count(),
+        download_count=app.db.packaging.get_download_count(),
+        recently_updated=app.db.packaging.get_recently_updated(),
     )

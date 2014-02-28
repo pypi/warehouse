@@ -24,7 +24,7 @@ from warehouse.accounts.views import user_profile
 
 def test_user_profile_missing_user():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             accounts=pretend.stub(
                 get_user=pretend.call_recorder(lambda user: None),
             ),
@@ -37,7 +37,7 @@ def test_user_profile_missing_user():
     with pytest.raises(NotFound):
         user_profile(app, request, username=username)
 
-    assert app.models.accounts.get_user.calls == [pretend.call("test-user")]
+    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
 
 
 def test_user_profile_redirects():
@@ -48,7 +48,7 @@ def test_user_profile_redirects():
                 varnish=False,
             ),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             accounts=pretend.stub(
                 get_user=pretend.call_recorder(
                     lambda user: {"username": "test-User"},
@@ -71,7 +71,7 @@ def test_user_profile_redirects():
     assert resp.status_code == 301
     assert resp.headers["Location"] == "/~test-User/"
 
-    assert app.models.accounts.get_user.calls == [pretend.call("test-user")]
+    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
 
     assert request.url_adapter.build.calls == [
         pretend.call(
@@ -90,7 +90,7 @@ def test_user_profile_renders():
                 varnish=False,
             ),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             accounts=pretend.stub(
                 get_user=pretend.call_recorder(
                     lambda user: {"username": "test-user"},
@@ -116,8 +116,8 @@ def test_user_profile_renders():
 
     assert resp.status_code == 200
 
-    assert app.models.accounts.get_user.calls == [pretend.call("test-user")]
-    assert app.models.packaging.get_projects_for_user.calls == [
+    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
+    assert app.db.packaging.get_projects_for_user.calls == [
         pretend.call("test-user"),
     ]
 

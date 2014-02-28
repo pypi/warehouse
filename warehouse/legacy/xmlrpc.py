@@ -51,40 +51,40 @@ class Interface(object):
         self.request = request
 
     def list_packages(self):
-        return self.app.models.packaging.all_projects()
+        return self.app.db.packaging.all_projects()
 
     def list_packages_with_serial(self):
-        return self.app.models.packaging.get_projects_with_serial()
+        return self.app.db.packaging.get_projects_with_serial()
 
     def top_packages(self, num=None):
-        return self.app.models.packaging.get_top_projects(num)
+        return self.app.db.packaging.get_top_projects(num)
 
     def user_packages(self, user):
-        result = self.app.models.packaging.get_roles_for_user(user)
+        result = self.app.db.packaging.get_roles_for_user(user)
         return [[r['package_name'], r['role_name']] for r in result]
 
     def package_releases(self, name, show_hidden=False):
-        return self.app.models.packaging.get_project_versions(name)
+        return self.app.db.packaging.get_project_versions(name)
 
     def package_roles(self, name):
-        result = self.app.models.packaging.get_roles_for_project(name)
+        result = self.app.db.packaging.get_roles_for_project(name)
         return [[r['user_name'], r['role_name']] for r in result]
 
     def package_hosting_mode(self, name):
-        return self.app.models.packaging.get_hosting_mode(name)
+        return self.app.db.packaging.get_hosting_mode(name)
 
     def updated_releases(self, since):
         since = arrow.get(since).datetime
-        result = self.app.models.packaging.get_releases_since(since)
+        result = self.app.db.packaging.get_releases_since(since)
         return [[row['name'], row['version']] for row in result]
 
     def changed_packages(self, since):
         since = arrow.get(since).datetime
-        return self.app.models.packaging.get_changed_since(since)
+        return self.app.db.packaging.get_changed_since(since)
 
     def changelog(self, since, with_ids=False):
         since = arrow.get(since).datetime
-        result = self.app.models.packaging.get_changelog(since)
+        result = self.app.db.packaging.get_changelog(since)
         keys = ['name', 'version', 'submitted_date', 'action']
         if with_ids:
             keys.append('id')
@@ -95,10 +95,10 @@ class Interface(object):
         return mapped
 
     def changelog_last_serial(self):
-        return self.app.models.packaging.get_last_changelog_serial()
+        return self.app.db.packaging.get_last_changelog_serial()
 
     def changelog_since_serial(self, since):
-        result = self.app.models.packaging.get_changelog_serial(since)
+        result = self.app.db.packaging.get_changelog_serial(since)
         keys = ['name', 'version', 'submitted_date', 'action', 'id']
         mapped = []
         for row in result:
@@ -108,7 +108,7 @@ class Interface(object):
 
     def release_urls(self, name, version):
         l = []
-        for r in self.app.models.packaging.get_downloads(name, version):
+        for r in self.app.db.packaging.get_downloads(name, version):
             l.append(dict(
                 url=r['url'],
                 packagetype=r['packagetype'],
@@ -123,25 +123,25 @@ class Interface(object):
         return l
 
     def release_downloads(self, name, version):
-        results = self.app.models.packaging.get_downloads(name, version)
+        results = self.app.db.packaging.get_downloads(name, version)
         return [[r['filename'], r['downloads']] for r in results]
 
     def release_data(self, name, version):
-        model = self.app.models.packaging
+        db = self.app.db.packaging
         try:
-            info = model.get_release(name, version)
+            info = db.get_release(name, version)
         except IndexError:
             # the CURRENT model code will raise an IndexError on missing
             # package but this should be altered
             return {}
 
         info['stable_version'] = ''     # legacy; never actually correct
-        info['classifiers'] = model.get_classifiers(name, version)
+        info['classifiers'] = db.get_classifiers(name, version)
         info['package_url'] = 'http://pypi.python.org/pypi/%s' % name
         info['release_url'] = 'http://pypi.python.org/pypi/%s/%s' % (name,
                                                                      version)
-        info['docs_url'] = model.get_documentation_url(name)
-        info['downloads'] = model.get_download_counts(name)
+        info['docs_url'] = db.get_documentation_url(name)
+        info['downloads'] = db.get_download_counts(name)
 
         # XML-RPC has no datetime; work only with UNIX timestamps
         info['created'] = arrow.get(info['created']).timestamp
@@ -157,11 +157,11 @@ class Interface(object):
         if not isinstance(categories, list):
             raise TypeError("Parameter categories must be a list")
 
-        model = self.app.models.packaging
-        classifier_ids = model.get_classifier_ids(categories)
+        db = self.app.db.packaging
+        classifier_ids = db.get_classifier_ids(categories)
         if len(classifier_ids) != len(categories):
             missing = list(set(categories) - set(classifier_ids))
             missing = ', '.join("%s" % c for c in missing)
             raise ValueError('Unknown classifier(s): ' + missing)
 
-        return model.search_by_classifier(set(classifier_ids.values()))
+        return db.search_by_classifier(set(classifier_ids.values()))

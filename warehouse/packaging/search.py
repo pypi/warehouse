@@ -43,7 +43,7 @@ class ProjectMapping(BaseMapping):
         }
 
     def get_indexable(self):
-        return self.index.models.packaging.get_full_latest_releases()
+        return self.index.db.packaging.get_full_latest_releases()
 
     def extract_id(self, item):
         return item["name"]

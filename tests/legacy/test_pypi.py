@@ -92,7 +92,7 @@ def test_json(monkeypatch, callback):
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
     app = pretend.stub(
         config=pretend.stub(cache=pretend.stub(browser=False, varnish=False)),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=get_project,
                 get_project_versions=get_project_versions,
@@ -140,7 +140,7 @@ def test_json_missing(monkeypatch, project):
     get_project = pretend.call_recorder(lambda n: project)
     get_project_versions = pretend.call_recorder(lambda n: [])
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=get_project,
                 get_project_versions=get_project_versions,

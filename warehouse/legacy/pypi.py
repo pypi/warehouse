@@ -57,13 +57,13 @@ def project_json(app, request, project_name):
             raise BadRequest('invalid JSONP callback name')
 
     # Get the real project name for this project
-    project = app.models.packaging.get_project(project_name)
+    project = app.db.packaging.get_project(project_name)
 
     if project is None:
         raise NotFound("{} does not exist".format(project_name))
 
     # we're looking for the latest version
-    versions = app.models.packaging.get_project_versions(project)
+    versions = app.db.packaging.get_project_versions(project)
     if not versions:
         raise NotFound("{} has no releases".format(project))
     version = versions[0]

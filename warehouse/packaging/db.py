@@ -19,14 +19,14 @@ import os.path
 import urlparse
 import logging
 
-from warehouse import db, models
+from warehouse import db
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
 log = logging.getLogger(__name__)
 
 
-class Model(models.Model):
+class Database(db.Database):
 
     get_project_count = db.scalar(
         "SELECT COUNT(*) FROM packages"

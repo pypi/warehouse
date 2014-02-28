@@ -26,7 +26,7 @@ from warehouse.packaging.views import project_detail
 
 def test_project_detail_missing_project():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(lambda proj: None),
             ),
@@ -39,14 +39,14 @@ def test_project_detail_missing_project():
     with pytest.raises(NotFound):
         project_detail(app, request, project_name)
 
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
 
 
 def test_project_detail_no_versions():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
                     lambda proj: "test-project",
@@ -62,10 +62,10 @@ def test_project_detail_no_versions():
     with pytest.raises(NotFound):
         project_detail(app, request, project_name)
 
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_releases.calls == [
+    assert app.db.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
 
@@ -78,7 +78,7 @@ def test_project_detail_redirects():
                 varnish=False,
             ),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
                     lambda proj: "test-project",
@@ -108,10 +108,10 @@ def test_project_detail_redirects():
     assert resp.headers["Surrogate-Key"] == \
         "project-detail project-detail~{}".format(normalized)
 
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call("test-Project"),
     ]
-    assert app.models.packaging.get_releases.calls == [
+    assert app.db.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
     assert request.url_adapter.build.calls == [
@@ -131,7 +131,7 @@ def test_project_detail_invalid_version():
                 varnish=False,
             ),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
                     lambda proj: "test-project",
@@ -149,10 +149,10 @@ def test_project_detail_invalid_version():
     with pytest.raises(NotFound):
         project_detail(app, request, project_name, "2.0")
 
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_releases.calls == [
+    assert app.db.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
 
@@ -197,7 +197,7 @@ def test_project_detail_valid(version, description):
                 varnish=False,
             ),
         ),
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
                     lambda proj: "test-project",
@@ -245,12 +245,12 @@ def test_project_detail_valid(version, description):
     assert resp.headers["Surrogate-Key"] == \
         "project-detail project-detail~{}".format(normalized)
 
-    assert app.models.packaging.get_project.calls == [
+    assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_releases.calls == [
+    assert app.db.packaging.get_releases.calls == [
         pretend.call("test-project"),
     ]
-    assert app.models.packaging.get_users_for_project.calls == [
+    assert app.db.packaging.get_users_for_project.calls == [
         pretend.call("test-project"),
     ]
