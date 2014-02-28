@@ -32,11 +32,10 @@ class Model(models.Model):
         "SELECT COUNT(*) FROM packages"
     )
 
-    def get_download_count(self):
-        query = "SELECT SUM(downloads) FROM release_files"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query).scalar() or 0
+    get_download_count = db.scalar(
+        "SELECT SUM(downloads) FROM release_files",
+        default=0,
+    )
 
     def get_recently_updated(self, num=10):
         # We only consider releases made in the last 7 days, otherwise we have

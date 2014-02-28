@@ -19,13 +19,18 @@ import sqlalchemy
 metadata = sqlalchemy.MetaData()
 
 
-def scalar(query):
+def scalar(query, default=None):
     """
     A helper function that takes a query and returns a function that will query
     the database and return a scalar.
     """
     def scalar_inner(model, **kwargs):
         with model.engine.connect() as conn:
-            return conn.execute(query).scalar()
+            val = conn.execute(query).scalar()
+
+            if default is not None and val is None:
+                return default
+            else:
+                return val
 
     return scalar_inner
