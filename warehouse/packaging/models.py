@@ -409,16 +409,17 @@ class Model(models.Model):
     )
 
     def get_classifier_ids(self, classifiers):
-        placeholders = ', '.join(['%s'] * len(classifiers))
         query = \
-            """SELECT classifier, id
-                 FROM trove_classifiers
-                WHERE classifier IN (%s)
-            """ % placeholders
+            """ SELECT classifier, id
+                FROM trove_classifiers
+                WHERE classifier IN %(classifiers)s
+            """
 
         with self.engine.connect() as conn:
-            return dict((r['classifier'], r['id'])
-                for r in conn.execute(query, *classifiers))
+            return {
+                r["classifier"]: r["id"]
+                for r in conn.execute(query, classifiers=tuple(classifiers))
+            }
 
     def search_by_classifier(self, selected_classifiers):
         # Note: selected_classifiers is a list of ids from trove_classifiers
