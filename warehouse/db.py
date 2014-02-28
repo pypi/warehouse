@@ -46,3 +46,18 @@ def rows(query, row_func=dict):
             return [row_func(r) for r in conn.execute(query, *args, **kwargs)]
 
     return inner
+
+
+def mapping(query, key_func, value_func):
+    """
+    A helper function that takes a query, a key_func, and a value_func and will
+    created a mapping that maps each row to a key: value pair.
+    """
+    def inner(model, *args, **kwargs):
+        with model.engine.connect() as conn:
+            return {
+                key_func(r): value_func(r)
+                for r in conn.execute(query, *args, **kwargs)
+            }
+
+    return inner

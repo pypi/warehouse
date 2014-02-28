@@ -149,19 +149,15 @@ class Model(models.Model):
         "SELECT hosting_mode FROM packages WHERE name = %s"
     )
 
-    def get_release_urls(self, name):
-        query = \
-            """ SELECT version, home_page, download_url
-                FROM releases
-                WHERE name = %(project)s
-                ORDER BY version DESC
-            """
-
-        with self.engine.connect() as conn:
-            return {
-                r["version"]: (r["home_page"], r["download_url"])
-                for r in conn.execute(query, project=name)
-            }
+    get_release_urls = db.mapping(
+        """ SELECT version, home_page, download_url
+            FROM releases
+            WHERE name = %s
+            ORDER BY version DESC
+        """,
+        key_func=lambda r: r["version"],
+        value_func=lambda r: (r["home_page"], r["download_url"]),
+    )
 
     get_external_urls = db.rows(
         """ SELECT DISTINCT ON (url) url
@@ -209,12 +205,11 @@ class Model(models.Model):
 
         return db.scalar(query)(self, name=name)
 
-    def get_projects_with_serial(self):
-        # return list of dict(name: max id)
-        query = "SELECT name, max(id) FROM journals GROUP BY name"
-
-        with self.engine.connect() as conn:
-            return dict(r for r in conn.execute(query))
+    get_projects_with_serial = db.mapping(
+        "SELECT name, max(id) FROM journals GROUP BY name",
+        key_func=lambda r: r[0],
+        value_func=lambda r: r[1],
+    )
 
     get_project_versions = db.rows(
         """ SELECT version
