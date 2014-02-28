@@ -173,7 +173,9 @@ def test_rss(monkeypatch):
                 get_recently_updated=get_recently_updated,
             )
         ),
-        config=dict(site=dict(url='http://test.server/', name="PyPI")),
+        config=pretend.stub(
+            site={"url": "http://test.server/", "name": "PyPI"},
+        ),
         urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
@@ -223,7 +225,9 @@ def test_packages_rss(monkeypatch):
                 get_recent_projects=get_recent_projects,
             )
         ),
-        config=dict(site=dict(url='http://test.server/', name="PyPI")),
+        config=pretend.stub(
+            site={"url": "http://test.server/", "name": "PyPI"},
+        ),
         urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),

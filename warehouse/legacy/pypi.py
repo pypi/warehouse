@@ -103,8 +103,10 @@ def rss(app, request):
         release.update(dict(url=url))
 
     response = render_response(
-        app, request, "legacy/rss.xml", description='package updates',
-        releases=releases, site=app.config['site']
+        app, request, "legacy/rss.xml",
+        description='package updates',
+        releases=releases,
+        site=app.config.site,
     )
     response.mimetype = 'text/xml; charset=utf-8'
     # TODO: throw in a last-modified header too?
@@ -124,8 +126,10 @@ def packages_rss(app, request):
         release.update(dict(url=url))
 
     response = render_response(
-        app, request, "legacy/rss.xml", description='new projects',
-        releases=releases, site=app.config['site']
+        app, request, "legacy/rss.xml",
+        description='new projects',
+        releases=releases,
+        site=app.config.site,
     )
     response.mimetype = 'text/xml; charset=utf-8'
     # TODO: throw in a last-modified header too?
