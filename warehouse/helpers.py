@@ -20,7 +20,7 @@ import os.path
 import urllib
 import urlparse
 
-import warehouse.application
+import warehouse
 
 
 def url_for(request, endpoint, **values):
@@ -50,7 +50,7 @@ def static_url(app, filename):
     static_url('css/bootstrap.css')
     """
     static_dir = os.path.join(
-        os.path.dirname(os.path.abspath(warehouse.application.__file__)),
+        os.path.dirname(os.path.abspath(warehouse.__file__)),
         "static",
         "compiled",
     )
