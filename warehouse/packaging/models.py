@@ -98,17 +98,14 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [tuple(r) for r in conn.execute(query, limit=num)]
 
-    def get_project(self, name):
-        query = \
-            """ SELECT name
-                FROM packages
-                WHERE normalized_name = lower(
-                    regexp_replace(%(name)s, '_', '-', 'ig')
-                )
-            """
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, name=name).scalar()
+    get_project = db.scalar(
+        """ SELECT name
+            FROM packages
+            WHERE normalized_name = lower(
+                regexp_replace(%s, '_', '-', 'ig')
+            )
+        """
+    )
 
     def get_projects_for_user(self, username):
         query = \
