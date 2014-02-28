@@ -34,3 +34,15 @@ def scalar(query, default=None):
                 return val
 
     return scalar_inner
+
+
+def rows(query, row_func=dict):
+    """
+    A helper function that takes a query and returns a function that will query
+    the database and return a list of rows with the row_func applied to each.
+    """
+    def inner(model, *args, **kwargs):
+        with model.engine.connect() as conn:
+            return [row_func(r) for r in conn.execute(query, *args, **kwargs)]
+
+    return inner
