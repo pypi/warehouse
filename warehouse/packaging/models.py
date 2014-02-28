@@ -166,11 +166,9 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, user=user)]
 
-    def get_hosting_mode(self, name):
-        query = "SELECT hosting_mode FROM packages WHERE name = %(project)s"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, project=name).scalar()
+    get_hosting_mode = db.scalar(
+        "SELECT hosting_mode FROM packages WHERE name = %s"
+    )
 
     def get_release_urls(self, name):
         query = \
@@ -225,21 +223,13 @@ class Model(models.Model):
                 for r in results
             ]
 
-    def get_project_for_filename(self, filename):
-        query = "SELECT name FROM release_files WHERE filename = %(filename)s"
+    get_project_for_filename = db.scalar(
+        "SELECT name FROM release_files WHERE filename = %s"
+    )
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, filename=filename).scalar()
-
-    def get_filename_md5(self, filename):
-        query = \
-            """ SELECT md5_digest
-                FROM release_files
-                WHERE filename = %(filename)s
-            """
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, filename=filename).scalar()
+    get_filename_md5 = db.scalar(
+        "SELECT md5_digest FROM release_files WHERE filename = %s"
+    )
 
     def get_last_serial(self, name=None):
         if name is not None:
@@ -247,8 +237,7 @@ class Model(models.Model):
         else:
             query = "SELECT MAX(id) FROM journals"
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, name=name).scalar()
+        return db.scalar(query)(self, name=name)
 
     def get_projects_with_serial(self):
         # return list of dict(name: max id)
@@ -535,11 +524,9 @@ class Model(models.Model):
                 project
             ) + "/"
 
-    def get_bugtrack_url(self, project):
-        query = "SELECT bugtrack_url FROM packages WHERE name = %(project)s"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, project=project).scalar()
+    get_bugtrack_url = db.scalar(
+        "SELECT bugtrack_url FROM packages WHERE name = %s"
+    )
 
     #
     # Mirroring support
@@ -553,9 +540,7 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
 
-    def get_last_changelog_serial(self):
-        with self.engine.connect() as conn:
-            return conn.execute('SELECT max(id) FROM journals').scalar()
+    get_last_changelog_serial = db.scalar("SELECT max(id) FROM journals")
 
     def get_changelog_serial(self, since):
         query = '''SELECT name, version, submitted_date, action, id
