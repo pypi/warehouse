@@ -17,3 +17,15 @@ from __future__ import unicode_literals
 import sqlalchemy
 
 metadata = sqlalchemy.MetaData()
+
+
+def scalar(query):
+    """
+    A helper function that takes a query and returns a function that will query
+    the database and return a scalar.
+    """
+    def scalar_inner(model, **kwargs):
+        with model.engine.connect() as conn:
+            return conn.execute(query).scalar()
+
+    return scalar_inner

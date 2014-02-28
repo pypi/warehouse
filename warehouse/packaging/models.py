@@ -19,7 +19,7 @@ import os.path
 import urlparse
 import logging
 
-from warehouse import models
+from warehouse import db, models
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
@@ -28,11 +28,9 @@ log = logging.getLogger(__name__)
 
 class Model(models.Model):
 
-    def get_project_count(self):
-        query = "SELECT COUNT(*) FROM packages"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+    get_project_count = db.scalar(
+        "SELECT COUNT(*) FROM packages"
+    )
 
     def get_download_count(self):
         query = "SELECT SUM(downloads) FROM release_files"
