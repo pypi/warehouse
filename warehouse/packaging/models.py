@@ -28,9 +28,7 @@ log = logging.getLogger(__name__)
 
 class Model(models.Model):
 
-    get_project_count = db.scalar(
-        "SELECT COUNT(*) FROM packages"
-    )
+    get_project_count = db.scalar("SELECT COUNT(*) FROM packages")
 
     get_download_count = db.scalar(
         "SELECT SUM(downloads) FROM release_files",
