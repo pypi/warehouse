@@ -90,8 +90,8 @@ def project_json(app, request, project_name):
     return response
 
 
-# @cache("simple")
-# @fastly("simple", "simple~{project_name!n}")
+@cache("legacy_rss")
+@fastly("legacy_rss")
 def rss(app, request):
     """Dump the last N days' updates as an RSS feed.
     """
@@ -113,8 +113,8 @@ def rss(app, request):
     return response
 
 
-# @cache("simple")
-# @fastly("simple", "simple~{project_name!n}")
+@cache("legacy_rss")
+@fastly("legacy_rss")
 def packages_rss(app, request):
     """Dump the last N days' new projects as an RSS feed.
     """

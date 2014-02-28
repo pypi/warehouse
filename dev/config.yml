@@ -30,6 +30,7 @@ cache:
         project_detail: 1
         user_profile: 1
         legacy_json: 1
+        legacy_rss: 1
     varnish:
         index: 120
         simple: 120
@@ -37,6 +38,7 @@ cache:
         project_detail: 120
         user_profile: 120
         legacy_json: 120
+        legacy_rss: 120
 
 
 security:

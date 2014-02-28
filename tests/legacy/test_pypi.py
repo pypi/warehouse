@@ -174,6 +174,7 @@ def test_rss(monkeypatch):
             )
         ),
         config=pretend.stub(
+            cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
         urls=Map(urls.urls).bind('test.server', '/'),
@@ -226,6 +227,7 @@ def test_packages_rss(monkeypatch):
             )
         ),
         config=pretend.stub(
+            cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
         urls=Map(urls.urls).bind('test.server', '/'),
