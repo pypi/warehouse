@@ -54,6 +54,29 @@ class Database(db.Database):
         """
     )
 
+    get_recent_projects = db.rows(
+        # We only consider projects registered in the last 7 days (see
+        # get_recently_updated for reasoning)
+        """ SELECT
+                p.name, r.version, p.created, r.summary
+            FROM releases r, (
+                SELECT packages.name, max_order, packages.created
+                FROM packages
+                JOIN (
+                   SELECT name, max(_pypi_ordering) AS max_order
+                     FROM releases
+                    WHERE created >= now() - interval '7 days'
+                    GROUP BY name
+                ) mo ON packages.name = mo.name
+            ) p
+            WHERE p.name = r.name
+              AND p.max_order = r._pypi_ordering
+              AND p.created >= now() - interval '7 days'
+            ORDER BY p.created DESC
+            LIMIT %(num)s
+        """
+    )
+
     get_releases_since = db.rows(
         """ SELECT name, version, created, summary
             FROM releases
