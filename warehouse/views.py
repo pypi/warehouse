@@ -17,7 +17,7 @@ from __future__ import unicode_literals
 from warehouse.utils import cache, fastly, render_response
 
 
-@cache("index")
+@cache(browser=1, varnish=120)
 @fastly("index")
 def index(app, request):
     return render_response(

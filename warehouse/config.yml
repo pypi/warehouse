@@ -7,10 +7,6 @@ site:
 database:
     migrations: "warehouse:migrations"
 
-cache:
-    browser: false
-    varnish: false
-
 paths:
     documentation: data/packagedocs
 

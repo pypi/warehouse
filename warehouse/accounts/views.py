@@ -20,7 +20,7 @@ from warehouse.helpers import url_for
 from warehouse.utils import cache, fastly, redirect, render_response
 
 
-@cache("user_profile")
+@cache(browser=1, varnish=120)
 @fastly("user-profile", "user-profile~{username}")
 def user_profile(app, request, username):
     user = app.db.accounts.get_user(username)

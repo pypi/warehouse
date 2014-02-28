@@ -90,16 +90,19 @@ def test_render_response():
     ]
 
 
-@pytest.mark.parametrize(("browser", "varnish", "status"), [
-    ({}, {}, 200),
-    ({"test": 120}, {}, 200),
-    ({}, {"test": 120}, 200),
-    ({"test": 120}, {"test": 120}, 200),
-    ({}, {}, 400),
-    ({"test": 120}, {}, 400),
-    ({}, {"test": 120}, 400),
-    ({"test": 120}, {"test": 120}, 400),
-])
+@pytest.mark.parametrize(
+    ("browser", "varnish", "status"),
+    [
+        (None, None, 200),
+        (1, None, 200),
+        (None, 120, 200),
+        (1, 120, 200),
+        (None, None, 400),
+        (1, None, 400),
+        (None, 120, 400),
+        (1, 120, 400),
+    ],
+)
 def test_cache_deco(browser, varnish, status):
     response = pretend.stub(
         status_code=status,
@@ -108,26 +111,21 @@ def test_cache_deco(browser, varnish, status):
     )
     view = pretend.call_recorder(lambda *a, **kw: response)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(
-                browser=browser,
-                varnish=varnish,
-            ),
-        ),
-    )
+    app = pretend.stub()
     request = pretend.stub()
 
-    resp = cache("test")(view)(app, request)
+    resp = cache(browser=browser, varnish=varnish)(view)(app, request)
 
     assert resp is response
 
     if 200 <= resp.status_code < 400:
         if browser:
-            assert resp.cache_control.max_age == browser["test"]
+            assert resp.cache_control.public
+            assert resp.cache_control.max_age == browser
 
         if varnish:
-            assert resp.surrogate_control.max_age == varnish["test"]
+            assert resp.surrogate_control.public
+            assert resp.surrogate_control.max_age == varnish
 
 
 @pytest.mark.parametrize("environ", [

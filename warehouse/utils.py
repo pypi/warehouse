@@ -84,7 +84,7 @@ def render_response(app, request, template, **variables):
     return Response(template.render(**context), mimetype="text/html")
 
 
-def cache(key):
+def cache(browser=None, varnish=None):
     def deco(fn):
         @functools.wraps(fn)
         def wrapper(app, request, *args, **kwargs):
@@ -92,17 +92,14 @@ def cache(key):
 
             if 200 <= resp.status_code < 400:
                 # Add in our standard Cache-Control headers
-                if (app.config.cache.browser
-                        and app.config.cache.browser.get(key) is not None):
+                if browser is not None:
                     resp.cache_control.public = True
-                    resp.cache_control.max_age = app.config.cache.browser[key]
+                    resp.cache_control.max_age = browser
 
                 # Add in additional headers if we're using varnish
-                if (app.config.cache.varnish
-                        and app.config.cache.varnish.get(key) is not None):
+                if varnish is not None:
                     resp.surrogate_control.public = True
-                    resp.surrogate_control.max_age = \
-                        app.config.cache.varnish[key]
+                    resp.surrogate_control.max_age = varnish
 
             return resp
         return wrapper

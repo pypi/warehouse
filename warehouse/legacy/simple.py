@@ -27,7 +27,7 @@ from warehouse.utils import (
 )
 
 
-@cache("simple")
+@cache(browser=1, varnish=120)
 @fastly("simple-index")
 def index(app, request):
     projects = app.db.packaging.all_projects()
@@ -43,7 +43,7 @@ def index(app, request):
     return resp
 
 
-@cache("simple")
+@cache(browser=1, varnish=120)
 @fastly("simple", "simple~{project_name!n}")
 def project(app, request, project_name):
     # Get the real project name for this project
@@ -108,7 +108,7 @@ def project(app, request, project_name):
     return resp
 
 
-@cache("packages")
+@cache(browser=1, varnish=120)
 def package(app, request, path):
     # Get our filename and filepath from the request path
     filename = os.path.basename(path)
