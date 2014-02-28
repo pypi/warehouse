@@ -24,7 +24,7 @@ def scalar(query, default=None):
     A helper function that takes a query and returns a function that will query
     the database and return a scalar.
     """
-    def scalar_inner(model, *args, **kwargs):
+    def inner(model, *args, **kwargs):
         with model.engine.connect() as conn:
             val = conn.execute(query, *args, **kwargs).scalar()
 
@@ -33,7 +33,7 @@ def scalar(query, default=None):
             else:
                 return val
 
-    return scalar_inner
+    return inner
 
 
 def rows(query, row_func=dict):
