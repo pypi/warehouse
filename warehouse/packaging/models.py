@@ -28,7 +28,9 @@ log = logging.getLogger(__name__)
 
 class Model(models.Model):
 
-    get_project_count = db.scalar("SELECT COUNT(*) FROM packages")
+    get_project_count = db.scalar(
+        "SELECT COUNT(*) FROM packages"
+    )
 
     get_download_count = db.scalar(
         "SELECT SUM(downloads) FROM release_files",
@@ -538,7 +540,9 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [dict(r) for r in conn.execute(query, since=since)]
 
-    get_last_changelog_serial = db.scalar("SELECT max(id) FROM journals")
+    get_last_changelog_serial = db.scalar(
+        "SELECT max(id) FROM journals"
+    )
 
     def get_changelog_serial(self, since):
         query = '''SELECT name, version, submitted_date, action, id
