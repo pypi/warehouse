@@ -207,8 +207,6 @@ class Model(models.Model):
 
     get_projects_with_serial = db.mapping(
         "SELECT name, max(id) FROM journals GROUP BY name",
-        key_func=lambda r: r[0],
-        value_func=lambda r: r[1],
     )
 
     get_project_versions = db.rows(

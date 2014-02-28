@@ -48,7 +48,7 @@ def rows(query, row_func=dict):
     return inner
 
 
-def mapping(query, key_func, value_func):
+def mapping(query, key_func=lambda r: r[0], value_func=lambda r: r[1]):
     """
     A helper function that takes a query, a key_func, and a value_func and will
     created a mapping that maps each row to a key: value pair.
