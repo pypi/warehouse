@@ -19,7 +19,7 @@ import os.path
 import urlparse
 import logging
 
-from warehouse import models
+from warehouse import db, models
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
@@ -28,65 +28,53 @@ log = logging.getLogger(__name__)
 
 class Model(models.Model):
 
-    def get_project_count(self):
-        query = "SELECT COUNT(*) FROM packages"
+    get_project_count = db.scalar(
+        "SELECT COUNT(*) FROM packages"
+    )
 
-        with self.engine.connect() as conn:
-            return conn.execute(query).scalar()
+    get_download_count = db.scalar(
+        "SELECT SUM(downloads) FROM release_files",
+        default=0,
+    )
 
-    def get_download_count(self):
-        query = "SELECT SUM(downloads) FROM release_files"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query).scalar() or 0
-
-    def get_recently_updated(self, num=10):
+    get_recently_updated = db.rows(
         # We only consider releases made in the last 7 days, otherwise we have
-        #   to do a Sequence Scan against the entire table and it takes 5+
-        #   seconds to complete. This shouldn't be a big deal as it is highly
-        #   unlikely we'll have a week without at least 10 releases.
-        query = \
-            """ SELECT *
-                FROM (
-                    SELECT DISTINCT ON (name) name, version, summary, created
-                    FROM releases
-                    WHERE created >= now() - interval '7 days'
-                    ORDER BY name, created DESC
-                ) r
-                ORDER BY r.created DESC
-                LIMIT %(num)s
-            """
-
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, num=num)]
-
-    def get_releases_since(self, since):
-        query = \
-            """ SELECT name, version, created, summary
+        # to do a Sequence Scan against the entire table and it takes 5+
+        # seconds to complete. This shouldn't be a big deal as it is highly
+        # unlikely we'll have a week without at least 10 releases.
+        """ SELECT *
+            FROM (
+                SELECT DISTINCT ON (name) name, version, summary, created
                 FROM releases
-                WHERE created > %(since)s
-                ORDER BY created DESC
-            """
+                WHERE created >= now() - interval '7 days'
+                ORDER BY name, created DESC
+            ) r
+            ORDER BY r.created DESC
+            LIMIT 10
+        """
+    )
 
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, since=since)]
+    get_releases_since = db.rows(
+        """ SELECT name, version, created, summary
+            FROM releases
+            WHERE created > %s
+            ORDER BY created DESC
+        """
+    )
 
-    def get_changed_since(self, since):
-        query = \
-            """SELECT name, max(submitted_date) FROM journals
-               WHERE submitted_date > %(since)s
-               GROUP BY name
-               ORDER BY max(submitted_date) DESC
-            """
+    get_changed_since = db.rows(
+        """ SELECT name, max(submitted_date) FROM journals
+            WHERE submitted_date > %s
+            GROUP BY name
+            ORDER BY max(submitted_date) DESC
+        """,
+        row_func=lambda r: r[0]
+    )
 
-        with self.engine.connect() as conn:
-            return [r[0] for r in conn.execute(query, since=since)]
-
-    def all_projects(self):
-        query = "SELECT name FROM packages ORDER BY lower(name)"
-
-        with self.engine.connect() as conn:
-            return [r["name"] for r in conn.execute(query)]
+    all_projects = db.rows(
+        "SELECT name FROM packages ORDER BY lower(name)",
+        row_func=lambda r: r["name"]
+    )
 
     def get_top_projects(self, num=None):
         query = \
@@ -101,151 +89,113 @@ class Model(models.Model):
         with self.engine.connect() as conn:
             return [tuple(r) for r in conn.execute(query, limit=num)]
 
-    def get_project(self, name):
-        query = \
-            """ SELECT name
-                FROM packages
-                WHERE normalized_name = lower(
-                    regexp_replace(%(name)s, '_', '-', 'ig')
-                )
-            """
+    get_project = db.scalar(
+        """ SELECT name
+            FROM packages
+            WHERE normalized_name = lower(
+                regexp_replace(%s, '_', '-', 'ig')
+            )
+        """
+    )
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, name=name).scalar()
-
-    def get_projects_for_user(self, username):
-        query = \
-            """ SELECT DISTINCT ON (lower(name)) name, summary
-                FROM (
-                    SELECT package_name
-                    FROM roles
-                    WHERE user_name = %(username)s
-                ) roles
-                INNER JOIN (
-                    SELECT name, summary
-                    FROM releases
-                    ORDER BY _pypi_ordering DESC
-                ) releases
-                ON (releases.name = roles.package_name)
-                ORDER BY lower(name)
-            """
-
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, username=username)]
-
-    def get_users_for_project(self, project):
-        query = \
-            """ SELECT DISTINCT ON (u.username) u.username, u.email
-                FROM (
-                    SELECT username, email
-                    FROM accounts_user
-                    LEFT OUTER JOIN accounts_email ON (
-                        accounts_email.user_id = accounts_user.id
-                    )
-                ) u
-                INNER JOIN roles ON (u.username = roles.user_name)
-                WHERE roles.package_name = %(project)s
-            """
-
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, project=project)]
-
-    def get_roles_for_project(self, project):
-        query = \
-            """ SELECT user_name, role_name
+    get_projects_for_user = db.rows(
+        """ SELECT DISTINCT ON (lower(name)) name, summary
+            FROM (
+                SELECT package_name
                 FROM roles
-                WHERE package_name = %(project)s
-                ORDER BY role_name, user_name
-            """
-
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, project=project)]
-
-    def get_roles_for_user(self, user):
-        query = \
-            """ SELECT package_name, role_name
-                FROM roles
-                WHERE user_name = %(user)s
-                ORDER BY package_name, role_name
-            """
-
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, user=user)]
-
-    def get_hosting_mode(self, name):
-        query = "SELECT hosting_mode FROM packages WHERE name = %(project)s"
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, project=name).scalar()
-
-    def get_release_urls(self, name):
-        query = \
-            """ SELECT version, home_page, download_url
+                WHERE user_name = %s
+            ) roles
+            INNER JOIN (
+                SELECT name, summary
                 FROM releases
-                WHERE name = %(project)s
-                ORDER BY version DESC
-            """
+                ORDER BY _pypi_ordering DESC
+            ) releases
+            ON (releases.name = roles.package_name)
+            ORDER BY lower(name)
+        """
+    )
 
-        with self.engine.connect() as conn:
-            return {
-                r["version"]: (r["home_page"], r["download_url"])
-                for r in conn.execute(query, project=name)
-            }
+    get_users_for_project = db.rows(
+        """ SELECT DISTINCT ON (u.username) u.username, u.email
+            FROM (
+                SELECT username, email
+                FROM accounts_user
+                LEFT OUTER JOIN accounts_email ON (
+                    accounts_email.user_id = accounts_user.id
+                )
+            ) u
+            INNER JOIN roles ON (u.username = roles.user_name)
+            WHERE roles.package_name = %s
+        """
+    )
 
-    def get_external_urls(self, name):
-        query = \
-            """ SELECT DISTINCT ON (url) url
-                FROM description_urls
-                WHERE name = %(project)s
-                ORDER BY url
-            """
+    get_roles_for_project = db.rows(
+        """ SELECT user_name, role_name
+            FROM roles
+            WHERE package_name = %s
+            ORDER BY role_name, user_name
+        """
+    )
 
-        with self.engine.connect() as conn:
-            return [r["url"] for r in conn.execute(query, project=name)]
+    get_roles_for_user = db.rows(
+        """ SELECT package_name, role_name
+            FROM roles
+            WHERE user_name = %s
+            ORDER BY package_name, role_name
+        """
+    )
 
-    def get_file_urls(self, name):
-        query = \
-            """ SELECT name, filename, python_version, md5_digest
-                FROM release_files
-                WHERE name = %(project)s
-                ORDER BY filename DESC
-            """
+    get_hosting_mode = db.scalar(
+        "SELECT hosting_mode FROM packages WHERE name = %s"
+    )
 
-        with self.engine.connect() as conn:
-            results = conn.execute(query, project=name)
+    get_release_urls = db.mapping(
+        """ SELECT version, home_page, download_url
+            FROM releases
+            WHERE name = %s
+            ORDER BY version DESC
+        """,
+        key_func=lambda r: r["version"],
+        value_func=lambda r: (r["home_page"], r["download_url"]),
+    )
 
-            return [
-                {
-                    "filename": r["filename"],
-                    "url": urlparse.urljoin(
-                        "/".join([
-                            "../../packages",
-                            r["python_version"],
-                            r["name"][0],
-                            r["name"],
-                            r["filename"],
-                        ]),
-                        "#md5={}".format(r["md5_digest"]),
-                    ),
-                }
-                for r in results
-            ]
+    get_external_urls = db.rows(
+        """ SELECT DISTINCT ON (url) url
+            FROM description_urls
+            WHERE name = %s
+            ORDER BY url
+        """,
+        row_func=lambda r: r["url"]
+    )
 
-    def get_project_for_filename(self, filename):
-        query = "SELECT name FROM release_files WHERE filename = %(filename)s"
+    get_file_urls = db.rows(
+        """ SELECT name, filename, python_version, md5_digest
+            FROM release_files
+            WHERE name = %s
+            ORDER BY filename DESC
+        """,
+        lambda r: {
+            "filename": r["filename"],
+            "url": urlparse.urljoin(
+                "/".join([
+                    "../../packages",
+                    r["python_version"],
+                    r["name"][0],
+                    r["name"],
+                    r["filename"],
+                ]),
+                "#md5={}".format(r["md5_digest"]),
+            ),
+        }
+    )
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, filename=filename).scalar()
+    get_project_for_filename = db.scalar(
+        "SELECT name FROM release_files WHERE filename = %s"
+    )
 
-    def get_filename_md5(self, filename):
-        query = \
-            """ SELECT md5_digest
-                FROM release_files
-                WHERE filename = %(filename)s
-            """
-
-        with self.engine.connect() as conn:
-            return conn.execute(query, filename=filename).scalar()
+    get_filename_md5 = db.scalar(
+        "SELECT md5_digest FROM release_files WHERE filename = %s"
+    )
 
     def get_last_serial(self, name=None):
         if name is not None:
@@ -253,26 +203,20 @@ class Model(models.Model):
         else:
             query = "SELECT MAX(id) FROM journals"
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, name=name).scalar()
+        return db.scalar(query)(self, name=name)
 
-    def get_projects_with_serial(self):
-        # return list of dict(name: max id)
-        query = "SELECT name, max(id) FROM journals GROUP BY name"
+    get_projects_with_serial = db.mapping(
+        "SELECT name, max(id) FROM journals GROUP BY name",
+    )
 
-        with self.engine.connect() as conn:
-            return dict(r for r in conn.execute(query))
-
-    def get_project_versions(self, project):
-        query = \
-            """ SELECT version
-                FROM releases
-                WHERE name = %(project)s
-                ORDER BY _pypi_ordering DESC
-            """
-
-        with self.engine.connect() as conn:
-            return [r["version"] for r in conn.execute(query, project=project)]
+    get_project_versions = db.rows(
+        """ SELECT version
+            FROM releases
+            WHERE name = %s
+            ORDER BY _pypi_ordering DESC
+        """,
+        row_func=lambda r: r["version"]
+    )
 
     def get_downloads(self, project, version):
         query = \
@@ -368,37 +312,26 @@ class Model(models.Model):
 
         return result
 
-    def get_releases(self, project):
-        # Get the release data
-        query = \
-            """ SELECT
-                    name, version, author, author_email, maintainer,
-                    maintainer_email, home_page, license, summary, keywords,
-                    platform, download_url, created
-                FROM releases
-                WHERE name = %(project)s
-                ORDER BY _pypi_ordering DESC
-            """
+    get_releases = db.rows(
+        """ SELECT
+                name, version, author, author_email, maintainer,
+                maintainer_email, home_page, license, summary, keywords,
+                platform, download_url, created
+            FROM releases
+            WHERE name = %s
+            ORDER BY _pypi_ordering DESC
+        """
+    )
 
-        with self.engine.connect() as conn:
-            results = [dict(r) for r in conn.execute(query, project=project)]
-
-        return results
-
-    def get_full_latest_releases(self):
-        query = \
-            """ SELECT DISTINCT ON (name)
-                    name, version, author, author_email, maintainer,
-                    maintainer_email, home_page, license, summary, description,
-                    keywords, platform, download_url, created
-                FROM releases
-                ORDER BY name, _pypi_ordering DESC
-            """
-
-        with self.engine.connect() as conn:
-            results = [dict(r) for r in conn.execute(query)]
-
-        return results
+    get_full_latest_releases = db.rows(
+        """ SELECT DISTINCT ON (name)
+                name, version, author, author_email, maintainer,
+                maintainer_email, home_page, license, summary, description,
+                keywords, platform, download_url, created
+            FROM releases
+            ORDER BY name, _pypi_ordering DESC
+        """
+    )
 
     def get_download_counts(self, project):
         def _make_key(precision, datetime, key):
@@ -461,34 +394,30 @@ class Model(models.Model):
             "last_month": last_30,
         }
 
-    def get_classifiers(self, project, version):
+    get_classifiers = db.rows(
+        """ SELECT classifier
+            FROM release_classifiers
+            INNER JOIN trove_classifiers ON (
+                release_classifiers.trove_id = trove_classifiers.id
+            )
+            WHERE name = %s AND version = %s
+            ORDER BY classifier
+        """,
+        row_func=lambda r: r["classifier"]
+    )
+
+    def get_classifier_ids(self, classifiers):
         query = \
-            """ SELECT classifier
-                FROM release_classifiers
-                INNER JOIN trove_classifiers ON (
-                    release_classifiers.trove_id = trove_classifiers.id
-                )
-                WHERE name = %(project)s AND version = %(version)s
-                ORDER BY classifier
+            """ SELECT classifier, id
+                FROM trove_classifiers
+                WHERE classifier IN %(classifiers)s
             """
 
         with self.engine.connect() as conn:
-            return [
-                r["classifier"]
-                for r in conn.execute(query, project=project, version=version)
-            ]
-
-    def get_classifier_ids(self, classifiers):
-        placeholders = ', '.join(['%s'] * len(classifiers))
-        query = \
-            """SELECT classifier, id
-                 FROM trove_classifiers
-                WHERE classifier IN (%s)
-            """ % placeholders
-
-        with self.engine.connect() as conn:
-            return dict((r['classifier'], r['id'])
-                for r in conn.execute(query, *classifiers))
+            return {
+                r["classifier"]: r["id"]
+                for r in conn.execute(query, classifiers=tuple(classifiers))
+            }
 
     def search_by_classifier(self, selected_classifiers):
         # Note: selected_classifiers is a list of ids from trove_classifiers
@@ -541,33 +470,26 @@ class Model(models.Model):
                 project
             ) + "/"
 
-    def get_bugtrack_url(self, project):
-        query = "SELECT bugtrack_url FROM packages WHERE name = %(project)s"
+    get_bugtrack_url = db.scalar(
+        "SELECT bugtrack_url FROM packages WHERE name = %s"
+    )
 
-        with self.engine.connect() as conn:
-            return conn.execute(query, project=project).scalar()
-
-    #
-    # Mirroring support
-    #
-    def get_changelog(self, since):
-        query = '''SELECT name, version, submitted_date, action, id
+    get_changelog = db.rows(
+        """ SELECT name, version, submitted_date, action, id
             FROM journals
-            WHERE journals.submitted_date > %(since)s
+            WHERE journals.submitted_date > %s
             ORDER BY submitted_date DESC
-        '''
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, since=since)]
+        """
+    )
 
-    def get_last_changelog_serial(self):
-        with self.engine.connect() as conn:
-            return conn.execute('SELECT max(id) FROM journals').scalar()
+    get_last_changelog_serial = db.scalar(
+        "SELECT max(id) FROM journals"
+    )
 
-    def get_changelog_serial(self, since):
-        query = '''SELECT name, version, submitted_date, action, id
+    get_changelog_serial = db.rows(
+        """ SELECT name, version, submitted_date, action, id
             FROM journals
-            WHERE journals.id > %(since)s
+            WHERE journals.id > %s
             ORDER BY submitted_date DESC
-        '''
-        with self.engine.connect() as conn:
-            return [dict(r) for r in conn.execute(query, since=since)]
+        """
+    )
