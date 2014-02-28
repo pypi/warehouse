@@ -14,10 +14,10 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from warehouse import models
+from warehouse import db
 
 
-class Model(models.Model):
+class Database(db.Database):
 
     def get_user(self, name):
         query = \

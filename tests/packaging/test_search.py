@@ -45,7 +45,7 @@ def test_get_mapping():
 
 def test_get_indexable():
     index = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_full_latest_releases=pretend.call_recorder(lambda: []),
             ),
@@ -54,7 +54,7 @@ def test_get_indexable():
     pmap = ProjectMapping(index=index)
     pmap.get_indexable()
 
-    assert index.models.packaging.get_full_latest_releases.calls == [
+    assert index.db.packaging.get_full_latest_releases.calls == [
         pretend.call(),
     ]
 

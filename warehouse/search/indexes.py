@@ -27,8 +27,8 @@ class Index(object):
 
     _index = "warehouse"
 
-    def __init__(self, models, config):
-        self.models = models
+    def __init__(self, db, config):
+        self.db = db
         self.config = config
         self.es = Elasticsearch(
             hosts=self.config.hosts,

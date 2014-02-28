@@ -21,7 +21,7 @@ import pretend
 import pytest
 
 from warehouse.accounts.tables import users, emails
-from warehouse.packaging.models import log
+from warehouse.packaging.db import log
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
     release_classifiers, release_dependencies, roles,
@@ -33,11 +33,11 @@ def test_get_project_count(dbapp):
     dbapp.engine.execute(packages.insert().values(name="foo2"))
     dbapp.engine.execute(packages.insert().values(name="foo3"))
 
-    assert dbapp.models.packaging.get_project_count() == 3
+    assert dbapp.db.packaging.get_project_count() == 3
 
 
 def test_get_download_count(dbapp):
-    assert dbapp.models.packaging.get_download_count() == 0
+    assert dbapp.db.packaging.get_download_count() == 0
 
     dbapp.engine.execute(packages.insert().values(name="foo"))
     dbapp.engine.execute(releases.insert().values(name="foo", version="1.0"))
@@ -54,7 +54,7 @@ def test_get_download_count(dbapp):
         downloads=12,
     ))
 
-    assert dbapp.models.packaging.get_download_count() == 27
+    assert dbapp.db.packaging.get_download_count() == 27
 
 
 def test_get_recently_updated(dbapp):
@@ -126,7 +126,7 @@ def test_get_recently_updated(dbapp):
         created=now - datetime.timedelta(seconds=60),
     ))
 
-    assert dbapp.models.packaging.get_recently_updated() == [
+    assert dbapp.db.packaging.get_recently_updated() == [
         {
             "name": "foo1",
             "version": "2.0",
@@ -218,7 +218,7 @@ def test_get_releases_since(dbapp):
     ))
 
     since = now - datetime.timedelta(seconds=5)
-    assert dbapp.models.packaging.get_releases_since(since) == [
+    assert dbapp.db.packaging.get_releases_since(since) == [
         {
             "name": "foo1",
             "version": "2.0",
@@ -260,7 +260,7 @@ def test_get_changed_since(dbapp):
         name="foo1", submitted_date=now, ))
 
     since = now - datetime.timedelta(seconds=5)
-    assert dbapp.models.packaging.get_changed_since(since) == ["foo1", "foo3"]
+    assert dbapp.db.packaging.get_changed_since(since) == ["foo1", "foo3"]
 
 
 def test_get_changelog(dbapp):
@@ -289,7 +289,7 @@ def test_get_changelog(dbapp):
     release("foo1", "2.0", datetime.timedelta(seconds=1))
 
     since = now - datetime.timedelta(seconds=5)
-    assert dbapp.models.packaging.get_changelog(since) == [
+    assert dbapp.db.packaging.get_changelog(since) == [
         {
             "name": "foo1",
             "version": "2.0",
@@ -326,7 +326,7 @@ def test_get_last_changelog_serial(dbapp):
     dbapp.engine.execute(journals.insert().values(id=2))
     dbapp.engine.execute(journals.insert().values(id=3))
 
-    assert dbapp.models.packaging.get_last_changelog_serial() == 3
+    assert dbapp.db.packaging.get_last_changelog_serial() == 3
 
 
 def test_get_changelog_serial(dbapp):
@@ -354,7 +354,7 @@ def test_get_changelog_serial(dbapp):
     release("foo3", "1.0", datetime.timedelta(seconds=2))
     release("foo1", "2.0", datetime.timedelta(seconds=1))
 
-    assert dbapp.models.packaging.get_changelog_serial(5) == [
+    assert dbapp.db.packaging.get_changelog_serial(5) == [
         {
             "name": "foo1",
             "version": "2.0",
@@ -390,7 +390,7 @@ def test_all_projects(projects, dbapp):
 
     all_projects = sorted(projects, key=lambda x: x.lower())
 
-    assert dbapp.models.packaging.all_projects() == all_projects
+    assert dbapp.db.packaging.all_projects() == all_projects
 
 
 @pytest.mark.parametrize(("num", "result"), [
@@ -411,7 +411,7 @@ def test_top_projects(num, result, dbapp):
         dbapp.engine.execute(release_files.insert().values(name=name,
             downloads=downloads, filename=filename))
 
-    top = dbapp.models.packaging.get_top_projects(num)
+    top = dbapp.db.packaging.get_top_projects(num)
     assert top == result
 
 
@@ -425,11 +425,11 @@ def test_get_project(name, normalized, dbapp):
         packages.insert().values(name=name, normalized_name=normalized)
     )
 
-    assert dbapp.models.packaging.get_project(normalized) == name
+    assert dbapp.db.packaging.get_project(normalized) == name
 
 
 def test_get_project_missing(dbapp):
-    assert dbapp.models.packaging.get_project("missing") is None
+    assert dbapp.db.packaging.get_project("missing") is None
 
 
 def test_get_projects_for_user(dbapp):
@@ -461,13 +461,13 @@ def test_get_projects_for_user(dbapp):
         role_name="Owner",
     ))
 
-    assert dbapp.models.packaging.get_projects_for_user("test-user") == [
+    assert dbapp.db.packaging.get_projects_for_user("test-user") == [
         {"name": "test-project", "summary": "test summmary 2.0"},
     ]
 
 
 def test_get_projects_for_user_missing(dbapp):
-    assert dbapp.models.packaging.get_projects_for_user("missing") == []
+    assert dbapp.db.packaging.get_projects_for_user("missing") == []
 
 
 def test_get_users_for_project(dbapp):
@@ -529,7 +529,7 @@ def test_get_users_for_project(dbapp):
         role_name="Maintainer",
     ))
 
-    assert dbapp.models.packaging.get_users_for_project("test-project") == [
+    assert dbapp.db.packaging.get_users_for_project("test-project") == [
         {"username": "a-test-user", "email": None},
         {"username": "test-user", "email": None},
         {"username": "test-user2", "email": "test@example.com"},
@@ -584,7 +584,7 @@ def test_get_roles_for_project(dbapp):
         role_name="Maintainer",
     ))
 
-    assert dbapp.models.packaging.get_roles_for_project("test-project") == [
+    assert dbapp.db.packaging.get_roles_for_project("test-project") == [
         {"user_name": "a-test-user", "role_name": 'Maintainer'},
         {"user_name": "test-user", "role_name": 'Maintainer'},
         {"user_name": "test-user", "role_name": "Owner"},
@@ -636,7 +636,7 @@ def test_get_roles_for_user(dbapp):
         role_name="Maintainer",
     ))
 
-    assert dbapp.models.packaging.get_roles_for_user("test-user") == [
+    assert dbapp.db.packaging.get_roles_for_user("test-user") == [
         {"package_name": "test-project", "role_name": 'Maintainer'},
         {"package_name": "test-project", "role_name": "Owner"},
         {"package_name": "test-project2", "role_name": 'Maintainer'},
@@ -644,7 +644,7 @@ def test_get_roles_for_user(dbapp):
 
 
 def test_get_users_for_project_missing(dbapp):
-    assert dbapp.models.packaging.get_users_for_project("test-project") == []
+    assert dbapp.db.packaging.get_users_for_project("test-project") == []
 
 
 @pytest.mark.parametrize(("name", "mode"), [
@@ -658,7 +658,7 @@ def test_get_hosting_mode(name, mode, dbapp):
         packages.insert().values(name=name, hosting_mode=mode)
     )
 
-    assert dbapp.models.packaging.get_hosting_mode(name) == mode
+    assert dbapp.db.packaging.get_hosting_mode(name) == mode
 
 
 @pytest.mark.parametrize(("name", "attrs"), [
@@ -680,7 +680,7 @@ def test_get_release_urls(name, attrs, dbapp):
             releases.insert().values(name=name, **data)
         )
 
-    assert dbapp.models.packaging.get_release_urls(name) == {
+    assert dbapp.db.packaging.get_release_urls(name) == {
         a["version"]: (a.get("home_page"), a.get("download_url"))
         for a in attrs
     }
@@ -702,7 +702,7 @@ def test_get_external_urls(name, urls, dbapp):
             description_urls.insert().values(name=name, url=url)
         )
 
-    assert dbapp.models.packaging.get_external_urls(name) == sorted(set(urls))
+    assert dbapp.db.packaging.get_external_urls(name) == sorted(set(urls))
 
 
 @pytest.mark.parametrize(("name", "values", "urls"), [
@@ -740,7 +740,7 @@ def test_get_file_urls(name, values, urls, dbapp):
     for value in values:
         dbapp.engine.execute(release_files.insert().values(name=name, **value))
 
-    assert dbapp.models.packaging.get_file_urls(name) == [
+    assert dbapp.db.packaging.get_file_urls(name) == [
         {"filename": f, "url": u} for f, u in sorted(set(urls), reverse=True)
     ]
 
@@ -754,7 +754,7 @@ def test_get_project_for_filename(name, filename, dbapp):
         release_files.insert().values(name=name, filename=filename)
     )
 
-    assert dbapp.models.packaging.get_project_for_filename(filename) == name
+    assert dbapp.db.packaging.get_project_for_filename(filename) == name
 
 
 @pytest.mark.parametrize(("filename", "md5"), [
@@ -766,7 +766,7 @@ def test_get_filename_md5(filename, md5, dbapp):
         release_files.insert().values(filename=filename, md5_digest=md5)
     )
 
-    assert dbapp.models.packaging.get_filename_md5(filename) == md5
+    assert dbapp.db.packaging.get_filename_md5(filename) == md5
 
 
 @pytest.mark.parametrize(("name", "serial"), [
@@ -776,7 +776,7 @@ def test_get_filename_md5(filename, md5, dbapp):
 def test_get_last_serial(name, serial, dbapp):
     dbapp.engine.execute(journals.insert().values(id=serial, name=name))
 
-    assert dbapp.models.packaging.get_last_serial(name) == serial
+    assert dbapp.db.packaging.get_last_serial(name) == serial
 
 
 def test_get_projects_with_serial(dbapp):
@@ -784,7 +784,7 @@ def test_get_projects_with_serial(dbapp):
     dbapp.engine.execute(journals.insert().values(id=2, name='two'))
     dbapp.engine.execute(journals.insert().values(id=3, name='three'))
 
-    assert dbapp.models.packaging.get_projects_with_serial() == dict(
+    assert dbapp.db.packaging.get_projects_with_serial() == dict(
         one=1,
         two=2,
         three=3
@@ -814,7 +814,7 @@ def test_get_project_versions(dbapp):
         _pypi_ordering=4,
     ))
 
-    assert dbapp.models.packaging.get_project_versions("test-project") == \
+    assert dbapp.db.packaging.get_project_versions("test-project") == \
         ["4.0", "3.0", "2.0", "1.0"]
 
 
@@ -893,7 +893,7 @@ def test_get_release(dbapp):
         specifier="Repository,git://git.example.com/",
     ))
 
-    test_release = dbapp.models.packaging.get_release("test-project", "1.0")
+    test_release = dbapp.db.packaging.get_release("test-project", "1.0")
 
     assert test_release == {
         "name": "test-project",
@@ -992,7 +992,7 @@ def test_get_releases(dbapp):
         specifier="Repository,git://git.example.com/",
     ))
 
-    assert dbapp.models.packaging.get_releases("test-project") == [
+    assert dbapp.db.packaging.get_releases("test-project") == [
         {
             "name": "test-project",
             "version": "2.0",
@@ -1034,7 +1034,7 @@ def test_get_documentation_url(exists, dbapp, monkeypatch):
 
     monkeypatch.setattr(os.path, "exists", os_exists)
 
-    docurl = dbapp.models.packaging.get_documentation_url("test-project")
+    docurl = dbapp.db.packaging.get_documentation_url("test-project")
 
     if exists:
         assert docurl == "https://pythonhosted.org/test-project/"
@@ -1052,7 +1052,7 @@ def test_get_bugtrack_url(dbapp):
         bugtrack_url="https://example.com/issues/",
     ))
 
-    bugtracker = dbapp.models.packaging.get_bugtrack_url("test-project")
+    bugtracker = dbapp.db.packaging.get_bugtrack_url("test-project")
 
     assert bugtracker == "https://example.com/issues/"
 
@@ -1073,7 +1073,7 @@ def test_get_classifiers(dbapp):
         trove_id=1,
     ))
 
-    test_classifiers = dbapp.models.packaging.get_classifiers(
+    test_classifiers = dbapp.db.packaging.get_classifiers(
         "test-project",
         "1.0",
     )
@@ -1095,7 +1095,7 @@ def test_get_classifier_ids(dbapp):
         classifier="Test :: The Other One",
     ))
 
-    test_classifiers = dbapp.models.packaging.get_classifier_ids(
+    test_classifiers = dbapp.db.packaging.get_classifier_ids(
         ["Test :: Classifier", "Test :: The Other One"]
     )
 
@@ -1172,7 +1172,7 @@ def test_search_by_classifier(search, result, dbapp):
     add_project('four-six', [4, 6])
     add_project('seven', [7])
 
-    response = dbapp.models.packaging.search_by_classifier(search)
+    response = dbapp.db.packaging.search_by_classifier(search)
     assert sorted(response) == sorted(result)
 
 
@@ -1207,7 +1207,7 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
 
     dbapp.config.paths.packages = "fake"
 
-    downloads = dbapp.models.packaging.get_downloads("test-project", "1.0")
+    downloads = dbapp.db.packaging.get_downloads("test-project", "1.0")
 
     pgp_url = "/packages/source/t/test-project/test-project-1.0.tar.gz.asc"
 
@@ -1258,12 +1258,12 @@ def test_get_downloads_missing(dbapp, monkeypatch):
     log_error = pretend.call_recorder(lambda *a: None)
 
     monkeypatch.setattr(os.path, "exists", os_exists)
-    # log from warehouse.packaging.models
+    # log from warehouse.packaging.db
     monkeypatch.setattr(log, "error", log_error)
 
     dbapp.config.paths.packages = "fake"
 
-    downloads = dbapp.models.packaging.get_downloads("test-project", "1.0")
+    downloads = dbapp.db.packaging.get_downloads("test-project", "1.0")
 
     assert downloads == []
     filepath = "fake/source/t/test-project/test-project-1.0.tar.gz"
@@ -1282,9 +1282,9 @@ def test_get_downloads_missing(dbapp, monkeypatch):
 
 def test_get_download_counts(dbapp):
     mget = pretend.call_recorder(lambda *k: ["10", "20"])
-    dbapp.models.packaging.redis = pretend.stub(mget=mget)
+    dbapp.db.packaging.redis = pretend.stub(mget=mget)
 
-    counts = dbapp.models.packaging.get_download_counts("test-project")
+    counts = dbapp.db.packaging.get_download_counts("test-project")
 
     assert counts == {"last_day": 30, "last_week": 30, "last_month": 30}
     assert len(mget.calls) == 3
@@ -1329,7 +1329,7 @@ def test_get_full_latest_releases(dbapp):
         _pypi_ordering=2,
     ))
 
-    assert dbapp.models.packaging.get_full_latest_releases() == [
+    assert dbapp.db.packaging.get_full_latest_releases() == [
         {
             "created": created,
             "name": "test-project",

@@ -90,7 +90,7 @@ def test_xmlrpc_list_packages():
     all_projects = ["bar", "foo"]
 
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 all_projects=pretend.call_recorder(lambda: all_projects),
             ),
@@ -101,7 +101,7 @@ def test_xmlrpc_list_packages():
 
     result = interface.list_packages()
 
-    assert app.models.packaging.all_projects.calls == [pretend.call()]
+    assert app.db.packaging.all_projects.calls == [pretend.call()]
     assert result == ['bar', 'foo']
 
 
@@ -111,7 +111,7 @@ def test_xmlrpc_list_packages():
 ])
 def test_xmlrpc_top_packages(num, result):
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_top_projects=pretend.call_recorder(lambda *a: result),
             ),
@@ -122,12 +122,12 @@ def test_xmlrpc_top_packages(num, result):
 
     if num:
         r = interface.top_packages(num)
-        assert app.models.packaging.get_top_projects.calls == [
+        assert app.db.packaging.get_top_projects.calls == [
             pretend.call(num)
         ]
     else:
         r = interface.top_packages()
-        assert app.models.packaging.get_top_projects.calls == [
+        assert app.db.packaging.get_top_projects.calls == [
             pretend.call(None)
         ]
 
@@ -137,7 +137,7 @@ def test_xmlrpc_top_packages(num, result):
 def test_xmlrpc_package_releases():
     result = ['1', '2', '3', '4']
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_project_versions=pretend.call_recorder(lambda *a: result),
             ),
@@ -148,7 +148,7 @@ def test_xmlrpc_package_releases():
 
     assert interface.package_releases('name') == ['1', '2', '3', '4']
 
-    assert app.models.packaging.get_project_versions.calls == [
+    assert app.db.packaging.get_project_versions.calls == [
         pretend.call('name')
     ]
 
@@ -159,7 +159,7 @@ def test_xmlrpc_package_roles():
         dict(user_name='two', role_name='Maintainer')
     ]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_roles_for_project=pretend.call_recorder(lambda *a: result),
             ),
@@ -172,7 +172,7 @@ def test_xmlrpc_package_roles():
         ['one', 'Owner'], ['two', 'Maintainer']
     ]
 
-    assert app.models.packaging.get_roles_for_project.calls == [
+    assert app.db.packaging.get_roles_for_project.calls == [
         pretend.call('name')
     ]
 
@@ -183,7 +183,7 @@ def test_xmlrpc_user_packages():
         dict(package_name='two', role_name='Maintainer')
     ]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_roles_for_user=pretend.call_recorder(lambda *a: result),
             ),
@@ -196,14 +196,14 @@ def test_xmlrpc_user_packages():
         ['one', 'Owner'], ['two', 'Maintainer']
     ]
 
-    assert app.models.packaging.get_roles_for_user.calls == [
+    assert app.db.packaging.get_roles_for_user.calls == [
         pretend.call('name')
     ]
 
 
 def test_xmlrpc_package_hosting_mode():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_hosting_mode=pretend.call_recorder(lambda *a: 'yes!'),
             ),
@@ -214,7 +214,7 @@ def test_xmlrpc_package_hosting_mode():
 
     assert interface.package_hosting_mode('name') == 'yes!'
 
-    assert app.models.packaging.get_hosting_mode.calls == [
+    assert app.db.packaging.get_hosting_mode.calls == [
         pretend.call('name')
     ]
 
@@ -225,7 +225,7 @@ def test_xmlrpc_release_downloads():
         dict(filename='two', downloads=2),
     ]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_downloads=pretend.call_recorder(lambda *a: results),
             ),
@@ -238,7 +238,7 @@ def test_xmlrpc_release_downloads():
         ['one', 1], ['two', 2]
     ]
 
-    assert app.models.packaging.get_downloads.calls == [
+    assert app.db.packaging.get_downloads.calls == [
         pretend.call('name', '1.0')
     ]
 
@@ -271,7 +271,7 @@ def test_xmlrpc_changelog(with_ids):
     if not with_ids:
         result = [r[:4] for r in result]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_changelog=pretend.call_recorder(lambda *a: data),
             ),
@@ -284,14 +284,14 @@ def test_xmlrpc_changelog(with_ids):
     assert interface.changelog(old_timestamp, with_ids) == result
 
     old = arrow.get(old_timestamp).datetime
-    assert app.models.packaging.get_changelog.calls == [
+    assert app.db.packaging.get_changelog.calls == [
         pretend.call(old)
     ]
 
 
 def test_xmlrpc_changelog_last_serial():
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_last_changelog_serial=pretend.call_recorder(lambda *a: 2),
             ),
@@ -302,7 +302,7 @@ def test_xmlrpc_changelog_last_serial():
 
     assert interface.changelog_last_serial() == 2
 
-    assert app.models.packaging.get_last_changelog_serial.calls == [
+    assert app.db.packaging.get_last_changelog_serial.calls == [
         pretend.call()
     ]
 
@@ -329,7 +329,7 @@ def test_xmlrpc_changelog_serial():
         ['one', '3', arrow.get(now_plus_2).timestamp, 'new release', 4],
     ]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_changelog_serial=pretend.call_recorder(lambda *a: data),
             ),
@@ -340,7 +340,7 @@ def test_xmlrpc_changelog_serial():
 
     assert interface.changelog_since_serial(1) == result
 
-    assert app.models.packaging.get_changelog_serial.calls == [
+    assert app.db.packaging.get_changelog_serial.calls == [
         pretend.call(1)
     ]
 
@@ -354,7 +354,7 @@ def test_xmlrpc_updated_releases():
         dict(name='two', version='3', created=now, summary='text'),
         dict(name='three', version='4', created=now, summary='text')]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_releases_since=pretend.call_recorder(lambda *a: result),
             ),
@@ -367,7 +367,7 @@ def test_xmlrpc_updated_releases():
     assert interface.updated_releases(old_timestamp) == \
         [['one', '1'], ['two', '2'], ['two', '3'], ['three', '4']]
 
-    assert app.models.packaging.get_releases_since.calls == [
+    assert app.db.packaging.get_releases_since.calls == [
         pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
@@ -377,7 +377,7 @@ def test_xmlrpc_changed_packages():
 
     result = ['one', 'two', 'three']
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_changed_since=pretend.call_recorder(lambda *a: result),
             ),
@@ -389,7 +389,7 @@ def test_xmlrpc_changed_packages():
     old_timestamp = arrow.get(now - datetime.timedelta(days=1)).timestamp
     assert interface.changed_packages(old_timestamp) == result
 
-    assert app.models.packaging.get_changed_since.calls == [
+    assert app.db.packaging.get_changed_since.calls == [
         pretend.call(arrow.get(old_timestamp).datetime)
     ]
 
@@ -397,7 +397,7 @@ def test_xmlrpc_changed_packages():
 def test_xmlrpc_list_packages_with_serial():
     d = dict(one=1, two=2, three=3)
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_projects_with_serial=pretend.call_recorder(lambda: d),
             ),
@@ -408,7 +408,7 @@ def test_xmlrpc_list_packages_with_serial():
 
     result = interface.list_packages_with_serial()
 
-    assert app.models.packaging.get_projects_with_serial.calls == [
+    assert app.db.packaging.get_projects_with_serial.calls == [
         pretend.call(),
     ]
     assert result == d
@@ -447,7 +447,7 @@ def test_release_urls(pgp, monkeypatch):
         )
     ]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_downloads=pretend.call_recorder(lambda *a: downloads),
             ),
@@ -458,7 +458,7 @@ def test_release_urls(pgp, monkeypatch):
 
     result = interface.release_urls('spam', '1.0')
 
-    assert app.models.packaging.get_downloads.calls == [
+    assert app.db.packaging.get_downloads.calls == [
         pretend.call('spam', '1.0'),
     ]
     assert result == [
@@ -516,7 +516,7 @@ def test_release_data(monkeypatch):
     docs = "https://pythonhosted.org/spam/"
     cfiers = ['Section A :: Subsection B :: Aisle 3', 'Section B']
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_release=pretend.call_recorder(lambda *a: resp),
                 get_documentation_url=pretend.call_recorder(lambda *a: docs),
@@ -530,7 +530,7 @@ def test_release_data(monkeypatch):
 
     result = interface.release_data('spam', '1.0')
 
-    assert app.models.packaging.get_release.calls == [
+    assert app.db.packaging.get_release.calls == [
         pretend.call('spam', '1.0'),
     ]
 
@@ -554,7 +554,7 @@ def test_release_data_missing(monkeypatch):
         raise IndexError()
 
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_release=pretend.call_recorder(f),
             ),
@@ -565,7 +565,7 @@ def test_release_data_missing(monkeypatch):
 
     result = interface.release_data('spam', '1.0')
 
-    assert app.models.packaging.get_release.calls == [
+    assert app.db.packaging.get_release.calls == [
         pretend.call('spam', '1.0'),
     ]
 
@@ -576,7 +576,7 @@ def test_xmlrpc_browse():
     cids = {'hello': 1, 'there': 2}
     results = [['one', 1], ['two', 2]]
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_classifier_ids=pretend.call_recorder(lambda *a: cids),
                 search_by_classifier=pretend.call_recorder(lambda *a: results),
@@ -588,10 +588,10 @@ def test_xmlrpc_browse():
 
     assert interface.browse(['hello', 'there']) == results
 
-    assert app.models.packaging.get_classifier_ids.calls == [
+    assert app.db.packaging.get_classifier_ids.calls == [
         pretend.call(['hello', 'there'])
     ]
-    assert app.models.packaging.search_by_classifier.calls == [
+    assert app.db.packaging.search_by_classifier.calls == [
         pretend.call(set([2, 1]))
     ]
 
@@ -606,7 +606,7 @@ def test_xmlrpc_browse_invalid_arg():
 def test_xmlrpc_browse_invalid_classifier():
     cids = {'hello': 1}
     app = pretend.stub(
-        models=pretend.stub(
+        db=pretend.stub(
             packaging=pretend.stub(
                 get_classifier_ids=pretend.call_recorder(lambda *a: cids),
             ),

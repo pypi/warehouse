@@ -56,15 +56,15 @@ import warehouse.download_statistics.tables
 import warehouse.packaging.tables
 
 # Get the various models
-import warehouse.accounts.models
-import warehouse.packaging.models
+import warehouse.accounts.db
+import warehouse.packaging.db
 
 
 class Warehouse(object):
 
-    model_classes = {
-        "accounts": warehouse.accounts.models.Model,
-        "packaging": warehouse.packaging.models.Model,
+    db_classes = {
+        "accounts": warehouse.accounts.db.Database,
+        "packaging": warehouse.packaging.db.Database,
     }
 
     def __init__(self, config, engine=None, redis=None):
@@ -83,9 +83,9 @@ class Warehouse(object):
         self.redis = redis
 
         # Create our Store instance and associate our store modules with it
-        self.models = AttributeDict()
-        for name, klass in self.model_classes.items():
-            self.models[name] = klass(
+        self.db = AttributeDict()
+        for name, klass in self.db_classes.items():
+            self.db[name] = klass(
                 self,
                 self.metadata,
                 self.engine,
@@ -93,7 +93,7 @@ class Warehouse(object):
             )
 
         # Create our Search Index instance and associate our mappings with it
-        self.search = Index(self.models, self.config.search)
+        self.search = Index(self.db, self.config.search)
         self.search.register(ProjectMapping)
 
         # Set up our URL routing

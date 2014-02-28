@@ -16,7 +16,17 @@ from __future__ import unicode_literals
 
 import sqlalchemy
 
+
 metadata = sqlalchemy.MetaData()
+
+
+class Database(object):
+
+    def __init__(self, app, metadata, engine, redis):
+        self.app = app
+        self.metadata = metadata
+        self.engine = engine
+        self.redis = redis
 
 
 def scalar(query, default=None):

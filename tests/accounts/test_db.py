@@ -37,7 +37,7 @@ def test_get_user(dbapp):
         "email": None,
         "name": "Test User",
         "username": "test-user",
-    } == dbapp.models.accounts.get_user("test-user")
+    } == dbapp.db.accounts.get_user("test-user")
 
 
 def test_get_user_with_email(dbapp):
@@ -63,8 +63,8 @@ def test_get_user_with_email(dbapp):
         "email": "test-user@example.com",
         "name": "Test User",
         "username": "test-user",
-    } == dbapp.models.accounts.get_user("test-user")
+    } == dbapp.db.accounts.get_user("test-user")
 
 
 def test_get_user_missing(dbapp):
-    assert dbapp.models.accounts.get_user("test-user") is None
+    assert dbapp.db.accounts.get_user("test-user") is None

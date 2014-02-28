@@ -20,6 +20,16 @@ import pytest
 from warehouse import db
 
 
+def test_database_basic():
+    app, metadata, engine, redis = object(), object(), object(), object()
+    m = db.Database(app, metadata, engine, redis)
+
+    assert m.app is app
+    assert m.metadata is metadata
+    assert m.engine is engine
+    assert m.redis is redis
+
+
 @pytest.mark.parametrize(
     ("value", "default", "expected", "eargs", "ekwargs"),
     [

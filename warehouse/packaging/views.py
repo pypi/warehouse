@@ -27,13 +27,13 @@ from warehouse.utils import cache, fastly, redirect, render_response
 @fastly("project-detail", "project-detail~{project_name!n}")
 def project_detail(app, request, project_name, version=None):
     # Get the real project name for this project
-    project = app.models.packaging.get_project(project_name)
+    project = app.db.packaging.get_project(project_name)
 
     if project is None:
         raise NotFound("Cannot find a project named {}".format(project_name))
 
     # Look up all the releases for the given project
-    releases = app.models.packaging.get_releases(project)
+    releases = app.db.packaging.get_releases(project)
 
     if not releases:
         # If there are no releases then we need to return a simpler response
@@ -72,7 +72,7 @@ def project_detail(app, request, project_name, version=None):
         )
 
     # Get the release data for the version
-    release = app.models.packaging.get_release(project, version)
+    release = app.db.packaging.get_release(project, version)
 
     if release.get("description"):
         # Render the project description
@@ -89,10 +89,10 @@ def project_detail(app, request, project_name, version=None):
         release=release,
         releases=releases,
         description_html=description_html,
-        download_counts=app.models.packaging.get_download_counts(project),
-        downloads=app.models.packaging.get_downloads(project, version),
-        classifiers=app.models.packaging.get_classifiers(project, version),
-        documentation=app.models.packaging.get_documentation_url(project),
-        bugtracker=app.models.packaging.get_bugtrack_url(project),
-        maintainers=app.models.packaging.get_users_for_project(project),
+        download_counts=app.db.packaging.get_download_counts(project),
+        downloads=app.db.packaging.get_downloads(project, version),
+        classifiers=app.db.packaging.get_classifiers(project, version),
+        documentation=app.db.packaging.get_documentation_url(project),
+        bugtracker=app.db.packaging.get_bugtrack_url(project),
+        maintainers=app.db.packaging.get_users_for_project(project),
     )
