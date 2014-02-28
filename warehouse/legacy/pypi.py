@@ -49,7 +49,7 @@ def daytime(app, request):
     return Response(response, mimetype="text/plain")
 
 
-@cache("legacy_json")
+@cache(browser=1, varnish=120)
 @fastly("legacy-json", "legacy-json~{project_name!n}")
 def project_json(app, request, project_name):
     # fail early if callback is invalid
@@ -90,7 +90,7 @@ def project_json(app, request, project_name):
     return response
 
 
-@cache("legacy_rss")
+@cache(browser=1, varnish=120)
 @fastly("legacy_rss")
 def rss(app, request):
     """Dump the last N days' updates as an RSS feed.
@@ -113,7 +113,7 @@ def rss(app, request):
     return response
 
 
-@cache("legacy_rss")
+@cache(browser=1, varnish=120)
 @fastly("legacy_rss")
 def packages_rss(app, request):
     """Dump the last N days' new projects as an RSS feed.

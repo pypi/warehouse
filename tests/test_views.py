@@ -43,7 +43,12 @@ def test_index(monkeypatch):
     )
     request = pretend.stub()
 
-    response = pretend.stub(status_code=200, headers={})
+    response = pretend.stub(
+        status_code=200,
+        headers={},
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
     render_response = pretend.call_recorder(lambda *a, **kw: response)
 
     monkeypatch.setattr(views, "render_response", render_response)

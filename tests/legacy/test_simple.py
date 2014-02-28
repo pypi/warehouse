@@ -27,7 +27,12 @@ from warehouse.legacy import simple
 
 
 def test_index(monkeypatch):
-    response = pretend.stub(status_code=200, headers=Headers())
+    response = pretend.stub(
+        status_code=200,
+        headers=Headers(),
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
     render = pretend.call_recorder(lambda *a, **k: response)
     monkeypatch.setattr(simple, "render_response", render)
 
@@ -92,7 +97,12 @@ def test_index(monkeypatch):
 )
 def test_project(project_name, hosting_mode, release_urls,
         e_project_urls, monkeypatch):
-    response = pretend.stub(status_code=200, headers=Headers())
+    response = pretend.stub(
+        status_code=200,
+        headers=Headers(),
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
     render = pretend.call_recorder(lambda *a, **k: response)
     url_for = lambda *a, **k: "/foo/"
 

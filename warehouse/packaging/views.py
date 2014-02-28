@@ -23,7 +23,7 @@ from warehouse.helpers import url_for
 from warehouse.utils import cache, fastly, redirect, render_response
 
 
-@cache("project_detail")
+@cache(browser=1, varnish=120)
 @fastly("project-detail", "project-detail~{project_name!n}")
 def project_detail(app, request, project_name, version=None):
     # Get the real project name for this project
