@@ -95,8 +95,8 @@ def test_index(monkeypatch):
         ("foo", "pypi-scrape", {"1.0": ("UNKNOWN", "UNKNOWN")}, []),
     ],
 )
-def test_project(project_name, hosting_mode, release_urls,
-        e_project_urls, monkeypatch):
+def test_project(project_name, hosting_mode, release_urls, e_project_urls,
+                 monkeypatch):
     response = pretend.stub(
         status_code=200,
         headers=Headers(),
@@ -133,7 +133,7 @@ def test_project(project_name, hosting_mode, release_urls,
     assert resp is response
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
     assert (resp.headers["Surrogate-Key"] ==
-        "simple simple~{}".format(project_name))
+            "simple simple~{}".format(project_name))
 
     assert render.calls == [
         pretend.call(

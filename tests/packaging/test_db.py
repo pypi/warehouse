@@ -268,8 +268,13 @@ def test_get_changelog(dbapp):
 
     def create(name, delta):
         dbapp.engine.execute(packages.insert().values(name=name))
-        dbapp.engine.execute(journals.insert().values(name=name, version=None,
-            submitted_date=now - delta, action="create", id=create.id))
+        dbapp.engine.execute(journals.insert().values(
+            name=name,
+            version=None,
+            submitted_date=now - delta,
+            action="create",
+            id=create.id,
+        ))
         create.id += 1
     create.id = 1
     create("foo1", datetime.timedelta(seconds=4))
@@ -277,10 +282,18 @@ def test_get_changelog(dbapp):
     create("foo3", datetime.timedelta(seconds=10))
 
     def release(name, version, delta):
-        dbapp.engine.execute(releases.insert().values(name=name,
-            version=version, created=now - delta))
-        dbapp.engine.execute(journals.insert().values(id=create.id, name=name,
-            version=version, submitted_date=now - delta, action="new release"))
+        dbapp.engine.execute(releases.insert().values(
+            name=name,
+            version=version,
+            created=now - delta,
+        ))
+        dbapp.engine.execute(journals.insert().values(
+            id=create.id,
+            name=name,
+            version=version,
+            submitted_date=now - delta,
+            action="new release",
+        ))
         create.id += 1
     release("foo2", "1.0", datetime.timedelta(seconds=10))
     release("foo3", "2.0", datetime.timedelta(seconds=9))
@@ -334,8 +347,13 @@ def test_get_changelog_serial(dbapp):
 
     def create(name, delta):
         dbapp.engine.execute(packages.insert().values(name=name))
-        dbapp.engine.execute(journals.insert().values(name=name, version=None,
-            submitted_date=now - delta, action="create", id=create.id))
+        dbapp.engine.execute(journals.insert().values(
+            name=name,
+            version=None,
+            submitted_date=now - delta,
+            action="create",
+            id=create.id,
+        ))
         create.id += 1
     create.id = 1
     create("foo1", datetime.timedelta(seconds=4))
@@ -343,10 +361,18 @@ def test_get_changelog_serial(dbapp):
     create("foo3", datetime.timedelta(seconds=10))
 
     def release(name, version, delta):
-        dbapp.engine.execute(releases.insert().values(name=name,
-            version=version, created=now - delta))
-        dbapp.engine.execute(journals.insert().values(id=create.id, name=name,
-            version=version, submitted_date=now - delta, action="new release"))
+        dbapp.engine.execute(releases.insert().values(
+            name=name,
+            version=version,
+            created=now - delta,
+        ))
+        dbapp.engine.execute(journals.insert().values(
+            id=create.id,
+            name=name,
+            version=version,
+            submitted_date=now - delta,
+            action="new release",
+        ))
         create.id += 1
     release("foo2", "1.0", datetime.timedelta(seconds=10))
     release("foo3", "2.0", datetime.timedelta(seconds=9))
@@ -408,8 +434,11 @@ def test_top_projects(num, result, dbapp):
         ('three', 10000, 'three-1.0.zip'),
     ]
     for name, downloads, filename in files:
-        dbapp.engine.execute(release_files.insert().values(name=name,
-            downloads=downloads, filename=filename))
+        dbapp.engine.execute(release_files.insert().values(
+            name=name,
+            downloads=downloads,
+            filename=filename,
+        ))
 
     top = dbapp.db.packaging.get_top_projects(num)
     assert top == result
