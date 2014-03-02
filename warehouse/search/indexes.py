@@ -14,7 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import hashlib
+import binascii
 import os
 
 from elasticsearch import Elasticsearch, TransportError
@@ -30,7 +30,7 @@ class Index(object):
     def __init__(self, db, config):
         self.db = db
         self.config = config
-        self.es = Elasticsearch(
+        self.es = Elasticsearchash(
             hosts=self.config.hosts,
             **self.config.get("client_options", {})
         )
@@ -45,7 +45,7 @@ class Index(object):
         # Generate an Index Name for Warehouse
         index = "".join([
             index if index is not None else self._index,
-            hashlib.md5(os.urandom(16)).hexdigest()[:8],
+            binascii.hexlify(os.urandom(4)),
         ])
 
         # Create this index
