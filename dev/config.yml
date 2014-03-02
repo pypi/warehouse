@@ -23,23 +23,5 @@ urls:
     documentation: "http://pythonhosted.org/"
 
 logging:
-    formatters:
-        console:
-            format: '[%(asctime)s %(levelname)s] %(message)s'
-            datefmt: '%Y-%m-%d %H:%M:%S'
-    handlers:
-        console:
-            class: logging.StreamHandler
-            formatter: console
-            level: DEBUG
-            stream: ext://sys.stdout
-    loggers:
-        warehouse:
-            level: DEBUG
-        elasticsearch:
-            level: DEBUG
-        elasticsearch.trace:
-            level: DEBUG
     root:
-        level: INFO
-        handlers: [console]
+        level: DEBUG
