@@ -4,9 +4,6 @@ site:
     name: Warehouse
     url: /
 
-database:
-    migrations: "warehouse:migrations"
-
 paths:
     documentation: data/packagedocs
 
