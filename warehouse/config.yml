@@ -10,13 +10,6 @@ paths:
 urls:
     documentation: "https://pythonhosted.org"
 
-security:
-    csp:
-        default-src:
-            - self
-        img-src:
-            - "*"
-
 logging:
     version: 1
     formatters:

@@ -135,7 +135,12 @@ class Warehouse(object):
         # Add our Content Security Policy Middleware
         self.wsgi_app = guard.ContentSecurityPolicy(
             self.wsgi_app,
-            self.config.security.csp,
+            {
+                "default-src": ["'self'"],
+                "font-src": ["'self'", "data:"],
+                "img-src": ["*"],
+                "style-src": ["'self'", "cloud.typography.com"],
+            },
         )
 
         if "sentry" in self.config:

@@ -22,17 +22,6 @@ paths:
 urls:
     documentation: "http://pythonhosted.org/"
 
-security:
-    csp:
-        default-src:
-            - "'self'"
-        style-src:
-            - "'self'"
-            - cloud.typography.com
-        font-src:
-            - "'self'"
-            - "data:"
-
 logging:
     formatters:
         console:
