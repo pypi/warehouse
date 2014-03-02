@@ -14,7 +14,7 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-import hashlib
+import binascii
 import os
 
 from elasticsearch import Elasticsearch, TransportError
@@ -45,7 +45,7 @@ class Index(object):
         # Generate an Index Name for Warehouse
         index = "".join([
             index if index is not None else self._index,
-            hashlib.md5(os.urandom(16)).hexdigest()[:8],
+            binascii.hexlify(os.urandom(4)),
         ])
 
         # Create this index

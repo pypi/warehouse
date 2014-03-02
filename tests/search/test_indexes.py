@@ -53,15 +53,15 @@ class TestIndex:
 
         assert index.es.indices.create.calls == [
             pretend.call(
-                "warehouse1e4a1b03",
+                "warehouse30303030",
                 {"mappings": {"fake": {"foo": "bar"}}},
             ),
         ]
         assert index.update_alias.calls == [
-            pretend.call("warehouse", "warehouse1e4a1b03", keep_old=False),
+            pretend.call("warehouse", "warehouse30303030", keep_old=False),
         ]
         assert index.types["fake"].index_all.calls == [
-            pretend.call(index="warehouse1e4a1b03"),
+            pretend.call(index="warehouse30303030"),
         ]
 
     def test_reindex_no_alias(self, monkeypatch):
@@ -90,13 +90,13 @@ class TestIndex:
 
         assert index.es.indices.create.calls == [
             pretend.call(
-                "warehouse1e4a1b03",
+                "warehouse30303030",
                 {"mappings": {"fake": {"foo": "bar"}}},
             ),
         ]
         assert index.update_alias.calls == []
         assert index.types["fake"].index_all.calls == [
-            pretend.call(index="warehouse1e4a1b03"),
+            pretend.call(index="warehouse30303030"),
         ]
 
     def test_update_alias(self):
