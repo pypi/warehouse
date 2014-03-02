@@ -72,6 +72,9 @@ class Warehouse(object):
 
         self.metadata = db.metadata
 
+        # configure logging
+        logging.config.dictConfig(self.config.logging)
+
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
             engine = sqlalchemy.create_engine(self.config.database.url)
@@ -159,9 +162,6 @@ class Warehouse(object):
                 ),
             },
         )
-
-        # configure logging
-        logging.config.dictConfig(self.config.logging)
 
     def __call__(self, environ, start_response):
         """
