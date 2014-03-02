@@ -34,25 +34,17 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
-        "theme_debug": False,
-        "assets": {
-            "directory": "static",
-            "url": "/static/",
-        },
         "database": {
             "url": "postgres:///test_warehouse",
         },
         "redis": {
             "url": "redis://localhost:6379/0"
         },
-        "security": {
-            "csp": {},
+        "search": {
+            "hosts": [],
         },
         "logging": {
             "version": 1,
-        },
-        "search": {
-            "hosts": [],
         },
     })
 

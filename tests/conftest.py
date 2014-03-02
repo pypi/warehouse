@@ -94,7 +94,7 @@ def _database_url(request):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option(
         "script_location",
-        app.config.database.migrations,
+        "warehouse:migrations",
     )
     alembic_cfg.set_main_option("url", app.config.database.url)
     alembic.command.upgrade(alembic_cfg, "head")

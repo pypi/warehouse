@@ -4,36 +4,24 @@ site:
     name: Warehouse
     url: /
 
-database:
-    migrations: "warehouse:migrations"
-
 paths:
     documentation: data/packagedocs
 
 urls:
     documentation: "https://pythonhosted.org"
 
-security:
-    csp:
-        default-src:
-            - self
-        img-src:
-            - "*"
-
 logging:
     version: 1
     formatters:
-        timeAndLevel:
-            format: '%(asctime)s - %(levelname)s: %(message)s'
+        default:
+            format: '[%(asctime)s %(levelname)s] %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
     handlers:
         console:
             class: logging.StreamHandler
-            formatter: timeAndLevel
+            formatter: default
             level: DEBUG
             stream: ext://sys.stdout
-    loggers:
-        warehouse:
-            level: INFO
     root:
-        level: ERROR
+        level: INFO
         handlers: [console]

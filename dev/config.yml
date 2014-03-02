@@ -22,35 +22,6 @@ paths:
 urls:
     documentation: "http://pythonhosted.org/"
 
-security:
-    csp:
-        default-src:
-            - "'self'"
-        style-src:
-            - "'self'"
-            - cloud.typography.com
-        font-src:
-            - "'self'"
-            - "data:"
-
 logging:
-    formatters:
-        console:
-            format: '[%(asctime)s %(levelname)s] %(message)s'
-            datefmt: '%Y-%m-%d %H:%M:%S'
-    handlers:
-        console:
-            class: logging.StreamHandler
-            formatter: console
-            level: DEBUG
-            stream: ext://sys.stdout
-    loggers:
-        warehouse:
-            level: DEBUG
-        elasticsearch:
-            level: DEBUG
-        elasticsearch.trace:
-            level: DEBUG
     root:
-        level: INFO
-        handlers: [console]
+        level: DEBUG
