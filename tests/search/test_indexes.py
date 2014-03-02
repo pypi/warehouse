@@ -53,7 +53,7 @@ class TestIndex:
 
         assert index.es.indices.create.calls == [
             pretend.call(
-                "warehouse1e4a1b03",
+                "warehouse30303030",
                 {"mappings": {"fake": {"foo": "bar"}}},
             ),
         ]
@@ -90,7 +90,7 @@ class TestIndex:
 
         assert index.es.indices.create.calls == [
             pretend.call(
-                "warehouse1e4a1b03",
+                "warehouse30303030",
                 {"mappings": {"fake": {"foo": "bar"}}},
             ),
         ]
