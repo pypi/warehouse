@@ -4,6 +4,9 @@ site:
     name: Warehouse
     url: /
 
+search:
+    index: warehouse
+
 paths:
     documentation: data/packagedocs
 
