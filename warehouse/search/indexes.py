@@ -30,7 +30,7 @@ class Index(object):
     def __init__(self, db, config):
         self.db = db
         self.config = config
-        self.es = Elasticsearchash(
+        self.es = Elasticsearch(
             hosts=self.config.hosts,
             **self.config.get("client_options", {})
         )
