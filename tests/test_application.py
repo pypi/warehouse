@@ -41,6 +41,7 @@ def test_basic_instantiation():
             "url": "redis://localhost:6379/0"
         },
         "search": {
+            "index": "warehouse",
             "hosts": [],
         },
         "logging": {

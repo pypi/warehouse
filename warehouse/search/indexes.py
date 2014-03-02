@@ -25,8 +25,6 @@ from warehouse.utils import AttributeDict
 
 class Index(object):
 
-    _index = "warehouse"
-
     def __init__(self, db, config):
         self.db = db
         self.config = config
@@ -37,14 +35,16 @@ class Index(object):
 
         self.types = AttributeDict()
 
+        self._index = config.index
+
     def register(self, type_):
         obj = type_(self)
         self.types[obj._type] = obj
 
-    def reindex(self, index=None, alias=True, keep_old=False):
+    def reindex(self, alias=True, keep_old=False):
         # Generate an Index Name for Warehouse
         index = "".join([
-            index if index is not None else self._index,
+            self._index,
             binascii.hexlify(os.urandom(4)),
         ])
 

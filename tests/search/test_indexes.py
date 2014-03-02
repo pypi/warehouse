@@ -32,7 +32,7 @@ class TestIndex:
         monkeypatch.setattr(os, "urandom", urandom)
 
         models = pretend.stub()
-        config = pretend.stub(hosts=[], get=lambda *a: {})
+        config = pretend.stub(index="warehouse", hosts=[], get=lambda *a: {})
 
         index = Index(models, config)
         index.es = pretend.stub(
@@ -69,7 +69,7 @@ class TestIndex:
         monkeypatch.setattr(os, "urandom", urandom)
 
         models = pretend.stub()
-        config = pretend.stub(hosts=[], get=lambda *a: {})
+        config = pretend.stub(index="warehouse", hosts=[], get=lambda *a: {})
 
         index = Index(models, config)
         index.es = pretend.stub(
@@ -101,7 +101,7 @@ class TestIndex:
 
     def test_update_alias(self):
         models = pretend.stub()
-        config = pretend.stub(hosts=[], get=lambda *a: {})
+        config = pretend.stub(index="warehouse", hosts=[], get=lambda *a: {})
 
         index = Index(models, config)
         index.es = pretend.stub(
@@ -134,7 +134,7 @@ class TestIndex:
 
     def test_update_alias_no_old_index(self):
         models = pretend.stub()
-        config = pretend.stub(hosts=[], get=lambda *a: {})
+        config = pretend.stub(index="warehouse", hosts=[], get=lambda *a: {})
 
         def _get_alias(idx):
             raise TransportError(404, "Fake 404")
@@ -160,7 +160,7 @@ class TestIndex:
 
     def test_update_alias_exception(self):
         models = pretend.stub()
-        config = pretend.stub(hosts=[], get=lambda *a: {})
+        config = pretend.stub(index="warehouse", hosts=[], get=lambda *a: {})
 
         def _get_alias(idx):
             raise TransportError(500, "Fake 500")
