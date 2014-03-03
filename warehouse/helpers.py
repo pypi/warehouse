@@ -17,8 +17,8 @@ from __future__ import unicode_literals
 import hashlib
 import json
 import os.path
-import urllib
-import urllib.parse
+
+from six.moves import urllib_parse
 
 import warehouse
 
@@ -42,7 +42,7 @@ def gravatar_url(email, size=80):
         "size": size,
     }
 
-    return "?".join([url, urllib.parse.urlencode(params)])
+    return "?".join([url, urllib_parse.urlencode(params)])
 
 
 def static_url(app, filename):
@@ -70,4 +70,4 @@ def static_url(app, filename):
         if basename is not None:
             filename = os.path.join(os.path.dirname(filename), basename)
 
-    return urllib.parse.urljoin("/static/", filename)
+    return urllib_parse.urljoin("/static/", filename)

@@ -14,11 +14,10 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from xmlrpc.server import SimpleXMLRPCDispatcher
-
 import arrow
 from werkzeug.exceptions import BadRequest
 
+from warehouse.compat import SimpleXMLRPCDispatcher
 from warehouse.http import Response
 
 

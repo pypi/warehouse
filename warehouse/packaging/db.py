@@ -16,8 +16,9 @@ from __future__ import unicode_literals
 
 import datetime
 import os.path
-import urllib.parse
 import logging
+
+from six.moves import urllib_parse
 
 from warehouse import db
 from warehouse.packaging.tables import ReleaseDependencyKind
@@ -199,7 +200,7 @@ class Database(db.Database):
         """,
         lambda r: {
             "filename": r["filename"],
-            "url": urllib.parse.urljoin(
+            "url": urllib_parse.urljoin(
                 "/".join([
                     "../../packages",
                     r["python_version"],
@@ -488,7 +489,7 @@ class Database(db.Database):
             "index.html",
         ]
         if os.path.exists(os.path.join(*path_parts)):
-            return urllib.parse.urljoin(
+            return urllib_parse.urljoin(
                 self.app.config.urls.documentation,
                 project
             ) + "/"

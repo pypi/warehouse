@@ -8,8 +8,10 @@ env:
     global:
         - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse
     matrix:
+        - TOXENV=py27
         - TOXENV=py33
         - TOXENV=pep8
+        - TOXENV=py2pep8
         - TOXENV=docs
         - TOXENV=packaging
 

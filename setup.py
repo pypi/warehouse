@@ -77,6 +77,7 @@ setup(
         "raven",
         "readme>=0.1.1",
         "redis",
+        "six",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
         "Werkzeug",
