@@ -84,17 +84,6 @@ database.url
     The URL for the primary database. This must be a PostgreSQL 9.3+ database
     and must be in the form of ``postgresql://hostname[:port]/databasename``.
 
-database.download_statistics_url
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-:Type: URL
-:Default: ``None``
-:Required: Yes
-:Description:
-    The URL for the download statistics database. This must be a PostgreSQL
-    9.3+ database and must be in the form of
-    ``postgresql://hostname[:port]/databasename``.
-
 redis.url
 ~~~~~~~~~
 
@@ -160,7 +149,6 @@ Example Configuration
 
     database:
         url: "postgresql://localhost/warehouse"
-        download_statistics_url: "postgresql://localhost/warehouse"
 
     redis:
         url: "redis://localhost:6379/0"

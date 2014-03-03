@@ -79,7 +79,6 @@ def _database_url(request):
         override={
             "database": {
                 "url": database_url,
-                "download_statistics_url": database_url,
             },
             "search": {"hosts": []},
         },
