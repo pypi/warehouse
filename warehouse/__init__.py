@@ -18,8 +18,11 @@ from warehouse.__about__ import (
     __title__, __summary__, __uri__, __version__, __author__, __email__,
     __license__, __copyright__, __build__,
 )
+from warehouse.compat import psycopg2_register
 
 __all__ = [
     "__title__", "__summary__", "__uri__", "__version__", "__author__",
     "__email__", "__license__", "__copyright__", "__build__",
 ]
+
+psycopg2_register()

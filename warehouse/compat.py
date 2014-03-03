@@ -16,7 +16,15 @@ from __future__ import unicode_literals
 
 # flake8: noqa
 
+import platform
+
 try:
     from xmlrpc.server import SimpleXMLRPCDispatcher
 except ImportError:
     from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
+
+
+def psycopg2_register():
+    if platform.python_implementation() == "PyPy":
+        import psycopg2cffi.compat
+        psycopg2cffi.compat.register()

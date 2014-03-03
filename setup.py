@@ -16,6 +16,7 @@ from __future__ import absolute_import, division, print_function
 
 import fnmatch
 import os
+import platform
 
 from setuptools import setup, find_packages
 
@@ -33,6 +34,30 @@ def recursive_glob(path, pattern, cutdirs=0):
             filepath = "/".join(filepath.split("/")[cutdirs:])
             matches.append(filepath)
     return matches
+
+# Note: Adjusting these requires adjusting setup.cfg as well
+install_requires = [
+    "alembic",
+    "arrow",
+    "babel",
+    "elasticsearch",
+    "enum34",
+    "guard",
+    "Jinja2",
+    "PyYAML",
+    "raven",
+    "readme>=0.1.1",
+    "redis",
+    "six",
+    "SQLAlchemy",
+    "sqlalchemy-citext>=1.2.0",
+    "Werkzeug",
+]
+
+if platform.python_implementation() == "PyPy":
+    install_requires += ["psycopg2cffi"]
+else:
+    install_requires += ["psycopg2"]
 
 
 setup(
@@ -64,24 +89,7 @@ setup(
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
-    install_requires=[
-        "alembic",
-        "arrow",
-        "babel",
-        "elasticsearch",
-        "enum34",
-        "guard",
-        "Jinja2",
-        "psycopg2",
-        "PyYAML",
-        "raven",
-        "readme>=0.1.1",
-        "redis",
-        "six",
-        "SQLAlchemy",
-        "sqlalchemy-citext>=1.2.0",
-        "Werkzeug",
-    ],
+    install_requires=install_requires,
 
     entry_points={
         "console_scripts": [

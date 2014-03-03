@@ -10,6 +10,7 @@ env:
     matrix:
         - TOXENV=py27
         - TOXENV=py33
+        - TOXENV=pypy
         - TOXENV=pep8
         - TOXENV=py2pep8
         - TOXENV=docs
