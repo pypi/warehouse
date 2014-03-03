@@ -17,7 +17,6 @@ from __future__ import unicode_literals
 import werkzeug.serving
 
 import warehouse
-import warehouse.download_statistics.cli
 import warehouse.migrations.cli
 import warehouse.search.cli
 
@@ -66,5 +65,4 @@ __commands__ = {
     "migrate": warehouse.migrations.cli.__commands__,
     "search": warehouse.search.cli.__commands__,
     "serve": ServeCommand(),
-    "download-statistics": warehouse.download_statistics.cli.__commands__,
 }
