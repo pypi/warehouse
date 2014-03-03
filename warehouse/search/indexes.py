@@ -45,7 +45,7 @@ class Index(object):
         # Generate an Index Name for Warehouse
         index = "".join([
             self._index,
-            binascii.hexlify(os.urandom(4)),
+            binascii.hexlify(os.urandom(4)).decode("ascii"),
         ])
 
         # Create this index
@@ -67,7 +67,7 @@ class Index(object):
     def update_alias(self, alias, index, keep_old=False):
         # Get the old index from ElasticSearch
         try:
-            old_index = self.es.indices.get_alias(self._index).keys()[0]
+            old_index = list(self.es.indices.get_alias(self._index))[0]
         except TransportError as exc:
             if not exc.status_code == 404:
                 raise

@@ -72,7 +72,7 @@ setup(
         "enum34",
         "guard",
         "Jinja2",
-        "psycopg2cffi",
+        "psycopg2",
         "PyYAML",
         "raven",
         "readme>=0.1.1",

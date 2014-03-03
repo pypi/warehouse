@@ -40,7 +40,7 @@ from warehouse.helpers import gravatar_url, url_for, static_url
         {},
         ("https://secure.gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e"
          "?size=80"),
-    )
+    ),
 ])
 def test_gravatar_url(email, kwargs, expected):
     assert gravatar_url(email, **kwargs) == expected

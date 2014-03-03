@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 
 import datetime
 import os.path
-import urlparse
+import urllib.parse
 import logging
 
 from warehouse import db
@@ -199,7 +199,7 @@ class Database(db.Database):
         """,
         lambda r: {
             "filename": r["filename"],
-            "url": urlparse.urljoin(
+            "url": urllib.parse.urljoin(
                 "/".join([
                     "../../packages",
                     r["python_version"],
@@ -477,7 +477,7 @@ class Database(db.Database):
         releases = []
         with self.engine.connect() as conn:
             for name, version in conn.execute(query):
-                releases.append((name.decode('utf-8'), version))
+                releases.append((name, version))
 
         return releases
 
@@ -488,7 +488,7 @@ class Database(db.Database):
             "index.html",
         ]
         if os.path.exists(os.path.join(*path_parts)):
-            return urlparse.urljoin(
+            return urllib.parse.urljoin(
                 self.app.config.urls.documentation,
                 project
             ) + "/"

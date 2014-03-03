@@ -18,7 +18,7 @@ import hashlib
 import json
 import os.path
 import urllib
-import urlparse
+import urllib.parse
 
 import warehouse
 
@@ -35,14 +35,14 @@ def gravatar_url(email, size=80):
     if email is None:
         email = ""
 
-    email_hash = hashlib.md5(email.strip().lower()).hexdigest()
+    email_hash = hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
 
     url = "https://secure.gravatar.com/avatar/{}".format(email_hash)
     params = {
         "size": size,
     }
 
-    return "?".join([url, urllib.urlencode(params)])
+    return "?".join([url, urllib.parse.urlencode(params)])
 
 
 def static_url(app, filename):
@@ -70,4 +70,4 @@ def static_url(app, filename):
         if basename is not None:
             filename = os.path.join(os.path.dirname(filename), basename)
 
-    return urlparse.urljoin("/static/", filename)
+    return urllib.parse.urljoin("/static/", filename)
