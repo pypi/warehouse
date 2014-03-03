@@ -74,13 +74,16 @@ Finally you can setup the project:
 
     $ # Create a Database
     $ createdb warehouse
-    
+
     $ # Install the CIText extension
-    $ psql warehouse -c "CREATE EXTENSION IF NOT EXISTS citext"
-    
+    $ psql warehouse -c 'CREATE EXTENSION IF NOT EXISTS citext'
+
+    $ # Install the UUID extension
+    $ psql warehouse -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
+
     $ # Migrate the database to the latest schema
     $ warehouse -c dev/config.yml migrate upgrade head
-    
+
     $ # Serve Warehouse at http://localhost:9000/
     $ warehouse -c dev/config.yml serve
 
