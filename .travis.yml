@@ -1,5 +1,5 @@
 language: python
-python: 2.7
+python: 3.3
 
 addons:
   postgresql: 9.3
@@ -9,8 +9,10 @@ env:
         - WAREHOUSE_DATABASE_URL=postgresql://postgres@localhost/warehouse
     matrix:
         - TOXENV=py27
+        - TOXENV=py33
         - TOXENV=pypy
         - TOXENV=pep8
+        - TOXENV=py2pep8
         - TOXENV=docs
         - TOXENV=packaging
 

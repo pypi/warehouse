@@ -14,15 +14,17 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
-from warehouse.__about__ import (
-    __title__, __summary__, __uri__, __version__, __author__, __email__,
-    __license__, __copyright__, __build__,
-)
-from warehouse.compat import psycopg2_register
+# flake8: noqa
 
-__all__ = [
-    "__title__", "__summary__", "__uri__", "__version__", "__author__",
-    "__email__", "__license__", "__copyright__", "__build__",
-]
+import platform
 
-psycopg2_register()
+try:
+    from xmlrpc.server import SimpleXMLRPCDispatcher
+except ImportError:
+    from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
+
+
+def psycopg2_register():
+    if platform.python_implementation() == "PyPy":
+        import psycopg2cffi.compat
+        psycopg2cffi.compat.register()

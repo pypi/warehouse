@@ -88,7 +88,7 @@ def test_daytime(monkeypatch):
 
     resp = pypi.daytime(app, request)
 
-    assert resp.response[0] == '19700101T00:00:00\n'
+    assert resp.response[0] == b'19700101T00:00:00\n'
 
 
 @pytest.mark.parametrize("callback", [None, 'yes'])
@@ -130,7 +130,7 @@ def test_json(monkeypatch, callback):
         '"upload_time": "1970-01-01T00:00:00"}]}'
     if callback:
         expected = '/**/ %s(%s);' % (callback, expected)
-    assert resp.data == expected
+    assert resp.data == expected.encode("utf8")
 
 
 def test_jsonp_invalid():
@@ -208,7 +208,7 @@ def test_rss(monkeypatch):
             'summary': u'hai spam v2',
             'created': u'now',
         }]
-    assert resp.data == "<xml>dummy</xml>"
+    assert resp.data == b"<xml>dummy</xml>"
 
 
 def test_packages_rss(monkeypatch):
@@ -261,7 +261,7 @@ def test_packages_rss(monkeypatch):
             'summary': u'hai eggs!',
             'created': u'now',
         }]
-    assert resp.data == "<xml>dummy</xml>"
+    assert resp.data == b"<xml>dummy</xml>"
 
 
 def test_rss_xml_template(monkeypatch):

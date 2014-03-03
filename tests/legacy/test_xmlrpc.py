@@ -56,7 +56,7 @@ def test_xmlrpc_handler(monkeypatch):
     assert interface.list_packages.calls == [pretend.call()]
 
     response_xml = Response.calls[0].args[0]
-    assert response_xml == '''<?xml version='1.0'?>
+    assert response_xml == b'''<?xml version='1.0'?>
 <methodResponse>
 <params>
 <param>

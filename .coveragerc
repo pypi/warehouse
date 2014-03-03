@@ -24,3 +24,6 @@ omit =
     # Migrations don't make sense to include in coverage
     warehouse/migrations/versions/*
     warehouse/migrations/env.py
+
+    # The compat module contains things that are only run on one Python version
+    warehouse/compat.py
