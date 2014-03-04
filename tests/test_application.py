@@ -154,12 +154,12 @@ def test_wsgi_app_exception(app, monkeypatch):
 
 
 def test_static_middleware(monkeypatch):
-    SharedDataMiddleware = pretend.call_recorder(lambda app, c: app)
+    WhiteNoise = pretend.call_recorder(lambda app, root, prefix, max_age: app)
 
     monkeypatch.setattr(
         application,
-        "SharedDataMiddleware",
-        SharedDataMiddleware,
+        "WhiteNoise",
+        WhiteNoise,
     )
 
     Warehouse.from_yaml(
@@ -169,18 +169,18 @@ def test_static_middleware(monkeypatch):
         )),
     )
 
-    assert SharedDataMiddleware.calls == [
+    assert WhiteNoise.calls == [
         pretend.call(
             mock.ANY,
-            {
-                "/static/": os.path.abspath(
-                    os.path.join(
-                        os.path.dirname(warehouse.__file__),
-                        "static",
-                        "compiled",
-                    ),
+            root=os.path.abspath(
+                os.path.join(
+                    os.path.dirname(warehouse.__file__),
+                    "static",
+                    "compiled",
                 ),
-            },
+            ),
+            prefix="/static/",
+            max_age=31557600,
         )
     ]
 
