@@ -20,7 +20,9 @@ import readme.rst
 from werkzeug.exceptions import NotFound
 
 from warehouse.helpers import url_for
-from warehouse.utils import cache, fastly, redirect, render_response
+from warehouse.utils import (
+    cache, fastly, redirect, render_response, camouflage_images,
+)
 
 
 @cache(browser=1, varnish=120)
@@ -77,6 +79,13 @@ def project_detail(app, request, project_name, version=None):
     if release.get("description"):
         # Render the project description
         description_html = readme.rst.render(release["description"])
+
+        if app.config.camo:
+            description_html = camouflage_images(
+                app.config.camo.url,
+                app.config.camo.key,
+                description_html,
+            )
     else:
         description_html = ""
 

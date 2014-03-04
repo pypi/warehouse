@@ -35,6 +35,7 @@ import yaml
 
 from raven import Client
 from raven.middleware import Sentry
+from six.moves import urllib_parse
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import SharedDataMiddleware, responder
 
@@ -135,12 +136,22 @@ class Warehouse(object):
         ))
 
         # Add our Content Security Policy Middleware
+        img_src = ["'self'"]
+        if self.config.camo:
+            camo_parsed = urllib_parse.urlparse(self.config.camo.url)
+            img_src += [
+                "{}://{}".format(camo_parsed.scheme, camo_parsed.netloc),
+                "https://secure.gravatar.com",
+            ]
+        else:
+            img_src += ["*"]
+
         self.wsgi_app = guard.ContentSecurityPolicy(
             self.wsgi_app,
             {
                 "default-src": ["'self'"],
                 "font-src": ["'self'", "data:"],
-                "img-src": ["*"],
+                "img-src": img_src,
                 "style-src": ["'self'", "cloud.typography.com"],
             },
         )

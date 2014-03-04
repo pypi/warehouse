@@ -43,6 +43,7 @@ install_requires = [
     "elasticsearch",
     "enum34",
     "guard",
+    "html5lib",
     "Jinja2",
     "PyYAML",
     "raven",

@@ -157,7 +157,7 @@ def test_project_detail_invalid_version():
     ]
 
 
-@pytest.mark.parametrize(("version", "description"), [
+@pytest.mark.parametrize(("version", "description", "camo"), [
     (
         None,
         textwrap.dedent("""
@@ -166,6 +166,7 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        None,
     ),
     (
         "1.0",
@@ -175,13 +176,54 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        None,
     ),
-    (None, ".. code-fail::\n    wat"),
-    ("1.0", ".. code-fail::\n    wat"),
-    (None, None),
-    ("1.0", None),
+    (None, ".. code-fail::\n    wat", None),
+    ("1.0", ".. code-fail::\n    wat", None),
+    (None, None, None),
+    ("1.0", None, None),
+    (
+        None,
+        textwrap.dedent("""
+            Test Project
+            ============
+
+            This is a test project
+        """),
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
+    (
+        "1.0",
+        textwrap.dedent("""
+            Test Project
+            ============
+
+            This is a test project
+        """),
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
+    (
+        None,
+        ".. code-fail::\n    wat",
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
+    (
+        "1.0",
+        ".. code-fail::\n    wat",
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
+    (
+        None,
+        None,
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
+    (
+        "1.0",
+        None,
+        pretend.stub(url="https://camo.example.com/", key="secret key"),
+    ),
 ])
-def test_project_detail_valid(version, description):
+def test_project_detail_valid(version, description, camo):
     release = {
         "description": description,
     }
@@ -196,6 +238,7 @@ def test_project_detail_valid(version, description):
                 browser=False,
                 varnish=False,
             ),
+            camo=camo,
         ),
         db=pretend.stub(
             packaging=pretend.stub(

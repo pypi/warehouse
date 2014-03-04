@@ -14,11 +14,18 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import binascii
 import collections
 import functools
+import hashlib
+import hmac
 import mimetypes
 import re
 import string
+
+import html5lib
+import html5lib.serializer
+import html5lib.treewalkers
 
 from werkzeug.urls import iri_to_uri
 from werkzeug.utils import escape
@@ -250,3 +257,37 @@ def is_valid_json_callback_name(callback_name):
         return False
 
     return True
+
+
+def generate_camouflage_url(camo_url, camo_key, url):
+    digest = hmac.new(
+        camo_key.encode("utf8"),
+        url.encode("utf8"),
+        digestmod=hashlib.sha1,
+    ).hexdigest()
+    return "".join([
+        camo_url,
+        "/".join([
+            digest,
+            binascii.hexlify(url.encode("utf8")).decode("utf8")
+        ]),
+    ])
+
+
+def camouflage_images(camo_url, camo_key, html):
+    # Parse SRC as HTML.
+    tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
+    parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
+    dom = parser.parse(html)
+
+    for e in dom.getElementsByTagName("img"):
+        u = e.getAttribute("src")
+        if u:
+            e.setAttribute(
+                "src",
+                generate_camouflage_url(camo_url, camo_key, u),
+            )
+
+    tree_walker = html5lib.treewalkers.getTreeWalker("dom")
+    html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
+    return "".join(html_serializer.serialize(tree_walker(dom)))
