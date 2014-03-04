@@ -22,7 +22,8 @@ import six
 from warehouse.utils import (
     AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
     render_response, cache, get_wsgi_application, get_mimetype, redirect,
-    SearchPagination, is_valid_json_callback_name,
+    SearchPagination, is_valid_json_callback_name, generate_camouflage_url,
+    camouflage_images,
 )
 
 
@@ -227,3 +228,35 @@ class TestSearchPagination:
 ])
 def test_is_valid_json_callback_name(callback, expected):
     assert is_valid_json_callback_name(callback) == expected
+
+
+@pytest.mark.parametrize(("camo_url", "camo_key", "url", "expected"), [
+    (
+        "https://camo.example.com/",
+        "123",
+        "https://example.com/fake.png",
+        "https://camo.example.com/dec25c03d21dc84f233f39c6107d305120746ca0/"
+        "68747470733a2f2f6578616d706c652e636f6d2f66616b652e706e67",
+    )
+])
+def test_generate_camouflage_url(camo_url, camo_key, url, expected):
+    assert generate_camouflage_url(camo_url, camo_key, url) == expected
+
+
+@pytest.mark.parametrize(("camo_url", "camo_key", "html", "expected"), [
+    (
+        "https://camo.example.com/",
+        "123",
+        '<html><body><img src="http://example.com/fake.png"></body></html>',
+        '<img src=https://camo.example.com/d59e450f25b4dad6ef4bc4bd71fef1f10d1'
+        '74273/687474703a2f2f6578616d706c652e636f6d2f66616b652e706e67>',
+    ),
+    (
+        "https://camo.example.com/",
+        "123",
+        '<html><body><img alt="whatever"></body></html>',
+        "<img alt=whatever>",
+    ),
+])
+def test_camouflage_images(camo_url, camo_key, html, expected):
+    assert camouflage_images(camo_url, camo_key, html) == expected

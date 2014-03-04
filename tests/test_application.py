@@ -44,6 +44,7 @@ def test_basic_instantiation():
             "index": "warehouse",
             "hosts": [],
         },
+        "camo": None,
         "logging": {
             "version": 1,
         },
@@ -219,3 +220,24 @@ def test_guard_middleware(monkeypatch):
     )
 
     assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
+
+
+def test_camo_settings(monkeypatch):
+    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
+
+    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
+
+    Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+        override={"camo": {"url": "https://camo.example.com/", "key": "skey"}},
+    )
+
+    assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
+    assert set(ContentSecurityPolicy.calls[0].args[1]["img-src"]) == {
+        "'self'",
+        "https://camo.example.com",
+        "https://secure.gravatar.com",
+    }
