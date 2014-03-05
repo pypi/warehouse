@@ -78,7 +78,10 @@ def project_detail(app, request, project_name, version=None):
 
     if release.get("description"):
         # Render the project description
-        description_html = readme.rst.render(release["description"])
+        description_html, rendered = readme.rst.render(release["description"])
+
+        if not rendered:
+            description_html = description_html.replace("\n", "<br>")
 
         if app.config.camo:
             description_html = camouflage_images(
