@@ -47,7 +47,7 @@ install_requires = [
     "Jinja2",
     "PyYAML",
     "raven",
-    "readme>=0.1.1",
+    "readme>=0.2.0",
     "redis",
     "six",
     "SQLAlchemy",
