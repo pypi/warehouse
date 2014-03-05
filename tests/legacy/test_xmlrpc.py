@@ -617,3 +617,95 @@ def test_xmlrpc_browse_invalid_classifier():
 
     with pytest.raises(ValueError):
         interface.browse(['hello', 'spam'])
+
+
+@pytest.mark.parametrize(("spec", "operator", "length", "query"), [
+    ({"name": "Django"}, None, 1000, {'match': {'name': 'Django'}}),
+    ({"name": "Django"}, None, 2000, {'match': {'name': 'Django'}}),
+    ({"name": ["Django"]}, None, 1000, {'match': {'name': 'Django'}}),
+    ({"name": ["Django"]}, None, 2000, {'match': {'name': 'Django'}}),
+    ({"name": "Django"}, "and", 1000, {'match': {'name': 'Django'}}),
+    ({"name": "Django"}, "and", 2000, {'match': {'name': 'Django'}}),
+    ({"name": ["Django"]}, "and", 1000, {'match': {'name': 'Django'}}),
+    ({"name": ["Django"]}, "and", 2000, {'match': {'name': 'Django'}}),
+    (
+        {"name": "Django"},
+        "or",
+        1000,
+        {'bool': {'should': [{'match': {'name': {'query': 'Django'}}}]}},
+    ),
+    (
+        {"name": "Django"},
+        "or",
+        2000,
+        {'bool': {'should': [{'match': {'name': {'query': 'Django'}}}]}},
+    ),
+    (
+        {"name": ["Django"]},
+        "or", 1000,
+        {'bool': {'should': [{'match': {'name': {'query': 'Django'}}}]}},
+    ),
+    (
+        {"name": ["Django"]},
+        "or",
+        2000,
+        {'bool': {'should': [{'match': {'name': {'query': 'Django'}}}]}},
+    ),
+])
+def test_xmlrpc_search(spec, operator, length, query):
+    results = {
+        "hits": {
+            "hits": [{
+                "_source": {
+                    "name": "Django",
+                    "version": "1.0",
+                    "summary": "Wat",
+                },
+            }] * 1000,
+            "total": length,
+        }
+    }
+    app = pretend.stub(
+        search=pretend.stub(
+            es=pretend.stub(
+                search=pretend.call_recorder(
+                    lambda index, doc_type, body: results
+                ),
+            ),
+            _index="warehouse",
+            types=pretend.stub(project=pretend.stub(_type="project")),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    args = [spec]
+    if operator:
+        args.append(operator)
+
+    assert interface.search(*args) == [
+        {
+            "name": "Django",
+            "version": "1.0",
+            "summary": "Wat",
+            "_pypi_ordering": 0,
+        }
+    ] * length
+
+    calls = [
+        pretend.call(
+            body={'query': query, 'from': x * 1000, 'size': 1000},
+            index='warehouse',
+            doc_type='project',
+        )
+        for x in range(0, length // 1000)
+    ]
+
+    assert app.search.es.search.calls == calls
+
+
+def test_xmlrpc_search_invalid():
+    interface = xmlrpc.Interface(pretend.stub(), pretend.stub())
+
+    with pytest.raises(TypeError):
+        interface.search({}, "fake!")
