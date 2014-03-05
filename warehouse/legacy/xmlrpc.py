@@ -15,6 +15,8 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import arrow
+import six
+
 from werkzeug.exceptions import BadRequest
 
 from warehouse.compat import SimpleXMLRPCDispatcher
@@ -164,3 +166,47 @@ class Interface(object):
             raise ValueError('Unknown classifier(s): ' + missing)
 
         return db.search_by_classifier(set(classifier_ids.values()))
+
+    def search(self, spec, operator="and"):
+        if operator == "and":
+            query = {"match": {}}
+            for field, value in spec.items():
+                if not isinstance(value, six.string_types):
+                    value = " ".join(value)
+                query["match"][field] = value
+        elif operator == "or":
+            query = {"bool": {"should": []}}
+            for field, values in spec.items():
+                if isinstance(values, six.string_types):
+                    values = [values]
+                query["bool"]["should"] += [
+                    {"match": {field: {"query": value}}} for value in values
+                ]
+        else:
+            raise TypeError("operator must be 'and' or 'or'")
+
+        hits = []
+        from_ = 0
+        while True:
+            results = self.app.search.es.search(
+                index=self.app.search._index,
+                doc_type=self.app.search.types.project._type,
+                body={"query": query, "from": from_, "size": 1000},
+            )
+
+            hits.extend(
+                {
+                    "name": x["_source"]["name"] or "",
+                    "version": x["_source"]["version"] or "",
+                    "summary": x["_source"]["summary"] or "",
+                    "_pypi_ordering": 0,
+                }
+                for x in results["hits"]["hits"]
+            )
+
+            from_ += 1000
+
+            if len(hits) >= results["hits"]["total"]:
+                break
+
+        return hits
