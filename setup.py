@@ -53,7 +53,7 @@ install_requires = [
     "SQLAlchemy",
     "sqlalchemy-citext>=1.2.0",
     "Werkzeug",
-    "whitenoise>=0.11",
+    "whitenoise>=0.12",
 ]
 
 if platform.python_implementation() == "PyPy":
