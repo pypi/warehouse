@@ -37,7 +37,8 @@ from raven import Client
 from raven.middleware import Sentry
 from six.moves import urllib_parse
 from werkzeug.exceptions import HTTPException
-from werkzeug.wsgi import SharedDataMiddleware, responder
+from werkzeug.wsgi import responder
+from whitenoise import WhiteNoise
 
 import warehouse
 import warehouse.cli
@@ -160,17 +161,15 @@ class Warehouse(object):
             self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
 
         # Serve the static files that are packaged as part of Warehouse
-        self.wsgi_app = SharedDataMiddleware(
+        self.wsgi_app = WhiteNoise(
             self.wsgi_app,
-            {
-                "/static/": os.path.abspath(
-                    os.path.join(
-                        os.path.dirname(warehouse.__file__),
-                        "static",
-                        "compiled",
-                    ),
+            root=os.path.abspath(
+                os.path.join(
+                    os.path.dirname(warehouse.__file__), "static", "compiled",
                 ),
-            },
+            ),
+            prefix="/static/",
+            max_age=31557600,
         )
 
     def __call__(self, environ, start_response):

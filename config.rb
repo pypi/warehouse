@@ -23,4 +23,6 @@ on_stylesheet_saved do |filename|
   FileUtils.rm(Dir["warehouse/static/compiled/**/#{File.basename(rel3)}-*#{File.extname(rel2)}"])
 
   system('wake') or raise("There was an error running wake")  # TODO: Figure out how to do this better
+
+  system('python -m whitenoise.gzip -q warehouse/static/compiled')
 end
