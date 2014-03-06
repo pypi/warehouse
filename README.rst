@@ -15,6 +15,7 @@ Resources
 * `Documentation <https://warehouse.readthedocs.org/>`_
 * `IRC <http://webchat.freenode.net?channels=%23warehouse>`_
   (#warehouse - irc.freenode.net)
+* `Test Server <https://preview-pypi.python.org/>`_
 
 
 Contributing
