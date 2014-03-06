@@ -146,6 +146,17 @@ logging
     This is a ``logging.config.dictConfig`` style dictionary that will be used
     to configure the Python logging system.
 
+sentry
+~~~~~~
+
+:Type: Dictionary
+:Default: {}
+:Required: No
+:Description:
+    This is a dictionary of items to be passed into the constructor of the
+    raven Client object using ``**`` kwarg expansion. For full details of all
+    of the keys please see `Raven's Documentation <http://raven.readthedocs.org/en/latest/config/index.html#client-arguments>`_
+
 
 
 Example Configuration
@@ -197,3 +208,6 @@ Example Configuration
         root:
             level: INFO
             handlers: [console]
+
+    sentry:
+        dsn: http://public:secret@example.com/1
