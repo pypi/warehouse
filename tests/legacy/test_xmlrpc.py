@@ -416,6 +416,8 @@ def test_xmlrpc_list_packages_with_serial():
 
 @pytest.mark.parametrize("pgp", [True, False])
 def test_release_urls(pgp, monkeypatch):
+    dt = datetime.datetime.utcnow()
+
     downloads = [
         dict(
             name="spam",
@@ -430,6 +432,7 @@ def test_release_urls(pgp, monkeypatch):
             pgp_url='/packages/source/t/spam/spam-1.0.tar.gz.sig'
                 if pgp else None,
             comment_text='download for great justice',
+            upload_time=dt,
         ),
         dict(
             name="spam",
@@ -444,6 +447,7 @@ def test_release_urls(pgp, monkeypatch):
             pgp_url='/packages/source/t/spam/spam-1.0.zip.sig'
                 if pgp else None,
             comment_text=None,
+            upload_time=dt,
         )
     ]
     app = pretend.stub(
@@ -472,6 +476,7 @@ def test_release_urls(pgp, monkeypatch):
             has_sig=pgp,
             python_version="source",
             comment_text='download for great justice',
+            upload_time=dt,
         ),
         dict(
             url='/packages/source/t/spam/spam-1.0.zip',
@@ -483,6 +488,7 @@ def test_release_urls(pgp, monkeypatch):
             has_sig=pgp,
             python_version="source",
             comment_text=None,
+            upload_time=dt,
         )
     ]
 

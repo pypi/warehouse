@@ -120,6 +120,7 @@ class Interface(object):
                 has_sig=r['pgp_url'] is not None,
                 python_version=r['python_version'],
                 comment_text=r['comment_text'],
+                upload_time=r['upload_time'],
             ))
         return l
 
