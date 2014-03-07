@@ -36,6 +36,7 @@ import yaml
 from raven import Client
 from raven.middleware import Sentry
 from six.moves import urllib_parse
+from werkzeug.contrib.fixers import HeaderRewriterFix
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import responder
 from whitenoise import WhiteNoise
@@ -46,7 +47,6 @@ import warehouse.cli
 from warehouse import urls
 from warehouse import db
 from warehouse.http import Request
-from warehouse.middleware import PoweredBy
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
@@ -130,12 +130,6 @@ class Warehouse(object):
         # Install our translations
         self.templates.install_gettext_translations(self.trans, newstyle=True)
 
-        # Add our Powered By Middleware
-        self.wsgi_app = PoweredBy(self.wsgi_app, "Warehouse {} ({})".format(
-            warehouse.__version__,
-            warehouse.__build__,
-        ))
-
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
         if self.config.camo:
@@ -170,6 +164,20 @@ class Warehouse(object):
             ),
             prefix="/static/",
             max_age=31557600,
+        )
+
+        # Add our Powered By Middleware
+        self.wsgi_app = HeaderRewriterFix(
+            self.wsgi_app,
+            add_headers=[
+                (
+                    "X-Powered-By",
+                    "Warehouse {__version__} ({__build__})".format(
+                        __version__=warehouse.__version__,
+                        __build__=warehouse.__build__,
+                    ),
+                ),
+            ],
         )
 
     def __call__(self, environ, start_response):

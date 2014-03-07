@@ -241,3 +241,31 @@ def test_camo_settings(monkeypatch):
         "https://camo.example.com",
         "https://secure.gravatar.com",
     }
+
+
+def test_header_rewrite_middleware(monkeypatch):
+    HeaderRewriterFix = pretend.call_recorder(lambda app, **kw: app)
+
+    monkeypatch.setattr(application, "HeaderRewriterFix", HeaderRewriterFix)
+
+    Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+    )
+
+    assert HeaderRewriterFix.calls == [
+        pretend.call(
+            mock.ANY,
+            add_headers=[
+                (
+                    "X-Powered-By",
+                    "Warehouse {__version__} ({__build__})".format(
+                        __version__=warehouse.__version__,
+                        __build__=warehouse.__build__,
+                    ),
+                ),
+            ],
+        ),
+    ]
