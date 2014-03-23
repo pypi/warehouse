@@ -33,6 +33,6 @@ branches:
 notifications:
     irc:
         channels:
-            - "irc.freenode.org#warehouse"
+            - "irc.freenode.org#pypa-dev"
         use_notice: true
         skip_join: true
