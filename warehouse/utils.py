@@ -37,7 +37,7 @@ from warehouse.http import Response
 class AttributeDict(dict):
 
     def __getattr__(self, name):
-        if not name in self:
+        if name not in self:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__,
                 name,

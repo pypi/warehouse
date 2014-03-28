@@ -127,7 +127,7 @@ def test_wsgi_app_exception(app, monkeypatch):
 
     class FakeException(HTTPException):
 
-        #@pretend.call_recorder
+        # @pretend.call_recorder
         def __call__(self, *args, **kwargs):
             return response
 

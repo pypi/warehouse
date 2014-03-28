@@ -63,7 +63,7 @@ def project_detail(app, request, project_name, version=None):
     if version is None:
         # If there's no version specified, then we use the latest version
         version = releases[0]["version"]
-    elif not version in (r["version"] for r in releases):
+    elif version not in (r["version"] for r in releases):
         # If a version was specified then we need to ensure it's one of the
         # versions this project has, else raise a NotFound
         raise NotFound(
