@@ -8,6 +8,7 @@ Contents:
 
    configuration
    contributing
+   application
    api-reference/index
 
 
