@@ -15,6 +15,7 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import jinja2
+import markdown
 import readme.rst
 
 from werkzeug.exceptions import NotFound
@@ -81,7 +82,7 @@ def project_detail(app, request, project_name, version=None):
         description_html, rendered = readme.rst.render(release["description"])
 
         if not rendered:
-            description_html = description_html.replace("\n", "<br>")
+            description_html = markdown.markdown(description_html)
 
         if app.config.camo:
             description_html = camouflage_images(

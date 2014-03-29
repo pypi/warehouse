@@ -45,6 +45,7 @@ install_requires = [
     "guard",
     "html5lib",
     "Jinja2",
+    "markdown",
     "PyYAML",
     "raven",
     "readme>=0.2.0",
