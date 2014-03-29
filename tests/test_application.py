@@ -154,12 +154,14 @@ def test_wsgi_app_exception(app, monkeypatch):
 
 
 def test_static_middleware(monkeypatch):
-    WhiteNoise = pretend.call_recorder(lambda app, root, prefix, max_age: app)
+    whitenoise_cls = pretend.call_recorder(
+        lambda app, root, prefix, max_age: app
+    )
 
     monkeypatch.setattr(
         application,
         "WhiteNoise",
-        WhiteNoise,
+        whitenoise_cls,
     )
 
     Warehouse.from_yaml(
@@ -169,7 +171,7 @@ def test_static_middleware(monkeypatch):
         )),
     )
 
-    assert WhiteNoise.calls == [
+    assert whitenoise_cls.calls == [
         pretend.call(
             mock.ANY,
             root=os.path.abspath(
@@ -186,12 +188,12 @@ def test_static_middleware(monkeypatch):
 
 
 def test_sentry_middleware(monkeypatch):
-    Sentry = pretend.call_recorder(lambda app, client: app)
+    sentry_cls = pretend.call_recorder(lambda app, client: app)
     client_obj = pretend.stub()
-    Client = pretend.call_recorder(lambda **kw: client_obj)
+    client_cls = pretend.call_recorder(lambda **kw: client_obj)
 
-    monkeypatch.setattr(application, "Sentry", Sentry)
-    monkeypatch.setattr(application, "Client", Client)
+    monkeypatch.setattr(application, "Sentry", sentry_cls)
+    monkeypatch.setattr(application, "Client", client_cls)
 
     Warehouse.from_yaml(
         os.path.abspath(os.path.join(
@@ -201,16 +203,20 @@ def test_sentry_middleware(monkeypatch):
         override={"sentry": {"dsn": "http://public:secret@example.com/1"}}
     )
 
-    assert Sentry.calls == [pretend.call(mock.ANY, client_obj)]
-    assert Client.calls == [
+    assert sentry_cls.calls == [pretend.call(mock.ANY, client_obj)]
+    assert client_cls.calls == [
         pretend.call(dsn="http://public:secret@example.com/1"),
     ]
 
 
 def test_guard_middleware(monkeypatch):
-    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
+    contentsecuritypolicy_cls = pretend.call_recorder(lambda app, policy: app)
 
-    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
+    monkeypatch.setattr(
+        guard,
+        "ContentSecurityPolicy",
+        contentsecuritypolicy_cls,
+    )
 
     Warehouse.from_yaml(
         os.path.abspath(os.path.join(
@@ -219,13 +225,19 @@ def test_guard_middleware(monkeypatch):
         )),
     )
 
-    assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
+    assert contentsecuritypolicy_cls.calls == [
+        pretend.call(mock.ANY, mock.ANY),
+    ]
 
 
 def test_camo_settings(monkeypatch):
-    ContentSecurityPolicy = pretend.call_recorder(lambda app, policy: app)
+    contentsecuritypolicy_cls = pretend.call_recorder(lambda app, policy: app)
 
-    monkeypatch.setattr(guard, "ContentSecurityPolicy", ContentSecurityPolicy)
+    monkeypatch.setattr(
+        guard,
+        "ContentSecurityPolicy",
+        contentsecuritypolicy_cls,
+    )
 
     Warehouse.from_yaml(
         os.path.abspath(os.path.join(
@@ -235,8 +247,10 @@ def test_camo_settings(monkeypatch):
         override={"camo": {"url": "https://camo.example.com/", "key": "skey"}},
     )
 
-    assert ContentSecurityPolicy.calls == [pretend.call(mock.ANY, mock.ANY)]
-    assert set(ContentSecurityPolicy.calls[0].args[1]["img-src"]) == {
+    assert contentsecuritypolicy_cls.calls == [
+        pretend.call(mock.ANY, mock.ANY),
+    ]
+    assert set(contentsecuritypolicy_cls.calls[0].args[1]["img-src"]) == {
         "'self'",
         "https://camo.example.com",
         "https://secure.gravatar.com",
@@ -244,9 +258,13 @@ def test_camo_settings(monkeypatch):
 
 
 def test_header_rewrite_middleware(monkeypatch):
-    HeaderRewriterFix = pretend.call_recorder(lambda app, **kw: app)
+    headerrewriterfix_cls = pretend.call_recorder(lambda app, **kw: app)
 
-    monkeypatch.setattr(application, "HeaderRewriterFix", HeaderRewriterFix)
+    monkeypatch.setattr(
+        application,
+        "HeaderRewriterFix",
+        headerrewriterfix_cls,
+    )
 
     Warehouse.from_yaml(
         os.path.abspath(os.path.join(
@@ -255,7 +273,7 @@ def test_header_rewrite_middleware(monkeypatch):
         )),
     )
 
-    assert HeaderRewriterFix.calls == [
+    assert headerrewriterfix_cls.calls == [
         pretend.call(
             mock.ANY,
             add_headers=[

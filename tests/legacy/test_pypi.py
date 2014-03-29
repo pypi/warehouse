@@ -113,12 +113,12 @@ def test_json(monkeypatch, callback):
         some='url',
         upload_time=datetime.date(1970, 1, 1)
     )])
-    Interface = pretend.call_recorder(lambda a, r: pretend.stub(
+    interface_cls = pretend.call_recorder(lambda a, r: pretend.stub(
         release_data=release_data,
         release_urls=release_urls,
     ))
 
-    monkeypatch.setattr(xmlrpc, 'Interface', Interface)
+    monkeypatch.setattr(xmlrpc, 'Interface', interface_cls)
 
     resp = pypi.project_json(app, request, project_name='spam')
 
