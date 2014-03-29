@@ -26,8 +26,8 @@ from warehouse.legacy import xmlrpc
 
 
 def test_xmlrpc_handler(monkeypatch):
-    Response = pretend.call_recorder(lambda *a, **k: 'response')
-    monkeypatch.setattr(xmlrpc, "Response", Response)
+    response_cls = pretend.call_recorder(lambda *a, **k: 'response')
+    monkeypatch.setattr(xmlrpc, "Response", response_cls)
 
     # I'm aware that list_packages shouldn't return data with unicode strings
     # but for the purposes of this test I'm just ensuring that unicode data is
@@ -35,8 +35,8 @@ def test_xmlrpc_handler(monkeypatch):
     interface = pretend.stub(
         list_packages=pretend.call_recorder(lambda *a, **k: ['one', 'unicod€'])
     )
-    Interface = lambda a, r: interface
-    monkeypatch.setattr(xmlrpc, "Interface", Interface)
+    interface_cls = lambda a, r: interface
+    monkeypatch.setattr(xmlrpc, "Interface", interface_cls)
 
     app = pretend.stub()
 
@@ -55,7 +55,7 @@ def test_xmlrpc_handler(monkeypatch):
 
     assert interface.list_packages.calls == [pretend.call()]
 
-    response_xml = Response.calls[0].args[0]
+    response_xml = response_cls.calls[0].args[0]
     assert response_xml == b'''<?xml version='1.0'?>
 <methodResponse>
 <params>
@@ -69,7 +69,9 @@ def test_xmlrpc_handler(monkeypatch):
 </methodResponse>
 '''
 
-    assert Response.calls[0].kwargs == dict(mimetype='text/xml; charset=utf-8')
+    assert response_cls.calls[0].kwargs == {
+        "mimetype": 'text/xml; charset=utf-8',
+    }
 
 
 def test_xmlrpc_handler_size_limit(monkeypatch):
