@@ -44,9 +44,22 @@ module.exports = function(grunt) {
       }
     },
 
+    copy: {
+      fonts: {
+        files: [
+          {
+            expand: true,
+            cwd: "warehouse/static/source/bootstrap/fonts",
+            src: ["**"],
+            dest: "warehouse/static/compiled/fonts"
+          }
+        ]
+      }
+    },
+
     filerev: {
       all: {
-        src: "warehouse/static/compiled/{js,css}/*.*",
+        src: "warehouse/static/compiled/{css,fonts,js}/*.*",
       }
     },
 
@@ -66,10 +79,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-compass");
   grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-filerev");
   grunt.loadNpmTasks("grunt-filerev-assets");
 
   grunt.registerTask("hash", ["filerev", "filerev_assets"]);
-  grunt.registerTask("default", ["clean", "compass", "cssmin", "uglify", "hash"]);
+  grunt.registerTask(
+    "default",
+    ["clean", "compass", "cssmin", "uglify", "copy", "hash"]
+  );
 
 };
