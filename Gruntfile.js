@@ -82,9 +82,7 @@ module.exports = function(grunt) {
     },
 
     cssurlrev: {
-      options: {
-        assets: "warehouse/static/compiled/assets.json"
-      },
+      options: { assets: "warehouse/static/compiled/assets.json" },
       all: {
         src: ["warehouse/static/compiled/css/*.css"]
       },
