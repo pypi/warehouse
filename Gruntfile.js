@@ -16,6 +16,21 @@ module.exports = function(grunt) {
       },
     },
 
+    cssmin: {
+      bootstrap: {
+        expand: true,
+        cwd: "warehouse/static/source/bootstrap/css",
+        src: ["*.css", "!*.min.css"],
+        dest: "warehouse/static/compiled/css/",
+      },
+      warehouse: {
+        expand: true,
+        cwd: "warehouse/static/source/warehouse/css",
+        src: ["*.css"],
+        dest: "warehouse/static/compiled/css/",
+      }
+    },
+
     uglify: {
       bootstrap: {
         options: {
@@ -31,7 +46,7 @@ module.exports = function(grunt) {
 
     filerev: {
       all: {
-        src: "warehouse/static/compiled/js/*.*",
+        src: "warehouse/static/compiled/{js,css}/*.*",
       }
     },
 
@@ -49,11 +64,12 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-compass");
+  grunt.loadNpmTasks("grunt-contrib-cssmin");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-filerev");
   grunt.loadNpmTasks("grunt-filerev-assets");
 
   grunt.registerTask("hash", ["filerev", "filerev_assets"]);
-  grunt.registerTask("default", ["clean", "compass", "uglify", "hash"]);
+  grunt.registerTask("default", ["clean", "compass", "cssmin", "uglify", "hash"]);
 
 };
