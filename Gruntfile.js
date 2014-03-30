@@ -12,12 +12,26 @@ module.exports = function(grunt) {
           assetCacheBuster: false,
         }
       },
+    },
+
+    uglify: {
+      bootstrap: {
+        options: {
+          preserveComments: "some",
+        },
+        files: {
+          "warehouse/static/compiled/js/bootstrap.js" : [
+            "warehouse/static/source/bootstrap/js/bootstrap.js",
+          ]
+        }
+      }
     }
 
   });
 
   grunt.loadNpmTasks("grunt-contrib-compass");
+  grunt.loadNpmTasks("grunt-contrib-uglify");
 
-  grunt.registerTask("default", ["compass"]);
+  grunt.registerTask("default", ["compass", "uglify"]);
 
 };
