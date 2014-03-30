@@ -2,6 +2,11 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
+    watch: {
+      files: ["warehouse/static/source/**/*"],
+      tasks: ["default"],
+    },
+
     clean: ["warehouse/static/compiled"],
 
     compass: {
@@ -84,6 +89,7 @@ module.exports = function(grunt) {
 
   });
 
+  grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-compass");
   grunt.loadNpmTasks("grunt-contrib-cssmin");
