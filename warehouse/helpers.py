@@ -20,8 +20,6 @@ import os.path
 
 from six.moves import urllib_parse
 
-import warehouse
-
 
 def url_for(request, endpoint, **values):
     force_external = values.pop("_force_external", False)
@@ -49,25 +47,10 @@ def static_url(app, filename):
     """
     static_url('css/bootstrap.css')
     """
-    static_dir = os.path.join(
-        os.path.dirname(os.path.abspath(warehouse.__file__)),
-        "static",
-        "compiled",
+    with open(os.path.join(app.static_dir, "assets.json"), "r") as fp:
+        assets = json.load(fp)
+
+    return urllib_parse.urljoin(
+        app.static_path,
+        assets.get(filename, filename),
     )
-
-    filepath = os.path.join(static_dir, filename)
-    manifest_path = os.path.join(os.path.dirname(filepath), ".manifest.json")
-
-    if not app.config.debug:
-        # Load our on disk manifest
-        with open(manifest_path) as fp:
-            manifest = json.load(fp)
-
-        # Get the base name for this file
-        basename = manifest.get(os.path.basename(filename))
-
-        # If we were able to get a base name, then create a filename with it
-        if basename is not None:
-            filename = os.path.join(os.path.dirname(filename), basename)
-
-    return urllib_parse.urljoin("/static/", filename)
