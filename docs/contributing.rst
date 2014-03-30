@@ -59,7 +59,7 @@ dependencies. These are:
 * `Redis`_
 * `Elasticsearch`_
 * `Compass`_ (used only for design development)
-* `Wake`_ (used only for design development)
+* `Grunt`_ (used only for design development)
 
 Once you have all of the above you can install Warehouse, all of its install
 dependencies, and the Python development dependencies using:
@@ -86,6 +86,37 @@ Finally you can setup the project:
 
     $ # Serve Warehouse at http://localhost:9000/
     $ warehouse -c dev/config.yml serve
+
+
+Design Development
+------------------
+
+Warehouse design development uses `Compass`_ and `Grunt`_ as it's asset
+pipeline. You can install the required dependencies by running:
+
+.. code-block:: console
+
+    $ # Install Compass
+    $ gem install compass
+
+    $ # Install Grunt
+    $ npm install
+
+Once you have the dependencies install you can iterate on the theme by editing
+the files located in ``warehouse/static/source``. After each edit you'll need
+to compile the files by running:
+
+.. code-block:: console
+
+    $ grunt
+
+If you're iterating on the design and wish to have the compilation step called
+automatically you can watch the ``warehouse/static/source`` directory for
+changes and auto-compile by running:
+
+.. code-block:: console
+
+    $ grunt watch
 
 
 Running Tests
@@ -145,7 +176,7 @@ The HTML documentation index can now be found at ``docs/_build/html/index.html``
 .. _`Redis`: https://github.com/antirez/redis
 .. _`Elasticsearch`: https://github.com/elasticsearch/elasticsearch
 .. _`Compass`: https://github.com/chriseppstein/compass
-.. _`Wake`: https://github.com/jcoglan/wake
+.. _`Grunt`: http://gruntjs.com/
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
 .. _`pytest`: https://pypi.python.org/pypi/pytest
 .. _`tox`: https://pypi.python.org/pypi/tox
