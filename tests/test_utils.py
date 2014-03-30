@@ -23,7 +23,7 @@ from warehouse.utils import (
     AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
     render_response, cache, get_wsgi_application, get_mimetype, redirect,
     SearchPagination, is_valid_json_callback_name, generate_camouflage_url,
-    camouflage_images,
+    camouflage_images, cors,
 )
 
 
@@ -260,3 +260,14 @@ def test_generate_camouflage_url(camo_url, camo_key, url, expected):
 ])
 def test_camouflage_images(camo_url, camo_key, html, expected):
     assert camouflage_images(camo_url, camo_key, html) == expected
+
+
+def test_cors():
+    app = pretend.stub()
+    request = pretend.stub()
+    response = pretend.stub(headers={})
+
+    resp = cors(lambda *a, **kw: response)(app, request)
+
+    assert resp is response
+    assert resp.headers == {"Access-Control-Allow-Origin": "*"}

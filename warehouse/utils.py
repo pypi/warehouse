@@ -291,3 +291,17 @@ def camouflage_images(camo_url, camo_key, html):
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
     html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
     return "".join(html_serializer.serialize(tree_walker(dom)))
+
+
+def cors(fn):
+    @functools.wraps(fn)
+    def wrapper(app, request, *args, **kwargs):
+        # Get the response from the view
+        resp = fn(app, request, *args, **kwargs)
+
+        # Add our CORS headers
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+
+        # Return the modified response
+        return resp
+    return wrapper
