@@ -2,6 +2,8 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
+    clean: ["warehouse/static/compiled"],
+
     compass: {
       warehouse: {
         options: {
@@ -25,13 +27,33 @@ module.exports = function(grunt) {
           ]
         }
       }
+    },
+
+    filerev: {
+      all: {
+        src: "warehouse/static/compiled/js/*.*",
+      }
+    },
+
+    filerev_assets: {
+      all: {
+        options: {
+          dest: "warehouse/static/compiled/assets.json",
+          cwd: "warehouse/static/compiled/",
+          prettyPrint: true
+        }
+      }
     }
 
   });
 
+  grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-compass");
   grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-filerev");
+  grunt.loadNpmTasks("grunt-filerev-assets");
 
-  grunt.registerTask("default", ["compass", "uglify"]);
+  grunt.registerTask("hash", ["filerev", "filerev_assets"]);
+  grunt.registerTask("default", ["clean", "compass", "uglify", "hash"]);
 
 };
