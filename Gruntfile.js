@@ -38,19 +38,17 @@ module.exports = function(grunt) {
 
     uglify: {
       options: { preserveComments: "some" },
-      bootstrap: {
-        files: {
-          "warehouse/static/compiled/js/bootstrap.js" : [
-            "warehouse/static/source/bootstrap/js/bootstrap.js",
-          ]
-        }
-      },
-      jquery: {
-        files: {
-          "warehouse/static/compiled/js/jquery.js" : [
-            "warehouse/static/source/jquery/js/jquery.js",
-          ]
-        }
+      all: {
+        files: [
+          {
+            src: "warehouse/static/source/bootstrap/js/bootstrap.js",
+            dest: "warehouse/static/compiled/js/bootstrap.js"
+          },
+          {
+            src: "warehouse/static/source/jquery/js/jquery.js",
+            dest: "warehouse/static/compiled/js/jquery.js"
+          },
+        ]
       }
     },
 
