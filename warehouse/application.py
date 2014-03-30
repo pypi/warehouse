@@ -68,6 +68,11 @@ class Warehouse(object):
         "packaging": warehouse.packaging.db.Database,
     }
 
+    static_dir = os.path.abspath(
+        os.path.join(os.path.dirname(warehouse.__file__), "static", "compiled")
+    )
+    static_path = "/static/"
+
     def __init__(self, config, engine=None, redis=None):
         self.config = convert_to_attr_dict(config)
 
@@ -157,12 +162,8 @@ class Warehouse(object):
         # Serve the static files that are packaged as part of Warehouse
         self.wsgi_app = WhiteNoise(
             self.wsgi_app,
-            root=os.path.abspath(
-                os.path.join(
-                    os.path.dirname(warehouse.__file__), "static", "compiled",
-                ),
-            ),
-            prefix="/static/",
+            root=self.static_dir,
+            prefix=self.static_path,
             max_age=31557600,
         )
 
