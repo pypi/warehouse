@@ -24,7 +24,7 @@ from warehouse.helpers import url_for
 from warehouse.http import Response
 from warehouse.legacy import xmlrpc
 from warehouse.utils import (
-    cache, fastly, is_valid_json_callback_name, render_response,
+    cache, cors, fastly, is_valid_json_callback_name, render_response,
 )
 
 
@@ -49,6 +49,7 @@ def daytime(app, request):
     return Response(response, mimetype="text/plain")
 
 
+@cors
 @cache(browser=1, varnish=120)
 @fastly("legacy-json", "legacy-json~{project_name!n}")
 def project_json(app, request, project_name):
