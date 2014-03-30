@@ -71,7 +71,16 @@ module.exports = function(grunt) {
           prettyPrint: true
         }
       }
-    }
+    },
+
+    cssurlrev: {
+      options: {
+        assets: "warehouse/static/compiled/assets.json"
+      },
+      all: {
+        src: ["warehouse/static/compiled/css/*.css"]
+      },
+    },
 
   });
 
@@ -82,8 +91,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-copy");
   grunt.loadNpmTasks("grunt-filerev");
   grunt.loadNpmTasks("grunt-filerev-assets");
+  grunt.loadNpmTasks("grunt-cssurlrev");
 
-  grunt.registerTask("hash", ["filerev", "filerev_assets"]);
+  grunt.registerTask("hash", ["filerev", "filerev_assets", "cssurlrev"]);
   grunt.registerTask(
     "default",
     ["clean", "compass", "cssmin", "uglify", "copy", "hash"]
