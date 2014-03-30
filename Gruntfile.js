@@ -22,17 +22,21 @@ module.exports = function(grunt) {
     },
 
     cssmin: {
-      bootstrap: {
-        expand: true,
-        cwd: "warehouse/static/source/bootstrap/css",
-        src: ["*.css", "!*.min.css"],
-        dest: "warehouse/static/compiled/css/",
-      },
-      warehouse: {
-        expand: true,
-        cwd: "warehouse/static/source/warehouse/css",
-        src: ["*.css"],
-        dest: "warehouse/static/compiled/css/",
+      all: {
+        files: [
+          {
+            expand: true,
+            cwd: "warehouse/static/source/bootstrap/css",
+            src: ["*.css", "!*.min.css"],
+            dest: "warehouse/static/compiled/css/"
+          },
+          {
+            expand: true,
+            cwd: "warehouse/static/source/warehouse/css",
+            src: ["*.css"],
+            dest: "warehouse/static/compiled/css/",
+          },
+        ]
       }
     },
 
