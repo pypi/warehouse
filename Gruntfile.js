@@ -92,6 +92,20 @@ module.exports = function(grunt) {
       },
     },
 
+    compress: {
+      all: {
+        options: { mode: "gzip", level: 9 },
+        expand: true,
+        cwd: "warehouse/static/compiled",
+        src: [
+          "**/*", "!assets.json",
+          "!*.jpg", "!*.jpeg", "!*.png", "!*.gif", "!*.zip", "!*.gz", "!*.tgz",
+          "!*.bz2", "!*.tbz", "!*.swf", "!*.flv",
+        ],
+        dest: "warehouse/static/compiled",
+      }
+    },
+
   });
 
   grunt.loadNpmTasks("grunt-contrib-watch");
@@ -103,11 +117,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-filerev");
   grunt.loadNpmTasks("grunt-filerev-assets");
   grunt.loadNpmTasks("grunt-cssurlrev");
+  grunt.loadNpmTasks("grunt-contrib-compress");
 
   grunt.registerTask("hash", ["filerev", "filerev_assets", "cssurlrev"]);
   grunt.registerTask(
     "default",
-    ["clean", "compass", "cssmin", "uglify", "copy", "hash"]
+    ["clean", "compass", "cssmin", "uglify", "copy", "hash", "compress"]
   );
 
 };
