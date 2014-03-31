@@ -303,3 +303,20 @@ def cors(fn):
         # Return the modified response
         return resp
     return wrapper
+
+
+def uses_session(fn):
+    @functools.wraps(fn)
+    def wrapper(app, request, *args, **kwargs):
+        # Add the session onto the request object
+        request.session = request.environ["warehouse.session"]
+
+        # Get the response from the view
+        resp = fn(app, request, *args, **kwargs)
+
+        # Add our Vary headers
+        resp.vary.add("Cookie")
+
+        # Return the modified response
+        return resp
+    return wrapper

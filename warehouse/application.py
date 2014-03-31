@@ -35,6 +35,7 @@ import yaml
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
+from werkzeug.contrib.sessions import FilesystemSessionStore
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import responder
 from whitenoise import WhiteNoise
@@ -48,6 +49,7 @@ from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
+from warehouse.sessions import Session, SessionMiddleware
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 # Register the SQLAlchemy tables by importing them
@@ -57,6 +59,8 @@ import warehouse.packaging.tables
 # Get the various models
 import warehouse.accounts.db
 import warehouse.packaging.db
+
+# TODO: Switch to something other than FileSystemStore for Sessions
 
 
 class Warehouse(object):
@@ -164,6 +168,12 @@ class Warehouse(object):
             root=self.static_dir,
             prefix=self.static_path,
             max_age=31557600,
+        )
+
+        # Add our session middleware
+        self.wsgi_app = SessionMiddleware(
+            self.wsgi_app,
+            FilesystemSessionStore(session_class=Session),
         )
 
         # Add our Powered By Middleware
