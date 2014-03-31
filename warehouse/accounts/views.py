@@ -15,10 +15,10 @@
 from werkzeug.exceptions import NotFound
 
 from warehouse.accounts.forms import LoginForm
+from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
-from warehouse.utils import (
-    cache, fastly, redirect, render_response, uses_session,
-)
+from warehouse.sessions import uses_session
+from warehouse.utils import cache, fastly, redirect, render_response
 
 
 @cache(browser=1, varnish=120)
@@ -45,10 +45,10 @@ def user_profile(app, request, username):
         projects=app.db.packaging.get_projects_for_user(user["username"]),
     )
 
-# TODO: CSRF
 # TODO: Allow a ?next=url
 
 
+@csrf_protect
 @uses_session
 def login(app, request):
     form = LoginForm(
@@ -70,6 +70,10 @@ def login(app, request):
         # Cycle the session key to prevent session fixation attacks from
         # crossing an authentication boundary
         request.session.cycle()
+
+        # Cycle the CSRF token to prevent a CSRF via session fixation attack
+        # from crossing an authentication boundary
+        csrf_cycle(request.session)
 
         # Log the user in by storing their user id in their session
         request.session["user.id"] = user_id

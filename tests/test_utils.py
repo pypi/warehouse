@@ -82,6 +82,7 @@ def test_render_response():
         pretend.call(
             foo="bar",
             config=app.config,
+            csrf_token=mock.ANY,
             gravatar_url=mock.ANY,
             url_for=mock.ANY,
             static_url=mock.ANY,

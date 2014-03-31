@@ -41,6 +41,8 @@
             {{ form.password(class="form-control", placeholder=gettext("Password"), required=true) }}
           </div>
 
+          {{ csrf_token() }}
+
           <button class="btn btn-lg btn-primary btn-block" type="submit">
             {{ gettext("Sign in") }}
           </button>

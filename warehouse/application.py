@@ -46,6 +46,7 @@ import warehouse.cli
 
 from warehouse import urls
 from warehouse import db
+from warehouse.csrf import handle_csrf
 from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
@@ -267,6 +268,10 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
+    @handle_csrf
+    def dispatch_view(self, view, *args, **kwargs):
+        return view(*args, **kwargs)
+
     @responder
     def wsgi_app(self, environ, start_response):
         """
@@ -302,7 +307,7 @@ class Warehouse(object):
             request = Request(environ)
             request.url_adapter = urls
 
-            # Dispatch to our view
-            return view(self, request, **kwargs)
+            # Dispatch to the loaded view function
+            return self.dispatch_view(view, self, request, **kwargs)
         except HTTPException as exc:
             return exc

@@ -80,6 +80,7 @@ def render_response(app, request, template, **variables):
 
     context = {
         "config": app.config,
+        "csrf_token": functools.partial(helpers.csrf_token, request),
         "gravatar_url": helpers.gravatar_url,
         "static_url": functools.partial(helpers.static_url, app),
         "url_for": functools.partial(helpers.url_for, request),
@@ -305,18 +306,17 @@ def cors(fn):
     return wrapper
 
 
-def uses_session(fn):
-    @functools.wraps(fn)
-    def wrapper(app, request, *args, **kwargs):
-        # Add the session onto the request object
-        request.session = request.environ["warehouse.session"]
+def vary_by(*varies):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(app, request, *args, **kwargs):
+            # Get the response from the view
+            resp = fn(app, request, *args, **kwargs)
 
-        # Get the response from the view
-        resp = fn(app, request, *args, **kwargs)
+            # Add our Vary headers
+            resp.vary.update(varies)
 
-        # Add our Vary headers
-        resp.vary.add("Cookie")
-
-        # Return the modified response
-        return resp
-    return wrapper
+            # Return the modified response
+            return resp
+        return wrapper
+    return deco
