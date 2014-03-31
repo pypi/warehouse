@@ -17,8 +17,9 @@ from __future__ import unicode_literals
 import argparse
 import collections
 import importlib
-import os.path
 import logging.config
+import os.path
+import urllib.parse
 
 import babel.dates
 import babel.numbers
@@ -35,7 +36,6 @@ import yaml
 
 from raven import Client
 from raven.middleware import Sentry
-from six.moves import urllib_parse
 from werkzeug.contrib.fixers import HeaderRewriterFix
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import responder
@@ -138,7 +138,7 @@ class Warehouse(object):
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
         if self.config.camo:
-            camo_parsed = urllib_parse.urlparse(self.config.camo.url)
+            camo_parsed = urllib.parse.urlparse(self.config.camo.url)
             img_src += [
                 "{}://{}".format(camo_parsed.scheme, camo_parsed.netloc),
                 "https://secure.gravatar.com",

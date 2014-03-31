@@ -15,7 +15,6 @@ from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
 import arrow
-import six
 
 from werkzeug.exceptions import BadRequest
 
@@ -172,13 +171,13 @@ class Interface(object):
         if operator == "and":
             query = {"match": {}}
             for field, value in spec.items():
-                if not isinstance(value, six.string_types):
+                if not isinstance(value, str):
                     value = " ".join(value)
                 query["match"][field] = value
         elif operator == "or":
             query = {"bool": {"should": []}}
             for field, values in spec.items():
-                if isinstance(values, six.string_types):
+                if isinstance(values, str):
                     values = [values]
                 query["bool"]["should"] += [
                     {"match": {field: {"query": value}}} for value in values

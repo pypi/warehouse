@@ -16,7 +16,6 @@ from __future__ import absolute_import, division, print_function
 
 import fnmatch
 import os
-import platform
 
 from setuptools import setup, find_packages
 
@@ -45,21 +44,16 @@ install_requires = [
     "guard",
     "html5lib",
     "Jinja2",
+    "psycopg2",
     "PyYAML",
     "raven",
     "readme>=0.2.0",
     "redis",
-    "six",
     "SQLAlchemy",
     "sqlalchemy-citext>=1.2.0",
     "Werkzeug",
     "whitenoise>=0.12",
 ]
-
-if platform.python_implementation() == "PyPy":
-    install_requires += ["psycopg2cffi"]
-else:
-    install_requires += ["psycopg2"]
 
 
 setup(

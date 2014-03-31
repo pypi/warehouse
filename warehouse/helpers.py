@@ -17,8 +17,7 @@ from __future__ import unicode_literals
 import hashlib
 import json
 import os.path
-
-from six.moves import urllib_parse
+import urllib.parse
 
 
 def url_for(request, endpoint, **values):
@@ -40,7 +39,7 @@ def gravatar_url(email, size=80):
         "size": size,
     }
 
-    return "?".join([url, urllib_parse.urlencode(params)])
+    return "?".join([url, urllib.parse.urlencode(params)])
 
 
 def static_url(app, filename):
@@ -50,7 +49,7 @@ def static_url(app, filename):
     with open(os.path.join(app.static_dir, "assets.json"), "r") as fp:
         assets = json.load(fp)
 
-    return urllib_parse.urljoin(
+    return urllib.parse.urljoin(
         app.static_path,
         assets.get(filename, filename),
     )
