@@ -18,6 +18,11 @@ from werkzeug.routing import Rule, EndpointPrefix
 urls = [
     EndpointPrefix("warehouse.accounts.views.", [
         Rule(
+            "/account/login/",
+            methods=["GET", "POST"],
+            endpoint="login",
+        ),
+        Rule(
             "/user/<username>/",
             methods=["GET"],
             endpoint="user_profile",

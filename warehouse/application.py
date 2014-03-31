@@ -24,6 +24,7 @@ import babel.numbers
 import babel.support
 
 import guard
+import passlib.context
 
 import jinja2
 
@@ -137,6 +138,18 @@ class Warehouse(object):
 
         # Install our translations
         self.templates.install_gettext_translations(self.trans, newstyle=True)
+
+        # Setup our password hasher
+        self.passlib = passlib.context.CryptContext(
+            schemes=[
+                "bcrypt_sha256",
+                "bcrypt",
+                "django_bcrypt",
+                "unix_disabled",
+            ],
+            default="bcrypt_sha256",
+            deprecated=["auto"],
+        )
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]

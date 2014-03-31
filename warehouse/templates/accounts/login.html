@@ -1,0 +1,52 @@
+{#
+ # Copyright 2014 Donald Stufft
+ #
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}{{ gettext("Sign in") }}{% endblock %}
+
+{% block content %}
+  <div class="login-page">
+    <div class="row">
+      <div class="col-md-12">
+
+        <form class="form-signin" role="form" method="POST" action=".">
+          <h2 class="form-signin-heading">{{ gettext("Please sign in") }}</h2>
+
+          <div class="form-group{% if form.username.errors %} has-error{% endif %}">
+            {% for error in form.username.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.username(class="form-control", placeholder=gettext("Username"), required=true, autofocus=true) }}
+          </div>
+
+          <div class="form-group{% if form.password.errors %} has-error{% endif %}">
+            {% for error in form.password.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.password(class="form-control", placeholder=gettext("Password"), required=true) }}
+          </div>
+
+          <button class="btn btn-lg btn-primary btn-block" type="submit">
+            {{ gettext("Sign in") }}
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+{% endblock %}

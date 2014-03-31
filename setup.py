@@ -33,6 +33,7 @@ def recursive_glob(path, pattern, cutdirs=0):
             matches.append(filepath)
     return matches
 
+
 setup(
     name=about["__title__"],
     version=about["__version__"],
@@ -66,11 +67,13 @@ setup(
         "alembic",
         "arrow",
         "babel",
+        "bcrypt",
         "elasticsearch",
         "enum34",
         "guard",
         "html5lib",
         "Jinja2",
+        "passlib>=1.6.2",
         "psycopg2",
         "PyYAML",
         "raven",
@@ -80,6 +83,7 @@ setup(
         "sqlalchemy-citext>=1.2.0",
         "Werkzeug",
         "whitenoise>=0.12",
+        "WTForms>=1.0",
     ],
 
     entry_points={
