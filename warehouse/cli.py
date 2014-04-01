@@ -14,6 +14,9 @@
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 
+import glob
+import os
+
 import werkzeug.serving
 
 import warehouse
@@ -31,6 +34,10 @@ class ServeCommand:
             use_reloader=reloader,
             use_debugger=debugger,
             request_handler=WSGIRequestHandler,
+            extra_files=(
+                glob.glob(os.path.join(app.static_dir, "*.*")) +
+                glob.glob(os.path.join(app.static_dir, "*/*.*"))
+            ),
         )
 
     def create_parser(self, parser):
