@@ -15,7 +15,7 @@ Resources
 * `Documentation <https://warehouse.readthedocs.org/>`_
 * `Development IRC <http://webchat.freenode.net?channels=%23pypa-dev>`_
   (#pypa-dev - irc.freenode.net)
-* `Demo Server <https://pypi-preview.a.ssl.fastly.net/>`_
+* `Demo Server <https://warehouse.python.org/>`_
 
 
 Contributing
