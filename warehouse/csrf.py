@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import functools
-import hashlib
 import hmac
-import os
 import urllib.parse
 
 from werkzeug.exceptions import SecurityError
 
-from warehouse.utils import vary_by
+from warehouse.utils import random_token, vary_by
 
 
 def _verify_csrf_origin(request):
@@ -84,17 +82,13 @@ def _verify_csrf_token(request):
         raise SecurityError("CSRF token incorrect.")
 
 
-def _new_csrf_token():
-    return hashlib.sha224(os.urandom(32)).hexdigest()
-
-
 def _ensure_csrf_token(request):
     # Store a token in the session if one doesn't exist there already
     #   Note: We have to use the private request._session because
     #         request.session is not guaranteed to exist when this function is
     #         called.
     if not request._session.get("user.csrf"):
-        request._session["user.csrf"] = _new_csrf_token()
+        request._session["user.csrf"] = random_token()
 
     # Store the fact that CSRF is in use for this request on the request
     request._csrf = True
@@ -193,4 +187,4 @@ def csrf_cycle(session):
     # Store a token in the session if one doesn't exist there already
     #   Note: We have to use the session inside of the environ dictionary
     #         because request.session does not exist when this function runs
-    session["user.csrf"] = _new_csrf_token()
+    session["user.csrf"] = random_token()
