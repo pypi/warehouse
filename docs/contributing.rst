@@ -20,13 +20,6 @@ Code
 When in doubt, refer to `PEP 8`_ for Python code.
 
 Every code file must start with the boilerplate notice of the Apache License.
-Additionally, every Python code file must contain these `future statements`_:
-
-
-.. code-block:: python
-
-    from __future__ import absolute_import, division, print_function
-    from __future__ import unicode_literals
 
 
 SQL
