@@ -18,7 +18,6 @@ Revision ID: 47e27f268fc2
 Revises: 4cdc5a748370
 Create Date: 2013-10-28 20:57:14.210704
 """
-from __future__ import absolute_import, division, print_function
 
 # revision identifiers, used by Alembic.
 revision = '47e27f268fc2'

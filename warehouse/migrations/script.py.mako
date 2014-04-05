@@ -18,7 +18,6 @@ Revision ID: ${up_revision}
 Revises: ${down_revision}
 Create Date: ${create_date}
 """
-from __future__ import absolute_import, division, print_function
 
 # revision identifiers, used by Alembic.
 revision = ${repr(up_revision)}
