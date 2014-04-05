@@ -36,7 +36,6 @@ import yaml
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
-from werkzeug.contrib.sessions import FilesystemSessionStore
 from werkzeug.exceptions import HTTPException
 from werkzeug.wsgi import responder
 from whitenoise import WhiteNoise
@@ -51,7 +50,7 @@ from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
-from warehouse.sessions import Session, handle_session
+from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 # Register the SQLAlchemy tables by importing them
@@ -61,8 +60,6 @@ import warehouse.packaging.tables
 # Get the various models
 import warehouse.accounts.db
 import warehouse.packaging.db
-
-# TODO: Switch to something other than FileSystemStore for Sessions
 
 
 class Warehouse(object):
@@ -153,7 +150,10 @@ class Warehouse(object):
         )
 
         # Setup our session storage
-        self.session_store = FilesystemSessionStore(session_class=Session)
+        self.session_store = RedisSessionStore(
+            self.redises["sessions"],
+            session_class=Session,
+        )
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]

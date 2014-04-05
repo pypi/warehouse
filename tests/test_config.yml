@@ -6,6 +6,7 @@ database:
 
 redis:
     downloads: "redis://localhost:6379/0"
+    sessions: "redis://localhost:6379/0"
 
 search:
     hosts: []

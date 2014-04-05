@@ -73,6 +73,7 @@ setup(
         "guard",
         "html5lib",
         "Jinja2",
+        "msgpack-python>=0.4.0",
         "passlib>=1.6.2",
         "psycopg2",
         "PyYAML",

@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import binascii
 import collections
 import functools
 import hashlib
 import hmac
 import mimetypes
+import os
 import re
 import string
 
@@ -320,3 +322,8 @@ def vary_by(*varies):
             return resp
         return wrapper
     return deco
+
+
+def random_token():
+    token = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b"=")
+    return token.decode("utf8")

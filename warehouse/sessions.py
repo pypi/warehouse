@@ -12,10 +12,91 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import functools
+import re
 
-from werkzeug.contrib.sessions import Session as _Session
+import msgpack
+import msgpack.exceptions
 
-from warehouse.utils import vary_by
+from werkzeug.contrib.sessions import SessionStore, Session as _Session
+
+from warehouse.utils import random_token, vary_by
+
+
+class RedisSessionStore(SessionStore):
+
+    valid_key_regex = re.compile(r"^[a-zA-Z0-9_-]{43}$")
+
+    max_age = 12 * 60 * 60  # 12 hours
+
+    def __init__(self, redis, session_class=None):
+        super(RedisSessionStore, self).__init__(session_class=session_class)
+
+        self.redis = redis
+
+    def _redis_key(self, sid):
+        return "warehouse/session/data/{}".format(sid)
+
+    def generate_key(self, salt=None):
+        return random_token()
+
+    def is_valid_key(self, key):
+        return self.valid_key_regex.search(key) is not None
+
+    def get(self, sid):
+        # Ensure we have a valid key, if not generate a new one
+        if not self.is_valid_key(sid):
+            return self.new()
+
+        # Fetch the serialized data from redis
+        bdata = self.redis.get(self._redis_key(sid))
+
+        # If the session doesn't exist in redis, we'll give the user a new
+        # session
+        if bdata is None:
+            return self.new()
+
+        try:
+            data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
+        except msgpack.exceptions.UnpackException:
+            # If the session data was invalid we'll give the user a new session
+            return self.new()
+
+        # If we were able to load existing session data, load it into a
+        # Session class
+        session = self.session_class(data, sid, False)
+
+        # Refresh the session in redis to prevent early expiration
+        self.refresh(session)
+
+        # Finally return our saved session
+        return session
+
+    def save(self, session):
+        # Save the session in redis
+        self.redis.setex(
+            self._redis_key(session.sid),
+            self.max_age,
+            msgpack.packb(session, encoding="utf8", use_bin_type=True),
+        )
+
+    def delete(self, session):
+        # Delete the session in redis
+        self.redis.delete(self._redis_key(session.sid))
+
+    def refresh(self, session):
+        # Refresh the session in redis
+        self.redis.expire(self._redis_key(session.sid), self.max_age)
+
+    def cycle(self, session):
+        # Create a new session with all of the data from the old one
+        new_session = self.new()
+        new_session.update(session)
+
+        # Delete the old session now that we've copied the data
+        self.delete(session)
+
+        # Return the new session
+        return new_session
 
 
 class Session(_Session):
@@ -55,15 +136,7 @@ def handle_session(fn):
         # When cycling a session we copy all of the data into a new session
         # and delete the old one.
         if session.cycled:
-            # Create a new session with all of the data from the old one
-            new_session = store.new()
-            new_session.update(session)
-
-            # Delete the old session now that we've copied the data
-            store.delete(session)
-
-            # Reference our old session with the new one
-            session = new_session
+            session = store.cycle(session)
 
         # Check to see if the session has been marked to be saved, generally
         # this means that the session data has been modified and thus we need
