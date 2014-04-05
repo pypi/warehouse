@@ -101,3 +101,31 @@ def login(app, request):
         form=form,
         next=request.values.get("next"),
     )
+
+
+@csrf_protect
+@uses_session
+def logout(app, request):
+    if request.method == "POST":
+        # Delete our session, the user is logging out and we no longer want it
+        request.session.delete()
+
+        # We'll want to redirect the user with a 303 once we've completed the
+        # log in process.
+        resp = redirect_next(
+            request,
+            default=url_for(request, "warehouse.views.index"),
+        )
+
+        # Delete the username cookie, the user is logging out and we no longer
+        # want to store the username that they used when they were logged in.
+        resp.delete_cookie("username")
+
+        # Return our prepared response to the now logged out user
+        return resp
+
+    # This is a simple GET request, so we just want to render the template
+    return render_response(
+        app, request, "accounts/logout.html",
+        next=request.values.get("next"),
+    )

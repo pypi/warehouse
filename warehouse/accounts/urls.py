@@ -23,6 +23,11 @@ urls = [
             endpoint="login",
         ),
         Rule(
+            "/account/logout/",
+            methods=["GET", "POST"],
+            endpoint="logout",
+        ),
+        Rule(
             "/user/<username>/",
             methods=["GET"],
             endpoint="user_profile",

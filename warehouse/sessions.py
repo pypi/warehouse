@@ -22,6 +22,9 @@ from werkzeug.contrib.sessions import SessionStore, Session as _Session
 from warehouse.utils import random_token, vary_by
 
 
+SESSION_COOKIE_NAME = "session_id"
+
+
 class RedisSessionStore(SessionStore):
 
     valid_key_regex = re.compile(r"^[a-zA-Z0-9_-]{43}$")
@@ -105,9 +108,13 @@ class Session(_Session):
         super(Session, self).__init__(*args, **kwargs)
 
         self.cycled = False
+        self.deleted = False
 
     def cycle(self):
         self.cycled = True
+
+    def delete(self):
+        self.deleted = True
 
 
 def handle_session(fn):
@@ -120,7 +127,7 @@ def handle_session(fn):
 
         # Look up the session id from the request, and either create a new
         # session or fetch the existing one from the session store
-        sid = request.cookies.get("session_id", None)
+        sid = request.cookies.get(SESSION_COOKIE_NAME, None)
         session = store.new() if sid is None else store.get(sid)
 
         # Stick the session on the request, but in a private variable. If
@@ -131,6 +138,17 @@ def handle_session(fn):
         # Call our underlying function in order to get the response to this
         # request
         resp = fn(self, view, app, request, *args, **kwargs)
+
+        # Check to see if the session has been marked to be deleted, it it has
+        # tell our session store to delete it, and tell our response to delete
+        # the session cookie as well, and then finally short circuit and return
+        # our response.
+        if session.deleted:
+            # Delete in our session store
+            store.delete(session)
+
+            # Delete the cookie in the browser
+            resp.delete_cookie(SESSION_COOKIE_NAME)
 
         # Check to see if the session has been marked to be cycled or not.
         # When cycling a session we copy all of the data into a new session
@@ -148,7 +166,7 @@ def handle_session(fn):
             # new Set-Cookie header so that our expiration date for this
             # session gets reset.
             resp.set_cookie(
-                "session_id",
+                SESSION_COOKIE_NAME,
                 session.sid,
                 secure=request.is_secure,
                 httponly=True,
