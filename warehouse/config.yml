@@ -4,6 +4,8 @@ site:
     name: Warehouse
     url: /
 
+redis: {}
+
 search:
     index: warehouse
 

@@ -5,7 +5,7 @@ database:
     url: "postgresql://localhost/test_warehouse"
 
 redis:
-    url: "redis://localhost:6379/0"
+    downloads: "redis://localhost:6379/0"
 
 search:
     hosts: []

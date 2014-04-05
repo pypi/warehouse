@@ -29,7 +29,7 @@ import guard
 
 import jinja2
 
-import redis as redispy
+import redis
 
 import sqlalchemy
 import yaml
@@ -73,7 +73,7 @@ class Warehouse(object):
     )
     static_path = "/static/"
 
-    def __init__(self, config, engine=None, redis=None):
+    def __init__(self, config, engine=None, redis_class=redis.StrictRedis):
         self.config = convert_to_attr_dict(config)
 
         self.metadata = db.metadata
@@ -86,10 +86,11 @@ class Warehouse(object):
             engine = sqlalchemy.create_engine(self.config.database.url)
         self.engine = engine
 
-        # Create our redis connection
-        if redis is None and self.config.get("redis", {}).get("url"):
-            redis = redispy.StrictRedis.from_url(self.config.redis.url)
-        self.redis = redis
+        # Create our redis connections
+        self.redises = {
+            key: redis_class.from_url(url)
+            for key, url in self.config.redis.items()
+        }
 
         # Create our Store instance and associate our store modules with it
         self.db = AttributeDict()
@@ -98,7 +99,7 @@ class Warehouse(object):
                 self,
                 self.metadata,
                 self.engine,
-                self.redis,
+                self.redises["downloads"],
             )
 
         # Create our Search Index instance and associate our mappings with it
