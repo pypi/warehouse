@@ -34,28 +34,6 @@ def recursive_glob(path, pattern, cutdirs=0):
             matches.append(filepath)
     return matches
 
-# Note: Adjusting these requires adjusting setup.cfg as well
-install_requires = [
-    "alembic",
-    "arrow",
-    "babel",
-    "elasticsearch",
-    "enum34",
-    "guard",
-    "html5lib",
-    "Jinja2",
-    "psycopg2",
-    "PyYAML",
-    "raven",
-    "readme>=0.2.0",
-    "redis",
-    "SQLAlchemy",
-    "sqlalchemy-citext>=1.2.0",
-    "Werkzeug",
-    "whitenoise>=0.12",
-]
-
-
 setup(
     name=about["__title__"],
     version=about["__version__"],
@@ -85,7 +63,25 @@ setup(
         "warehouse.migrations": ["*.mako", "versions/*.py"],
     },
 
-    install_requires=install_requires,
+    install_requires=[
+        "alembic",
+        "arrow",
+        "babel",
+        "elasticsearch",
+        "enum34",
+        "guard",
+        "html5lib",
+        "Jinja2",
+        "psycopg2",
+        "PyYAML",
+        "raven",
+        "readme>=0.2.0",
+        "redis",
+        "SQLAlchemy",
+        "sqlalchemy-citext>=1.2.0",
+        "Werkzeug",
+        "whitenoise>=0.12",
+    ],
 
     entry_points={
         "console_scripts": [
