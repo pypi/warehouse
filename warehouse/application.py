@@ -51,7 +51,7 @@ from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
-from warehouse.sessions import Session, SessionMiddleware
+from warehouse.sessions import Session, handle_session
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 # Register the SQLAlchemy tables by importing them
@@ -152,6 +152,9 @@ class Warehouse(object):
             deprecated=["auto"],
         )
 
+        # Setup our session storage
+        self.session_store = FilesystemSessionStore(session_class=Session)
+
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
         if self.config.camo:
@@ -182,12 +185,6 @@ class Warehouse(object):
             root=self.static_dir,
             prefix=self.static_path,
             max_age=31557600,
-        )
-
-        # Add our session middleware
-        self.wsgi_app = SessionMiddleware(
-            self.wsgi_app,
-            FilesystemSessionStore(session_class=Session),
         )
 
         # Add our Powered By Middleware
@@ -268,6 +265,9 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
+    # The order of these decorators matter. We need @handle_session to come
+    # before anything that depends on it, like @handle_csrf
+    @handle_session
     @handle_csrf
     def dispatch_view(self, view, *args, **kwargs):
         return view(*args, **kwargs)

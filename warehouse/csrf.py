@@ -55,9 +55,10 @@ def _verify_csrf_origin(request):
 
 def _verify_csrf_token(request):
     # Get the token out of the session
-    #   Note: We have to use the session inside of the environ dictionary
-    #         because request.session does not exist when this function runs
-    csrf_token = request.environ["warehouse.session"].get("user.csrf")
+    #   Note: We have to use the private request._session because
+    #         request.session is not guaranteed to exist when this function is
+    #         called.
+    csrf_token = request._session.get("user.csrf")
 
     # Validate that we have a stored token, if we do not then we have nothing
     # to compare the incoming token against.
@@ -89,10 +90,11 @@ def _new_csrf_token():
 
 def _ensure_csrf_token(request):
     # Store a token in the session if one doesn't exist there already
-    #   Note: We have to use the session inside of the environ dictionary
-    #         because request.session does not exist when this function runs
-    if not request.environ["warehouse.session"].get("user.csrf"):
-        request.environ["warehouse.session"]["user.csrf"] = _new_csrf_token()
+    #   Note: We have to use the private request._session because
+    #         request.session is not guaranteed to exist when this function is
+    #         called.
+    if not request._session.get("user.csrf"):
+        request._session["user.csrf"] = _new_csrf_token()
 
     # Store the fact that CSRF is in use for this request on the request
     request._csrf = True
