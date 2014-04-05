@@ -43,6 +43,8 @@
 
           {{ csrf_token() }}
 
+          {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
           <button class="btn btn-lg btn-primary btn-block" type="submit">
             {{ gettext("Sign in") }}
           </button>

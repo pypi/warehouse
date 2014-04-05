@@ -18,7 +18,9 @@ from warehouse.accounts.forms import LoginForm
 from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
-from warehouse.utils import cache, fastly, redirect, render_response
+from warehouse.utils import (
+    cache, fastly, redirect, redirect_next, render_response,
+)
 
 
 @cache(browser=1, varnish=120)
@@ -44,8 +46,6 @@ def user_profile(app, request, username):
         user=user,
         projects=app.db.packaging.get_projects_for_user(user["username"]),
     )
-
-# TODO: Allow a ?next=url
 
 
 @csrf_protect
@@ -80,7 +80,10 @@ def login(app, request):
 
         # We'll want to redirect the user with a 303 once we've completed the
         # log in process.
-        resp = redirect(url_for(request, "warehouse.views.index"), code=303)
+        resp = redirect_next(
+            request,
+            default=url_for(request, "warehouse.views.index"),
+        )
 
         # Store the user's name in a cookie so that the client side can use
         # it for display purposes. This value **MUST** not be used for any
@@ -96,4 +99,5 @@ def login(app, request):
     return render_response(
         app, request, "accounts/login.html",
         form=form,
+        next=request.values.get("next"),
     )
