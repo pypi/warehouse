@@ -84,15 +84,16 @@ database.url
     The URL for the primary database. This must be a PostgreSQL 9.3+ database
     and must be in the form of ``postgresql://hostname[:port]/databasename``.
 
-redis.url
-~~~~~~~~~
+redis.downloads
+~~~~~~~~~~~~~~~
 
 :Type: URL
 :Default: ``None``
 :Required: Yes
 :Description:
-    This is the URL for the primary redis database. It must be an url of the
-    form ``redis://hostname:port/dbnum``.
+    This is the URL for the download counter redis database. It must be an url
+    of the form ``redis://hostname:port/dbnum``.
+
 
 search.index
 ~~~~~~~~~~~~
@@ -181,7 +182,7 @@ Example Configuration
         url: "postgresql://localhost/warehouse"
 
     redis:
-        url: "redis://localhost:6379/0"
+        downloads: "redis://localhost:6379/0"
 
     search:
         index: warehouse

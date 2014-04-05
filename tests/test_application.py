@@ -38,7 +38,7 @@ def test_basic_instantiation():
             "url": "postgres:///test_warehouse",
         },
         "redis": {
-            "url": "redis://localhost:6379/0"
+            "downloads": "redis://localhost:6379/0"
         },
         "search": {
             "index": "warehouse",

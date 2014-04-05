@@ -26,6 +26,19 @@ import sqlalchemy
 import sqlalchemy.pool
 
 
+class ErrorRedis:
+
+    def __init__(self, url):
+        self.url = url
+
+    @classmethod
+    def from_url(cls, url):
+        return ErrorRedis(url)
+
+    def __getattr__(self, name):
+        raise RuntimeError("Cannot access redis")
+
+
 def pytest_addoption(parser):
     group = parser.getgroup("warehouse")
     group._addoption(
@@ -80,10 +93,13 @@ def _database_url(request):
             "database": {
                 "url": database_url,
             },
+            "redis": {
+                "downloads": "redis://nonexistant/0",
+            },
             "search": {"hosts": []},
         },
         engine=engine,
-        redis=False,
+        redis_class=ErrorRedis,
     )
     with app.engine.connect() as conn:
         conn.execute("DROP SCHEMA public CASCADE")
@@ -131,10 +147,11 @@ def dbapp(database, _database_url):
     return Warehouse.from_yaml(
         override={
             "database": {"url": _database_url},
+            "redis": {"downloads": "redis://nonexistant/0"},
             "search": {"hosts": []},
         },
         engine=database,
-        redis=False,
+        redis_class=ErrorRedis,
     )
 
 
@@ -152,8 +169,9 @@ def app():
     return Warehouse.from_yaml(
         override={
             "database": {"url": "postgresql:///nonexistant"},
+            "redis": {"downloads": "redis://nonexistant/0"},
             "search": {"hosts": []},
         },
         engine=engine,
-        redis=False,
+        redis_class=ErrorRedis,
     )
