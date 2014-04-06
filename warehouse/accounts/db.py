@@ -11,8 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 
 from warehouse import db
+
+
+logger = logging.getLogger(__name__)
 
 
 class Database(db.Database):
@@ -66,7 +70,11 @@ class Database(db.Database):
                     password_hash,
                 )
             except ValueError:
-                # TODO: Log exception
+                logger.exception(
+                    "An exception occured attempting to validate the password "
+                    "for '%s'",
+                    username,
+                )
                 return
 
             if valid:
