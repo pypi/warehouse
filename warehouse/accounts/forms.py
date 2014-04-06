@@ -11,22 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import wtforms
-
-# TODO: i18n
+from warehouse import forms
 
 
-class LoginForm(wtforms.Form):
+class LoginForm(forms.Form):
 
-    username = wtforms.StringField(
-        "Username",
+    username = forms.StringField(
         [
-            wtforms.validators.Required(),
-            wtforms.validators.Length(min=4, max=25),
+            forms.validators.Required(),
+            forms.validators.Length(min=4, max=25),
         ],
     )
 
-    password = wtforms.PasswordField("Password")
+    password = forms.PasswordField()
 
     def __init__(self, *args, authenticator, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
@@ -35,4 +32,6 @@ class LoginForm(wtforms.Form):
 
     def validate_username(self, field):
         if not self.authenticate(field.data, self.password.data):
-            raise wtforms.ValidationError("Invalid username or password")
+            raise forms.ValidationError(
+                self.gettext("Invalid username or password")
+            )

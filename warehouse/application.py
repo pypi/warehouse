@@ -111,7 +111,7 @@ class Warehouse(object):
         self.urls = urls.urls
 
         # Initialize our Translations engine
-        self.trans = babel.support.NullTranslations()
+        self.translations = babel.support.NullTranslations()
 
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
@@ -135,7 +135,10 @@ class Warehouse(object):
         })
 
         # Install our translations
-        self.templates.install_gettext_translations(self.trans, newstyle=True)
+        self.templates.install_gettext_translations(
+            self.translations,
+            newstyle=True,
+        )
 
         # Setup our password hasher
         self.passlib = passlib.context.CryptContext(

@@ -54,6 +54,7 @@ def login(app, request):
     form = LoginForm(
         request.form,
         authenticator=app.db.accounts.user_authenticate,
+        translations=app.translations,
     )
 
     if request.method == "POST" and form.validate():
