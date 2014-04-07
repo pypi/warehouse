@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import functools
 import hashlib
 import json
 import os.path
@@ -40,12 +40,17 @@ def gravatar_url(email, size=80):
     return "?".join([url, urllib.parse.urlencode(params)])
 
 
+@functools.lru_cache()
+def _load_assets_json(path):
+    with open(path, "r") as fp:
+        return json.load(fp)
+
+
 def static_url(app, filename):
     """
     static_url('css/bootstrap.css')
     """
-    with open(os.path.join(app.static_dir, "assets.json"), "r") as fp:
-        assets = json.load(fp)
+    assets = _load_assets_json(os.path.join(app.static_dir, "assets.json"))
 
     return urllib.parse.urljoin(
         app.static_path,
