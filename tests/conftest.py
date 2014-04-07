@@ -29,6 +29,13 @@ import sqlalchemy
 import sqlalchemy.pool
 
 
+def pytest_collection_modifyitems(items):
+    for item in items:
+        # Mark any item with one of the database fixture as using the db
+        if set(getattr(item, "funcargnames", [])) & {"postgresql", "database"}:
+            item.add_marker(pytest.mark.db)
+
+
 def _get_open_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))

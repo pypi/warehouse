@@ -144,6 +144,13 @@ each supported Python version and run the tests.  For example:
 You may not have all the required Python versions installed, in which case you
 will see one or more ``InterpreterNotFound`` errors.
 
+If you want to run all of the tests except the ones that do not need the
+database, you can run:
+
+.. code-block:: console
+
+  $ tox -e py34 -- -k "not db"
+
 Building Documentation
 ----------------------
 
