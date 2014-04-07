@@ -2,9 +2,4 @@
 -e .
 
 # Install our development requirements
-check-manifest
-invoke
-mock
-pretend
 tox
-wheel
