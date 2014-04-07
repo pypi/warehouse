@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import shutil
 import socket
 import subprocess
@@ -36,6 +37,15 @@ def pytest_collection_modifyitems(items):
             item.add_marker(pytest.mark.db)
 
 
+def pytest_addoption(parser):
+    group = parser.getgroup("warehouse")
+    group.addoption(
+        "--database-url",
+        default=None,
+        help="An url to an already created warehouse test database",
+    )
+
+
 def _get_open_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
@@ -50,6 +60,16 @@ def _get_open_port():
 
 @pytest.fixture(scope="session")
 def postgresql(request):
+    # First check to see if we've been given a database url that we should use
+    # instead
+    database_url = (
+        os.environ.get("WAREHOUSE_DATABASE_URL")
+        or request.config.getoption("--database-url")
+    )
+
+    if database_url is not None:
+        return database_url
+
     # Get an open port to use for our PostgreSQL server
     port = _get_open_port()
 
@@ -118,6 +138,8 @@ def database(postgresql):
         port=details.port,
     )
     cursor = conn.cursor()
+    cursor.execute("DROP SCHEMA public CASCADE")
+    cursor.execute("CREATE SCHEMA public")
     cursor.execute("CREATE EXTENSION IF NOT EXISTS citext")
     cursor.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
     conn.commit()

@@ -149,7 +149,20 @@ database, you can run:
 
 .. code-block:: console
 
-  $ tox -e py34 -- -k "not db"
+    $ tox -e py34 -- -k "not db"
+
+By default the database driven tests will attempt to create an isolated
+PostgreSQL instance using ``initdb`` and ``postgres`` which it will tear down
+at the end of the test run. If you wish to specify an already running
+PostgreSQL instead of this, you can simply do:
+
+.. code-block:: console
+
+    $ # via command line
+    $ tox -e py34 -- --database-url postgresql:///test_warehouse
+    $ $ via environment variable
+    $ WAREHOUSE_DATABASE_URL='postgresql:///test_warehouse' tox -e py34
+
 
 Building Documentation
 ----------------------
