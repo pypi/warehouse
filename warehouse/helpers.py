@@ -57,10 +57,10 @@ def static_url(app, filename):
 
 def csrf_token(request):
     if not getattr(request, "_csrf", False):
-        raise Exception("CSRF not available")
+        raise ValueError("CSRF not available")
 
     return markupsafe.Markup(
         "<input type=hidden name=csrf_token value=\"{}\">".format(
-            markupsafe.escape(request.session["user.csrf"]),
+            markupsafe.escape(request._session["user.csrf"]),
         )
     )

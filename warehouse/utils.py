@@ -334,8 +334,8 @@ def vary_by(*varies):
     return deco
 
 
-def random_token():
-    token = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b"=")
+def random_token(_urandom=os.urandom):
+    token = base64.urlsafe_b64encode(_urandom(32)).rstrip(b"=")
     return token.decode("utf8")
 
 

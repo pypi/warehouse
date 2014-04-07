@@ -63,15 +63,12 @@ def _verify_csrf_token(request):
     if csrf_token is None:
         raise SecurityError("CSRF token not set.")
 
-    request_token = None
-
-    # Attempt to look in the form data if this request was a POST request
-    if request.method == "POST":
-        request_token = request.form.get("csrf_token", request_token)
+    # Attempt to look in the form data
+    request_token = request.form.get("csrf_token")
 
     # Also attempt to look in the headers, this makes things like Ajax easier
     # and PUT/DELETE possible.
-    request_token = request.headers.get("X-CSRFToken", request_token)
+    request_token = request.headers.get("X-CSRF-Token", request_token)
 
     # Validate that we have a token attached to this request somehow
     if not request_token:
@@ -94,7 +91,9 @@ def _ensure_csrf_token(request):
     request._csrf = True
 
 
-def handle_csrf(fn):
+def handle_csrf(fn,
+                _verify_origin=_verify_csrf_origin,
+                _verify_token=_verify_csrf_token):
     """
     CSRF mitigation which adds two layers of protection against CSRF attacks,
     the implementation of which assumes that for reasonable compatability with
@@ -148,8 +147,8 @@ def handle_csrf(fn):
                 # and we ca assume that it has handled setting up the CSRF
                 # token as well as making sure that a Vary: Cookie header has
                 # been added.
-                _verify_csrf_origin(request)
-                _verify_csrf_token(request)
+                _verify_origin(request)
+                _verify_token(request)
 
         # Ensure that the session has a token stored for this request. This is
         # purposely done *after* we've validated the CSRF above. If there is
@@ -163,6 +162,10 @@ def handle_csrf(fn):
         # verified. In any case it *should* be safe to actually process this
         # request.
         return fn(self, view, app, request, *args, **kwargs)
+
+    # Set an attribute so that we can verify the dispatch_view has had CSRF
+    # enabled
+    wrapped._csrf_handled = True
 
     return wrapped
 

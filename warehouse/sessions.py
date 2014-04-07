@@ -31,16 +31,17 @@ class RedisSessionStore(SessionStore):
 
     max_age = 12 * 60 * 60  # 12 hours
 
-    def __init__(self, redis, session_class=None):
+    def __init__(self, redis, session_class=None, _random_token=random_token):
         super(RedisSessionStore, self).__init__(session_class=session_class)
 
         self.redis = redis
+        self._random_token = _random_token
 
     def _redis_key(self, sid):
         return "warehouse/session/data/{}".format(sid)
 
     def generate_key(self, salt=None):
-        return random_token()
+        return self._random_token()
 
     def is_valid_key(self, key):
         return self.valid_key_regex.search(key) is not None
@@ -60,7 +61,9 @@ class RedisSessionStore(SessionStore):
 
         try:
             data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
-        except msgpack.exceptions.UnpackException:
+        except (
+                msgpack.exceptions.UnpackException,
+                msgpack.exceptions.ExtraData):
             # If the session data was invalid we'll give the user a new session
             return self.new()
 
@@ -174,6 +177,10 @@ def handle_session(fn):
 
         # Finally return our response
         return resp
+
+    # Set an attribute so that we can verify the dispatch_view has had session
+    # support enabled
+    wrapped._sessions_handled = True
 
     return wrapped
 
