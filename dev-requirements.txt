@@ -2,6 +2,4 @@
 -e .
 
 # Install our development requirements
-invoke
 tox
-wheel
