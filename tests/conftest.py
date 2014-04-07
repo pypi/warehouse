@@ -13,6 +13,7 @@
 # limitations under the License.
 import os
 import shutil
+import signal
 import socket
 import subprocess
 import tempfile
@@ -92,7 +93,11 @@ def postgresql(request):
     # Register a finalizer that will kill the started PostgreSQL server
     @request.addfinalizer
     def finalize():
-        proc.kill()
+        # Terminate the PostgreSQL process
+        proc.send_signal(signal.SIGINT)
+        proc.wait()
+
+        # Remove the data directory
         shutil.rmtree(tmpdir, ignore_errors=True)
 
     for _ in range(5):
