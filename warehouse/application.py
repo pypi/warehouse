@@ -310,6 +310,12 @@ class Warehouse(object):
             request = Request(environ)
             request.url_adapter = urls
 
+            # Attach our trusted hosts to this request
+            request.trusted_hosts = self.config.site.hosts
+
+            # Access request.host to trigger a check against our trusted_hosts
+            request.host
+
             # Dispatch to the loaded view function
             return self.dispatch_view(view, self, request, **kwargs)
         except HTTPException as exc:

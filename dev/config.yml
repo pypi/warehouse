@@ -2,6 +2,8 @@ debug: true
 
 site:
     name: Warehouse (dev)
+    hosts:
+        - "localhost:9000"
 
 database:
     url: "postgresql://localhost/warehouse"

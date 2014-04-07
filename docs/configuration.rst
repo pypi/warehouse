@@ -33,6 +33,14 @@ site.name
     The name of this instance of Warehouse. This will be used in the title tags
     and headers of Warehouse.
 
+site.hosts
+~~~~~~~~~~
+
+:Type: List
+:Required: Yes
+:Description:
+    A list of strings that Warehouse will trust in the Host header.
+
 site.url
 ~~~~~~~~
 

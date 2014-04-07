@@ -225,6 +225,7 @@ def dbapp(database, engine):
 
     return Warehouse.from_yaml(
         override={
+            "site": {"hosts": "localhost"},
             "database": {"url": database},
             "redis": {
                 "downloads": "redis://nonexistant/0",
@@ -250,6 +251,7 @@ def app():
 
     return Warehouse.from_yaml(
         override={
+            "site": {"hosts": "localhost"},
             "database": {"url": "postgresql:///nonexistant"},
             "redis": {
                 "downloads": "redis://nonexistant/0",
