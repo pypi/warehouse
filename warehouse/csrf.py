@@ -94,39 +94,6 @@ def _ensure_csrf_token(request):
 def handle_csrf(fn,
                 _verify_origin=_verify_csrf_origin,
                 _verify_token=_verify_csrf_token):
-    """
-    CSRF mitigation which adds two layers of protection against CSRF attacks,
-    the implementation of which assumes that for reasonable compatability with
-    the web at large that this site is hosted with TLS and the
-    Strict-Transport-Security header.
-
-
-    Strict Origin Based
-    -------------------
-
-    Strictly verify that the Origin or Referer headers of any particular
-    "unsafe" request matches the expected origin for this service. In
-    particular this check will:
-
-    1. First, determine the origin of the request by attempting to use the
-       Origin header if it exists, or falling back to the Referer header if it
-       doesn't.
-    2. Secondly, determine the expected origin for this service first by
-       attempting to use the Host header, and falling back to SERVER_NAME:PORT
-       otherwise.
-    3. Finally verify that we have all of the required information, and that
-       the origin of the request matches the expected origin for this service
-       or fail otherwise.
-
-
-    Secret Token Based
-    ------------------
-
-    Strictly verify that the request included a secure token that is only known
-    to the application. This token will be stored inside of the session and
-    should be included as part of any form or ajax request that the application
-    makes.
-    """
 
     @functools.wraps(fn)
     def wrapped(self, view, app, request, *args, **kwargs):

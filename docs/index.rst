@@ -9,6 +9,7 @@ Contents:
    configuration
    contributing
    application
+   reference/index
    api-reference/index
 
 
