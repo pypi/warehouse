@@ -57,9 +57,7 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        print(self.engine.in_transaction())
         with self.engine.begin() as conn:
-            print(conn.in_transaction())
             password_hash = conn.execute(query, username=username).scalar()
 
             # If the user was not found, then return None
@@ -81,7 +79,6 @@ class Database(db.Database):
 
             if valid:
                 if new_hash:
-                    print(conn.in_transaction())
                     conn.execute(
                         """ UPDATE accounts_user
                             SET password = %(password)s
