@@ -24,7 +24,7 @@ from warehouse.utils import (
 
 
 @cache(browser=1, varnish=120)
-@fastly("user-profile", "user-profile~{username}")
+@fastly("user", "user/{username}")
 def user_profile(app, request, username):
     user = app.db.accounts.get_user(username)
 

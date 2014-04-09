@@ -53,7 +53,6 @@ def test_index(monkeypatch):
 
     assert resp is response
     assert resp.headers["X-PyPI-Last-Serial"] == "9999"
-    assert resp.headers["Surrogate-Key"] == "simple-index"
 
     assert render.calls == [
         pretend.call(
@@ -131,7 +130,7 @@ def test_project(project_name, hosting_mode, release_urls, e_project_urls,
     assert resp is response
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
     assert (resp.headers["Surrogate-Key"] ==
-            "simple simple~{}".format(project_name))
+            "project project/{}".format(project_name))
 
     assert render.calls == [
         pretend.call(
@@ -232,7 +231,7 @@ def test_package(serial, md5_hash, monkeypatch):
     else:
         assert "X-PyPI-Last-Serial" not in resp.headers
 
-    assert resp.headers["Surrogate-Key"] == "package package~test"
+    assert resp.headers["Surrogate-Key"] == "project project/test"
     assert resp.headers["Content-Length"] == "54321"
 
     assert safe_join.calls == [

@@ -24,7 +24,7 @@ from warehouse.utils import (
 
 
 @cache(browser=1, varnish=120)
-@fastly("project-detail", "project-detail~{project_name!n}")
+@fastly("project", "project/{project_name!n}")
 def project_detail(app, request, project_name, version=None):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)

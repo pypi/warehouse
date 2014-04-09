@@ -26,7 +26,6 @@ from warehouse.utils import (
 
 
 @cache(browser=1, varnish=120)
-@fastly("simple-index")
 def index(app, request):
     projects = app.db.packaging.all_projects()
     resp = render_response(
@@ -42,7 +41,7 @@ def index(app, request):
 
 
 @cache(browser=1, varnish=120)
-@fastly("simple", "simple~{project_name!n}")
+@fastly("project", "project/{project_name!n}")
 def project(app, request, project_name):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)
@@ -141,8 +140,8 @@ def package(app, request, path):
     # Add in additional headers if we're using Fastly
     headers.update({
         "Surrogate-Key": " ".join([
-            "package",
-            "package~{}".format(normalized),
+            "project",
+            "project/{}".format(normalized),
         ]),
     })
 

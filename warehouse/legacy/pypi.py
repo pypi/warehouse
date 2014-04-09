@@ -49,7 +49,7 @@ def daytime(app, request):
 
 @cors
 @cache(browser=1, varnish=120)
-@fastly("legacy-json", "legacy-json~{project_name!n}")
+@fastly("project", "project/{project_name!n}")
 def project_json(app, request, project_name):
     # fail early if callback is invalid
     callback = request.args.get('callback')

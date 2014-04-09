@@ -12,11 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils import cache, fastly, render_response
+from warehouse.utils import cache, render_response
 
 
 @cache(browser=1, varnish=120)
-@fastly("index")
 def index(app, request):
     return render_response(
         app, request, "index.html",
