@@ -17,6 +17,8 @@ import json
 import os.path
 import urllib.parse
 
+import markupsafe
+
 
 def url_for(request, endpoint, **values):
     force_external = values.pop("_force_external", False)
@@ -55,4 +57,15 @@ def static_url(app, filename):
     return urllib.parse.urljoin(
         app.static_path,
         assets.get(filename, filename),
+    )
+
+
+def csrf_token(request):
+    if not getattr(request, "_csrf", False):
+        raise ValueError("CSRF not available")
+
+    return markupsafe.Markup(
+        "<input type=hidden name=csrf_token value=\"{}\">".format(
+            markupsafe.escape(request._session["user.csrf"]),
+        )
     )

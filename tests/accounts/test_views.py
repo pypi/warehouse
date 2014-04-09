@@ -15,9 +15,11 @@
 import pretend
 import pytest
 
+from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import NotFound
 
-from warehouse.accounts.views import user_profile
+from warehouse.accounts.views import user_profile, login, logout
+from warehouse.sessions import Session
 
 
 def test_user_profile_missing_user():
@@ -122,3 +124,140 @@ def test_user_profile_renders():
     assert app.templates.get_template.calls == [
         pretend.call("accounts/profile.html"),
     ]
+
+
+def test_user_login_get():
+    app = pretend.stub(
+        config=pretend.stub(),
+        db=pretend.stub(
+            accounts=pretend.stub(
+                user_authenticate=pretend.stub(),
+            ),
+        ),
+        templates=pretend.stub(
+            get_template=pretend.call_recorder(
+                lambda t: pretend.stub(render=lambda **ctx: ""),
+            ),
+        ),
+        translations=None,
+    )
+    request = pretend.stub(
+        method="GET",
+        form=MultiDict(),
+        values={},
+        _session=Session({}, "1234", False),
+    )
+
+    resp = login(app, request)
+
+    assert resp.status_code == 200
+    assert app.templates.get_template.calls == [
+        pretend.call("accounts/login.html"),
+    ]
+
+
+@pytest.mark.parametrize(("form", "values", "session", "location"), [
+    ({"username": "test", "password": "p@ssw0rd"}, {}, {}, "/"),
+    ({"username": "test", "password": "p@ssw0rd"}, {}, {"user.id": 100}, "/"),
+    ({"username": "test", "password": "p@ssw0rd"}, {}, {"user.id": 9001}, "/"),
+    (
+        {"username": "test", "password": "p@ssw0rd"},
+        {"next": "/wat/"},
+        {},
+        "/wat/",
+    ),
+    (
+        {"username": "test", "password": "p@ssw0rd"},
+        {"next": "/wat/"},
+        {"user.id": 100},
+        "/wat/",
+    ),
+    (
+        {"username": "test", "password": "p@ssw0rd"},
+        {"next": "/wat/"},
+        {"user.id": 9001},
+        "/wat/",
+    ),
+])
+def test_user_login_post_valid(form, values, session, location):
+    app = pretend.stub(
+        config=pretend.stub(),
+        db=pretend.stub(
+            accounts=pretend.stub(
+                get_user_id=lambda username: 9001,
+                user_authenticate=lambda user, password: True,
+            ),
+        ),
+        templates=pretend.stub(
+            get_template=pretend.call_recorder(
+                lambda t: pretend.stub(render=lambda **ctx: ""),
+            ),
+        ),
+        translations=None,
+    )
+    request = pretend.stub(
+        method="POST",
+        form=MultiDict(form),
+        host="example.com",
+        values=values,
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+        _session=Session(session, "1234", False),
+    )
+
+    resp = login(app, request)
+
+    assert request.session["user.id"] == 9001
+    assert resp.status_code == 303
+    assert resp.headers["Location"] == location
+    assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
+
+
+def test_user_logout_get():
+    app = pretend.stub(
+        config=pretend.stub(),
+        templates=pretend.stub(
+            get_template=pretend.call_recorder(
+                lambda t: pretend.stub(render=lambda **ctx: ""),
+            ),
+        ),
+    )
+    request = pretend.stub(
+        method="GET",
+        values={},
+        _session=Session({"user.id": 1}, "1234", False),
+    )
+
+    resp = logout(app, request)
+
+    assert resp.status_code == 200
+    assert app.templates.get_template.calls == [
+        pretend.call("accounts/logout.html"),
+    ]
+
+
+@pytest.mark.parametrize(("values", "location"), [
+    ({}, "/"),
+    ({"next": "/wat/"}, "/wat/"),
+])
+def test_user_logout_post(values, location):
+    app = pretend.stub(config=pretend.stub())
+    request = pretend.stub(
+        method="POST",
+        host="example.com",
+        values=values,
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+        _session=Session({"user.id": 1}, "1234", False),
+    )
+
+    resp = logout(app, request)
+
+    assert resp.status_code == 303
+    assert resp.headers["Location"] == location
+    assert resp.headers.getlist("Set-Cookie") == [
+        "username=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; Path=/",
+    ]
+    assert request._session.deleted

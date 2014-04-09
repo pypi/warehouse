@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import datetime
 
 import mock
+import pretend
 
 from warehouse.accounts.tables import users, emails
 
@@ -66,3 +66,89 @@ def test_get_user_with_email(dbapp):
 
 def test_get_user_missing(dbapp):
     assert dbapp.db.accounts.get_user("test-user") is None
+
+
+def test_user_authenticate(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="hash!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.passlib.verify_and_update = pretend.call_recorder(
+        lambda p, h: (True, None)
+    )
+
+    assert dbapp.db.accounts.user_authenticate("test-user", "password")
+    assert dbapp.passlib.verify_and_update.calls == [
+        pretend.call("password", "hash!"),
+    ]
+
+
+def test_user_authenticate_update(dbapp):
+    dbapp.engine.execute(users.insert().values(
+        id=1,
+        password="hash!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+    dbapp.passlib.verify_and_update = pretend.call_recorder(
+        lambda p, h: (True, "new hash!")
+    )
+
+    assert dbapp.db.accounts.user_authenticate("test-user", "password")
+    assert dbapp.passlib.verify_and_update.calls == [
+        pretend.call("password", "hash!"),
+    ]
+
+    r = dbapp.engine.execute("SELECT password FROM accounts_user WHERE id = 1")
+
+    assert list(r) == [("new hash!",)]
+
+
+def test_user_authenticate_no_user(dbapp):
+    assert not dbapp.db.accounts.user_authenticate("test-user", "password")
+
+
+def test_user_authenticate_exception(engine, dbapp):
+    engine.execute(users.insert().values(
+        id=1,
+        password="hash!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+
+    def verify_and_update(password, password_hash):
+        raise ValueError("Invalid something or other")
+    dbapp.passlib.verify_and_update = verify_and_update
+
+    assert not dbapp.db.accounts.user_authenticate("test-user", "password")
+
+
+def test_user_authenticate_invalid(engine, dbapp):
+    engine.execute(users.insert().values(
+        id=1,
+        password="hash!",
+        username="test-user",
+        name="Test User",
+        last_login=datetime.datetime.utcnow(),
+        is_active=True,
+        is_superuser=False,
+        is_staff=False,
+    ))
+
+    dbapp.passlib.verify_and_update = lambda p, h: (False, None)
+
+    assert not dbapp.db.accounts.user_authenticate("test-user", "password")

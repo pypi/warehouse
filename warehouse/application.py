@@ -24,6 +24,7 @@ import babel.numbers
 import babel.support
 
 import guard
+import passlib.context
 
 import jinja2
 
@@ -44,10 +45,12 @@ import warehouse.cli
 
 from warehouse import urls
 from warehouse import db
+from warehouse.csrf import handle_csrf
 from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
+from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
 
 # Register the SQLAlchemy tables by importing them
@@ -108,7 +111,7 @@ class Warehouse(object):
         self.urls = urls.urls
 
         # Initialize our Translations engine
-        self.trans = babel.support.NullTranslations()
+        self.translations = babel.support.NullTranslations()
 
         # Setup our Jinja2 Environment
         self.templates = jinja2.Environment(
@@ -132,7 +135,28 @@ class Warehouse(object):
         })
 
         # Install our translations
-        self.templates.install_gettext_translations(self.trans, newstyle=True)
+        self.templates.install_gettext_translations(
+            self.translations,
+            newstyle=True,
+        )
+
+        # Setup our password hasher
+        self.passlib = passlib.context.CryptContext(
+            schemes=[
+                "bcrypt_sha256",
+                "bcrypt",
+                "django_bcrypt",
+                "unix_disabled",
+            ],
+            default="bcrypt_sha256",
+            deprecated=["auto"],
+        )
+
+        # Setup our session storage
+        self.session_store = RedisSessionStore(
+            self.redises["sessions"],
+            session_class=Session,
+        )
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
@@ -244,6 +268,13 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
+    # The order of these decorators matter. We need @handle_session to come
+    # before anything that depends on it, like @handle_csrf
+    @handle_session
+    @handle_csrf
+    def dispatch_view(self, view, *args, **kwargs):
+        return view(*args, **kwargs)
+
     @responder
     def wsgi_app(self, environ, start_response):
         """
@@ -279,7 +310,13 @@ class Warehouse(object):
             request = Request(environ)
             request.url_adapter = urls
 
-            # Dispatch to our view
-            return view(self, request, **kwargs)
+            # Attach our trusted hosts to this request
+            request.trusted_hosts = self.config.site.hosts
+
+            # Access request.host to trigger a check against our trusted_hosts
+            request.host
+
+            # Dispatch to the loaded view function
+            return self.dispatch_view(view, self, request, **kwargs)
         except HTTPException as exc:
             return exc

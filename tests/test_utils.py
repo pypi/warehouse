@@ -17,11 +17,13 @@ import pretend
 import pytest
 import six
 
+from warehouse.http import Response
 from warehouse.utils import (
     AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
     render_response, cache, get_wsgi_application, get_mimetype, redirect,
     SearchPagination, is_valid_json_callback_name, generate_camouflage_url,
-    camouflage_images, cors,
+    camouflage_images, cors, redirect_next, vary_by, random_token,
+    is_safe_url,
 )
 
 
@@ -82,6 +84,7 @@ def test_render_response():
         pretend.call(
             foo="bar",
             config=app.config,
+            csrf_token=mock.ANY,
             gravatar_url=mock.ANY,
             url_for=mock.ANY,
             static_url=mock.ANY,
@@ -161,6 +164,60 @@ def test_redirect_unicode():
     resp = redirect(six.text_type("/foo/"))
     assert resp.status_code == 302
     assert resp.headers["Location"] == "/foo/"
+
+
+@pytest.mark.parametrize(("values", "host", "kwargs", "expected"), [
+    ({}, "example.com", {}, {"location": "/", "code": 303}),
+    ({}, "example.com", {"code": 302}, {"location": "/", "code": 302}),
+    (
+        {},
+        "example.com",
+        {"default": "/wat/"},
+        {"location": "/wat/", "code": 303},
+    ),
+    (
+        {"next": "/wat/"},
+        "example.com",
+        {},
+        {"location": "/wat/", "code": 303},
+    ),
+    (
+        {"next": "/wat/"},
+        "example.com",
+        {"field_name": "not_next"},
+        {"location": "/", "code": 303},
+    ),
+    (
+        {"not_next": "/wat/"},
+        "example.com",
+        {"field_name": "not_next"},
+        {"location": "/wat/", "code": 303},
+    ),
+    (
+        {"next": "http://attacker.com/wat/"},
+        "example.com",
+        {},
+        {"location": "/", "code": 303},
+    ),
+    (
+        {"next": "https://example.com/wat/"},
+        "example.com",
+        {},
+        {"location": "https://example.com/wat/", "code": 303},
+    ),
+    (
+        {"next": "http://example.com/wat/"},
+        "example.com",
+        {},
+        {"location": "http://example.com/wat/", "code": 303},
+    ),
+])
+def test_redirect_next(values, host, kwargs, expected):
+    request = pretend.stub(values=values, host=host)
+    response = redirect_next(request, **kwargs)
+
+    assert response.headers["Location"] == expected["location"]
+    assert response.status_code == expected["code"]
 
 
 def test_fastly_formatter():
@@ -269,3 +326,47 @@ def test_cors():
 
     assert resp is response
     assert resp.headers == {"Access-Control-Allow-Origin": "*"}
+
+
+@pytest.mark.parametrize(("varies", "expected"), [
+    ([["Cookie"]], {"cookie"}),
+    ([["Cookie"], ["Cookie"]], {"cookie"}),
+    ([["Cookie", "Accept-Encoding"]], {"accept-encoding", "cookie"}),
+    ([["Cookie"], ["Accept-Encoding"]], {"accept-encoding", "cookie"}),
+    (
+        [["Cookie", "Accept-Encoding"], ["Cookie"]],
+        {"accept-encoding", "cookie"},
+    ),
+])
+def test_vary_by(varies, expected):
+    view = lambda app, request: Response("")
+
+    for vary in varies:
+        view = vary_by(*vary)(view)
+
+    assert view(pretend.stub(), pretend.stub()).vary.as_set() == expected
+
+
+def test_random_token():
+    random_data = (
+        b"\xc3_.S\x17u\xa0_b\xa8P\xd9\xe0|j\xe0#\xb9\x9f\xef\x11\xdb\xdf\xf6"
+        b"\xa1\xd9[R\xd6\xde'\xef"
+    )
+    urandom = pretend.call_recorder(lambda size: random_data)
+
+    assert (random_token(_urandom=urandom)
+            == "w18uUxd1oF9iqFDZ4Hxq4CO5n-8R29_2odlbUtbeJ-8")
+    assert urandom.calls == [pretend.call(32)]
+
+
+@pytest.mark.parametrize(("url", "host", "expected"), [
+    ("", "example.com", False),
+    ("/wat/", "example.com", True),
+    ("http://example.com/wat/", "example.com", True),
+    ("https://example.com/wat/", "example.com", True),
+    ("ftp://example.com/wat/", "example.com", False),
+    ("http://attacker.com/wat/", "example.com", False),
+    ("https://attacker.com/wat/", "example.com", False),
+])
+def test_is_safe_url(url, host, expected):
+    assert is_safe_url(url, host) is expected

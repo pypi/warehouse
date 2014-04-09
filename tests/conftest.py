@@ -230,8 +230,12 @@ def dbapp(database, engine):
 
     return Warehouse.from_yaml(
         override={
+            "site": {"hosts": "localhost"},
             "database": {"url": database},
-            "redis": {"downloads": "redis://nonexistant/0"},
+            "redis": {
+                "downloads": "redis://nonexistant/0",
+                "sessions": "redis://nonexistant/0",
+            },
             "search": {"hosts": []},
         },
         engine=engine,
@@ -252,8 +256,12 @@ def app():
 
     return Warehouse.from_yaml(
         override={
+            "site": {"hosts": "localhost"},
             "database": {"url": "postgresql:///nonexistant"},
-            "redis": {"downloads": "redis://nonexistant/0"},
+            "redis": {
+                "downloads": "redis://nonexistant/0",
+                "sessions": "redis://nonexistant/0",
+            },
             "search": {"hosts": []},
         },
         engine=engine,

@@ -33,6 +33,14 @@ site.name
     The name of this instance of Warehouse. This will be used in the title tags
     and headers of Warehouse.
 
+site.hosts
+~~~~~~~~~~
+
+:Type: List
+:Required: Yes
+:Description:
+    A list of strings that Warehouse will trust in the Host header.
+
 site.url
 ~~~~~~~~
 
@@ -94,6 +102,15 @@ redis.downloads
     This is the URL for the download counter redis database. It must be an url
     of the form ``redis://hostname:port/dbnum``.
 
+redis.sessions
+~~~~~~~~~~~~~~
+
+:Type: URL
+:Default: ``None``
+:Required: Yes
+:Description:
+    This is the URL for the session redis database. It must be an url of the
+    form ``redis://hostname:port/dbnum``.
 
 search.index
 ~~~~~~~~~~~~

@@ -18,7 +18,7 @@ import pretend
 import pytest
 
 from warehouse.application import Warehouse
-from warehouse.helpers import gravatar_url, url_for, static_url
+from warehouse.helpers import gravatar_url, url_for, static_url, csrf_token
 
 
 @pytest.mark.parametrize(("email", "kwargs", "expected"), [
@@ -80,3 +80,19 @@ def test_static_url(filename, expected):
     )
 
     assert fnmatch.fnmatch(static_url(app, filename), expected)
+
+
+@pytest.mark.parametrize("request", [
+    pretend.stub(),
+    pretend.stub(_csrf=False),
+])
+def test_csrf_token_no_csrf(request):
+    with pytest.raises(ValueError):
+        csrf_token(request)
+
+
+def test_csrf_token():
+    assert (
+        csrf_token(pretend.stub(_csrf=True, _session={"user.csrf": "123456"}))
+        == "<input type=hidden name=csrf_token value=\"123456\">"
+    )

@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import binascii
 import collections
 import functools
 import hashlib
 import hmac
 import mimetypes
+import os
 import re
 import string
+import urllib.parse
 
 import html5lib
 import html5lib.serializer
@@ -80,6 +83,7 @@ def render_response(app, request, template, **variables):
 
     context = {
         "config": app.config,
+        "csrf_token": functools.partial(helpers.csrf_token, request),
         "gravatar_url": helpers.gravatar_url,
         "static_url": functools.partial(helpers.static_url, app),
         "url_for": functools.partial(helpers.url_for, request),
@@ -154,6 +158,15 @@ def redirect(location, code=302):
         (escape(location), display_location), code, mimetype="text/html")
     response.headers["Location"] = location
     return response
+
+
+def redirect_next(request, default="/", field_name="next", code=303):
+    next = request.values.get(field_name)
+
+    if not is_safe_url(next, request.host):
+        next = default
+
+    return redirect(next, code=code)
 
 
 def normalize(value):
@@ -303,3 +316,40 @@ def cors(fn):
         # Return the modified response
         return resp
     return wrapper
+
+
+def vary_by(*varies):
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrapper(app, request, *args, **kwargs):
+            # Get the response from the view
+            resp = fn(app, request, *args, **kwargs)
+
+            # Add our Vary headers
+            resp.vary.update(varies)
+
+            # Return the modified response
+            return resp
+        return wrapper
+    return deco
+
+
+def random_token(_urandom=os.urandom):
+    token = base64.urlsafe_b64encode(_urandom(32)).rstrip(b"=")
+    return token.decode("utf8")
+
+
+def is_safe_url(url, host):
+    """
+    Return ``True`` if the url is a safe redirection (i.e. it doesn't point to
+    a different host and uses a safe scheme).
+
+    Always returns ``False`` on an empty url.
+    """
+    if not url:
+        return False
+
+    parsed = urllib.parse.urlparse(url)
+
+    return ((not parsed.netloc or parsed.netloc == host) and
+            (not parsed.scheme or parsed.scheme in ["http", "https"]))

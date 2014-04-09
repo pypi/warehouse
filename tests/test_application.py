@@ -36,7 +36,8 @@ def test_basic_instantiation():
             "url": "postgres:///test_warehouse",
         },
         "redis": {
-            "downloads": "redis://localhost:6379/0"
+            "downloads": "redis://localhost:6379/0",
+            "sessions": "redis://localhost:6379/0",
         },
         "search": {
             "index": "warehouse",
@@ -107,6 +108,7 @@ def test_wsgi_app(app, monkeypatch):
     start_response = pretend.stub(__name__=str("start_response"))
 
     app.urls = urls
+    app.dispatch_view = pretend.call_recorder(app.dispatch_view)
     app.wsgi_app(environ, start_response)
 
     assert match.match.calls == [pretend.call()]
@@ -114,6 +116,7 @@ def test_wsgi_app(app, monkeypatch):
     assert import_module.calls == [pretend.call("warehouse.fake")]
     assert fake_view.calls == [pretend.call(app, mock.ANY)]
     assert response.calls == [pretend.call(environ, mock.ANY)]
+    assert app.dispatch_view.calls == [pretend.call(fake_view, app, mock.ANY)]
 
 
 def test_wsgi_app_exception(app, monkeypatch):
@@ -125,7 +128,6 @@ def test_wsgi_app_exception(app, monkeypatch):
 
     class FakeException(HTTPException):
 
-        # @pretend.call_recorder
         def __call__(self, *args, **kwargs):
             return response
 
@@ -267,3 +269,31 @@ def test_header_rewrite_middleware(monkeypatch):
             ],
         ),
     ]
+
+
+def test_passlib_context():
+    app = Warehouse.from_yaml(
+        os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            "test_config.yml",
+        )),
+    )
+
+    assert app.passlib.to_dict() == {
+        "schemes": [
+            "bcrypt_sha256",
+            "bcrypt",
+            "django_bcrypt",
+            "unix_disabled",
+        ],
+        "default": "bcrypt_sha256",
+        "deprecated": ["auto"],
+    }
+
+
+def test_app_has_session(app):
+    assert app.dispatch_view._sessions_handled
+
+
+def test_app_has_csrf(app):
+    assert app.dispatch_view._csrf_handled
