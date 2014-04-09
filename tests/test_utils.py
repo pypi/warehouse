@@ -19,29 +19,11 @@ import six
 
 from warehouse.http import Response
 from warehouse.utils import (
-    AttributeDict, FastlyFormatter, convert_to_attr_dict, merge_dict,
-    render_response, cache, get_wsgi_application, get_mimetype, redirect,
-    SearchPagination, is_valid_json_callback_name, generate_camouflage_url,
-    camouflage_images, cors, redirect_next, vary_by, random_token,
-    is_safe_url,
+    FastlyFormatter, merge_dict, render_response, cache, get_wsgi_application,
+    get_mimetype, redirect, SearchPagination, is_valid_json_callback_name,
+    generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
+    random_token, is_safe_url,
 )
-
-
-def test_basic_attribute_dict_access():
-    adict = AttributeDict({
-        "foo": None,
-        "bar": "Success!"
-    })
-
-    assert adict.foo is adict["foo"]
-    assert adict.bar is adict["bar"]
-
-
-def test_attribute_dict_unknown_access():
-    adict = AttributeDict()
-
-    with pytest.raises(AttributeError):
-        adict.unknown
 
 
 @pytest.mark.parametrize(("base", "additional", "expected"), [
@@ -56,14 +38,6 @@ def test_attribute_dict_unknown_access():
 ])
 def test_merge_dictionary(base, additional, expected):
     assert merge_dict(base, additional) == expected
-
-
-def test_convert_to_attribute_dict():
-    adict = convert_to_attr_dict({"a": {"b": 1, "c": 2}})
-
-    assert adict.a == {"b": 1, "c": 2}
-    assert adict.a.b == 1
-    assert adict.a.c == 2
 
 
 def test_render_response():

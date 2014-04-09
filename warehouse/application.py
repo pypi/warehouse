@@ -46,12 +46,13 @@ import warehouse.cli
 from warehouse import urls
 from warehouse import db
 from warehouse.csrf import handle_csrf
+from warehouse.datastructures import AttributeDict
 from warehouse.http import Request
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.sessions import RedisSessionStore, Session, handle_session
-from warehouse.utils import AttributeDict, merge_dict, convert_to_attr_dict
+from warehouse.utils import merge_dict
 
 # Register the SQLAlchemy tables by importing them
 import warehouse.accounts.tables
@@ -75,7 +76,7 @@ class Warehouse(object):
     static_path = "/static/"
 
     def __init__(self, config, engine=None, redis_class=redis.StrictRedis):
-        self.config = convert_to_attr_dict(config)
+        self.config = AttributeDict(config)
 
         self.metadata = db.metadata
 
