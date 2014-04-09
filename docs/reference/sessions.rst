@@ -7,7 +7,7 @@ session data is stored serialized via `MessagePack <http://msgpack.org/>`_ in
 
 
 Usage
-=====
+-----
 
 Using a session in a view is simple, simple decorate the view with the
 ``uses_session`` decorator and then access the session at ``request.session``.

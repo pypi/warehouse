@@ -7,7 +7,7 @@ by default CSRF protection.
 
 
 Usage
-=====
+-----
 
 Protecting or exempting a view from CSRF protection is done using a very
 simple decorator solution:
@@ -50,14 +50,14 @@ like:
 
 
 Protection Methods
-==================
+------------------
 
 Warehouse employs two different techniques for protecting against CSRF attacks,
 the Origin based and the secret token based.
 
 
 Origin Based
-------------
+~~~~~~~~~~~~
 
 Strictly verify that the Origin or Referer headers of any particular "unsafe"
 request matches the expected origin for this service. In particular this check
@@ -75,7 +75,7 @@ will:
 
 
 Secret Token Based
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Strictly verify that the request included a secure token that is only known
 to the application. This token will be stored inside of the session and
