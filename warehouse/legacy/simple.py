@@ -18,11 +18,10 @@ from werkzeug.exceptions import NotFound
 from werkzeug.security import safe_join
 from werkzeug.wsgi import wrap_file
 
+from warehouse import fastly
 from warehouse.helpers import url_for
 from warehouse.http import Response
-from warehouse.utils import (
-    cache, fastly, get_mimetype, normalize, render_response,
-)
+from warehouse.utils import cache, get_mimetype, render_response
 
 
 @cache(browser=1, varnish=120)
@@ -41,7 +40,7 @@ def index(app, request):
 
 
 @cache(browser=1, varnish=120)
-@fastly("project", "project/{project_name!n}")
+@fastly.projects(project_name="project")
 def project(app, request, project_name):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)
@@ -130,7 +129,6 @@ def package(app, request, path):
     # Get the project name and normalize it
     lookup_filename = filename[:-4] if filename.endswith(".asc") else filename
     project = app.db.packaging.get_project_for_filename(lookup_filename)
-    normalized = normalize(project)
 
     # Get the MD5 hash of the file
     content_md5 = app.db.packaging.get_filename_md5(filename)
@@ -138,12 +136,9 @@ def package(app, request, path):
     headers = {}
 
     # Add in additional headers if we're using Fastly
-    headers.update({
-        "Surrogate-Key": " ".join([
-            "project",
-            "project/{}".format(normalized),
-        ]),
-    })
+    headers["Surrogate-Key"] = " ".join(
+        fastly.projects.format_keys(project=project),
+    )
 
     # Look up the last serial for this file
     serial = app.db.packaging.get_last_serial(project)

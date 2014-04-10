@@ -17,14 +17,13 @@ import readme.rst
 
 from werkzeug.exceptions import NotFound
 
+from warehouse import fastly
 from warehouse.helpers import url_for
-from warehouse.utils import (
-    cache, fastly, redirect, render_response, camouflage_images,
-)
+from warehouse.utils import cache, redirect, render_response, camouflage_images
 
 
 @cache(browser=1, varnish=120)
-@fastly("project", "project/{project_name!n}")
+@fastly.projects(project_name="project")
 def project_detail(app, request, project_name, version=None):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)

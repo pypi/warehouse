@@ -14,17 +14,16 @@
 
 from werkzeug.exceptions import NotFound
 
+from warehouse import fastly
 from warehouse.accounts.forms import LoginForm
 from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
-from warehouse.utils import (
-    cache, fastly, redirect, redirect_next, render_response,
-)
+from warehouse.utils import cache, redirect, redirect_next, render_response
 
 
 @cache(browser=1, varnish=120)
-@fastly("user", "user/{username}")
+@fastly.users
 def user_profile(app, request, username):
     user = app.db.accounts.get_user(username)
 

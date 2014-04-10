@@ -21,7 +21,6 @@ import hmac
 import mimetypes
 import os
 import re
-import string
 import urllib.parse
 
 import html5lib
@@ -149,38 +148,6 @@ def redirect_next(request, default="/", field_name="next", code=303):
 
 def normalize(value):
     return re.sub("_", "-", value, re.I).lower()
-
-
-class FastlyFormatter(string.Formatter):
-
-    def convert_field(self, value, conversion):
-        if conversion == "n":
-            return normalize(value)
-        return super(FastlyFormatter, self).convert_field(value, conversion)
-
-
-def fastly(*keys):
-    def decorator(fn):
-        @functools.wraps(fn)
-        def wrapper(app, request, *args, **kwargs):
-            # Get the response from the view
-            resp = fn(app, request, *args, **kwargs)
-
-            # Resolve our surrogate keys
-            ctx = {"app": app, "request": request}
-            ctx.update(kwargs)
-            surrogate_keys = [
-                FastlyFormatter().format(key, **ctx)
-                for key in keys
-            ]
-
-            # Set our Fastly Surrogate-Key header
-            resp.headers["Surrogate-Key"] = " ".join(surrogate_keys)
-
-            # Return the modified response
-            return resp
-        return wrapper
-    return decorator
 
 
 class SearchPagination(object):

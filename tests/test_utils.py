@@ -19,8 +19,8 @@ import six
 
 from warehouse.http import Response
 from warehouse.utils import (
-    FastlyFormatter, merge_dict, render_response, cache, get_wsgi_application,
-    get_mimetype, redirect, SearchPagination, is_valid_json_callback_name,
+    merge_dict, render_response, cache, get_wsgi_application, get_mimetype,
+    redirect, SearchPagination, is_valid_json_callback_name,
     generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
     random_token, is_safe_url,
 )
@@ -192,11 +192,6 @@ def test_redirect_next(values, host, kwargs, expected):
 
     assert response.headers["Location"] == expected["location"]
     assert response.status_code == expected["code"]
-
-
-def test_fastly_formatter():
-    assert FastlyFormatter().format("{0}", "Foo") == "Foo"
-    assert FastlyFormatter().format("{0!n}", "Foo") == "foo"
 
 
 class TestSearchPagination:
