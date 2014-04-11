@@ -85,7 +85,8 @@ def postgresql(request):
     )
 
     proc = subprocess.Popen(
-        ["postgres", "-D", tmpdir, "-p", str(port)],
+        ["postgres", "-D", tmpdir, "-p", str(port),
+         "-h", "127.0.0.1", "-k", tmpdir],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
