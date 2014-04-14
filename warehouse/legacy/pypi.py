@@ -26,11 +26,36 @@ from warehouse.utils import (
     cache, cors, is_valid_json_callback_name, render_response,
 )
 
+action_methods = {}
+
+
+def register(name):
+    """Register a handler for a legacy :action style dispatch.
+
+    Most of the dispatch in legacy PyPI was implemented using a :action
+    parameter in the GET or POST arguments.
+
+    This doesn't actually decorate the function or alter it in any way, it
+    simply registers it with the action_methods mapping.
+    """
+    if name in action_methods:
+        raise KeyError('Attempt to re-register name %r' % (name, ))
+
+    def deco(fn):
+        action_methods[name] = fn
+        return fn
+    return deco
+
 
 def pypi(app, request):
     # if the MIME type of the request is XML then we go into XML-RPC mode
     if request.headers.get('Content-Type') == 'text/xml':
         return xmlrpc.handle_request(app, request)
+
+    # check for the legacy :action-style dispatch
+    action = request.args.get(':action')
+    if action in action_methods:
+        return action_methods[action](app, request)
 
     # no XML-RPC and no :action means we render the index, or at least we
     # redirect to where it moved to
@@ -90,6 +115,7 @@ def project_json(app, request, project_name):
     return response
 
 
+@register('rss')
 @cache(browser=1, varnish=120)
 @fastly.rss
 def rss(app, request):
@@ -113,6 +139,7 @@ def rss(app, request):
     return response
 
 
+@register('packages_rss')
 @cache(browser=1, varnish=120)
 @fastly.rss
 def packages_rss(app, request):
