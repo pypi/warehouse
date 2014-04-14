@@ -1,3 +1,6 @@
+site:
+    access_token: testing
+
 assets:
     directory: "static"
 
