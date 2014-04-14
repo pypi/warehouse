@@ -33,13 +33,12 @@ def scalar(query, default=None):
     the database and return a scalar.
     """
     def inner(model, *args, **kwargs):
-        with model.engine.connect() as conn:
-            val = conn.execute(query, *args, **kwargs).scalar()
+        val = model.engine.execute(query, *args, **kwargs).scalar()
 
-            if default is not None and val is None:
-                return default
-            else:
-                return val
+        if default is not None and val is None:
+            return default
+        else:
+            return val
 
     return inner
 
@@ -50,8 +49,8 @@ def rows(query, row_func=dict):
     the database and return a list of rows with the row_func applied to each.
     """
     def inner(model, *args, **kwargs):
-        with model.engine.connect() as conn:
-            return [row_func(r) for r in conn.execute(query, *args, **kwargs)]
+        return [row_func(r) for r in
+                model.engine.execute(query, *args, **kwargs)]
 
     return inner
 
@@ -62,10 +61,9 @@ def mapping(query, key_func=lambda r: r[0], value_func=lambda r: r[1]):
     created a mapping that maps each row to a key: value pair.
     """
     def inner(model, *args, **kwargs):
-        with model.engine.connect() as conn:
-            return {
-                key_func(r): value_func(r)
-                for r in conn.execute(query, *args, **kwargs)
-            }
+        return {
+            key_func(r): value_func(r)
+            for r in model.engine.execute(query, *args, **kwargs)
+        }
 
     return inner

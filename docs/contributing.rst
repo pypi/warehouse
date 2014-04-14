@@ -123,10 +123,14 @@ you have to do is:
 
     $ py.test
 
-This runs the tests with the default Python interpreter and require an empty
-database to exist named ``test_warehouse`` by default. The name of the test
-database may be overridden using the ``WAREHOUSE_DATABASE_URL`` environment
-variable.
+This runs the tests with the default Python interpreter and require that the
+local user has the necessary privileges to create the test database (named
+``warehouse_unittest``). This is easy to set up by creating a PostgreSQL user
+account matching the local user and giving it the ``CREATEDB`` privilege.
+
+Alternatively you can create the test database beforehand and set the
+``WAREHOUSE_DATABASE_URL`` environment variable to point to it. In that case,
+you have to manually drop the database after running the tests.
 
 You can also verify that the tests pass on other supported Python interpreters.
 For this we use `tox`_, which will automatically create a `virtualenv`_ for
@@ -150,18 +154,6 @@ database, you can run:
 .. code-block:: console
 
     $ tox -e py34 -- -k "not db"
-
-By default the database driven tests will attempt to create an isolated
-PostgreSQL instance using ``initdb`` and ``postgres`` which it will tear down
-at the end of the test run. If you wish to specify an already running
-PostgreSQL instead of this, you can simply do:
-
-.. code-block:: console
-
-    $ # via command line
-    $ tox -e py34 -- --database-url postgresql:///test_warehouse
-    $ $ via environment variable
-    $ WAREHOUSE_DATABASE_URL='postgresql:///test_warehouse' tox -e py34
 
 
 Building Documentation
