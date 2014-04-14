@@ -40,13 +40,12 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        with self.engine.connect() as conn:
-            result = conn.execute(query, username=name).first()
+        result = self.engine.execute(query, username=name).first()
 
-            if result is not None:
-                result = dict(result)
+        if result is not None:
+            result = dict(result)
 
-            return result
+        return result
 
     def user_authenticate(self, username, password):
         # Get the user with the given username
@@ -57,8 +56,9 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        with self.engine.begin() as conn:
-            password_hash = conn.execute(query, username=username).scalar()
+        with self.engine.begin():
+            password_hash = self.engine.execute(query, username=username).\
+                scalar()
 
             # If the user was not found, then return None
             if password_hash is None:
@@ -79,7 +79,7 @@ class Database(db.Database):
 
             if valid:
                 if new_hash:
-                    conn.execute(
+                    self.engine.execute(
                         """ UPDATE accounts_user
                             SET password = %(password)s
                             WHERE username = %(username)s

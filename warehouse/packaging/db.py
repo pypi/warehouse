@@ -107,8 +107,7 @@ class Database(db.Database):
         if num:
             query += "LIMIT %(limit)s"
 
-        with self.engine.connect() as conn:
-            return [tuple(r) for r in conn.execute(query, limit=num)]
+        return [tuple(r) for r in self.engine.execute(query, limit=num)]
 
     get_project = db.scalar(
         """ SELECT name
@@ -250,38 +249,37 @@ class Database(db.Database):
             """
 
         results = []
-        with self.engine.connect() as conn:
-            for r in conn.execute(query, project=project, version=version):
-                result = dict(r)
-                result["filepath"] = os.path.join(
-                    self.app.config.paths.packages,
-                    result["python_version"],
-                    result["name"][0],
+        for r in self.engine.execute(query, project=project, version=version):
+            result = dict(r)
+            result["filepath"] = os.path.join(
+                self.app.config.paths.packages,
+                result["python_version"],
+                result["name"][0],
+                result["name"],
+                result["filename"],
+            )
+            if not os.path.exists(result["filepath"]):
+                log.error(
+                    "%s missing for package %s %s",
+                    result["filepath"],
                     result["name"],
-                    result["filename"],
-                )
-                if not os.path.exists(result["filepath"]):
-                    log.error(
-                        "%s missing for package %s %s",
-                        result["filepath"],
-                        result["name"],
-                        result["version"])
-                    continue
-                result["url"] = "/".join([
-                    "/packages",
-                    result["python_version"],
-                    result["name"][0],
-                    result["name"],
-                    result["filename"],
-                ])
-                result["size"] = os.path.getsize(result["filepath"])
+                    result["version"])
+                continue
+            result["url"] = "/".join([
+                "/packages",
+                result["python_version"],
+                result["name"][0],
+                result["name"],
+                result["filename"],
+            ])
+            result["size"] = os.path.getsize(result["filepath"])
 
-                if os.path.exists(result["filepath"] + ".asc"):
-                    result["pgp_url"] = result["url"] + ".asc"
-                else:
-                    result["pgp_url"] = None
+            if os.path.exists(result["filepath"] + ".asc"):
+                result["pgp_url"] = result["url"] + ".asc"
+            else:
+                result["pgp_url"] = None
 
-                results.append(result)
+            results.append(result)
 
         return results
 
@@ -297,11 +295,11 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        with self.engine.connect() as conn:
-            result = [
-                dict(r)
-                for r in conn.execute(query, project=project, version=version)
-            ][0]
+        result = [
+            dict(r)
+            for r in self.engine.execute(query, project=project,
+                                         version=version)
+        ][0]
 
         # Load dependency information
         query = \
@@ -312,23 +310,22 @@ class Database(db.Database):
             """
 
         dependency_data = {}
-        with self.engine.connect() as conn:
-            for dependency in conn.execute(
-                    query,
-                    project=project,
-                    version=version):
-                kind = ReleaseDependencyKind(dependency["kind"])
+        for dependency in self.engine.execute(
+                query,
+                project=project,
+                version=version):
+            kind = ReleaseDependencyKind(dependency["kind"])
 
-                if kind in {
-                        ReleaseDependencyKind.requires_dist,
-                        ReleaseDependencyKind.provides_dist,
-                        ReleaseDependencyKind.obsoletes_dist}:
-                    value = dependency_data.setdefault(kind.name, [])
-                    value.append(dependency["specifier"])
+            if kind in {
+                    ReleaseDependencyKind.requires_dist,
+                    ReleaseDependencyKind.provides_dist,
+                    ReleaseDependencyKind.obsoletes_dist}:
+                value = dependency_data.setdefault(kind.name, [])
+                value.append(dependency["specifier"])
 
-                if kind is ReleaseDependencyKind.project_url:
-                    value = dependency_data.setdefault(kind.name, {})
-                    value.update(dict([dependency["specifier"].split(",", 1)]))
+            if kind is ReleaseDependencyKind.project_url:
+                value = dependency_data.setdefault(kind.name, {})
+                value.update(dict([dependency["specifier"].split(",", 1)]))
         result.update(dependency_data)
 
         return result
@@ -434,11 +431,10 @@ class Database(db.Database):
                 WHERE classifier IN %(classifiers)s
             """
 
-        with self.engine.connect() as conn:
-            return {
-                r["classifier"]: r["id"]
-                for r in conn.execute(query, classifiers=tuple(classifiers))
-            }
+        return {
+            r["classifier"]: r["id"]
+            for r in self.engine.execute(query, classifiers=tuple(classifiers))
+        }
 
     def search_by_classifier(self, selected_classifiers):
         # Note: selected_classifiers is a list of ids from trove_classifiers
@@ -448,16 +444,15 @@ class Database(db.Database):
         # generate trove id -> level mapping
         trove = {}
         query = "SELECT * FROM trove_classifiers"
-        with self.engine.connect() as conn:
-            for id, classifier, l2, l3, l4, l5 in conn.execute(query):
-                if id == l2:
-                    trove[id] = 2
-                elif id == l3:
-                    trove[id] = 3
-                elif id == l4:
-                    trove[id] = 4
-                else:
-                    trove[id] = 5
+        for id, classifier, l2, l3, l4, l5 in self.engine.execute(query):
+            if id == l2:
+                trove[id] = 2
+            elif id == l3:
+                trove[id] = 3
+            elif id == l4:
+                trove[id] = 4
+            else:
+                trove[id] = 5
 
         # compute a statement to produce all packages selected
         query = "SELECT name, version FROM releases"
@@ -473,9 +468,8 @@ class Database(db.Database):
                 """ % (query, level, c)
 
         releases = []
-        with self.engine.connect() as conn:
-            for name, version in conn.execute(query):
-                releases.append((name, version))
+        for name, version in self.engine.execute(query):
+            releases.append((name, version))
 
         return releases
 
