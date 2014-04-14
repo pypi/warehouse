@@ -1282,7 +1282,7 @@ def test_get_downloads(pgp, dbapp, monkeypatch):
     monkeypatch.setattr(os.path, "exists", os_exists)
     monkeypatch.setattr(os.path, "getsize", lambda x: 10)
 
-    dbapp.config.paths.packages = "fake"
+    dbapp.warehouse_config.paths.packages = "fake"
 
     downloads = dbapp.db.packaging.get_downloads("test-project", "1.0")
 
@@ -1338,7 +1338,7 @@ def test_get_downloads_missing(dbapp, monkeypatch):
     # log from warehouse.packaging.db
     monkeypatch.setattr(log, "error", log_error)
 
-    dbapp.config.paths.packages = "fake"
+    dbapp.warehouse_config.paths.packages = "fake"
 
     downloads = dbapp.db.packaging.get_downloads("test-project", "1.0")
 

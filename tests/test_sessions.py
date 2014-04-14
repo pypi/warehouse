@@ -11,9 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from flask import session
 from warehouse.http import Response
 from warehouse.sessions import (
-    RedisSessionStore, Session, handle_session, uses_session,
+    RedisSessionStore, Session, uses_session,
+    RedisSessionInterface
 )
 
 import pretend
@@ -57,17 +60,32 @@ class TestRedisSessionStore:
         assert session == {"user.csrf": "wat"}
         assert session.sid == "EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM"
 
-    def test_get_invalid_session(self):
+    def test_get_invalid_session(self, warehouse_app):
         store = RedisSessionStore(pretend.stub())
-        assert store.get("invalid key").new
+        assert store.get("invalid key") is None
 
-    def test_get_no_data_in_redis(self):
+        request = pretend.stub(cookies={'session': 'invalid key'})
+        session_interface = RedisSessionInterface(store)
+        assert session_interface.open_session(warehouse_app, request).new
+
+    def test_get_no_data_in_redis(self, warehouse_app):
         store = RedisSessionStore(pretend.stub(get=lambda key: None))
-        assert store.get("EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM").new
+        assert store.get("EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM") is None
 
-    def test_get_invalid_data_in_redis(self):
+        request = pretend.stub(cookies={
+            'session': "EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM"
+        })
+        session_interface = RedisSessionInterface(store)
+        assert session_interface.open_session(warehouse_app, request).new
+
+    def test_get_invalid_data_in_redis(self, warehouse_app):
         store = RedisSessionStore(pretend.stub(get=lambda key: b"asdsa"))
-        assert store.get("EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM").new
+        assert store.get("EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM") is None
+        request = pretend.stub(cookies={
+            'session': "EUmoN-Hsp0CFMcULe2KD5c3LjB_otLG-aXZueTkY3DM"
+        })
+        session_interface = RedisSessionInterface(store)
+        assert session_interface.open_session(warehouse_app, request).new
 
     def test_save(self):
         store = RedisSessionStore(
@@ -160,102 +178,136 @@ class FakeSessionStore:
 
 class TestHandleSession:
 
-    def test_no_existing_session(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+    def test_session_modify(self):
+        sess = Session()
+        assert sess.modified is False
+        sess['name'] = 'a new value'
+        assert sess.modified is True
 
-        def view(app, request):
-            request._session["wat"] = "ok"
-            return Response()
+    def test_no_existing_session(self, warehouse_app):
+        @warehouse_app.route('/view-that-sets-session')
+        def view():
+            session["wat"] = "ok"
+            return ''
 
-        app = pretend.stub(session_store=FakeSessionStore())
-        request = pretend.stub(cookies={}, is_secure=False)
+        fake_session_store = FakeSessionStore()
+        warehouse_app.session_interface = RedisSessionInterface(
+            fake_session_store
+        )
 
-        response = handle_session(fn)(pretend.stub(), view, app, request)
+        with warehouse_app.test_client() as c:
+            response = c.get('/view-that-sets-session')
+            assert session.modified
 
-        assert app.session_store.saved == [
+        assert response.headers.getlist("Set-Cookie") == [
+            "session=123456; HttpOnly; Path=/",
+        ]
+        assert fake_session_store.saved == [
             Session({"wat": "ok"}, "123456", True),
         ]
-        assert response.headers.getlist("Set-Cookie") == [
-            "session_id=123456; HttpOnly; Path=/",
-        ]
 
-    def test_existing_session(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
-
-        def view(app, request):
-            request._session["wat"] = "ok"
+    def test_existing_session(self, warehouse_app):
+        @warehouse_app.route('/view-that-sets-session')
+        def view():
+            session["wat"] = "ok"
             return Response()
 
-        app = pretend.stub(session_store=FakeSessionStore())
-        request = pretend.stub(cookies={"session_id": "abcd"}, is_secure=False)
+        fake_session_store = FakeSessionStore()
+        warehouse_app.session_interface = RedisSessionInterface(
+            fake_session_store
+        )
 
-        response = handle_session(fn)(pretend.stub(), view, app, request)
+        with warehouse_app.test_client() as c:
+            response = c.get(
+                '/view-that-sets-session',
+                headers={
+                    'Cookie': "session=abcd;"
+                }
+            )
 
-        assert app.session_store.saved == [
+        assert fake_session_store.saved == [
             Session({"wat": "ok"}, "abcd", False),
         ]
         assert response.headers.getlist("Set-Cookie") == [
-            "session_id=abcd; HttpOnly; Path=/",
+            "session=abcd; HttpOnly; Path=/",
         ]
 
-    def test_existing_session_no_save(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+    def test_existing_session_no_save(self, warehouse_app):
+        @warehouse_app.route('/do-nothing-to-my-session')
+        def view():
+            return ''
 
-        view = lambda app, request: Response()
-        app = pretend.stub(session_store=FakeSessionStore())
-        request = pretend.stub(cookies={"session_id": "abcd"}, is_secure=False)
+        fake_session_store = FakeSessionStore()
+        warehouse_app.session_interface = RedisSessionInterface(
+            fake_session_store
+        )
 
-        response = handle_session(fn)(pretend.stub(), view, app, request)
+        with warehouse_app.test_client() as c:
+            response = c.get(
+                '/do-nothing-to-my-session',
+                headers={
+                    'Cookie': "session=abcd;"
+                }
+            )
 
-        assert app.session_store.saved == []
+        assert fake_session_store.saved == []
         assert response.headers.getlist("Set-Cookie") == []
 
-    def test_delete_session(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+    def test_delete_session(self, warehouse_app):
+        @warehouse_app.route('/delete-thy-session')
+        def view():
+            session.delete()
+            return ''
 
-        def view(app, request):
-            request._session.delete()
-            return Response()
+        fake_session_store = FakeSessionStore()
+        warehouse_app.session_interface = RedisSessionInterface(
+            fake_session_store
+        )
 
-        app = pretend.stub(session_store=FakeSessionStore())
-        request = pretend.stub(cookies={"session_id": "abcd"}, is_secure=False)
+        with warehouse_app.test_client() as c:
+            response = c.get(
+                '/delete-thy-session',
+                headers={
+                    'Cookie': "session=abcd;"
+                }
+            )
 
-        response = handle_session(fn)(pretend.stub(), view, app, request)
-
-        assert app.session_store.deleted == [
+        assert fake_session_store.deleted == [
             Session({}, "abcd", False),
         ]
         assert response.headers.getlist("Set-Cookie") == [
-            "session_id=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; "
+            "session=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; "
             "Path=/",
         ]
 
-    def test_cycle_session(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+    def test_cycle_session(self, warehouse_app):
+        @warehouse_app.route('/cycle-thy-session')
+        def view():
+            session.cycle()
+            assert session.cycled
+            assert session.modified
+            return ''
 
-        def view(app, request):
-            request._session.cycle()
-            return Response()
+        fake_session_store = FakeSessionStore()
+        warehouse_app.session_interface = RedisSessionInterface(
+            fake_session_store
+        )
 
-        app = pretend.stub(session_store=FakeSessionStore())
-        request = pretend.stub(cookies={"session_id": "abcd"}, is_secure=False)
+        with warehouse_app.test_client() as c:
+            c.get(
+                '/cycle-thy-session',
+                headers={
+                    'Cookie': "session=abcd;"
+                }
+            )
+            assert session.cycled
 
-        handle_session(fn)(pretend.stub(), view, app, request)
-
-        assert app.session_store.cycled == [Session({}, "abcd", False)]
+        assert fake_session_store.cycled == [Session({}, "abcd", False)]
 
 
-def test_uses_session():
-    view = uses_session(lambda app, request: Response())
+def test_uses_session(warehouse_app):
+    view = uses_session(lambda: '')
 
-    app = pretend.stub()
-    request = pretend.stub(_session=pretend.stub())
-    response = view(app, request)
-
-    assert request.session is request._session
+    with warehouse_app.test_request_context():
+        response = view()
     assert response.vary.as_set() == {"cookie"}

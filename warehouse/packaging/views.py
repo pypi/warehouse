@@ -15,16 +15,21 @@
 import jinja2
 import readme.rst
 
+from flask import (
+    Blueprint, current_app as app, redirect, url_for, render_template
+)
 from werkzeug.exceptions import NotFound
-
 from warehouse import fastly
-from warehouse.helpers import url_for
-from warehouse.utils import cache, redirect, render_response, camouflage_images
+from warehouse.utils import cache, camouflage_images
+
+blueprint = Blueprint('warehouse.packaging.views', __name__)
 
 
+@blueprint.route('/project/<project_name>/')
+@blueprint.route('/project/<project_name>/<version>/')
 @cache(browser=1, varnish=120)
 @fastly.projects(project_name="project")
-def project_detail(app, request, project_name, version=None):
+def project_detail(project_name, version=None):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)
 
@@ -49,7 +54,6 @@ def project_detail(app, request, project_name, version=None):
         # isn't quite right so we'll redirect them to the correct one.
         return redirect(
             url_for(
-                request,
                 "warehouse.packaging.views.project_detail",
                 project_name=project,
                 version=version,
@@ -80,10 +84,10 @@ def project_detail(app, request, project_name, version=None):
         if not rendered:
             description_html = description_html.replace("\n", "<br>")
 
-        if app.config.camo:
+        if app.warehouse_config.camo:
             description_html = camouflage_images(
-                app.config.camo.url,
-                app.config.camo.key,
+                app.warehouse_config.camo.url,
+                app.warehouse_config.camo.key,
                 description_html,
             )
     else:
@@ -92,8 +96,8 @@ def project_detail(app, request, project_name, version=None):
     # Mark our description_html as safe as it's already been cleaned by bleach
     description_html = jinja2.Markup(description_html)
 
-    return render_response(
-        app, request, "projects/detail.html",
+    return render_template(
+        "projects/detail.html",
         project=project,
         release=release,
         releases=releases,

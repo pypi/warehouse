@@ -27,10 +27,7 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 
-from werkzeug.urls import iri_to_uri
-from werkzeug.utils import escape
-
-from warehouse import helpers
+from flask import redirect, current_app, request
 from warehouse.http import Response
 
 
@@ -55,26 +52,14 @@ def merge_dict(base, additional):
     return merged
 
 
-def render_response(app, request, template, **variables):
-    template = app.templates.get_template(template)
-
-    context = {
-        "config": app.config,
-        "csrf_token": functools.partial(helpers.csrf_token, request),
-        "gravatar_url": helpers.gravatar_url,
-        "static_url": functools.partial(helpers.static_url, app),
-        "url_for": functools.partial(helpers.url_for, request),
-    }
-    context.update(variables)
-
-    return Response(template.render(**context), mimetype="text/html")
-
-
 def cache(browser=None, varnish=None):
     def deco(fn):
         @functools.wraps(fn)
-        def wrapper(app, request, *args, **kwargs):
-            resp = fn(app, request, *args, **kwargs)
+        def wrapper(*args, **kwargs):
+            resp = fn(*args, **kwargs)
+
+            if not isinstance(resp, Response):
+                resp = current_app.make_response(resp)
 
             if 200 <= resp.status_code < 400:
                 # Add in our standard Cache-Control headers
@@ -109,35 +94,7 @@ def get_mimetype(filename):
     return mimetype
 
 
-def redirect(location, code=302):
-    """Return a response object (a WSGI application) that, if called,
-    redirects the client to the target location.  Supported codes are 301,
-    302, 303, 305, and 307.  300 is not supported because it's not a real
-    redirect and 304 because it's the answer for a request with a request
-    with defined If-Modified-Since headers.
-
-    .. versionadded:: 0.6
-       The location can now be a unicode string that is encoded using
-       the :func:`iri_to_uri` function.
-
-    :param location: the location the response should redirect to.
-    :param code: the redirect status code. defaults to 302.
-    """
-    display_location = escape(location)
-    if isinstance(location, str):
-        location = iri_to_uri(location)
-    response = Response(
-        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
-        '<title>Redirecting...</title>\n'
-        '<h1>Redirecting...</h1>\n'
-        '<p>You should be redirected automatically to target URL: '
-        '<a href="%s">%s</a>.  If not click the link.' %
-        (escape(location), display_location), code, mimetype="text/html")
-    response.headers["Location"] = location
-    return response
-
-
-def redirect_next(request, default="/", field_name="next", code=303):
+def redirect_next(default="/", field_name="next", code=303):
     next = request.values.get(field_name)
 
     if not is_safe_url(next, request.host):
@@ -251,9 +208,12 @@ def camouflage_images(camo_url, camo_key, html):
 
 def cors(fn):
     @functools.wraps(fn)
-    def wrapper(app, request, *args, **kwargs):
+    def wrapper(*args, **kwargs):
         # Get the response from the view
-        resp = fn(app, request, *args, **kwargs)
+        resp = fn(*args, **kwargs)
+
+        if not isinstance(resp, Response):
+            resp = current_app.make_response(resp)
 
         # Add our CORS headers
         resp.headers["Access-Control-Allow-Origin"] = "*"
@@ -266,9 +226,12 @@ def cors(fn):
 def vary_by(*varies):
     def deco(fn):
         @functools.wraps(fn)
-        def wrapper(app, request, *args, **kwargs):
+        def wrapper(*args, **kwargs):
             # Get the response from the view
-            resp = fn(app, request, *args, **kwargs)
+            resp = fn(*args, **kwargs)
+
+            if not isinstance(resp, Response):
+                resp = current_app.make_response(resp)
 
             # Add our Vary headers
             resp.vary.update(varies)

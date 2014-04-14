@@ -14,6 +14,7 @@
 
 import os.path
 
+from flask import Blueprint, current_app as app, render_template, request
 from werkzeug.exceptions import NotFound
 from werkzeug.security import safe_join
 from werkzeug.wsgi import wrap_file
@@ -21,14 +22,17 @@ from werkzeug.wsgi import wrap_file
 from warehouse import fastly
 from warehouse.helpers import url_for
 from warehouse.http import Response
-from warehouse.utils import cache, get_mimetype, render_response
+from warehouse.utils import cache, get_mimetype
+
+blueprint = Blueprint('warehouse.legacy.simple', __name__)
 
 
+@blueprint.route('/')
 @cache(browser=1, varnish=120)
-def index(app, request):
+def index():
     projects = app.db.packaging.all_projects()
-    resp = render_response(
-        app, request, "legacy/simple/index.html",
+    resp = render_template(
+        "legacy/simple/index.html",
         projects=projects,
     )
 
@@ -39,9 +43,10 @@ def index(app, request):
     return resp
 
 
+@blueprint.route('/<project_name>')
 @cache(browser=1, varnish=120)
 @fastly.projects(project_name="project")
-def project(app, request, project_name):
+def project(project_name):
     # Get the real project name for this project
     project = app.db.packaging.get_project(project_name)
 
@@ -80,8 +85,7 @@ def project(app, request, project_name):
     # Fetch the explicitly provided URLs
     external_urls = app.db.packaging.get_external_urls(project)
 
-    resp = render_response(
-        app, request,
+    resp = render_template(
         "legacy/simple/detail.html",
         project=project,
         files=file_urls,
@@ -95,7 +99,7 @@ def project(app, request, project_name):
 
     # Add a Link header to point at the canonical URL
     can_url = url_for(
-        request, "warehouse.legacy.simple.project",
+        "warehouse.legacy.simple.project",
         project_name=project,
         _force_external=True,
     )
@@ -104,12 +108,13 @@ def project(app, request, project_name):
     return resp
 
 
+@blueprint.route('/packages/<path:path>')
 @cache(browser=1, varnish=120)
-def package(app, request, path):
+def package(path):
     # Get our filename and filepath from the request path
     filename = os.path.basename(path)
     filepath = safe_join(
-        os.path.abspath(app.config.paths.packages),
+        os.path.abspath(app.warehouse_config.paths.packages),
         path
     )
 

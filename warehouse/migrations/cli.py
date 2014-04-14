@@ -28,7 +28,7 @@ class AlembicCommand(object):
             "script_location",
             "warehouse:migrations",
         )
-        alembic_cfg.set_main_option("url", app.config.database.url)
+        alembic_cfg.set_main_option("url", app.warehouse_config.database.url)
 
         return alembic_cfg
 

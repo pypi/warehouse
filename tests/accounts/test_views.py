@@ -11,148 +11,133 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from unittest import mock
 import pretend
 import pytest
 
-from werkzeug.datastructures import MultiDict
+from flask import session
+
 from werkzeug.exceptions import NotFound
 
+from warehouse.accounts import views
 from warehouse.accounts.views import user_profile, login, logout
-from warehouse.sessions import Session
 
 
-def test_user_profile_missing_user():
-    app = pretend.stub(
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user=pretend.call_recorder(lambda user: None),
-            ),
-        ),
-    )
-    request = pretend.stub()
-
-    username = "test-user"
-
-    with pytest.raises(NotFound):
-        user_profile(app, request, username=username)
-
-    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
-
-
-def test_user_profile_redirects():
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(
-                browser=False,
-                varnish=False,
-            ),
-        ),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user=pretend.call_recorder(
-                    lambda user: {"username": "test-User"},
-                ),
-            ),
-        ),
-    )
-    request = pretend.stub(
-        url_adapter=pretend.stub(
-            build=pretend.call_recorder(
-                lambda *a, **kw: "/~test-User/",
-            ),
+def test_user_profile_missing_user(warehouse_app):
+    warehouse_app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user=pretend.call_recorder(lambda user: None),
         ),
     )
 
     username = "test-user"
 
-    resp = user_profile(app, request, username=username)
+    with warehouse_app.test_request_context():
+        with pytest.raises(NotFound):
+            user_profile(username=username)
 
-    assert resp.status_code == 301
-    assert resp.headers["Location"] == "/~test-User/"
-
-    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
-
-    assert request.url_adapter.build.calls == [
-        pretend.call(
-            "warehouse.accounts.views.user_profile",
-            {"username": "test-User"},
-            force_external=False,
-        ),
+    assert warehouse_app.db.accounts.get_user.calls == [
+        pretend.call("test-user")
     ]
 
 
-def test_user_profile_renders():
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(
-                browser=False,
-                varnish=False,
-            ),
+def test_user_profile_redirects(warehouse_app):
+    warehouse_app.warehouse_config = pretend.stub(
+        cache=pretend.stub(
+            browser=False,
+            varnish=False,
         ),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user=pretend.call_recorder(
-                    lambda user: {"username": "test-user"},
-                ),
-            ),
-            packaging=pretend.stub(
-                get_projects_for_user=pretend.call_recorder(
-                    lambda user: None,
-                ),
-            ),
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
+    )
+    warehouse_app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user=pretend.call_recorder(
+                lambda user: {"username": "test-User"},
             ),
         ),
     )
-    request = pretend.stub()
 
     username = "test-user"
 
-    resp = user_profile(app, request, username=username)
+    with warehouse_app.test_request_context():
+        resp = user_profile(username=username)
+
+    assert resp.status_code == 301
+    assert resp.headers["Location"] == "/user/test-User"
+
+    assert warehouse_app.db.accounts.get_user.calls == [
+        pretend.call("test-user")
+    ]
+
+
+def test_user_profile_renders(monkeypatch, warehouse_app):
+    warehouse_app.warehouse_config = pretend.stub(
+        cache=pretend.stub(
+            browser=False,
+            varnish=False,
+        ),
+    )
+    warehouse_app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user=pretend.call_recorder(
+                lambda user: {"username": "test-user"},
+            ),
+        ),
+        packaging=pretend.stub(
+            get_projects_for_user=pretend.call_recorder(
+                lambda user: None,
+            ),
+        ),
+    )
+
+    response = pretend.stub(
+        status_code=200,
+        headers={},
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
+    render_template = pretend.call_recorder(lambda *args, **ctx: response)
+    monkeypatch.setattr(views, "render_template", render_template)
+
+    username = "test-user"
+    with warehouse_app.test_request_context():
+        resp = user_profile(username=username)
 
     assert resp.status_code == 200
 
-    assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
-    assert app.db.packaging.get_projects_for_user.calls == [
+    assert warehouse_app.db.accounts.get_user.calls == [
+        pretend.call("test-user")
+    ]
+    assert warehouse_app.db.packaging.get_projects_for_user.calls == [
         pretend.call("test-user"),
     ]
 
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/profile.html"),
+    assert render_template.calls == [
+        pretend.call(
+            'accounts/profile.html',
+            projects=None,
+            user={'username': username}
+        ),
     ]
 
 
-def test_user_login_get():
-    app = pretend.stub(
-        config=pretend.stub(),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                user_authenticate=pretend.stub(),
-            ),
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
-        ),
-        translations=None,
+def test_user_login_get(monkeypatch, warehouse_app):
+    warehouse_app.warehouse_config = pretend.stub()
+    warehouse_app.db = pretend.stub(
+        accounts=pretend.stub(
+            user_authenticate=pretend.stub(),
+        )
     )
-    request = pretend.stub(
-        method="GET",
-        form=MultiDict(),
-        values={},
-        _session=Session({}, "1234", False),
-    )
+    warehouse_app.testing = True
 
-    resp = login(app, request)
+    render_template = pretend.call_recorder(lambda *args, **ctx: '')
+    monkeypatch.setattr(views, "render_template", render_template)
+
+    with warehouse_app.test_client() as c:
+        resp = c.get('/account/login')
 
     assert resp.status_code == 200
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/login.html"),
+    assert render_template.calls == [
+        pretend.call("accounts/login.html", form=mock.ANY, next=None),
     ]
 
 
@@ -179,61 +164,39 @@ def test_user_login_get():
         "/wat/",
     ),
 ])
-def test_user_login_post_valid(form, values, session, location):
-    app = pretend.stub(
-        config=pretend.stub(),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user_id=lambda username: 9001,
-                user_authenticate=lambda user, password: True,
-            ),
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
-        ),
-        translations=None,
-    )
-    request = pretend.stub(
-        method="POST",
-        form=MultiDict(form),
-        host="example.com",
-        values=values,
-        url_adapter=pretend.stub(
-            build=lambda *a, **kw: "/",
-        ),
-        _session=Session(session, "1234", False),
-    )
-
-    resp = login(app, request)
-
-    assert request.session["user.id"] == 9001
-    assert resp.status_code == 303
-    assert resp.headers["Location"] == location
-    assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
-
-
-def test_user_logout_get():
-    app = pretend.stub(
-        config=pretend.stub(),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
+def test_user_login_post_valid(
+        form, values, session, location, warehouse_app, monkeypatch):
+    warehouse_app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user_id=lambda username: 9001,
+            user_authenticate=lambda user, password: True,
         ),
     )
-    request = pretend.stub(
-        method="GET",
-        values={},
-        _session=Session({"user.id": 1}, "1234", False),
-    )
 
-    resp = logout(app, request)
+    render_template = pretend.call_recorder(lambda *args, **ctx: '')
+    monkeypatch.setattr(views, "render_template", render_template)
+
+    with warehouse_app.test_request_context(
+            method='POST', data=form, query_string=values):
+        resp = login()
+
+        assert resp.status_code == 303
+        assert resp.headers["Location"] == location
+        assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
+
+
+def test_user_logout_get(warehouse_app, monkeypatch):
+    render_template = pretend.call_recorder(lambda *args, **ctx: '')
+    monkeypatch.setattr(views, "render_template", render_template)
+
+    with warehouse_app.test_client() as c:
+        with c.session_transaction() as sess:
+            sess['user.id'] = 1
+        resp = c.get('/account/logout/')
 
     assert resp.status_code == 200
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/logout.html"),
+    assert render_template.calls == [
+        pretend.call("accounts/logout.html", next=None),
     ]
 
 
@@ -241,23 +204,17 @@ def test_user_logout_get():
     ({}, "/"),
     ({"next": "/wat/"}, "/wat/"),
 ])
-def test_user_logout_post(values, location):
-    app = pretend.stub(config=pretend.stub())
-    request = pretend.stub(
-        method="POST",
-        host="example.com",
-        values=values,
-        url_adapter=pretend.stub(
-            build=lambda *a, **kw: "/",
-        ),
-        _session=Session({"user.id": 1}, "1234", False),
-    )
+def test_user_logout_post(values, location, warehouse_app, monkeypatch):
+    render_template = pretend.call_recorder(lambda *args, **ctx: '')
+    monkeypatch.setattr(views, "render_template", render_template)
 
-    resp = logout(app, request)
+    with warehouse_app.test_request_context(
+            method='POST', query_string=values):
+        resp = logout()
+        assert session.deleted
 
     assert resp.status_code == 303
     assert resp.headers["Location"] == location
     assert resp.headers.getlist("Set-Cookie") == [
         "username=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; Path=/",
     ]
-    assert request._session.deleted

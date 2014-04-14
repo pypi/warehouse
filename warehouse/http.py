@@ -11,20 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from flask import current_app
+from flask.wrappers import Request as FlaskRequest, Response as FlaskResponse
 from werkzeug.datastructures import ResponseCacheControl
 from werkzeug.http import parse_cache_control_header
-from werkzeug.wrappers import (
-    BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin,
-    AuthorizationMixin, CommonRequestDescriptorsMixin,
-    BaseResponse, ETagResponseMixin, ResponseStreamMixin,
-    CommonResponseDescriptorsMixin, WWWAuthenticateMixin,
-)
 
 
-class Request(BaseRequest, AcceptMixin, ETagRequestMixin,
-              UserAgentMixin, AuthorizationMixin,
-              CommonRequestDescriptorsMixin):
+class Request(FlaskRequest):
     """
     Full featured request object implementing the following mixins:
 
@@ -35,10 +28,12 @@ class Request(BaseRequest, AcceptMixin, ETagRequestMixin,
     - :class:`CommonRequestDescriptorsMixin` for common headers
     """
 
+    @property
+    def trusted_hosts(self):
+        return current_app.warehouse_config.site.hosts
 
-class Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin,
-               CommonResponseDescriptorsMixin,
-               WWWAuthenticateMixin):
+
+class Response(FlaskResponse):
     """
     Full featured response object implementing the following mixins:
 

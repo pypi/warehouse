@@ -27,29 +27,31 @@ class TestFastlyKey:
             "foo/wat",
         ]
 
-    def test_plain_decorator(self):
+    def test_plain_decorator(self, warehouse_app):
         fastly_key = FastlyKey("foo", "foo/{bar}", "foo/{bar!n}")
 
         @fastly_key
-        def tester(app, request, bar=None):
+        def tester(bar=None):
             return pretend.stub(headers={})
 
-        assert (
-            tester(None, None, bar="WaT").headers["Surrogate-Key"]
-            == "foo foo/WaT foo/wat"
-        )
+        with warehouse_app.test_request_context():
+            assert (
+                tester(bar="WaT").headers["Surrogate-Key"]
+                == "foo foo/WaT foo/wat"
+            )
 
-    def test_advanced_decorator(self):
+    def test_advanced_decorator(self, warehouse_app):
         fastly_key = FastlyKey("foo", "foo/{bar}", "foo/{bar!n}")
 
         @fastly_key(not_bar="bar")
-        def tester(app, request, not_bar=None):
+        def tester(not_bar=None):
             return pretend.stub(headers={})
 
-        assert (
-            tester(None, None, not_bar="WaT").headers["Surrogate-Key"]
-            == "foo foo/WaT foo/wat"
-        )
+        with warehouse_app.test_request_context():
+            assert (
+                tester(not_bar="WaT").headers["Surrogate-Key"]
+                == "foo foo/WaT foo/wat"
+            )
 
 
 def test_fastly_formatter():

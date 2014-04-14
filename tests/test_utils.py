@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest import mock
-
 import pretend
 import pytest
 import six
 
 from warehouse.http import Response
 from warehouse.utils import (
-    merge_dict, render_response, cache, get_wsgi_application, get_mimetype,
+    merge_dict, cache, get_wsgi_application, get_mimetype,
     redirect, SearchPagination, is_valid_json_callback_name,
     generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
     random_token, is_safe_url,
@@ -41,32 +39,6 @@ def test_merge_dictionary(base, additional, expected):
     assert merge_dict(base, additional) == expected
 
 
-def test_render_response():
-    template = pretend.stub(render=pretend.call_recorder(lambda **k: "test"))
-    app = pretend.stub(
-        config=pretend.stub(),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(lambda t: template),
-        ),
-    )
-    request = pretend.stub()
-
-    resp = render_response(app, request, "template.html", foo="bar")
-
-    assert resp.data == b"test"
-    assert app.templates.get_template.calls == [pretend.call("template.html")]
-    assert template.render.calls == [
-        pretend.call(
-            foo="bar",
-            config=app.config,
-            csrf_token=mock.ANY,
-            gravatar_url=mock.ANY,
-            url_for=mock.ANY,
-            static_url=mock.ANY,
-        ),
-    ]
-
-
 @pytest.mark.parametrize(
     ("browser", "varnish", "status"),
     [
@@ -80,20 +52,11 @@ def test_render_response():
         (1, 120, 400),
     ],
 )
-def test_cache_deco(browser, varnish, status):
-    response = pretend.stub(
-        status_code=status,
-        cache_control=pretend.stub(),
-        surrogate_control=pretend.stub(),
-    )
-    view = pretend.call_recorder(lambda *a, **kw: response)
+def test_cache_deco(warehouse_app, browser, varnish, status):
+    view = pretend.call_recorder(lambda *a, **kw: 'response')
 
-    app = pretend.stub()
-    request = pretend.stub()
-
-    resp = cache(browser=browser, varnish=varnish)(view)(app, request)
-
-    assert resp is response
+    with warehouse_app.test_request_context('/'):
+        resp = cache(browser=browser, varnish=varnish)(view)()
 
     if 200 <= resp.status_code < 400:
         if browser:
@@ -187,9 +150,11 @@ def test_redirect_unicode():
         {"location": "http://example.com/wat/", "code": 303},
     ),
 ])
-def test_redirect_next(values, host, kwargs, expected):
-    request = pretend.stub(values=values, host=host)
-    response = redirect_next(request, **kwargs)
+def test_redirect_next(values, host, kwargs, expected, warehouse_app):
+    warehouse_app.warehouse_config.site.hosts.append('example.com')
+    with warehouse_app.test_request_context(
+            headers={'Host': host}, query_string=values):
+        response = redirect_next(**kwargs)
 
     assert response.headers["Location"] == expected["location"]
     assert response.status_code == expected["code"]
@@ -289,12 +254,11 @@ def test_camouflage_images(camo_url, camo_key, html, expected):
     assert camouflage_images(camo_url, camo_key, html) == expected
 
 
-def test_cors():
-    app = pretend.stub()
-    request = pretend.stub()
+def test_cors(warehouse_app):
     response = pretend.stub(headers={})
 
-    resp = cors(lambda *a, **kw: response)(app, request)
+    with warehouse_app.test_request_context():
+        resp = cors(lambda *a, **kw: response)()
 
     assert resp is response
     assert resp.headers == {"Access-Control-Allow-Origin": "*"}

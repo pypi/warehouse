@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import functools
 import argparse
 import collections
-import importlib
 import logging.config
 import os.path
 import urllib.parse
@@ -33,27 +32,28 @@ import redis
 import sqlalchemy
 import yaml
 
+from flask import Flask, request, current_app
+
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
-from werkzeug.exceptions import HTTPException
-from werkzeug.wsgi import responder
 from whitenoise import WhiteNoise
 
 import warehouse
 import warehouse.cli
 
-from warehouse import urls
-from warehouse import db
+from warehouse import db, helpers
+from warehouse.http import Response, Request
 from warehouse.csrf import handle_csrf
 from warehouse.datastructures import AttributeDict
-from warehouse.http import Request
 from warehouse.middlewares import XForwardedTokenMiddleware
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
-from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import merge_dict
+from warehouse.sessions import (
+    RedisSessionStore, Session, RedisSessionInterface
+)
 
 # Register the SQLAlchemy tables by importing them
 import warehouse.accounts.tables
@@ -63,36 +63,60 @@ import warehouse.packaging.tables
 import warehouse.accounts.db
 import warehouse.packaging.db
 
+# Import all the blueprints
+from warehouse.views import blueprint as warehouse_bp
+from warehouse.accounts.views import blueprint as accounts_bp
+from warehouse.legacy.pypi import blueprint as pypi_bp
+from warehouse.legacy.simple import blueprint as simple_bp
+from warehouse.search.views import blueprint as search_bp
+from warehouse.packaging.views import blueprint as packaging_bp
 
-class Warehouse(object):
+
+class Warehouse(Flask):
+
+    request_class = Request
+    response_class = Response
 
     db_classes = {
         "accounts": warehouse.accounts.db.Database,
         "packaging": warehouse.packaging.db.Database,
     }
 
-    static_dir = os.path.abspath(
-        os.path.join(os.path.dirname(warehouse.__file__), "static", "compiled")
-    )
-    static_path = "/static/"
-
     def __init__(self, config, engine=None, redis_class=redis.StrictRedis):
-        self.config = AttributeDict(config)
+        # Setup our Jinja2 Environment
+        self.jinja_options['extensions'].append('jinja2.ext.i18n')
+        self.jinja_loader = jinja2.PackageLoader("warehouse")
+
+        static_folder = os.path.abspath(
+            os.path.join(
+                os.path.dirname(warehouse.__file__),
+                "static", "compiled"
+            )
+        )
+        super(Warehouse, self).__init__(
+            'warehouse',
+            static_url_path='/static',
+            static_folder=static_folder,
+        )
+        self.warehouse_config = AttributeDict(config)
 
         self.metadata = db.metadata
 
         # configure logging
-        logging.config.dictConfig(self.config.logging)
+        logging.config.dictConfig(self.warehouse_config.logging)
 
         # Connect to the database
-        if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+        if engine is None and self.warehouse_config.get(
+                "database", {}).get("url"):
+            engine = sqlalchemy.create_engine(
+                self.warehouse_config.database.url
+            )
         self.engine = engine
 
         # Create our redis connections
         self.redises = {
             key: redis_class.from_url(url)
-            for key, url in self.config.redis.items()
+            for key, url in self.warehouse_config.redis.items()
         }
 
         # Create our Store instance and associate our store modules with it
@@ -106,27 +130,14 @@ class Warehouse(object):
             )
 
         # Create our Search Index instance and associate our mappings with it
-        self.search = Index(self.db, self.config.search)
+        self.search = Index(self.db, self.warehouse_config.search)
         self.search.register(ProjectMapping)
-
-        # Set up our URL routing
-        self.urls = urls.urls
 
         # Initialize our Translations engine
         self.translations = babel.support.NullTranslations()
 
-        # Setup our Jinja2 Environment
-        self.templates = jinja2.Environment(
-            autoescape=True,
-            auto_reload=self.config.debug,
-            extensions=[
-                "jinja2.ext.i18n",
-            ],
-            loader=jinja2.PackageLoader("warehouse"),
-        )
-
         # Install Babel
-        self.templates.filters.update({
+        self.jinja_env.filters.update({
             "package_type_display": packaging_helpers.package_type_display,
             "format_number": babel.numbers.format_number,
             "format_decimal": babel.numbers.format_decimal,
@@ -137,7 +148,7 @@ class Warehouse(object):
         })
 
         # Install our translations
-        self.templates.install_gettext_translations(
+        self.jinja_env.install_gettext_translations(
             self.translations,
             newstyle=True,
         )
@@ -154,16 +165,17 @@ class Warehouse(object):
             deprecated=["auto"],
         )
 
-        # Setup our session storage
+        # Setup our session storage and interface
         self.session_store = RedisSessionStore(
             self.redises["sessions"],
             session_class=Session,
         )
+        self.session_interface = RedisSessionInterface(self.session_store)
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
-        if self.config.camo:
-            camo_parsed = urllib.parse.urlparse(self.config.camo.url)
+        if self.warehouse_config.camo:
+            camo_parsed = urllib.parse.urlparse(self.warehouse_config.camo.url)
             img_src += [
                 "{}://{}".format(camo_parsed.scheme, camo_parsed.netloc),
                 "https://secure.gravatar.com",
@@ -181,14 +193,16 @@ class Warehouse(object):
             },
         )
 
-        if "sentry" in self.config:
-            self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
+        if "sentry" in self.warehouse_config:
+            self.wsgi_app = Sentry(
+                self.wsgi_app, Client(**self.warehouse_config.sentry)
+            )
 
-        # Serve the static files that are packaged as part of Warehouse
+        # Add WhiteNoise middleware to serve the static files.
         self.wsgi_app = WhiteNoise(
             self.wsgi_app,
-            root=self.static_dir,
-            prefix=self.static_path,
+            root=static_folder,
+            prefix='/static/',
             max_age=31557600,
         )
 
@@ -211,14 +225,23 @@ class Warehouse(object):
         # if the request doesn't come from Fastly
         self.wsgi_app = XForwardedTokenMiddleware(
             self.wsgi_app,
-            self.config.site.access_token,
+            self.warehouse_config.site.access_token,
         )
 
-    def __call__(self, environ, start_response):
-        """
-        Shortcut for :attr:`wsgi_app`.
-        """
-        return self.wsgi_app(environ, start_response)
+        # Register all the blueprints
+        self.register_blueprint(warehouse_bp)
+        self.register_blueprint(accounts_bp)
+        self.register_blueprint(pypi_bp)
+        self.register_blueprint(simple_bp)
+        self.register_blueprint(search_bp)
+        self.register_blueprint(packaging_bp)
+
+        # Register the CSRF handling behavior
+        # to be triggered before the request
+        @self.before_request
+        def handle_csrf_token():
+            view = current_app.view_functions[request.endpoint]
+            handle_csrf(request, view)
 
     @classmethod
     def from_yaml(cls, *paths, **kwargs):
@@ -278,55 +301,25 @@ class Warehouse(object):
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
 
-    # The order of these decorators matter. We need @handle_session to come
-    # before anything that depends on it, like @handle_csrf
-    @handle_session
-    @handle_csrf
-    def dispatch_view(self, view, *args, **kwargs):
-        return view(*args, **kwargs)
+    def update_template_context(self, context):
+        super(Warehouse, self).update_template_context(context)
+        context.update({
+            "config": self.warehouse_config,
+            "csrf_token": functools.partial(helpers.csrf_token, request),
+            "gravatar_url": helpers.gravatar_url,
+            "static_url": helpers.static_url,
+        })
 
-    @responder
-    def wsgi_app(self, environ, start_response):
+    def make_response(self, *args):
         """
-        The actual WSGI application.  This is not implemented in
-        `__call__` so that middlewares can be applied without losing a
-        reference to the class.  So instead of doing this::
-
-            app = MyMiddleware(app)
-
-        It's a better idea to do this instead::
-
-            app.wsgi_app = MyMiddleware(app.wsgi_app)
-
-        Then you still have the original application object around and
-        can continue to call methods on it.
-
-        :param environ: a WSGI environment
-        :param start_response: a callable accepting a status code,
-                               a list of headers and an optional
-                               exception context to start the response
+        Handle the case where responses might be stubs for testing.
         """
         try:
-            # Figure out what endpoint to call
-            urls = self.urls.bind_to_environ(environ)
-            endpoint, kwargs = urls.match()
-
-            # Load our view function
-            modname, viewname = endpoint.rsplit(".", 1)
-            module = importlib.import_module(modname)
-            view = getattr(module, viewname)
-
-            # Create our request object
-            request = Request(environ)
-            request.url_adapter = urls
-
-            # Attach our trusted hosts to this request
-            request.trusted_hosts = self.config.site.hosts
-
-            # Access request.host to trigger a check against our trusted_hosts
-            request.host
-
-            # Dispatch to the loaded view function
-            return self.dispatch_view(view, self, request, **kwargs)
-        except HTTPException as exc:
-            return exc
+            from pretend import stub
+        except ImportError:
+            pass
+        else:
+            if isinstance(args[0], stub):
+                # It's a stub, just return it
+                return args[0]
+        return super(Warehouse, self).make_response(*args)

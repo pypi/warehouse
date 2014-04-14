@@ -252,7 +252,7 @@ class Database(db.Database):
         for r in self.engine.execute(query, project=project, version=version):
             result = dict(r)
             result["filepath"] = os.path.join(
-                self.app.config.paths.packages,
+                self.app.warehouse_config.paths.packages,
                 result["python_version"],
                 result["name"][0],
                 result["name"],
@@ -475,13 +475,13 @@ class Database(db.Database):
 
     def get_documentation_url(self, project):
         path_parts = [
-            self.app.config.paths.documentation,
+            self.app.warehouse_config.paths.documentation,
             project,
             "index.html",
         ]
         if os.path.exists(os.path.join(*path_parts)):
             return urllib.parse.urljoin(
-                self.app.config.urls.documentation,
+                self.app.warehouse_config.urls.documentation,
                 project
             ) + "/"
 

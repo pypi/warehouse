@@ -17,7 +17,9 @@ import re
 import msgpack
 import msgpack.exceptions
 
-from werkzeug.contrib.sessions import SessionStore, Session as _Session
+from flask.sessions import SessionInterface, SessionMixin
+from werkzeug.contrib.sessions import SessionStore
+from werkzeug.datastructures import CallbackDict
 
 from warehouse.utils import random_token, vary_by
 
@@ -47,17 +49,19 @@ class RedisSessionStore(SessionStore):
         return self.valid_key_regex.search(key) is not None
 
     def get(self, sid):
-        # Ensure we have a valid key, if not generate a new one
+        """
+        Return the session data or None if the sid is not valid, not found
+        """
         if not self.is_valid_key(sid):
-            return self.new()
+            # Ensure we have a valid key
+            return None
 
         # Fetch the serialized data from redis
         bdata = self.redis.get(self._redis_key(sid))
 
-        # If the session doesn't exist in redis, we'll give the user a new
-        # session
         if bdata is None:
-            return self.new()
+            # If the session doesn't exist in redis
+            return None
 
         try:
             data = msgpack.unpackb(bdata, encoding="utf8", use_list=True)
@@ -65,7 +69,7 @@ class RedisSessionStore(SessionStore):
                 msgpack.exceptions.UnpackException,
                 msgpack.exceptions.ExtraData):
             # If the session data was invalid we'll give the user a new session
-            return self.new()
+            return None
 
         # If we were able to load existing session data, load it into a
         # Session class
@@ -105,95 +109,77 @@ class RedisSessionStore(SessionStore):
         return new_session
 
 
-class Session(_Session):
+class Session(CallbackDict, SessionMixin):
 
-    def __init__(self, *args, **kwargs):
-        super(Session, self).__init__(*args, **kwargs)
+    def __init__(self, initial=None, sid=None, new=False):
+        def on_update(self):
+            self.modified = True
+        CallbackDict.__init__(self, initial, on_update)
 
+        self.sid = sid
+        self.new = new
+
+        # XXX: Perhaps call this to_cycle and to_delete
         self.cycled = False
         self.deleted = False
 
+        self.modified = False
+
     def cycle(self):
+        self.modified = True
         self.cycled = True
 
     def delete(self):
+        # XXX: Re-evaluate if this has to be considered modification
+        self.modified = True
         self.deleted = True
 
 
-def handle_session(fn):
+class RedisSessionInterface(SessionInterface):
+    session_class = Session
 
-    @functools.wraps(fn)
-    def wrapped(self, view, app, request, *args, **kwargs):
-        # Short little alias for the session store to make it easier to refer
-        # to
-        store = app.session_store
+    def __init__(self, session_store):
+        self.session_store = session_store
 
-        # Look up the session id from the request, and either create a new
-        # session or fetch the existing one from the session store
-        sid = request.cookies.get(SESSION_COOKIE_NAME, None)
-        session = store.new() if sid is None else store.get(sid)
+    def open_session(self, app, request):
+        sid = request.cookies.get(app.session_cookie_name)
 
-        # Stick the session on the request, but in a private variable. If
-        # a view wants to use the session it should use @uses_session to move
-        # it to request.session and appropriately vary by Cookie
-        request._session = session
+        if not sid:
+            # If there is no session ID create a new session
+            return self.session_store.new()
 
-        # Call our underlying function in order to get the response to this
-        # request
-        resp = fn(self, view, app, request, *args, **kwargs)
+        val = self.session_store.get(sid)
+        if val is not None:
+            return val
+        return self.session_store.new()
 
-        # Check to see if the session has been marked to be deleted, it it has
-        # tell our session store to delete it, and tell our response to delete
-        # the session cookie as well, and then finally short circuit and return
-        # our response.
+    def save_session(self, app, session, response):
+        domain = self.get_cookie_domain(app)
         if session.deleted:
-            # Delete in our session store
-            store.delete(session)
+            self.session_store.delete(session)
+            if session.modified:
+                response.delete_cookie(app.session_cookie_name, domain=domain)
+            return
 
-            # Delete the cookie in the browser
-            resp.delete_cookie(SESSION_COOKIE_NAME)
-
-        # Check to see if the session has been marked to be cycled or not.
-        # When cycling a session we copy all of the data into a new session
-        # and delete the old one.
         if session.cycled:
-            session = store.cycle(session)
+            session = self.session_store.cycle(session)
 
-        # Check to see if the session has been marked to be saved, generally
-        # this means that the session data has been modified and thus we need
-        # to store the new data.
-        if session.should_save:
-            store.save(session)
+        if not session:
+            return
 
-            # Whenever we store new data for our session, we want to issue a
-            # new Set-Cookie header so that our expiration date for this
-            # session gets reset.
-            resp.set_cookie(
-                SESSION_COOKIE_NAME,
-                session.sid,
-                secure=request.is_secure,
-                httponly=True,
-            )
-
-        # Finally return our response
-        return resp
-
-    # Set an attribute so that we can verify the dispatch_view has had session
-    # support enabled
-    wrapped._sessions_handled = True
-
-    return wrapped
+        cookie_exp = self.get_expiration_time(app, session)
+        self.session_store.save(session)
+        response.set_cookie(
+            app.session_cookie_name, session.sid,
+            expires=cookie_exp, httponly=True,
+            domain=domain
+        )
 
 
 def uses_session(fn):
-
     @functools.wraps(fn)
     @vary_by("Cookie")
-    def wrapper(app, request, *args, **kwargs):
-        # Add the session onto the request object
-        request.session = request._session
-
+    def wrapper(*args, **kwargs):
         # Call the underlying function
-        return fn(app, request, *args, **kwargs)
-
+        return fn(*args, **kwargs)
     return wrapper
