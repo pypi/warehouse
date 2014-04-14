@@ -203,6 +203,7 @@ class TestSearchPagination:
     @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
         (100, 10, 1, False),
         (100, 10, 2, True),
+        (0, 10, 1, False),
     ])
     def test_has_prev(self, total, per_page, page, has):
         paginator = SearchPagination(
@@ -216,6 +217,7 @@ class TestSearchPagination:
     @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
         (100, 10, 10, False),
         (100, 10, 9, True),
+        (0, 10, 1, False),
     ])
     def test_has_next(self, total, per_page, page, has):
         paginator = SearchPagination(
