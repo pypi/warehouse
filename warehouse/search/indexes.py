@@ -18,7 +18,7 @@ import os
 from elasticsearch import Elasticsearch, TransportError
 from elasticsearch.helpers import bulk_index
 
-from warehouse.utils import AttributeDict
+from warehouse.datastructures import AttributeDict
 
 
 class Index(object):

@@ -18,11 +18,12 @@ import time
 from werkzeug.utils import redirect
 from werkzeug.exceptions import NotFound, BadRequest
 
+from warehouse import fastly
 from warehouse.helpers import url_for
 from warehouse.http import Response
 from warehouse.legacy import xmlrpc
 from warehouse.utils import (
-    cache, cors, fastly, is_valid_json_callback_name, render_response,
+    cache, cors, is_valid_json_callback_name, render_response,
 )
 
 
@@ -49,7 +50,7 @@ def daytime(app, request):
 
 @cors
 @cache(browser=1, varnish=120)
-@fastly("legacy-json", "legacy-json~{project_name!n}")
+@fastly.projects(project_name="project")
 def project_json(app, request, project_name):
     # fail early if callback is invalid
     callback = request.args.get('callback')
@@ -90,7 +91,7 @@ def project_json(app, request, project_name):
 
 
 @cache(browser=1, varnish=120)
-@fastly("legacy_rss")
+@fastly.rss
 def rss(app, request):
     """Dump the last N days' updates as an RSS feed.
     """
@@ -113,7 +114,7 @@ def rss(app, request):
 
 
 @cache(browser=1, varnish=120)
-@fastly("legacy_rss")
+@fastly.rss
 def packages_rss(app, request):
     """Dump the last N days' new projects as an RSS feed.
     """

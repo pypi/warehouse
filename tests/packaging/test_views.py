@@ -104,7 +104,7 @@ def test_project_detail_redirects():
     assert resp.headers["Location"] == "/projects/test-project/"
 
     assert resp.headers["Surrogate-Key"] == \
-        "project-detail project-detail~{}".format(normalized)
+        "project project/{}".format(normalized)
 
     assert app.db.packaging.get_project.calls == [
         pretend.call("test-Project"),
@@ -284,7 +284,7 @@ def test_project_detail_valid(version, description, camo):
     assert resp.status_code == 200
 
     assert resp.headers["Surrogate-Key"] == \
-        "project-detail project-detail~{}".format(normalized)
+        "project project/{}".format(normalized)
 
     assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
