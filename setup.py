@@ -51,7 +51,7 @@ setup(
 
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
     ],
 
     packages=find_packages(),
@@ -69,7 +69,6 @@ setup(
         "babel",
         "bcrypt",
         "elasticsearch",
-        "enum34",
         "guard",
         "html5lib",
         "Jinja2",
