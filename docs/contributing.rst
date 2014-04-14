@@ -45,7 +45,7 @@ format (``%s``).
 Development Environment
 -----------------------
 
-Warehouse development requires the installation of several external non-Python
+Warehouse development requires Python3.4 and the installation of several external non-Python
 dependencies. These are:
 
 * `PostgreSQL`_ 9.2+
