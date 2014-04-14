@@ -84,7 +84,7 @@ Finally you can setup the project:
 Design Development
 ------------------
 
-Warehouse design development uses `Compass`_ and `Grunt`_ as it's asset
+Warehouse design development uses `Compass`_ and `Grunt`_ as its asset
 pipeline. You can install the required dependencies by running:
 
 .. code-block:: console
@@ -136,8 +136,7 @@ each supported Python version and run the tests.  For example:
 
    $ tox
    ...
-    py27: commands succeeded
-   ERROR:   pypy: InterpreterNotFound: pypy
+    py34: commands succeeded
     docs: commands succeeded
     pep8: commands succeeded
 
@@ -184,10 +183,9 @@ The HTML documentation index can now be found at ``docs/_build/html/index.html``
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`PEP 8`: http://www.peps.io/8/
-.. _`future statements`: http://docs.python.org/2/reference/simple_stmts.html#future-statements
 .. _`PostgreSQL`: https://github.com/postgres/postgres
 .. _`Redis`: https://github.com/antirez/redis
-.. _`Elasticsearch`: https://github.com/elasticsearch/elasticsearch
+.. _`Elasticsearch`: http://www.elasticsearch.org/
 .. _`Compass`: https://github.com/chriseppstein/compass
 .. _`Grunt`: http://gruntjs.com/
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
