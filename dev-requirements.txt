@@ -5,3 +5,4 @@
 tox
 pretend
 mock
+pytest
