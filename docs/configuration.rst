@@ -41,6 +41,23 @@ site.hosts
 :Description:
     A list of strings that Warehouse will trust in the Host header.
 
+site.access_token
+~~~~~~~~~~~~~~~~~
+
+:Type: String
+:Required: Yes
+:Description:
+    A string that must be sent as part of the request in order for Warehouse
+    to trust the ``X-Forwarded-*`` headers sent in the request. This is
+    designed to allow the Fastly CDN to "authenticate" it's ``X-Forwarded-*``
+    headers.
+
+    This setting requires that any trusted front end sets a header named
+    ``X-Warehouse-Access-Token`` with the value set to whatever the
+    ``site.access_token`` value is. If the header is unset, or the token does
+    not match, then Warehouse will strip any ``X-Forwarded-*`` headers from
+    the request before processing.
+
 site.url
 ~~~~~~~~
 

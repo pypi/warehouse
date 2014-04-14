@@ -32,6 +32,9 @@ from warehouse.application import Warehouse
 def test_basic_instantiation():
     Warehouse({
         "debug": False,
+        "site": {
+            "access_token": "testing",
+        },
         "database": {
             "url": "postgres:///test_warehouse",
         },
