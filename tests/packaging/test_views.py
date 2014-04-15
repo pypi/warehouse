@@ -242,6 +242,7 @@ def test_project_detail_valid(
             get_users_for_project=pretend.call_recorder(lambda proj: []),
         ),
     )
+    warehouse_app.warehouse_config = pretend.stub(camo=camo)
 
     project_name = "test-project"
     normalized = "test-project"

@@ -18,9 +18,10 @@ import os.path
 import guard
 import pretend
 import pytest
+from jinja2 import Template
+from flask import render_template
 
 import warehouse
-
 from warehouse import application, cli
 from warehouse.application import Warehouse
 
@@ -227,3 +228,16 @@ def test_passlib_context():
         "default": "bcrypt_sha256",
         "deprecated": ["auto"],
     }
+
+
+def test_template_rendering(warehouse_app):
+    """
+    Test a simple template rendering view
+    """
+    @warehouse_app.route('/simple-template')
+    def render_simple():
+        template = Template("Hello World")
+        return render_template(template)
+
+    with warehouse_app.test_client() as c:
+        c.get('/simple-template')

@@ -316,7 +316,7 @@ class Warehouse(Flask):
         """
         try:
             from pretend import stub
-        except ImportError:
+        except ImportError:     # pragma: no cover
             pass
         else:
             if isinstance(args[0], stub):
