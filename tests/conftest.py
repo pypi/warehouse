@@ -172,4 +172,11 @@ def warehouse_app():
     }
     app = Warehouse(TEST_CONFIG)
     app.testing = True
+    _session_store = {}
+    app.session_interface.session_store.redis = pretend.stub(
+        get=lambda key: _session_store.get(key),
+        setex=lambda key, age, data: _session_store.update({key: data}),
+        delete=lambda key: _session_store.pop(key, None),
+        expire=lambda key, age: _session_store.pop(key, None),
+    )
     return app
