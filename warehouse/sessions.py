@@ -17,7 +17,7 @@ import re
 import msgpack
 import msgpack.exceptions
 
-from flask import request
+from flask import current_app, request
 from werkzeug.contrib.sessions import SessionStore, Session as _Session
 
 from warehouse.utils import random_token, vary_by
@@ -124,10 +124,10 @@ class Session(_Session):
 def handle_session(fn):
 
     @functools.wraps(fn)
-    def wrapped(self, view, app, request, *args, **kwargs):
+    def wrapped(*args, **kwargs):
         # Short little alias for the session store to make it easier to refer
         # to
-        store = app.session_store
+        store = current_app.session_store
 
         # Look up the session id from the request, and either create a new
         # session or fetch the existing one from the session store
@@ -141,7 +141,7 @@ def handle_session(fn):
 
         # Call our underlying function in order to get the response to this
         # request
-        resp = fn(self, view, app, request, *args, **kwargs)
+        resp = fn(*args, **kwargs)
 
         # Check to see if the session has been marked to be deleted, it it has
         # tell our session store to delete it, and tell our response to delete
@@ -178,10 +178,6 @@ def handle_session(fn):
 
         # Finally return our response
         return resp
-
-    # Set an attribute so that we can verify the dispatch_view has had session
-    # support enabled
-    wrapped._sessions_handled = True
 
     return wrapped
 

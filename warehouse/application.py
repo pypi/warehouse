@@ -37,14 +37,14 @@ from whitenoise import WhiteNoise
 import warehouse
 import warehouse.cli
 
-from warehouse import db, helpers
+from warehouse import db, helpers, sanity
 from warehouse.datastructures import AttributeDict, CaseInsensitiveMixin
 from warehouse.http import Response
 from warehouse.middlewares import XForwardedTokenMiddleware
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
-from warehouse.sessions import RedisSessionStore, Session
+from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import merge_dict
 
 # Register the SQLAlchemy tables by importing them
@@ -72,6 +72,11 @@ class Warehouse(flask.Flask):
     config_class = Config
 
     response_class = Response
+
+    # Set this, this will be confusing because we'll have our own session
+    # interface, however this is the only way to convince Flask to never ever
+    # EVER touch a session.
+    session_interface = sanity.FakeSessionInterface()
 
     required_blueprints = [
         warehouse.views.blueprint,
@@ -250,6 +255,10 @@ class Warehouse(flask.Flask):
         if instance_relative:
             root_path = self.instance_path
         return self.config_class(root_path, self.default_config)
+
+    @handle_session
+    def dispatch_request(self, *args, **kwargs):
+        return super(Warehouse, self).dispatch_request(*args, **kwargs)
 
     @classmethod
     def from_yaml(cls, *paths, **kwargs):
