@@ -79,6 +79,9 @@ class Warehouse(flask.Flask):
     # EVER touch a session.
     session_interface = sanity.FakeSessionInterface()
 
+    # Ensure that the magic `g` object can never ever EVER be used for anything
+    app_ctx_globals_class = staticmethod(lambda: None)
+
     required_blueprints = [
         warehouse.views.blueprint,
         warehouse.accounts.views.blueprint,
