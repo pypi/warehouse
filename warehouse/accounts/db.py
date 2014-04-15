@@ -20,8 +20,6 @@ from warehouse import db
 
 logger = logging.getLogger(__name__)
 
-CHARS = string.ascii_letters + string.digits
-
 
 class Database(db.Database):
 
