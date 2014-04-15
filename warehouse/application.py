@@ -38,6 +38,7 @@ import warehouse
 import warehouse.cli
 
 from warehouse import db, helpers, sanity
+from warehouse.csrf import handle_csrf
 from warehouse.datastructures import AttributeDict, CaseInsensitiveMixin
 from warehouse.http import Response
 from warehouse.middlewares import XForwardedTokenMiddleware
@@ -256,7 +257,10 @@ class Warehouse(flask.Flask):
             root_path = self.instance_path
         return self.config_class(root_path, self.default_config)
 
+    # The order of these are significant, we need to ensure that the session
+    # handling is done prior to the CSRF handling.
     @handle_session
+    @handle_csrf
     def dispatch_request(self, *args, **kwargs):
         return super(Warehouse, self).dispatch_request(*args, **kwargs)
 
