@@ -26,7 +26,18 @@ def test_flask_relative_session_import_fails():
 
 
 def test_ordinary_imports_fine():
-    TEST_SAFE_IMPORT = "from warehouse.foo import bar\n\n"
+    TEST_SAFE_IMPORT = [
+        "from warehouse.foo import bar\n",
+        "import foo\n",
+        "\n"
+    ]
     checker = pep8.Checker(lines=TEST_SAFE_IMPORT, quiet=True)
+    checker.check_all()
+    assert checker.report.get_count(FlaskSessionCheck.CODE) == 0
+
+
+def test_non_imports_pass():
+    TEST_NON_IMPORT = "a = 1\n\n"
+    checker = pep8.Checker(lines=TEST_NON_IMPORT, quiet=True)
     checker.check_all()
     assert checker.report.get_count(FlaskSessionCheck.CODE) == 0
