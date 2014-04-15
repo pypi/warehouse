@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from xmlrpc.server import SimpleXMLRPCDispatcher
+
 import arrow
 
 from werkzeug.exceptions import BadRequest
 
-from warehouse.compat import SimpleXMLRPCDispatcher
 from warehouse.http import Response
 
 
