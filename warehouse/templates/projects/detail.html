@@ -179,12 +179,15 @@
             <dd>{{ release.platform|replace("\n", ", ") }}</dd>
           {% endif %}
 
-          {% if release.requires_dist %}
+          {% if requirements %}
             <dt>{{ gettext('Requires Distribution') }}</dt>
             <dd>
               <ul class="list-unstyled">
-                {% for requires in release.requires_dist %}
-                  <li>{{ requires }}</li>
+                {% for requirement in requirements %}
+                  <li>
+                      <a href="{{ requirement.project_url }}">{{ requirement.project_name }}</a>
+                      {{ requirement.other }}
+                  </li>
                 {% endfor %}
               </ul>
             </dd>
