@@ -14,13 +14,19 @@
 
 import functools
 
+from flask import (
+    Blueprint, current_app as app, request, render_template, url_for
+)
+
 from werkzeug.exceptions import NotFound
-
-from warehouse.helpers import url_for
-from warehouse.utils import render_response, SearchPagination
+from warehouse.utils import SearchPagination
 
 
-def search(app, request, doctype):
+blueprint = Blueprint('warehouse.search.views', __name__)
+
+
+@blueprint.route("/search/<doctype>/")
+def search(doctype):
     if doctype not in app.search.types:
         raise NotFound
 
@@ -39,13 +45,11 @@ def search(app, request, doctype):
     total = results.get("hits", {}).get("total", 0)
 
     url_partial = functools.partial(
-        url_for, request, 'warehouse.search.views.search', doctype='project',
+        url_for, 'warehouse.search.views.search', doctype='project',
         q=query)
     pages = SearchPagination(page, total, limit, url_partial)
 
-    return render_response(
-        app,
-        request,
+    return render_template(
         "search/results.html",
         query=query, total=total, pages=pages,
         results=[r["_source"] for r in results["hits"]["hits"]],

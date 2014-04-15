@@ -11,31 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import glob
-import os
-
-import werkzeug.serving
-
 import warehouse
 import warehouse.migrations.cli
 import warehouse.search.cli
-
-from warehouse.serving import WSGIRequestHandler
 
 
 class ServeCommand:
 
     def __call__(self, app, host, port, reloader, debugger):
-        werkzeug.serving.run_simple(
-            host, port, app,
-            use_reloader=reloader,
-            use_debugger=debugger,
-            request_handler=WSGIRequestHandler,
-            extra_files=(
-                glob.glob(os.path.join(app.static_dir, "*.*")) +
-                glob.glob(os.path.join(app.static_dir, "*/*.*"))
-            ),
+        app.run(
+            host, port, debugger,
+            use_reloader=reloader
         )
 
     def create_parser(self, parser):

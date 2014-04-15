@@ -18,48 +18,47 @@ from warehouse import views
 from warehouse.views import index
 
 
-def test_index(monkeypatch):
+def test_index(monkeypatch, warehouse_app):
     project_count = pretend.stub()
     download_count = pretend.stub()
     updated = pretend.stub()
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project_count=pretend.call_recorder(
-                    lambda: project_count,
-                ),
-                get_download_count=pretend.call_recorder(
-                    lambda: download_count,
-                ),
-                get_recently_updated=pretend.call_recorder(lambda: updated),
+    warehouse_app.warehouse_config = pretend.stub(
+        cache=pretend.stub(browser=False, varnish=False),
+    )
+    warehouse_app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project_count=pretend.call_recorder(
+                lambda: project_count,
             ),
+            get_download_count=pretend.call_recorder(
+                lambda: download_count,
+            ),
+            get_recently_updated=pretend.call_recorder(lambda: updated),
         ),
     )
-    request = pretend.stub()
-
     response = pretend.stub(
         status_code=200,
         headers={},
         cache_control=pretend.stub(),
         surrogate_control=pretend.stub(),
     )
-    render_response = pretend.call_recorder(lambda *a, **kw: response)
+    render_template = pretend.call_recorder(lambda *a, **kw: response)
 
-    monkeypatch.setattr(views, "render_response", render_response)
+    monkeypatch.setattr(views, "render_template", render_template)
 
-    resp = index(app, request)
+    with warehouse_app.test_request_context('/'):
+        resp = index()
 
     assert resp is response
-    assert app.db.packaging.get_project_count.calls == [pretend.call()]
-    assert app.db.packaging.get_download_count.calls == [pretend.call()]
-    assert app.db.packaging.get_recently_updated.calls == [pretend.call()]
-    assert render_response.calls == [
+
+    packaging = warehouse_app.db.packaging
+    assert packaging.get_project_count.calls == [pretend.call()]
+    assert packaging.get_download_count.calls == [pretend.call()]
+    assert packaging.get_recently_updated.calls == [pretend.call()]
+    assert render_template.calls == [
         pretend.call(
-            app, request, "index.html",
+            "index.html",
             project_count=project_count,
             download_count=download_count,
             recently_updated=updated,

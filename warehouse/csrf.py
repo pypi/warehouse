@@ -11,10 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import functools
 import hmac
 import urllib.parse
 
+from flask import session
 from werkzeug.exceptions import SecurityError
 
 from warehouse.utils import random_token, vary_by
@@ -53,10 +53,7 @@ def _verify_csrf_origin(request):
 
 def _verify_csrf_token(request):
     # Get the token out of the session
-    #   Note: We have to use the private request._session because
-    #         request.session is not guaranteed to exist when this function is
-    #         called.
-    csrf_token = request._session.get("user.csrf")
+    csrf_token = session.get("user.csrf")
 
     # Validate that we have a stored token, if we do not then we have nothing
     # to compare the incoming token against.
@@ -84,57 +81,47 @@ def _ensure_csrf_token(request):
     #   Note: We have to use the private request._session because
     #         request.session is not guaranteed to exist when this function is
     #         called.
-    if not request._session.get("user.csrf"):
-        request._session["user.csrf"] = random_token()
+    if not session.get("user.csrf"):
+        session["user.csrf"] = random_token()
 
     # Store the fact that CSRF is in use for this request on the request
     request._csrf = True
 
 
-def handle_csrf(fn,
-                _verify_origin=_verify_csrf_origin,
-                _verify_token=_verify_csrf_token):
+def handle_csrf(
+    request, view,
+    _verify_origin=_verify_csrf_origin,
+    _verify_token=_verify_csrf_token
+):
 
-    @functools.wraps(fn)
-    def wrapped(self, view, app, request, *args, **kwargs):
-        # Assume that anything not defined as 'safe' by RFC2616 needs
-        # protection
-        if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
-            # We have 3 potential states for a view function to be in, it could
-            # have asked for CSRF, exempted for CSRF, or done none of these.
-            if getattr(view, "_csrf", None) is None:
-                # CSRF influences the response and thus we cannot know if it is
-                # safe to access the session or if that will inadvertently
-                # trigger the response to require a Vary: Cookie so if the
-                # function has not explicitly told us one way or another we
-                # will always hard fail on an unsafe method.
-                raise SecurityError("No CSRF protection applied to view")
-            elif getattr(view, "_csrf", None):
-                # The function has explicitly opted in to the CSRF protection
-                # and we ca assume that it has handled setting up the CSRF
-                # token as well as making sure that a Vary: Cookie header has
-                # been added.
-                _verify_origin(request)
-                _verify_token(request)
+    # Assume that anything not defined as 'safe' by RFC2616 needs
+    # protection
+    if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
+        # We have 3 potential states for a view function to be in, it could
+        # have asked for CSRF, exempted for CSRF, or done none of these.
 
-        # Ensure that the session has a token stored for this request. This is
-        # purposely done *after* we've validated the CSRF above. If there is
-        # no CSRF token stored we want that to be a distinct messages from if
-        # the given token doesn't match a new, random, token.
-        if getattr(view, "_csrf", None):
-            _ensure_csrf_token(request)
+        if getattr(view, "_csrf", None) is None:
+            # CSRF influences the response and thus we cannot know if it is
+            # safe to access the session or if that will inadvertently
+            # trigger the response to require a Vary: Cookie so if the
+            # function has not explicitly told us one way or another we
+            # will always hard fail on an unsafe method.
+            raise SecurityError("No CSRF protection applied to view")
 
-        # If we've gotten to this point, than either the request was a "safe"
-        # method, the view has opted out of CSRF, or the CSRF has been
-        # verified. In any case it *should* be safe to actually process this
-        # request.
-        return fn(self, view, app, request, *args, **kwargs)
+        elif getattr(view, "_csrf", None):
+            # The function has explicitly opted in to the CSRF protection
+            # and we ca assume that it has handled setting up the CSRF
+            # token as well as making sure that a Vary: Cookie header has
+            # been added.
+            _verify_origin(request)
+            _verify_token(request)
 
-    # Set an attribute so that we can verify the dispatch_view has had CSRF
-    # enabled
-    wrapped._csrf_handled = True
-
-    return wrapped
+    # Ensure that the session has a token stored for this request. This is
+    # purposely done *after* we've validated the CSRF above. If there is
+    # no CSRF token stored we want that to be a distinct messages from if
+    # the given token doesn't match a new, random, token.
+    if getattr(view, "_csrf", None):
+        _ensure_csrf_token(request)
 
 
 def csrf_protect(fn):

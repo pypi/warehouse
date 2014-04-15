@@ -15,19 +15,23 @@
 import json
 import time
 
+from flask import (
+    Blueprint, current_app as app, request, url_for, render_template
+)
 from werkzeug.utils import redirect
 from werkzeug.exceptions import NotFound, BadRequest
 
 from warehouse import fastly
-from warehouse.helpers import url_for
-from warehouse.http import Response
 from warehouse.legacy import xmlrpc
 from warehouse.utils import (
-    cache, cors, is_valid_json_callback_name, render_response,
+    cache, cors, is_valid_json_callback_name
 )
 
+blueprint = Blueprint('warehouse.legacy.pypi', __name__)
 
-def pypi(app, request):
+
+@blueprint.route('/pypi', methods=['GET', 'POST'])
+def pypi():
     # if the MIME type of the request is XML then we go into XML-RPC mode
     if request.headers.get('Content-Type') == 'text/xml':
         return xmlrpc.handle_request(app, request)
@@ -35,23 +39,22 @@ def pypi(app, request):
     # no XML-RPC and no :action means we render the index, or at least we
     # redirect to where it moved to
     return redirect(
-        url_for(
-            request,
-            "warehouse.views.index",
-        ),
+        url_for("warehouse.views.index"),
         code=301,
     )
 
 
-def daytime(app, request):
+@blueprint.route('/daytime')
+def daytime():
     response = time.strftime("%Y%m%dT%H:%M:%S\n", time.gmtime(time.time()))
-    return Response(response, mimetype="text/plain")
+    return app.response_class(response, mimetype="text/plain")
 
 
+@blueprint.route("/pypi/<project_name>/json")
 @cors
 @cache(browser=1, varnish=120)
 @fastly.projects(project_name="project")
-def project_json(app, request, project_name):
+def project_json(project_name):
     # fail early if callback is invalid
     callback = request.args.get('callback')
     if callback:
@@ -85,52 +88,62 @@ def project_json(app, request, project_name):
     if callback:
         data = '/**/ %s(%s);' % (callback, data)
 
-    response = Response(data, mimetype="application/json")
+    response = app.response_class(
+        data, mimetype="application/json"
+    )
     response.headers['Content-Disposition'] = 'inline'
     return response
 
 
 @cache(browser=1, varnish=120)
 @fastly.rss
-def rss(app, request):
+def rss():
     """Dump the last N days' updates as an RSS feed.
     """
     releases = app.db.packaging.get_recently_updated(num=40)
     for release in releases:
         values = dict(project_name=release['name'], version=release['version'])
-        url = app.urls.build('warehouse.packaging.views.project_detail',
-                             values, force_external=True)
+        url = url_for(
+            'warehouse.packaging.views.project_detail',
+            _external=True, **values
+        )
         release.update(dict(url=url))
 
-    response = render_response(
-        app, request, "legacy/rss.xml",
-        description='package updates',
-        releases=releases,
-        site=app.config.site,
+    response = app.response_class(
+        render_template(
+            "legacy/rss.xml",
+            description='package updates',
+            releases=releases,
+            site=app.warehouse_config.site,
+        ),
+        mimetype='text/xml; charset=utf-8'
     )
-    response.mimetype = 'text/xml; charset=utf-8'
     # TODO: throw in a last-modified header too?
     return response
 
 
 @cache(browser=1, varnish=120)
 @fastly.rss
-def packages_rss(app, request):
+def packages_rss():
     """Dump the last N days' new projects as an RSS feed.
     """
     releases = app.db.packaging.get_recent_projects(num=40)
     for release in releases:
         values = dict(project_name=release['name'])
-        url = app.urls.build('warehouse.packaging.views.project_detail',
-                             values, force_external=True)
+        url = url_for(
+            'warehouse.packaging.views.project_detail',
+            _external=True, **values
+        )
         release.update(dict(url=url))
 
-    response = render_response(
-        app, request, "legacy/rss.xml",
-        description='new projects',
-        releases=releases,
-        site=app.config.site,
+    response = app.response_class(
+        render_template(
+            "legacy/rss.xml",
+            description='new projects',
+            releases=releases,
+            site=app.warehouse_config.site,
+        ),
+        mimetype='text/xml; charset=utf-8'
     )
-    response.mimetype = 'text/xml; charset=utf-8'
     # TODO: throw in a last-modified header too?
     return response

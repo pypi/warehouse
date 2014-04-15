@@ -18,14 +18,7 @@ import os.path
 import urllib.parse
 
 import markupsafe
-
-
-def url_for(request, endpoint, **values):
-    force_external = values.pop("_force_external", False)
-    return request.url_adapter.build(
-        endpoint, values,
-        force_external=force_external,
-    )
+from flask import current_app, url_for
 
 
 def gravatar_url(email, size=80):
@@ -48,16 +41,14 @@ def _load_assets_json(path):
         return json.load(fp)
 
 
-def static_url(app, filename):
+def static_url(filename):
     """
     static_url('css/bootstrap.css')
     """
-    assets = _load_assets_json(os.path.join(app.static_dir, "assets.json"))
-
-    return urllib.parse.urljoin(
-        app.static_path,
-        assets.get(filename, filename),
+    assets = _load_assets_json(
+        os.path.join(current_app.static_folder, "assets.json")
     )
+    return url_for('static', filename=assets.get(filename, filename))
 
 
 def csrf_token(request):

@@ -68,6 +68,7 @@ setup(
     },
 
     install_requires=[
+        "Flask",
         "alembic",
         "arrow",
         "babel",

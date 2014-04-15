@@ -14,6 +14,7 @@
 import pretend
 import pytest
 
+from flask import session
 from werkzeug.exceptions import SecurityError
 
 from warehouse.csrf import (
@@ -25,98 +26,94 @@ from warehouse.http import Response
 
 class TestHandleCSRF:
 
-    def test_csrf_ensured(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+    def test_csrf_ensured(self, warehouse_app):
+        """
+        Ensures that the csrf token is there in the response
+        """
+        @warehouse_app.route('/csrf-protected-view')
+        @csrf_protect
+        def csrf_protected_view():
+            return "Hello World"
 
-        view = lambda app, request: Response()
-        view._csrf = True
-        app = pretend.stub()
-        request = pretend.stub(_session={}, method="GET")
+        assert csrf_protected_view._csrf is True
 
-        handle_csrf(fn)(pretend.stub(), view, app, request)
+        with warehouse_app.test_client() as c:
+            c.get('/csrf-protected-view')
+            assert "user.csrf" in session
 
-        assert "user.csrf" in request._session
+    def test_csrf_already_ensured(self, warehouse_app):
+        """
+        If a CSRF Token is already in the session, it should be there in
+        the request session
+        """
+        @warehouse_app.route('/csrf-protected-view')
+        @csrf_protect
+        def csrf_protected_view():
+            return "Hello World"
 
-    def test_csrf_already_ensured(self):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+        assert csrf_protected_view._csrf is True
 
-        view = lambda app, request: Response()
-        view._csrf = True
-        app = pretend.stub()
-        request = pretend.stub(_session={"user.csrf": "1234"}, method="GET")
+        with warehouse_app.test_client() as c:
+            with c.session_transaction() as sess:
+                sess['user.csrf'] = '1234'
 
-        handle_csrf(fn)(pretend.stub(), view, app, request)
-
-        assert request._session == {"user.csrf": "1234"}
+            c.get('/csrf-protected-view')
+            assert "user.csrf" in session
+            assert session == {"user.csrf": "1234"}
 
     @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS", "TRACE"])
     def test_csrf_allows_safe(self, method):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
+        view = lambda: Response()
+        req = pretend.stub(session={}, method=method)
 
-        view = lambda app, request: Response()
-        app = pretend.stub()
-        request = pretend.stub(_session={}, method=method)
-
-        handle_csrf(fn)(pretend.stub(), view, app, request)
+        handle_csrf(req, view)
 
     @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
     def test_csrf_disallows_unsafe(self, method):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
-
-        view = lambda app, request: Response()
-        app = pretend.stub()
-        request = pretend.stub(_session={}, method=method)
+        view = lambda: Response()
+        req = pretend.stub(session={}, method=method)
 
         with pytest.raises(SecurityError) as excinfo:
-            handle_csrf(fn)(pretend.stub(), view, app, request)
+            handle_csrf(req, view)
 
         assert (excinfo.value.description
                 == "No CSRF protection applied to view")
 
     @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
-    def test_csrf_checks_csrf_unsafe(self, method):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
-
-        view = lambda app, request: Response()
+    def test_csrf_checks_csrf_unsafe(self, method, warehouse_app):
+        view = lambda: Response()
         view._csrf = True
-        app = pretend.stub()
-        request = pretend.stub(_session={}, method=method)
 
-        _verify_origin = pretend.call_recorder(lambda request: None)
-        _verify_token = pretend.call_recorder(lambda request: None)
+        req = pretend.stub(session={}, method=method)
 
-        handle_csrf(
-            fn,
-            _verify_origin=_verify_origin,
-            _verify_token=_verify_token,
-        )(pretend.stub(), view, app, request)
+        _verify_origin = pretend.call_recorder(lambda req: None)
+        _verify_token = pretend.call_recorder(lambda req: None)
 
-        assert _verify_token.calls == [pretend.call(request)]
-        assert _verify_token.calls == [pretend.call(request)]
+        with warehouse_app.test_request_context('/'):
+            handle_csrf(
+                req, view,
+                _verify_origin=_verify_origin,
+                _verify_token=_verify_token,
+            )
+
+            assert _verify_token.calls == [pretend.call(req)]
+            assert _verify_token.calls == [pretend.call(req)]
 
     @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
     def test_csrf_exempts_csrf_unsafe(self, method):
-        def fn(self, view, app, request, *args, **kwargs):
-            return view(app, request, *args, **kwargs)
-
-        view = lambda app, request: Response()
+        view = lambda: Response()
         view._csrf = False
-        app = pretend.stub()
-        request = pretend.stub(_session={}, method=method)
 
-        _verify_origin = pretend.call_recorder(lambda request: None)
-        _verify_token = pretend.call_recorder(lambda request: None)
+        req = pretend.stub(_session={}, method=method)
+
+        _verify_origin = pretend.call_recorder(lambda req: None)
+        _verify_token = pretend.call_recorder(lambda req: None)
 
         handle_csrf(
-            fn,
+            req, view,
             _verify_origin=_verify_origin,
             _verify_token=_verify_token,
-        )(pretend.stub(), view, app, request)
+        )
 
         assert _verify_token.calls == []
         assert _verify_token.calls == []
@@ -190,13 +187,13 @@ class TestHandleCSRF:
     ),
 ])
 def test_verify_csrf_origin(headers, host_url, valid, error_msg):
-    request = pretend.stub(headers=headers, host_url=host_url)
+    req = pretend.stub(headers=headers, host_url=host_url)
 
     if valid:
-        _verify_csrf_origin(request)
+        _verify_csrf_origin(req)
     else:
         with pytest.raises(SecurityError) as excinfo:
-            _verify_csrf_origin(request)
+            _verify_csrf_origin(req)
 
         assert excinfo.value.description == error_msg
 
@@ -212,46 +209,53 @@ def test_verify_csrf_origin(headers, host_url, valid, error_msg):
         ("1234", {}, {"X-CSRF-Token": "1234"}, True, None),
     ],
 )
-def test_verify_csrf_token(token, form, headers, valid, error_msg):
-    request = pretend.stub(
-        _session={"user.csrf": token},
+def test_verify_csrf_token(
+        token, form, headers, valid, error_msg, warehouse_app):
+    req = pretend.stub(
         form=form,
         headers=headers,
         method="POST",
     )
 
-    if valid:
-        _verify_csrf_token(request)
-    else:
-        with pytest.raises(SecurityError) as excinfo:
-            _verify_csrf_token(request)
+    with warehouse_app.test_request_context():
+        session['user.csrf'] = token
 
-        assert excinfo.value.description == error_msg
+        if valid:
+            _verify_csrf_token(req)
+        else:
+            with pytest.raises(SecurityError) as excinfo:
+                _verify_csrf_token(req)
+
+            assert excinfo.value.description == error_msg
 
 
 @pytest.mark.parametrize("token", ["1234", None])
-def test_ensure_csrf_token(token):
-    request = pretend.stub(_session={"user.csrf": token})
-    _ensure_csrf_token(request)
+def test_ensure_csrf_token(token, warehouse_app):
+    req = pretend.stub()
 
-    if token:
-        assert request._session["user.csrf"] == token
-    else:
-        assert request._session["user.csrf"]
+    with warehouse_app.test_request_context():
+        session['user.csrf'] = token
 
-    assert request._csrf
+        _ensure_csrf_token(req)
+
+        if token:
+            assert session["user.csrf"] == token
+        else:
+            assert session["user.csrf"]
+
+        assert req._csrf
 
 
 def test_csrf_protect():
-    view = lambda app, request: Response()
+    view = lambda: Response()
     view = csrf_protect(view)
 
     assert view._csrf
-    assert "cookie" in view(pretend.stub(), pretend.stub()).vary.as_set()
+    assert "cookie" in view().vary.as_set()
 
 
 def test_csrf_exempt():
-    view = lambda app, request: Response()
+    view = lambda: Response()
     view = csrf_exempt(view)
 
     assert not view._csrf

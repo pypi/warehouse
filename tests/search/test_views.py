@@ -22,54 +22,46 @@ from warehouse.search import views
 from warehouse.search.views import search
 
 
-def test_search_invalid_doctype():
-    app = pretend.stub(search=pretend.stub(types={}))
-
-    with pytest.raises(NotFound):
-        search(app, pretend.stub(), "fake")
-
-
-def test_search_page_invalid_page():
-    app = pretend.stub(
-        search=pretend.stub(types={"fake": pretend.stub(SEARCH_LIMIT=25)}),
-    )
-    request = pretend.stub(args={"q": "Django", "page": "abc"})
-
-    with pytest.raises(NotFound):
-        search(app, request, "fake")
+def test_search_invalid_doctype(warehouse_app):
+    with warehouse_app.test_request_context():
+        with pytest.raises(NotFound):
+            search("fake")
 
 
-def test_search(monkeypatch):
+def test_search_page_invalid_page(warehouse_app):
+    with warehouse_app.test_request_context(
+            query_string={"q": "Django", "page": "abc"}):
+        warehouse_app.search.types = {"fake": pretend.stub(SEARCH_LIMIT=25)}
+        with pytest.raises(NotFound):
+            search("fake")
+
+
+def test_search(monkeypatch, warehouse_app):
     response = pretend.stub()
-    render_response = pretend.call_recorder(lambda *a, **kw: response)
+    render_template = pretend.call_recorder(lambda *a, **kw: response)
 
-    monkeypatch.setattr(views, "render_response", render_response)
+    monkeypatch.setattr(views, "render_template", render_template)
 
-    app = pretend.stub(
-        search=pretend.stub(
-            types={
-                "fake": pretend.stub(
-                    SEARCH_LIMIT=25,
-                    search=pretend.call_recorder(
-                        lambda q, l, o: {"hits": {"hits": []}},
-                    ),
+    warehouse_app.search = pretend.stub(
+        types={
+            "fake": pretend.stub(
+                SEARCH_LIMIT=25,
+                search=pretend.call_recorder(
+                    lambda q, l, o: {"hits": {"hits": []}},
                 ),
-            },
-        ),
+            ),
+        },
     )
 
-    request = pretend.stub(args={"q": "Django"})
-
-    resp = search(app, request, "fake")
+    with warehouse_app.test_request_context(query_string={"q": "Django"}):
+        resp = search("fake")
 
     assert resp is response
-    assert app.search.types["fake"].search.calls == [
+    assert warehouse_app.search.types["fake"].search.calls == [
         pretend.call("Django", 25, 0),
     ]
-    assert render_response.calls == [
+    assert render_template.calls == [
         pretend.call(
-            app,
-            request,
             "search/results.html",
             query="Django",
             total=0,
@@ -79,37 +71,33 @@ def test_search(monkeypatch):
     ]
 
 
-def test_search_page_less_than_zero(monkeypatch):
+def test_search_page_less_than_zero(monkeypatch, warehouse_app):
     response = pretend.stub()
-    render_response = pretend.call_recorder(lambda *a, **kw: response)
+    render_template = pretend.call_recorder(lambda *a, **kw: response)
 
-    monkeypatch.setattr(views, "render_response", render_response)
+    monkeypatch.setattr(views, "render_template", render_template)
 
-    app = pretend.stub(
-        search=pretend.stub(
-            types={
-                "fake": pretend.stub(
-                    SEARCH_LIMIT=25,
-                    search=pretend.call_recorder(
-                        lambda q, l, o: {"hits": {"hits": []}},
-                    ),
+    warehouse_app.search = pretend.stub(
+        types={
+            "fake": pretend.stub(
+                SEARCH_LIMIT=25,
+                search=pretend.call_recorder(
+                    lambda q, l, o: {"hits": {"hits": []}},
                 ),
-            },
-        ),
+            ),
+        },
     )
 
-    request = pretend.stub(args={"q": "Django", "page": "-1"})
-
-    resp = search(app, request, "fake")
+    with warehouse_app.test_request_context(
+            query_string={"q": "Django", "page": "-1"}):
+        resp = search("fake")
 
     assert resp is response
-    assert app.search.types["fake"].search.calls == [
+    assert warehouse_app.search.types["fake"].search.calls == [
         pretend.call("Django", 25, 0),
     ]
-    assert render_response.calls == [
+    assert render_template.calls == [
         pretend.call(
-            app,
-            request,
             "search/results.html",
             query="Django",
             total=0,

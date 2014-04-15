@@ -137,3 +137,46 @@ def app():
         engine=pretend.stub(connect=connect, execute=connect),
         redis_class=ErrorRedis,
     )
+
+
+@pytest.fixture
+def warehouse_app():
+    from warehouse.application import Warehouse
+
+    TEST_CONFIG = {
+        "site": {
+            "name": "Warehouse (Dev)",
+            "access_token": "token",
+            "hosts": ['localhost'],
+        },
+        "debug": False,
+        "database": {
+            "url": "postgres:///test_warehouse",
+        },
+        "redis": {
+            "downloads": "redis://localhost:6379/0",
+            "sessions": "redis://localhost:6379/0",
+        },
+        "search": {
+            "index": "warehouse",
+            "hosts": [],
+        },
+        "camo": None,
+        "logging": {
+            "version": 1,
+        },
+        "paths": {
+            'documentation': "data/packagedocs",
+            'packages': "data/packages",
+        },
+    }
+    app = Warehouse(TEST_CONFIG)
+    app.testing = True
+    _session_store = {}
+    app.session_interface.session_store.redis = pretend.stub(
+        get=lambda key: _session_store.get(key),
+        setex=lambda key, age, data: _session_store.update({key: data}),
+        delete=lambda key: _session_store.pop(key, None),
+        expire=lambda key, age: _session_store.pop(key, None),
+    )
+    return app

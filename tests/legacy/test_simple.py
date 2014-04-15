@@ -19,12 +19,11 @@ import pytest
 
 from werkzeug.datastructures import Headers
 from werkzeug.exceptions import NotFound
-from werkzeug.test import create_environ
 
 from warehouse.legacy import simple
 
 
-def test_index(monkeypatch):
+def test_index(monkeypatch, warehouse_app):
     response = pretend.stub(
         status_code=200,
         headers=Headers(),
@@ -32,31 +31,25 @@ def test_index(monkeypatch):
         surrogate_control=pretend.stub(),
     )
     render = pretend.call_recorder(lambda *a, **k: response)
-    monkeypatch.setattr(simple, "render_response", render)
+    monkeypatch.setattr(simple, "render_template", render)
 
     all_projects = ["bar", "foo"]
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                all_projects=pretend.call_recorder(lambda: all_projects),
-                get_last_serial=pretend.call_recorder(lambda: 9999),
-            ),
+    warehouse_app.db = pretend.stub(
+        packaging=pretend.stub(
+            all_projects=pretend.call_recorder(lambda: all_projects),
+            get_last_serial=pretend.call_recorder(lambda: 9999),
         ),
     )
-    request = pretend.stub()
 
-    resp = simple.index(app, request)
+    with warehouse_app.test_request_context():
+        resp = simple.index()
 
     assert resp is response
     assert resp.headers["X-PyPI-Last-Serial"] == "9999"
 
     assert render.calls == [
         pretend.call(
-            app, request,
             "legacy/simple/index.html",
             projects=all_projects,
         ),
@@ -93,7 +86,7 @@ def test_index(monkeypatch):
     ],
 )
 def test_project(project_name, hosting_mode, release_urls, e_project_urls,
-                 monkeypatch):
+                 monkeypatch, warehouse_app):
     response = pretend.stub(
         status_code=200,
         headers=Headers(),
@@ -103,29 +96,24 @@ def test_project(project_name, hosting_mode, release_urls, e_project_urls,
     render = pretend.call_recorder(lambda *a, **k: response)
     url_for = lambda *a, **k: "/foo/"
 
-    monkeypatch.setattr(simple, "render_response", render)
+    monkeypatch.setattr(simple, "render_template", render)
     monkeypatch.setattr(simple, "url_for", url_for)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project=pretend.call_recorder(lambda p: project_name),
-                get_file_urls=pretend.call_recorder(lambda p: []),
-                get_hosting_mode=pretend.call_recorder(
-                    lambda p: hosting_mode,
-                ),
-                get_external_urls=pretend.call_recorder(lambda p: []),
-                get_last_serial=pretend.call_recorder(lambda p: 9999),
-                get_release_urls=pretend.call_recorder(lambda p: release_urls),
+    warehouse_app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project=pretend.call_recorder(lambda p: project_name),
+            get_file_urls=pretend.call_recorder(lambda p: []),
+            get_hosting_mode=pretend.call_recorder(
+                lambda p: hosting_mode,
             ),
+            get_external_urls=pretend.call_recorder(lambda p: []),
+            get_last_serial=pretend.call_recorder(lambda p: 9999),
+            get_release_urls=pretend.call_recorder(lambda p: release_urls),
         ),
     )
-    request = pretend.stub()
 
-    resp = simple.project(app, request, project_name=project_name)
+    with warehouse_app.test_request_context():
+        resp = simple.project(project_name=project_name)
 
     assert resp is response
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
@@ -134,51 +122,51 @@ def test_project(project_name, hosting_mode, release_urls, e_project_urls,
 
     assert render.calls == [
         pretend.call(
-            app, request, "legacy/simple/detail.html",
+            "legacy/simple/detail.html",
             project=project_name,
             project_urls=e_project_urls,
             files=[],
             external_urls=[],
         ),
     ]
-    assert app.db.packaging.get_project.calls == [
+    assert warehouse_app.db.packaging.get_project.calls == [
         pretend.call(project_name),
     ]
-    assert app.db.packaging.get_file_urls.calls == [
+    assert warehouse_app.db.packaging.get_file_urls.calls == [
         pretend.call(project_name),
     ]
-    assert app.db.packaging.get_hosting_mode.calls == [
+    assert warehouse_app.db.packaging.get_hosting_mode.calls == [
         pretend.call(project_name),
     ]
-    assert app.db.packaging.get_external_urls.calls == [
+    assert warehouse_app.db.packaging.get_external_urls.calls == [
         pretend.call(project_name),
     ]
-    assert app.db.packaging.get_last_serial.calls == [
+    assert warehouse_app.db.packaging.get_last_serial.calls == [
         pretend.call(project_name),
     ]
 
     if hosting_mode == "pypi-explicit":
-        assert app.db.packaging.get_release_urls.calls == []
+        assert warehouse_app.db.packaging.get_release_urls.calls == []
     else:
-        assert app.db.packaging.get_release_urls.calls == [
+        assert warehouse_app.db.packaging.get_release_urls.calls == [
             pretend.call(project_name),
         ]
 
 
-def test_project_not_found():
-    app = pretend.stub(
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project=pretend.call_recorder(lambda p: None),
-            ),
+def test_project_not_found(warehouse_app):
+    warehouse_app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project=pretend.call_recorder(lambda p: None),
         ),
     )
-    request = pretend.stub()
 
-    with pytest.raises(NotFound):
-        simple.project(app, request, project_name="foo")
+    with warehouse_app.test_request_context():
+        with pytest.raises(NotFound):
+            simple.project(project_name="foo")
 
-    assert app.db.packaging.get_project.calls == [pretend.call("foo")]
+    assert warehouse_app.db.packaging.get_project.calls == [
+        pretend.call("foo")
+    ]
 
 
 @pytest.mark.parametrize(("serial", "md5_hash"), [
@@ -187,7 +175,7 @@ def test_project_not_found():
     (999, None),
     (None, None),
 ])
-def test_package(serial, md5_hash, monkeypatch):
+def test_package(serial, md5_hash, monkeypatch, warehouse_app):
     safe_join = pretend.call_recorder(
         lambda *a, **k: "/tmp/packages/any/t/test-1.0.tar.gz"
     )
@@ -209,22 +197,20 @@ def test_package(serial, md5_hash, monkeypatch):
     )
     get_last_serial = pretend.call_recorder(lambda p: serial)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-            paths=pretend.stub(packages="/tmp"),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project_for_filename=gpff,
-                get_filename_md5=get_md5,
-                get_last_serial=get_last_serial,
-            ),
-        ),
+    warehouse_app.warehouse_config = pretend.stub(
+        cache=pretend.stub(browser=False, varnish=False),
+        paths=pretend.stub(packages="/tmp"),
     )
-    request = pretend.stub(environ=create_environ())
+    warehouse_app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project_for_filename=gpff,
+            get_filename_md5=get_md5,
+            get_last_serial=get_last_serial,
+        )
+    )
 
-    resp = simple.package(app, request, path="packages/any/t/test-1.0.tar.gz")
+    with warehouse_app.test_request_context():
+        resp = simple.package(path="packages/any/t/test-1.0.tar.gz")
 
     if serial:
         assert resp.headers["X-PyPI-Last-Serial"] == str(serial)
@@ -249,26 +235,24 @@ def test_package(serial, md5_hash, monkeypatch):
     assert get_last_serial.calls == [pretend.call("test")]
 
 
-def test_package_not_found_unsafe(monkeypatch):
+def test_package_not_found_unsafe(monkeypatch, warehouse_app):
     safe_join = pretend.call_recorder(lambda *a, **k: None)
     monkeypatch.setattr(simple, "safe_join", safe_join)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            paths=pretend.stub(packages="/tmp"),
-        ),
+    warehouse_app.warehouse_config = pretend.stub(
+        paths=pretend.stub(packages="/tmp"),
     )
-    request = pretend.stub()
 
-    with pytest.raises(NotFound):
-        simple.package(app, request, path="packages/any/t/test-1.0.tar.gz")
+    with warehouse_app.test_request_context():
+        with pytest.raises(NotFound):
+            simple.package(path="packages/any/t/test-1.0.tar.gz")
 
     assert safe_join.calls == [
         pretend.call("/tmp", "packages/any/t/test-1.0.tar.gz"),
     ]
 
 
-def test_package_not_found_unsafe_missing(monkeypatch):
+def test_package_not_found_unsafe_missing(monkeypatch, warehouse_app):
     safe_join = pretend.call_recorder(
         lambda *a, **k: "/tmp/packages/any/t/test-1.0.tar.gz"
     )
@@ -281,15 +265,13 @@ def test_package_not_found_unsafe_missing(monkeypatch):
     monkeypatch.setattr(simple, "safe_join", safe_join)
     monkeypatch.setattr(simple, "open", _open, raising=False)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            paths=pretend.stub(packages="/tmp"),
-        ),
+    warehouse_app.warehouse_config = pretend.stub(
+        paths=pretend.stub(packages="/tmp"),
     )
-    request = pretend.stub()
 
-    with pytest.raises(NotFound):
-        simple.package(app, request, path="packages/any/t/test-1.0.tar.gz")
+    with warehouse_app.test_request_context():
+        with pytest.raises(NotFound):
+            simple.package(path="packages/any/t/test-1.0.tar.gz")
 
     assert safe_join.calls == [
         pretend.call("/tmp", "packages/any/t/test-1.0.tar.gz"),
