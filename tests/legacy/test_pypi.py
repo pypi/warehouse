@@ -36,6 +36,7 @@ def test_pypi_index(content_type):
 
     app = pretend.stub()
     request = pretend.stub(
+        args={},
         headers=headers,
         url_adapter=pretend.stub(
             build=pretend.call_recorder(
@@ -58,9 +59,39 @@ def test_pypi_index(content_type):
     ]
 
 
+def test_pypi_route_action(monkeypatch):
+    app = pretend.stub()
+    request = pretend.stub(
+        args={':action': 'test'},
+        headers={},
+    )
+
+    _action_methods = {}
+    monkeypatch.setattr(pypi, '_action_methods', _action_methods)
+
+    @pypi.register('test')
+    def test(app, request):
+        test.called = True
+        return 'success'
+
+    resp = pypi.pypi(app, request)
+
+    assert resp == 'success'
+    assert test.called
+
+
+def test_pypi_route_action_double(monkeypatch):
+    _action_methods = {'test': None}
+    monkeypatch.setattr(pypi, '_action_methods', _action_methods)
+
+    with pytest.raises(KeyError):
+        pypi.register('test')
+
+
 def test_pypi_route_xmlrpc(monkeypatch):
     app = pretend.stub()
     request = pretend.stub(
+        args={},
         headers={'Content-Type': 'text/xml'},
     )
 
@@ -175,12 +206,13 @@ def test_rss(monkeypatch):
             cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
-        urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
     )
-    request = pretend.stub()
+    request = pretend.stub(
+        url_adapter=Map(urls.urls).bind('test.server', '/'),
+    )
 
     resp = pypi.rss(app, request)
 
@@ -228,12 +260,13 @@ def test_packages_rss(monkeypatch):
             cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
-        urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
     )
-    request = pretend.stub()
+    request = pretend.stub(
+        url_adapter=Map(urls.urls).bind('test.server', '/'),
+    )
 
     resp = pypi.packages_rss(app, request)
 

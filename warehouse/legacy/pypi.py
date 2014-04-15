@@ -26,11 +26,36 @@ from warehouse.utils import (
     cache, cors, is_valid_json_callback_name, render_response,
 )
 
+_action_methods = {}
+
+
+def register(name):
+    """Register a handler for a legacy :action style dispatch.
+
+    Most of the dispatch in legacy PyPI was implemented using a :action
+    parameter in the GET or POST arguments.
+
+    This doesn't actually decorate the function or alter it in any way, it
+    simply registers it with the legacy routing mapping.
+    """
+    if name in _action_methods:
+        raise KeyError('Attempt to re-register name %r' % (name, ))
+
+    def deco(fn):
+        _action_methods[name] = fn
+        return fn
+    return deco
+
 
 def pypi(app, request):
     # if the MIME type of the request is XML then we go into XML-RPC mode
     if request.headers.get('Content-Type') == 'text/xml':
         return xmlrpc.handle_request(app, request)
+
+    # check for the legacy :action-style dispatch
+    action = request.args.get(':action')
+    if action in _action_methods:
+        return _action_methods[action](app, request)
 
     # no XML-RPC and no :action means we render the index, or at least we
     # redirect to where it moved to
@@ -90,6 +115,7 @@ def project_json(app, request, project_name):
     return response
 
 
+@register('rss')
 @cache(browser=1, varnish=120)
 @fastly.rss
 def rss(app, request):
@@ -97,9 +123,10 @@ def rss(app, request):
     """
     releases = app.db.packaging.get_recently_updated(num=40)
     for release in releases:
-        values = dict(project_name=release['name'], version=release['version'])
-        url = app.urls.build('warehouse.packaging.views.project_detail',
-                             values, force_external=True)
+        # TODO update _force_external to _external when Flask-ification is done
+        url = url_for(request, 'warehouse.packaging.views.project_detail',
+                      project_name=release['name'], version=release['version'],
+                      _force_external=True)
         release.update(dict(url=url))
 
     response = render_response(
@@ -113,6 +140,7 @@ def rss(app, request):
     return response
 
 
+@register('packages_rss')
 @cache(browser=1, varnish=120)
 @fastly.rss
 def packages_rss(app, request):
@@ -120,9 +148,9 @@ def packages_rss(app, request):
     """
     releases = app.db.packaging.get_recent_projects(num=40)
     for release in releases:
-        values = dict(project_name=release['name'])
-        url = app.urls.build('warehouse.packaging.views.project_detail',
-                             values, force_external=True)
+        # TODO update _force_external to _external when Flask-ification is done
+        url = url_for(request, 'warehouse.packaging.views.project_detail',
+                      project_name=release['name'], _force_external=True)
         release.update(dict(url=url))
 
     response = render_response(
