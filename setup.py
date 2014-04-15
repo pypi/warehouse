@@ -94,6 +94,9 @@ setup(
         "console_scripts": [
             "warehouse = warehouse.__main__:main",
         ],
+        "flake8.extension": [
+            "E4 = warehouse.styleguide:FlaskSessionCheck",
+        ],
     },
 
     zip_safe=False,
