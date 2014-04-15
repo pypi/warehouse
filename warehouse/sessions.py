@@ -17,6 +17,7 @@ import re
 import msgpack
 import msgpack.exceptions
 
+from flask import request
 from werkzeug.contrib.sessions import SessionStore, Session as _Session
 
 from warehouse.utils import random_token, vary_by
@@ -189,11 +190,11 @@ def uses_session(fn):
 
     @functools.wraps(fn)
     @vary_by("Cookie")
-    def wrapper(app, request, *args, **kwargs):
+    def wrapper(*args, **kwargs):
         # Add the session onto the request object
         request.session = request._session
 
         # Call the underlying function
-        return fn(app, request, *args, **kwargs)
+        return fn(*args, **kwargs)
 
     return wrapper

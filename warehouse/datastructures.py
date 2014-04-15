@@ -45,6 +45,13 @@ class CaseInsensitiveMixin(dict):
     def __delitem__(self, name):
         super(CaseInsensitiveMixin, self).__delitem__(name.upper())
 
+    def get(self, name, *args, **kwargs):
+        return super(CaseInsensitiveMixin, self).get(
+            name.upper(),
+            *args,
+            **kwargs
+        )
+
     def update(self, data):
         super(CaseInsensitiveMixin, self).update(
             {k.upper(): v for k, v in data.items()}

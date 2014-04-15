@@ -14,6 +14,7 @@
 
 import argparse
 import collections
+import functools
 import logging.config
 import os.path
 import urllib.parse
@@ -36,9 +37,11 @@ from whitenoise import WhiteNoise
 import warehouse
 import warehouse.cli
 
-from warehouse import db
+from warehouse import db, helpers
 from warehouse.datastructures import AttributeDict, CaseInsensitiveMixin
+from warehouse.http import Response
 from warehouse.middlewares import XForwardedTokenMiddleware
+from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.sessions import RedisSessionStore, Session
@@ -52,6 +55,13 @@ import warehouse.packaging.tables
 import warehouse.accounts.db
 import warehouse.packaging.db
 
+# Get our blueprints
+import warehouse.views
+import warehouse.accounts.views
+import warehouse.legacy.pypi
+import warehouse.packaging.views
+import warehouse.search.views
+
 
 class Config(CaseInsensitiveMixin, flask.Config):
     pass
@@ -60,6 +70,24 @@ class Config(CaseInsensitiveMixin, flask.Config):
 class Warehouse(flask.Flask):
 
     config_class = Config
+
+    response_class = Response
+
+    required_blueprints = [
+        warehouse.views.blueprint,
+        warehouse.accounts.views.blueprint,
+        warehouse.legacy.pypi.blueprint,
+        warehouse.packaging.views.blueprint,
+        warehouse.search.views.blueprint,
+    ]
+
+    jinja_options = {
+        "extensions": [
+            "jinja2.ext.autoescape",
+            "jinja2.ext.i18n",
+            "jinja2.ext.with_",
+        ],
+    }
 
     db_classes = {
         "accounts": warehouse.accounts.db.Database,
@@ -85,7 +113,7 @@ class Warehouse(flask.Flask):
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+            engine = sqlalchemy.create_engine(self.config["database"]["url"])
         self.engine = engine
 
         # Create our redis connections
@@ -111,6 +139,30 @@ class Warehouse(flask.Flask):
         # Initialize our Translations engine
         self.translations = babel.support.NullTranslations()
 
+        # Install our translations
+        self.jinja_env.install_gettext_translations(
+            self.translations,
+            newstyle=True,
+        )
+
+        # Register our custom filters
+        self.jinja_env.filters.update({
+            "package_type_display": packaging_helpers.package_type_display,
+            "format_number": babel.numbers.format_number,
+            "format_decimal": babel.numbers.format_decimal,
+            "format_percent": babel.numbers.format_percent,
+            "format_date": babel.dates.format_date,
+            "format_datetime": babel.dates.format_datetime,
+            "format_time": babel.dates.format_time,
+        })
+
+        # Register our custom template functions
+        self.jinja_env.globals.update({
+            "csrf_token": functools.partial(helpers.csrf_token, flask.request),
+            "gravatar_url": helpers.gravatar_url,
+            "static_url": functools.partial(helpers.static_url, self),
+        })
+
         # Setup our password hasher
         self.passlib = passlib.context.CryptContext(
             schemes=[
@@ -128,6 +180,10 @@ class Warehouse(flask.Flask):
             self.redises["sessions"],
             session_class=Session,
         )
+
+        # Register our blueprints
+        for blueprint in self.required_blueprints:
+            self.register_blueprint(blueprint)
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]

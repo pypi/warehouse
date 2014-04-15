@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils import cache, render_response
+from flask import Blueprint, current_app, render_template
+
+from warehouse.utils import cache
 
 
+blueprint = Blueprint("warehouse.views", __name__)
+
+
+@blueprint.route("/")
 @cache(browser=1, varnish=120)
-def index(app, request):
-    return render_response(
-        app, request, "index.html",
-        project_count=app.db.packaging.get_project_count(),
-        download_count=app.db.packaging.get_download_count(),
-        recently_updated=app.db.packaging.get_recently_updated(),
+def index():
+    return render_template(
+        "index.html",
+        project_count=current_app.db.packaging.get_project_count(),
+        download_count=current_app.db.packaging.get_download_count(),
+        recently_updated=current_app.db.packaging.get_recently_updated(),
     )

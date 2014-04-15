@@ -14,6 +14,8 @@
 import functools
 import string
 
+from flask import current_app
+
 from warehouse.utils import normalize
 
 
@@ -33,16 +35,14 @@ class FastlyKey:
     def __call__(self, fn=None, **names):
         def decorator(fn):
             @functools.wraps(fn)
-            def wrapped(app, request, *args, **kwargs):
+            def wrapped(*args, **kwargs):
                 # Get the response from the view
-                resp = fn(app, request, *args, **kwargs)
+                resp = current_app.make_response(fn(*args, **kwargs))
 
                 # Resolve our surrogate keys
-                view_kwargs = {"app": app, "request": request}
-                view_kwargs.update(kwargs)
                 ctx = {
                     names.get(k, k): v
-                    for k, v in view_kwargs.items()
+                    for k, v in kwargs.items()
                 }
 
                 # Set our Fastly Surrogate-Key header

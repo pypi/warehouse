@@ -14,17 +14,22 @@
 
 import functools
 
+from flask import Blueprint, current_app, request, render_template
 from werkzeug.exceptions import NotFound
 
 from warehouse.helpers import url_for
-from warehouse.utils import render_response, SearchPagination
+from warehouse.utils import SearchPagination
 
 
-def search(app, request, doctype):
-    if doctype not in app.search.types:
+blueprint = Blueprint("warehouse.search.views", __name__)
+
+
+@blueprint.route("/search/<doctype>/", methods=["GET"])
+def search(doctype):
+    if doctype not in current_app.search.types:
         raise NotFound
 
-    limit = app.search.types[doctype].SEARCH_LIMIT
+    limit = current_app.search.types[doctype].SEARCH_LIMIT
 
     query = request.args.get("q")
     try:
@@ -35,7 +40,7 @@ def search(app, request, doctype):
         page = 1
     offset = (page - 1) * limit
 
-    results = app.search.types[doctype].search(query, limit, offset)
+    results = current_app.search.types[doctype].search(query, limit, offset)
     total = results.get("hits", {}).get("total", 0)
 
     url_partial = functools.partial(
@@ -43,9 +48,7 @@ def search(app, request, doctype):
         q=query)
     pages = SearchPagination(page, total, limit, url_partial)
 
-    return render_response(
-        app,
-        request,
+    return render_template(
         "search/results.html",
         query=query, total=total, pages=pages,
         results=[r["_source"] for r in results["hits"]["hits"]],
