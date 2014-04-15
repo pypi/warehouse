@@ -26,8 +26,7 @@ def user(request, dbapp):
 
     @request.addfinalizer
     def delete_user():
-        pass
-        # dbapp.db.accounts.delete_user(user_id)
+        dbapp.db.accounts.delete_user(username)
 
     username = "guidovanrossum"
     email = "notanemail@python.org"
@@ -178,7 +177,7 @@ def test_user_authenticate_invalid(engine, dbapp):
     assert not dbapp.db.accounts.user_authenticate("test-user", "password")
 
 
-def test_insert_user(dbapp):
+def test_insert_and_delete_user(dbapp):
     username = "guidovanrossum"
     email = "notanemail@python.org"
     password = "plaintextpasswordsaregreat"
@@ -191,6 +190,8 @@ def test_insert_user(dbapp):
                                                password)
     assert dbapp.db.accounts.get_user(username)
     assert dbapp.db.accounts.get_user_id_by_email(email)
+    dbapp.db.accounts.delete_user(username)
+    assert not dbapp.db.accounts.get_user(username)
 
 
 def test_user_otk(dbapp, user):

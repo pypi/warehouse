@@ -110,17 +110,18 @@ class Database(db.Database):
             raise ValueError("Email address already belongs to a different user!")
         hashed_password = self.app.passlib.encrypt(password)
 
-        INSERT_STATEMENT = """INSERT INTO accounts_user(
-            username, password, last_login, is_superuser,
-            name, is_staff, date_joined, is_active
-        ) VALUES (
-            %(username)s, %(password)s, current_timestamp, %(is_superuser)s,
-            '', %(is_staff)s, current_timestamp, %(is_active)s
-        ) RETURNING id
-        """
+        query = \
+            """ INSERT INTO accounts_user(
+                    username, password, last_login, is_superuser,
+                    name, is_staff, date_joined, is_active
+                ) VALUES (
+                    %(username)s, %(password)s, current_timestamp, %(is_superuser)s,
+                    '', %(is_staff)s, current_timestamp, %(is_active)s
+                ) RETURNING id
+            """
         # Insert the actual row into the user table
         user_id = self.engine.execute(
-            INSERT_STATEMENT,
+            query,
             username=username,
             password=hashed_password,
             is_superuser=str(is_superuser).upper(),
@@ -144,48 +145,54 @@ class Database(db.Database):
         if gpg_keyid:
             self.insert_user_gpg_keyid(user_id, gpg_keyid)
 
+    def delete_user(self, username):
+        self.engine.execute(
+            "DELETE FROM accounts_user WHERE username = %s",
+            username
+        )
+
     def update_user_password(self, user_id, password):
+        query = \
+            """ UPDATE accounts_user
+                SET password = %s
+                WHERE id = %s
+            """
         hashed_password = self.app.passlib.encrypt(password)
-        self.engine.execute("""
-        UPDATE accounts_user
-            SET password = %s
-            WHERE id = %s
-        """, hashed_password, user_id)
+        self.engine.execute(query, hashed_password, user_id)
 
     def update_user_email(self, user_id, email):
-        self.engine.execute("""
-        WITH new_values (user_id, email, "primary", verified) AS (
-            VALUES
-                (%(user_id)s, %(email)s, TRUE, FALSE)
-        ),
-        upsert AS (
-            UPDATE accounts_email ae
-                set email = nv.email,
-                verified = nv.verified
-            FROM new_values nv
-            WHERE ae.user_id = nv.user_id
-            AND ae.primary = nv.primary
-            RETURNING ae.*
-        )
-        INSERT INTO accounts_email
-            (user_id, email, "primary", verified)
-        SELECT user_id, email, "primary", verified
-        FROM new_values
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM upsert up
-            WHERE up.user_id = new_values.user_id
-            AND up.primary = new_values.primary
-        )""".strip(), user_id=user_id, email=email)
+        query = \
+            """ WITH new_values (user_id, email, "primary", verified) AS (
+                VALUES
+                    (%(user_id)s, %(email)s, TRUE, FALSE)
+                ),
+                UPSERT AS (
+                    UPDATE accounts_email ae
+                        set email = nv.email,
+                        verified = nv.verified
+                    FROM new_values nv
+                    WHERE ae.user_id = nv.user_id
+                    AND ae.primary = nv.primary
+                    RETURNING ae.*
+                )
+                INSERT INTO accounts_email
+                    (user_id, email, "primary", verified)
+                SELECT user_id, email, "primary", verified
+                FROM new_values
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM upsert up
+                    WHERE up.user_id = new_values.user_id
+                    AND up.primary = new_values.primary
+        )"""
+        self.engine.execute(query, user_id=user_id, email=email)
 
     def insert_user_gpg_keyid(self, user_id, gpg_keyid):
-        self.engine.execute(
+        query = \
+            """ INSERT INTO accounts_gpgkey (user_id, key_id, verified)
+                VALUES (%s, %s, FALSE)
             """
-            INSERT INTO accounts_gpgkey (user_id, key_id, verified)
-            VALUES (%s, %s, FALSE)
-            """,
-            user_id, gpg_keyid
-        )
+        self.engine.execute(query, user_id, gpg_keyid)
 
     get_user_gpg_keyid = db.scalar(
         "SELECT key_id FROM accounts_gpgkey WHERE user_id = %s LIMIT 1"
@@ -198,13 +205,11 @@ class Database(db.Database):
         )
 
     def insert_user_otk(self, username, otk):
-        self.engine.execute(
+        query = \
+            """ INSERT INTO rego_otk (name, otk, date)
+                VALUES (%s, %s, current_timestamp)
             """
-            INSERT INTO rego_otk (name, otk, date)
-            VALUES (%s, %s, current_timestamp)
-            """,
-            username, otk
-        )
+        self.engine.execute(query, username, otk)
 
     get_user_otk = db.scalar(
         "SELECT otk FROM rego_otk WHERE name = %s LIMIT 1"
