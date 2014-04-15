@@ -50,10 +50,16 @@ def test_merge_dictionary(base, additional, expected):
         (1, None, 400),
         (None, 120, 400),
         (1, 120, 400),
+        (None, None, 500),
     ],
 )
 def test_cache_deco(warehouse_app, browser, varnish, status):
-    view = pretend.call_recorder(lambda *a, **kw: 'response')
+    response = pretend.stub(
+        status_code=status,
+        cache_control=pretend.stub(),
+        surrogate_control=pretend.stub(),
+    )
+    view = pretend.call_recorder(lambda *a, **kw: response)
 
     with warehouse_app.test_request_context('/'):
         resp = cache(browser=browser, varnish=varnish)(view)()
