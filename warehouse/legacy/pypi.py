@@ -125,8 +125,8 @@ def rss(app, request):
     for release in releases:
         # TODO update _force_external to _external when Flask-ification is done
         url = url_for(request, 'warehouse.packaging.views.project_detail',
-            project_name=release['name'], version=release['version'],
-            _force_external=True)
+                      project_name=release['name'], version=release['version'],
+                      _force_external=True)
         release.update(dict(url=url))
 
     response = render_response(
@@ -150,7 +150,7 @@ def packages_rss(app, request):
     for release in releases:
         # TODO update _force_external to _external when Flask-ification is done
         url = url_for(request, 'warehouse.packaging.views.project_detail',
-            project_name=release['name'], _force_external=True)
+                      project_name=release['name'], _force_external=True)
         release.update(dict(url=url))
 
     response = render_response(
