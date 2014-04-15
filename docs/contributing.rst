@@ -77,6 +77,9 @@ Finally you can setup the project:
     $ # Migrate the database to the latest schema
     $ warehouse -c dev/config.yml migrate upgrade head
 
+    $ # Initialise the ElasticSearch index
+    $ warehouse -c dev/config.yml search reindex
+
     $ # Serve Warehouse at http://localhost:9000/
     $ warehouse -c dev/config.yml serve
 
