@@ -46,12 +46,7 @@ def test_scalar(value, default, expected, eargs, ekwargs):
     result = pretend.stub(scalar=pretend.call_recorder(lambda: value))
     execute = pretend.call_recorder(lambda q, *a, **kw: result)
     model = pretend.stub(
-        engine=pretend.stub(
-            connect=lambda: pretend.stub(
-                __enter__=lambda: pretend.stub(execute=execute),
-                __exit__=lambda *a, **k: None,
-            ),
-        ),
+        engine=pretend.stub(execute=execute)
     )
 
     sql = db.scalar("SELECT * FROM thing", default=default)
@@ -77,13 +72,9 @@ def test_scalar(value, default, expected, eargs, ekwargs):
 def test_rows(row_func, value, expected, eargs, ekwargs):
     execute = pretend.call_recorder(lambda q, *a, **kw: value)
     model = pretend.stub(
-        engine=pretend.stub(
-            connect=lambda: pretend.stub(
-                __enter__=lambda: pretend.stub(execute=execute),
-                __exit__=lambda *a, **k: None,
-            ),
-        ),
+        engine=pretend.stub(execute=execute)
     )
+
     kwargs = {"row_func": row_func} if row_func else {}
 
     sql = db.rows("SELECT * FROM thing", **kwargs)
@@ -129,13 +120,9 @@ def test_rows(row_func, value, expected, eargs, ekwargs):
 def test_mapping(key_func, value_func, value, expected, eargs, ekwargs):
     execute = pretend.call_recorder(lambda q, *a, **kw: value)
     model = pretend.stub(
-        engine=pretend.stub(
-            connect=lambda: pretend.stub(
-                __enter__=lambda: pretend.stub(execute=execute),
-                __exit__=lambda *a, **k: None,
-            ),
-        ),
+        engine=pretend.stub(execute=execute)
     )
+
     kwargs = {}
     if key_func:
         kwargs["key_func"] = key_func
