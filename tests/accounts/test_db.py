@@ -31,11 +31,14 @@ def user(request, dbapp):
 
     username = "guidovanrossum"
     email = "notanemail@python.org"
+    password = "plaintextpasswordsaregreat"
     dbapp.db.accounts.insert_user(
         username,
         email,
-        "plaintextpasswordsaregreat")
-    return dbapp.db.accounts.get_user(username)
+        password)
+    return_value = dbapp.db.accounts.get_user(username)
+    return_value['password'] = password
+    return return_value
 
 
 def test_get_user(dbapp):
@@ -178,10 +181,14 @@ def test_user_authenticate_invalid(engine, dbapp):
 def test_insert_user(dbapp):
     username = "guidovanrossum"
     email = "notanemail@python.org"
+    password = "plaintextpasswordsaregreat"
     dbapp.db.accounts.insert_user(
         username,
         email,
-        "plaintextpasswordsaregreat")
+        password
+    )
+    assert dbapp.db.accounts.user_authenticate(username,
+                                               password)
     assert dbapp.db.accounts.get_user(username)
     assert dbapp.db.accounts.get_user_id_by_email(email)
 
@@ -202,3 +209,33 @@ def test_user_gpg_keyid(dbapp, user):
     assert gpg_keyid == stored_gpg_keyid
     dbapp.db.accounts.delete_user_gpg_keyid(user['id'])
     assert not dbapp.db.accounts.get_user_gpg_keyid(user['id'])
+
+
+def test_update_user_email(dbapp, user):
+    email = "montypython@python.org"
+    dbapp.db.accounts.update_user_email(user['id'], email)
+    new_info = dbapp.db.accounts.get_user(user['username'])
+    assert new_info['email'] == email
+
+
+def test_update_password(dbapp, user):
+    password = "thisisntmyrealpassword"
+    dbapp.db.accounts.update_user_password(user['id'], password)
+    assert dbapp.db.accounts.user_authenticate(user['username'], password)
+
+
+def test_update_user(dbapp, user):
+    new_password = "test"
+    email = "new email"
+    gpg_keyid = "AEADBEEE"
+    dbapp.db.accounts.update_user(user['id'],
+                                  password=new_password,
+                                  email=email,
+                                  gpg_keyid=gpg_keyid)
+    assert dbapp.db.accounts.user_authenticate(user['username'],
+                                               new_password)
+    new_info = dbapp.db.accounts.get_user(user['username'])
+    assert new_info['email'] == email
+    stored_gpg_keyid = dbapp.db.accounts.get_user_gpg_keyid(user['id'])
+    assert stored_gpg_keyid == gpg_keyid
+    dbapp.db.accounts.delete_user_gpg_keyid(user['id'])

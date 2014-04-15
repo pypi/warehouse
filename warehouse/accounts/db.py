@@ -41,7 +41,7 @@ class Database(db.Database):
         """
     )
 
-    def get_user(self, name):
+    def get_user(self, username):
         query = \
             """ SELECT accounts_user.id, username, name, date_joined, email
                 FROM accounts_user
@@ -52,7 +52,7 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        result = self.engine.execute(query, username=name).first()
+        result = self.engine.execute(query, username=username).first()
 
         if result is not None:
             result = dict(result)
@@ -145,11 +145,12 @@ class Database(db.Database):
             self.insert_user_gpg_keyid(user_id, gpg_keyid)
 
     def update_user_password(self, user_id, password):
+        hashed_password = self.app.passlib.encrypt(password)
         self.engine.execute("""
         UPDATE accounts_user
             SET password = %s
             WHERE id = %s
-        """, password, user_id)
+        """, hashed_password, user_id)
 
     def update_user_email(self, user_id, email):
         self.engine.execute("""
