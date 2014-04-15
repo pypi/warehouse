@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from unittest import mock
+from sqlalchemy.orm import sessionmaker
 import datetime
 
 import pretend
@@ -152,3 +153,14 @@ def test_user_authenticate_invalid(engine, dbapp):
     dbapp.passlib.verify_and_update = lambda p, h: (False, None)
 
     assert not dbapp.db.accounts.user_authenticate("test-user", "password")
+
+
+def test_insert_user(dbapp):
+    username = "guidovanrossum"
+    email = "notanemail@python.org"
+    dbapp.db.accounts.insert_user(
+        username,
+        email,
+        "plaintextpasswordsaregreat")
+    assert dbapp.db.accounts.get_user(username)
+    assert dbapp.db.accounts.get_user_id_by_email(email)
