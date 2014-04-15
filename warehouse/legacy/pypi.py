@@ -26,7 +26,7 @@ from warehouse.utils import (
     cache, cors, is_valid_json_callback_name, render_response,
 )
 
-action_methods = {}
+_action_methods = {}
 
 
 def register(name):
@@ -36,13 +36,13 @@ def register(name):
     parameter in the GET or POST arguments.
 
     This doesn't actually decorate the function or alter it in any way, it
-    simply registers it with the action_methods mapping.
+    simply registers it with the legacy routing mapping.
     """
-    if name in action_methods:
+    if name in _action_methods:
         raise KeyError('Attempt to re-register name %r' % (name, ))
 
     def deco(fn):
-        action_methods[name] = fn
+        _action_methods[name] = fn
         return fn
     return deco
 
@@ -54,8 +54,8 @@ def pypi(app, request):
 
     # check for the legacy :action-style dispatch
     action = request.args.get(':action')
-    if action in action_methods:
-        return action_methods[action](app, request)
+    if action in _action_methods:
+        return _action_methods[action](app, request)
 
     # no XML-RPC and no :action means we render the index, or at least we
     # redirect to where it moved to
