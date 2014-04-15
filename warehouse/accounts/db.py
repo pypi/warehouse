@@ -101,21 +101,25 @@ class Database(db.Database):
                     )
                 return True
 
-### data modification methods ###
+# data modification methods
 
     def insert_user(self, username, email, password, is_superuser=False,
                     is_staff=False, is_active=False,
                     gpg_keyid=None, generate_otk=False):
         if self.get_user_id_by_email(email) is not None:
-            raise ValueError("Email address already belongs to a different user!")
+            raise ValueError(
+                "Email address already belongs to a different user!"
+            )
         hashed_password = self.app.passlib.encrypt(password)
 
         query = \
             """ INSERT INTO accounts_user(
-                    username, password, last_login, is_superuser,
+                    username, password,
+                    last_login, is_superuser,
                     name, is_staff, date_joined, is_active
                 ) VALUES (
-                    %(username)s, %(password)s, current_timestamp, %(is_superuser)s,
+                    %(username)s, %(password)s,
+                    current_timestamp, %(is_superuser)s,
                     '', %(is_staff)s, current_timestamp, %(is_active)s
                 ) RETURNING id
             """
