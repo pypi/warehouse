@@ -194,24 +194,6 @@ def test_insert_and_delete_user(dbapp):
     assert not dbapp.db.accounts.get_user(username)
 
 
-def test_user_otk(dbapp, user):
-    dummy_otk = "ae09dae"
-    dbapp.db.accounts.insert_user_otk(user['username'], dummy_otk)
-    stored_otk = dbapp.db.accounts.get_user_otk(user['username'])
-    assert dummy_otk == stored_otk
-    dbapp.db.accounts.delete_user_otk(user['username'])
-    assert not dbapp.db.accounts.get_user_otk(user['username'])
-
-
-def test_user_gpg_keyid(dbapp, user):
-    gpg_keyid = "DEADBEEF"
-    dbapp.db.accounts.insert_user_gpg_keyid(user['id'], gpg_keyid)
-    stored_gpg_keyid = dbapp.db.accounts.get_user_gpg_keyid(user['id'])
-    assert gpg_keyid == stored_gpg_keyid
-    dbapp.db.accounts.delete_user_gpg_keyid(user['id'])
-    assert not dbapp.db.accounts.get_user_gpg_keyid(user['id'])
-
-
 def test_update_user_email(dbapp, user):
     email = "montypython@python.org"
     dbapp.db.accounts.update_user_email(user['id'], email)
@@ -228,15 +210,10 @@ def test_update_password(dbapp, user):
 def test_update_user(dbapp, user):
     new_password = "test"
     email = "new email"
-    gpg_keyid = "AEADBEEE"
     dbapp.db.accounts.update_user(user['id'],
                                   password=new_password,
-                                  email=email,
-                                  gpg_keyid=gpg_keyid)
+                                  email=email)
     assert dbapp.db.accounts.user_authenticate(user['username'],
                                                new_password)
     new_info = dbapp.db.accounts.get_user(user['username'])
     assert new_info['email'] == email
-    stored_gpg_keyid = dbapp.db.accounts.get_user_gpg_keyid(user['id'])
-    assert stored_gpg_keyid == gpg_keyid
-    dbapp.db.accounts.delete_user_gpg_keyid(user['id'])

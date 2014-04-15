@@ -103,9 +103,8 @@ class Database(db.Database):
 
 # data modification methods
 
-    def insert_user(self, username, email, password, is_superuser=False,
-                    is_staff=False, is_active=False,
-                    gpg_keyid=None, generate_otk=False):
+    def insert_user(self, username, email, password,
+                    is_superuser=False, is_staff=False, is_active=False):
         if self.get_user_id_by_email(email) is not None:
             raise ValueError(
                 "Email address already belongs to a different user!"
@@ -132,22 +131,13 @@ class Database(db.Database):
             is_staff=str(is_staff).upper(),
             is_active=str(is_active).upper()
         ).scalar()
-        self.update_user(user_id, email=email, gpg_keyid=gpg_keyid)
-        if generate_otk:
-            otk = "".join([random.choice(chars) for x in range(32)])
-            return self.insert_user_otk(username, otk)
+        self.update_user(user_id, email=email)
 
-    def update_user(self, user_id, password=None, email=None,
-                    gpg_keyid=None):
+    def update_user(self, user_id, password=None, email=None):
         if password is not None:
             self.update_user_password(user_id, password)
         if email is not None:
             self.update_user_email(user_id, email)
-        if gpg_keyid is not None:
-            self.delete_user_gpg_keyid(user_id)
-        # if the string is empty, we don't make a new one
-        if gpg_keyid:
-            self.insert_user_gpg_keyid(user_id, gpg_keyid)
 
     def delete_user(self, username):
         self.engine.execute(
@@ -190,37 +180,3 @@ class Database(db.Database):
                     AND up.primary = new_values.primary
         )"""
         self.engine.execute(query, user_id=user_id, email=email)
-
-    def insert_user_gpg_keyid(self, user_id, gpg_keyid):
-        query = \
-            """ INSERT INTO accounts_gpgkey (user_id, key_id, verified)
-                VALUES (%s, %s, FALSE)
-            """
-        self.engine.execute(query, user_id, gpg_keyid)
-
-    get_user_gpg_keyid = db.scalar(
-        "SELECT key_id FROM accounts_gpgkey WHERE user_id = %s LIMIT 1"
-    )
-
-    def delete_user_gpg_keyid(self, user_id):
-        self.engine.execute(
-            "DELETE FROM accounts_gpgkey WHERE user_id = %s",
-            user_id
-        )
-
-    def insert_user_otk(self, username, otk):
-        query = \
-            """ INSERT INTO rego_otk (name, otk, date)
-                VALUES (%s, %s, current_timestamp)
-            """
-        self.engine.execute(query, username, otk)
-
-    get_user_otk = db.scalar(
-        "SELECT otk FROM rego_otk WHERE name = %s LIMIT 1"
-    )
-
-    def delete_user_otk(self, username):
-        self.engine.execute(
-            "DELETE FROM rego_otk WHERE name = %s",
-            username
-        )
