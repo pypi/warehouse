@@ -14,10 +14,33 @@
 from unittest import mock
 from sqlalchemy.orm import sessionmaker
 import datetime
+import pytest
 
 import pretend
 
 from warehouse.accounts.tables import users, emails
+
+
+@pytest.fixture
+def user(request, dbapp):
+
+    @request.addfinalizer
+    def delete_user():
+        pass
+        # dbapp.db.accounts.delete_user(user_id)
+
+    username = "guidovanrossum"
+    email = "notanemail@python.org"
+    dbapp.db.accounts.insert_user(
+        username,
+        email,
+        "plaintextpasswordsaregreat")
+    user_id = dbapp.db.accounts.get_user(username)
+    return {
+        "email": email,
+        "username": username,
+        "user_id": user_id
+    }
 
 
 def test_get_user(dbapp):
@@ -164,3 +187,12 @@ def test_insert_user(dbapp):
         "plaintextpasswordsaregreat")
     assert dbapp.db.accounts.get_user(username)
     assert dbapp.db.accounts.get_user_id_by_email(email)
+
+
+def test_user_otk(dbapp, user):
+    dummy_otk = "ae09dae"
+    dbapp.db.accounts.insert_user_otk(user['username'], dummy_otk)
+    stored_otk = dbapp.db.accounts.get_user_otk(user['username'])
+    assert dummy_otk == stored_otk
+    dbapp.db.accounts.delete_user_otk(user['username'])
+    assert not dbapp.db.accounts.get_user_otk(user['username'])

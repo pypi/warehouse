@@ -192,11 +192,26 @@ class Database(db.Database):
             user_id, gpg_keyid
         )
 
-    def insert_user_otk(self, name, otk):
+    def insert_user_otk(self, username, otk):
         self.engine.execute(
             """
             INSERT INTO rego_otk (name, otk, date)
-            VALUES (%s %s, current_timestamp)
+            VALUES (%s, %s, current_timestamp)
             """,
-            name, otk
+            username, otk
+        )
+
+    def get_user_otk(self, username):
+        result = self.engine.execute(
+            """
+            SELECT otk FROM rego_otk WHERE name = %s
+            """,
+            username
+        ).first()
+        return result[0] if result else result
+
+    def delete_user_otk(self, username):
+        self.engine.execute(
+            "DELETE FROM rego_otk WHERE name = %s",
+            username
         )
