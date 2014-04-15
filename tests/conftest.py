@@ -46,9 +46,13 @@ def database(request):
         url = 'postgresql:///warehouse_unittest'
 
     engine = create_engine(url, poolclass=AssertionPool)
+
     request.addfinalizer(engine.dispose)
+
     if not os.getenv('WAREHOUSE_DATABASE_URL'):
-        request.addfinalizer(lambda: subprocess.call(['dropdb', 'warehouse_unittest']))
+        request.addfinalizer(
+            lambda: subprocess.call(['dropdb', 'warehouse_unittest'])
+        )
 
     # Connect to the database and create the necessary extensions
     engine.execute('CREATE EXTENSION IF NOT EXISTS "citext"')
