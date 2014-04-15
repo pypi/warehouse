@@ -206,12 +206,13 @@ def test_rss(monkeypatch):
             cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
-        urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
     )
-    request = pretend.stub()
+    request = pretend.stub(
+        url_adapter=Map(urls.urls).bind('test.server', '/'),
+    )
 
     resp = pypi.rss(app, request)
 
@@ -259,12 +260,13 @@ def test_packages_rss(monkeypatch):
             cache=pretend.stub(browser=False, varnish=False),
             site={"url": "http://test.server/", "name": "PyPI"},
         ),
-        urls=Map(urls.urls).bind('test.server', '/'),
         templates=pretend.stub(
             get_template=pretend.call_recorder(lambda t: template),
         ),
     )
-    request = pretend.stub()
+    request = pretend.stub(
+        url_adapter=Map(urls.urls).bind('test.server', '/'),
+    )
 
     resp = pypi.packages_rss(app, request)
 
