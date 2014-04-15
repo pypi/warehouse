@@ -224,6 +224,7 @@ def test_project_detail_invalid_version():
 def test_project_detail_valid(version, description, camo):
     release = {
         "description": description,
+        "requires_dist": ["foo", "xyz > 0.1"]
     }
 
     template = pretend.stub(
@@ -269,7 +270,10 @@ def test_project_detail_valid(version, description, camo):
             get_template=pretend.call_recorder(lambda t: template),
         ),
     )
-    request = pretend.stub()
+    request = pretend.stub(
+        url_adapter=pretend.stub(build=lambda *a,
+                                 **kw: "/projects/test-project/")
+    )
 
     project_name = "test-project"
     normalized = "test-project"

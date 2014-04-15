@@ -92,11 +92,24 @@ def project_detail(app, request, project_name, version=None):
     # Mark our description_html as safe as it's already been cleaned by bleach
     description_html = jinja2.Markup(description_html)
 
+    # Split the requirement string to (project name, the rest)
+    requirements = []
+    for req in release.get('requires_dist', []):
+        project_name, *other = req.split(' ', 1)
+        url = url_for(request, 'warehouse.packaging.views.project_detail',
+                      project_name=project_name)
+        requirements.append({
+            'project_name': project_name,
+            'project_url': url,
+            'other': other[0] if other else ''
+        })
+
     return render_response(
         app, request, "projects/detail.html",
         project=project,
         release=release,
         releases=releases,
+        requirements=requirements,
         description_html=description_html,
         download_counts=app.db.packaging.get_download_counts(project),
         downloads=app.db.packaging.get_downloads(project, version),
