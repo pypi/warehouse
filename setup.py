@@ -19,11 +19,6 @@ import os
 from setuptools import setup, find_packages
 
 
-about = {}
-with open("warehouse/__about__.py") as fp:
-    exec(fp.read(), about)
-
-
 def recursive_glob(path, pattern, cutdirs=0):
     matches = []
     for root, dirnames, filenames in os.walk(path):
@@ -34,12 +29,21 @@ def recursive_glob(path, pattern, cutdirs=0):
     return matches
 
 
+about = {}
+with open("warehouse/__about__.py") as fp:
+    exec(fp.read(), about)
+
+
+with open("README.rst") as fp:
+    long_description = fp.read()
+
+
 setup(
     name=about["__title__"],
     version=about["__version__"],
 
     description=about["__summary__"],
-    long_description=open("README.rst").read(),
+    long_description=long_description,
     license=about["__license__"],
     url=about["__uri__"],
 

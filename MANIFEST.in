@@ -3,8 +3,6 @@ include LICENSE
 include README.rst
 include CONTRIBUTING.rst
 include tox.ini
-include dev-requirements.txt
-include .coveragerc
 
 recursive-include dev *.yml
 
@@ -13,9 +11,6 @@ recursive-include docs *.py
 recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
-
-include config.rb
-include package.json
 
 recursive-include warehouse *.html
 recursive-include warehouse *.mako
@@ -26,5 +21,3 @@ graft warehouse/static
 
 recursive-include tests *.py
 recursive-include tests *.yml
-
-graft debian
