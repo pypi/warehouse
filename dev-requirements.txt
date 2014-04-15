@@ -4,5 +4,4 @@
 # Install our development requirements
 tox
 pretend
-mock
 pytest
