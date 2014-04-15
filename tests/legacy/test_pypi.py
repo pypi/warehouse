@@ -66,8 +66,8 @@ def test_pypi_route_action(monkeypatch):
         headers={},
     )
 
-    action_methods = {}
-    monkeypatch.setattr(pypi, 'action_methods', action_methods)
+    _action_methods = {}
+    monkeypatch.setattr(pypi, '_action_methods', _action_methods)
 
     @pypi.register('test')
     def test(app, request):
@@ -81,8 +81,8 @@ def test_pypi_route_action(monkeypatch):
 
 
 def test_pypi_route_action_double(monkeypatch):
-    action_methods = {'test': None}
-    monkeypatch.setattr(pypi, 'action_methods', action_methods)
+    _action_methods = {'test': None}
+    monkeypatch.setattr(pypi, '_action_methods', _action_methods)
 
     with pytest.raises(KeyError):
         pypi.register('test')
