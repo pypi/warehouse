@@ -35,12 +35,7 @@ def user(request, dbapp):
         username,
         email,
         "plaintextpasswordsaregreat")
-    user_id = dbapp.db.accounts.get_user(username)
-    return {
-        "email": email,
-        "username": username,
-        "user_id": user_id
-    }
+    return dbapp.db.accounts.get_user(username)
 
 
 def test_get_user(dbapp):
@@ -55,6 +50,7 @@ def test_get_user(dbapp):
     ))
 
     assert {
+        "id": mock.ANY,
         "date_joined": mock.ANY,
         "email": None,
         "name": "Test User",
@@ -81,6 +77,7 @@ def test_get_user_with_email(dbapp):
     ))
 
     assert {
+        "id": 1,
         "date_joined": mock.ANY,
         "email": "test-user@example.com",
         "name": "Test User",
@@ -196,3 +193,12 @@ def test_user_otk(dbapp, user):
     assert dummy_otk == stored_otk
     dbapp.db.accounts.delete_user_otk(user['username'])
     assert not dbapp.db.accounts.get_user_otk(user['username'])
+
+
+def test_user_gpg_keyid(dbapp, user):
+    gpg_keyid = "DEADBEEF"
+    dbapp.db.accounts.insert_user_gpg_keyid(user['id'], gpg_keyid)
+    stored_gpg_keyid = dbapp.db.accounts.get_user_gpg_keyid(user['id'])
+    assert gpg_keyid == stored_gpg_keyid
+    dbapp.db.accounts.delete_user_gpg_keyid(user['id'])
+    assert not dbapp.db.accounts.get_user_gpg_keyid(user['id'])

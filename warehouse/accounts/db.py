@@ -43,7 +43,7 @@ class Database(db.Database):
 
     def get_user(self, name):
         query = \
-            """ SELECT username, name, date_joined, email
+            """ SELECT accounts_user.id, username, name, date_joined, email
                 FROM accounts_user
                 LEFT OUTER JOIN accounts_email ON (
                     accounts_email.user_id = accounts_user.id
@@ -177,19 +177,23 @@ class Database(db.Database):
             AND up.primary = new_values.primary
         )""".strip(), user_id=user_id, email=email)
 
+    def insert_user_gpg_keyid(self, user_id, gpg_keyid):
+        self.engine.execute(
+            """
+            INSERT INTO accounts_gpgkey (user_id, key_id, verified)
+            VALUES (%s, %s, FALSE)
+            """,
+            user_id, gpg_keyid
+        )
+
+    get_user_gpg_keyid = db.scalar(
+        "SELECT key_id FROM accounts_gpgkey WHERE user_id = %s LIMIT 1"
+    )
+
     def delete_user_gpg_keyid(self, user_id):
         self.engine.execute(
             "DELETE FROM accounts_gpgkey WHERE user_id = %s",
             user_id
-        )
-
-    def insert_user_gpg_keyid(self, user_id, gpg_keyid):
-        self.engine.execute(
-            """
-            INSERT INTO accounts_gpgey (user_id, key_id, verified)
-            VALUES (%s, %s, FALSE)
-            """,
-            user_id, gpg_keyid
         )
 
     def insert_user_otk(self, username, otk):
@@ -201,14 +205,9 @@ class Database(db.Database):
             username, otk
         )
 
-    def get_user_otk(self, username):
-        result = self.engine.execute(
-            """
-            SELECT otk FROM rego_otk WHERE name = %s
-            """,
-            username
-        ).first()
-        return result[0] if result else result
+    get_user_otk = db.scalar(
+        "SELECT otk FROM rego_otk WHERE name = %s LIMIT 1"
+    )
 
     def delete_user_otk(self, username):
         self.engine.execute(
