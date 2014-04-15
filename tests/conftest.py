@@ -11,209 +11,75 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
-import shutil
-import signal
-import socket
 import subprocess
-import tempfile
-import time
-import urllib.parse
+import os
 
-import pretend
-import pytest
-
+from sqlalchemy.engine import create_engine
+from sqlalchemy.pool import AssertionPool
 import alembic.config
 import alembic.command
-import psycopg2
-import psycopg2.extensions
-import sqlalchemy
-import sqlalchemy.pool
+import pretend
+import pytest
 
 
 def pytest_collection_modifyitems(items):
     for item in items:
         # Mark any item with one of the database fixture as using the db
-        if set(getattr(item, "funcargnames", [])) & {"postgresql", "database"}:
+        if set(getattr(item, "funcargnames", [])) & {"engine", "database"}:
             item.add_marker(pytest.mark.db)
 
 
-def pytest_addoption(parser):
-    group = parser.getgroup("warehouse")
-    group.addoption(
-        "--database-url",
-        default=None,
-        help="An url to an already created warehouse test database",
-    )
+@pytest.fixture(scope='session')
+def database(request):
+    """Creates the warehouse_unittest database, builds the schema and returns
+    an SQLALchemy Connection to the database.
+    """
 
-
-def _get_open_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(("", 0))
-    s.listen(1)
-
-    port = s.getsockname()[1]
-
-    s.close()
-
-    return port
-
-
-@pytest.fixture(scope="session")
-def postgresql(request):
-    # First check to see if we've been given a database url that we should use
-    # instead
-    database_url = (
-        os.environ.get("WAREHOUSE_DATABASE_URL")
-        or request.config.getoption("--database-url")
-    )
-
-    if database_url is not None:
-        return database_url
-
-    # Get an open port to use for our PostgreSQL server
-    port = _get_open_port()
-
-    # Create a temporary directory to use as our data directory
-    tmpdir = tempfile.mkdtemp()
-
-    # Initial a database in our temporary directory
-    subprocess.check_call(
-        ["initdb", "-D", tmpdir],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    proc = subprocess.Popen(
-        ["postgres", "-D", tmpdir, "-p", str(port),
-         "-h", "127.0.0.1", "-k", tmpdir],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-
-    # Register a finalizer that will kill the started PostgreSQL server
-    @request.addfinalizer
-    def finalize():
-        # Terminate the PostgreSQL process
-        proc.send_signal(signal.SIGINT)
-        proc.wait()
-
-        # Remove the data directory
-        shutil.rmtree(tmpdir, ignore_errors=True)
-
-    for _ in range(5):
-        try:
-            conn = psycopg2.connect(
-                database="postgres",
-                host="localhost",
-                port=port,
-                connect_timeout=10,
-            )
-        except psycopg2.OperationalError:
-            # Pause for a moment to give postgresql time to start
-            time.sleep(1)
-        else:
-            # Set our isolation level
-            conn.set_isolation_level(
-                psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
-            )
-
-            # Create a database for the warehouse tests
-            cursor = conn.cursor()
-            cursor.execute("CREATE DATABASE warehouse ENCODING 'UTF8'")
-
-            # Commit our changes and close the connection
-            cursor.close()
-            conn.close()
-
-            break
+    if os.getenv('WAREHOUSE_DATABASE_URL'):
+        # Assume that the database was externally created
+        url = os.getenv('WAREHOUSE_DATABASE_URL')
     else:
-        raise RuntimeError("Could not start a PostgreSQL instance")
+        # (Drop and) create the warehouse_unittest database with UTF-8 encoding
+        # (in case the default encoding was changed from UTF-8)
+        subprocess.call(['dropdb', 'warehouse_unittest'])
+        subprocess.check_call(['createdb', '-E', 'UTF8', 'warehouse_unittest'])
+        url = 'postgresql:///warehouse_unittest'
 
-    return "postgresql://localhost:{}/warehouse".format(port)
+    engine = create_engine(url, poolclass=AssertionPool)
 
+    request.addfinalizer(engine.dispose)
 
-@pytest.fixture(scope="session")
-def database(postgresql):
-    details = urllib.parse.urlparse(postgresql)
+    if not os.getenv('WAREHOUSE_DATABASE_URL'):
+        request.addfinalizer(
+            lambda: subprocess.call(['dropdb', 'warehouse_unittest'])
+        )
 
-    # Ensure all extensions that we require are installed
-    conn = psycopg2.connect(
-        database=details.path[1:],
-        host=details.hostname,
-        port=details.port,
-    )
-    cursor = conn.cursor()
-    cursor.execute("DROP SCHEMA public CASCADE")
-    cursor.execute("CREATE SCHEMA public")
-    cursor.execute("CREATE EXTENSION IF NOT EXISTS citext")
-    cursor.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # Connect to the database and create the necessary extensions
+    engine.execute('CREATE EXTENSION IF NOT EXISTS "citext"')
+    engine.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"')
 
+    # Have Alembic create the schema
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option(
         "script_location",
         "warehouse:migrations",
     )
-    alembic_cfg.set_main_option("url", postgresql)
+    alembic_cfg.set_main_option("url", url)
     alembic.command.upgrade(alembic_cfg, "head")
 
-    return postgresql
-
-
-class FakeConnection:
-
-    def __init__(self, connection):
-        self.connection = connection
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, value, traceback):
-        pass
-
-    def __getattr__(self, name):
-        return getattr(self.connection, name)
-
-
-class FakeEngine:
-
-    def __init__(self, connection):
-        self.connection = connection
-
-    def __getattr__(self, name):
-        return getattr(self.connection, name)
-
-    def begin(self):
-        return FakeConnection(self.connection)
-
-    def connect(self):
-        return FakeConnection(self.connection)
+    return engine
 
 
 @pytest.fixture
 def engine(request, database):
-    engine = sqlalchemy.create_engine(
-        database,
-        poolclass=sqlalchemy.pool.AssertionPool,
-        isolation_level="SERIALIZABLE",
-    )
-
-    connection = engine.connect()
-    transaction = connection.begin()
-
-    @request.addfinalizer
-    def finalize():
-        transaction.rollback()
-        connection.close()
-
-    return FakeEngine(connection)
+    connection = database.connect()
+    transaction = connection.begin_nested()
+    request.addfinalizer(transaction.rollback)
+    request.addfinalizer(connection.close)
+    return connection
 
 
 class ErrorRedis:
-
     def __init__(self, url):
         self.url = url
 
@@ -226,13 +92,15 @@ class ErrorRedis:
 
 
 @pytest.fixture
-def dbapp(database, engine):
+def dbapp(engine):
     from warehouse.application import Warehouse
 
     return Warehouse.from_yaml(
         override={
-            "site": {"hosts": "localhost"},
-            "database": {"url": database},
+            "site": {
+                "access_token": "testing",
+                "hosts": "localhost",
+            },
             "redis": {
                 "downloads": "redis://nonexistant/0",
                 "sessions": "redis://nonexistant/0",
@@ -253,11 +121,12 @@ def app():
             "Cannot access the database through the app fixture"
         )
 
-    engine = pretend.stub(connect=connect)
-
     return Warehouse.from_yaml(
         override={
-            "site": {"hosts": "localhost"},
+            "site": {
+                "access_token": "testing",
+                "hosts": "localhost",
+            },
             "database": {"url": "postgresql:///nonexistant"},
             "redis": {
                 "downloads": "redis://nonexistant/0",
@@ -265,6 +134,6 @@ def app():
             },
             "search": {"hosts": []},
         },
-        engine=engine,
+        engine=pretend.stub(connect=connect, execute=connect),
         redis_class=ErrorRedis,
     )

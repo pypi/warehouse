@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+from unittest import mock
+
 import pretend
 import pytest
 import six
@@ -203,6 +204,7 @@ class TestSearchPagination:
     @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
         (100, 10, 1, False),
         (100, 10, 2, True),
+        (0, 10, 1, False),
     ])
     def test_has_prev(self, total, per_page, page, has):
         paginator = SearchPagination(
@@ -216,6 +218,7 @@ class TestSearchPagination:
     @pytest.mark.parametrize(("total", "per_page", "page", "has"), [
         (100, 10, 10, False),
         (100, 10, 9, True),
+        (0, 10, 1, False),
     ])
     def test_has_next(self, total, per_page, page, has):
         paginator = SearchPagination(

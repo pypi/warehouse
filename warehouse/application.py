@@ -48,6 +48,7 @@ from warehouse import db
 from warehouse.csrf import handle_csrf
 from warehouse.datastructures import AttributeDict
 from warehouse.http import Request
+from warehouse.middlewares import XForwardedTokenMiddleware
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
@@ -203,6 +204,14 @@ class Warehouse(object):
                     ),
                 ),
             ],
+        )
+
+        # This is last because we want it processed first in the stack of
+        # middlewares. This will ensure that we strip X-Forwarded-* headers
+        # if the request doesn't come from Fastly
+        self.wsgi_app = XForwardedTokenMiddleware(
+            self.wsgi_app,
+            self.config.site.access_token,
         )
 
     def __call__(self, environ, start_response):

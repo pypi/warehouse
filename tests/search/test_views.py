@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
-import pretend
-import pytest
+from unittest import mock
 
 from werkzeug.exceptions import NotFound
+import pretend
+import pytest
 
 from warehouse.search import views
 from warehouse.search.views import search

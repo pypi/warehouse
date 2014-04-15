@@ -84,7 +84,7 @@ Finally you can setup the project:
 Design Development
 ------------------
 
-Warehouse design development uses `Compass`_ and `Grunt`_ as it's asset
+Warehouse design development uses `Compass`_ and `Grunt`_ as its asset
 pipeline. You can install the required dependencies by running:
 
 .. code-block:: console
@@ -123,10 +123,14 @@ you have to do is:
 
     $ py.test
 
-This runs the tests with the default Python interpreter and require an empty
-database to exist named ``test_warehouse`` by default. The name of the test
-database may be overridden using the ``WAREHOUSE_DATABASE_URL`` environment
-variable.
+This runs the tests with the default Python interpreter and require that the
+local user has the necessary privileges to create the test database (named
+``warehouse_unittest``). This is easy to set up by creating a PostgreSQL user
+account matching the local user and giving it the ``CREATEDB`` privilege.
+
+Alternatively you can create the test database beforehand and set the
+``WAREHOUSE_DATABASE_URL`` environment variable to point to it. In that case,
+you have to manually drop the database after running the tests.
 
 You can also verify that the tests pass on other supported Python interpreters.
 For this we use `tox`_, which will automatically create a `virtualenv`_ for
@@ -136,8 +140,7 @@ each supported Python version and run the tests.  For example:
 
    $ tox
    ...
-    py27: commands succeeded
-   ERROR:   pypy: InterpreterNotFound: pypy
+    py34: commands succeeded
     docs: commands succeeded
     pep8: commands succeeded
 
@@ -150,18 +153,6 @@ database, you can run:
 .. code-block:: console
 
     $ tox -e py34 -- -k "not db"
-
-By default the database driven tests will attempt to create an isolated
-PostgreSQL instance using ``initdb`` and ``postgres`` which it will tear down
-at the end of the test run. If you wish to specify an already running
-PostgreSQL instead of this, you can simply do:
-
-.. code-block:: console
-
-    $ # via command line
-    $ tox -e py34 -- --database-url postgresql:///test_warehouse
-    $ $ via environment variable
-    $ WAREHOUSE_DATABASE_URL='postgresql:///test_warehouse' tox -e py34
 
 
 Building Documentation
@@ -184,10 +175,9 @@ The HTML documentation index can now be found at ``docs/_build/html/index.html``
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`PEP 8`: http://www.peps.io/8/
-.. _`future statements`: http://docs.python.org/2/reference/simple_stmts.html#future-statements
 .. _`PostgreSQL`: https://github.com/postgres/postgres
 .. _`Redis`: https://github.com/antirez/redis
-.. _`Elasticsearch`: https://github.com/elasticsearch/elasticsearch
+.. _`Elasticsearch`: http://www.elasticsearch.org/
 .. _`Compass`: https://github.com/chriseppstein/compass
 .. _`Grunt`: http://gruntjs.com/
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
