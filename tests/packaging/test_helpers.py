@@ -14,7 +14,9 @@
 
 import pytest
 
-from warehouse.packaging.helpers import package_type_display
+from warehouse.packaging.helpers import (package_type_display,
+                                         normalize_package_name,
+                                         trim_docstring)
 
 
 @pytest.mark.parametrize(("package_type", "display"), [
@@ -30,3 +32,24 @@ from warehouse.packaging.helpers import package_type_display
 ])
 def test_package_type_display(package_type, display):
     assert package_type_display(package_type) == display
+
+
+def test_normalize_package_name():
+    assert safe_name("scooby^dooby*doo&") == "scoopy-dooby-doo"
+    assert safe_name("Scooby^Dooby*doo&") == "scoopy-dooby-doo"
+    assert safe_name("test_this") == "test-this"
+    assert safe_name("hoobs#") == "hoobs-"
+    assert safe_name("Hoobs#") == "hoobs-"
+
+
+def test_trim_docstring(text):
+    assert trim_docstring("") == ""
+    TEST_DOCSTRING = """ Testing
+    this
+    thing
+    """
+    assert trim_docstring(TEST_DOCSTRING) == """
+Testing
+this
+thing
+""".strip()

@@ -515,3 +515,99 @@ class Database(db.Database):
             ORDER BY submitted_date DESC
         """
     )
+
+# data Modification Methods
+
+    def insert_release(self, name, version, bugtrack_url=None,
+                       classifiers=None):
+        """
+        Takes in the following:
+
+        * name: the name of the package to insert
+        * version: the version of the package to insert
+        * bugtrack_url: a string with the bugtracking url
+        * classifiers: a list of the classifiers to classify the release with
+        """
+
+        # first, create the project if it doesn't exist
+        if not self.get_project(name):
+            self.add_project(name, version, bugtrack_url=bugtrack_url)
+
+        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        classifiers.sort()
+
+        if not self.get_project(name):
+            self.add_project()
+        if not self.get_release(name, version):
+            self.update_release()
+
+    def insert_project(self, name, version, bugtrack_url=None):
+        # NOTE: pypi behaviour is to assign the first submitter of a project the
+        # "owner" role.
+        query = \
+            """ INSERT INTO packages
+                    (name, normalized_name, bugtrack_url)
+                VALUES
+                    (%(name), %(normalized_name), %(bugtrack_url))
+            """
+        self.engine.execute(
+            query,
+            name=name,
+            version=version,
+            bugtrack_url=bugtrack_url
+        )
+
+    RELEASE_COLUMNS = ('author', 'author_email', 'maintainer', 'maintainer_email',
+                       'home_page', 'license', 'summary', 'keywords', 'platform',
+                       'download_url', 'cheesecake_installability_id',
+                       'cheesecake_documentation_id', 'cheesecake_code_kwalitee_id',
+                       'requires_python', 'description_from_readme')
+
+    def update_release(self, project_name, version,
+                       classifiers=None, description=None,
+                       **additional_db_values):
+        for column_name in additional_db_values:
+            if column_name not in self.RELEASE_COLUMNS:
+                raise ValueError(
+                    "Release table does not have a column {0}".format(column_name))
+        existing_data = self.get_release(project_name, version)
+        if classifiers:
+            self.update_project_classifiers(project_name, classifiers)
+        if description:
+            additional_db_values['description'] = description
+            # additional_db_values['description_html'] = parse_html_from_description
+        # for column_name in column_name
+
+    @staticmethod
+    def _build_update_release_query(keys, values):
+        return (" UPDATE RELEASES SET " +
+                "(%s)" % ",".join(keys) +
+                " VALUES " +
+                "(%s)" % ",".join(values) +
+                " WHERE name = %(name)s " +
+                " AND version = %(versions)s")
+
+    def update_release_classifiers(self, name, version, classifiers):
+        self._delete_release_classifiers(name, classifiers)
+        insert_query = \
+            """ INSERT INTO release_classifiers
+                    (name, version, trove_id)
+                VALUES
+                    (%(name)s, %(version)s, %(trove_id)s)
+            """
+        classifier_id_dict = self.get_classifier_ids(classifiers)
+        for classifier in classifiers:
+            trove_id = classifier_id_dict['classifier']
+            self.engine.execute(insert_query, name=name, trove_id=trove_id)
+
+    def _delete_release_classifiers(self, name, version):
+        query = \
+            """ DELETE FROM release_classifiers
+                WHERE name = %(name)s
+                AND version = %(version)s
+            """
+        self.engine.execute(
+            query,
+            name=name,
+            version=version
+        )
