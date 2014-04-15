@@ -22,14 +22,10 @@ import urllib.parse
 import babel.dates
 import babel.numbers
 import babel.support
-
 import guard
-import passlib.context
-
 import jinja2
-
+import passlib.context
 import redis
-
 import sqlalchemy
 import yaml
 
