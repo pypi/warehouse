@@ -14,10 +14,12 @@
 
 import pytest
 
-from warehouse.packaging.helpers import (normalize_package_name,
+from warehouse.packaging.helpers import (get_description_urls,
+                                         normalize_package_name,
                                          package_type_display,
                                          process_description_to_html,
-                                         trim_docstring)
+                                         trim_docstring,
+                                         xmlescape)
 
 
 @pytest.mark.parametrize(("package_type", "display"), [
@@ -76,3 +78,11 @@ def test_process_description_to_html():
 <h1>baz</h1>
 </div>""".strip()
     assert process_description_to_html(input_string) == output_string
+
+
+def test_xmlescape():
+    assert xmlescape("http://myface.badsymbols.<><>") == "http://myface.badsymbols.&lt;&gt;&lt;&gt;"
+
+
+def test_get_description_urls():
+    assert get_description_urls("`foo <http://myface.badsymbols>`_") == ['http://myface.badsymbols']

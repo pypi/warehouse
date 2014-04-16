@@ -17,6 +17,7 @@ import sys
 import io
 from contextlib import contextmanager
 from urllib.parse import urlparse
+from xml.etree import ElementTree
 
 import docutils
 from docutils.core import publish_doctree, Publisher
@@ -29,6 +30,8 @@ ALLOWED_SCHEMES = (
     'rtsp', 'rtspu', 'sftp', 'shttp', 'sip', 'sip', 'snews', 'svn',
     'svn+ssh', 'telnet', 'wais', 'irc'
 )
+
+rest_url_regex = re.compile("<(https?://.*?)>")
 
 
 def package_type_display(package_type):
@@ -159,3 +162,28 @@ def process_description_to_html(source, output_encoding='unicode'):
         output = output.encode(output_encoding).strip()
 
     return output
+
+
+def xmlescape(url):
+    '''
+    Make sure a URL is valid XML
+    (copied directly from pypi)
+    '''
+    try:
+        ElementTree.fromstring('<x y="%s"/>' % url)
+    except ElementTree.ParseError:
+        return cgi.escape(url)
+    else:
+        return url
+
+
+def get_description_urls(text):
+    """ parse all urls from a body of text, html-escaped. """
+
+    # a little history on this.
+    # this is legacy behaviour from pypi, where the escaped versions
+    # of urls were stored instead of the actual url themselves
+    # we can't remove this behaviour in warehouse until pypi is deprecated,
+    # since it interfere with html on the legacy pypi pages
+
+    return [xmlescape(url) for url in rest_url_regex.findall(text)]
