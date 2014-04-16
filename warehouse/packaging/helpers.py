@@ -11,8 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import cgi
 import re
 import sys
+import io
+from contextlib import contextmanager
+from urllib.parse import urlparse
+
+import docutils
+from docutils.core import publish_doctree, Publisher
+from docutils.writers import get_writer_class
+from docutils.transforms import TransformError, Transform
+
+ALLOWED_SCHEMES = (
+    'file', 'ftp', 'gopher', 'hdl', 'http', 'https',
+    'imap', 'mailto', 'mms', 'news', 'nntp', 'prospero', 'rsync',
+    'rtsp', 'rtspu', 'sftp', 'shttp', 'sip', 'sip', 'snews', 'svn',
+    'svn+ssh', 'telnet', 'wais', 'irc'
+)
 
 
 def package_type_display(package_type):
@@ -67,3 +83,79 @@ def trim_docstring(text):
         trimmed.pop(0)
     # Return a single string:
     return '\n'.join(trimmed)
+
+
+@contextmanager
+def _capture_stderr():
+    old_stderr = sys.stderr
+    sys.stderr = io.StringIO()
+    yield sys.stderr
+    sys.stderr = old_stderr
+
+
+def process_description_to_html(source, output_encoding='unicode'):
+    """Given an source string, returns an HTML fragment as a string.
+
+    The return value is the contents of the <body> tag.
+
+    Parameters:
+
+    - `source`: A multi-line text string; required.
+    - `output_encoding`: The desired encoding of the output.  If a Unicode
+      string is desired, use the default value of "unicode" .
+    """
+    # Dedent all lines of `source`.
+    source = trim_docstring(source)
+
+    settings_overrides = {
+        'raw_enabled': 0,  # no raw HTML code
+        'file_insertion_enabled': 0,  # no file/URL access
+        'halt_level': 2,  # at warnings or errors, raise an exception
+        'report_level': 5,  # never report problems with the reST code
+    }
+
+    parts = None
+
+    # capture publishing errors, they go to stderr
+    with _capture_stderr() as stderr:
+
+        # Convert reStructuredText to HTML using Docutils.
+        document = publish_doctree(
+            source=source,
+            settings_overrides=settings_overrides)
+
+        for node in document.traverse():
+            if node.tagname == '#text':
+                continue
+            if node.hasattr('refuri'):
+                uri = node['refuri']
+            elif node.hasattr('uri'):
+                uri = node['uri']
+            else:
+                continue
+            o = urlparse(uri)
+            if o.scheme not in ALLOWED_SCHEMES:
+                raise TransformError('link scheme not allowed')
+
+        # now turn the transformed document into HTML
+        reader = docutils.readers.doctree.Reader(parser_name='null')
+        pub = Publisher(
+            reader, source=docutils.io.DocTreeInput(document),
+            destination_class=docutils.io.StringOutput
+        )
+        pub.set_writer('html')
+        pub.process_programmatic_settings(None, settings_overrides, None)
+        pub.set_destination(None, None)
+        pub.publish()
+        parts = pub.writer.parts
+
+    # original text if publishing errors occur
+    if parts is None or len(stderr.getvalue()) > 0:
+        output = "".join('<PRE>\n' + cgi.escape(source) + '</PRE>').strip()
+    else:
+        output = parts['body'].strip()
+
+    if output_encoding != 'unicode':
+        output = output.encode(output_encoding).strip()
+
+    return output

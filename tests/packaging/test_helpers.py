@@ -14,8 +14,9 @@
 
 import pytest
 
-from warehouse.packaging.helpers import (package_type_display,
-                                         normalize_package_name,
+from warehouse.packaging.helpers import (normalize_package_name,
+                                         package_type_display,
+                                         process_description_to_html,
                                          trim_docstring)
 
 
@@ -53,3 +54,25 @@ Testing
 this
   thing
 """.strip()
+
+
+def test_process_description_to_html():
+    input_string = \
+        """
+        ===
+        foo
+        ===
+
+        ---
+        bar
+        ---
+
+        baz
+        ===""".strip()
+
+    output_string = \
+        """
+<div class="section" id="baz">
+<h1>baz</h1>
+</div>""".strip()
+    assert process_description_to_html(input_string) == output_string
