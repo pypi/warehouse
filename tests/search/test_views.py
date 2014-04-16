@@ -54,8 +54,8 @@ def test_search(app):
 
     resp = search(app, request, "fake")
 
-    assert resp.template.name == "search/results.html"
-    assert resp.context == {
+    assert resp.response.template.name == "search/results.html"
+    assert resp.response.context == {
         "query": "Django",
         "total": 0,
         "pages": mock.ANY,
@@ -83,8 +83,8 @@ def test_search_page_less_than_zero(app):
 
     resp = search(app, request, "fake")
 
-    assert resp.template.name == "search/results.html"
-    assert resp.context == {
+    assert resp.response.template.name == "search/results.html"
+    assert resp.response.context == {
         "query": "Django",
         "total": 0,
         "pages": mock.ANY,

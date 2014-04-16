@@ -29,8 +29,8 @@ Warehouse can be as simple as:
 
         resp = index(app, pretend.stub())
 
-        assert resp.template.name == "index.html"
-        assert resp.context == {
+        assert resp.response.template.name == "index.html"
+        assert resp.response.context == {
             "project_count": 5,
             "download_count": 10,
             "recently_updated": [],

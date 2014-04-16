@@ -18,10 +18,10 @@ from warehouse import helpers
 from warehouse.http import Response
 
 
-class TemplateResponse(Response):
+class TemplateResponse:
     """
-    TemplateResponse is small subclass of Response which will lazily render
-    a template when the response attribute is accessed.
+    TemplateResponse is small subclass iterator which will lazily render
+    a template when consumed.
 
     This allows inspecting or even modifying the context of the template, or
     even the template itself, at anytime prior to the template finally being
@@ -36,41 +36,28 @@ class TemplateResponse(Response):
     testing or modification of what the view itself has done.
     """
 
-    def __init__(self, template, context, *args, default_context=None,
-                 **kwargs):
-        super(TemplateResponse, self).__init__(*args, **kwargs)
+    def __init__(self, template, context, default_context=None):
+        if default_context is None:
+            default_context = {}
 
         self.template = template
         self.context = context
-        self.default_context = default_context if default_context else {}
+        self.default_context = default_context
+        self.rendered = False
 
-    @property
-    def response(self):
-        """
-        The actual content of the response. The first time this is accessed
-        we'll render the template and set are attributes to None so that
-        it cannot be mistakenly attempted to modify after it has already been
-        rendered.
-        """
-        if not hasattr(self, "_response"):
-            ctx = self.default_context.copy()
-            ctx.update(self.context)
+    def __iter__(self):
+        return self
 
-            self._response = self.template.render(**ctx)
+    def __next__(self):
+        if self.rendered:
+            raise StopIteration
 
-            self.template = None
-            self.default_context = None
-            self.context = None
-        return self._response
+        self.rendered = True
 
-    @response.setter
-    def response(self, value):
-        """
-        If something sets a positive value to the response, go ahead and allow
-        that to replace our lazily evaluated response.
-        """
-        if value:
-            self._response = value
+        ctx = self.default_context.copy()
+        ctx.update(self.context)
+
+        return self.template.render(**ctx)
 
 
 def render_response(app, request, template, **context):
@@ -89,9 +76,7 @@ def render_response(app, request, template, **context):
         "url_for": functools.partial(helpers.url_for, request),
     }
 
-    return TemplateResponse(
-        template,
-        context,
-        default_context=default_context,
+    return Response(
+        TemplateResponse(template, context, default_context=default_context),
         mimetype="text/html",
     )

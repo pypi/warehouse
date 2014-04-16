@@ -12,35 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+
 from unittest import mock
 
 import pretend
+import pytest
 
 from warehouse.templates import TemplateResponse, render_response
 
 
-def test_template_response():
-    response = pretend.stub()
+@pytest.mark.parametrize(("default"), [None, {"foo": pretend.stub()}])
+def test_template_response(default):
+    expected = pretend.stub()
     template = pretend.stub(
-        render=pretend.call_recorder(lambda **kw: response)
+        render=pretend.call_recorder(lambda **kw: expected)
     )
     ctx = {
         "wat": pretend.stub(),
     }
-    default_ctx = {
-        "foo": pretend.stub(),
-    }
-    resp = TemplateResponse(template, ctx, default_context=default_ctx)
 
-    assert resp.template is template
-    assert resp.context == ctx
-    assert resp.default_context == default_ctx
+    response = TemplateResponse(template, ctx, default_context=default)
 
-    assert resp.response is response
+    assert response.template is template
+    assert response.context == ctx
+    assert response.default_context == (default or {})
+    assert not response.rendered
 
-    assert resp.template is None
-    assert resp.context is None
-    assert resp.default_context is None
+    assert isinstance(response, collections.Iterator)
+
+    rendered = next(response)
+
+    assert rendered is expected
+    assert response.rendered
+
+    with pytest.raises(StopIteration):
+        next(response)
 
 
 def test_render_response():

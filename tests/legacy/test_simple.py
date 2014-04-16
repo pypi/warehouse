@@ -37,8 +37,8 @@ def test_index(app):
     resp = simple.index(app, request)
 
     assert resp.headers["X-PyPI-Last-Serial"] == "9999"
-    assert resp.template.name == "legacy/simple/index.html"
-    assert resp.context == {
+    assert resp.response.template.name == "legacy/simple/index.html"
+    assert resp.response.context == {
         "projects": ["bar", "foo"],
     }
 
@@ -96,8 +96,8 @@ def test_project(app, monkeypatch,
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
     assert (resp.headers["Surrogate-Key"] ==
             "project project/{}".format(project_name))
-    assert resp.template.name == "legacy/simple/detail.html"
-    assert resp.context == {
+    assert resp.response.template.name == "legacy/simple/detail.html"
+    assert resp.response.context == {
         "project": project_name,
         "project_urls": e_project_urls,
         "files": [],

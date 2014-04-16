@@ -38,8 +38,8 @@ def test_index(app):
 
     resp = index(app, request)
 
-    assert resp.template.name == "index.html"
-    assert resp.context == {
+    assert resp.response.template.name == "index.html"
+    assert resp.response.context == {
         "project_count": project_count,
         "download_count": download_count,
         "recently_updated": updated,

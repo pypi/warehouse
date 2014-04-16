@@ -209,7 +209,7 @@ def test_rss(app, monkeypatch):
 
     resp = pypi.rss(app, request)
 
-    assert resp.context == {
+    assert resp.response.context == {
         "description": "package updates",
         "site": {"name": "PyPI", "url": "http://test.server/"},
         "releases": [
@@ -262,7 +262,7 @@ def test_packages_rss(app, monkeypatch):
 
     resp = pypi.packages_rss(app, request)
 
-    assert resp.context == {
+    assert resp.response.context == {
         "description": "new projects",
         "site": {"name": "PyPI", "url": "http://test.server/"},
         "releases": [

@@ -299,7 +299,7 @@ def test_project_detail_valid(app, version, description, html, camo):
     assert resp.status_code == 200
     assert resp.headers["Surrogate-Key"] == \
         "project project/{}".format(normalized)
-    assert resp.context == {
+    assert resp.response.context == {
         "bugtracker": None,
         "classifiers": [],
         "description_html": html,

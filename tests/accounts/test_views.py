@@ -104,7 +104,7 @@ def test_user_profile_renders(app):
     resp = user_profile(app, request, username="test-user")
 
     assert resp.status_code == 200
-    assert resp.context == {
+    assert resp.response.context == {
         "projects": None,
         "user": {
             "username": "test-user",
@@ -135,7 +135,7 @@ def test_user_login_get(app):
     resp = login(app, request)
 
     assert resp.status_code == 200
-    assert resp.context == {
+    assert resp.response.context == {
         "form": mock.ANY,
         "next": None,
     }
@@ -201,8 +201,8 @@ def test_user_logout_get(app):
     resp = logout(app, request)
 
     assert resp.status_code == 200
-    assert resp.template.name == "accounts/logout.html"
-    assert resp.context == {"next": None}
+    assert resp.response.template.name == "accounts/logout.html"
+    assert resp.response.context == {"next": None}
 
 
 @pytest.mark.parametrize(("values", "location"), [
