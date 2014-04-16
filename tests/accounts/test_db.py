@@ -195,17 +195,13 @@ def test_insert_and_delete_user(dbapp):
 
 def test_insert_with_same_email(dbapp, user):
     new_username = 'rhodes'
-    try:
+    with pytest.raises(ValueError):
         dbapp.db.accounts.insert_user(
             new_username,
             user['email'],
             "dummy_password"
         )
-        raise AssertionError("Insert user did not return an exception!")
-    except ValueError:
-        pass
-    finally:
-        dbapp.db.accounts.delete_user(new_username)
+    dbapp.db.accounts.delete_user(new_username)
 
 
 def test_update_user_email(dbapp, user):
