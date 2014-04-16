@@ -29,6 +29,7 @@ class FlaskSessionCheck(object):
             if isinstance(leaf, ast.Import):
                 if 'flask.session' in import_names:
                     yield error_from_leaf(leaf)
-            elif isinstance(leaf, ast.ImportFrom):
+            else:
+                # The only remaining case: isinstance(leaf, ast.ImportFrom)
                 if leaf.module == 'flask' and 'session' in import_names:
                     yield error_from_leaf(leaf)
