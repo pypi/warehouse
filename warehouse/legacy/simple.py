@@ -43,7 +43,7 @@ def index(app, request):
 @fastly.projects(project_name="project")
 def project(app, request, project_name):
     # Get the real project name for this project
-    project = app.db.packaging.get_project(project_name)
+    project = app.db.packaging.get_project(project_name)['name']
 
     if project is None:
         raise NotFound("{} does not exist".format(project_name))
