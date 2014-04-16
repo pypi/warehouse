@@ -120,8 +120,13 @@ def test_daytime(monkeypatch):
     assert resp.response[0] == b'19700101T00:00:00\n'
 
 
-@pytest.mark.parametrize("callback", [None, 'yes'])
-def test_json(monkeypatch, callback):
+@pytest.mark.parametrize(("version", "callback"), [
+    (None, None),
+    (None, 'yes'),
+    ('1.0', 'yes'),
+    ('1.0', None),
+])
+def test_json(monkeypatch, version, callback):
     get_project = pretend.call_recorder(lambda n: 'spam')
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
     app = pretend.stub(
@@ -149,12 +154,13 @@ def test_json(monkeypatch, callback):
 
     monkeypatch.setattr(xmlrpc, 'Interface', Interface)
 
-    resp = pypi.project_json(app, request, project_name='spam')
+    resp = pypi.project_json(app, request, project_name='spam',
+                             version=version)
 
     assert get_project.calls == [pretend.call('spam')]
     assert get_project_versions.calls == [pretend.call('spam')]
-    assert release_data.calls == [pretend.call('spam', '2.0')]
-    assert release_urls.calls == [pretend.call('spam', '2.0')]
+    assert release_data.calls == [pretend.call('spam', version or '2.0')]
+    assert release_urls.calls == [pretend.call('spam', version or '2.0')]
     expected = '{"info": {"some": "data"}, "urls": [{"some": "url", '\
         '"upload_time": "1970-01-01T00:00:00"}]}'
     if callback:
@@ -169,8 +175,12 @@ def test_jsonp_invalid():
         pypi.project_json(app, request, project_name='spam')
 
 
-@pytest.mark.parametrize("project", [None, pretend.stub(name="spam")])
-def test_json_missing(monkeypatch, project):
+@pytest.mark.parametrize(("project", "version"), [
+    (None, None),
+    (pretend.stub(name="spam"), None),
+    (pretend.stub(name="spam"), '1'),
+])
+def test_json_missing(monkeypatch, project, version):
     get_project = pretend.call_recorder(lambda n: project)
     get_project_versions = pretend.call_recorder(lambda n: [])
     app = pretend.stub(
@@ -184,7 +194,7 @@ def test_json_missing(monkeypatch, project):
     request = pretend.stub(args={})
 
     with pytest.raises(NotFound):
-        pypi.project_json(app, request, project_name='spam')
+        pypi.project_json(app, request, project_name='spam', version=version)
 
 
 def test_rss(monkeypatch):
