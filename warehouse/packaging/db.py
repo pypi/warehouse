@@ -16,7 +16,8 @@ import datetime
 import logging
 import os.path
 import urllib.parse
-from collections import OrderedDict
+import pkg_resources
+from collections import OrderedDict, defauldict
 
 from warehouse import db
 from warehouse.packaging import helpers
@@ -119,7 +120,7 @@ class Database(db.Database):
         return [tuple(r) for r in self.engine.execute(query, limit=num)]
 
     get_project = db.scalar(
-        """ SELECT name
+        """ SELECT name, autohide
             FROM packages
             WHERE normalized_name = lower(
                 regexp_replace(%s, '_', '-', 'ig')
@@ -520,30 +521,7 @@ class Database(db.Database):
 
 # data Modification Methods
 
-    def insert_release(self, name, version, bugtrack_url=None,
-                       classifiers=None):
-        """
-        Takes in the following:
-
-        * name: the name of the package to insert
-        * version: the version of the package to insert
-        * bugtrack_url: a string with the bugtracking url
-        * classifiers: a list of the classifiers to classify the release with
-        """
-
-        # first, create the project if it doesn't exist
-        if not self.get_project(name):
-            self.add_project(name, version, bugtrack_url=bugtrack_url)
-
-        current_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        classifiers.sort()
-
-        if not self.get_project(name):
-            self.add_project()
-        if not self.get_release(name, version):
-            self.update_release()
-
-    def insert_project(self, name, bugtrack_url=None):
+    def insert_project(self, name, username, user_ip, bugtrack_url=None):
         # NOTE: pypi behaviour is to assign the first submitter of a project the
         # "owner" role.
         query = \
@@ -557,6 +535,7 @@ class Database(db.Database):
             name=name,
             bugtrack_url=bugtrack_url
         )
+        self._insert_journal_entry(name, None, "create", username, user_ip)
 
     RELEASE_COLUMNS = ('author', 'author_email', 'maintainer', 'maintainer_email',
                        'home_page', 'license', 'summary', 'keywords', 'platform',
@@ -565,8 +544,22 @@ class Database(db.Database):
                        'requires_python', 'description_from_readme')
 
     def upsert_release(self, project_name, version, username, user_ip,
-                       classifiers=None, description=None,
+                       classifiers=None, release_dependencies=None, description=None,
                        **additional_db_values):
+        """
+        Takes in the following:
+
+        * name: the name of the package to insert
+        * version: the version of the package to insert
+        * classifiers: a list of the classifiers to classify the release with
+        * release_dependencies: a dictionary of
+            'ReleaseDependencyKind: [specifier]' pairs.
+        * description: a restructured text description of the release/project
+        * additional_db_values: any other column in the release table,
+            as specified by release_columns
+
+        and inserts the release (if one doesn't exist), and updates otherwise
+        """
         is_update = self.get_release(project_name, version) is not None
         modified_elements = additional_db_values.keys()
 
@@ -577,7 +570,11 @@ class Database(db.Database):
 
         if classifiers:
             modified_elements.append('classifiers')
-            self.update_project_classifiers(project_name, classifiers)
+            self.update_release_classifiers(project_name, classifiers)
+
+        if release_dependencies:
+            self.update_release_dependencies(project_name, version,
+                                             release_dependencies)
 
         if description:
             modified_elements += ['description', 'description_html']
@@ -605,8 +602,48 @@ class Database(db.Database):
         else:
             journal_message = "new release"
 
-        self._add_journal_entry(project_name, version, journal_message,
-                                username, user_ip)
+        self._insert_journal_entry(project_name, version, journal_message,
+                                   username, user_ip)
+
+        # insert specific actions
+        if not is_update:
+            project = self.get_project(project_name)
+            if project['autohide']:
+                self._project_hide_other_versions(project_name, version)
+            self._update_release_ordering(project_name)
+
+    def _update_release_ordering(self, project_name):
+        query = \
+            """
+            SELECT version, _pypi_ordering
+            FROM releases
+            WHERE name = %(name)s
+            """
+        project_versions = self.engine.execute(query).all()
+        sorted_versions = sorted(
+            project_versions,
+            key=(lambda x: pkg_resources.parse_version(x[0]))
+        )
+        query = \
+            """
+            UPDATE releases
+            SET _pypi_ordering = %(order)s
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        for order, (version, current) in enumerate(sorted_versions):
+            if current != order:
+                self.engine.execute(query, name=project_name,
+                                    order=order, version=version)
+
+    def _project_hide_other_versions(self, project_name, version):
+        query = \
+            """ UPDATE releases SET
+                    _pypi_hidden = true
+                WHERE name = %(name)s
+                AND version <> %(version)s
+            """
+        self.engine.execute(query, name=project_name, version=version)
 
     def update_bugtrack_url(self, project_name, bugtrack_url):
         self.engine.execute(
@@ -615,8 +652,8 @@ class Database(db.Database):
             name=project_name
         )
 
-    def _add_journal_entry(self, project_name, version, message,
-                           username, userip, date=None):
+    def _insert_journal_entry(self, project_name, version, message,
+                              username, userip, date=None):
         if not date:
             date = datetime.datetime.now()
         query = \
@@ -707,4 +744,63 @@ class Database(db.Database):
             query,
             name=project_name,
             version=version
+        )
+
+    def update_release_dependencies(self, project_name, version, specifier_dict):
+        """
+        Takes in a project_name, version, and a release_dict of the format:
+        { ReleaseDependencyKind: [specifier_name_foo, specifier_name_bar] }
+
+        and updates the release dependencies with the desired table
+        """
+        insert_query = \
+            """
+            INSERT INTO release_dependencies
+                (name, version, kind, specifier)
+            VALUES
+                (%(name)s, %(version)s, %(kind)s, %(specifier))
+            """
+        old_specifier_dict = self.get_release_dependencies(project_name, version)
+        for kind, specifiers in specifier_dict.items():
+
+            # no need to update if the state is already there
+            if kind in old_specifier_dict and specifiers == old_specifier_dict[kind]:
+                continue
+
+            self._delete_release_dependencies_of_kind(project_name, version, kind)
+            for specifier in specifiers:
+                self.engine.execute(
+                    insert_query,
+                    name=project_name,
+                    version=version,
+                    kind=kind,
+                    specifier=specifier
+                )
+
+    def get_release_dependencies(self, project_name, version):
+        query = \
+            """
+            SELECT * FROM release_dependencies
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        specifier_dict = defaultdict(list)
+        for row in self.engine.execute(query, name=project_name,
+                                       version=version):
+            specifier_dict[row['kind']].append(row['specifier'])
+        return specifier_dict
+
+    def _delete_release_dependencies_of_kind(self, project_name, version, kind):
+        query = \
+            """
+            DELETE FROM release_dependencies
+            WHERE name = %(name)s
+            AND version = %(version)s
+            AND kind = %(kind)s
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version,
+            kind=kind
         )
