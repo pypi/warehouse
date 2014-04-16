@@ -16,8 +16,10 @@ import datetime
 import logging
 import os.path
 import urllib.parse
+from collections import OrderedDict
 
 from warehouse import db
+from warehouse.packaging import helpers
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
@@ -534,7 +536,7 @@ class Database(db.Database):
         if not self.get_release(name, version):
             self.update_release()
 
-    def insert_project(self, name, version, bugtrack_url=None):
+    def insert_project(self, name, bugtrack_url=None):
         # NOTE: pypi behaviour is to assign the first submitter of a project the
         # "owner" role.
         query = \
@@ -546,7 +548,6 @@ class Database(db.Database):
         self.engine.execute(
             query,
             name=name,
-            version=version,
             bugtrack_url=bugtrack_url
         )
 
@@ -556,29 +557,99 @@ class Database(db.Database):
                        'cheesecake_documentation_id', 'cheesecake_code_kwalitee_id',
                        'requires_python', 'description_from_readme')
 
-    def update_release(self, project_name, version,
+    def upsert_release(self, project_name, version, username, user_ip,
                        classifiers=None, description=None,
                        **additional_db_values):
+        is_update = self.get_release(project_name, version) is not None
+        modified_elements = additional_db_values.keys()
+
         for column_name in additional_db_values:
             if column_name not in self.RELEASE_COLUMNS:
                 raise ValueError(
                     "Release table does not have a column {0}".format(column_name))
-        existing_data = self.get_release(project_name, version)
+
         if classifiers:
+            modified_elements.append('classifiers')
             self.update_project_classifiers(project_name, classifiers)
+
         if description:
+            modified_elements += ['description', 'description_html']
             additional_db_values['description'] = description
-            # additional_db_values['description_html'] = parse_html_from_description
-        # for column_name in column_name
+            additional_db_values['description_html'] = \
+                helpers.parse_html_from_description(description)
+
+            # this is legacy behavior. According to PEP-438, we should
+            # no longer support parsing urls from descriptions
+            hosting_mode = self.get_hosting_mode(project_name)
+            if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
+                self.update_description_urls(
+                    project_name, version,
+                    helpers.get_description_urls(additional_db_values['description'])
+                )
+
+        self.engine.execute(
+            self._build_upsert_release_stateement(additional_db_values,
+                                                  is_update=is_update),
+            name=project_name, version=version
+        )
+
+        if is_update:
+            journal_message = 'update {0}'.format(','.join(modified_elements))
+        else:
+            journal_message = "new release"
+
+        self._add_journal_entry(project_name, version, journal_message,
+                                username, user_ip)
+
+    def update_bugtrack_url(self, project_name, bugtrack_url):
+        self.engine.execute(
+            "UPDATE packages SET bugtrack_url = %(bugtrack_url)s WHERE name = %(name)s",
+            bugtrack_url=bugtrack_url,
+            name=project_name
+        )
+
+    def _add_journal_entry(self, project_name, version, message,
+                           username, userip, date=None):
+        if not date:
+            date = datetime.datetime.now()
+        query = \
+            """
+            INSERT INTO journals
+                (name, version, action, submitted_date,
+                 submitted_by, submitted_from)
+            VALUES
+                (%(name)s, %(version)s, %(action)s, %(submitted_date)s,
+                 %(submitted_by)s, %(submitted_from)s)
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version,
+            message=message,
+            submitted_date=date.strftime('%Y-%m-%d %H:%M:%S'),
+            submitted_by=username,
+            submitted_from=userip
+        )
 
     @staticmethod
-    def _build_update_release_query(keys, values):
-        return (" UPDATE RELEASES SET " +
-                "(%s)" % ",".join(keys) +
+    def _build_upsert_release_statement(value_dict, is_update):
+        # we order them to ensure key-value consistency
+        ordered_values = OrderedDict(value_dict.items())
+
+        if is_update:
+            prefix, suffix = "UPDATE releases SET", ""
+        else:
+            ordered_values['name'] = ['%(name)s']
+            ordered_values['version'] = ['%(version)s']
+            prefix, suffix = ("INSERT INTO releases",
+                              "WHERE name = %(name)s" +
+                              "AND version = %(version)s")
+
+        return (prefix +
+                "(%s)" % ",".join(ordered_values.keys()) +
                 " VALUES " +
-                "(%s)" % ",".join(values) +
-                " WHERE name = %(name)s " +
-                " AND version = %(versions)s")
+                "(%s)" % ",".join(ordered_values.values()) +
+                suffix)
 
     def update_release_classifiers(self, name, version, classifiers):
         self._delete_release_classifiers(name, classifiers)
@@ -591,7 +662,8 @@ class Database(db.Database):
         classifier_id_dict = self.get_classifier_ids(classifiers)
         for classifier in classifiers:
             trove_id = classifier_id_dict['classifier']
-            self.engine.execute(insert_query, name=name, trove_id=trove_id)
+            self.engine.execute(insert_query, name=name,
+                                version=version, trove_id=trove_id)
 
     def _delete_release_classifiers(self, name, version):
         query = \
@@ -602,5 +674,30 @@ class Database(db.Database):
         self.engine.execute(
             query,
             name=name,
+            version=version
+        )
+
+    def update_description_urls(self, project_name, version, urls):
+        self._delete_description_urls(project_name, version)
+        insert_query = \
+            """ INSERT INTO description_urls
+                    (name, version, url)
+                VALUES
+                    (%(name)s, %(version)s, %(url)s
+            """
+        for url in urls:
+            url = url.encode('utf-8')
+            self.engine.execute(insert_query, name=project_name,
+                                version=version, url=url)
+
+    def _delete_description_urls(self, project_name, version):
+        query = \
+            """ DELETE FROM description_urls
+                WHERE name = %(name)s
+                AND version = %(version)s
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
             version=version
         )
