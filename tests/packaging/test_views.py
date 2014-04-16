@@ -271,6 +271,9 @@ def test_project_detail_valid(app, version, description, html, camo):
                     "last_month": 30,
                 },
             ),
+            get_reverse_dependencies=pretend.call_recorder(
+                lambda proj: [{'name': 'foo'}, {'name': 'bar'}]
+            ),
             get_downloads=pretend.call_recorder(lambda proj, ver: []),
             get_classifiers=pretend.call_recorder(lambda proj, ver: []),
             get_documentation_url=pretend.call_recorder(
@@ -314,6 +317,10 @@ def test_project_detail_valid(app, version, description, html, camo):
         "project": "test-project",
         "release": release,
         "releases": [{"version": "2.0"}, {"version": "1.0"}],
+        "reverse_dependencies": [
+            {'name': 'foo', 'url': '/projects/test-project/'},
+            {'name': 'bar', 'url': '/projects/test-project/'}
+        ],
         "requirements": [
             {
                 "project_name": "foo",
@@ -336,4 +343,7 @@ def test_project_detail_valid(app, version, description, html, camo):
     ]
     assert app.db.packaging.get_users_for_project.calls == [
         pretend.call("test-project"),
+    ]
+    assert app.db.packaging.get_reverse_dependencies.calls == [
+        pretend.call("test-project %"),
     ]
