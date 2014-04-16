@@ -17,7 +17,7 @@ import logging
 import os.path
 import urllib.parse
 import pkg_resources
-from collections import OrderedDict, defauldict
+from collections import OrderedDict, defaultdict
 
 from warehouse import db
 from warehouse.packaging import helpers
@@ -188,6 +188,19 @@ class Database(db.Database):
         key_func=lambda r: r["version"],
         value_func=lambda r: (r["home_page"], r["download_url"]),
     )
+
+    def get_release_dependencies(self, project_name, version):
+        query = \
+            """
+            SELECT * FROM release_dependencies
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        specifier_dict = defaultdict(list)
+        for row in self.engine.execute(query, name=project_name,
+                                       version=version):
+            specifier_dict[row['kind']].append(row['specifier'])
+        return specifier_dict
 
     get_external_urls = db.rows(
         """ SELECT DISTINCT ON (url) url
@@ -528,14 +541,21 @@ class Database(db.Database):
             """ INSERT INTO packages
                     (name, normalized_name, bugtrack_url)
                 VALUES
-                    (%(name), %(normalized_name), %(bugtrack_url))
+                    (%(name)s, %(normalized_name)s, %(bugtrack_url)s)
             """
         self.engine.execute(
             query,
             name=name,
+            normalized_name=helpers.normalize_package_name(name),
             bugtrack_url=bugtrack_url
         )
         self._insert_journal_entry(name, None, "create", username, user_ip)
+
+    def delete_project(self, name):
+        self.engine.execute(
+            "DELETE FROM packages WHERE name = %(name)s",
+            name=name
+        )
 
     RELEASE_COLUMNS = ('author', 'author_email', 'maintainer', 'maintainer_email',
                        'home_page', 'license', 'summary', 'keywords', 'platform',
@@ -586,7 +606,7 @@ class Database(db.Database):
             # no longer support parsing urls from descriptions
             hosting_mode = self.get_hosting_mode(project_name)
             if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
-                self.update_description_urls(
+                self.update_external_urls(
                     project_name, version,
                     helpers.get_description_urls(additional_db_values['description'])
                 )
@@ -606,10 +626,13 @@ class Database(db.Database):
                                    username, user_ip)
 
         # insert specific actions
+
         if not is_update:
+
             project = self.get_project(project_name)
             if project['autohide']:
                 self._project_hide_other_versions(project_name, version)
+
             self._update_release_ordering(project_name)
 
     def _update_release_ordering(self, project_name):
@@ -650,29 +673,6 @@ class Database(db.Database):
             "UPDATE packages SET bugtrack_url = %(bugtrack_url)s WHERE name = %(name)s",
             bugtrack_url=bugtrack_url,
             name=project_name
-        )
-
-    def _insert_journal_entry(self, project_name, version, message,
-                              username, userip, date=None):
-        if not date:
-            date = datetime.datetime.now()
-        query = \
-            """
-            INSERT INTO journals
-                (name, version, action, submitted_date,
-                 submitted_by, submitted_from)
-            VALUES
-                (%(name)s, %(version)s, %(action)s, %(submitted_date)s,
-                 %(submitted_by)s, %(submitted_from)s)
-            """
-        self.engine.execute(
-            query,
-            name=project_name,
-            version=version,
-            message=message,
-            submitted_date=date.strftime('%Y-%m-%d %H:%M:%S'),
-            submitted_by=username,
-            submitted_from=userip
         )
 
     @staticmethod
@@ -721,7 +721,7 @@ class Database(db.Database):
             version=version
         )
 
-    def update_description_urls(self, project_name, version, urls):
+    def update_external_urls(self, project_name, version, urls):
         self._delete_description_urls(project_name, version)
         insert_query = \
             """ INSERT INTO description_urls
@@ -777,19 +777,6 @@ class Database(db.Database):
                     specifier=specifier
                 )
 
-    def get_release_dependencies(self, project_name, version):
-        query = \
-            """
-            SELECT * FROM release_dependencies
-            WHERE name = %(name)s
-            AND version = %(version)s
-            """
-        specifier_dict = defaultdict(list)
-        for row in self.engine.execute(query, name=project_name,
-                                       version=version):
-            specifier_dict[row['kind']].append(row['specifier'])
-        return specifier_dict
-
     def _delete_release_dependencies_of_kind(self, project_name, version, kind):
         query = \
             """
@@ -803,4 +790,39 @@ class Database(db.Database):
             name=project_name,
             version=version,
             kind=kind
+        )
+
+    def _insert_journal_entry(self, project_name, version, message,
+                              username, userip, date=None):
+        if not date:
+            date = datetime.datetime.now()
+        query = \
+            """
+            INSERT INTO journals
+                (name, version, action, submitted_date,
+                 submitted_by, submitted_from)
+            VALUES
+                (%(name)s, %(version)s, %(action)s, %(submitted_date)s,
+                 %(submitted_by)s, %(submitted_from)s)
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version,
+            action=message,
+            submitted_date=date.strftime('%Y-%m-%d %H:%M:%S'),
+            submitted_by=username,
+            submitted_from=userip
+        )
+
+    def delete_journal_for_user(self, username):
+        """
+        THIS IS A TEST-ONLY METHOD.
+
+        deletes journal entries for a user. required do delete a user.
+
+        """
+        self.engine.execute(
+            "DELETE FROM journals WHERE submitted_by = %(username)s",
+            username=username
         )

@@ -1426,3 +1426,11 @@ def test_get_full_latest_releases(dbapp):
             ),
         }
     ]
+
+
+def test_insert_delete_project(dbapp, user):
+    package_name = 'foopackage'
+    dbapp.db.packaging.insert_project(package_name, user['username'], '0.0.0.0')
+    assert dbapp.db.packaging.get_project(package_name)
+    dbapp.db.packaging.delete_project(package_name)
+    assert not dbapp.db.packaging.get_project(package_name)
