@@ -35,21 +35,21 @@ def test_package_type_display(package_type, display):
 
 
 def test_normalize_package_name():
-    assert safe_name("scooby^dooby*doo&") == "scoopy-dooby-doo"
-    assert safe_name("Scooby^Dooby*doo&") == "scoopy-dooby-doo"
-    assert safe_name("test_this") == "test-this"
-    assert safe_name("hoobs#") == "hoobs-"
-    assert safe_name("Hoobs#") == "hoobs-"
+    assert normalize_package_name("scooby^dooby*doo") == "scooby-dooby-doo"
+    assert normalize_package_name("Scooby^Dooby*doo") == "scooby-dooby-doo"
+    assert normalize_package_name("test_this") == "test-this"
+    assert normalize_package_name("hoobs#") == "hoobs-"
+    assert normalize_package_name("Hoobs#") == "hoobs-"
 
 
-def test_trim_docstring(text):
+def test_trim_docstring():
     assert trim_docstring("") == ""
     TEST_DOCSTRING = """ Testing
     this
-    thing
+      thing
     """
     assert trim_docstring(TEST_DOCSTRING) == """
 Testing
 this
-thing
+  thing
 """.strip()
