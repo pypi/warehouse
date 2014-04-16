@@ -76,7 +76,7 @@ def daytime(app, request):
 @cors
 @cache(browser=1, varnish=120)
 @fastly.projects(project_name="project")
-def project_json(app, request, project_name):
+def project_json(app, request, project_name, version=None):
     # fail early if callback is invalid
     callback = request.args.get('callback')
     if callback:
@@ -91,9 +91,12 @@ def project_json(app, request, project_name):
 
     # we're looking for the latest version
     versions = app.db.packaging.get_project_versions(project)
-    if not versions:
-        raise NotFound("{} has no releases".format(project))
-    version = versions[0]
+    if version is None:
+        if not versions:
+            raise NotFound("{} has no releases".format(project_name))
+        version = versions[0]
+    elif version not in versions:
+        raise NotFound("{} has no release {}".format(project_name, version))
 
     rpc = xmlrpc.Interface(app, request)
 
