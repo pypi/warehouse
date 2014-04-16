@@ -18,7 +18,6 @@ from werkzeug.exceptions import NotFound
 import pretend
 import pytest
 
-from warehouse.search import views
 from warehouse.search.views import search
 
 
@@ -39,81 +38,58 @@ def test_search_page_invalid_page():
         search(app, request, "fake")
 
 
-def test_search(monkeypatch):
-    response = pretend.stub()
-    render_response = pretend.call_recorder(lambda *a, **kw: response)
-
-    monkeypatch.setattr(views, "render_response", render_response)
-
-    app = pretend.stub(
-        search=pretend.stub(
-            types={
-                "fake": pretend.stub(
-                    SEARCH_LIMIT=25,
-                    search=pretend.call_recorder(
-                        lambda q, l, o: {"hits": {"hits": []}},
-                    ),
+def test_search(app):
+    app.search = pretend.stub(
+        types={
+            "fake": pretend.stub(
+                SEARCH_LIMIT=25,
+                search=pretend.call_recorder(
+                    lambda q, l, o: {"hits": {"hits": []}},
                 ),
-            },
-        ),
+            ),
+        },
     )
 
     request = pretend.stub(args={"q": "Django"})
 
     resp = search(app, request, "fake")
 
-    assert resp is response
+    assert resp.template.name == "search/results.html"
+    assert resp.context == {
+        "query": "Django",
+        "total": 0,
+        "pages": mock.ANY,
+        "results": [],
+    }
+
     assert app.search.types["fake"].search.calls == [
         pretend.call("Django", 25, 0),
     ]
-    assert render_response.calls == [
-        pretend.call(
-            app,
-            request,
-            "search/results.html",
-            query="Django",
-            total=0,
-            pages=mock.ANY,
-            results=[],
-        ),
-    ]
 
 
-def test_search_page_less_than_zero(monkeypatch):
-    response = pretend.stub()
-    render_response = pretend.call_recorder(lambda *a, **kw: response)
-
-    monkeypatch.setattr(views, "render_response", render_response)
-
-    app = pretend.stub(
-        search=pretend.stub(
-            types={
-                "fake": pretend.stub(
-                    SEARCH_LIMIT=25,
-                    search=pretend.call_recorder(
-                        lambda q, l, o: {"hits": {"hits": []}},
-                    ),
+def test_search_page_less_than_zero(app):
+    app.search = pretend.stub(
+        types={
+            "fake": pretend.stub(
+                SEARCH_LIMIT=25,
+                search=pretend.call_recorder(
+                    lambda q, l, o: {"hits": {"hits": []}},
                 ),
-            },
-        ),
+            ),
+        },
     )
 
     request = pretend.stub(args={"q": "Django", "page": "-1"})
 
     resp = search(app, request, "fake")
 
-    assert resp is response
+    assert resp.template.name == "search/results.html"
+    assert resp.context == {
+        "query": "Django",
+        "total": 0,
+        "pages": mock.ANY,
+        "results": [],
+    }
     assert app.search.types["fake"].search.calls == [
         pretend.call("Django", 25, 0),
-    ]
-    assert render_response.calls == [
-        pretend.call(
-            app,
-            request,
-            "search/results.html",
-            query="Django",
-            total=0,
-            pages=mock.ANY,
-            results=[],
-        ),
     ]

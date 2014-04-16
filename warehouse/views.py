@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils import cache, render_response
+from warehouse.templates import render_response
+from warehouse.utils import cache
 
 
 @cache(browser=1, varnish=120)

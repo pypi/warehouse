@@ -30,7 +30,6 @@ import html5lib.treewalkers
 from werkzeug.urls import iri_to_uri
 from werkzeug.utils import escape
 
-from warehouse import helpers
 from warehouse.http import Response
 
 
@@ -53,21 +52,6 @@ def merge_dict(base, additional):
             merged[key] = value
 
     return merged
-
-
-def render_response(app, request, template, **variables):
-    template = app.templates.get_template(template)
-
-    context = {
-        "config": app.config,
-        "csrf_token": functools.partial(helpers.csrf_token, request),
-        "gravatar_url": helpers.gravatar_url,
-        "static_url": functools.partial(helpers.static_url, app),
-        "url_for": functools.partial(helpers.url_for, request),
-    }
-    context.update(variables)
-
-    return Response(template.render(**context), mimetype="text/html")
 
 
 def cache(browser=None, varnish=None):
