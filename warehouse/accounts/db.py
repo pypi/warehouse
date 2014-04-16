@@ -29,9 +29,17 @@ class Database(db.Database):
         """
     )
 
-    def get_user(self, name):
+    get_user_id_by_email = db.scalar(
+        """ SELECT user_id
+            FROM accounts_email
+            WHERE email = %s
+            LIMIT 1
+        """
+    )
+
+    def get_user(self, username):
         query = \
-            """ SELECT username, name, date_joined, email
+            """ SELECT accounts_user.id, username, name, date_joined, email
                 FROM accounts_user
                 LEFT OUTER JOIN accounts_email ON (
                     accounts_email.user_id = accounts_user.id
@@ -40,7 +48,7 @@ class Database(db.Database):
                 LIMIT 1
             """
 
-        result = self.engine.execute(query, username=name).first()
+        result = self.engine.execute(query, username=username).first()
 
         if result is not None:
             result = dict(result)
@@ -88,3 +96,83 @@ class Database(db.Database):
                         username=username,
                     )
                 return True
+
+# data modification methods
+
+    def insert_user(self, username, email, password,
+                    is_superuser=False, is_staff=False, is_active=False):
+        if self.get_user_id_by_email(email) is not None:
+            raise ValueError(
+                "Email address already belongs to a different user!"
+            )
+        hashed_password = self.app.passlib.encrypt(password)
+
+        query = \
+            """ INSERT INTO accounts_user(
+                    username, password,
+                    last_login, is_superuser,
+                    name, is_staff, date_joined, is_active
+                ) VALUES (
+                    %(username)s, %(password)s,
+                    current_timestamp, %(is_superuser)s,
+                    '', %(is_staff)s, current_timestamp, %(is_active)s
+                ) RETURNING id
+            """
+        # Insert the actual row into the user table
+        user_id = self.engine.execute(
+            query,
+            username=username,
+            password=hashed_password,
+            is_superuser=str(is_superuser).upper(),
+            is_staff=str(is_staff).upper(),
+            is_active=str(is_active).upper()
+        ).scalar()
+        self.update_user(user_id, email=email)
+
+    def update_user(self, user_id, password=None, email=None):
+        if password is not None:
+            self.update_user_password(user_id, password)
+        if email is not None:
+            self.update_user_email(user_id, email)
+
+    def delete_user(self, username):
+        self.engine.execute(
+            "DELETE FROM accounts_user WHERE username = %s",
+            username
+        )
+
+    def update_user_password(self, user_id, password):
+        query = \
+            """ UPDATE accounts_user
+                SET password = %s
+                WHERE id = %s
+            """
+        hashed_password = self.app.passlib.encrypt(password)
+        self.engine.execute(query, hashed_password, user_id)
+
+    def update_user_email(self, user_id, email):
+        query = \
+            """ WITH new_values (user_id, email, "primary", verified) AS (
+                VALUES
+                    (%(user_id)s, %(email)s, TRUE, FALSE)
+                ),
+                UPSERT AS (
+                    UPDATE accounts_email ae
+                        set email = nv.email,
+                        verified = nv.verified
+                    FROM new_values nv
+                    WHERE ae.user_id = nv.user_id
+                    AND ae.primary = nv.primary
+                    RETURNING ae.*
+                )
+                INSERT INTO accounts_email
+                    (user_id, email, "primary", verified)
+                SELECT user_id, email, "primary", verified
+                FROM new_values
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM upsert up
+                    WHERE up.user_id = new_values.user_id
+                    AND up.primary = new_values.primary
+        )"""
+        self.engine.execute(query, user_id=user_id, email=email)

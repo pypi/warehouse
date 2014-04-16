@@ -13,10 +13,30 @@
 # limitations under the License.
 from unittest import mock
 import datetime
+import pytest
 
 import pretend
 
 from warehouse.accounts.tables import users, emails
+
+
+@pytest.fixture
+def user(request, dbapp):
+
+    @request.addfinalizer
+    def delete_user():
+        dbapp.db.accounts.delete_user(username)
+
+    username = "guidovanrossum"
+    email = "notanemail@python.org"
+    password = "plaintextpasswordsaregreat"
+    dbapp.db.accounts.insert_user(
+        username,
+        email,
+        password)
+    return_value = dbapp.db.accounts.get_user(username)
+    return_value['password'] = password
+    return return_value
 
 
 def test_get_user(dbapp):
@@ -31,6 +51,7 @@ def test_get_user(dbapp):
     ))
 
     assert {
+        "id": mock.ANY,
         "date_joined": mock.ANY,
         "email": None,
         "name": "Test User",
@@ -57,6 +78,7 @@ def test_get_user_with_email(dbapp):
     ))
 
     assert {
+        "id": 1,
         "date_joined": mock.ANY,
         "email": "test-user@example.com",
         "name": "Test User",
@@ -152,3 +174,64 @@ def test_user_authenticate_invalid(engine, dbapp):
     dbapp.passlib.verify_and_update = lambda p, h: (False, None)
 
     assert not dbapp.db.accounts.user_authenticate("test-user", "password")
+
+
+def test_insert_and_delete_user(dbapp):
+    username = "guidovanrossum"
+    email = "notanemail@python.org"
+    password = "plaintextpasswordsaregreat"
+    dbapp.db.accounts.insert_user(
+        username,
+        email,
+        password
+    )
+    assert dbapp.db.accounts.user_authenticate(username,
+                                               password)
+    assert dbapp.db.accounts.get_user(username)
+    assert dbapp.db.accounts.get_user_id_by_email(email)
+    dbapp.db.accounts.delete_user(username)
+    assert not dbapp.db.accounts.get_user(username)
+
+
+def test_insert_with_same_email(dbapp, user):
+    new_username = 'rhodes'
+    with pytest.raises(ValueError):
+        dbapp.db.accounts.insert_user(
+            new_username,
+            user['email'],
+            "dummy_password"
+        )
+    dbapp.db.accounts.delete_user(new_username)
+
+
+def test_update_user_email(dbapp, user):
+    email = "montypython@python.org"
+    dbapp.db.accounts.update_user_email(user['id'], email)
+    new_info = dbapp.db.accounts.get_user(user['username'])
+    assert new_info['email'] == email
+
+
+def test_update_password(dbapp, user):
+    password = "thisisntmyrealpassword"
+    dbapp.db.accounts.update_user_password(user['id'], password)
+    assert dbapp.db.accounts.user_authenticate(user['username'], password)
+
+
+def test_update_user(dbapp, user):
+    new_password = "test"
+    email = "new email"
+    dbapp.db.accounts.update_user(user['id'],
+                                  password=new_password,
+                                  email=email)
+    assert dbapp.db.accounts.user_authenticate(user['username'],
+                                               new_password)
+    new_info = dbapp.db.accounts.get_user(user['username'])
+    assert new_info['email'] == email
+
+
+def test_update_nothing(dbapp, user):
+    dbapp.db.accounts.update_user(user['id'])
+    info = dbapp.db.accounts.get_user(user['username'])
+    assert info['email'] == user['email']
+    assert dbapp.db.accounts.user_authenticate(user['username'],
+                                               user['password'])
