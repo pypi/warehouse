@@ -26,6 +26,8 @@ urls = [
         Rule("/pypi", methods=["GET", "POST"], endpoint="pypi"),
         Rule("/pypi/<project_name>/json", methods=["GET"],
              endpoint="project_json"),
+        Rule("/pypi/<project_name>/<version>/json", methods=["GET"],
+             endpoint="project_json"),
         Rule("/daytime", methods=["GET"], endpoint="daytime"),
     ]),
 ]
