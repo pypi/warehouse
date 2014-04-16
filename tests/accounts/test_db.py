@@ -231,3 +231,11 @@ def test_update_user(dbapp, user):
                                                new_password)
     new_info = dbapp.db.accounts.get_user(user['username'])
     assert new_info['email'] == email
+
+
+def test_update_nothing(dbapp, user):
+    dbapp.db.accounts.update_user(user['id'])
+    info = dbapp.db.accounts.get_user(user['username'])
+    assert info['email'] == user['email']
+    assert dbapp.db.accounts.user_authenticate(user['username'],
+                                               user['password'])
