@@ -73,6 +73,7 @@ setup(
         "babel",
         "bcrypt",
         "elasticsearch",
+        "Flask>=0.10",
         "guard",
         "html5lib",
         "Jinja2",

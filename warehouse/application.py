@@ -14,7 +14,7 @@
 
 import argparse
 import collections
-import importlib
+import functools
 import logging.config
 import os.path
 import urllib.parse
@@ -22,32 +22,25 @@ import urllib.parse
 import babel.dates
 import babel.numbers
 import babel.support
-
+import flask
 import guard
 import passlib.context
-
-import jinja2
-
 import redis
-
 import sqlalchemy
 import yaml
 
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
-from werkzeug.exceptions import HTTPException
-from werkzeug.wsgi import responder
 from whitenoise import WhiteNoise
 
 import warehouse
 import warehouse.cli
 
-from warehouse import urls
-from warehouse import db
+from warehouse import db, helpers, sanity
 from warehouse.csrf import handle_csrf
-from warehouse.datastructures import AttributeDict
-from warehouse.http import Request
+from warehouse.datastructures import AttributeDict, CaseInsensitiveMixin
+from warehouse.http import Response
 from warehouse.middlewares import XForwardedTokenMiddleware
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
@@ -63,8 +56,47 @@ import warehouse.packaging.tables
 import warehouse.accounts.db
 import warehouse.packaging.db
 
+# Get our blueprints
+import warehouse.views
+import warehouse.accounts.views
+import warehouse.legacy.pypi
+import warehouse.packaging.views
+import warehouse.search.views
 
-class Warehouse(object):
+
+class Config(CaseInsensitiveMixin, flask.Config):
+    pass
+
+
+class Warehouse(flask.Flask):
+
+    config_class = Config
+
+    response_class = Response
+
+    # Set this, this will be confusing because we'll have our own session
+    # interface, however this is the only way to convince Flask to never ever
+    # EVER touch a session.
+    session_interface = sanity.FakeSessionInterface()
+
+    # Ensure that the magic `g` object can never ever EVER be used for anything
+    app_ctx_globals_class = staticmethod(lambda: None)
+
+    required_blueprints = [
+        warehouse.views.blueprint,
+        warehouse.accounts.views.blueprint,
+        warehouse.legacy.pypi.blueprint,
+        warehouse.packaging.views.blueprint,
+        warehouse.search.views.blueprint,
+    ]
+
+    jinja_options = {
+        "extensions": [
+            "jinja2.ext.autoescape",
+            "jinja2.ext.i18n",
+            "jinja2.ext.with_",
+        ],
+    }
 
     db_classes = {
         "accounts": warehouse.accounts.db.Database,
@@ -77,22 +109,26 @@ class Warehouse(object):
     static_path = "/static/"
 
     def __init__(self, config, engine=None, redis_class=redis.StrictRedis):
-        self.config = AttributeDict(config)
+        super(Warehouse, self).__init__("warehouse")
 
+        # Bind our metadata to this class
         self.metadata = db.metadata
 
+        # Update our configuration with our passed in config
+        self.config.update(config)
+
         # configure logging
-        logging.config.dictConfig(self.config.logging)
+        logging.config.dictConfig(self.config["logging"])
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+            engine = sqlalchemy.create_engine(self.config["database"]["url"])
         self.engine = engine
 
         # Create our redis connections
         self.redises = {
             key: redis_class.from_url(url)
-            for key, url in self.config.redis.items()
+            for key, url in self.config["redis"].items()
         }
 
         # Create our Store instance and associate our store modules with it
@@ -106,27 +142,20 @@ class Warehouse(object):
             )
 
         # Create our Search Index instance and associate our mappings with it
-        self.search = Index(self.db, self.config.search)
+        self.search = Index(self.db, self.config["search"])
         self.search.register(ProjectMapping)
-
-        # Set up our URL routing
-        self.urls = urls.urls
 
         # Initialize our Translations engine
         self.translations = babel.support.NullTranslations()
 
-        # Setup our Jinja2 Environment
-        self.templates = jinja2.Environment(
-            autoescape=True,
-            auto_reload=self.config.debug,
-            extensions=[
-                "jinja2.ext.i18n",
-            ],
-            loader=jinja2.PackageLoader("warehouse"),
+        # Install our translations
+        self.jinja_env.install_gettext_translations(
+            self.translations,
+            newstyle=True,
         )
 
-        # Install Babel
-        self.templates.filters.update({
+        # Register our custom filters
+        self.jinja_env.filters.update({
             "package_type_display": packaging_helpers.package_type_display,
             "format_number": babel.numbers.format_number,
             "format_decimal": babel.numbers.format_decimal,
@@ -136,11 +165,12 @@ class Warehouse(object):
             "format_time": babel.dates.format_time,
         })
 
-        # Install our translations
-        self.templates.install_gettext_translations(
-            self.translations,
-            newstyle=True,
-        )
+        # Register our custom template functions
+        self.jinja_env.globals.update({
+            "csrf_token": functools.partial(helpers.csrf_token, flask.request),
+            "gravatar_url": helpers.gravatar_url,
+            "static_url": functools.partial(helpers.static_url, self),
+        })
 
         # Setup our password hasher
         self.passlib = passlib.context.CryptContext(
@@ -160,10 +190,14 @@ class Warehouse(object):
             session_class=Session,
         )
 
+        # Register our blueprints
+        for blueprint in self.required_blueprints:
+            self.register_blueprint(blueprint)
+
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
-        if self.config.camo:
-            camo_parsed = urllib.parse.urlparse(self.config.camo.url)
+        if self.config["camo"]:
+            camo_parsed = urllib.parse.urlparse(self.config["camo"]["url"])
             img_src += [
                 "{}://{}".format(camo_parsed.scheme, camo_parsed.netloc),
                 "https://secure.gravatar.com",
@@ -182,7 +216,10 @@ class Warehouse(object):
         )
 
         if "sentry" in self.config:
-            self.wsgi_app = Sentry(self.wsgi_app, Client(**self.config.sentry))
+            self.wsgi_app = Sentry(
+                self.wsgi_app,
+                Client(**self.config["sentry"]),
+            )
 
         # Serve the static files that are packaged as part of Warehouse
         self.wsgi_app = WhiteNoise(
@@ -211,14 +248,24 @@ class Warehouse(object):
         # if the request doesn't come from Fastly
         self.wsgi_app = XForwardedTokenMiddleware(
             self.wsgi_app,
-            self.config.site.access_token,
+            self.config["site"]["access_token"],
         )
 
-    def __call__(self, environ, start_response):
+    def make_config(self, instance_relative=False):
         """
-        Shortcut for :attr:`wsgi_app`.
+        Backported from Flask 0.11
         """
-        return self.wsgi_app(environ, start_response)
+        root_path = self.root_path
+        if instance_relative:
+            root_path = self.instance_path
+        return self.config_class(root_path, self.default_config)
+
+    # The order of these are significant, we need to ensure that the session
+    # handling is done prior to the CSRF handling.
+    @handle_session
+    @handle_csrf
+    def dispatch_request(self, *args, **kwargs):
+        return super(Warehouse, self).dispatch_request(*args, **kwargs)
 
     @classmethod
     def from_yaml(cls, *paths, **kwargs):
@@ -277,56 +324,3 @@ class Warehouse(object):
             *args._get_args(),
             **{k: v for k, v in args._get_kwargs() if not k.startswith("_")}
         )
-
-    # The order of these decorators matter. We need @handle_session to come
-    # before anything that depends on it, like @handle_csrf
-    @handle_session
-    @handle_csrf
-    def dispatch_view(self, view, *args, **kwargs):
-        return view(*args, **kwargs)
-
-    @responder
-    def wsgi_app(self, environ, start_response):
-        """
-        The actual WSGI application.  This is not implemented in
-        `__call__` so that middlewares can be applied without losing a
-        reference to the class.  So instead of doing this::
-
-            app = MyMiddleware(app)
-
-        It's a better idea to do this instead::
-
-            app.wsgi_app = MyMiddleware(app.wsgi_app)
-
-        Then you still have the original application object around and
-        can continue to call methods on it.
-
-        :param environ: a WSGI environment
-        :param start_response: a callable accepting a status code,
-                               a list of headers and an optional
-                               exception context to start the response
-        """
-        try:
-            # Figure out what endpoint to call
-            urls = self.urls.bind_to_environ(environ)
-            endpoint, kwargs = urls.match()
-
-            # Load our view function
-            modname, viewname = endpoint.rsplit(".", 1)
-            module = importlib.import_module(modname)
-            view = getattr(module, viewname)
-
-            # Create our request object
-            request = Request(environ)
-            request.url_adapter = urls
-
-            # Attach our trusted hosts to this request
-            request.trusted_hosts = self.config.site.hosts
-
-            # Access request.host to trigger a check against our trusted_hosts
-            request.host
-
-            # Dispatch to the loaded view function
-            return self.dispatch_view(view, self, request, **kwargs)
-        except HTTPException as exc:
-            return exc

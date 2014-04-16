@@ -32,3 +32,27 @@ class AttributeDict(dict):
             ))
 
         return self[name]
+
+
+class CaseInsensitiveMixin(dict):
+
+    def __getitem__(self, name):
+        return super(CaseInsensitiveMixin, self).__getitem__(name.upper())
+
+    def __setitem__(self, name, value):
+        super(CaseInsensitiveMixin, self).__setitem__(name.upper(), value)
+
+    def __delitem__(self, name):
+        super(CaseInsensitiveMixin, self).__delitem__(name.upper())
+
+    def get(self, name, *args, **kwargs):
+        return super(CaseInsensitiveMixin, self).get(
+            name.upper(),
+            *args,
+            **kwargs
+        )
+
+    def update(self, data):
+        super(CaseInsensitiveMixin, self).update(
+            {k.upper(): v for k, v in data.items()}
+        )

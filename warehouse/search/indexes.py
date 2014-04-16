@@ -27,13 +27,13 @@ class Index(object):
         self.db = db
         self.config = config
         self.es = Elasticsearch(
-            hosts=self.config.hosts,
+            hosts=self.config["hosts"],
             **self.config.get("client_options", {})
         )
 
         self.types = AttributeDict()
 
-        self._index = config.index
+        self._index = config["index"]
 
     def register(self, type_):
         obj = type_(self)

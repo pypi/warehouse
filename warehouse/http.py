@@ -12,41 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from flask import Response as _Response
 from werkzeug.datastructures import ResponseCacheControl
 from werkzeug.http import parse_cache_control_header
-from werkzeug.wrappers import (
-    BaseRequest, AcceptMixin, ETagRequestMixin, UserAgentMixin,
-    AuthorizationMixin, CommonRequestDescriptorsMixin,
-    BaseResponse, ETagResponseMixin, ResponseStreamMixin,
-    CommonResponseDescriptorsMixin, WWWAuthenticateMixin,
-)
 
 
-class Request(BaseRequest, AcceptMixin, ETagRequestMixin,
-              UserAgentMixin, AuthorizationMixin,
-              CommonRequestDescriptorsMixin):
-    """
-    Full featured request object implementing the following mixins:
-
-    - :class:`AcceptMixin` for accept header parsing
-    - :class:`ETagRequestMixin` for etag and cache control handling
-    - :class:`UserAgentMixin` for user agent introspection
-    - :class:`AuthorizationMixin` for http auth handling
-    - :class:`CommonRequestDescriptorsMixin` for common headers
-    """
-
-
-class Response(BaseResponse, ETagResponseMixin, ResponseStreamMixin,
-               CommonResponseDescriptorsMixin,
-               WWWAuthenticateMixin):
-    """
-    Full featured response object implementing the following mixins:
-
-    - :class:`ETagResponseMixin` for etag and cache control handling
-    - :class:`ResponseStreamMixin` to add support for the `stream` property
-    - :class:`CommonResponseDescriptorsMixin` for various HTTP descriptors
-    - :class:`WWWAuthenticateMixin` for HTTP authentication support
-    """
+class Response(_Response):
 
     @property
     def surrogate_control(self):

@@ -15,6 +15,7 @@ import functools
 import hmac
 import urllib.parse
 
+from flask import current_app, request
 from werkzeug.exceptions import SecurityError
 
 from warehouse.utils import random_token, vary_by
@@ -96,7 +97,11 @@ def handle_csrf(fn,
                 _verify_token=_verify_csrf_token):
 
     @functools.wraps(fn)
-    def wrapped(self, view, app, request, *args, **kwargs):
+    def wrapped(*args, **kwargs):
+        # Pull the view out because flask is terrible and doesn't provide a
+        # sane way to do this.
+        view = current_app.view_functions.get(request.endpoint)
+
         # Assume that anything not defined as 'safe' by RFC2616 needs
         # protection
         if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
@@ -128,7 +133,7 @@ def handle_csrf(fn,
         # method, the view has opted out of CSRF, or the CSRF has been
         # verified. In any case it *should* be safe to actually process this
         # request.
-        return fn(self, view, app, request, *args, **kwargs)
+        return fn(*args, **kwargs)
 
     # Set an attribute so that we can verify the dispatch_view has had CSRF
     # enabled
