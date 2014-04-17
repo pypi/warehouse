@@ -112,7 +112,7 @@ def test_project(project_name, hosting_mode, release_urls, e_project_urls,
         ),
         db=pretend.stub(
             packaging=pretend.stub(
-                get_project=pretend.call_recorder(lambda p: project_name),
+                get_project=pretend.call_recorder(lambda p: {'name': project_name}),
                 get_file_urls=pretend.call_recorder(lambda p: []),
                 get_hosting_mode=pretend.call_recorder(
                     lambda p: hosting_mode,

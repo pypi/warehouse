@@ -14,12 +14,7 @@
 
 import pytest
 
-from warehouse.packaging.helpers import (get_description_urls,
-                                         normalize_package_name,
-                                         package_type_display,
-                                         process_description_to_html,
-                                         trim_docstring,
-                                         xmlescape)
+from warehouse.packaging.helpers import package_type_display
 
 
 @pytest.mark.parametrize(("package_type", "display"), [

@@ -148,9 +148,6 @@ def redirect_next(request, default="/", field_name="next", code=303):
     return redirect(next, code=code)
 
 
-def normalize(value):
-    return re.sub("_", "-", value, re.I).lower()
-
 PACKAGE_REGEX = {
     "permitted_characters": re.compile("^[a-zA-Z0-9_\-.]+$"),
     "start_and_end_with_ascii": re.compile("^[a-zA-Z0-9].*[a-zA-Z0-9]$"),
@@ -159,10 +156,9 @@ PACKAGE_REGEX = {
 
 def validate_and_normalize_package_name(name):
     """
-    Any runs of non-alphanumeric/. characters are replaced with a single '-'.
-    Return lower-cased version of safe_name of n.
+    Normalizes a package name as per PEP-426
     """
-    name = re.sub("-", "_", name).lower()
+    name = re.sub("_", "-", name).lower()
     if not PACKAGE_REGEX["permitted_characters"].match(name):
         raise ValueError("name contains illegal characters! (See PEP-426)")
     if not PACKAGE_REGEX["start_and_end_with_ascii"].match(name):
