@@ -502,7 +502,7 @@ def test_get_project(name, normalized, dbapp):
         packages.insert().values(name=name, normalized_name=normalized)
     )
 
-    assert dbapp.db.packaging.get_project(normalized) == name
+    assert dbapp.db.packaging.get_project(normalized)['name'] == name
 
 
 def test_get_project_missing(dbapp):
@@ -893,6 +893,10 @@ def test_get_project_versions(dbapp):
 
     assert dbapp.db.packaging.get_project_versions("test-project") == \
         ["4.0", "3.0", "2.0", "1.0"]
+
+
+def test_get_release_missing_project(dbapp):
+    assert not dbapp.db.packaging.get_release("foo", "1.2.3")
 
 
 def test_get_release(dbapp):
@@ -1429,8 +1433,16 @@ def test_get_full_latest_releases(dbapp):
 
 
 def test_insert_delete_project(dbapp, user):
-    package_name = 'foopackage'
-    dbapp.db.packaging.insert_project(package_name, user['username'], '0.0.0.0')
-    assert dbapp.db.packaging.get_project(package_name)
-    dbapp.db.packaging.delete_project(package_name)
-    assert not dbapp.db.packaging.get_project(package_name)
+    project_name = 'fooproject'
+    dbapp.db.packaging.insert_project(project_name, user['username'], '0.0.0.0')
+    assert dbapp.db.packaging.get_project(project_name)
+    dbapp.db.packaging.delete_project(project_name)
+    assert not dbapp.db.packaging.get_project(project_name)
+
+
+def test_upsert_release(dbapp, user, project):
+    version = '1.0'
+    dbapp.db.packaging.upsert_release(
+        project['name'], version, user['username'], '0.0.0.0'
+    )
+    assert dbapp.db.packaging.get_release(project['name'], version)

@@ -135,13 +135,24 @@ def redirect_next(request, default="/", field_name="next", code=303):
 def normalize(value):
     return re.sub("_", "-", value, re.I).lower()
 
+PACKAGE_REGEX = {
+    "permitted_characters": re.compile("^[a-zA-Z0-9_\-.]+$"),
+    "start_and_end_with_ascii": re.compile("^[a-zA-Z0-9].*[a-zA-Z0-9]$"),
+}
 
-def normalize_package_name(name):
+
+def validate_and_normalize_package_name(name):
     """
     Any runs of non-alphanumeric/. characters are replaced with a single '-'.
     Return lower-cased version of safe_name of n.
     """
-    return re.sub('[^A-Za-z0-9.]+', '-', name).lower()
+    name = re.sub("-", "_", name).lower()
+    if not PACKAGE_REGEX["permitted_characters"].match(name):
+        raise ValueError("name contains illegal characters! (See PEP-426)")
+    if not PACKAGE_REGEX["start_and_end_with_ascii"].match(name):
+        raise ValueError("Distribution names MUST start and end with " +
+                         "an ASCII letter or digit (See PEP-426)")
+    return name
 
 
 class SearchPagination(object):
