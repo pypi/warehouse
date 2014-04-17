@@ -18,9 +18,9 @@ from warehouse import helpers
 from warehouse.http import Response
 
 
-class TemplateResponse:
+class TemplateRenderer:
     """
-    TemplateResponse is small subclass iterator which will lazily render
+    TemplateRenderer is small iterator which will lazily render
     a template when consumed.
 
     This allows inspecting or even modifying the context of the template, or
@@ -60,6 +60,28 @@ class TemplateResponse:
         return self.template.render(**ctx)
 
 
+class TemplateResponse(Response):
+    """
+    TemplateResponse is a Response subclass which ensures that a
+    TemplateRenderer instance does not cause the request to be streaming but
+    instead causes it to be a typical request.
+    """
+
+    def __repr__(self):
+        self._ensure_sequence()
+        return super(TemplateResponse, self).__repr__()
+
+    def get_wsgi_headers(self, environ):
+        headers = super(TemplateResponse, self).get_wsgi_headers(environ)
+        headers["Content-Length"] = self.calculate_content_length()
+
+        return headers
+
+    @property
+    def is_streamed(self):
+        return False
+
+
 def render_response(app, request, template, **context):
     """
     A simple helper that takes an app, request, template, and some context and
@@ -76,7 +98,7 @@ def render_response(app, request, template, **context):
         "url_for": functools.partial(helpers.url_for, request),
     }
 
-    return Response(
-        TemplateResponse(template, context, default_context=default_context),
+    return TemplateResponse(
+        TemplateRenderer(template, context, default_context=default_context),
         mimetype="text/html",
     )

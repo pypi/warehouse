@@ -19,11 +19,15 @@ from unittest import mock
 import pretend
 import pytest
 
-from warehouse.templates import TemplateResponse, render_response
+from werkzeug.test import create_environ
+
+from warehouse.templates import (
+    TemplateRenderer, TemplateResponse, render_response,
+)
 
 
 @pytest.mark.parametrize(("default"), [None, {"foo": pretend.stub()}])
-def test_template_response(default):
+def test_template_renderer(default):
     expected = pretend.stub()
     template = pretend.stub(
         render=pretend.call_recorder(lambda **kw: expected)
@@ -32,22 +36,51 @@ def test_template_response(default):
         "wat": pretend.stub(),
     }
 
-    response = TemplateResponse(template, ctx, default_context=default)
+    renderer = TemplateRenderer(template, ctx, default_context=default)
 
-    assert response.template is template
-    assert response.context == ctx
-    assert response.default_context == (default or {})
-    assert not response.rendered
+    assert renderer.template is template
+    assert renderer.context == ctx
+    assert renderer.default_context == (default or {})
+    assert not renderer.rendered
 
-    assert isinstance(response, collections.Iterator)
+    assert isinstance(renderer, collections.Iterator)
 
-    rendered = next(response)
+    rendered = next(renderer)
 
     assert rendered is expected
-    assert response.rendered
+    assert renderer.rendered
 
     with pytest.raises(StopIteration):
-        next(response)
+        next(renderer)
+
+
+def test_template_response_repr():
+    template = pretend.stub(render=lambda **kw: b"watwat")
+    ctx = {"wat": pretend.stub()}
+
+    renderer = TemplateRenderer(template, ctx)
+
+    response = TemplateResponse(renderer)
+
+    assert repr(response) == "<TemplateResponse 6 bytes [200 OK]>"
+
+
+def test_template_response_get_wsgi_headers():
+    template = pretend.stub(render=lambda **kw: b"watwat")
+    ctx = {"wat": pretend.stub()}
+
+    renderer = TemplateRenderer(template, ctx)
+    response = TemplateResponse(renderer)
+
+    assert dict(response.get_wsgi_headers(create_environ())) == {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Content-Length": "6",
+    }
+
+
+def test_template_response_is_streaming():
+    response = TemplateResponse(iter([]))
+    assert not response.is_streamed
 
 
 def test_render_response():
@@ -62,6 +95,7 @@ def test_render_response():
 
     resp = render_response(app, request, "template.html", foo="bar")
 
+    assert resp.get_wsgi_headers(create_environ())["Content-Length"] == "4"
     assert resp.data == b"test"
     assert app.templates.get_template.calls == [pretend.call("template.html")]
     assert template.render.calls == [
