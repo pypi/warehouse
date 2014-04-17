@@ -352,11 +352,17 @@ def test_find_links_from_html(html, expected):
 
 
 @pytest.mark.parametrize(("input_string", "expected"), (
-    ("scooby^dooby*doo", "scooby-dooby-doo"),
-    ("Scooby^Dooby*doo", "scooby-dooby-doo"),
-    ("test_this", "test-this"),
-    ("hoobs#", "hoobs-"),
-    ("Hoobs#", "hoobs-")
+    ("imabad-name^^^", ValueError),
+    ("CaseInsensitive", "caseinsensitive"),
+    ("replace_underscores", "replace-underscores"),
+    ("-not-alphanumericstart", ValueError),
+    ("not-alphanumericend-", ValueError),
+    ("123456789", "123456789"),
+    ("hoobs#", ValueError)
 ))
-def test_normalize_package_name(input_string, expected):
-    assert normalize_package_name(input_string) == expected
+def test_validate_and_normalize_package_name(input_string, expected):
+    if expected is ValueError:
+        with pytest.raises(ValueError):
+            normalize_package_name(input_string)
+    else:
+        assert normalize_package_name(input_string) == expected

@@ -114,7 +114,7 @@ class Database(db.Database):
 
         return [tuple(r) for r in self.engine.execute(query, limit=num)]
 
-    get_project = db.scalar(
+    get_project = db.first(
         """ SELECT name, autohide
             FROM packages
             WHERE normalized_name = lower(
@@ -317,7 +317,11 @@ class Database(db.Database):
             dict(r)
             for r in self.engine.execute(query, project=project,
                                          version=version)
-        ][0]
+        ]
+        if len(result) == 0:
+            return None
+        else:
+            result = result[0]
 
         # Load dependency information
         query = \
@@ -541,16 +545,14 @@ class Database(db.Database):
         self.engine.execute(
             query,
             name=name,
-            normalized_name=utils.normalize_package_name(name),
+            normalized_name=utils.validate_and_normalize_package_name(name),
             bugtrack_url=bugtrack_url
         )
         self._insert_journal_entry(name, None, "create", username, user_ip)
 
     def delete_project(self, name):
-        self.engine.execute(
-            "DELETE FROM packages WHERE name = %(name)s",
-            name=name
-        )
+        self.engine.execute("DELETE FROM releases WHERE name = %(name)s", name=name)
+        self.engine.execute("DELETE FROM packages WHERE name = %(name)s", name=name)
 
     RELEASE_COLUMNS = ('author', 'author_email', 'maintainer', 'maintainer_email',
                        'home_page', 'license', 'summary', 'keywords', 'platform',
@@ -606,8 +608,8 @@ class Database(db.Database):
                 )
 
         self.engine.execute(
-            self._build_upsert_release_stateement(additional_db_values,
-                                                  is_update=is_update),
+            self._build_upsert_release_statement(additional_db_values,
+                                                 is_update=is_update),
             name=project_name, version=version
         )
 
@@ -636,7 +638,7 @@ class Database(db.Database):
             FROM releases
             WHERE name = %(name)s
             """
-        project_versions = self.engine.execute(query).all()
+        project_versions = [project for project in self.engine.execute(query, name=project_name)]
         sorted_versions = sorted(
             project_versions,
             key=(lambda x: pkg_resources.parse_version(x[0]))
@@ -675,18 +677,18 @@ class Database(db.Database):
         ordered_values = OrderedDict(value_dict.items())
 
         if is_update:
-            prefix, suffix = "UPDATE releases SET", ""
-        else:
-            ordered_values['name'] = ['%(name)s']
-            ordered_values['version'] = ['%(version)s']
-            prefix, suffix = ("INSERT INTO releases",
-                              "WHERE name = %(name)s" +
+            prefix, suffix = ("UPDATE releases SET",
+                              "WHERE name = %(name)s " +
                               "AND version = %(version)s")
+        else:
+            ordered_values['name'] = '%(name)s'
+            ordered_values['version'] = '%(version)s'
+            prefix, suffix = "INSERT INTO releases ", ""
 
         return (prefix +
-                "(%s)" % ",".join(ordered_values.keys()) +
-                " VALUES " +
-                "(%s)" % ",".join(ordered_values.values()) +
+                "(%s) " % ",".join(ordered_values.keys()) +
+                "VALUES " +
+                "(%s) " % ",".join(ordered_values.values()) +
                 suffix)
 
     def update_release_classifiers(self, name, version, classifiers):

@@ -148,7 +148,7 @@ def user(request, dbapp):
         dbapp.db.accounts.delete_user(username)
 
     username = "guidovanrossum"
-    email = "notanemail@python.org"
+    email = "notanemail@example.org"
     password = "plaintextpasswordsaregreat"
     dbapp.db.accounts.insert_user(
         username,
@@ -157,3 +157,17 @@ def user(request, dbapp):
     return_value = dbapp.db.accounts.get_user(username)
     return_value['password'] = password
     return return_value
+
+
+@pytest.fixture
+def project(request, user, dbapp):
+    project_name = "fooproject"
+
+    @request.addfinalizer
+    def delete_project():
+        dbapp.db.packaging.delete_project(project_name)
+
+    dbapp.db.packaging.insert_project(project_name, user['username'], '0.0.0.0')
+    return {
+        "name": project_name
+    }
