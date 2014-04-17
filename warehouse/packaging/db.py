@@ -17,10 +17,12 @@ import logging
 import os.path
 import urllib.parse
 import pkg_resources
+import readme.rst
+
 from collections import OrderedDict, defaultdict
 
 from warehouse import db
-from warehouse.packaging import helpers
+from warehouse import utils
 from warehouse.packaging.tables import ReleaseDependencyKind
 
 
@@ -546,7 +548,7 @@ class Database(db.Database):
         self.engine.execute(
             query,
             name=name,
-            normalized_name=helpers.normalize_package_name(name),
+            normalized_name=utils.normalize_package_name(name),
             bugtrack_url=bugtrack_url
         )
         self._insert_journal_entry(name, None, "create", username, user_ip)
@@ -599,8 +601,7 @@ class Database(db.Database):
         if description:
             modified_elements += ['description', 'description_html']
             additional_db_values['description'] = description
-            additional_db_values['description_html'] = \
-                helpers.parse_html_from_description(description)
+            additional_db_values['description_html'] = readme.rst.render(description)
 
             # this is legacy behavior. According to PEP-438, we should
             # no longer support parsing urls from descriptions
@@ -608,7 +609,7 @@ class Database(db.Database):
             if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
                 self.update_external_urls(
                     project_name, version,
-                    helpers.get_description_urls(additional_db_values['description'])
+                    utils.find_links_from_html(additional_db_values['description_html'])
                 )
 
         self.engine.execute(
