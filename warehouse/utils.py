@@ -14,6 +14,7 @@
 
 import base64
 import binascii
+import cgi
 import collections
 import functools
 import hashlib
@@ -22,6 +23,7 @@ import mimetypes
 import os
 import re
 import urllib.parse
+import xml.etree.ElementTree
 
 import html5lib
 import html5lib.serializer
@@ -148,6 +150,14 @@ def redirect_next(request, default="/", field_name="next", code=303):
 
 def normalize(value):
     return re.sub("_", "-", value, re.I).lower()
+
+
+def normalize_package_name(name):
+    """
+    Any runs of non-alphanumeric/. characters are replaced with a single '-'.
+    Return lower-cased version of safe_name of n.
+    """
+    return re.sub('[^A-Za-z0-9.]+', '-', name).lower()
 
 
 class SearchPagination(object):
@@ -298,3 +308,14 @@ def is_safe_url(url, host):
 
     return ((not parsed.netloc or parsed.netloc == host) and
             (not parsed.scheme or parsed.scheme in ["http", "https"]))
+
+
+def find_links_from_html(html_body):
+    """
+    Return a list of links, extracted from all <a href="{{ url
+    }}">...</a> elements found.
+    """
+    document = html5lib.parse(html_body)
+    return [a.attrib.get('href', None)
+            for a in document.iter("{http://www.w3.org/1999/xhtml}a")
+            if 'href' in a.attrib]

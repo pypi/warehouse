@@ -23,7 +23,7 @@ from warehouse.utils import (
     merge_dict, render_response, cache, get_wsgi_application, get_mimetype,
     redirect, SearchPagination, is_valid_json_callback_name,
     generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
-    random_token, is_safe_url,
+    random_token, is_safe_url, find_links_from_html, normalize_package_name
 )
 
 
@@ -331,7 +331,7 @@ def test_random_token():
     assert urandom.calls == [pretend.call(32)]
 
 
-@pytest.mark.parametrize(("url", "host", "expected"), [
+@pytest.mark.parametrize(("url", "host", "expected"), (
     ("", "example.com", False),
     ("/wat/", "example.com", True),
     ("http://example.com/wat/", "example.com", True),
@@ -339,6 +339,24 @@ def test_random_token():
     ("ftp://example.com/wat/", "example.com", False),
     ("http://attacker.com/wat/", "example.com", False),
     ("https://attacker.com/wat/", "example.com", False),
-])
+))
 def test_is_safe_url(url, host, expected):
     assert is_safe_url(url, host) is expected
+
+
+@pytest.mark.parametrize(("html", "expected"), (
+    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>", ["foo", "bar"]),
+))
+def test_find_links_from_html(html, expected):
+    assert find_links_from_html(html) == expected
+
+
+@pytest.mark.parametrize(("input_string", "expected"), (
+    ("scooby^dooby*doo", "scooby-dooby-doo"),
+    ("Scooby^Dooby*doo", "scooby-dooby-doo"),
+    ("test_this", "test-this"),
+    ("hoobs#", "hoobs-"),
+    ("Hoobs#", "hoobs-")
+))
+def test_normalize_package_name(input_string, expected):
+    assert normalize_package_name(input_string) == expected
