@@ -158,6 +158,12 @@ database, you can run:
     $ tox -e py34 -- -k "not db"
 
 
+Writing Tests
+-------------
+
+See :doc:`testing` for more information about writing tests.
+
+
 Building Documentation
 ----------------------
 

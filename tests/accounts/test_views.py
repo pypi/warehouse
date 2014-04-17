@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pretend
 import pytest
 
@@ -82,65 +84,47 @@ def test_user_profile_redirects():
     ]
 
 
-def test_user_profile_renders():
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(
-                browser=False,
-                varnish=False,
+def test_user_profile_renders(app):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user=pretend.call_recorder(
+                lambda user: {
+                    "username": "test-user",
+                    "email": "test@example.com",
+                },
             ),
         ),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user=pretend.call_recorder(
-                    lambda user: {"username": "test-user"},
-                ),
-            ),
-            packaging=pretend.stub(
-                get_projects_for_user=pretend.call_recorder(
-                    lambda user: None,
-                ),
-            ),
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
+        packaging=pretend.stub(
+            get_projects_for_user=pretend.call_recorder(lambda user: None),
         ),
     )
+
     request = pretend.stub()
 
-    username = "test-user"
-
-    resp = user_profile(app, request, username=username)
+    resp = user_profile(app, request, username="test-user")
 
     assert resp.status_code == 200
+    assert resp.response.context == {
+        "projects": None,
+        "user": {
+            "username": "test-user",
+            "email": "test@example.com",
+        },
+    }
 
     assert app.db.accounts.get_user.calls == [pretend.call("test-user")]
     assert app.db.packaging.get_projects_for_user.calls == [
         pretend.call("test-user"),
     ]
 
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/profile.html"),
-    ]
 
-
-def test_user_login_get():
-    app = pretend.stub(
-        config=pretend.stub(),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                user_authenticate=pretend.stub(),
-            ),
+def test_user_login_get(app):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            user_authenticate=pretend.stub(),
         ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
-        ),
-        translations=None,
     )
+
     request = pretend.stub(
         method="GET",
         form=MultiDict(),
@@ -151,9 +135,10 @@ def test_user_login_get():
     resp = login(app, request)
 
     assert resp.status_code == 200
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/login.html"),
-    ]
+    assert resp.response.context == {
+        "form": mock.ANY,
+        "next": None,
+    }
 
 
 @pytest.mark.parametrize(("form", "values", "session", "location"), [
@@ -179,22 +164,14 @@ def test_user_login_get():
         "/wat/",
     ),
 ])
-def test_user_login_post_valid(form, values, session, location):
-    app = pretend.stub(
-        config=pretend.stub(),
-        db=pretend.stub(
-            accounts=pretend.stub(
-                get_user_id=lambda username: 9001,
-                user_authenticate=lambda user, password: True,
-            ),
+def test_user_login_post_valid(app, form, values, session, location):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user_id=lambda username: 9001,
+            user_authenticate=lambda user, password: True,
         ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
-        ),
-        translations=None,
     )
+
     request = pretend.stub(
         method="POST",
         form=MultiDict(form),
@@ -214,15 +191,7 @@ def test_user_login_post_valid(form, values, session, location):
     assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
 
 
-def test_user_logout_get():
-    app = pretend.stub(
-        config=pretend.stub(),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(
-                lambda t: pretend.stub(render=lambda **ctx: ""),
-            ),
-        ),
-    )
+def test_user_logout_get(app):
     request = pretend.stub(
         method="GET",
         values={},
@@ -232,9 +201,8 @@ def test_user_logout_get():
     resp = logout(app, request)
 
     assert resp.status_code == 200
-    assert app.templates.get_template.calls == [
-        pretend.call("accounts/logout.html"),
-    ]
+    assert resp.response.template.name == "accounts/logout.html"
+    assert resp.response.context == {"next": None}
 
 
 @pytest.mark.parametrize(("values", "location"), [

@@ -22,9 +22,9 @@ from warehouse import fastly
 from warehouse.helpers import url_for
 from warehouse.http import Response
 from warehouse.legacy import xmlrpc
-from warehouse.utils import (
-    cache, cors, is_valid_json_callback_name, render_response,
-)
+from warehouse.templates import render_response
+from warehouse.utils import cache, cors, is_valid_json_callback_name
+
 
 _action_methods = {}
 

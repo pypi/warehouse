@@ -19,7 +19,8 @@ from werkzeug.exceptions import NotFound
 
 from warehouse import fastly
 from warehouse.helpers import url_for
-from warehouse.utils import cache, redirect, render_response, camouflage_images
+from warehouse.templates import render_response
+from warehouse.utils import cache, redirect, camouflage_images
 
 
 @cache(browser=1, varnish=120)

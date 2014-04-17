@@ -19,7 +19,8 @@ from warehouse.accounts.forms import LoginForm
 from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
-from warehouse.utils import cache, redirect, redirect_next, render_response
+from warehouse.templates import render_response
+from warehouse.utils import cache, redirect, redirect_next
 
 
 @cache(browser=1, varnish=120)
