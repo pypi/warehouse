@@ -59,6 +59,27 @@ def test_scalar(value, default, expected, eargs, ekwargs):
 
 
 @pytest.mark.parametrize(
+    ("value", "default", "expected", "eargs", "ekwargs"), (
+        (None, {'foo': 'bar'}, {'foo': 'bar'}, [], {}),
+        ({'baz': 'bazbar'}, {'foo': 'bar'}, {'baz': 'bazbar'}, [], {})
+    )
+)
+def test_first(value, default, expected, eargs, ekwargs):
+    result = pretend.stub(first=pretend.call_recorder(lambda: value))
+    execute = pretend.call_recorder(lambda q, *a, **kw: result)
+    model = pretend.stub(
+        engine=pretend.stub(execute=execute)
+    )
+
+    sql = db.first("SELECT * FROM thing LIMIT 1", default=default)
+
+    assert sql(model, *eargs, **ekwargs) == expected
+    assert execute.calls == [
+        pretend.call("SELECT * FROM thing LIMIT 1", *eargs, **ekwargs)
+    ]
+
+
+@pytest.mark.parametrize(
     ("row_func", "value", "expected", "eargs", "ekwargs"),
     [
         (None, [{"a": "b"}], [{"a": "b"}], [], {}),

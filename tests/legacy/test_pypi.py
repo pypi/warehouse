@@ -181,7 +181,8 @@ def test_jsonp_invalid():
     (pretend.stub(name="spam"), '1'),
 ])
 def test_json_missing(monkeypatch, project, version):
-    get_project = pretend.call_recorder(lambda n: {'name': project})
+    return_value = {'name': project} if project else None
+    get_project = pretend.call_recorder(lambda n: return_value)
     get_project_versions = pretend.call_recorder(lambda n: [])
     app = pretend.stub(
         db=pretend.stub(

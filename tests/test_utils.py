@@ -23,7 +23,8 @@ from warehouse.utils import (
     merge_dict, render_response, cache, get_wsgi_application, get_mimetype,
     redirect, SearchPagination, is_valid_json_callback_name,
     generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
-    random_token, is_safe_url, find_links_from_html, validate_and_normalize_package_name
+    random_token, is_safe_url, find_links_from_html,
+    validate_and_normalize_package_name
 )
 
 
@@ -345,7 +346,8 @@ def test_is_safe_url(url, host, expected):
 
 
 @pytest.mark.parametrize(("html", "expected"), (
-    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>", ["foo", "bar"]),
+    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>",
+     ["foo", "bar"]),
 ))
 def test_find_links_from_html(html, expected):
     assert find_links_from_html(html) == expected

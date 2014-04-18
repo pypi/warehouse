@@ -191,10 +191,10 @@ class Database(db.Database):
             WHERE name = %(name)s
             AND version = %(version)s
             """
-        specifier_dict = defaultdict(list)
+        specifier_dict = defaultdict(set)
         for row in self.engine.execute(query, name=project_name,
                                        version=version):
-            specifier_dict[row['kind']].append(row['specifier'])
+            specifier_dict[row['kind']].add(row['specifier'])
         return specifier_dict
 
     get_external_urls = db.rows(
@@ -534,8 +534,9 @@ class Database(db.Database):
 # data Modification Methods
 
     def insert_project(self, name, username, user_ip, bugtrack_url=None):
-        # NOTE: pypi behaviour is to assign the first submitter of a project the
-        # "owner" role.
+        # NOTE: pypi behaviour is to assign the first submitter of a
+        # project the "owner" role. this code does not
+        # perform that behaviour (implement in the view instead)
         query = \
             """ INSERT INTO packages
                     (name, normalized_name, bugtrack_url)
@@ -551,18 +552,22 @@ class Database(db.Database):
         self._insert_journal_entry(name, None, "create", username, user_ip)
 
     def delete_project(self, name):
-        self.engine.execute("DELETE FROM releases WHERE name = %(name)s", name=name)
-        self.engine.execute("DELETE FROM packages WHERE name = %(name)s", name=name)
+        self.engine.execute("DELETE FROM releases WHERE name = %(name)s",
+                            name=name)
+        self.engine.execute("DELETE FROM packages WHERE name = %(name)s",
+                            name=name)
 
-    RELEASE_COLUMNS = ('author', 'author_email', 'maintainer', 'maintainer_email',
-                       'home_page', 'license', 'summary', 'keywords', 'platform',
-                       'download_url', 'cheesecake_installability_id',
-                       'cheesecake_documentation_id', 'cheesecake_code_kwalitee_id',
+    RELEASE_COLUMNS = ('author', 'author_email', 'maintainer',
+                       'maintainer_email', 'home_page', 'license',
+                       'summary', 'keywords', 'platform', 'download_url',
+                       'cheesecake_installability_id',
+                       'cheesecake_documentation_id',
+                       'cheesecake_code_kwalitee_id',
                        'requires_python', 'description_from_readme')
 
     def upsert_release(self, project_name, version, username, user_ip,
-                       classifiers=None, release_dependencies=None, description=None,
-                       **additional_db_values):
+                       classifiers=None, release_dependencies=None,
+                       description=None, **additional_db_values):
         """
         Takes in the following:
 
@@ -583,7 +588,9 @@ class Database(db.Database):
         for column_name in additional_db_values:
             if column_name not in self.RELEASE_COLUMNS:
                 raise ValueError(
-                    "Release table does not have a column {0}".format(column_name))
+                    "Release table does not have a column {0}"
+                    .format(column_name)
+                )
 
         if classifiers:
             modified_elements.append('classifiers')
@@ -596,7 +603,8 @@ class Database(db.Database):
         if description:
             modified_elements += ['description', 'description_html']
             additional_db_values['description'] = description
-            additional_db_values['description_html'] = readme.rst.render(description)
+            additional_db_values['description_html'] = \
+                readme.rst.render(description)
 
             # this is legacy behavior. According to PEP-438, we should
             # no longer support parsing urls from descriptions
@@ -604,7 +612,9 @@ class Database(db.Database):
             if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
                 self.update_external_urls(
                     project_name, version,
-                    utils.find_links_from_html(additional_db_values['description_html'])
+                    utils.find_links_from_html(
+                        additional_db_values['description_html']
+                    )
                 )
 
         self.engine.execute(
@@ -631,6 +641,27 @@ class Database(db.Database):
 
             self._update_release_ordering(project_name)
 
+    def delete_release(self, project_name, version):
+        # delete FK rows first
+        for kind in ReleaseDependencyKind:
+            self._delete_release_dependencies_of_kind(project_name,
+                                                      version, kind.value)
+
+        self._delete_release_classifiers(project_name, version)
+
+        # actual deletion from the release table
+        delete_statement = \
+            """
+            DELETE FROM releases
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        self.engine.execute(
+            delete_statement,
+            name=project_name,
+            version=version
+        )
+
     def _update_release_ordering(self, project_name):
         query = \
             """
@@ -638,7 +669,8 @@ class Database(db.Database):
             FROM releases
             WHERE name = %(name)s
             """
-        project_versions = [project for project in self.engine.execute(query, name=project_name)]
+        project_versions = [project for project in
+                            self.engine.execute(query, name=project_name)]
         sorted_versions = sorted(
             project_versions,
             key=(lambda x: pkg_resources.parse_version(x[0]))
@@ -665,11 +697,15 @@ class Database(db.Database):
         self.engine.execute(query, name=project_name, version=version)
 
     def update_bugtrack_url(self, project_name, bugtrack_url):
-        self.engine.execute(
-            "UPDATE packages SET bugtrack_url = %(bugtrack_url)s WHERE name = %(name)s",
-            bugtrack_url=bugtrack_url,
-            name=project_name
-        )
+        query = \
+            """
+            UPDATE packages SET
+                bugtrack_url = %(bugtrack_url)s
+            WHERE
+                name = %(name)s
+            """
+        self.engine.execute(query, bugtrack_url=bugtrack_url,
+                            name=project_name)
 
     @staticmethod
     def _build_upsert_release_statement(value_dict, is_update):
@@ -692,7 +728,7 @@ class Database(db.Database):
                 suffix)
 
     def update_release_classifiers(self, name, version, classifiers):
-        self._delete_release_classifiers(name, classifiers)
+        self._delete_release_classifiers(name, version)
         insert_query = \
             """ INSERT INTO release_classifiers
                     (name, version, trove_id)
@@ -701,7 +737,7 @@ class Database(db.Database):
             """
         classifier_id_dict = self.get_classifier_ids(classifiers)
         for classifier in classifiers:
-            trove_id = classifier_id_dict['classifier']
+            trove_id = classifier_id_dict[classifier]
             self.engine.execute(insert_query, name=name,
                                 version=version, trove_id=trove_id)
 
@@ -718,7 +754,7 @@ class Database(db.Database):
         )
 
     def update_external_urls(self, project_name, version, urls):
-        self._delete_description_urls(project_name, version)
+        self._delete_external_urls(project_name, version)
         insert_query = \
             """ INSERT INTO description_urls
                     (name, version, url)
@@ -730,7 +766,7 @@ class Database(db.Database):
             self.engine.execute(insert_query, name=project_name,
                                 version=version, url=url)
 
-    def _delete_description_urls(self, project_name, version):
+    def _delete_external_urls(self, project_name, version):
         query = \
             """ DELETE FROM description_urls
                 WHERE name = %(name)s
@@ -742,7 +778,8 @@ class Database(db.Database):
             version=version
         )
 
-    def update_release_dependencies(self, project_name, version, specifier_dict):
+    def update_release_dependencies(self, project_name, version,
+                                    specifier_dict):
         """
         Takes in a project_name, version, and a release_dict of the format:
         { ReleaseDependencyKind: [specifier_name_foo, specifier_name_bar] }
@@ -754,16 +791,18 @@ class Database(db.Database):
             INSERT INTO release_dependencies
                 (name, version, kind, specifier)
             VALUES
-                (%(name)s, %(version)s, %(kind)s, %(specifier))
+                (%(name)s, %(version)s, %(kind)s, %(specifier)s)
             """
-        old_specifier_dict = self.get_release_dependencies(project_name, version)
+        old_specifier = self.get_release_dependencies(project_name,
+                                                      version)
         for kind, specifiers in specifier_dict.items():
 
             # no need to update if the state is already there
-            if kind in old_specifier_dict and specifiers == old_specifier_dict[kind]:
+            if kind in old_specifier and specifiers == old_specifier[kind]:
                 continue
 
-            self._delete_release_dependencies_of_kind(project_name, version, kind)
+            self._delete_release_dependencies_of_kind(project_name, version,
+                                                      kind)
             for specifier in specifiers:
                 self.engine.execute(
                     insert_query,
@@ -773,7 +812,8 @@ class Database(db.Database):
                     specifier=specifier
                 )
 
-    def _delete_release_dependencies_of_kind(self, project_name, version, kind):
+    def _delete_release_dependencies_of_kind(self, project_name, version,
+                                             kind):
         query = \
             """
             DELETE FROM release_dependencies

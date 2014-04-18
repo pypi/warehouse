@@ -46,7 +46,7 @@ def scalar(query, default=None):
 def first(query, default=None):
     """
     A helper function that takes a query and returns a function that will query
-    the database and return the first row, as a dictionary (the first row from the query, or None).
+    the database and return the first row
     """
     def inner(model, *args, **kwargs):
         val = model.engine.execute(query, *args, **kwargs).first()
