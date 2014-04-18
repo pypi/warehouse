@@ -35,7 +35,7 @@ class ReleaseDependencyKind(int, enum.Enum):
     obsoletes_dist = 6  # Unused
     requires_external = 7  # Unused
 
-    # WHY
+    # WHY +1
     project_url = 8
 
 

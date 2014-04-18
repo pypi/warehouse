@@ -183,7 +183,8 @@ def release(request, user, dbapp, project):
         dbapp.db.packaging.delete_release(project['name'], version)
 
     dbapp.db.packaging.upsert_release(
-        project['name'], version, user['username'], '0.0.0.0'
+        project['name'], version, user['username'], '0.0.0.0',
+        description="this is a dummy package"
     )
     return {
         'project': project,
