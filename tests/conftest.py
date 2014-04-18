@@ -167,7 +167,25 @@ def project(request, user, dbapp):
     def delete_project():
         dbapp.db.packaging.delete_project(project_name)
 
-    dbapp.db.packaging.insert_project(project_name, user['username'], '0.0.0.0')
+    dbapp.db.packaging.insert_project(project_name, user['username'],
+                                      '0.0.0.0')
     return {
         "name": project_name
+    }
+
+
+@pytest.fixture
+def release(request, user, dbapp, project):
+    version = '1.0'
+
+    @request.addfinalizer
+    def delete_release():
+        dbapp.db.packaging.delete_release(project['name'], version)
+
+    dbapp.db.packaging.upsert_release(
+        project['name'], version, user['username'], '0.0.0.0'
+    )
+    return {
+        'project': project,
+        'version': version
     }

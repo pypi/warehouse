@@ -14,7 +14,6 @@
 
 import base64
 import binascii
-import cgi
 import collections
 import functools
 import hashlib
@@ -23,7 +22,6 @@ import mimetypes
 import os
 import re
 import urllib.parse
-import xml.etree.ElementTree
 
 import html5lib
 import html5lib.serializer

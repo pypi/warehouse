@@ -317,7 +317,8 @@ def test_is_safe_url(url, host, expected):
 
 
 @pytest.mark.parametrize(("html", "expected"), (
-    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>", ["foo", "bar"]),
+    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>",
+     ["foo", "bar"]),
 ))
 def test_find_links_from_html(html, expected):
     assert find_links_from_html(html) == expected

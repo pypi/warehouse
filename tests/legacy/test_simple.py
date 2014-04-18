@@ -79,7 +79,9 @@ def test_project(app, monkeypatch,
 
     app.db = pretend.stub(
         packaging=pretend.stub(
-            get_project=pretend.call_recorder(lambda p: {'name': project_name}),
+            get_project=pretend.call_recorder(
+                lambda p: {'name': project_name},
+            ),
             get_file_urls=pretend.call_recorder(lambda p: []),
             get_hosting_mode=pretend.call_recorder(
                 lambda p: hosting_mode,

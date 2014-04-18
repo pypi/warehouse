@@ -11,25 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import cgi
-import re
-import sys
-import io
-from contextlib import contextmanager
-from urllib.parse import urlparse
-from xml.etree import ElementTree
-
-import docutils
-from docutils.core import publish_doctree, Publisher
-from docutils.writers import get_writer_class
-from docutils.transforms import TransformError, Transform
-
-ALLOWED_SCHEMES = (
-    'file', 'ftp', 'gopher', 'hdl', 'http', 'https',
-    'imap', 'mailto', 'mms', 'news', 'nntp', 'prospero', 'rsync',
-    'rtsp', 'rtspu', 'sftp', 'shttp', 'sip', 'sip', 'snews', 'svn',
-    'svn+ssh', 'telnet', 'wais', 'irc'
-)
 
 
 def package_type_display(package_type):

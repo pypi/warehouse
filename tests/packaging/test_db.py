@@ -22,7 +22,7 @@ from warehouse.accounts.tables import users, emails
 from warehouse.packaging.db import log
 from warehouse.packaging.tables import (
     packages, releases, release_files, description_urls, journals, classifiers,
-    release_classifiers, release_dependencies, roles,
+    release_classifiers, release_dependencies, roles, ReleaseDependencyKind
 )
 
 
@@ -1434,7 +1434,8 @@ def test_get_full_latest_releases(dbapp):
 
 def test_insert_delete_project(dbapp, user):
     project_name = 'fooproject'
-    dbapp.db.packaging.insert_project(project_name, user['username'], '0.0.0.0')
+    dbapp.db.packaging.insert_project(project_name, user['username'],
+                                      '0.0.0.0')
     assert dbapp.db.packaging.get_project(project_name)
     dbapp.db.packaging.delete_project(project_name)
     assert not dbapp.db.packaging.get_project(project_name)
@@ -1446,3 +1447,61 @@ def test_upsert_release(dbapp, user, project):
         project['name'], version, user['username'], '0.0.0.0'
     )
     assert dbapp.db.packaging.get_release(project['name'], version)
+
+
+def test_upsert_bad_parameter(dbapp, user, project):
+    with pytest.raises(ValueError):
+        dbapp.db.packaging.upsert_release(
+            project['name'], '1.0', user['username'], '0.0.0.0',
+            badparam="imnotinreleasedb"
+        )
+
+
+def test_update_release_dependencies(dbapp, release):
+    specifier_dict = {
+        ReleaseDependencyKind.requires_dist.value: set((
+            "foo",
+            "bar"
+        )),
+        ReleaseDependencyKind.provides_dist.value: set((
+            "baz"
+        ))
+    }
+    dbapp.db.packaging.update_release_dependencies(
+        release['project']['name'],
+        release['version'], specifier_dict
+    )
+    stored_specifiers = dbapp.db.packaging.get_release_dependencies(
+        release['project']['name'],
+        release['version']
+    )
+    assert specifier_dict == stored_specifiers
+
+
+def test_update_release_classifiers(dbapp, release):
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="foo"
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=2,
+        classifier="bar"
+    ))
+    dbapp.engine.execute(classifiers.insert().values(
+        id=3,
+        classifier="baz"
+    ))
+
+    dbapp.db.packaging.update_release_classifiers(release['project']['name'],
+                                                  release['version'],
+                                                  set(('foo',)))
+    assert set(dbapp.db.packaging.get_classifiers(release['project']['name'],
+                                                  release['version'])) == set(('foo',))
+
+    dbapp.db.packaging.update_release_classifiers(release['project']['name'],
+                                                  release['version'],
+                                                  set(('bar', 'baz')))
+    assert set(dbapp.db.packaging.get_classifiers(
+        release['project']['name'],
+        release['version'])
+    ) == set(('bar', 'baz'))
