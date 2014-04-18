@@ -23,7 +23,8 @@ from collections import OrderedDict, defaultdict
 
 from warehouse import db
 from warehouse import utils
-from warehouse.packaging.tables import ReleaseDependencyKind
+from warehouse.packaging.tables import (ReleaseDependencyKind,
+                                        releases)
 
 
 log = logging.getLogger(__name__)
@@ -201,6 +202,16 @@ class Database(db.Database):
         """ SELECT DISTINCT ON (url) url
             FROM description_urls
             WHERE name = %s
+            ORDER BY url
+        """,
+        row_func=lambda r: r["url"]
+    )
+
+    get_release_external_urls = db.rows(
+        """ SELECT DISTINCT ON (url) url
+            FROM description_urls
+            WHERE name = %s
+            AND version = %s
             ORDER BY url
         """,
         row_func=lambda r: r["url"]
@@ -583,7 +594,7 @@ class Database(db.Database):
         and inserts the release (if one doesn't exist), and updates otherwise
         """
         is_update = self.get_release(project_name, version) is not None
-        modified_elements = additional_db_values.keys()
+        modified_elements = list(additional_db_values.keys())
 
         for column_name in additional_db_values:
             if column_name not in self.RELEASE_COLUMNS:
@@ -604,24 +615,36 @@ class Database(db.Database):
             modified_elements += ['description', 'description_html']
             additional_db_values['description'] = description
             additional_db_values['description_html'] = \
-                readme.rst.render(description)
+                readme.rst.render(description)[0]
 
             # this is legacy behavior. According to PEP-438, we should
             # no longer support parsing urls from descriptions
             hosting_mode = self.get_hosting_mode(project_name)
             if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
-                self.update_external_urls(
+                self.update_release_external_urls(
                     project_name, version,
                     utils.find_links_from_html(
                         additional_db_values['description_html']
                     )
                 )
 
-        self.engine.execute(
-            self._build_upsert_release_statement(additional_db_values,
-                                                 is_update=is_update),
-            name=project_name, version=version
-        )
+        if not is_update:
+            additional_db_values['name'] = project_name
+            additional_db_values['version'] = version
+
+        if len(additional_db_values) > 0:
+            if is_update:
+                self.engine.execute(
+                    releases
+                    .update()
+                    .where(releases.columns.name == project_name)
+                    .where(releases.columns.version == version)
+                    .values(**additional_db_values)
+                )
+            else:
+                self.engine.execute(
+                    releases.insert().values(**additional_db_values)
+                )
 
         if is_update:
             journal_message = 'update {0}'.format(','.join(modified_elements))
@@ -648,6 +671,7 @@ class Database(db.Database):
                                                       version, kind.value)
 
         self._delete_release_classifiers(project_name, version)
+        self._delete_release_external_urls(project_name, version)
 
         # actual deletion from the release table
         delete_statement = \
@@ -707,26 +731,6 @@ class Database(db.Database):
         self.engine.execute(query, bugtrack_url=bugtrack_url,
                             name=project_name)
 
-    @staticmethod
-    def _build_upsert_release_statement(value_dict, is_update):
-        # we order them to ensure key-value consistency
-        ordered_values = OrderedDict(value_dict.items())
-
-        if is_update:
-            prefix, suffix = ("UPDATE releases SET",
-                              "WHERE name = %(name)s " +
-                              "AND version = %(version)s")
-        else:
-            ordered_values['name'] = '%(name)s'
-            ordered_values['version'] = '%(version)s'
-            prefix, suffix = "INSERT INTO releases ", ""
-
-        return (prefix +
-                "(%s) " % ",".join(ordered_values.keys()) +
-                "VALUES " +
-                "(%s) " % ",".join(ordered_values.values()) +
-                suffix)
-
     def update_release_classifiers(self, name, version, classifiers):
         self._delete_release_classifiers(name, version)
         insert_query = \
@@ -753,20 +757,19 @@ class Database(db.Database):
             version=version
         )
 
-    def update_external_urls(self, project_name, version, urls):
-        self._delete_external_urls(project_name, version)
+    def update_release_external_urls(self, project_name, version, urls):
+        self._delete_release_external_urls(project_name, version)
         insert_query = \
             """ INSERT INTO description_urls
                     (name, version, url)
                 VALUES
-                    (%(name)s, %(version)s, %(url)s
+                    (%(name)s, %(version)s, %(url)s)
             """
         for url in urls:
-            url = url.encode('utf-8')
             self.engine.execute(insert_query, name=project_name,
                                 version=version, url=url)
 
-    def _delete_external_urls(self, project_name, version):
+    def _delete_release_external_urls(self, project_name, version):
         query = \
             """ DELETE FROM description_urls
                 WHERE name = %(name)s

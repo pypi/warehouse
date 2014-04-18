@@ -1449,6 +1449,19 @@ def test_upsert_release(dbapp, user, project):
     assert dbapp.db.packaging.get_release(project['name'], version)
 
 
+def test_upsert_release_update(dbapp, user, release):
+    new_description = "this is an new dummy description"
+    dbapp.db.packaging.upsert_release(
+        release['project']['name'], release['version'],
+        user['username'], '0.0.0.0',
+        description=new_description
+    )
+    release_info = dbapp.db.packaging.get_release(
+        release['project']['name'], release['version']
+    )
+    assert release_info['description'] == new_description
+
+
 def test_upsert_bad_parameter(dbapp, user, project):
     with pytest.raises(ValueError):
         dbapp.db.packaging.upsert_release(
@@ -1505,3 +1518,14 @@ def test_update_release_classifiers(dbapp, release):
         release['project']['name'],
         release['version'])
     ) == set(('bar', 'baz'))
+
+
+def test_update_external_urls(dbapp, release):
+    example_urls = ('http://example.com', 'http://example.com/test')
+    dbapp.db.packaging.update_release_external_urls(release['project']['name'],
+                                                    release['version'],
+                                                    example_urls)
+    assert set(dbapp.db.packaging.get_release_external_urls(
+        release['project']['name'],
+        release['version'])
+    ) == set(example_urls)
