@@ -81,7 +81,7 @@ setup(
         "psycopg2",
         "PyYAML",
         "raven",
-        "readme>=0.2.0",
+        "readme>=0.3.0",
         "redis",
         "SQLAlchemy",
         "sqlalchemy-citext>=1.2.0",
