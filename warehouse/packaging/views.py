@@ -74,6 +74,15 @@ def project_detail(app, request, project_name, version=None):
     # Get the release data for the version
     release = app.db.packaging.get_release(project, version)
 
+    # Get the number of reverse dependencies for this project
+    project_url = lambda name: url_for(
+        request, 'warehouse.packaging.views.project_detail',
+        project_name=name)
+    reverse_dependencies = [
+        {'name': row['name'], 'url': project_url(row['name'])}
+        for row in app.db.packaging.get_reverse_dependencies(project + ' %')
+    ]
+
     if release.get("description"):
         # Render the project description
         description_html, rendered = readme.rst.render(release["description"])
@@ -111,6 +120,7 @@ def project_detail(app, request, project_name, version=None):
         release=release,
         releases=releases,
         requirements=requirements,
+        reverse_dependencies=reverse_dependencies,
         description_html=description_html,
         download_counts=app.db.packaging.get_download_counts(project),
         downloads=app.db.packaging.get_downloads(project, version),

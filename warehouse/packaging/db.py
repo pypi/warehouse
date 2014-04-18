@@ -83,6 +83,13 @@ class Database(db.Database):
         """
     )
 
+    get_reverse_dependencies = db.rows(
+        """ SELECT DISTINCT name
+            FROM release_dependencies
+            WHERE specifier LIKE %s
+        """
+    )
+
     get_changed_since = db.rows(
         """ SELECT name, max(submitted_date) FROM journals
             WHERE submitted_date > %s

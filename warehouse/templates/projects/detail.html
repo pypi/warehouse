@@ -193,6 +193,14 @@
             </dd>
           {% endif %}
 
+          {% if reverse_dependencies %}
+            <dt>{{ gettext('Reverse Dependencies') }}</dt>
+            <dd>
+                {{ reverse_dependencies|length() }}
+                (<a data-toggle="modal" href="#reversedeps">{{ gettext('show list') }}</a>)
+            </dd>
+          {% endif %}
+
           {% if release.provides_dist %}
             <dt>{{ gettest('Provides Distribution') }}</dt>
             <dd>
@@ -262,6 +270,25 @@
     </div>
   </div>
 
+  {% if reverse_dependencies %}
+    <div class="modal fade" id="reversedeps" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(num_deps)s (show list)', num_deps=reverse_dependencies|length()) }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">{{ gettext('Reverse Dependencies') }}</h4>
+          </div>
+          <div class="modal-body">
+            <dl>
+              {% for dependency in reverse_dependencies %}
+                <dd><a href="{{ dependency.url }}">{{ dependency.name }}</a></dd>
+              {% endfor %}
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 
   {% for download in downloads %}
     <div class="modal fade" id="hash-{{ download.md5_digest }}" tabindex="-1" role="dialog" aria-labelledby="{{ gettext('%(filename)s hashes', filename=download.filename) }}" aria-hidden="true">
