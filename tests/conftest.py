@@ -167,7 +167,7 @@ def project(request, user, dbapp):
     def delete_project():
         dbapp.db.packaging.delete_project(project_name)
 
-    dbapp.db.packaging.insert_project(project_name, user['username'],
+    dbapp.db.packaging.upsert_project(project_name, user['username'],
                                       '0.0.0.0')
     return {
         "name": project_name
