@@ -19,11 +19,12 @@ import urllib.parse
 import pkg_resources
 import readme.rst
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 
 from warehouse import db
 from warehouse import utils
 from warehouse.packaging.tables import (ReleaseDependencyKind,
+                                        packages,
                                         releases)
 
 
@@ -123,7 +124,7 @@ class Database(db.Database):
         return [tuple(r) for r in self.engine.execute(query, limit=num)]
 
     get_project = db.first(
-        """ SELECT name, autohide
+        """ SELECT *
             FROM packages
             WHERE normalized_name = lower(
                 regexp_replace(%s, '_', '-', 'ig')
@@ -222,6 +223,14 @@ class Database(db.Database):
             ORDER BY url
         """,
         row_func=lambda r: r["url"]
+    )
+
+    get_release_is_hidden = db.scalar(
+        """ SELECT _pypi_hidden
+            FROM releases
+            WHERE name = %s
+            AND version = %s
+        """
     )
 
     get_file_urls = db.rows(
@@ -551,27 +560,37 @@ class Database(db.Database):
 
 # data Modification Methods
 
-    def insert_project(self, name, username, user_ip, bugtrack_url=None):
+    def upsert_project(self, name, username, user_ip, **additional_columns):
         # NOTE: pypi behaviour is to assign the first submitter of a
         # project the "owner" role. this code does not
         # perform that behaviour (implement in the view instead)
-        query = \
-            """ INSERT INTO packages
-                    (name, normalized_name, bugtrack_url)
-                VALUES
-                    (%(name)s, %(normalized_name)s, %(bugtrack_url)s)
-            """
-        self.engine.execute(
-            query,
+        project_column_names = set((c.key for c in packages.columns))
+        for col in additional_columns:
+            if col not in project_column_names:
+                raise ValueError(
+                    "project table does not have column {0}".format(col))
+
+        existing_project = self.get_project(name)
+
+        if existing_project:
+            message = "updating project {0}".format(existing_project['name'])
+            query = (packages.update()
+                     .where(packages.c.name == existing_project['name']))
+        else:
+            message = "create"
+            query = packages.insert()
+
+        self.engine.execute(query.values(
             name=name,
             normalized_name=utils.validate_and_normalize_package_name(name),
-            bugtrack_url=bugtrack_url
-        )
-        self._insert_journal_entry(name, None, "create", username, user_ip)
+            **additional_columns
+        ))
+
+        self._insert_journal_entry(name, None, message, username, user_ip)
 
     def delete_project(self, name):
-        self.engine.execute("DELETE FROM releases WHERE name = %(name)s",
-                            name=name)
+        for release in self.get_releases(name):
+            self.delete_release(name, release['version'])
         self.engine.execute("DELETE FROM packages WHERE name = %(name)s",
                             name=name)
 
@@ -610,34 +629,15 @@ class Database(db.Database):
                     .format(column_name)
                 )
 
-        if classifiers:
-            modified_elements.append('classifiers')
-            self.update_release_classifiers(project_name, classifiers)
-
-        if release_dependencies:
-            self.update_release_dependencies(project_name, version,
-                                             release_dependencies)
+        if not is_update:
+            additional_db_values['name'] = project_name
+            additional_db_values['version'] = version
 
         if description:
             modified_elements += ['description', 'description_html']
             additional_db_values['description'] = description
             additional_db_values['description_html'] = \
                 readme.rst.render(description)[0]
-
-            # this is legacy behavior. According to PEP-438, we should
-            # no longer support parsing urls from descriptions
-            hosting_mode = self.get_hosting_mode(project_name)
-            if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape'):
-                self.update_release_external_urls(
-                    project_name, version,
-                    utils.find_links_from_html(
-                        additional_db_values['description_html']
-                    )
-                )
-
-        if not is_update:
-            additional_db_values['name'] = project_name
-            additional_db_values['version'] = version
 
         if len(additional_db_values) > 0:
             if is_update:
@@ -652,6 +652,30 @@ class Database(db.Database):
                 self.engine.execute(
                     releases.insert().values(**additional_db_values)
                 )
+
+        # external tables
+
+        # this is legacy behavior. According to PEP-438, we should
+        # no longer support parsing urls from descriptions
+        hosting_mode = self.get_hosting_mode(project_name)
+        if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape') \
+           and 'description_html' in additional_db_values:
+
+            self.update_release_external_urls(
+                project_name, version,
+                utils.find_links_from_html(
+                    additional_db_values['description_html']
+                )
+            )
+
+        if classifiers:
+            modified_elements.append('classifiers')
+            self.update_release_classifiers(project_name, version,
+                                            classifiers)
+
+        if release_dependencies:
+            self.update_release_dependencies(project_name, version,
+                                             release_dependencies)
 
         if is_update:
             journal_message = 'update {0}'.format(','.join(modified_elements))
@@ -726,17 +750,6 @@ class Database(db.Database):
                 AND version <> %(version)s
             """
         self.engine.execute(query, name=project_name, version=version)
-
-    def update_bugtrack_url(self, project_name, bugtrack_url):
-        query = \
-            """
-            UPDATE packages SET
-                bugtrack_url = %(bugtrack_url)s
-            WHERE
-                name = %(name)s
-            """
-        self.engine.execute(query, bugtrack_url=bugtrack_url,
-                            name=project_name)
 
     def update_release_classifiers(self, name, version, classifiers):
         self._delete_release_classifiers(name, version)
@@ -839,9 +852,8 @@ class Database(db.Database):
         )
 
     def _insert_journal_entry(self, project_name, version, message,
-                              username, userip, date=None):
-        if not date:
-            date = datetime.datetime.now()
+                              username, userip):
+        date = datetime.datetime.now()
         query = \
             """
             INSERT INTO journals

@@ -1434,19 +1434,107 @@ def test_get_full_latest_releases(dbapp):
 
 def test_insert_delete_project(dbapp, user):
     project_name = 'fooproject'
-    dbapp.db.packaging.insert_project(project_name, user['username'],
+    dbapp.db.packaging.upsert_project(project_name, user['username'],
                                       '0.0.0.0')
     assert dbapp.db.packaging.get_project(project_name)
     dbapp.db.packaging.delete_project(project_name)
     assert not dbapp.db.packaging.get_project(project_name)
 
 
+def test_upsert_project(dbapp, user, project):
+    bugtrack_url = "http://bugtrack.example.com"
+    dbapp.db.packaging.upsert_project(project['name'], user['username'],
+                                      '0.0.0.0',
+                                      bugtrack_url=bugtrack_url)
+    project = dbapp.db.packaging.get_project(project['name'])
+    assert project['bugtrack_url'] == bugtrack_url
+
+
+def test_upsert_project_bad_column(dbapp, user):
+    with pytest.raises(ValueError):
+        dbapp.db.packaging.upsert_project(
+            "badproject",
+            user['username'],
+            "0.0.0.0",
+            badcolumn="this is a bad column"
+        )
+
+
 def test_upsert_release(dbapp, user, project):
     version = '1.0'
     dbapp.db.packaging.upsert_release(
-        project['name'], version, user['username'], '0.0.0.0'
+        project["name"], version, user["username"], "0.0.0.0"
     )
     assert dbapp.db.packaging.get_release(project['name'], version)
+
+
+def test_upsert_release_ordering(dbapp, user, project):
+    older_version = '1.0'
+    dbapp.db.packaging.upsert_release(
+        project["name"], older_version, user["username"], "0.0.0.0"
+    )
+
+    newer_version = '1.1'
+    dbapp.db.packaging.upsert_release(
+        project["name"], newer_version, user["username"], "0.0.0.0"
+    )
+
+    versions = dbapp.db.packaging.get_project_versions(
+        project['name']
+    )
+
+    assert versions == [newer_version, older_version]
+
+
+def test_upsert_release_full(dbapp, user, project):
+    """ test the updating of all of upsert """
+
+    # setup
+    dbapp.engine.execute(classifiers.insert().values(
+        id=1,
+        classifier="foo"
+    ))
+    release_dependencies = {
+        ReleaseDependencyKind.requires_dist.value: ('foo',)
+    }
+
+    # test
+    version = '1.0'
+    dbapp.db.packaging.upsert_release(
+        project['name'], version, user['username'], '0.0.0.0',
+        classifiers=('foo',),
+        release_dependencies=release_dependencies
+    )
+
+    assert dbapp.db.packaging.get_release(project['name'], version)
+
+    assert set(dbapp.db.packaging.get_classifiers(
+        project['name'],
+        version)
+    ) == set(('foo',))
+
+    assert set(dbapp.db.packaging.get_classifiers(
+        project['name'], version
+    )) == set(('foo',))
+
+
+def test_upsert_release_parse_description(dbapp, user, project):
+    dbapp.db.packaging.upsert_project(
+        project['name'],
+        user['username'],
+        '0.0.0.0',
+        hosting_mode="pypi-scrape-crawl"
+    )
+
+    example_url = "http://description.example.com"
+    dbapp.db.packaging.upsert_release(
+        project["name"], "1.0", user["username"], "0.0.0.0",
+        description="`example <{0}>`_".format(example_url)
+    )
+
+    assert set(dbapp.db.packaging.get_release_external_urls(
+        project['name'], "1.0"
+    )) == set((example_url,))
 
 
 def test_upsert_release_update(dbapp, user, release):
@@ -1462,6 +1550,24 @@ def test_upsert_release_update(dbapp, user, release):
     assert release_info['description'] == new_description
 
 
+def test_upsert_release_update_release_dependencies(dbapp, user, release):
+    specifier_dict = {
+        ReleaseDependencyKind.requires_dist.value: set((
+            "foo",
+        )),
+    }
+
+    dbapp.db.packaging.upsert_release(
+        release['project']['name'], release['version'],
+        user['username'], '0.0.0.0',
+        release_dependencies=specifier_dict
+    )
+
+    assert dbapp.db.packaging.get_release_dependencies(
+        release['project']['name'], release['version']
+    ) == specifier_dict
+
+
 def test_upsert_bad_parameter(dbapp, user, project):
     with pytest.raises(ValueError):
         dbapp.db.packaging.upsert_release(
@@ -1470,25 +1576,69 @@ def test_upsert_bad_parameter(dbapp, user, project):
         )
 
 
+def test_upsert_no_autohide(dbapp, user, project, release):
+    dbapp.db.packaging.upsert_project(
+        project['name'], user['username'],
+        '0.0.0.0', autohide=False
+    )
+    dbapp.db.packaging.upsert_release(
+        project['name'], '1.1', user['username'], '0.0.0.0',
+    )
+    assert not dbapp.db.packaging.get_release_is_hidden(
+        project['name'], release['version']
+    )
+
+
+def test_upsert_good_parameter(dbapp, user, project):
+    author = "imanauthor"
+    dbapp.db.packaging.upsert_release(
+        project['name'], '1.0', user['username'], '0.0.0.0',
+        author=author
+    )
+    assert dbapp.db.packaging.get_release(
+        project['name'], '1.0'
+    )['author'] == author
+
+
 def test_update_release_dependencies(dbapp, release):
+
     specifier_dict = {
         ReleaseDependencyKind.requires_dist.value: set((
             "foo",
             "bar"
         )),
         ReleaseDependencyKind.provides_dist.value: set((
-            "baz"
+            "baz",
         ))
     }
+
+    p, v = release['project']['name'], release['version']
+
     dbapp.db.packaging.update_release_dependencies(
-        release['project']['name'],
-        release['version'], specifier_dict
+        p, v, specifier_dict
     )
-    stored_specifiers = dbapp.db.packaging.get_release_dependencies(
-        release['project']['name'],
-        release['version']
+
+    assert dbapp.db.packaging.get_release_dependencies(
+        p, v
+    ) == specifier_dict
+
+    specifier_dict = {
+        ReleaseDependencyKind.requires_dist.value: set((
+            "foo",
+            "bar"
+        )),
+        ReleaseDependencyKind.provides_dist.value: set((
+            "boobaz",
+        ))
+    }
+
+    dbapp.db.packaging.update_release_dependencies(
+        p, v, specifier_dict
     )
-    assert specifier_dict == stored_specifiers
+
+    assert dbapp.db.packaging.get_release_dependencies(
+        p, v
+    ) == specifier_dict
 
 
 def test_update_release_classifiers(dbapp, release):
@@ -1505,15 +1655,23 @@ def test_update_release_classifiers(dbapp, release):
         classifier="baz"
     ))
 
-    dbapp.db.packaging.update_release_classifiers(release['project']['name'],
-                                                  release['version'],
-                                                  set(('foo',)))
-    assert set(dbapp.db.packaging.get_classifiers(release['project']['name'],
-                                                  release['version'])) == set(('foo',))
+    dbapp.db.packaging.update_release_classifiers(
+        release['project']['name'],
+        release['version'],
+        set(('foo',))
+    )
 
-    dbapp.db.packaging.update_release_classifiers(release['project']['name'],
-                                                  release['version'],
-                                                  set(('bar', 'baz')))
+    assert set(dbapp.db.packaging.get_classifiers(
+        release['project']['name'],
+        release['version'])
+    ) == set(('foo',))
+
+    dbapp.db.packaging.update_release_classifiers(
+        release['project']['name'],
+        release['version'],
+        set(('bar', 'baz'))
+    )
+
     assert set(dbapp.db.packaging.get_classifiers(
         release['project']['name'],
         release['version'])
@@ -1522,9 +1680,12 @@ def test_update_release_classifiers(dbapp, release):
 
 def test_update_external_urls(dbapp, release):
     example_urls = ('http://example.com', 'http://example.com/test')
-    dbapp.db.packaging.update_release_external_urls(release['project']['name'],
-                                                    release['version'],
-                                                    example_urls)
+    dbapp.db.packaging.update_release_external_urls(
+        release['project']['name'],
+        release['version'],
+        example_urls
+    )
+
     assert set(dbapp.db.packaging.get_release_external_urls(
         release['project']['name'],
         release['version'])
