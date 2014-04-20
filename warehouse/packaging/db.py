@@ -90,13 +90,6 @@ class Database(db.Database):
         """
     )
 
-    get_reverse_dependencies = db.rows(
-        """ SELECT DISTINCT name
-            FROM release_dependencies
-            WHERE specifier LIKE %s
-        """
-    )
-
     get_changed_since = db.rows(
         """ SELECT name, max(submitted_date) FROM journals
             WHERE submitted_date > %s
@@ -594,13 +587,19 @@ class Database(db.Database):
         self.engine.execute("DELETE FROM packages WHERE name = %(name)s",
                             name=name)
 
-    RELEASE_COLUMNS = ('author', 'author_email', 'maintainer',
-                       'maintainer_email', 'home_page', 'license',
-                       'summary', 'keywords', 'platform', 'download_url',
-                       'cheesecake_installability_id',
-                       'cheesecake_documentation_id',
-                       'cheesecake_code_kwalitee_id',
-                       'requires_python', 'description_from_readme')
+    @staticmethod
+    def get_settable_release_columns():
+
+        def is_settable_key(key):
+            if key.startswith('_'):
+                return False
+
+            if key in ('name', 'version', 'description', 'description_html'):
+                return False
+
+            return True
+
+        return set((c.key for c in releases.columns if is_settable_key(c.key)))
 
     def upsert_release(self, project_name, version, username, user_ip,
                        classifiers=None, release_dependencies=None,
@@ -608,22 +607,24 @@ class Database(db.Database):
         """
         Takes in the following:
 
-        * name: the name of the package to insert
+        * project_name: the name of the package to insert
         * version: the version of the package to insert
+        * username: username of the user upserting the package
+        * user_ip: ip address of the user upserting the package
         * classifiers: a list of the classifiers to classify the release with
         * release_dependencies: a dictionary of
-            'ReleaseDependencyKind: [specifier]' pairs.
+            'ReleaseDependencyKind.value: [specifier]' pairs.
         * description: a restructured text description of the release/project
         * additional_db_values: any other column in the release table,
-            as specified by release_columns
+            as specified by get_settable_release_columns
 
-        and inserts the release (if one doesn't exist), and updates otherwise
+        and inserts the release (if one doesn't exist), or updates otherwise
         """
         is_update = self.get_release(project_name, version) is not None
         modified_elements = list(additional_db_values.keys())
 
         for column_name in additional_db_values:
-            if column_name not in self.RELEASE_COLUMNS:
+            if column_name not in self.get_settable_release_columns():
                 raise ValueError(
                     "Release table does not have a column {0}"
                     .format(column_name)
