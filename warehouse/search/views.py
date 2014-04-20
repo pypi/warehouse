@@ -17,7 +17,8 @@ import functools
 from werkzeug.exceptions import NotFound
 
 from warehouse.helpers import url_for
-from warehouse.utils import render_response, SearchPagination
+from warehouse.templates import render_response
+from warehouse.utils import SearchPagination
 
 
 def search(app, request, doctype):

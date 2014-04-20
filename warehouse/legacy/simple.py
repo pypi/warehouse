@@ -21,7 +21,8 @@ from werkzeug.wsgi import wrap_file
 from warehouse import fastly
 from warehouse.helpers import url_for
 from warehouse.http import Response
-from warehouse.utils import cache, get_mimetype, render_response
+from warehouse.templates import render_response
+from warehouse.utils import cache, get_mimetype
 
 
 @cache(browser=1, varnish=120)

@@ -8,6 +8,7 @@ Contents:
 
    configuration
    contributing
+   testing
    application
    reference/index
    api-reference/index

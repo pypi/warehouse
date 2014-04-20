@@ -12,15 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest import mock
-
 import pretend
 import pytest
 import six
 
 from warehouse.http import Response
 from warehouse.utils import (
-    merge_dict, render_response, cache, get_wsgi_application, get_mimetype,
+    merge_dict, cache, get_wsgi_application, get_mimetype,
     redirect, SearchPagination, is_valid_json_callback_name,
     generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
     random_token, is_safe_url, find_links_from_html,
@@ -40,32 +38,6 @@ from warehouse.utils import (
 ])
 def test_merge_dictionary(base, additional, expected):
     assert merge_dict(base, additional) == expected
-
-
-def test_render_response():
-    template = pretend.stub(render=pretend.call_recorder(lambda **k: "test"))
-    app = pretend.stub(
-        config=pretend.stub(),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(lambda t: template),
-        ),
-    )
-    request = pretend.stub()
-
-    resp = render_response(app, request, "template.html", foo="bar")
-
-    assert resp.data == b"test"
-    assert app.templates.get_template.calls == [pretend.call("template.html")]
-    assert template.render.calls == [
-        pretend.call(
-            foo="bar",
-            config=app.config,
-            csrf_token=mock.ANY,
-            gravatar_url=mock.ANY,
-            url_for=mock.ANY,
-            static_url=mock.ANY,
-        ),
-    ]
 
 
 @pytest.mark.parametrize(

@@ -14,6 +14,7 @@
 
 import textwrap
 
+import jinja2
 import pretend
 import pytest
 
@@ -155,7 +156,7 @@ def test_project_detail_invalid_version():
     ]
 
 
-@pytest.mark.parametrize(("version", "description", "camo"), [
+@pytest.mark.parametrize(("version", "description", "html", "camo"), [
     (
         None,
         textwrap.dedent("""
@@ -164,6 +165,7 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        jinja2.Markup("<p>This is a test project</p>\n"),
         None,
     ),
     (
@@ -174,12 +176,23 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        jinja2.Markup("<p>This is a test project</p>\n"),
         None,
     ),
-    (None, ".. code-fail::\n    wat", None),
-    ("1.0", ".. code-fail::\n    wat", None),
-    (None, None, None),
-    ("1.0", None, None),
+    (
+        None,
+        ".. code-fail::\n    wat",
+        jinja2.Markup(".. code-fail::<br>    wat"),
+        None,
+    ),
+    (
+        "1.0",
+        ".. code-fail::\n    wat",
+        jinja2.Markup(".. code-fail::<br>    wat"),
+        None,
+    ),
+    (None, None, jinja2.Markup(""), None),
+    ("1.0", None, jinja2.Markup(""), None),
     (
         None,
         textwrap.dedent("""
@@ -188,6 +201,7 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        jinja2.Markup("<p>This is a test project</p>\n"),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
     (
@@ -198,78 +212,78 @@ def test_project_detail_invalid_version():
 
             This is a test project
         """),
+        jinja2.Markup("<p>This is a test project</p>\n"),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
     (
         None,
         ".. code-fail::\n    wat",
+        jinja2.Markup(".. code-fail::<br>    wat"),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
     (
         "1.0",
         ".. code-fail::\n    wat",
+        jinja2.Markup(".. code-fail::<br>    wat"),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
     (
         None,
         None,
+        jinja2.Markup(""),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
     (
         "1.0",
         None,
+        jinja2.Markup(""),
         pretend.stub(url="https://camo.example.com/", key="secret key"),
     ),
 ])
-def test_project_detail_valid(version, description, camo):
+def test_project_detail_valid(app, version, description, html, camo):
     release = {
         "description": description,
         "requires_dist": ["foo", "xyz > 0.1"]
     }
 
-    template = pretend.stub(
-        render=pretend.call_recorder(lambda **ctx: ""),
+    app.config = pretend.stub(
+        cache=pretend.stub(
+            browser=False,
+            varnish=False,
+        ),
+        camo=camo,
+    )
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project=pretend.call_recorder(
+                lambda proj: "test-project",
+            ),
+            get_releases=pretend.call_recorder(
+                lambda proj: [{"version": "2.0"}, {"version": "1.0"}],
+            ),
+            get_release=pretend.call_recorder(
+                lambda proj, version: release,
+            ),
+            get_download_counts=pretend.call_recorder(
+                lambda proj: {
+                    "last_day": 1,
+                    "last_week": 7,
+                    "last_month": 30,
+                },
+            ),
+            get_reverse_dependencies=pretend.call_recorder(
+                lambda proj: [{'name': 'foo'}, {'name': 'bar'}]
+            ),
+            get_downloads=pretend.call_recorder(lambda proj, ver: []),
+            get_classifiers=pretend.call_recorder(lambda proj, ver: []),
+            get_documentation_url=pretend.call_recorder(
+                lambda proj: None,
+            ),
+            get_bugtrack_url=pretend.call_recorder(lambda proj: None),
+            get_users_for_project=pretend.call_recorder(lambda proj: []),
+        ),
     )
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(
-                browser=False,
-                varnish=False,
-            ),
-            camo=camo,
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project=pretend.call_recorder(
-                    lambda proj: "test-project",
-                ),
-                get_releases=pretend.call_recorder(
-                    lambda proj: [{"version": "2.0"}, {"version": "1.0"}],
-                ),
-                get_release=pretend.call_recorder(
-                    lambda proj, version: release,
-                ),
-                get_download_counts=pretend.call_recorder(
-                    lambda proj: {
-                        "last_day": 1,
-                        "last_week": 7,
-                        "last_month": 30,
-                    },
-                ),
-                get_downloads=pretend.call_recorder(lambda proj, ver: []),
-                get_classifiers=pretend.call_recorder(lambda proj, ver: []),
-                get_documentation_url=pretend.call_recorder(
-                    lambda proj: None,
-                ),
-                get_bugtrack_url=pretend.call_recorder(lambda proj: None),
-                get_users_for_project=pretend.call_recorder(lambda proj: []),
-            ),
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(lambda t: template),
-        ),
-    )
     request = pretend.stub(
         url_adapter=pretend.stub(build=lambda *a,
                                  **kw: "/projects/test-project/")
@@ -286,9 +300,40 @@ def test_project_detail_valid(version, description, camo):
     )
 
     assert resp.status_code == 200
-
     assert resp.headers["Surrogate-Key"] == \
         "project project/{}".format(normalized)
+    assert resp.response.context == {
+        "bugtracker": None,
+        "classifiers": [],
+        "description_html": html,
+        "documentation": None,
+        "download_counts": {
+            "last_day": 1,
+            "last_week": 7,
+            "last_month": 30,
+        },
+        "downloads": [],
+        "maintainers": [],
+        "project": "test-project",
+        "release": release,
+        "releases": [{"version": "2.0"}, {"version": "1.0"}],
+        "reverse_dependencies": [
+            {'name': 'foo', 'url': '/projects/test-project/'},
+            {'name': 'bar', 'url': '/projects/test-project/'}
+        ],
+        "requirements": [
+            {
+                "project_name": "foo",
+                "other": "",
+                "project_url": "/projects/test-project/",
+            },
+            {
+                "project_name": "xyz",
+                "other": "> 0.1",
+                "project_url": "/projects/test-project/",
+            },
+        ],
+    }
 
     assert app.db.packaging.get_project.calls == [
         pretend.call("test-project"),
@@ -298,4 +343,7 @@ def test_project_detail_valid(version, description, camo):
     ]
     assert app.db.packaging.get_users_for_project.calls == [
         pretend.call("test-project"),
+    ]
+    assert app.db.packaging.get_reverse_dependencies.calls == [
+        pretend.call("test-project %"),
     ]

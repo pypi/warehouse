@@ -17,50 +17,30 @@ import os.path
 import pretend
 import pytest
 
-from werkzeug.datastructures import Headers
 from werkzeug.exceptions import NotFound
 from werkzeug.test import create_environ
 
 from warehouse.legacy import simple
 
 
-def test_index(monkeypatch):
-    response = pretend.stub(
-        status_code=200,
-        headers=Headers(),
-        cache_control=pretend.stub(),
-        surrogate_control=pretend.stub(),
-    )
-    render = pretend.call_recorder(lambda *a, **k: response)
-    monkeypatch.setattr(simple, "render_response", render)
-
+def test_index(app):
     all_projects = ["bar", "foo"]
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                all_projects=pretend.call_recorder(lambda: all_projects),
-                get_last_serial=pretend.call_recorder(lambda: 9999),
-            ),
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            all_projects=pretend.call_recorder(lambda: all_projects),
+            get_last_serial=pretend.call_recorder(lambda: 9999),
         ),
     )
-    request = pretend.stub()
 
+    request = pretend.stub()
     resp = simple.index(app, request)
 
-    assert resp is response
     assert resp.headers["X-PyPI-Last-Serial"] == "9999"
-
-    assert render.calls == [
-        pretend.call(
-            app, request,
-            "legacy/simple/index.html",
-            projects=all_projects,
-        ),
-    ]
+    assert resp.response.template.name == "legacy/simple/index.html"
+    assert resp.response.context == {
+        "projects": ["bar", "foo"],
+    }
 
 
 @pytest.mark.parametrize(
@@ -92,57 +72,38 @@ def test_index(monkeypatch):
         ("foo", "pypi-scrape", {"1.0": ("UNKNOWN", "UNKNOWN")}, []),
     ],
 )
-def test_project(project_name, hosting_mode, release_urls, e_project_urls,
-                 monkeypatch):
-    response = pretend.stub(
-        status_code=200,
-        headers=Headers(),
-        cache_control=pretend.stub(),
-        surrogate_control=pretend.stub(),
-    )
-    render = pretend.call_recorder(lambda *a, **k: response)
+def test_project(app, monkeypatch,
+                 project_name, hosting_mode, release_urls, e_project_urls):
     url_for = lambda *a, **k: "/foo/"
-
-    monkeypatch.setattr(simple, "render_response", render)
     monkeypatch.setattr(simple, "url_for", url_for)
 
-    app = pretend.stub(
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-        ),
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project=pretend.call_recorder(
-                    lambda p: {'name': project_name}
-                ),
-                get_file_urls=pretend.call_recorder(lambda p: []),
-                get_hosting_mode=pretend.call_recorder(
-                    lambda p: hosting_mode,
-                ),
-                get_external_urls=pretend.call_recorder(lambda p: []),
-                get_last_serial=pretend.call_recorder(lambda p: 9999),
-                get_release_urls=pretend.call_recorder(lambda p: release_urls),
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project=pretend.call_recorder(lambda p: {'name': project_name}),
+            get_file_urls=pretend.call_recorder(lambda p: []),
+            get_hosting_mode=pretend.call_recorder(
+                lambda p: hosting_mode,
             ),
+            get_external_urls=pretend.call_recorder(lambda p: []),
+            get_last_serial=pretend.call_recorder(lambda p: 9999),
+            get_release_urls=pretend.call_recorder(lambda p: release_urls),
         ),
     )
-    request = pretend.stub()
 
+    request = pretend.stub()
     resp = simple.project(app, request, project_name=project_name)
 
-    assert resp is response
     assert resp.headers["Link"] == "</foo/>; rel=canonical"
     assert (resp.headers["Surrogate-Key"] ==
             "project project/{}".format(project_name))
+    assert resp.response.template.name == "legacy/simple/detail.html"
+    assert resp.response.context == {
+        "project": project_name,
+        "project_urls": e_project_urls,
+        "files": [],
+        "external_urls": [],
+    }
 
-    assert render.calls == [
-        pretend.call(
-            app, request, "legacy/simple/detail.html",
-            project=project_name,
-            project_urls=e_project_urls,
-            files=[],
-            external_urls=[],
-        ),
-    ]
     assert app.db.packaging.get_project.calls == [
         pretend.call(project_name),
     ]
@@ -167,14 +128,13 @@ def test_project(project_name, hosting_mode, release_urls, e_project_urls,
         ]
 
 
-def test_project_not_found():
-    app = pretend.stub(
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_project=pretend.call_recorder(lambda p: None),
-            ),
+def test_project_not_found(app):
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_project=pretend.call_recorder(lambda p: None),
         ),
     )
+
     request = pretend.stub()
 
     with pytest.raises(NotFound):

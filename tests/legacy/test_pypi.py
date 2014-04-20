@@ -18,8 +18,6 @@ import datetime
 import pretend
 import pytest
 
-import jinja2
-
 from werkzeug.exceptions import NotFound, BadRequest
 from werkzeug.routing import Map
 
@@ -198,124 +196,115 @@ def test_json_missing(monkeypatch, project, version):
         pypi.project_json(app, request, project_name='spam', version=version)
 
 
-def test_rss(monkeypatch):
+def test_rss(app, monkeypatch):
+    now = datetime.datetime.utcnow()
+
     get_recently_updated = pretend.call_recorder(lambda num=10: [
-        dict(name='spam', version='1.0', summary='hai spam', created='now'),
-        dict(name='ham', version='2.0', summary='hai ham', created='now'),
-        dict(name='spam', version='2.0', summary='hai spam v2', created='now'),
+        dict(name='spam', version='1.0', summary='hai spam', created=now),
+        dict(name='ham', version='2.0', summary='hai ham', created=now),
+        dict(name='spam', version='2.0', summary='hai spam v2', created=now),
     ])
-    template = pretend.stub(
-        render=pretend.call_recorder(lambda **ctx: "<xml>dummy</xml>"),
+
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_recently_updated=get_recently_updated,
+        )
     )
-    app = pretend.stub(
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_recently_updated=get_recently_updated,
-            )
-        ),
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-            site={"url": "http://test.server/", "name": "PyPI"},
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(lambda t: template),
-        ),
+    app.config = pretend.stub(
+        site={"url": "http://test.server/", "name": "PyPI"},
     )
+
     request = pretend.stub(
         url_adapter=Map(urls.urls).bind('test.server', '/'),
     )
 
     resp = pypi.rss(app, request)
 
+    assert resp.response.context == {
+        "description": "package updates",
+        "site": {"name": "PyPI", "url": "http://test.server/"},
+        "releases": [
+            {
+                "url": "http://test.server/project/spam/1.0/",
+                "version": "1.0",
+                "name": "spam",
+                "summary": "hai spam",
+                "created": now,
+            },
+            {
+                "url": "http://test.server/project/ham/2.0/",
+                "version": "2.0",
+                "name": "ham",
+                "summary": "hai ham",
+                "created": now,
+            },
+            {
+                "url": "http://test.server/project/spam/2.0/",
+                "version": "2.0",
+                "name": "spam",
+                "summary": "hai spam v2",
+                "created": now,
+            }
+        ],
+    }
     assert get_recently_updated.calls == [pretend.call(num=40)]
-    assert len(template.render.calls) == 1
-    assert template.render.calls[0].kwargs['releases'] == [
-        {
-            'url': 'http://test.server/project/spam/1.0/',
-            'version': u'1.0',
-            'name': u'spam',
-            'summary': u'hai spam',
-            'created': u'now',
-        }, {
-            'url': 'http://test.server/project/ham/2.0/',
-            'version': u'2.0',
-            'name': u'ham',
-            'summary': u'hai ham',
-            'created': u'now',
-        }, {
-            'url': 'http://test.server/project/spam/2.0/',
-            'version': u'2.0',
-            'name': u'spam',
-            'summary': u'hai spam v2',
-            'created': u'now',
-        }]
-    assert resp.data == b"<xml>dummy</xml>"
 
 
-def test_packages_rss(monkeypatch):
+def test_packages_rss(app, monkeypatch):
+    now = datetime.datetime.utcnow()
+
     get_recent_projects = pretend.call_recorder(lambda num=10: [
-        dict(name='spam', version='1.0', summary='hai spam', created='now'),
-        dict(name='ham', version='2.0', summary='hai ham', created='now'),
-        dict(name='eggs', version='21.0', summary='hai eggs!', created='now'),
+        dict(name='spam', version='1.0', summary='hai spam', created=now),
+        dict(name='ham', version='2.0', summary='hai ham', created=now),
+        dict(name='eggs', version='21.0', summary='hai eggs!', created=now),
     ])
-    template = pretend.stub(
-        render=pretend.call_recorder(lambda **ctx: "<xml>dummy</xml>"),
+    app.db = pretend.stub(
+        packaging=pretend.stub(
+            get_recent_projects=get_recent_projects,
+        )
     )
-    app = pretend.stub(
-        db=pretend.stub(
-            packaging=pretend.stub(
-                get_recent_projects=get_recent_projects,
-            )
-        ),
-        config=pretend.stub(
-            cache=pretend.stub(browser=False, varnish=False),
-            site={"url": "http://test.server/", "name": "PyPI"},
-        ),
-        templates=pretend.stub(
-            get_template=pretend.call_recorder(lambda t: template),
-        ),
+    app.config = pretend.stub(
+        site={"url": "http://test.server/", "name": "PyPI"},
     )
+
     request = pretend.stub(
         url_adapter=Map(urls.urls).bind('test.server', '/'),
     )
 
     resp = pypi.packages_rss(app, request)
 
-    assert get_recent_projects.calls == [pretend.call(num=40)]
-    assert len(template.render.calls) == 1
-    assert template.render.calls[0].kwargs['releases'] == [
-        {
-            'url': 'http://test.server/project/spam/',
-            'version': u'1.0',
-            'name': u'spam',
-            'summary': u'hai spam',
-            'created': u'now',
-        }, {
-            'url': 'http://test.server/project/ham/',
-            'version': u'2.0',
-            'name': u'ham',
-            'summary': u'hai ham',
-            'created': u'now',
-        }, {
-            'url': 'http://test.server/project/eggs/',
-            'version': u'21.0',
-            'name': u'eggs',
-            'summary': u'hai eggs!',
-            'created': u'now',
-        }]
-    assert resp.data == b"<xml>dummy</xml>"
-
-
-def test_rss_xml_template(monkeypatch):
-    templates = jinja2.Environment(
-        autoescape=True,
-        auto_reload=False,
-        extensions=[
-            "jinja2.ext.i18n",
+    assert resp.response.context == {
+        "description": "new projects",
+        "site": {"name": "PyPI", "url": "http://test.server/"},
+        "releases": [
+            {
+                "url": "http://test.server/project/spam/",
+                "version": "1.0",
+                "name": "spam",
+                "summary": "hai spam",
+                "created": now,
+            },
+            {
+                "url": "http://test.server/project/ham/",
+                "version": "2.0",
+                "name": "ham",
+                "summary": "hai ham",
+                "created": now,
+            },
+            {
+                "url": "http://test.server/project/eggs/",
+                "version": "21.0",
+                "name": "eggs",
+                "summary": "hai eggs!",
+                "created": now,
+            },
         ],
-        loader=jinja2.PackageLoader("warehouse"),
-    )
-    template = templates.get_template('legacy/rss.xml')
+    }
+    assert get_recent_projects.calls == [pretend.call(num=40)]
+
+
+def test_rss_xml_template(app, monkeypatch):
+    template = app.templates.get_template('legacy/rss.xml')
     content = template.render(
         site=dict(url='http://test.server/', name="PyPI"),
         description='package updates',
