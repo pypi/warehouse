@@ -79,7 +79,7 @@ class Database(db.Database):
                 )
             except ValueError:
                 logger.exception(
-                    "An exception occured attempting to validate the password "
+                    "An exception occurred attempting to validate the password "
                     "for '%s'",
                     username,
                 )
