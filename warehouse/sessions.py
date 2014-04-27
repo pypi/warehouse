@@ -142,7 +142,7 @@ def handle_session(fn):
         # request
         resp = fn(self, view, app, request, *args, **kwargs)
 
-        # Check to see if the session has been marked to be deleted, it it has
+        # Check to see if the session has been marked to be deleted, if it has
         # tell our session store to delete it, and tell our response to delete
         # the session cookie as well, and then finally short circuit and return
         # our response.
