@@ -156,3 +156,15 @@ def test_mapping(key_func, value_func, value, expected, eargs, ekwargs):
     assert execute.calls == [
         pretend.call("SELECT * FROM thing", *eargs, **ekwargs),
     ]
+
+
+def test_validate_argument_column_mapping():
+    table_stub = pretend.stub(
+        columns=(
+            pretend.stub(key="foo"),
+            pretend.stub(key="bar"),
+        ),
+        name="foobartable"
+    )
+    with pytest.raises(TypeError):
+        db.validate_argument_column_mapping("baz", table_stub)

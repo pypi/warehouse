@@ -140,12 +140,7 @@ def app():
 
 
 @pytest.fixture
-def user(request, dbapp):
-
-    @request.addfinalizer
-    def delete_user():
-        dbapp.db.packaging.delete_journal_for_user(username)
-        dbapp.db.accounts.delete_user(username)
+def user(dbapp):
 
     username = "guidovanrossum"
     email = "notanemail@example.org"
@@ -160,12 +155,8 @@ def user(request, dbapp):
 
 
 @pytest.fixture
-def project(request, user, dbapp):
+def project(user, dbapp):
     project_name = "fooproject"
-
-    @request.addfinalizer
-    def delete_project():
-        dbapp.db.packaging.delete_project(project_name)
 
     dbapp.db.packaging.upsert_project(project_name, user['username'],
                                       '0.0.0.0')
@@ -175,12 +166,8 @@ def project(request, user, dbapp):
 
 
 @pytest.fixture
-def release(request, user, dbapp, project):
+def release(user, dbapp, project):
     version = '1.0'
-
-    @request.addfinalizer
-    def delete_release():
-        dbapp.db.packaging.delete_release(project['name'], version)
 
     dbapp.db.packaging.upsert_release(
         project['name'], version, user['username'], '0.0.0.0',
