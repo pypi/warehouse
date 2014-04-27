@@ -1451,7 +1451,7 @@ def test_upsert_project(dbapp, user, project):
 
 
 def test_upsert_project_bad_column(dbapp, user):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         dbapp.db.packaging.upsert_project(
             "badproject",
             user['username'],
@@ -1460,12 +1460,27 @@ def test_upsert_project_bad_column(dbapp, user):
         )
 
 
+def test_delete_project(dbapp, project, release):
+    dbapp.db.packaging.delete_project(
+        project['name']
+    )
+    assert not dbapp.db.packaging.get_project(project['name'])
+
+
 def test_upsert_release(dbapp, user, project):
     version = '1.0'
     dbapp.db.packaging.upsert_release(
         project["name"], version, user["username"], "0.0.0.0"
     )
     assert dbapp.db.packaging.get_release(project['name'], version)
+
+
+def test_delete_release(dbapp, project, release):
+    dbapp.db.packaging.delete_release(
+        project['name'], release['version']
+    )
+    assert not dbapp.db.packaging.get_release(project['name'],
+                                              release['version'])
 
 
 def test_upsert_release_ordering(dbapp, user, project):
@@ -1569,7 +1584,7 @@ def test_upsert_release_update_release_dependencies(dbapp, user, release):
 
 
 def test_upsert_bad_parameter(dbapp, user, project):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         dbapp.db.packaging.upsert_release(
             project['name'], '1.0', user['username'], '0.0.0.0',
             badparam="imnotinreleasedb"

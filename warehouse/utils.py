@@ -136,7 +136,7 @@ PACKAGE_REGEX = {
 }
 
 
-def validate_and_normalize_package_name(name):
+def normalize_project_name(name):
     """
     Normalizes a package name as per PEP-426
     """

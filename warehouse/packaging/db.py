@@ -557,11 +557,7 @@ class Database(db.Database):
         # NOTE: pypi behaviour is to assign the first submitter of a
         # project the "owner" role. this code does not
         # perform that behaviour (implement in the view instead)
-        project_column_names = set((c.key for c in packages.columns))
-        for col in additional_columns:
-            if col not in project_column_names:
-                raise ValueError(
-                    "project table does not have column {0}".format(col))
+        db.validate_argument_column_mapping(additional_columns, packages)
 
         existing_project = self.get_project(name)
 
@@ -575,7 +571,7 @@ class Database(db.Database):
 
         self.engine.execute(query.values(
             name=name,
-            normalized_name=utils.validate_and_normalize_package_name(name),
+            normalized_name=utils.normalize_project_name(name),
             **additional_columns
         ))
 
@@ -586,20 +582,6 @@ class Database(db.Database):
             self.delete_release(name, release['version'])
         self.engine.execute("DELETE FROM packages WHERE name = %(name)s",
                             name=name)
-
-    @staticmethod
-    def get_settable_release_columns():
-
-        def is_settable_key(key):
-            if key.startswith('_'):
-                return False
-
-            if key in ('name', 'version', 'description', 'description_html'):
-                return False
-
-            return True
-
-        return set((c.key for c in releases.columns if is_settable_key(c.key)))
 
     def upsert_release(self, project_name, version, username, user_ip,
                        classifiers=None, release_dependencies=None,
@@ -623,12 +605,12 @@ class Database(db.Database):
         is_update = self.get_release(project_name, version) is not None
         modified_elements = list(additional_db_values.keys())
 
-        for column_name in additional_db_values:
-            if column_name not in self.get_settable_release_columns():
-                raise ValueError(
-                    "Release table does not have a column {0}"
-                    .format(column_name)
-                )
+        db.validate_argument_column_mapping(
+            additional_db_values,
+            releases,
+            blacklist=['name', 'version', 'description', 'description_html',
+                       '_pypi_ordering', '_pypi_hidden']
+        )
 
         if not is_update:
             additional_db_values['name'] = project_name
@@ -817,6 +799,7 @@ class Database(db.Database):
             VALUES
                 (%(name)s, %(version)s, %(kind)s, %(specifier)s)
             """
+
         old_specifier = self.get_release_dependencies(project_name,
                                                       version)
         for kind, specifiers in specifier_dict.items():
@@ -872,16 +855,4 @@ class Database(db.Database):
             submitted_date=date.strftime('%Y-%m-%d %H:%M:%S'),
             submitted_by=username,
             submitted_from=userip
-        )
-
-    def delete_journal_for_user(self, username):
-        """
-        THIS IS A TEST-ONLY METHOD.
-
-        deletes journal entries for a user. required do delete a user.
-
-        """
-        self.engine.execute(
-            "DELETE FROM journals WHERE submitted_by = %(username)s",
-            username=username
         )
