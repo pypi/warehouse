@@ -59,10 +59,10 @@ def test_scalar(value, default, expected, eargs, ekwargs):
 
 
 @pytest.mark.parametrize(
-    ("value", "default", "expected", "eargs", "ekwargs"), (
+    ("value", "default", "expected", "eargs", "ekwargs"), [
         (None, {'foo': 'bar'}, {'foo': 'bar'}, [], {}),
         ({'baz': 'bazbar'}, {'foo': 'bar'}, {'baz': 'bazbar'}, [], {})
-    )
+    ]
 )
 def test_first(value, default, expected, eargs, ekwargs):
     result = pretend.stub(first=pretend.call_recorder(lambda: value))

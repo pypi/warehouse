@@ -304,7 +304,7 @@ def test_random_token():
     assert urandom.calls == [pretend.call(32)]
 
 
-@pytest.mark.parametrize(("url", "host", "expected"), (
+@pytest.mark.parametrize(("url", "host", "expected"), [
     ("", "example.com", False),
     ("/wat/", "example.com", True),
     ("http://example.com/wat/", "example.com", True),
@@ -312,20 +312,20 @@ def test_random_token():
     ("ftp://example.com/wat/", "example.com", False),
     ("http://attacker.com/wat/", "example.com", False),
     ("https://attacker.com/wat/", "example.com", False),
-))
+])
 def test_is_safe_url(url, host, expected):
     assert is_safe_url(url, host) is expected
 
 
-@pytest.mark.parametrize(("html", "expected"), (
+@pytest.mark.parametrize(("html", "expected"), [
     ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>",
      ["foo", "bar"]),
-))
+])
 def test_find_links_from_html(html, expected):
     assert find_links_from_html(html) == expected
 
 
-@pytest.mark.parametrize(("input_string", "expected"), (
+@pytest.mark.parametrize(("input_string", "expected"), [
     ("imabad-name^^^", ValueError),
     ("CaseInsensitive", "caseinsensitive"),
     ("replace_underscores", "replace-underscores"),
@@ -333,7 +333,7 @@ def test_find_links_from_html(html, expected):
     ("not-alphanumericend-", ValueError),
     ("123456789", "123456789"),
     ("hoobs#", ValueError)
-))
+])
 def test_normalize_project_name(input_string, expected):
     if expected is ValueError:
         with pytest.raises(ValueError):
