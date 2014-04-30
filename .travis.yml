@@ -1,5 +1,5 @@
 language: python
-python: 3.3
+python: 3.4
 
 addons:
   postgresql: 9.3
@@ -12,10 +12,6 @@ env:
     - TOXENV=pep8
     - TOXENV=docs
     - TOXENV=packaging
-
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install python3.4 python3.4-dev
 
 install: pip install tox
 
