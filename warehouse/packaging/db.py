@@ -218,14 +218,6 @@ class Database(db.Database):
         row_func=lambda r: r["url"]
     )
 
-    get_release_is_hidden = db.scalar(
-        """ SELECT _pypi_hidden
-            FROM releases
-            WHERE name = %s
-            AND version = %s
-        """
-    )
-
     get_file_urls = db.rows(
         """ SELECT name, filename, python_version, md5_digest
             FROM release_files
@@ -671,11 +663,6 @@ class Database(db.Database):
         # insert specific actions
 
         if not is_update:
-
-            project = self.get_project(project_name)
-            if project['autohide']:
-                self._project_hide_other_versions(project_name, version)
-
             self._update_release_ordering(project_name)
 
     def delete_release(self, project_name, version):
@@ -724,15 +711,6 @@ class Database(db.Database):
             if current != order:
                 self.engine.execute(query, name=project_name,
                                     order=order, version=version)
-
-    def _project_hide_other_versions(self, project_name, version):
-        query = \
-            """ UPDATE releases SET
-                    _pypi_hidden = true
-                WHERE name = %(name)s
-                AND version <> %(version)s
-            """
-        self.engine.execute(query, name=project_name, version=version)
 
     def update_release_classifiers(self, name, version, classifiers):
         self._delete_release_classifiers(name, version)
