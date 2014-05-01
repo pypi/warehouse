@@ -18,9 +18,11 @@ import six
 
 from warehouse.http import Response
 from warehouse.utils import (
-    merge_dict, cache, get_wsgi_application, get_mimetype, redirect,
-    SearchPagination, is_valid_json_callback_name, generate_camouflage_url,
-    camouflage_images, cors, redirect_next, vary_by, random_token, is_safe_url,
+    merge_dict, cache, get_wsgi_application, get_mimetype,
+    redirect, SearchPagination, is_valid_json_callback_name,
+    generate_camouflage_url, camouflage_images, cors, redirect_next, vary_by,
+    random_token, is_safe_url, find_links_from_html,
+    normalize_project_name
 )
 
 
@@ -313,3 +315,28 @@ def test_random_token():
 ])
 def test_is_safe_url(url, host, expected):
     assert is_safe_url(url, host) is expected
+
+
+@pytest.mark.parametrize(("html", "expected"), [
+    ("<a href='foo'>footext</a><div><a href='bar'>bartext</a><div>",
+     ["foo", "bar"]),
+])
+def test_find_links_from_html(html, expected):
+    assert find_links_from_html(html) == expected
+
+
+@pytest.mark.parametrize(("input_string", "expected"), [
+    ("imabad-name^^^", ValueError),
+    ("CaseInsensitive", "caseinsensitive"),
+    ("replace_underscores", "replace-underscores"),
+    ("-not-alphanumericstart", ValueError),
+    ("not-alphanumericend-", ValueError),
+    ("123456789", "123456789"),
+    ("hoobs#", ValueError)
+])
+def test_normalize_project_name(input_string, expected):
+    if expected is ValueError:
+        with pytest.raises(ValueError):
+            normalize_project_name(input_string)
+    else:
+        assert normalize_project_name(input_string) == expected

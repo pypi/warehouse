@@ -34,3 +34,4 @@ data/
 .rackspace.json
 warehouse.key
 .venv
+\#*

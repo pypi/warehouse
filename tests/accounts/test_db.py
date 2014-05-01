@@ -20,25 +20,6 @@ import pretend
 from warehouse.accounts.tables import users, emails
 
 
-@pytest.fixture
-def user(request, dbapp):
-
-    @request.addfinalizer
-    def delete_user():
-        dbapp.db.accounts.delete_user(username)
-
-    username = "guidovanrossum"
-    email = "notanemail@python.org"
-    password = "plaintextpasswordsaregreat"
-    dbapp.db.accounts.insert_user(
-        username,
-        email,
-        password)
-    return_value = dbapp.db.accounts.get_user(username)
-    return_value['password'] = password
-    return return_value
-
-
 def test_get_user(dbapp):
     dbapp.engine.execute(users.insert().values(
         password="!",

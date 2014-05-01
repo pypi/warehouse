@@ -137,3 +137,43 @@ def app():
         engine=pretend.stub(connect=connect, execute=connect),
         redis_class=ErrorRedis,
     )
+
+
+@pytest.fixture
+def user(dbapp):
+
+    username = "guidovanrossum"
+    email = "notanemail@example.org"
+    password = "plaintextpasswordsaregreat"
+    dbapp.db.accounts.insert_user(
+        username,
+        email,
+        password)
+    return_value = dbapp.db.accounts.get_user(username)
+    return_value['password'] = password
+    return return_value
+
+
+@pytest.fixture
+def project(user, dbapp):
+    project_name = "fooproject"
+
+    dbapp.db.packaging.upsert_project(project_name, user['username'],
+                                      '0.0.0.0')
+    return {
+        "name": project_name
+    }
+
+
+@pytest.fixture
+def release(user, dbapp, project):
+    version = '1.0'
+
+    dbapp.db.packaging.upsert_release(
+        project['name'], version, user['username'], '0.0.0.0',
+        description="this is a dummy package"
+    )
+    return {
+        'project': project,
+        'version': version
+    }

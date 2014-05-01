@@ -16,9 +16,16 @@ import datetime
 import logging
 import os.path
 import urllib.parse
+import pkg_resources
+import readme.rst
+
+from collections import defaultdict
 
 from warehouse import db
-from warehouse.packaging.tables import ReleaseDependencyKind
+from warehouse import utils
+from warehouse.packaging.tables import (ReleaseDependencyKind,
+                                        packages,
+                                        releases)
 
 
 log = logging.getLogger(__name__)
@@ -83,13 +90,6 @@ class Database(db.Database):
         """
     )
 
-    get_reverse_dependencies = db.rows(
-        """ SELECT DISTINCT name
-            FROM release_dependencies
-            WHERE specifier LIKE %s
-        """
-    )
-
     get_changed_since = db.rows(
         """ SELECT name, max(submitted_date) FROM journals
             WHERE submitted_date > %s
@@ -116,8 +116,8 @@ class Database(db.Database):
 
         return [tuple(r) for r in self.engine.execute(query, limit=num)]
 
-    get_project = db.scalar(
-        """ SELECT name
+    get_project = db.first(
+        """ SELECT *
             FROM packages
             WHERE normalized_name = lower(
                 regexp_replace(%s, '_', '-', 'ig')
@@ -186,10 +186,33 @@ class Database(db.Database):
         value_func=lambda r: (r["home_page"], r["download_url"]),
     )
 
+    def get_release_dependencies(self, project_name, version):
+        query = \
+            """
+            SELECT * FROM release_dependencies
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        specifier_dict = defaultdict(set)
+        for row in self.engine.execute(query, name=project_name,
+                                       version=version):
+            specifier_dict[row['kind']].add(row['specifier'])
+        return specifier_dict
+
     get_external_urls = db.rows(
         """ SELECT DISTINCT ON (url) url
             FROM description_urls
             WHERE name = %s
+            ORDER BY url
+        """,
+        row_func=lambda r: r["url"]
+    )
+
+    get_release_external_urls = db.rows(
+        """ SELECT DISTINCT ON (url) url
+            FROM description_urls
+            WHERE name = %s
+            AND version = %s
             ORDER BY url
         """,
         row_func=lambda r: r["url"]
@@ -306,7 +329,11 @@ class Database(db.Database):
             dict(r)
             for r in self.engine.execute(query, project=project,
                                          version=version)
-        ][0]
+        ]
+        if len(result) == 0:
+            return None
+        else:
+            result = result[0]
 
         # Load dependency information
         query = \
@@ -515,3 +542,295 @@ class Database(db.Database):
             ORDER BY submitted_date DESC
         """
     )
+
+# data Modification Methods
+
+    def upsert_project(self, name, username, user_ip, **additional_columns):
+        # NOTE: pypi behaviour is to assign the first submitter of a
+        # project the "owner" role. this code does not
+        # perform that behaviour (implement in the view instead)
+        db.validate_argument_column_mapping(additional_columns, packages)
+
+        existing_project = self.get_project(name)
+
+        if existing_project:
+            message = "updating project {0}".format(existing_project['name'])
+            query = (packages.update()
+                     .where(packages.c.name == existing_project['name']))
+        else:
+            message = "create"
+            query = packages.insert()
+
+        self.engine.execute(query.values(
+            name=name,
+            normalized_name=utils.normalize_project_name(name),
+            **additional_columns
+        ))
+
+        self._insert_journal_entry(name, None, message, username, user_ip)
+
+    def delete_project(self, name):
+        for release in self.get_releases(name):
+            self.delete_release(name, release['version'])
+        self.engine.execute("DELETE FROM packages WHERE name = %(name)s",
+                            name=name)
+
+    def upsert_release(self, project_name, version, username, user_ip,
+                       classifiers=None, release_dependencies=None,
+                       description=None, **additional_db_values):
+        """
+        Takes in the following:
+
+        * project_name: the name of the package to insert
+        * version: the version of the package to insert
+        * username: username of the user upserting the package
+        * user_ip: ip address of the user upserting the package
+        * classifiers: a list of the classifiers to classify the release with
+        * release_dependencies: a dictionary of
+            'ReleaseDependencyKind.value: [specifier]' pairs.
+        * description: a restructured text description of the release/project
+        * additional_db_values: any other column in the release table,
+            as specified by get_settable_release_columns
+
+        and inserts the release (if one doesn't exist), or updates otherwise
+        """
+        is_update = self.get_release(project_name, version) is not None
+        modified_elements = list(additional_db_values.keys())
+
+        db.validate_argument_column_mapping(
+            additional_db_values,
+            releases,
+            blacklist=['name', 'version', 'description', 'description_html',
+                       '_pypi_ordering', '_pypi_hidden']
+        )
+
+        if not is_update:
+            additional_db_values['name'] = project_name
+            additional_db_values['version'] = version
+
+        if description:
+            modified_elements += ['description', 'description_html']
+            additional_db_values['description'] = description
+            additional_db_values['description_html'] = \
+                readme.rst.render(description)[0]
+
+        if len(additional_db_values) > 0:
+            if is_update:
+                self.engine.execute(
+                    releases
+                    .update()
+                    .where(releases.columns.name == project_name)
+                    .where(releases.columns.version == version)
+                    .values(**additional_db_values)
+                )
+            else:
+                self.engine.execute(
+                    releases.insert().values(**additional_db_values)
+                )
+
+        # external tables
+
+        # this is legacy behavior. According to PEP-438, we should
+        # no longer support parsing urls from descriptions
+        hosting_mode = self.get_hosting_mode(project_name)
+        if hosting_mode in ('pypi-scrape-crawl', 'pypi-scrape') \
+           and 'description_html' in additional_db_values:
+
+            self.update_release_external_urls(
+                project_name, version,
+                utils.find_links_from_html(
+                    additional_db_values['description_html']
+                )
+            )
+
+        if classifiers:
+            modified_elements.append('classifiers')
+            self.update_release_classifiers(project_name, version,
+                                            classifiers)
+
+        if release_dependencies:
+            self.update_release_dependencies(project_name, version,
+                                             release_dependencies)
+
+        if is_update:
+            journal_message = 'update {0}'.format(','.join(modified_elements))
+        else:
+            journal_message = "new release"
+
+        self._insert_journal_entry(project_name, version, journal_message,
+                                   username, user_ip)
+
+        # insert specific actions
+
+        if not is_update:
+            self._update_release_ordering(project_name)
+
+    def delete_release(self, project_name, version):
+        # delete FK rows first
+        for kind in ReleaseDependencyKind:
+            self._delete_release_dependencies_of_kind(project_name,
+                                                      version, kind.value)
+
+        self._delete_release_classifiers(project_name, version)
+        self._delete_release_external_urls(project_name, version)
+
+        # actual deletion from the release table
+        delete_statement = \
+            """
+            DELETE FROM releases
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        self.engine.execute(
+            delete_statement,
+            name=project_name,
+            version=version
+        )
+
+    def _update_release_ordering(self, project_name):
+        query = \
+            """
+            SELECT version, _pypi_ordering
+            FROM releases
+            WHERE name = %(name)s
+            """
+        project_versions = [project for project in
+                            self.engine.execute(query, name=project_name)]
+        sorted_versions = sorted(
+            project_versions,
+            key=(lambda x: pkg_resources.parse_version(x[0]))
+        )
+        query = \
+            """
+            UPDATE releases
+            SET _pypi_ordering = %(order)s
+            WHERE name = %(name)s
+            AND version = %(version)s
+            """
+        for order, (version, current) in enumerate(sorted_versions):
+            if current != order:
+                self.engine.execute(query, name=project_name,
+                                    order=order, version=version)
+
+    def update_release_classifiers(self, name, version, classifiers):
+        self._delete_release_classifiers(name, version)
+        insert_query = \
+            """ INSERT INTO release_classifiers
+                    (name, version, trove_id)
+                VALUES
+                    (%(name)s, %(version)s, %(trove_id)s)
+            """
+        classifier_id_dict = self.get_classifier_ids(classifiers)
+        for classifier in classifiers:
+            trove_id = classifier_id_dict[classifier]
+            self.engine.execute(insert_query, name=name,
+                                version=version, trove_id=trove_id)
+
+    def _delete_release_classifiers(self, name, version):
+        query = \
+            """ DELETE FROM release_classifiers
+                WHERE name = %(name)s
+                AND version = %(version)s
+            """
+        self.engine.execute(
+            query,
+            name=name,
+            version=version
+        )
+
+    def update_release_external_urls(self, project_name, version, urls):
+        self._delete_release_external_urls(project_name, version)
+        insert_query = \
+            """ INSERT INTO description_urls
+                    (name, version, url)
+                VALUES
+                    (%(name)s, %(version)s, %(url)s)
+            """
+        for url in urls:
+            self.engine.execute(insert_query, name=project_name,
+                                version=version, url=url)
+
+    def _delete_release_external_urls(self, project_name, version):
+        query = \
+            """ DELETE FROM description_urls
+                WHERE name = %(name)s
+                AND version = %(version)s
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version
+        )
+
+    def update_release_dependencies(self, project_name, version,
+                                    specifier_dict):
+        """
+        Takes in a project_name, version, and a release_dict of the format:
+        { ReleaseDependencyKind: [specifier_name_foo, specifier_name_bar] }
+
+        and updates the release dependencies with the desired table
+        """
+        insert_query = \
+            """
+            INSERT INTO release_dependencies
+                (name, version, kind, specifier)
+            VALUES
+                (%(name)s, %(version)s, %(kind)s, %(specifier)s)
+            """
+
+        old_specifier = self.get_release_dependencies(project_name,
+                                                      version)
+        for kind, specifiers in specifier_dict.items():
+
+            # no need to update if the state is already there
+            if kind in old_specifier and specifiers == old_specifier[kind]:
+                continue
+
+            self._delete_release_dependencies_of_kind(project_name, version,
+                                                      kind)
+            for specifier in specifiers:
+                self.engine.execute(
+                    insert_query,
+                    name=project_name,
+                    version=version,
+                    kind=kind,
+                    specifier=specifier
+                )
+
+    def _delete_release_dependencies_of_kind(self, project_name, version,
+                                             kind):
+        query = \
+            """
+            DELETE FROM release_dependencies
+            WHERE name = %(name)s
+            AND version = %(version)s
+            AND kind = %(kind)s
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version,
+            kind=kind
+        )
+
+    def _insert_journal_entry(self, project_name, version, message,
+                              username, userip):
+        date = datetime.datetime.now()
+        query = \
+            """
+            INSERT INTO journals
+                (name, version, action, submitted_date,
+                 submitted_by, submitted_from)
+            VALUES
+                (%(name)s, %(version)s, %(action)s, %(submitted_date)s,
+                 %(submitted_by)s, %(submitted_from)s)
+            """
+        self.engine.execute(
+            query,
+            name=project_name,
+            version=version,
+            action=message,
+            submitted_date=date.strftime('%Y-%m-%d %H:%M:%S'),
+            submitted_by=username,
+            submitted_from=userip
+        )

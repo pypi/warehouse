@@ -130,8 +130,23 @@ def redirect_next(request, default="/", field_name="next", code=303):
     return redirect(next, code=code)
 
 
-def normalize(value):
-    return re.sub("_", "-", value, re.I).lower()
+PACKAGE_REGEX = {
+    "permitted_characters": re.compile("^[a-zA-Z0-9_\-.]+$"),
+    "start_and_end_with_ascii": re.compile("^[a-zA-Z0-9].*[a-zA-Z0-9]$"),
+}
+
+
+def normalize_project_name(name):
+    """
+    Normalizes a package name as per PEP-426
+    """
+    name = re.sub("_", "-", name).lower()
+    if not PACKAGE_REGEX["permitted_characters"].match(name):
+        raise ValueError("name contains illegal characters! (See PEP-426)")
+    if not PACKAGE_REGEX["start_and_end_with_ascii"].match(name):
+        raise ValueError("Distribution names MUST start and end with " +
+                         "an ASCII letter or digit (See PEP-426)")
+    return name
 
 
 class SearchPagination(object):
@@ -282,3 +297,14 @@ def is_safe_url(url, host):
 
     return ((not parsed.netloc or parsed.netloc == host) and
             (not parsed.scheme or parsed.scheme in ["http", "https"]))
+
+
+def find_links_from_html(html_body):
+    """
+    Return a list of links, extracted from all <a href="{{ url
+    }}">...</a> elements found.
+    """
+    document = html5lib.parse(html_body)
+    return [a.attrib.get('href', None)
+            for a in document.iter("{http://www.w3.org/1999/xhtml}a")
+            if 'href' in a.attrib]

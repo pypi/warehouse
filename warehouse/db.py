@@ -43,6 +43,22 @@ def scalar(query, default=None):
     return inner
 
 
+def first(query, default=None):
+    """
+    A helper function that takes a query and returns a function that will query
+    the database and return the first row
+    """
+    def inner(model, *args, **kwargs):
+        val = model.engine.execute(query, *args, **kwargs).first()
+
+        if default is not None and val is None:
+            return default
+        else:
+            return val
+
+    return inner
+
+
 def rows(query, row_func=dict):
     """
     A helper function that takes a query and returns a function that will query
@@ -67,3 +83,21 @@ def mapping(query, key_func=lambda r: r[0], value_func=lambda r: r[1]):
         }
 
     return inner
+
+
+def validate_argument_column_mapping(argument_dict, table,
+                                     blacklist=None):
+    """
+    Validate that the keys of the argument_dict passed match columns in table
+    that are not in the blacklist list.
+
+    return TypeError if there is a key where this condition is not met.
+    """
+    if blacklist is None:
+        blacklist = []
+    columns = set((c.key for c in table.columns if c.key not in blacklist))
+    for argument_name in argument_dict:
+        if argument_name not in columns:
+            raise TypeError("Key {0} does not match a column in {1}".format(
+                argument_name, table.name
+            ))
