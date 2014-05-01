@@ -1591,19 +1591,6 @@ def test_upsert_bad_parameter(dbapp, user, project):
         )
 
 
-def test_upsert_no_autohide(dbapp, user, project, release):
-    dbapp.db.packaging.upsert_project(
-        project['name'], user['username'],
-        '0.0.0.0', autohide=False
-    )
-    dbapp.db.packaging.upsert_release(
-        project['name'], '1.1', user['username'], '0.0.0.0',
-    )
-    assert not dbapp.db.packaging.get_release_is_hidden(
-        project['name'], release['version']
-    )
-
-
 def test_upsert_good_parameter(dbapp, user, project):
     author = "imanauthor"
     dbapp.db.packaging.upsert_release(
