@@ -492,7 +492,7 @@ def test_release_urls(pgp, monkeypatch):
     ]
 
 
-def test_release_urls_all(monkeypatch):
+def test_all_release_urls(monkeypatch):
     dt = datetime.datetime.utcnow()
 
     urls = {
@@ -557,7 +557,7 @@ def test_release_urls_all(monkeypatch):
 
     interface = xmlrpc.Interface(app, pretend.stub())
 
-    result = interface.release_urls('spam')
+    result = interface.all_release_urls('spam')
 
     assert app.db.packaging.get_downloads.calls == [
         pretend.call('spam', '1.0'),

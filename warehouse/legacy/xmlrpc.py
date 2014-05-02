@@ -105,42 +105,28 @@ class Interface(object):
             mapped.append(list(row[key] for key in keys))
         return mapped
 
-    def release_urls(self, name, version=None):
-        if version is None:
-            d = {}
-            for version in self.app.db.packaging.get_project_versions(name):
-                l = []
-                for r in self.app.db.packaging.get_downloads(name, version):
-                    l.append(dict(
-                        url=r['url'],
-                        packagetype=r['packagetype'],
-                        filename=r['filename'],
-                        size=r['size'],
-                        md5_digest=r['md5_digest'],
-                        downloads=r['downloads'],
-                        has_sig=r['pgp_url'] is not None,
-                        python_version=r['python_version'],
-                        comment_text=r['comment_text'],
-                        upload_time=r['upload_time'],
-                    ))
-                d[version] = l
-            return d
-        else:
-            l = []
-            for r in self.app.db.packaging.get_downloads(name, version):
-                l.append(dict(
-                    url=r['url'],
-                    packagetype=r['packagetype'],
-                    filename=r['filename'],
-                    size=r['size'],
-                    md5_digest=r['md5_digest'],
-                    downloads=r['downloads'],
-                    has_sig=r['pgp_url'] is not None,
-                    python_version=r['python_version'],
-                    comment_text=r['comment_text'],
-                    upload_time=r['upload_time'],
-                ))
-            return l
+    def release_urls(self, name, version):
+        l = []
+        for r in self.app.db.packaging.get_downloads(name, version):
+            l.append(dict(
+                url=r['url'],
+                packagetype=r['packagetype'],
+                filename=r['filename'],
+                size=r['size'],
+                md5_digest=r['md5_digest'],
+                downloads=r['downloads'],
+                has_sig=r['pgp_url'] is not None,
+                python_version=r['python_version'],
+                comment_text=r['comment_text'],
+                upload_time=r['upload_time'],
+            ))
+        return l
+
+    def all_release_urls(self, name):
+        d = {}
+        for version in self.app.db.packaging.get_project_versions(name):
+            d[version] = self.release_urls(name, version)
+        return d
 
     def release_downloads(self, name, version):
         results = self.app.db.packaging.get_downloads(name, version)
