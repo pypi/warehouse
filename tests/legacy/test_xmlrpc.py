@@ -492,6 +492,121 @@ def test_release_urls(pgp, monkeypatch):
     ]
 
 
+def test_release_urls_all(monkeypatch):
+    dt = datetime.datetime.utcnow()
+
+    urls = {
+        '1.0': [
+            dict(
+                name="spam",
+                url='/packages/source/t/spam/spam-1.0.tar.gz',
+                version="1.0",
+                filename="spam-1.0.tar.gz",
+                python_version="source",
+                packagetype="sdist",
+                md5_digest="0cc175b9c0f1b6a831c399e269772661",
+                downloads=10,
+                size=1234,
+                pgp_url=None,
+                comment_text='download for great justice',
+                upload_time=dt,
+            ),
+            dict(
+                name="spam",
+                url='/packages/source/t/spam/spam-1.0.zip',
+                version="1.0",
+                filename="spam-1.0.zip",
+                python_version="source",
+                packagetype="sdist",
+                md5_digest="0cc175b3c0f1b6a831c399e269772661",
+                downloads=12,
+                size=1235,
+                pgp_url=None,
+                comment_text=None,
+                upload_time=dt,
+            )
+        ],
+        '2.0': [
+            dict(
+                name="spam",
+                url='/packages/source/t/spam/spam-2.0.tar.gz',
+                version="2.0",
+                filename="spam-2.0.tar.gz",
+                python_version="source",
+                packagetype="sdist",
+                md5_digest="0cc175b9c0f1b6a831c399e269772661",
+                downloads=10,
+                size=1234,
+                pgp_url=None,
+                comment_text='download for great justice',
+                upload_time=dt,
+            )
+        ]
+    }
+
+    vers = ['1.0', '2.0']
+
+    app = pretend.stub(
+        db=pretend.stub(
+            packaging=pretend.stub(
+                get_downloads=pretend.call_recorder(lambda *a: urls[a[1]]),
+                get_project_versions=pretend.call_recorder(lambda *a: vers),
+            ),
+        ),
+    )
+
+    interface = xmlrpc.Interface(app, pretend.stub())
+
+    result = interface.release_urls('spam')
+
+    assert app.db.packaging.get_downloads.calls == [
+        pretend.call('spam', '1.0'),
+        pretend.call('spam', '2.0'),
+    ]
+    assert result == {
+        '1.0': [
+            dict(
+                url='/packages/source/t/spam/spam-1.0.tar.gz',
+                packagetype="sdist",
+                filename="spam-1.0.tar.gz",
+                size=1234,
+                md5_digest="0cc175b9c0f1b6a831c399e269772661",
+                downloads=10,
+                has_sig=False,
+                python_version="source",
+                comment_text='download for great justice',
+                upload_time=dt,
+            ),
+            dict(
+                url='/packages/source/t/spam/spam-1.0.zip',
+                packagetype="sdist",
+                filename="spam-1.0.zip",
+                size=1235,
+                md5_digest="0cc175b3c0f1b6a831c399e269772661",
+                downloads=12,
+                has_sig=False,
+                python_version="source",
+                comment_text=None,
+                upload_time=dt,
+            )
+        ],
+        '2.0': [
+            dict(
+                url='/packages/source/t/spam/spam-2.0.tar.gz',
+                packagetype="sdist",
+                filename="spam-2.0.tar.gz",
+                size=1234,
+                md5_digest="0cc175b9c0f1b6a831c399e269772661",
+                downloads=10,
+                has_sig=False,
+                python_version="source",
+                comment_text='download for great justice',
+                upload_time=dt,
+            )
+        ]
+    }
+
+
 def test_release_data(monkeypatch):
     # arrow conversion is messy, make sure we are comparing the same thing
     now_timestamp = arrow.utcnow().timestamp
