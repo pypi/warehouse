@@ -127,12 +127,14 @@ def test_daytime(monkeypatch):
 def test_json(monkeypatch, version, callback):
     get_project = pretend.call_recorder(lambda n: 'spam')
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
+    get_last_serial = pretend.call_recorder(lambda *n: 42)
     app = pretend.stub(
         config=pretend.stub(cache=pretend.stub(browser=False, varnish=False)),
         db=pretend.stub(
             packaging=pretend.stub(
                 get_project=get_project,
                 get_project_versions=get_project_versions,
+                get_last_serial=get_last_serial,
             )
         )
     )
@@ -165,6 +167,7 @@ def test_json(monkeypatch, version, callback):
     assert release_data.calls == [pretend.call('spam', version or '2.0')]
     assert release_urls.calls == [pretend.call('spam', version or '2.0')]
     assert all_release_urls.calls == [pretend.call('spam')]
+    assert get_last_serial.calls == [pretend.call()]
     expected = '{"info": {"some": "data"}, ' \
         '"releases": {"1.0": {"some": "data"}, "2.0": {"some": "data"}}, ' \
         '"urls": [{"some": "url", "upload_time": "1970-01-01T00:00:00"}]}'

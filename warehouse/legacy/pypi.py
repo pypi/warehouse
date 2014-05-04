@@ -114,8 +114,11 @@ def project_json(app, request, project_name, version=None):
     if callback:
         data = '/**/ %s(%s);' % (callback, data)
 
+    serial = app.db.packaging.get_last_serial()
+
     response = Response(data, mimetype="application/json")
     response.headers['Content-Disposition'] = 'inline'
+    response.headers.add("X-PyPI-Last-Serial", serial)
     return response
 
 
