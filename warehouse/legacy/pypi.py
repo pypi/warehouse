@@ -105,8 +105,12 @@ def project_json(app, request, project_name, version=None):
         urls=rpc.release_urls(project, version),
         releases=rpc.all_release_urls(project),
     )
+    time_format = '%Y-%m-%dT%H:%M:%S'
     for url in d['urls']:
-        url['upload_time'] = url['upload_time'].strftime('%Y-%m-%dT%H:%M:%S')
+        url['upload_time'] = url['upload_time'].strftime(time_format)
+    for release, urls in d['releases'].items():
+        for url in urls:
+            url['upload_time'] = url['upload_time'].strftime(time_format)
 
     data = json.dumps(d, sort_keys=True)
 
