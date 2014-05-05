@@ -148,8 +148,8 @@ def test_json(monkeypatch, version, callback):
         upload_time=datetime.date(1970, 1, 1)
     )])
     all_release_urls = pretend.call_recorder(lambda *n: {
-        '1.0': dict(some='data'),
-        '2.0': dict(some='data'),
+        '1.0': [dict(some='data', upload_time=datetime.date(1970, 1, 1))],
+        '2.0': [dict(some='data', upload_time=datetime.date(1970, 1, 1))],
     })
     Interface = pretend.call_recorder(lambda a, r: pretend.stub(
         release_data=release_data,
@@ -169,7 +169,9 @@ def test_json(monkeypatch, version, callback):
     assert all_release_urls.calls == [pretend.call('spam')]
     assert get_last_serial.calls == [pretend.call()]
     expected = '{"info": {"some": "data"}, ' \
-        '"releases": {"1.0": {"some": "data"}, "2.0": {"some": "data"}}, ' \
+        '"releases": ' \
+        '{"1.0": [{"some": "data", "upload_time": "1970-01-01T00:00:00"}], ' \
+        '"2.0": [{"some": "data", "upload_time": "1970-01-01T00:00:00"}]}, ' \
         '"urls": [{"some": "url", "upload_time": "1970-01-01T00:00:00"}]}'
     if callback:
         expected = '/**/ %s(%s);' % (callback, expected)
