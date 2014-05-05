@@ -20,4 +20,5 @@ recursive-include warehouse/migrations/versions *.py
 graft warehouse/static
 
 recursive-include tests *.py
+recursive-include tests *.yaml
 recursive-include tests *.yml
