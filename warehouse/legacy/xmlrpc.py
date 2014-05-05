@@ -122,6 +122,12 @@ class Interface(object):
             ))
         return l
 
+    def all_release_urls(self, name):
+        d = {}
+        for version in self.app.db.packaging.get_project_versions(name):
+            d[version] = self.release_urls(name, version)
+        return d
+
     def release_downloads(self, name, version):
         results = self.app.db.packaging.get_downloads(name, version)
         return [[r['filename'], r['downloads']] for r in results]

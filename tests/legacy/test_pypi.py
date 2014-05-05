@@ -127,12 +127,14 @@ def test_daytime(monkeypatch):
 def test_json(monkeypatch, version, callback):
     get_project = pretend.call_recorder(lambda n: 'spam')
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
+    get_last_serial = pretend.call_recorder(lambda *n: 42)
     app = pretend.stub(
         config=pretend.stub(cache=pretend.stub(browser=False, varnish=False)),
         db=pretend.stub(
             packaging=pretend.stub(
                 get_project=get_project,
                 get_project_versions=get_project_versions,
+                get_last_serial=get_last_serial,
             )
         )
     )
@@ -145,9 +147,14 @@ def test_json(monkeypatch, version, callback):
         some='url',
         upload_time=datetime.date(1970, 1, 1)
     )])
+    all_release_urls = pretend.call_recorder(lambda *n: {
+        '1.0': dict(some='data'),
+        '2.0': dict(some='data'),
+    })
     Interface = pretend.call_recorder(lambda a, r: pretend.stub(
         release_data=release_data,
         release_urls=release_urls,
+        all_release_urls=all_release_urls,
     ))
 
     monkeypatch.setattr(xmlrpc, 'Interface', Interface)
@@ -159,8 +166,11 @@ def test_json(monkeypatch, version, callback):
     assert get_project_versions.calls == [pretend.call('spam')]
     assert release_data.calls == [pretend.call('spam', version or '2.0')]
     assert release_urls.calls == [pretend.call('spam', version or '2.0')]
-    expected = '{"info": {"some": "data"}, "urls": [{"some": "url", '\
-        '"upload_time": "1970-01-01T00:00:00"}]}'
+    assert all_release_urls.calls == [pretend.call('spam')]
+    assert get_last_serial.calls == [pretend.call()]
+    expected = '{"info": {"some": "data"}, ' \
+        '"releases": {"1.0": {"some": "data"}, "2.0": {"some": "data"}}, ' \
+        '"urls": [{"some": "url", "upload_time": "1970-01-01T00:00:00"}]}'
     if callback:
         expected = '/**/ %s(%s);' % (callback, expected)
     assert resp.data == expected.encode("utf8")
