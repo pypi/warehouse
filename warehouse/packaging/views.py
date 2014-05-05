@@ -33,7 +33,7 @@ def project_detail(app, request, project_name, version=None):
         raise NotFound("Cannot find a project named {}".format(project_name))
 
     # Look up all the releases for the given project
-    releases = app.db.packaging.get_releases(project)
+    releases = app.db.packaging.get_releases(project["name"])
 
     if not releases:
         # If there are no releases then we need to return a simpler response
@@ -41,18 +41,18 @@ def project_detail(app, request, project_name, version=None):
         # registered.
         raise NotFound(
             "There are no releases registered for the {} project".format(
-                project,
+                project["name"],
             ),
         )
 
-    if project != project_name:
+    if project["name"] != project_name:
         # We've found the project, and the version exists, but the project name
         # isn't quite right so we'll redirect them to the correct one.
         return redirect(
             url_for(
                 request,
                 "warehouse.packaging.views.project_detail",
-                project_name=project,
+                project_name=project["name"],
                 version=version,
             ),
             code=301,
@@ -67,12 +67,12 @@ def project_detail(app, request, project_name, version=None):
         raise NotFound(
             "Cannot find the {} version of the {} project".format(
                 version,
-                project,
+                project["name"],
             ),
         )
 
     # Get the release data for the version
-    release = app.db.packaging.get_release(project, version)
+    release = app.db.packaging.get_release(project["name"], version)
 
     # Get the number of reverse dependencies for this project
     project_url = lambda name: url_for(
@@ -80,7 +80,9 @@ def project_detail(app, request, project_name, version=None):
         project_name=name)
     reverse_dependencies = [
         {'name': row['name'], 'url': project_url(row['name'])}
-        for row in app.db.packaging.get_reverse_dependencies(project + ' %')
+        for row in app.db.packaging.get_reverse_dependencies(
+            project["name"] + ' %'
+        )
     ]
 
     if release.get("description"):
@@ -116,16 +118,16 @@ def project_detail(app, request, project_name, version=None):
 
     return render_response(
         app, request, "projects/detail.html",
-        project=project,
+        project=project["name"],
         release=release,
         releases=releases,
         requirements=requirements,
         reverse_dependencies=reverse_dependencies,
         description_html=description_html,
-        download_counts=app.db.packaging.get_download_counts(project),
-        downloads=app.db.packaging.get_downloads(project, version),
-        classifiers=app.db.packaging.get_classifiers(project, version),
-        documentation=app.db.packaging.get_documentation_url(project),
-        bugtracker=app.db.packaging.get_bugtrack_url(project),
-        maintainers=app.db.packaging.get_users_for_project(project),
+        download_counts=app.db.packaging.get_download_counts(project["name"]),
+        downloads=app.db.packaging.get_downloads(project["name"], version),
+        classifiers=app.db.packaging.get_classifiers(project["name"], version),
+        documentation=app.db.packaging.get_documentation_url(project["name"]),
+        bugtracker=app.db.packaging.get_bugtrack_url(project["name"]),
+        maintainers=app.db.packaging.get_users_for_project(project["name"]),
     )
