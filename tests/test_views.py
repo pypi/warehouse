@@ -18,20 +18,23 @@ import pretend
 
 from warehouse.views import index
 
+from .lib.db import db_fixtures
 
+
+@db_fixtures(
+    "projects.foobar",
+    "projects.Dinner",
+
+    "releases.foobar-1-0",
+    "releases.foobar-1-1",
+    "releases.Dinner-1-0",
+
+    "files.foobar-1-0-tar-gz",
+    "files.foobar-1-1-tar-gz",
+    "files.Dinner-1-0-tar-gz",
+    "files.Dinner-1-0-py2-py3-none-any-whl",
+)
 def test_index(dbapp, db_fixtures):
-    db_fixtures.install_fixture("projects.foobar")
-    db_fixtures.install_fixture("projects.Dinner")
-
-    db_fixtures.install_fixture("releases.foobar-1-0")
-    db_fixtures.install_fixture("releases.foobar-1-1")
-    db_fixtures.install_fixture("releases.Dinner-1-0")
-
-    db_fixtures.install_fixture("files.foobar-1-0-tar-gz")
-    db_fixtures.install_fixture("files.foobar-1-1-tar-gz")
-    db_fixtures.install_fixture("files.Dinner-1-0-tar-gz")
-    db_fixtures.install_fixture("files.Dinner-1-0-py2-py3-none-any-whl")
-
     request = pretend.stub()
 
     resp = index(dbapp, request)

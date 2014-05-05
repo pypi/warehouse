@@ -3,6 +3,7 @@ import copy
 import operator
 
 import charlatan
+import pytest
 
 from charlatan import _compat
 from charlatan.depgraph import DepGraph
@@ -10,6 +11,9 @@ from charlatan.file_format import RelationshipToken, load_file
 from charlatan.fixture_collection import (
     ListFixtureCollection, DictFixtureCollection
 )
+
+
+db_fixtures = pytest.mark.db_fixtures
 
 
 class FixtureDict(collections.UserDict):

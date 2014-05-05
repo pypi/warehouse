@@ -143,9 +143,16 @@ def app():
 
 
 @pytest.fixture
-def db_fixtures(engine):
+def db_fixtures(request, engine):
     manager = FixturesManager(engine)
     manager.load(os.path.join(os.path.dirname(__file__), "db_fixtures.yaml"))
+
+    marker = request.keywords.get("db_fixtures", None)
+    fixtures = marker.args if marker else {}
+
+    if fixtures:
+        manager.install_fixtures(fixtures)
+
     return manager
 
 
