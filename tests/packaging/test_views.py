@@ -48,7 +48,7 @@ def test_project_detail_no_versions():
         db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: "test-project",
+                    lambda proj: {"name": "test-project"},
                 ),
                 get_releases=pretend.call_recorder(lambda proj: []),
             ),
@@ -80,7 +80,7 @@ def test_project_detail_redirects():
         db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: "test-project",
+                    lambda proj: {"name": "test-project"},
                 ),
                 get_releases=pretend.call_recorder(
                     lambda proj: [{"version": "1.0"}],
@@ -133,7 +133,7 @@ def test_project_detail_invalid_version():
         db=pretend.stub(
             packaging=pretend.stub(
                 get_project=pretend.call_recorder(
-                    lambda proj: "test-project",
+                    lambda proj: {"name": "test-project"},
                 ),
                 get_releases=pretend.call_recorder(
                     lambda proj: [{"version": "1.0"}],
@@ -256,7 +256,7 @@ def test_project_detail_valid(app, version, description, html, camo):
     app.db = pretend.stub(
         packaging=pretend.stub(
             get_project=pretend.call_recorder(
-                lambda proj: "test-project",
+                lambda proj: {"name": "test-project"},
             ),
             get_releases=pretend.call_recorder(
                 lambda proj: [{"version": "2.0"}, {"version": "1.0"}],
