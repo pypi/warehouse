@@ -103,7 +103,7 @@ def project_json(app, request, project_name, version=None):
     d = dict(
         info=rpc.release_data(project['name'], version),
         urls=rpc.release_urls(project['name'], version),
-        releases=rpc.all_release_urls(project),
+        releases=rpc.all_release_urls(project['name']),
     )
     time_format = '%Y-%m-%dT%H:%M:%S'
     for url in d['urls']:
