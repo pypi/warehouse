@@ -14,14 +14,14 @@
 import functools
 import string
 
-from warehouse.utils import normalize
+from warehouse.utils import normalize_project_name
 
 
 class FastlyFormatter(string.Formatter):
 
     def convert_field(self, value, conversion):
         if conversion == "n":
-            return normalize(value)
+            return normalize_project_name(value)
         return super(FastlyFormatter, self).convert_field(value, conversion)
 
 

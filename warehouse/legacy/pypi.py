@@ -90,7 +90,7 @@ def project_json(app, request, project_name, version=None):
         raise NotFound("{} does not exist".format(project_name))
 
     # we're looking for the latest version
-    versions = app.db.packaging.get_project_versions(project)
+    versions = app.db.packaging.get_project_versions(project['name'])
     if version is None:
         if not versions:
             raise NotFound("{} has no releases".format(project_name))
@@ -101,9 +101,9 @@ def project_json(app, request, project_name, version=None):
     rpc = xmlrpc.Interface(app, request)
 
     d = dict(
-        info=rpc.release_data(project, version),
-        urls=rpc.release_urls(project, version),
-        releases=rpc.all_release_urls(project),
+        info=rpc.release_data(project['name'], version),
+        urls=rpc.release_urls(project['name'], version),
+        releases=rpc.all_release_urls(project['name']),
     )
     time_format = '%Y-%m-%dT%H:%M:%S'
     for url in d['urls']:

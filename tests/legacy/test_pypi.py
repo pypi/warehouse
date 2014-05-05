@@ -125,7 +125,7 @@ def test_daytime(monkeypatch):
     ('1.0', None),
 ])
 def test_json(monkeypatch, version, callback):
-    get_project = pretend.call_recorder(lambda n: 'spam')
+    get_project = pretend.call_recorder(lambda n: {'name': 'spam'})
     get_project_versions = pretend.call_recorder(lambda n: ['2.0', '1.0'])
     get_last_serial = pretend.call_recorder(lambda *n: 42)
     app = pretend.stub(
@@ -191,7 +191,8 @@ def test_jsonp_invalid():
     (pretend.stub(name="spam"), '1'),
 ])
 def test_json_missing(monkeypatch, project, version):
-    get_project = pretend.call_recorder(lambda n: project)
+    return_value = {'name': project} if project else None
+    get_project = pretend.call_recorder(lambda n: return_value)
     get_project_versions = pretend.call_recorder(lambda n: [])
     app = pretend.stub(
         db=pretend.stub(
