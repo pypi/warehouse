@@ -12,4 +12,4 @@ Examples of contributions include:
 Extensive contribution guidelines are available in the repository at
 ``docs/contributing.rst``, or online at:
 
-https://warehouse.readthedocs.org/en/latest/contributing/
+https://warehouse.pypa.io/en/latest/contributing/

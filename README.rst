@@ -12,7 +12,7 @@ the legacy code base that currently powers `PyPI <https://pypi.python.org>`_.
 Resources
 ---------
 
-* `Documentation <https://warehouse.readthedocs.org/>`_
+* `Documentation <https://warehouse.pypa.io/>`_
 * `Development IRC <http://webchat.freenode.net?channels=%23pypa-dev>`_
   (#pypa-dev - irc.freenode.net)
 * `Demo Server <https://warehouse.python.org/>`_
@@ -23,4 +23,4 @@ Contributing
 
 See the `contributing`_ documentation.
 
-.. _contributing: https://warehouse.readthedocs.org/en/latest/contributing/
+.. _contributing: https://warehouse.pypa.io/en/latest/contributing/
