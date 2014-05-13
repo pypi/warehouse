@@ -50,7 +50,7 @@ def test_xmlrpc_handler(monkeypatch):
         get_data=lambda **k: xml_request,
     )
 
-    assert xmlrpc.handle_request(app, request) == 'response'
+    assert xmlrpc.handler(app, request) == 'response'
 
     assert interface.list_packages.calls == [pretend.call()]
 
@@ -82,7 +82,7 @@ def test_xmlrpc_handler_size_limit(monkeypatch):
     )
 
     with pytest.raises(BadRequest):
-        xmlrpc.handle_request(app, request)
+        xmlrpc.handler(app, request)
 
 
 def test_xmlrpc_list_packages():

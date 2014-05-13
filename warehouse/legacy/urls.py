@@ -30,4 +30,7 @@ urls = [
              endpoint="project_json"),
         Rule("/daytime", methods=["GET"], endpoint="daytime"),
     ]),
+    EndpointPrefix("warehouse.legacy.xmlrpc.", [
+        Rule("/_legacy/xmlrpc/", methods=["POST"], endpoint="handler"),
+    ]),
 ]
