@@ -86,27 +86,6 @@ def test_pypi_route_action_double(monkeypatch):
         pypi.register('test')
 
 
-def test_pypi_route_xmlrpc(monkeypatch):
-    app = pretend.stub()
-    request = pretend.stub(
-        args={},
-        headers={'Content-Type': 'text/xml'},
-    )
-
-    xmlrpc_stub = pretend.stub(
-        handle_request=pretend.call_recorder(lambda *a: 'success')
-    )
-    monkeypatch.setattr(pypi, 'xmlrpc', xmlrpc_stub)
-
-    # request for /pypi with no additional request information redirects
-    # to site root
-    #
-    resp = pypi.pypi(app, request)
-
-    assert xmlrpc_stub.handle_request.calls == [pretend.call(app, request)]
-    assert resp == 'success'
-
-
 def test_daytime(monkeypatch):
     app = pretend.stub()
     request = pretend.stub()

@@ -48,17 +48,13 @@ def register(name):
 
 
 def pypi(app, request):
-    # if the MIME type of the request is XML then we go into XML-RPC mode
-    if request.headers.get('Content-Type') == 'text/xml':
-        return xmlrpc.handle_request(app, request)
-
     # check for the legacy :action-style dispatch
     action = request.args.get(':action')
     if action in _action_methods:
         return _action_methods[action](app, request)
 
-    # no XML-RPC and no :action means we render the index, or at least we
-    # redirect to where it moved to
+    # No :action means we render the index, or at least we redirect to where it
+    # moved to
     return redirect(
         url_for(
             request,

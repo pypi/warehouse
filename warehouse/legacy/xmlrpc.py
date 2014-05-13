@@ -18,10 +18,12 @@ import arrow
 
 from werkzeug.exceptions import BadRequest
 
+from warehouse.csrf import csrf_exempt
 from warehouse.http import Response
 
 
-def handle_request(app, request):
+@csrf_exempt
+def handler(app, request):
     '''Wrap an invocation of the XML-RPC dispatcher.
     '''
     # unicode strings will be encoded in utf-8 by xmlrpclib

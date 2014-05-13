@@ -48,6 +48,7 @@ from warehouse import db
 from warehouse.csrf import handle_csrf
 from warehouse.datastructures import AttributeDict
 from warehouse.http import Request
+from warehouse.legacy.middlewares import LegacyRewriteMiddleware
 from warehouse.middlewares import XForwardedTokenMiddleware
 from warehouse.packaging import helpers as packaging_helpers
 from warehouse.packaging.search import ProjectMapping
@@ -205,6 +206,12 @@ class Warehouse(object):
                 ),
             ],
         )
+
+        # Previously PyPI used a hand written disaptch method which depended
+        # on things like the request's content type or url parameters. In order
+        # to sanely support that in Warehouse we use this middleware to rewrite
+        # those to "internal" URLs which we can then dispatch based on.
+        self.wsgi_app = LegacyRewriteMiddleware(self.wsgi_app)
 
         # This is last because we want it processed first in the stack of
         # middlewares. This will ensure that we strip X-Forwarded-* headers
