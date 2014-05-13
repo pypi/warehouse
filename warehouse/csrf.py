@@ -111,7 +111,7 @@ def handle_csrf(fn,
                 raise SecurityError("No CSRF protection applied to view")
             elif getattr(view, "_csrf", None):
                 # The function has explicitly opted in to the CSRF protection
-                # and we ca assume that it has handled setting up the CSRF
+                # and we can assume that it has handled setting up the CSRF
                 # token as well as making sure that a Vary: Cookie header has
                 # been added.
                 _verify_origin(request)
