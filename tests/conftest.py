@@ -14,12 +14,15 @@
 import subprocess
 import os
 
-from sqlalchemy.engine import create_engine
-from sqlalchemy.pool import AssertionPool
 import alembic.config
 import alembic.command
 import pretend
 import pytest
+
+from sqlalchemy.engine import create_engine
+from sqlalchemy.pool import AssertionPool
+
+from .lib.db import FixturesManager
 
 
 def pytest_collection_modifyitems(items):
@@ -137,6 +140,20 @@ def app():
         engine=pretend.stub(connect=connect, execute=connect),
         redis_class=ErrorRedis,
     )
+
+
+@pytest.fixture
+def db_fixtures(request, engine):
+    manager = FixturesManager(engine)
+    manager.load(os.path.join(os.path.dirname(__file__), "db_fixtures.yaml"))
+
+    marker = request.keywords.get("db_fixtures", None)
+    fixtures = marker.args if marker else {}
+
+    if fixtures:
+        manager.install_fixtures(fixtures)
+
+    return manager
 
 
 @pytest.fixture

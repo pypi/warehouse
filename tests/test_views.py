@@ -12,38 +12,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import pretend
 
 from warehouse.views import index
 
+from .lib.db import db_fixtures
 
-def test_index(app):
-    project_count = pretend.stub()
-    download_count = pretend.stub()
-    updated = pretend.stub()
 
-    app.db = pretend.stub(
-        packaging=pretend.stub(
-            get_project_count=pretend.call_recorder(
-                lambda: project_count,
-            ),
-            get_download_count=pretend.call_recorder(
-                lambda: download_count,
-            ),
-            get_recently_updated=pretend.call_recorder(lambda: updated),
-        ),
-    )
+@db_fixtures(
+    "projects.foobar",
+    "projects.Dinner",
 
+    "releases.foobar-1-0",
+    "releases.foobar-1-1",
+    "releases.Dinner-1-0",
+
+    "files.foobar-1-0-tar-gz",
+    "files.foobar-1-1-tar-gz",
+    "files.Dinner-1-0-tar-gz",
+    "files.Dinner-1-0-py2-py3-none-any-whl",
+)
+def test_index(dbapp, db_fixtures):
     request = pretend.stub()
 
-    resp = index(app, request)
+    resp = index(dbapp, request)
 
     assert resp.response.template.name == "index.html"
     assert resp.response.context == {
-        "project_count": project_count,
-        "download_count": download_count,
-        "recently_updated": updated,
+        "project_count": 2,
+        "download_count": 6448,
+        "recently_updated": [
+            {
+                "name": "foobar",
+                "version": "1.1",
+                "summary": "This is a summary for foobar 1.1",
+                "created": mock.ANY,
+            },
+            {
+                "name": "Dinner",
+                "version": "1.0",
+                "summary": "This is a summary for Dinner 1.0",
+                "created": mock.ANY,
+            },
+        ],
     }
-    assert app.db.packaging.get_project_count.calls == [pretend.call()]
-    assert app.db.packaging.get_download_count.calls == [pretend.call()]
-    assert app.db.packaging.get_recently_updated.calls == [pretend.call()]
