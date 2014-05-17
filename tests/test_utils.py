@@ -331,7 +331,8 @@ def test_find_links_from_html(html, expected):
     ("-not-alphanumericstart", ValueError),
     ("not-alphanumericend-", ValueError),
     ("123456789", "123456789"),
-    ("hoobs#", ValueError)
+    ("hoobs#", ValueError),
+    ("q", "q")
 ])
 def test_normalize_project_name(input_string, expected):
     if expected is ValueError:

@@ -132,7 +132,8 @@ def redirect_next(request, default="/", field_name="next", code=303):
 
 PACKAGE_REGEX = {
     "permitted_characters": re.compile("^[a-zA-Z0-9_\-.]+$"),
-    "start_and_end_with_ascii": re.compile("^[a-zA-Z0-9].*[a-zA-Z0-9]$"),
+    "start_with_alphanumeric": re.compile("^[a-zA-Z0-9].*"),
+    "end_with_alphanumeric": re.compile(".*[a-zA-Z0-9]$")
 }
 
 
@@ -143,9 +144,12 @@ def normalize_project_name(name):
     name = re.sub("_", "-", name).lower()
     if not PACKAGE_REGEX["permitted_characters"].match(name):
         raise ValueError("name contains illegal characters! (See PEP-426)")
-    if not PACKAGE_REGEX["start_and_end_with_ascii"].match(name):
-        raise ValueError("Distribution names MUST start and end with " +
-                         "an ASCII letter or digit (See PEP-426)")
+    if not (PACKAGE_REGEX["start_with_alphanumeric"].match(name) and
+            PACKAGE_REGEX["end_with_alphanumeric"].match(name)):
+        raise ValueError(
+            "Distribution names MUST start with and end with " +
+            "an ASCII letter or digit (See PEP-426)"
+        )
     return name
 
 
