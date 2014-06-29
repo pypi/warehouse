@@ -11,20 +11,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import re
 from warehouse import forms
 
-_username = forms.StringField(
+
+class UsernameValidator(forms.validators.Regexp):
+    """ validator specifically for a warehouse username """
+
+    def __init__(self, message=None):
+        super().__init__(r"^[A-Z0-9]([A-Z0-9._-]*[A-Z0-9])?$", re.I, message)
+
+    def __call__(self, form, field):
+        message = self.message or field.gettext('Invalid Username.')
+        super().__call__(form, field, message)
+
+_username = forms.StringField([
     forms.validators.Required(),
-    forms.validators.Length(min=4, max=25)
-)
+    forms.validators.Length(min=4, max=25),
+    UsernameValidator()
+])
 
 
 class LoginForm(forms.Form):
 
-    username = forms.StringField([
-        forms.validators.Required(),
-        forms.validators.Length(min=4, max=25)
-    ])
+    username = _username
 
     password = forms.PasswordField()
 
@@ -41,14 +51,18 @@ class LoginForm(forms.Form):
 
 
 class RegisterForm(forms.Form):
+    """
+    The requirements carried over from pypi are:
 
-    username = forms.StringField([
-        forms.validators.Required(),
-        forms.validators.Length(min=4, max=25)
+    * username: begin and end with alphanumeric, allowing ._- in the middle
+    * email must be alphanumeric or in ._+@-
+    """
+
+    username = _username
+
+    email = forms.StringField([
+        forms.validators.Email()
     ])
-
-    email = forms.StringField(
-    )
 
     password = forms.PasswordField()
 
