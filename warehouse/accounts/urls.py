@@ -28,6 +28,11 @@ urls = [
             endpoint="logout",
         ),
         Rule(
+            "/account/register/",
+            methods=["GET", "POST"],
+            endpoint="register",
+        ),
+        Rule(
             "/user/<username>/",
             methods=["GET"],
             endpoint="user_profile",

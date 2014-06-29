@@ -13,15 +13,18 @@
 # limitations under the License.
 from warehouse import forms
 
+_username = forms.StringField(
+    forms.validators.Required(),
+    forms.validators.Length(min=4, max=25)
+)
+
 
 class LoginForm(forms.Form):
 
-    username = forms.StringField(
-        [
-            forms.validators.Required(),
-            forms.validators.Length(min=4, max=25),
-        ],
-    )
+    username = forms.StringField([
+        forms.validators.Required(),
+        forms.validators.Length(min=4, max=25)
+    ])
 
     password = forms.PasswordField()
 
@@ -34,4 +37,45 @@ class LoginForm(forms.Form):
         if not self.authenticate(field.data, self.password.data):
             raise forms.ValidationError(
                 self.gettext("Invalid username or password")
+            )
+
+
+class RegisterForm(forms.Form):
+
+    username = forms.StringField([
+        forms.validators.Required(),
+        forms.validators.Length(min=4, max=25)
+    ])
+
+    email = forms.StringField(
+    )
+
+    password = forms.PasswordField()
+
+    confirm_password = forms.PasswordField()
+
+    def __init__(self, *args,
+                 is_existing_username,
+                 is_existing_email,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self._is_existing_username = is_existing_username
+        self._is_existing_email = is_existing_email
+
+    def validate_username(self, field):
+        if self._is_existing_username(field.data):
+            raise forms.ValidationError(
+                self.gettext("Username already exists!")
+            )
+
+    def validate_email(self, field):
+        if self._is_existing_email(field.data):
+            raise forms.ValidationError(
+                self.gettext("Email already exists!")
+            )
+
+    def validate_confirm_password(self, field):
+        if not self.password.data == field.data:
+            raise forms.ValidationError(
+                self.gettext("Passwords do not match!")
             )

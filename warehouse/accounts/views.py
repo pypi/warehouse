@@ -130,3 +130,11 @@ def logout(app, request):
         app, request, "accounts/logout.html",
         next=request.values.get("next"),
     )
+
+
+@csrf_protect
+@uses_session
+def register(app, request):
+    return render_response(
+        app, request, "accounts/register.html"
+    )
