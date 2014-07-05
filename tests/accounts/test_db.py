@@ -159,7 +159,7 @@ def test_user_authenticate_invalid(engine, dbapp):
 
 def test_insert_and_delete_user(dbapp):
     username = "guidovanrossum"
-    email = "notanemail@python.org"
+    email = "not.anemail@example.com"
     password = "plaintextpasswordsaregreat"
     dbapp.db.accounts.insert_user(
         username,
@@ -186,7 +186,7 @@ def test_insert_with_same_email(dbapp, user):
 
 
 def test_update_user_email(dbapp, user):
-    email = "montypython@python.org"
+    email = "montypython@example.com"
     dbapp.db.accounts.update_user_email(user['id'], email)
     new_info = dbapp.db.accounts.get_user(user['username'])
     assert new_info['email'] == email

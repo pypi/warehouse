@@ -15,7 +15,7 @@
 from werkzeug.exceptions import NotFound
 
 from warehouse import fastly
-from warehouse.accounts.forms import LoginForm
+from warehouse.accounts.forms import LoginForm, RegisterForm
 from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
@@ -135,6 +135,25 @@ def logout(app, request):
 @csrf_protect
 @uses_session
 def register(app, request):
+    form = RegisterForm(
+        request.form,
+        is_existing_username=app.db.accounts.get_user_id,
+        is_existing_email=app.db.accounts.get_user_id_by_email
+    )
+
+    if request.method == "POST" and form.validate():
+        app.db.accounts.insert_user(
+            form.username.data,
+            form.email.data,
+            form.password.data
+        )
+        return render_response(
+            app, request, "accounts/created_account.html",
+            username=form.username.data,
+            email=form.email.data
+        )
+
     return render_response(
-        app, request, "accounts/register.html"
+        app, request, "accounts/register.html",
+        form=form
     )

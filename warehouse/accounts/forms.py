@@ -22,14 +22,18 @@ class UsernameValidator(forms.validators.Regexp):
         super().__init__(r"^[A-Z0-9]([A-Z0-9._-]*[A-Z0-9])?$", re.I, message)
 
     def __call__(self, form, field):
-        message = self.message or field.gettext('Invalid Username.')
+        message = self.message or field.gettext(
+            'Username must begin and end with alphanumeric, the characters "._-" are allowed in the middle'
+        )
         super().__call__(form, field, message)
 
-_username = forms.StringField([
-    forms.validators.Required(),
-    forms.validators.Length(min=4, max=25),
-    UsernameValidator()
-])
+_username = forms.StringField(
+    validators=[
+        forms.validators.Required(),
+        forms.validators.Length(min=4, max=25),
+        UsernameValidator()
+    ]
+)
 
 
 class LoginForm(forms.Form):
@@ -60,9 +64,11 @@ class RegisterForm(forms.Form):
 
     username = _username
 
-    email = forms.StringField([
-        forms.validators.Email()
-    ])
+    email = forms.StringField(
+        validators=[
+            forms.validators.Email()
+        ]
+    )
 
     password = forms.PasswordField()
 

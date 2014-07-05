@@ -20,11 +20,17 @@ metadata = sqlalchemy.MetaData()
 
 class Database(object):
 
-    def __init__(self, app, metadata, engine, redis):
+    def __init__(self, app, metadata, redis):
         self.app = app
         self.metadata = metadata
-        self.engine = engine
         self.redis = redis
+
+    @property
+    def engine(self):
+        # we use a property that maps to app.engine,
+        # because the engine is a transacted connection
+        # generated on every request
+        return self.app.engine
 
 
 def scalar(query, default=None):

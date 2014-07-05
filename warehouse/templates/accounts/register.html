@@ -20,12 +20,68 @@
 {% block content %}
   <div class="register-page">
     <div class="row">
-      <div class="col-md-12">
+     <div class="col-md-6">
 
         <form class="form-register" role="form" method="POST" action=".">
           <h2 class="form-register-heading">{{ gettext("Register for an account") }}</h2>
-       </form>
 
+          <div class="form-group{% if form.username.errors %} has-error{% endif %}">
+            {% for error in form.username.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.username(class="form-control", placeholder=gettext("Username"), required=true, autofocus=true) }}
+          </div>
+
+          <div class="form-group{% if form.email.errors %} has-error{% endif %}">
+            {% for error in form.email.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.email(class="form-control", placeholder=gettext("Email"), required=true) }}
+          </div>
+
+          <div class="form-group{% if form.password.errors %} has-error{% endif %}">
+            {% for error in form.password.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.password(class="form-control", placeholder=gettext("Password"), required=true) }}
+          </div>
+
+          <div class="form-group{% if form.confirm_password.errors %} has-error{% endif %}">
+            {% for error in form.confirm_password.errors %}
+            <p class="help-block">{{ error }}</p>
+            {% endfor %}
+
+            {{ form.confirm_password(class="form-control", placeholder=gettext("Confirm Password"), required=true) }}
+          </div>
+
+          <p>
+            For your on security, please ensure your password is of a
+            reasonable length (> 8) and mixes lowercase and uppercase letters,
+            as well as numbers.
+
+            It's also recommend to not use the same password twice.
+          </p>
+
+          {{ csrf_token() }}
+
+          {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+          <button class="btn btn-lg btn-primary btn-block" type="submit">
+            {{ gettext("Sign in") }}
+          </button>
+
+       </form>
+      </div>
+      <div class="col-md-6">
+        <h2>Why Register?</h2>
+        You'll need an account on Warehouse if you'd like to:
+        <ul>
+          <li>upload new packages</li>
+          <li>manage existing packages</li>
+        </ul>
       </div>
     </div>
   </div>

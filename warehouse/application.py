@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import argparse
+import contextlib
 import collections
 import importlib
 import logging.config
@@ -87,7 +88,7 @@ class Warehouse(object):
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+            engine = sqlalchemy.create_engine(self.config.database.url, echo="debug")
         self.engine = engine
 
         # Create our redis connections
@@ -102,7 +103,6 @@ class Warehouse(object):
             self.db[name] = klass(
                 self,
                 self.metadata,
-                self.engine,
                 self.redises["downloads"],
             )
 
@@ -334,6 +334,18 @@ class Warehouse(object):
             request.host
 
             # Dispatch to the loaded view function
-            return self.dispatch_view(view, self, request, **kwargs)
+            with self.begin_connection():
+                return self.dispatch_view(view, self, request, **kwargs)
         except HTTPException as exc:
             return exc
+
+    @contextlib.contextmanager
+    def begin_connection(self):
+        engine = self.engine
+        connection = self.engine.connect()
+        trans = connection.begin()
+        self.engine = connection
+        yield
+        trans.commit()
+        connection.close()
+        self.engine = engine
