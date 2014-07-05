@@ -19,12 +19,16 @@ from warehouse import db
 
 
 def test_database_basic():
-    app, metadata, engine, redis = object(), object(), object(), object()
-    m = db.Database(app, metadata, engine, redis)
+    app = pretend.stub(
+        engine=object()
+    )
+    metadata, redis = object(), object()
+
+    m = db.Database(app, metadata, redis)
 
     assert m.app is app
     assert m.metadata is metadata
-    assert m.engine is engine
+    assert m.engine is app.engine
     assert m.redis is redis
 
 

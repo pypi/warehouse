@@ -5,7 +5,7 @@ assets:
     directory: "static"
 
 database:
-    url: "postgresql://localhost/test_warehouse"
+    url: "postgresql://localhost/warehouse"
 
 redis:
     downloads: "redis://localhost:6379/0"

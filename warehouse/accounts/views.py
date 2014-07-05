@@ -68,16 +68,7 @@ def login(app, request):
             # authenticated user.
             request.session.clear()
 
-        # Cycle the session key to prevent session fixation attacks from
-        # crossing an authentication boundary
-        request.session.cycle()
-
-        # Cycle the CSRF token to prevent a CSRF via session fixation attack
-        # from crossing an authentication boundary
-        csrf_cycle(request.session)
-
-        # Log the user in by storing their user id in their session
-        request.session["user.id"] = user_id
+        _cycle_session_and_login(request, user_id)
 
         # We'll want to redirect the user with a 303 once we've completed the
         # log in process.
@@ -142,18 +133,40 @@ def register(app, request):
     )
 
     if request.method == "POST" and form.validate():
-        app.db.accounts.insert_user(
+        user_id = app.db.accounts.insert_user(
             form.username.data,
             form.email.data,
             form.password.data
         )
-        return render_response(
+
+        _cycle_session_and_login(request, user_id)
+
+        resp = render_response(
             app, request, "accounts/created_account.html",
             username=form.username.data,
             email=form.email.data
         )
 
+        # display purposes only: set the username
+        resp.set_cookie("username", form.username.data)
+
+        return resp
+
     return render_response(
         app, request, "accounts/register.html",
         form=form
     )
+
+
+def _cycle_session_and_login(request, user_id):
+
+    # Cycle the session key to prevent session fixation attacks from
+    # crossing an authentication boundary
+    request.session.cycle()
+
+    # Cycle the CSRF token to prevent a CSRF via session fixation attack
+    # from crossing an authentication boundary
+    csrf_cycle(request.session)
+
+    # Log the user in by storing their user id in their session
+    request.session["user.id"] = user_id

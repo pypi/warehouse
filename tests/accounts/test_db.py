@@ -161,15 +161,15 @@ def test_insert_and_delete_user(dbapp):
     username = "guidovanrossum"
     email = "not.anemail@example.com"
     password = "plaintextpasswordsaregreat"
-    dbapp.db.accounts.insert_user(
+    user_id = dbapp.db.accounts.insert_user(
         username,
         email,
         password
     )
     assert dbapp.db.accounts.user_authenticate(username,
                                                password)
-    assert dbapp.db.accounts.get_user(username)
-    assert dbapp.db.accounts.get_user_id_by_email(email)
+    assert dbapp.db.accounts.get_user_id(username) == user_id
+    assert dbapp.db.accounts.get_user_id_by_email(email) == user_id
     dbapp.db.accounts.delete_user(username)
     assert not dbapp.db.accounts.get_user(username)
 
