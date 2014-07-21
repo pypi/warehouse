@@ -276,6 +276,7 @@ journals = Table(
     Column("submitted_by", CIText()),  # Needs a FK to accounts_user
     Column("submitted_from", UnicodeText()),
 
+    Index("journals_id_idx", "id"),
     Index("journals_name_idx", "name"),
     Index("journals_version_idx", "version"),
     Index("journals_changelog", "submitted_date", "name", "version", "action"),
