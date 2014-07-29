@@ -276,3 +276,35 @@ def test_user_registration_valid(app):
     assert resp.status_code == 200
     assert resp.response.template.name == "accounts/created_account.html"
     assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
+
+
+def test_user_registration_different_password(app):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user_id=lambda username: None,
+            get_user_id_by_email=lambda email: None,
+            insert_user=lambda username, email, password: 1
+        ),
+    )
+
+    request = pretend.stub(
+        method="POST",
+        form=MultiDict({
+            "username": "test",
+            "email": "test@example.com",
+            "password": "password",
+            "confirm_password": "different password"
+        }),
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+        _session=Session({}, "1234", False),
+    )
+
+    resp = register(app, request)
+
+    assert "user.id" not in request.session
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/register.html"
