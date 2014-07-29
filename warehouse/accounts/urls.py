@@ -33,6 +33,11 @@ urls = [
             endpoint="register",
         ),
         Rule(
+            "/account/confirm_account/<signed_value>",
+            methods=["GET"],
+            endpoint="confirm_account",
+        ),
+        Rule(
             "/user/<username>/",
             methods=["GET"],
             endpoint="user_profile",

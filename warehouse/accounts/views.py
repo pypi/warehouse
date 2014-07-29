@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import itsdangerous
 from werkzeug.exceptions import NotFound
 
 from warehouse import fastly
@@ -156,6 +156,29 @@ def register(app, request):
         app, request, "accounts/register.html",
         form=form
     )
+
+
+@csrf_protect
+def confirm_account(app, request, signed_value):
+    try:
+        email = app.signer.unsign(signed_value)
+    except itsdangerous.BadSignature:
+        resp = render_response(
+            app, request, "accounts/invalid_confirmation.html"
+        )
+        resp.status_code = 400
+        return resp
+
+    return render_response(
+        app, request, "accounts/confirmed_account.html",
+        email=email
+    )
+
+
+def _get_value_from_signed_value(signer, signature):
+    """ derive the value from a signed bytestring """
+    sep = itsdangerous.want_bytes(signer.sep)
+    return signature.rsplit(sep, 1)[0]
 
 
 def _cycle_session_and_login(request, user_id):

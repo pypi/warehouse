@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import argparse
-import contextlib
 import collections
 import importlib
 import logging.config
@@ -34,6 +33,7 @@ import redis
 import sqlalchemy
 import yaml
 
+from itsdangerous import Signer
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
@@ -161,6 +161,8 @@ class Warehouse(object):
             self.redises["sessions"],
             session_class=Session,
         )
+
+        self.signer = Signer(self.config.get("secret_key"))
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]

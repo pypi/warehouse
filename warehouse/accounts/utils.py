@@ -1,0 +1,1 @@
+def send_registration_confirmation_email(
