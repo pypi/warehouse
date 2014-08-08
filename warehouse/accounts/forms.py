@@ -23,7 +23,8 @@ class UsernameValidator(forms.validators.Regexp):
 
     def __call__(self, form, field):
         message = self.message or field.gettext(
-            'Username must begin and end with alphanumeric, the characters "._-" are allowed in the middle'
+            "Username must begin and end with alphanumeric, "
+            "the characters \"._-\" are allowed in the middle"
         )
         super().__call__(form, field, message)
 

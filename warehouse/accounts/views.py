@@ -161,7 +161,7 @@ def register(app, request):
 @csrf_protect
 def confirm_account(app, request, signed_value):
     try:
-        email = app.signer.unsign(signed_value)
+        email = app.signer.unsign(signed_value).decode('UTF-8')
     except itsdangerous.BadSignature:
         resp = render_response(
             app, request, "accounts/invalid_confirmation.html"
@@ -169,16 +169,11 @@ def confirm_account(app, request, signed_value):
         resp.status_code = 400
         return resp
 
+    app.db.accounts.activate_user_by_email(email)
     return render_response(
         app, request, "accounts/confirmed_account.html",
         email=email
     )
-
-
-def _get_value_from_signed_value(signer, signature):
-    """ derive the value from a signed bytestring """
-    sep = itsdangerous.want_bytes(signer.sep)
-    return signature.rsplit(sep, 1)[0]
 
 
 def _cycle_session_and_login(request, user_id):

@@ -88,7 +88,8 @@ class Warehouse(object):
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url, echo="debug")
+            engine = sqlalchemy.create_engine(self.config.database.url,
+                                              echo="debug")
             engine = engine.connect()
         self.engine = engine
 

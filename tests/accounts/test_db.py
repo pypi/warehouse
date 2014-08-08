@@ -222,3 +222,8 @@ def test_activate_user_by_email(dbapp, user):
     assert not dbapp.db.accounts.is_email_active(user['email'])
     dbapp.db.accounts.activate_user_by_email(user['email'])
     assert dbapp.db.accounts.is_email_active(user['email'])
+
+
+def test_activate_user_by_email_bad_email(dbapp):
+    with pytest.raises(ValueError):
+        dbapp.db.accounts.activate_user_by_email("foonotereal@example.com")

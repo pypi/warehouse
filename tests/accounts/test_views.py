@@ -312,7 +312,7 @@ def test_user_registration_different_password(app):
     assert resp.response.template.name == "accounts/register.html"
 
 
-def test_confirm_account(app):
+def test_confirm_account(dbapp, user):
     request = pretend.stub(
         method="GET",
         host="example.com",
@@ -322,10 +322,30 @@ def test_confirm_account(app):
         ),
     )
 
-    email = "foo@example.com"
-    signed_value = app.signer.sign(bytes(email, 'UTF-8'))
+    signed_value = dbapp.signer.sign(bytes(user['email'], 'UTF-8'))
 
-    resp = confirm_account(app, request, signed_value)
+    resp = confirm_account(dbapp, request, signed_value)
 
     assert resp.status_code == 200
     assert resp.response.template.name == "accounts/confirmed_account.html"
+    assert resp.response.context['email'] == user['email']
+    assert dbapp.db.accounts.is_email_active(user['email'])
+
+
+def test_bad_confirm_account(dbapp, user):
+    request = pretend.stub(
+        method="GET",
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+    )
+
+    signed_value = dbapp.signer.sign(bytes(user['email'], 'UTF-8')) + b'X'
+
+    resp = confirm_account(dbapp, request, signed_value)
+
+    assert resp.status_code == 400
+    assert resp.response.template.name == "accounts/invalid_confirmation.html"
+    assert not dbapp.db.accounts.is_email_active(user['email'])

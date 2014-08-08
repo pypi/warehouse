@@ -14,8 +14,7 @@
 import logging
 
 from warehouse import db
-from warehouse.accounts.tables import users, emails
-from sqlalchemy.sql.expression import select
+from warehouse.accounts.tables import users
 
 
 logger = logging.getLogger(__name__)
