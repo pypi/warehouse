@@ -1,5 +1,7 @@
 debug: true
 
+secret_key: development
+
 site:
     name: Warehouse (dev)
     hosts:
