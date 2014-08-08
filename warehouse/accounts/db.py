@@ -14,7 +14,8 @@
 import logging
 
 from warehouse import db
-from warehouse.accounts.tables import users
+from warehouse.accounts.tables import users, emails
+from sqlalchemy.sql.expression import select
 
 
 logger = logging.getLogger(__name__)
@@ -56,14 +57,17 @@ class Database(db.Database):
 
         return result
 
-    def is_email_active(self, user_id):
-        result = self.engine.execute(users.select(
-            columns=[users.c.is_active]
-        ).where(
-            users.c.id == user_id
-        ))
-        import pdb; pdb.set_trace()
-
+    def is_email_active(self, email):
+        query = \
+            """ SELECT is_active
+                FROM accounts_user
+                LEFT OUTER JOIN accounts_email ON (
+                    accounts_email.user_id = accounts_user.id
+                )
+                WHERE email = %(email)s
+                LIMIT 1
+            """
+        return self.engine.execute(query, email=email).scalar()
 
     def user_authenticate(self, username, password):
         # Get the user with the given username
