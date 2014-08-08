@@ -20,7 +20,9 @@ import pytest
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import NotFound
 
-from warehouse.accounts.views import user_profile, login, logout, register
+from warehouse.accounts.views import (
+    user_profile, login, logout, register, confirm_account
+)
 from warehouse.sessions import Session
 
 
@@ -308,3 +310,22 @@ def test_user_registration_different_password(app):
     assert "user.id" not in request.session
     assert resp.status_code == 200
     assert resp.response.template.name == "accounts/register.html"
+
+
+def test_confirm_account(app):
+    request = pretend.stub(
+        method="GET",
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+    )
+
+    email = "foo@example.com"
+    signed_value = app.signer.sign(bytes(email, 'UTF-8'))
+
+    resp = confirm_account(app, request, signed_value)
+
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/confirmed_account.html"

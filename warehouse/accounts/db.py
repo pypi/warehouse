@@ -14,6 +14,7 @@
 import logging
 
 from warehouse import db
+from warehouse.accounts.tables import users
 
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,15 @@ class Database(db.Database):
             result = dict(result)
 
         return result
+
+    def is_email_active(self, user_id):
+        result = self.engine.execute(users.select(
+            columns=[users.c.is_active]
+        ).where(
+            users.c.id == user_id
+        ))
+        import pdb; pdb.set_trace()
+
 
     def user_authenticate(self, username, password):
         # Get the user with the given username
@@ -141,6 +151,19 @@ class Database(db.Database):
             "DELETE FROM accounts_user WHERE username = %s",
             username
         )
+
+    def activate_user_by_email(self, email):
+        user_id = self.get_user_id_by_email(email)
+
+        if user_id is None:
+            raise ValueError(
+                "Email {0} is not linked to an account!".format(email))
+
+        self.engine.execute(users.update().where(
+            users.c.id == user_id
+        ).values(
+            is_active=True
+        ))
 
     def update_user_password(self, user_id, password):
         query = \

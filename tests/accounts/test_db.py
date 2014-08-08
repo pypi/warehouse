@@ -216,3 +216,9 @@ def test_update_nothing(dbapp, user):
     assert info['email'] == user['email']
     assert dbapp.db.accounts.user_authenticate(user['username'],
                                                user['password'])
+
+
+def test_activate_user_by_email(dbapp, user):
+    assert not dbapp.db.accounts.is_email_active(user['email'])
+    dbapp.db.accounts.activate_user_by_email(user['email'])
+    assert dbapp.db.accounts.is_email_active(user['email'])
