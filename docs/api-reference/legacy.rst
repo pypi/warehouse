@@ -109,11 +109,6 @@ Simple Project API
           </body>
         </html>
 
-    :resheader Link: A list of additional URLs related to this project,
-                     currently only supports a ``rel=canonical`` link which
-                     will always point to the canonical version of this URL
-                     in case the current URL is a case insensitive or
-                     equivalent character match.
     :resheader X-PyPI-Last-Serial: The most recent serial id number for the
                                    project.
     :statuscode 200: no error
