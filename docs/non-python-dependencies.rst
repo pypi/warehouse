@@ -6,7 +6,7 @@ Ubuntu 14.04 / Debian-based Environment
 
 
 Redis
------
+~~~~~
 
 .. code-block:: console
     
@@ -14,7 +14,7 @@ Redis
 
 
 Compass
--------
+~~~~~~~
 
 Install Ruby dependencies. 
 
@@ -55,7 +55,7 @@ Install the ``compass`` non-python dependency.
 
 
 Grunt
------
+~~~~~
 
 Install Grunt installation tool.
 
@@ -70,11 +70,11 @@ Install Grunt.
 
 .. code-block:: console
 
-    $ sudo nmp install -g grunt
+    $ sudo npm install -g grunt
 
 
 Elasticsearch
--------------
+~~~~~~~~~~~~~
 
 Install Elasticsearch installation tool.  
 
@@ -100,7 +100,7 @@ Starting the Elasticsearch server.
 
 
 PostgreSQL
-----------
+~~~~~~~~~~
 
 Install postgreSQL and dependencies (assumes Ubuntu 14.04 environment.)
 
