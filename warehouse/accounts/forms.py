@@ -28,7 +28,7 @@ class UsernameValidator(forms.validators.Regexp):
         )
         super().__call__(form, field, message)
 
-_username = forms.StringField(
+_username_field = forms.StringField(
     validators=[
         forms.validators.Required(),
         forms.validators.Length(min=4, max=25),
@@ -39,7 +39,7 @@ _username = forms.StringField(
 
 class LoginForm(forms.Form):
 
-    username = _username
+    username = _username_field
 
     password = forms.PasswordField()
 
@@ -63,7 +63,7 @@ class RegisterForm(forms.Form):
     * email must be alphanumeric or in ._+@-
     """
 
-    username = _username
+    username = _username_field
 
     email = forms.StringField(
         validators=[
