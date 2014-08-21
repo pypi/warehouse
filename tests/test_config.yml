@@ -1,6 +1,12 @@
 site:
     access_token: testing
 
+secret_key: test
+
+smtp_server:
+    disabled: true
+    url: localhost
+
 assets:
     directory: "static"
 

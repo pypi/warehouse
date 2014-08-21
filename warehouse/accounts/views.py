@@ -21,6 +21,7 @@ from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
 from warehouse.templates import render_response
 from warehouse.utils import cache, redirect, redirect_next
+from .utils import get_confirmation_email
 
 
 @cache(browser=1, varnish=120)
@@ -149,6 +150,14 @@ def register(app, request):
 
         # display purposes only: set the username
         resp.set_cookie("username", form.username.data)
+
+        # send the confirmation email
+        confirmation_link = app.signer.sign(bytes(form.email.data, 'UTF-8'))
+        confirmation_email = get_confirmation_email(
+            form.email.data,
+            confirmation_link
+        )
+        app.email_server.send_message(confirmation_email)
 
         return resp
 

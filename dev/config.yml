@@ -8,6 +8,9 @@ site:
         - "localhost:9000"
     access_token: development
 
+smtp_server:
+    disabled: true
+
 database:
     url: "postgresql://localhost/warehouse"
 

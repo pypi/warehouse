@@ -40,7 +40,7 @@ def test_basic_instantiation(database):
             "access_token": "testing",
         },
         "database": {
-            "url": "postgres:///warehouse_unittest",
+            "url": database.url,
         },
         "redis": {
             "downloads": "redis://localhost:6379/0",

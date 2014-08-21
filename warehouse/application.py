@@ -56,6 +56,7 @@ from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import merge_dict
+from warehouse.email_server import EmailServer
 
 # Register the SQLAlchemy tables by importing them
 import warehouse.accounts.tables
@@ -164,6 +165,11 @@ class Warehouse(object):
         )
 
         self.signer = Signer(self.config.get("secret_key"))
+
+        email_server_config = self.config.get("smtp_server", {
+            "disabled": True
+        })
+        self.email_server = EmailServer(email_server_config)
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
