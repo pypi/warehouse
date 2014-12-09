@@ -3,6 +3,8 @@ include LICENSE
 include README.rst
 include CONTRIBUTING.rst
 include tox.ini
+include dev-setup-env
+include dev-start-server
 
 recursive-include dev *.yml
 
