@@ -64,9 +64,9 @@ dependencies, and the Python development dependencies using:
 
 Before setting up the project you need to have a postgres server running.
 
-If you do not want postgres to run as a deamon you can manually launch the postgres
-server in a separate terminal with the following command (exact to path database
-path may vary depending on system):
+If you do not want postgres to run as a daemon you can manually launch the postgres
+server in a separate terminal with the following command (exact path to database may 
+vary depending on system):
 
 .. code-block:: console
 
