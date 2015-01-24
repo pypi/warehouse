@@ -223,6 +223,17 @@ release_files = Table(
 )
 
 
+file_registry = Table(
+    "file_registry",
+    db.metadata,
+
+    Column("id", Integer(), primary_key=True, nullable=False),
+    Column("filename", UnicodeText(), nullable=False),
+
+    UniqueConstraint("filename", name="file_registry_filename_key"),
+)
+
+
 description_urls = Table(
     "description_urls",
     db.metadata,
