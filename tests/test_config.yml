@@ -12,4 +12,6 @@ redis:
     sessions: "redis://localhost:6379/0"
 
 search:
-    hosts: []
+    hosts:
+        - host: 127.0.0.1
+          port: 9200
