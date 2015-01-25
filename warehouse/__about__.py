@@ -10,13 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.__about__ import (
-    __title__, __summary__, __uri__, __version__, __author__, __email__,
-    __license__, __copyright__,
-)
-
-
 __all__ = [
     "__title__", "__summary__", "__uri__", "__version__", "__author__",
     "__email__", "__license__", "__copyright__",
 ]
+
+__title__ = "warehouse"
+__summary__ = "Next Generation Python Package Repository"
+__uri__ = "https://warehouse.python.org/"
+
+__version__ = "15.0.dev0"
+
+__author__ = "The Python Packaging Authority"
+__email__ = "donald@stufft.io"
+
+__license__ = "Apache License, Version 2.0"
+__copyright__ = "Copyright 2015 %s" % __author__
