@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.application import configure
+from warehouse.config import configure
 
 # Configure Pyramid and then create a WSGI application
 application = configure().make_wsgi_app()
