@@ -11,6 +11,7 @@ recursive-include docs *.py
 recursive-include docs *.rst
 recursive-include docs *.txt
 recursive-include docs Makefile
+recursive-exclude docs/_build *
 
 recursive-include warehouse *.html
 recursive-include warehouse *.mako
