@@ -27,7 +27,7 @@ class Index(object):
         self.db = db
         self.config = config
         self.es = Elasticsearch(
-            hosts=self.config.hosts,
+            hosts=self.config.hosts or ['127.0.0.1:9200'],
             **self.config.get("client_options", {})
         )
 
