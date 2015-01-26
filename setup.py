@@ -56,5 +56,6 @@ setuptools.setup(
         "aiopyramid",
         "pyramid",
         "pyramid_jinja2",
+        "tzf.pyramid_yml",
     ],
 )

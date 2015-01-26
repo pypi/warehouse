@@ -10,19 +10,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from pyramid.config import Configurator
 
 from warehouse.utils.mapper import WarehouseMapper
 
 
-def configure():
-    config = Configurator()
+def configure(settings=None):
+    if settings is None:
+        settings = {}
+
+    # Set our yml.location so that it contains all of our settings files
+    settings["yml.location"] = ["warehouse:etc"]
+
+    # Pull our configuration location of the environment
+    if "WAREHOUSE_CONFIG_DIR" in os.environ:
+        settings["yml.location"].append(os.environ["WAREHOUSE_CONFIG_DIR"])
+
+    # Pull our configuration environment of the environment
+    if "WAREHOUSE_ENV" in os.environ:
+        settings["env"] = os.environ["WAREHOUSE_ENV"]
+
+    config = Configurator(settings=settings)
 
     # Setup our custom view mapper, this will provide two things:
     #   * Enable using view functions as asyncio coroutines.
     #   * Pass matched items from views in as keyword arguments to the
     #     function.
     config.set_view_mapper(WarehouseMapper)
+
+    # We want to load configuration from YAML files
+    config.include("tzf.pyramid_yml")
 
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
