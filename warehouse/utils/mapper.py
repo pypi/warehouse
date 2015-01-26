@@ -14,45 +14,26 @@ import asyncio
 import functools
 import inspect
 
-from aiopyramid.config import CoroutineOrExecutorMapper as _BaseMapper
-from aiopyramid.helpers import is_generator
-
-
-class CoroutineOrExecutorMapper(_BaseMapper):
-
-    def run_in_executor_view(self, view):
-        # aiopyramid normally would run a non coroutine view using
-        # asyncio.get_event_loop().run_in_executor, however we don't want to
-        # do that. We're going to assume that any function that does not
-        # yield does not do any IO and just return the mapped view directly.
-        return view
+from aiopyramid.config import CoroutineOrExecutorMapper
 
 
 class WarehouseMapper(CoroutineOrExecutorMapper):
 
     def __call__(self, view):
-        # Store the original view, because after we wrap it we need to know if
-        # it should be wrapped with asyncio.coroutine or not.
-        original = view
+        # If this is one of our views, then we want to enable passing the
+        # request.matchdict into the view function as kwargs, we also want
+        # to use asyncio coroutines to handle our own views.
+        if view.__module__.startswith("warehouse."):
+            # Wrap our view with our wrapper which will pull items out of the
+            # matchdict and pass it into the given view.
+            view = self._wrap_with_matchdict(view)
 
-        # Wrap our view with our wrapper which will pull items out of the
-        # matchdict and pass it into the given view.
-        view = self._wrap_with_matchdict(view)
-
-        # Determine if the original view was an asyncio coroutine or not, if it
-        # was then we want to wrap our wrapped view with asyncio.coroutine so
-        # that it'll act as a coroutine.
-        if (
-            asyncio.iscoroutinefunction(original) or
-            is_generator(original) or
-            is_generator(
-                getattr(original, '__call__', None)
-            )
-        ):
+            # Wrap this as a coroutine so that it'll get called correctly from
+            # asyncio.
             view = asyncio.coroutine(view)
 
-        # Finally, call into the aiopyramid CoroutineOrExecutorMapper which
-        # will call this view as either a coroutine or as a sync view.
+        # Call into the aiopyramid CoroutineOrExecutorMapper which will call
+        # this view as either a coroutine or as a sync view.
         return super().__call__(view)
 
     def _wrap_with_matchdict(self, view):
