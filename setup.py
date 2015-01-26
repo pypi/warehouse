@@ -55,5 +55,6 @@ setuptools.setup(
     install_requires=[
         "aiopyramid",
         "pyramid",
+        "pyramid_jinja2",
     ],
 )

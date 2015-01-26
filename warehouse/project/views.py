@@ -10,10 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.response import Response
 from pyramid.view import view_config
 
 
-@view_config(route_name="project.detail")
+@view_config(route_name="project.detail", renderer="hello.html")
 def hello_world(request, *, name):
-    return Response('<body><h1>Hello World!</h1></body>')
+    return {"message": "Hello World!"}

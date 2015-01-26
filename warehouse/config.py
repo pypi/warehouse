@@ -24,6 +24,17 @@ def configure():
     #     function.
     config.set_view_mapper(WarehouseMapper)
 
+    # We'll want to use Jinja2 as our template system.
+    config.include("pyramid_jinja2")
+
+    # We also want to use Jinja2 for .html templates as well, because we just
+    # assume that all templates will be using Jinja.
+    config.add_jinja2_renderer(".html")
+
+    # We'll store all of our templates in one location, warehouse/templates
+    # so we'll go ahead and add that to the Jinja2 search path.
+    config.add_jinja2_search_path("warehouse:templates", name=".html")
+
     # Register the configuration for each sub package.
     config.include(".project", route_prefix="/project/")
 
