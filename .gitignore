@@ -8,6 +8,7 @@
 .cache/
 .coverage
 
+docs/_build/
 build/
 dist/
 htmlcov/
