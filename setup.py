@@ -58,4 +58,10 @@ setuptools.setup(
         "pyramid_jinja2",
         "tzf.pyramid_yml",
     ],
+
+    extras_require={
+        "devel": [
+            "pyramid_debugtoolbar",
+        ],
+    },
 )
