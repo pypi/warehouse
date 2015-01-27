@@ -1,0 +1,3 @@
+configurator:
+  jinja2:
+    newstyle: True
