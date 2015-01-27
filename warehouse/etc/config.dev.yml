@@ -15,3 +15,7 @@ configurator:
       - pyramid_debugtoolbar.panels.sqla.SQLADebugPanel
       - pyramid_debugtoolbar.panels.tweens.TweensDebugPanel
       - pyramid_debugtoolbar.panels.introspection.IntrospectionDebugPanel
+
+  pyramid:
+    reload_assets: True
+    reload_templates: True
