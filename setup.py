@@ -52,6 +52,8 @@ setuptools.setup(
         "warehouse.utils",
     ],
 
+    include_package_data=True,
+
     install_requires=[
         "aiopyramid",
         "pyramid",
