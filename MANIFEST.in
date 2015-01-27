@@ -1,0 +1,4 @@
+include tox.ini
+
+recursive-include warehouse/etc *.yml
+recursive-include warehouse/templates *.html
