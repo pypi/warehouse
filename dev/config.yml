@@ -7,7 +7,7 @@ site:
     access_token: development
 
 database:
-    url: "postgresql://localhost/warehouse"
+    url: "postgresql:///warehouse"
 
 redis:
     downloads: "redis://localhost:6379/0"
