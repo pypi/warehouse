@@ -61,8 +61,22 @@ dependencies, and the Python development dependencies using:
 
     $ pip install -r dev-requirements.txt
 
-Finally you can setup the project:
 
+Before setting up the project you need to have a postgres server running.
+
+If you do not want postgres to run as a daemon you can manually launch the postgres
+server in a separate terminal with the following command (exact path to database may 
+vary depending on system):
+
+.. code-block:: console
+
+    $ postgres -D /usr/local/var/postgres
+    LOG:  database system was shut down at 2014-12-17 18:02:12 CET
+    LOG:  database system is ready to accept connections
+    LOG:  autovacuum launcher started
+
+Finally you can setup the project:
+    
 .. code-block:: console
 
     $ # Create a Database
