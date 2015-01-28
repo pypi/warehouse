@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Serve Warehouse at http://localhost:9000/
+warehouse -c dev/config.yml serve

@@ -61,27 +61,12 @@ dependencies, and the Python development dependencies using:
 
     $ pip install -r dev-requirements.txt
 
-Finally you can setup the project:
+Finally you can setup a dev environment and run the dev server:
 
 .. code-block:: console
 
-    $ # Create a Database
-    $ createdb warehouse
-
-    $ # Install the CIText extension
-    $ psql warehouse -c 'CREATE EXTENSION IF NOT EXISTS citext'
-
-    $ # Install the UUID extension
-    $ psql warehouse -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
-
-    $ # Migrate the database to the latest schema
-    $ warehouse -c dev/config.yml migrate upgrade head
-
-    $ # Initialise the ElasticSearch index
-    $ warehouse -c dev/config.yml search reindex
-
-    $ # Serve Warehouse at http://localhost:9000/
-    $ warehouse -c dev/config.yml serve
+    $ ./dev-setup-env
+    $ ./dev-start-server
 
 
 Design Development

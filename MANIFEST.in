@@ -3,6 +3,8 @@ include LICENSE
 include README.rst
 include CONTRIBUTING.rst
 include tox.ini
+include dev-setup-env
+include dev-start-server
 
 recursive-include dev *.yml
 
@@ -21,3 +23,5 @@ graft warehouse/static
 
 recursive-include tests *.py
 recursive-include tests *.yml
+
+recursive-exclude docs/_build *
