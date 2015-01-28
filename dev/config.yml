@@ -2,12 +2,10 @@ debug: true
 
 site:
     name: Warehouse (dev)
-    hosts:
-        - "localhost:9000"
     access_token: development
 
 database:
-    url: "postgresql://localhost/warehouse"
+    url: "postgresql:///warehouse"
 
 redis:
     downloads: "redis://localhost:6379/0"
