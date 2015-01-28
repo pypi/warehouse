@@ -2,8 +2,6 @@ debug: true
 
 site:
     name: Warehouse (dev)
-    hosts:
-        - "localhost:9000"
     access_token: development
 
 database:
