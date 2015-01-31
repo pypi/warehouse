@@ -49,6 +49,10 @@ setuptools.setup(
 
     packages=[
         "warehouse",
+        "warehouse.accounts",
+        "warehouse.cli",
+        "warehouse.cli.db",
+        "warehouse.migrations",
         "warehouse.project",
         "warehouse.utils",
     ],
