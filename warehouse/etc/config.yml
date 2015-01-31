@@ -1,3 +1,6 @@
+database:
+  url: "postgresql://localhost/warehouse
+
 configurator:
   jinja2:
     newstyle: True

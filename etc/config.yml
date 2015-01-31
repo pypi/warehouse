@@ -1,2 +1,0 @@
-database:
-  url: "postgresql://localhost/warehouse"
