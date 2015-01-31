@@ -14,6 +14,3 @@
 def includeme(config):
     # Accounts
     config.add_route("accounts.profile", "/user/{username}/")
-
-    # Projects
-    config.add_route("project.detail", "/project/{name}/")
