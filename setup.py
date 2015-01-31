@@ -61,6 +61,7 @@ setuptools.setup(
         "pyramid",
         "pyramid_jinja2",
         "sqlalchemy>=0.9",
+        "sqlalchemy-citext",
         "tzf.pyramid_yml",
     ],
 
