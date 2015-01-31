@@ -58,6 +58,7 @@ setuptools.setup(
     install_requires=[
         "aiopg",
         "aiopyramid",
+        "click",
         "pyramid",
         "pyramid_jinja2",
         "sqlalchemy>=0.9",
@@ -68,6 +69,12 @@ setuptools.setup(
     extras_require={
         "devel": [
             "pyramid_debugtoolbar",
+        ],
+    },
+
+    entry_points={
+        "console_scripts": [
+            "warehouse = warehouse.cli:warehouse",
         ],
     },
 )

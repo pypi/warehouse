@@ -23,7 +23,7 @@ def configure(settings=None):
         settings = {}
 
     # Set our yml.location so that it contains all of our settings files
-    settings["yml.location"] = ["warehouse:etc"]
+    settings.setdefault("yml.location", []).extend(["warehouse:etc"])
 
     # Pull our configuration location of the environment
     if "WAREHOUSE_CONFIG_DIR" in os.environ:
