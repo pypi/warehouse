@@ -60,8 +60,8 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
-    # Register the configuration for each sub package.
-    config.include(".project", route_prefix="/project/")
+    # Register all our URL routes for Warehouse.
+    config.include(".routes")
 
     # Scan everything for configuration
     config.scan()
