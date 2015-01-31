@@ -14,6 +14,7 @@ import asyncio
 
 from aiopg.sa import create_engine
 
+import alembic.config
 import sqlalchemy
 
 
@@ -21,6 +22,13 @@ __all__ = ["includeme", "metadata"]
 
 
 metadata = sqlalchemy.MetaData()
+
+
+def _configure_alembic(config):
+    alembic_cfg = alembic.config.Config()
+    alembic_cfg.set_main_option("script_location", "warehouse:migrations")
+    alembic_cfg.set_main_option("url", config.registry["config"].database.url)
+    return alembic_cfg
 
 
 class _Database:
@@ -64,4 +72,5 @@ class _Database:
 
 
 def includeme(config):
+    config.add_directive("alembic_config", _configure_alembic)
     config.add_request_method(_Database, name="db", reify=True)

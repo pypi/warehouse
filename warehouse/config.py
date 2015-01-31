@@ -64,6 +64,6 @@ def configure(settings=None):
     config.include(".routes")
 
     # Scan everything for configuration
-    config.scan()
+    config.scan(ignore=["warehouse.migrations.env"])
 
     return config

@@ -58,6 +58,7 @@ setuptools.setup(
     install_requires=[
         "aiopg",
         "aiopyramid",
+        "alembic>=0.7.0",
         "click",
         "pyramid",
         "pyramid_jinja2",
