@@ -1,5 +1,5 @@
 database:
-  url: "postgresql://localhost/warehouse
+  url: "postgresql://localhost/warehouse"
 
 configurator:
   jinja2:
