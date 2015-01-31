@@ -56,9 +56,11 @@ setuptools.setup(
     include_package_data=True,
 
     install_requires=[
+        "aiopg",
         "aiopyramid",
         "pyramid",
         "pyramid_jinja2",
+        "sqlalchemy>=0.9",
         "tzf.pyramid_yml",
     ],
 
