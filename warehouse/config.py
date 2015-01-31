@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import os
+import os.path
 
 from pyramid.config import Configurator
 
@@ -26,7 +27,9 @@ def configure(settings=None):
 
     # Pull our configuration location of the environment
     if "WAREHOUSE_CONFIG_DIR" in os.environ:
-        settings["yml.location"].append(os.environ["WAREHOUSE_CONFIG_DIR"])
+        settings["yml.location"].append(
+            os.path.abspath(os.environ["WAREHOUSE_CONFIG_DIR"])
+        )
 
     # Pull our configuration environment of the environment
     if "WAREHOUSE_ENV" in os.environ:
