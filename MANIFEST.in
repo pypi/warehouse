@@ -4,5 +4,3 @@ recursive-include docs conf.py Makefile *.rst
 recursive-include warehouse/etc *.yml
 recursive-include warehouse/migrations *.mako
 recursive-include warehouse/templates *.html
-
-prune etc
