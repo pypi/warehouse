@@ -12,9 +12,9 @@
 
 from citext import CIText
 from sqlalchemy import (
-    Table, Column, CheckConstraint, ForeignKey, Index, UniqueConstraint,
+    CheckConstraint, Column, ForeignKey, Index, Table, UniqueConstraint,
+    Boolean, DateTime, Integer, String,
 )
-from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy import sql
 
 from warehouse import db
