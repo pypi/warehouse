@@ -52,6 +52,7 @@ setuptools.setup(
         "warehouse.accounts",
         "warehouse.cli",
         "warehouse.cli.db",
+        "warehouse.legacy",
         "warehouse.migrations",
         "warehouse.utils",
     ],
