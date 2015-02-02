@@ -12,5 +12,6 @@
 
 from warehouse.config import configure
 
+
 # Configure Pyramid and then create a WSGI application
 application = configure().make_wsgi_app()
