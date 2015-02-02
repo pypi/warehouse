@@ -10,27 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
 import functools
 import inspect
 
-from aiopyramid.config import CoroutineOrExecutorMapper
+from pyramid.config.views import DefaultViewMapper
 
 
-class WarehouseMapper(CoroutineOrExecutorMapper):
+class WarehouseMapper(DefaultViewMapper):
 
     def __call__(self, view):
         # If this is one of our views, then we want to enable passing the
-        # request.matchdict into the view function as kwargs, we also want
-        # to use asyncio coroutines to handle our own views.
+        # request.matchdict into the view function as kwargs.
         if view.__module__.startswith("warehouse."):
             # Wrap our view with our wrapper which will pull items out of the
             # matchdict and pass it into the given view.
             view = self._wrap_with_matchdict(view)
-
-            # Wrap this as a coroutine so that it'll get called correctly from
-            # asyncio.
-            view = asyncio.coroutine(view)
 
         # Call into the aiopyramid CoroutineOrExecutorMapper which will call
         # this view as either a coroutine or as a sync view.

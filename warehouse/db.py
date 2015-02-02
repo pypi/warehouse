@@ -10,10 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
-
-from aiopg.sa import create_engine
-
 import alembic.config
 import sqlalchemy
 
@@ -31,46 +27,24 @@ def _configure_alembic(config):
     return alembic_cfg
 
 
-class _Database:
+def _db(request):
+    conn = request.registry["engine"].connect()
 
-    def __init__(self, request):
-        self.request = request
-        self.conn = None
+    @request.add_finished_callback
+    def close(request):
+        conn.close()
 
-    @property
-    def engine(self):
-        if hasattr(self.request.registry, "engine"):
-            return self.request.registry.engine
-
-    @engine.setter
-    def engine(self, value):
-        self.request.registry.engine = value
-
-    @asyncio.coroutine
-    def execute(self, *args, **kwargs):
-        # Figure out if we have a database connection already and if we do then
-        # make sure it's not closed and if it isn't then just return that.
-        if self.conn is None or self.conn.closed:
-            # Figure out if we have an engine already, if we do not then create
-            # one.
-            if self.engine is None:
-                self.engine = yield from create_engine(
-                    self.request.config.database.url
-                )
-
-            # Acquire our database connection.
-            self.conn = yield from self.engine.acquire()
-
-            # Add a request finished callback to release the connection back
-            # into the pool.
-            self.request.add_finished_callback(self.close)
-
-        return (yield from self.conn.execute(*args, **kwargs))
-
-    def close(self, request):
-        self.engine.release(self.conn)
+    return conn
 
 
 def includeme(config):
+    # Add a directive to get an alembic configuration.
     config.add_directive("alembic_config", _configure_alembic)
-    config.add_request_method(_Database, name="db", reify=True)
+
+    # Create our SQLAlchemy Engine.
+    config.registry["engine"] = sqlalchemy.create_engine(
+        config.registry["config"].database.url,
+    )
+
+    # Register our request.db property
+    config.add_request_method(_db, name="db", reify=True)

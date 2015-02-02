@@ -37,8 +37,7 @@ def configure(settings=None):
 
     config = Configurator(settings=settings)
 
-    # Setup our custom view mapper, this will provide two things:
-    #   * Enable using view functions as asyncio coroutines.
+    # Setup our custom view mapper, this will provide one thing:
     #   * Pass matched items from views in as keyword arguments to the
     #     function.
     config.set_view_mapper(WarehouseMapper)

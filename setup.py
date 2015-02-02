@@ -60,10 +60,9 @@ setuptools.setup(
     include_package_data=True,
 
     install_requires=[
-        "aiopg",
-        "aiopyramid>=0.3.1",
         "alembic>=0.7.0",
         "click",
+        "psycopg2",
         "pyramid",
         "pyramid_jinja2",
         "sqlalchemy>=0.9",

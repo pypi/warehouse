@@ -20,7 +20,7 @@ from warehouse.accounts.tables import emails, users
 
 @view_config(route_name="accounts.profile", renderer="accounts/profile.html")
 def profile(request, username):
-    res = yield from request.db.execute(
+    res = request.db.execute(
         select([
             users.c.id,
             users.c.username,
@@ -32,7 +32,7 @@ def profile(request, username):
         .where(users.c.username == username)
         .limit(1)
     )
-    user = yield from res.first()
+    user = res.first()
 
     if user is None:
         raise HTTPNotFound("Could not find user {}".format(username))
