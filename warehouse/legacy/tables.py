@@ -321,8 +321,8 @@ oauth_consumers = Table(
     "oauth_consumers",
     db.metadata,
 
-    Column("consumer", Text(32), primary_key=True, nullable=False),
-    Column("secret", Text(64), nullable=False),
+    Column("consumer", String(32), primary_key=True, nullable=False),
+    Column("secret", String(64), nullable=False),
     Column("date_created", Date(), nullable=False),
     Column(
         "created_by",
@@ -333,7 +333,7 @@ oauth_consumers = Table(
         ),
     ),
     Column("last_modified", Date(), nullable=False),
-    Column("description", Text(255), nullable=False),
+    Column("description", String(255), nullable=False),
 )
 
 
