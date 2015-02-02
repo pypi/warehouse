@@ -56,6 +56,9 @@ def configure(settings=None):
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
 
+    # Register the configuration for our transaction handling.
+    config.include(".transactions")
+
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 

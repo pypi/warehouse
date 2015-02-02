@@ -12,6 +12,7 @@
 
 import alembic.config
 import sqlalchemy
+import zope.sqlalchemy
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -44,14 +45,15 @@ def _configure_alembic(config):
     return alembic_cfg
 
 
-def _db(request):
-    conn = request.registry["engine"].connect()
+def _create_session(request):
+    # Create our session
+    session = request.registry["sqlalchemy.sessionmaker"]()
 
-    @request.add_finished_callback
-    def close(request):
-        conn.close()
+    # Register only this particular session with zope.sqlalchemy
+    zope.sqlalchemy.register(session, transaction_manager=request.transaction)
 
-    return conn
+    # Return our session now that it's created and registered
+    return session
 
 
 def includeme(config):
@@ -59,12 +61,14 @@ def includeme(config):
     config.add_directive("alembic_config", _configure_alembic)
 
     # Create our SQLAlchemy Engine.
-    config.registry["engine"] = sqlalchemy.create_engine(
+    config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
         config.registry["config"].database.url,
     )
 
     # Create our SessionMaker
-    session = sessionmaker(bind=config.registry["engine"])
+    config.registry["sqlalchemy.sessionmaker"] = sessionmaker(
+        bind=config.registry["sqlalchemy.engine"],
+    )
 
     # Register our request.db property
-    config.add_request_method(lambda request: session(), name="db", reify=True)
+    config.add_request_method(_create_session, name="db", reify=True)

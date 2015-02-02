@@ -65,9 +65,12 @@ setuptools.setup(
         "psycopg2",
         "pyramid",
         "pyramid_jinja2",
+        "pyramid_tm==0.10+dstufft.manager_hook",
         "sqlalchemy>=0.9",
         "sqlalchemy-citext",
+        "transaction",
         "tzf.pyramid_yml",
+        "zope.sqlalchemy",
     ],
 
     extras_require={
