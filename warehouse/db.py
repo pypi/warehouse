@@ -38,6 +38,12 @@ metadata = sqlalchemy.MetaData()
 ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
 
 
+# Create our session class here, this will stay stateless as we'll bind the
+# engine to each new state we create instead of binding it to the session
+# class.
+_Session = sessionmaker()
+
+
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
@@ -47,7 +53,7 @@ def _configure_alembic(config):
 
 def _create_session(request):
     # Create our session
-    session = request.registry["sqlalchemy.sessionmaker"]()
+    session = _Session(bind=request.registry["sqlalchemy.engine"])
 
     # Register only this particular session with zope.sqlalchemy
     zope.sqlalchemy.register(session, transaction_manager=request.transaction)
@@ -63,11 +69,6 @@ def includeme(config):
     # Create our SQLAlchemy Engine.
     config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
         config.registry["config"].database.url,
-    )
-
-    # Create our SessionMaker
-    config.registry["sqlalchemy.sessionmaker"] = sessionmaker(
-        bind=config.registry["sqlalchemy.engine"],
     )
 
     # Register our request.db property
