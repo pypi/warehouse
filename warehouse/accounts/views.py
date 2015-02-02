@@ -13,33 +13,19 @@
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 
-from sqlalchemy.sql import select
-
-from warehouse.accounts.tables import emails, users
+from warehouse.accounts.models import User
 
 
 @view_config(route_name="accounts.profile", renderer="accounts/profile.html")
 def profile(request, username):
-    res = request.db.execute(
-        select([
-            users.c.id,
-            users.c.username,
-            users.c.name,
-            users.c.date_joined,
-            emails.c.email,
-        ])
-        .select_from(users.outerjoin(emails))
-        .where(users.c.username == username)
-        .limit(1)
-    )
-    user = res.first()
+    user = request.db.query(User).filter(User.username == username).first()
 
     if user is None:
         raise HTTPNotFound("Could not find user {}".format(username))
 
-    if user["username"] != username:
+    if user.username != username:
         return HTTPMovedPermanently(
-            request.current_route_url(username=user["username"]),
+            request.current_route_url(username=user.username),
         )
 
     return {"user": user}

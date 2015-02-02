@@ -13,11 +13,28 @@
 import alembic.config
 import sqlalchemy
 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-__all__ = ["includeme", "metadata"]
+from warehouse.utils.attrs import make_repr
 
 
+__all__ = ["includeme", "metadata", "ModelBase"]
+
+
+class ModelBase:
+
+    def __repr__(self):
+        self.__repr__ = make_repr(*self.__table__.columns.keys(), _self=self)
+        return self.__repr__()
+
+
+# The Global metadata object.
 metadata = sqlalchemy.MetaData()
+
+
+# Base class for models using declarative syntax
+ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
 
 
 def _configure_alembic(config):
@@ -46,5 +63,8 @@ def includeme(config):
         config.registry["config"].database.url,
     )
 
+    # Create our SessionMaker
+    session = sessionmaker(bind=config.registry["engine"])
+
     # Register our request.db property
-    config.add_request_method(_db, name="db", reify=True)
+    config.add_request_method(lambda request: session(), name="db", reify=True)
