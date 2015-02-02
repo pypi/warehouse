@@ -13,6 +13,8 @@
 import os
 import os.path
 
+import transaction
+
 from pyramid.config import Configurator
 
 from warehouse.utils.mapper import WarehouseMapper
@@ -56,8 +58,13 @@ def configure(settings=None):
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
 
-    # Register the configuration for our transaction handling.
-    config.include(".transactions")
+    # Configure our transaction handling so that each request gets it's own
+    # transaction handler and the lifetime of the transaction is tied to the
+    # lifetime of the request.
+    config.add_settings({
+        "tm.manager_hook": lambda request: transaction.TransactionManager(),
+    })
+    config.include("pyramid_tm")
 
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
