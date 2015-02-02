@@ -68,7 +68,7 @@ class User(db.ModelBase):
         primary_email.email = value
 
     @email.expression
-    def email(cls):
+    def email(cls):  # noqa
         return (
             select([Email.email])
             .where((Email.user == cls) & (Email.primary == True))  # noqa
