@@ -56,7 +56,7 @@ def _create_session(request):
     session = _Session(bind=request.registry["sqlalchemy.engine"])
 
     # Register only this particular session with zope.sqlalchemy
-    zope.sqlalchemy.register(session, transaction_manager=request.transaction)
+    zope.sqlalchemy.register(session, transaction_manager=request.tm)
 
     # Return our session now that it's created and registered
     return session
