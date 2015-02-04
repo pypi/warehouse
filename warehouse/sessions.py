@@ -23,12 +23,53 @@ from zope.interface import implementer
 from warehouse.utils import crypto
 
 
+def uses_session(view):
+    view._uses_session = True
+    return view
+
+
 def _changed_method(method):
     @functools.wraps(method)
     def wrapped(self, *args, **kwargs):
         self.changed()
         return method(self, *args, **kwargs)
     return wrapped
+
+
+def _invalid_method(method):
+    @functools.wraps(method)
+    def wrapped(self, *args, **kwargs):
+        self._error_message()
+    return wrapped
+
+
+class InvalidSession(dict):
+
+    __contains__ = _invalid_method(dict.__contains__)
+    __delitem__ = _invalid_method(dict.__delitem__)
+    __getitem__ = _invalid_method(dict.__getitem__)
+    __iter__ = _invalid_method(dict.__iter__)
+    __len__ = _invalid_method(dict.__len__)
+    __setitem__ = _invalid_method(dict.__setitem__)
+    clear = _invalid_method(dict.clear)
+    copy = _invalid_method(dict.copy)
+    fromkeys = _invalid_method(dict.fromkeys)
+    get = _invalid_method(dict.get)
+    items = _invalid_method(dict.items)
+    keys = _invalid_method(dict.keys)
+    pop = _invalid_method(dict.pop)
+    popitem = _invalid_method(dict.popitem)
+    setdefault = _invalid_method(dict.setdefault)
+    update = _invalid_method(dict.update)
+    values = _invalid_method(dict.values)
+
+    def _error_message(self):
+        raise RuntimeError(
+            "Cannot use request.session in a view without @uses_session."
+        )
+
+    def __getattr__(self, name):
+        self._error_message()
 
 
 @implementer(ISession)
