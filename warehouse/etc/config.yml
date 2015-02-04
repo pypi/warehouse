@@ -1,6 +1,9 @@
 database:
   url: "postgresql://localhost/warehouse"
 
+sessions:
+  url: "redis://localhost:6379/0"
+
 configurator:
   jinja2:
     newstyle: True

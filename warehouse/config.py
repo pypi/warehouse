@@ -69,6 +69,9 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
+    # Register our session support
+    config.include(".sessions")
+
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 
