@@ -68,7 +68,7 @@ setuptools.setup(
         "psycopg2",
         "pyramid",
         "pyramid_jinja2",
-        "pyramid_tm==0.10+dstufft.manager_hook",
+        "pyramid_tm>=0.11",
         "redis",
         "sqlalchemy>=0.9",
         "sqlalchemy-citext",
