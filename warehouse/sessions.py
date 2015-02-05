@@ -43,6 +43,7 @@ def _invalid_method(method):
     return wrapped
 
 
+@implementer(ISession)
 class InvalidSession(dict):
 
     __contains__ = _invalid_method(dict.__contains__)
