@@ -15,8 +15,6 @@ import inspect
 
 from pyramid.config.views import DefaultViewMapper
 
-from warehouse.sessions import InvalidSession
-
 
 class WarehouseMapper(DefaultViewMapper):
 
@@ -27,10 +25,6 @@ class WarehouseMapper(DefaultViewMapper):
             # Wrap our view with our wrapper which will pull items out of the
             # matchdict and pass it into the given view.
             view = self._wrap_with_matchdict(view)
-
-            # We want to wrap our view with a wrapper that will ensure that
-            # only properly decorated views can access the session.
-            view = self._wrap_with_session(view)
 
         # Call into the aiopyramid CoroutineOrExecutorMapper which will call
         # this view as either a coroutine or as a sync view.
@@ -49,28 +43,3 @@ class WarehouseMapper(DefaultViewMapper):
                 return view(request, **kwargs)
 
         return wrapper
-
-    def _wrap_with_session(self, view):
-        if not getattr(view, "_uses_session", None):
-            @functools.wraps(view)
-            def wrapper(context, request):
-                # Store our original session so we can reapply it later.
-                session = request.session
-
-                # Replace our session with an InvalidSession() which will raise
-                # an error for any attempt to use the session.
-                request.session = InvalidSession()
-
-                try:
-                    # Actually call our view and get a respone object.
-                    response = view(context, request)
-                finally:
-                    # Restore our session back to it's normal location so the
-                    # Session response callback can function correctly.
-                    request.session = session
-
-                return response
-
-            return wrapper
-
-        return view

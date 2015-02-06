@@ -18,6 +18,7 @@ import msgpack.exceptions
 import redis
 
 from pyramid.interfaces import ISession, ISessionFactory
+from pyramid.tweens import EXCVIEW
 from zope.interface import implementer
 
 from warehouse.utils import crypto
@@ -32,10 +33,39 @@ def _add_vary(request, response):
 def uses_session(view):
     @functools.wraps(view)
     def wrapped(request, *args, **kwargs):
+        # Set a callback to add the Vary header to any view that adds the
+        # Vary: Cookie header to every response.
         request.add_response_callback(_add_vary)
+
+        # We want to restore the session object to the request.session location
+        # because this view is allowed to use the session.
+        request.session = request._session
+
+        # Call our view with our now modified request.
         return view(request, *args, **kwargs)
-    wrapped._uses_session = True
+
     return wrapped
+
+
+def session_tween_factory(handler, registry):
+    def session_tween(request):
+        # Stash our real session object in a private location on the request so
+        # we can access it later.
+        request._session = request.session
+
+        # Set our request.session to an InvalidSession() which will raise
+        # errors anytime someone attempts to use it.
+        request.session = InvalidSession()
+
+        # Call our handler with the request, and no matter what ensure that
+        # after we've called it that the request.session has been set back to
+        # it's real value.
+        try:
+            return handler(request)
+        finally:
+            request.session = request._session
+
+    return session_tween
 
 
 def _changed_method(method):
@@ -272,3 +302,4 @@ def includeme(config):
             config.registry["config"].sessions.url,
         ),
     )
+    config.add_tween("warehouse.sessions.session_tween_factory", under=EXCVIEW)
