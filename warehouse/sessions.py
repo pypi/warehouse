@@ -23,9 +23,19 @@ from zope.interface import implementer
 from warehouse.utils import crypto
 
 
+def _add_vary(request, response):
+    vary = set(response.vary if response.vary is not None else [])
+    vary |= {"Cookie"}
+    response.vary = vary
+
+
 def uses_session(view):
-    view._uses_session = True
-    return view
+    @functools.wraps(view)
+    def wrapped(request, *args, **kwargs):
+        request.add_response_callback(_add_vary)
+        return view(request, *args, **kwargs)
+    wrapped._uses_session = True
+    return wrapped
 
 
 def _changed_method(method):
