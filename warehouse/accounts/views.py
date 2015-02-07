@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther,
+)
 from pyramid.security import remember
 from pyramid.view import view_config
 
@@ -41,7 +43,6 @@ def profile(request, username):
     decorator=[csrf_protect("accounts.login"), uses_session],
 )
 def login(request):
-    # TODO: Implement ?next= Support.
     # TODO: If already logged in just redirect to ?next=
     # TODO: Logging in/out should reset request.user
     # TODO: Prevent session fixation:
@@ -61,5 +62,11 @@ def login(request):
         # Cycle the CSRF token since we've crossed an authentication boundary
         # and we don't want to continue using the old one.
         request.session.new_csrf_token()
+
+        # Now that we're logged in we'll want to redirect the user to either
+        # where they were trying to go originally, or to the default view.
+        # TODO: Implement ?next= support.
+        # TODO: Figure out a better way to handle the "default view".
+        return HTTPSeeOther("/")
 
     return {"form": form}
