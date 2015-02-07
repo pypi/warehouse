@@ -406,7 +406,7 @@ def csrf_mapper_factory(mapper):
                     # Get the provided CSRF token from the request.
                     request_token = request.POST.get("csrf_token", "")
                     if not request_token:
-                        request_token = request.headers.get("CSRFToken")
+                        request_token = request.headers.get("CSRFToken", "")
 
                     # Get our CSRF token from the session
                     csrf_token = session.get_csrf_token()
