@@ -86,9 +86,20 @@ def csrf_exempt(view):
     return view
 
 
-def csrf_protect(view):
-    view._process_csrf = True
-    return view
+def csrf_protect(view_or_scope):
+    scope = None
+    if isinstance(view_or_scope, str):
+        scope = view_or_scope
+
+    def inner(view):
+        view._process_csrf = True
+        view._csrf_scope = scope
+        return view
+
+    if scope is None:
+        return inner(view_or_scope)
+    else:
+        return inner
 
 
 def _changed_method(method):
@@ -229,6 +240,17 @@ class Session(dict):
         if token is None:
             token = self.new_csrf_token()
         return token
+
+    def get_scoped_csrf_token(self, scope):
+        # Here we want to do
+        # HMAC_sha512(HMAC_sha512(unscoped_token, scope), session_id). This
+        # will make it possible to have scope specific CSRF tokens which means
+        # that a single scope token being leaked cannot be used for other
+        # scopes.
+        unscoped = self.get_csrf_token().encode("utf8")
+        scope = scope.encode("utf8")
+        scoped = hmac.new(unscoped, scope, "sha512").hexdigest().encode("utf8")
+        return hmac.new(scoped, self.sid.encode("utf8"), "sha512").hexdigest()
 
     def has_csrf_token(self):
         return self._csrf_token_key in self
@@ -408,8 +430,14 @@ def csrf_mapper_factory(mapper):
                     if not request_token:
                         request_token = request.headers.get("CSRFToken", "")
 
-                    # Get our CSRF token from the session
-                    csrf_token = session.get_csrf_token()
+                    # Get our CSRF token from the session, scoped or not
+                    # depending on if our @csrf_protect header was registered
+                    # with a scope or not.
+                    scope = view._csrf_scope
+                    if scope is None:
+                        csrf_token = session.get_csrf_token()
+                    else:
+                        csrf_token = session.get_scoped_csrf_token(scope)
 
                     if not hmac.compare_digest(csrf_token, request_token):
                         raise InvalidCSRF(REASON_BAD_TOKEN)
