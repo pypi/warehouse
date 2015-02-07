@@ -45,7 +45,7 @@ def _add_vary(request, response):
 
 def uses_session(view):
     @functools.wraps(view)
-    def wrapped(request, *args, **kwargs):
+    def wrapped(context, request):
         # Set a callback to add the Vary header to any view that adds the
         # Vary: Cookie header to every response.
         request.add_response_callback(_add_vary)
@@ -55,7 +55,7 @@ def uses_session(view):
         request.session = request._session
 
         # Call our view with our now modified request.
-        return view(request, *args, **kwargs)
+        return view(context, request)
 
     return wrapped
 
@@ -82,8 +82,11 @@ def session_tween_factory(handler, registry):
 
 
 def csrf_exempt(view):
-    view._process_csrf = False
-    return view
+    @functools.wraps(view)
+    def wrapped(context, request):
+        request._process_csrf = False
+        return view(context, request)
+    return wrapped
 
 
 def csrf_protect(view_or_scope):
@@ -92,9 +95,12 @@ def csrf_protect(view_or_scope):
         scope = view_or_scope
 
     def inner(view):
-        view._process_csrf = True
-        view._csrf_scope = scope
-        return view
+        @functools.wraps(view)
+        def wrapped(context, request):
+            request._process_csrf = True
+            request._csrf_scope = scope
+            return view(context, request)
+        return wrapped
 
     if scope is None:
         return inner(view_or_scope)
@@ -357,21 +363,27 @@ def csrf_mapper_factory(mapper):
 
             @functools.wraps(view)
             def wrapped(context, request):
-                # If we're processing CSRF for this view, then we want to
+                # Check if we're processing CSRF for this request at all or
+                # if it has been exempted from CSRF.
+                if not getattr(request, "_process_csrf", True):
+                    return view(context, request)
+
+                # If we're processing CSRF for this request, then we want to
                 # set a Vary: Cookie header on every response to ensure that
                 # we don't cache the result of a CSRF check or a form with a
                 # CSRF token in it.
-                if getattr(view, "_process_csrf", None):
+                if getattr(request, "_process_csrf", None):
                     request.add_response_callback(_add_vary)
 
                 # Assume that anything not defined as 'safe' by RFC2616 needs
                 # protection
                 if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
-                    # Determine if this view has set itself so that it should
-                    # be protected against CSRF. If it has not and it's gotten
-                    # one of these methods, then we want to raise an error
-                    # stating that this resource does not support this method.
-                    if not getattr(view, "_process_csrf", None):
+                    # Determine if this request has set itself so that it
+                    # should be protected against CSRF. If it has not and it's
+                    # gotten one of these methods, then we want to raise an
+                    # error stating that this resource does not support this
+                    # method.
+                    if not getattr(request, "_process_csrf", None):
                         raise HTTPMethodNotAllowed
 
                     if request.scheme == "https":
@@ -414,7 +426,7 @@ def csrf_mapper_factory(mapper):
                     # Get our CSRF token from the session, scoped or not
                     # depending on if our @csrf_protect header was registered
                     # with a scope or not.
-                    scope = view._csrf_scope
+                    scope = request._csrf_scope
                     if scope is None:
                         csrf_token = session.get_csrf_token()
                     else:

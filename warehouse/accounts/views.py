@@ -34,9 +34,11 @@ def profile(request, username):
     return {"user": user}
 
 
-@view_config(route_name="accounts.login", renderer="accounts/login.html")
-@csrf_protect("accounts.login")
-@uses_session
+@view_config(
+    route_name="accounts.login",
+    renderer="accounts/login.html",
+    decorator=[csrf_protect("accounts.login"), uses_session],
+)
 def login(request):
     # TODO: Implement ?next= Support.
     # TODO: If already logged in just redirect to ?next=
