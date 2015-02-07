@@ -65,6 +65,7 @@ setuptools.setup(
         "hiredis",
         "itsdangerous",
         "msgpack-python",
+        "passlib>=1.6",
         "psycopg2",
         "pyramid",
         "pyramid_jinja2",
@@ -74,6 +75,7 @@ setuptools.setup(
         "sqlalchemy-citext",
         "transaction",
         "tzf.pyramid_yml",
+        "WTForms>=2.0.0",
         "zope.sqlalchemy",
     ],
 

@@ -72,6 +72,9 @@ def configure(settings=None):
     # Register our session support
     config.include(".sessions")
 
+    # Register our authentication support.
+    config.include(".accounts")
+
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 

@@ -14,3 +14,4 @@
 def includeme(config):
     # Accounts
     config.add_route("accounts.profile", "/user/{username}/")
+    config.add_route("accounts.login", "/account/login/")

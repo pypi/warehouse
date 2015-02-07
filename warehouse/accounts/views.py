@@ -11,9 +11,12 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.security import remember
 from pyramid.view import view_config
 
+from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.models import User
+from warehouse.sessions import csrf_protect, uses_session
 
 
 @view_config(route_name="accounts.profile", renderer="accounts/profile.html")
@@ -29,3 +32,25 @@ def profile(request, username):
         )
 
     return {"user": user}
+
+
+@view_config(route_name="accounts.login", renderer="accounts/login.html")
+@csrf_protect("accounts.login")
+@uses_session
+def login(request):
+    # TODO: Implement ?next= Support.
+    # TODO: If already logged in just redirect to ?next=
+    # TODO: Logging in/out should reset request.user
+
+    form = LoginForm(
+        request.POST,
+        db=request.db,
+        password_hasher=request.password_hasher,
+    )
+
+    if request.method == "POST" and form.validate():
+        # Remember the userid using the authentication policy.
+        headers = remember(request, form.user.id)
+        request.response.headerlist.extend(headers)
+
+    return {"form": form}
