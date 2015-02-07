@@ -22,7 +22,7 @@ import redis
 from pyramid.config.views import DefaultViewMapper
 from pyramid.httpexceptions import HTTPForbidden, HTTPMethodNotAllowed
 from pyramid.interfaces import ISession, ISessionFactory, IViewMapperFactory
-from pyramid.tweens import EXCVIEW
+from pyramid.tweens import MAIN
 from zope.interface import implementer
 
 from warehouse.utils import crypto
@@ -455,7 +455,7 @@ def includeme(config):
             config.registry["config"].sessions.url,
         ),
     )
-    config.add_tween("warehouse.sessions.session_tween_factory", under=EXCVIEW)
+    config.add_tween("warehouse.sessions.session_tween_factory", over=MAIN)
 
     # We need to commit what's happened so far so that we can get the current
     # default ViewMapper
