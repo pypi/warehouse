@@ -63,11 +63,6 @@ def csrf_mapper_factory(mapper):
         def __call__(self, view):
             view = super().__call__(view)
 
-            # Check if the view has CSRF exempted, and if it is then we just
-            # want to return the view without wrapping it.
-            if not getattr(view, "_process_csrf", True):
-                return view
-
             @functools.wraps(view)
             def wrapped(context, request):
                 # Assign our view to an innerview function so that we can
