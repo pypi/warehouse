@@ -16,7 +16,8 @@ from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.models import User
-from warehouse.sessions import csrf_protect, uses_session
+from warehouse.csrf import csrf_protect
+from warehouse.sessions import uses_session
 
 
 @view_config(route_name="accounts.profile", renderer="accounts/profile.html")

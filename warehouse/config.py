@@ -72,6 +72,9 @@ def configure(settings=None):
     # Register our session support
     config.include(".sessions")
 
+    # Register our CSRF support
+    config.include(".csrf")
+
     # Register our authentication support.
     config.include(".accounts")
 
