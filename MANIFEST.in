@@ -21,3 +21,5 @@ graft warehouse/static
 
 recursive-include tests *.py
 recursive-include tests *.yml
+
+recursive-exclude docs/_build *
