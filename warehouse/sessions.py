@@ -389,16 +389,16 @@ def csrf_mapper_factory(mapper):
 
                     session = getattr(request, "_session", request.session)
 
-                # Get the provided CSRF token from the request.
-                request_token = request.POST.get("csrf_token")
-                if not request_token:
-                    request_token = request.headers.get("CSRFToken")
+                    # Get the provided CSRF token from the request.
+                    request_token = request.POST.get("csrf_token", "")
+                    if not request_token:
+                        request_token = request.headers.get("CSRFToken")
 
-                # Get our CSRF token from the session
-                csrf_token = session.get_csrf_token()
+                    # Get our CSRF token from the session
+                    csrf_token = session.get_csrf_token()
 
-                if not hmac.compare_digest(csrf_token, request_token):
-                    raise InvalidCSRF(REASON_BAD_TOKEN)
+                    if not hmac.compare_digest(csrf_token, request_token):
+                        raise InvalidCSRF(REASON_BAD_TOKEN)
 
                 return view(context, request)
 
