@@ -140,6 +140,7 @@ class InvalidSession(dict):
 class Session(dict):
 
     _csrf_token_key = "_csrf_token"
+    _flash_key = "_flash_messages"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -196,14 +197,27 @@ class Session(dict):
         return self._changed or self.cycled
 
     # Flash Messages Methods
-    def flash(msg, queue="", allow_duplicate=True):
-        raise NotImplementedError
+    def _get_flash_queue_key(self, queue):
+        return ".".join(filter(None, [self._flash_key, queue]))
 
-    def peek_flash(queue=""):
-        raise NotImplementedError
+    def flash(self, msg, queue="", allow_duplicate=True):
+        queue_key = self._get_flash_queue_key(queue)
 
-    def pop_flash(queue=""):
-        raise NotImplementedError
+        # If we're not allowing duplicates check if this message is already
+        # in the queue, and if it is just return immediately.
+        if not allow_duplicate and msg in self[queue_key]:
+            return
+
+        self.setdefault(queue_key, []).append(msg)
+
+    def peek_flash(self, queue=""):
+        return self.get(self._get_flash_queue_key(queue), [])
+
+    def pop_flash(self, queue=""):
+        queue_key = self._get_flash_queue_key(queue)
+        messages = self.get(queue_key, [])
+        self.pop(queue_key, None)
+        return messages
 
     # CSRF Methods
     def new_csrf_token(self):
