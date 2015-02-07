@@ -55,4 +55,8 @@ def login(request):
         headers = remember(request, form.user.id)
         request.response.headerlist.extend(headers)
 
+        # Cycle the CSRF token since we've crossed an authentication boundary
+        # and we don't want to continue using the old one.
+        request.session.new_csrf_token()
+
     return {"form": form}
