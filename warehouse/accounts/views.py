@@ -47,6 +47,8 @@ def login(request):
     # TODO: Logging in/out should reset request.user
     # TODO: Prevent session fixation:
     #       https://github.com/Pylons/pyramid/pull/1570
+    # TODO: Configure the login view as the default view for not having
+    #       permission to view something.
 
     form = LoginForm(
         request.POST,
