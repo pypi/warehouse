@@ -326,9 +326,6 @@ class SessionFactory:
 def csrf_mapper_factory(mapper):
     class CSRFMapper(mapper):
 
-        def _reject(self, request, reason):
-            pass
-
         def __call__(self, view):
             view = super().__call__(view)
 
