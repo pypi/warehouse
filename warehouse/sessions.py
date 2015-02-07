@@ -11,17 +11,31 @@
 # limitations under the License.
 
 import functools
+import hmac
 import time
+import urllib.parse
 
 import msgpack
 import msgpack.exceptions
 import redis
 
-from pyramid.interfaces import ISession, ISessionFactory
+from pyramid.config.views import DefaultViewMapper
+from pyramid.httpexceptions import HTTPForbidden
+from pyramid.interfaces import ISession, ISessionFactory, IViewMapperFactory
 from pyramid.tweens import EXCVIEW
 from zope.interface import implementer
 
 from warehouse.utils import crypto
+
+
+REASON_NO_ORIGIN = "Origin checking failed - no Origin or Referer."
+REASON_BAD_ORIGIN = "Origin checking failed - {} does not match {}."
+REASON_NO_CSRF_TOKEN = "CSRF token not set."
+REASON_BAD_TOKEN = "CSRF token missing or incorrect."
+
+
+class InvalidCSRF(HTTPForbidden):
+    pass
 
 
 def _add_vary(request, response):
@@ -66,6 +80,11 @@ def session_tween_factory(handler, registry):
             request.session = request._session
 
     return session_tween
+
+
+def csrf_exempt(view):
+    view._csrf_exempt = True
+    return view
 
 
 def _changed_method(method):
@@ -115,6 +134,8 @@ class InvalidSession(dict):
 
 @implementer(ISession)
 class Session(dict):
+
+    _csrf_token_key = "_csrf_token"
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -181,11 +202,18 @@ class Session(dict):
         raise NotImplementedError
 
     # CSRF Methods
-    def get_csrf_token(self):
-        raise NotImplementedError
-
     def new_csrf_token(self):
-        raise NotImplementedError
+        self[self._csrf_token_key] = crypto.random_token()
+        return self[self._csrf_token_key]
+
+    def get_csrf_token(self):
+        token = self.get(self._csrf_token_key)
+        if token is None:
+            token = self.new_csrf_token()
+        return token
+
+    def has_csrf_token(self):
+        return self._csrf_token_key in self
 
 
 @implementer(ISessionFactory)
@@ -295,6 +323,77 @@ class SessionFactory:
             )
 
 
+def csrf_mapper_factory(mapper):
+    class CSRFMapper(mapper):
+
+        def _reject(self, request, reason):
+            pass
+
+        def __call__(self, view):
+            view = super().__call__(view)
+
+            # Check if the view has CSRF exempted, and if it is then we just
+            # want to return the view without wrapping it.
+            if getattr(view, "_csrf_exempt", None):
+                return view
+
+            @functools.wraps(view)
+            def wrapped(context, request):
+                # Assume that anything not defined as 'safe' by RFC2616 needs
+                # protection
+                if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
+                    if request.scheme == "https":
+                        # Determine the origin of this request
+                        origin = request.headers.get("Origin")
+                        if origin is None:
+                            origin = request.headers.get("Referer")
+
+                        # Fail if we were not able to locate an origin at all
+                        if not origin:
+                            raise InvalidCSRF(REASON_NO_ORIGIN)
+
+                        # Parse the origin and host for comparison
+                        originp = urllib.parse.urlparse(origin)
+                        hostp = urllib.parse.urlparse(request.host_url)
+
+                        # Actually check our Origin against our Current
+                        # Host URL.
+                        if ((originp.scheme, originp.hostname, originp.port)
+                                != (hostp.scheme, hostp.hostname, hostp.port)):
+                            reason_origin = origin
+                            if origin != "null":
+                                reason_origin = urllib.parse.urlunparse(
+                                    originp[:2] + ("", "", "", ""),
+                                )
+
+                            reason = REASON_BAD_ORIGIN.format(
+                                reason_origin, request.host_url,
+                            )
+
+                            raise InvalidCSRF(reason)
+
+                    session = getattr(request, "_session", request.session)
+
+                    if not session.has_csrf_token():
+                        # No CSRF cookie. For POST requests, we insist on a
+                        # CSRF cookie, and in this way we can avoid all CSRF
+                        # attacks, including login CSRF.
+                        raise InvalidCSRF(REASON_NO_CSRF_TOKEN)
+
+                # Get the provided CSRF token from the request.
+                request_token = request.POST.get("csrf_token")
+                if not request_token:
+                    request_token = request.headers.get("CSRFToken")
+
+                if not hmac.compare_digest(session.get_csrf_token()):
+                    raise InvalidCSRF(REASON_BAD_TOKEN)
+
+                return view(context, request)
+
+            return wrapped
+    return CSRFMapper
+
+
 def includeme(config):
     config.set_session_factory(
         SessionFactory(
@@ -303,3 +402,14 @@ def includeme(config):
         ),
     )
     config.add_tween("warehouse.sessions.session_tween_factory", under=EXCVIEW)
+
+    # We need to commit what's happened so far so that we can get the current
+    # default ViewMapper
+    config.commit()
+
+    # Get the current default ViewMapper, and create a subclass of it that
+    # will wrap our view with CSRF checking.
+    mapper = config.registry.queryUtility(IViewMapperFactory)
+    if mapper is None:
+        mapper = DefaultViewMapper
+    config.set_view_mapper(csrf_mapper_factory(mapper))
