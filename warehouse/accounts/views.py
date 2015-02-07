@@ -44,6 +44,8 @@ def login(request):
     # TODO: Implement ?next= Support.
     # TODO: If already logged in just redirect to ?next=
     # TODO: Logging in/out should reset request.user
+    # TODO: Prevent session fixation:
+    #       https://github.com/Pylons/pyramid/pull/1570
 
     form = LoginForm(
         request.POST,
