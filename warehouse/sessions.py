@@ -20,7 +20,7 @@ import msgpack.exceptions
 import redis
 
 from pyramid.config.views import DefaultViewMapper
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden, HTTPMethodNotAllowed
 from pyramid.interfaces import ISession, ISessionFactory, IViewMapperFactory
 from pyramid.tweens import EXCVIEW
 from zope.interface import implementer
@@ -30,7 +30,6 @@ from warehouse.utils import crypto
 
 REASON_NO_ORIGIN = "Origin checking failed - no Origin or Referer."
 REASON_BAD_ORIGIN = "Origin checking failed - {} does not match {}."
-REASON_NO_CSRF_TOKEN = "CSRF token not set."
 REASON_BAD_TOKEN = "CSRF token missing or incorrect."
 
 
@@ -83,7 +82,12 @@ def session_tween_factory(handler, registry):
 
 
 def csrf_exempt(view):
-    view._csrf_exempt = True
+    view._process_csrf = False
+    return view
+
+
+def csrf_protect(view):
+    view._process_csrf = True
     return view
 
 
@@ -331,14 +335,28 @@ def csrf_mapper_factory(mapper):
 
             # Check if the view has CSRF exempted, and if it is then we just
             # want to return the view without wrapping it.
-            if getattr(view, "_csrf_exempt", None):
+            if not getattr(view, "_process_csrf", True):
                 return view
 
             @functools.wraps(view)
             def wrapped(context, request):
+                # If we're processing CSRF for this view, then we want to
+                # set a Vary: Cookie header on every response to ensure that
+                # we don't cache the result of a CSRF check or a form with a
+                # CSRF token in it.
+                if getattr(view, "_process_csrf", None):
+                    request.add_response_callback(_add_vary)
+
                 # Assume that anything not defined as 'safe' by RFC2616 needs
                 # protection
                 if request.method not in {"GET", "HEAD", "OPTIONS", "TRACE"}:
+                    # Determine if this view has set itself so that it should
+                    # be protected against CSRF. If it has not and it's gotten
+                    # one of these methods, then we want to raise an error
+                    # stating that this resource does not support this method.
+                    if not getattr(view, "_process_csrf", None):
+                        raise HTTPMethodNotAllowed
+
                     if request.scheme == "https":
                         # Determine the origin of this request
                         origin = request.headers.get("Origin")
@@ -371,18 +389,15 @@ def csrf_mapper_factory(mapper):
 
                     session = getattr(request, "_session", request.session)
 
-                    if not session.has_csrf_token():
-                        # No CSRF cookie. For POST requests, we insist on a
-                        # CSRF cookie, and in this way we can avoid all CSRF
-                        # attacks, including login CSRF.
-                        raise InvalidCSRF(REASON_NO_CSRF_TOKEN)
-
                 # Get the provided CSRF token from the request.
                 request_token = request.POST.get("csrf_token")
                 if not request_token:
                     request_token = request.headers.get("CSRFToken")
 
-                if not hmac.compare_digest(session.get_csrf_token()):
+                # Get our CSRF token from the session
+                csrf_token = session.get_csrf_token()
+
+                if not hmac.compare_digest(csrf_token, request_token):
                     raise InvalidCSRF(REASON_BAD_TOKEN)
 
                 return view(context, request)
