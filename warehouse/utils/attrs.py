@@ -12,7 +12,7 @@
 
 
 def make_repr(*attrs, _self=None):
-    def repr(self=None):
+    def _repr(self=None):
         if self is None and _self is not None:
             self = _self
 
@@ -24,4 +24,4 @@ def make_repr(*attrs, _self=None):
                 if not attrs or a in attrs
             ),
         )
-    return repr
+    return _repr
