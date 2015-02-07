@@ -177,7 +177,6 @@ class Session(dict):
         self._changed = False
         self.new = new
         self.created = int(time.time())
-        self.cycled = False
         self.invalidated = False
 
     @property
@@ -193,19 +192,15 @@ class Session(dict):
     def changed(self):
         self._changed = True
 
-    def cycle(self):
-        self.cycled = True
-
     def invalidate(self):
         self.clear()
         self.new = True
         self.created = int(time.time())
         self.invalidated = True
-        self.cycled = False
         self._changed = False
 
     def should_save(self):
-        return self._changed or self.cycled
+        return self._changed
 
     # Flash Messages Methods
     def _get_flash_queue_key(self, queue):
@@ -323,20 +318,6 @@ class SessionFactory:
             del request.session.sid
             if not request.session.should_save():
                 response.delete_cookie(self.cookie_name)
-
-        # Check to see if the session has been marked to be cycled or not.
-        # When cycling a session we copy all of the data into a new session
-        # and delete the old one.
-        if request.session.cycled:
-            # Create a new session and copy all of the data into it.
-            new_session = Session()
-            new_session.update(request.session)
-
-            # Delete the old session now that we've copied the data
-            self.redis.delete(self._redis_key(request.session.sid))
-
-            # Set our new session as the session of the request.
-            request.session = new_session
 
         # Check to see if the session has been marked to be saved, generally
         # this means that the session data has been modified and thus we need
