@@ -13,7 +13,7 @@
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther,
 )
-from pyramid.security import remember
+from pyramid.security import remember, forget
 from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
@@ -44,7 +44,7 @@ def profile(request, username):
 )
 def login(request):
     # TODO: If already logged in just redirect to ?next=
-    # TODO: Logging in/out should reset request.user
+    # TODO: Logging in should reset request.user
     # TODO: Prevent session fixation:
     #       https://github.com/Pylons/pyramid/pull/1570
     # TODO: Configure the login view as the default view for not having
@@ -72,3 +72,31 @@ def login(request):
         return HTTPSeeOther("/")
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.logout",
+    renderer="accounts/logout.html",
+    decorator=[csrf_protect("accounts.logout"), uses_session],
+)
+def logout(request):
+    # TODO: If already logged out just redirect to ?next=
+    # TODO: Logging out should reset request.user
+    # TODO: Prevent session fixation:
+    #       https://github.com/Pylons/pyramid/pull/1570
+
+    if request.method == "POST":
+        # A POST to the logout view tells us to logout. There's no form to
+        # validate here becuse there's no data. We should be protected against
+        # CSRF attacks still because of the CSRF framework, so users will still
+        # need a post body that contains the CSRF token.
+        headers = forget(request)
+        request.response.headerlist.extend(headers)
+
+        # Now that we're logged out we'll want to redirect the user to either
+        # where they were originally, or to the default view.
+        # TODO: Implement ?next= support.
+        # TODO: Figure out a better way to handle the "default view".
+        return HTTPSeeOther("/")
+
+    return {}
