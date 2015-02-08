@@ -83,6 +83,10 @@ setuptools.setup(
         "devel": [
             "pyramid_debugtoolbar",
         ],
+        "serve": [
+            "gunicorn",
+            "setproctitle",
+        ],
     },
 
     entry_points={
