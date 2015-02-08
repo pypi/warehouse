@@ -16,6 +16,7 @@ import os.path
 import transaction
 
 from pyramid.config import Configurator
+from tzf.pyramid_yml import config_defaults
 
 from warehouse.utils.mapper import WarehouseMapper
 
@@ -24,12 +25,9 @@ def configure(settings=None):
     if settings is None:
         settings = {}
 
-    # Set our yml.location so that it contains all of our settings files
-    settings.setdefault("yml.location", []).extend(["warehouse:etc"])
-
     # Pull our configuration location of the environment
     if "WAREHOUSE_CONFIG_DIR" in os.environ:
-        settings["yml.location"].append(
+        settings.setdefault("yml.location", []).append(
             os.path.abspath(os.environ["WAREHOUSE_CONFIG_DIR"])
         )
 
@@ -38,6 +36,9 @@ def configure(settings=None):
         settings["env"] = os.environ["WAREHOUSE_ENV"]
 
     config = Configurator(settings=settings)
+
+    # Set our yml.location so that it contains all of our settings files
+    config_defaults(config, ["warehouse:etc"])
 
     # Setup our custom view mapper, this will provide one thing:
     #   * Pass matched items from views in as keyword arguments to the
