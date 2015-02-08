@@ -26,8 +26,7 @@ class WarehouseMapper(DefaultViewMapper):
             # matchdict and pass it into the given view.
             view = self._wrap_with_matchdict(view)
 
-        # Call into the aiopyramid CoroutineOrExecutorMapper which will call
-        # this view as either a coroutine or as a sync view.
+        # Call into the DefaultViewMapper to handle the rest of the mapping.
         return super().__call__(view)
 
     def _wrap_with_matchdict(self, view):
@@ -37,7 +36,7 @@ class WarehouseMapper(DefaultViewMapper):
 
             if inspect.isclass(view):
                 inst = view(request)
-                meth = getattr(inst, self.attr)
+                meth = getattr(inst, self.attr or "__call__")
                 return meth(**kwargs)
             else:
                 return view(request, **kwargs)

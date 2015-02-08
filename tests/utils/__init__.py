@@ -9,17 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-def make_repr(*attrs, _self=None):
-    def _repr(self=None):
-        if self is None and _self is not None:
-            self = _self
-
-        return "{}({})".format(
-            self.__class__.__name__,
-            ", ".join(
-                "{}={}".format(a, repr(getattr(self, a))) for a in attrs
-            ),
-        )
-    return _repr

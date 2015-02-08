@@ -10,30 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import base64
-import hashlib
 import os
 
-from itsdangerous import (
-    BadSignature, Signer as _Signer, TimestampSigner as _TimestampSigner,
-)
+import pretend
+
+from warehouse.utils.crypto import random_token
 
 
-__all__ = ["BadSignature", "Signer", "TimestampSigner", "random_token"]
+def test_random_token(monkeypatch):
+    random = pretend.call_recorder(lambda n: b"a" * n)
+    monkeypatch.setattr(os, "urandom", random)
 
-
-def random_token():
-    token = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b"=")
-    return token.decode("utf8")
-
-
-class Signer(_Signer):
-
-    default_digest_method = hashlib.sha512
-    default_key_derivation = "hmac"
-
-
-class TimestampSigner(_TimestampSigner):
-
-    default_digest_method = hashlib.sha512
-    default_key_derivation = "hmac"
+    assert random_token() == "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE"
+    assert random.calls == [pretend.call(32)]

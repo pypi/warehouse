@@ -10,16 +10,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.utils.attrs import make_repr
 
-def make_repr(*attrs, _self=None):
-    def _repr(self=None):
-        if self is None and _self is not None:
-            self = _self
 
-        return "{}({})".format(
-            self.__class__.__name__,
-            ", ".join(
-                "{}={}".format(a, repr(getattr(self, a))) for a in attrs
-            ),
-        )
-    return _repr
+class TestMakeRepr:
+
+    def test_on_class(self):
+        class Fake:
+            foo = "bar"
+            __repr__ = make_repr("foo")
+
+        assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
+
+    def test_with_function(self):
+        class Fake:
+            foo = "bar"
+
+            def __repr__(self):
+                self.__repr__ = make_repr("foo", _self=self)
+                return self.__repr__()
+
+        assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
