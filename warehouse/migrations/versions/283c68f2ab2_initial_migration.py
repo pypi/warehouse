@@ -17,13 +17,14 @@ Revises: None
 Create Date: 2015-02-01 14:07:10.983672
 """
 
-revision = "283c68f2ab2"
-down_revision = None
-
 from alembic import op
 
 import citext
 import sqlalchemy as sa
+
+
+revision = "283c68f2ab2"
+down_revision = None
 
 
 def upgrade():
