@@ -1,6 +1,7 @@
-include tox.ini
+include .coveragerc tox.ini
 
 recursive-include docs conf.py Makefile *.rst
+recursive-include tests *.py
 recursive-include warehouse/etc *.yml
 recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
