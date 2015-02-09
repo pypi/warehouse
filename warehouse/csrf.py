@@ -138,7 +138,7 @@ def csrf_mapper_factory(mapper):
                 # set a Vary: Cookie header on every response to ensure that
                 # we don't cache the result of a CSRF check or a form with a
                 # CSRF token in it.
-                if getattr(request, "_process_csrf", None):
+                if getattr(request, "_process_csrf", False):
                     innerview = add_vary("Cookie")(innerview)
 
                 # Actually check our CSRF
