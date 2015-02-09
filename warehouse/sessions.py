@@ -31,10 +31,15 @@ def uses_session(view):
     def wrapped(context, request):
         # We want to restore the session object to the request.session location
         # because this view is allowed to use the session.
+        session = request.session
         request.session = request._session
 
         # Call our view with our now modified request.
-        return view(context, request)
+        try:
+            return view(context, request)
+        finally:
+            # Restore the original session.
+            request.session = session
 
     # Wrap our already wrapped view with another wrapper which will ensure that
     # there is a Vary: Cookie header applied.
@@ -62,14 +67,6 @@ def session_tween_factory(handler, registry):
             request.session = request._session
 
     return session_tween
-
-
-def _changed_method(method):
-    @functools.wraps(method)
-    def wrapped(self, *args, **kwargs):
-        self.changed()
-        return method(self, *args, **kwargs)
-    return wrapped
 
 
 def _invalid_method(method):
@@ -108,6 +105,18 @@ class InvalidSession(dict):
     def __getattr__(self, name):
         self._error_message()
 
+    @property
+    def created(self):
+        self._error_message()
+
+
+def _changed_method(method):
+    @functools.wraps(method)
+    def wrapped(self, *args, **kwargs):
+        self.changed()
+        return method(self, *args, **kwargs)
+    return wrapped
+
 
 @implementer(ISession)
 class Session(dict):
@@ -139,17 +148,15 @@ class Session(dict):
         self._changed = False
         self.new = new
         self.created = int(time.time())
-        self.invalidated = False
+
+        # We'll track all of the IDs that have been invalidated here
+        self.invalidated = set()
 
     @property
     def sid(self):
         if self._sid is None:
             self._sid = crypto.random_token()
         return self._sid
-
-    @sid.deleter
-    def sid(self):
-        self._sid = None
 
     def changed(self):
         self._changed = True
@@ -158,8 +165,13 @@ class Session(dict):
         self.clear()
         self.new = True
         self.created = int(time.time())
-        self.invalidated = True
         self._changed = False
+
+        # If the current session id isn't None we'll want to record it as one
+        # of the ones that have been invalidated.
+        if self._sid is not None:
+            self.invalidated.add(self._sid)
+            self._sid = None
 
     def should_save(self):
         return self._changed
@@ -267,7 +279,7 @@ class SessionFactory:
 
         # If we were able to load existing session data, load it into a
         # Session class
-        session = Session(data, session_id)
+        session = Session(data, session_id, False)
 
         return session
 
@@ -276,8 +288,9 @@ class SessionFactory:
         # benn then we'll delete it, and tell our response to delete the
         # session cookie as well.
         if request.session.invalidated:
-            self.redis.delete(self._redis_key(request.session.sid))
-            del request.session.sid
+            for session_id in request.session.invalidated:
+                self.redis.delete(self._redis_key(session_id))
+
             if not request.session.should_save():
                 response.delete_cookie(self.cookie_name)
 
