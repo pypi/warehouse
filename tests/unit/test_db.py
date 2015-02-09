@@ -37,7 +37,10 @@ def test_configure_alembic(monkeypatch):
     config_obj = pretend.stub(
         set_main_option=pretend.call_recorder(lambda *a: None),
     )
-    config_cls = lambda: config_obj
+
+    def config_cls():
+        return config_obj
+
     monkeypatch.setattr(alembic.config, "Config", config_cls)
 
     config = pretend.stub(
