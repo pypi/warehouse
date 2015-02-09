@@ -3,6 +3,7 @@ python: 3.4
 
 env:
   - TOXENV=py34
+  - TOXENV=cover
   - TOXENV=pep8
   - TOXENV=docs
   - TOXENV=packaging
