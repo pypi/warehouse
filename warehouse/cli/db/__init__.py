@@ -10,14 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import click
-
 from warehouse.cli import warehouse
 
 
-@warehouse.group()
-@click.pass_obj
-def db(config):
+@warehouse.group()  # pragma: no branch
+def db():
     """
     Manage the Warehouse Database.
     """

@@ -9,22 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import alembic.command
-import click
-
-from warehouse.cli.db import db
-
-
-@db.command()
-@click.option(
-    "--resolve-dependencies", "-r",
-    is_flag=True,
-    help="Treat dependency versions as down revisions",
-)
-@click.pass_obj
-def heads(config, **kwargs):
-    """
-    Show current available heads.
-    """
-    alembic.command.heads(config.alembic_config(), **kwargs)

@@ -12,6 +12,7 @@
 
 import os.path
 
+import click.testing
 import pyramid.testing
 import pytest
 
@@ -41,3 +42,10 @@ def pyramid_request():
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
+
+
+@pytest.yield_fixture
+def cli():
+    runner = click.testing.CliRunner()
+    with runner.isolated_filesystem():
+        yield runner

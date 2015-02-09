@@ -14,34 +14,35 @@ import multiprocessing
 
 import click
 
-try:
-    import gunicorn.app.base
+try:  # pragma: no cover
+    from gunicorn.app.base import BaseApplication
     HAS_GUNICORN = True
 except ImportError:
+    class BaseApplication:
+        pass
     HAS_GUNICORN = False
 
 from warehouse.cli import warehouse
 
 
-if HAS_GUNICORN:
-    class Application(gunicorn.app.base.BaseApplication):
+class Application(BaseApplication):
 
-        def __init__(self, app, *args, options=None, **kwargs):
-            self.options = options or {}
-            self.application = app
+    def __init__(self, app, *args, options, **kwargs):
+        self.options = options
+        self.application = app
 
-            super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        def load_config(self):
-            config = {
-                key: value for key, value in self.options.items()
-                if key in self.cfg.settings and value is not None
-            }
-            for key, value in config.items():
-                self.cfg.set(key.lower(), value)
+    def load_config(self):
+        config = {
+            key: value for key, value in self.options.items()
+            if key in self.cfg.settings and value is not None
+        }
+        for key, value in config.items():
+            self.cfg.set(key.lower(), value)
 
-        def load(self):
-            return self.application
+    def load(self):
+        return self.application
 
 
 @warehouse.command()

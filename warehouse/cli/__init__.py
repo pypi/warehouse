@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import importlib
+import os.path
 import pkgutil
 
 import click
@@ -28,7 +29,7 @@ def warehouse(ctx, config_dir):
     settings = {}
 
     if config_dir is not None:
-        settings["yml.location"] = [config_dir]
+        settings["yml.location"] = [os.path.abspath(config_dir)]
 
     ctx.obj = configure(settings=settings)
 
