@@ -1,0 +1,7 @@
+configurator:
+  database:
+    url: "postgresql://localhost/warehouse"
+
+  sessions:
+    secret: "an insecure development secret"
+    url: "redis://localhost:6379/0"
