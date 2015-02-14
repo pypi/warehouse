@@ -59,7 +59,7 @@ class User(db.ModelBase):
             return primaries[0].email
 
     @email.expression
-    def email(self):  # noqa
+    def email(self):
         return (
             select([Email.email])
             .where((Email.user_id == self.id) & (Email.primary == True))  # noqa
