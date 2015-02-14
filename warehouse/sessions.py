@@ -322,8 +322,8 @@ class SessionFactory:
 def includeme(config):
     config.set_session_factory(
         SessionFactory(
-            config.registry["config"].sessions.secret,
-            config.registry["config"].sessions.url,
+            config.registry.settings["sessions.secret"],
+            config.registry.settings["sessions.url"],
         ),
     )
     config.add_tween("warehouse.sessions.session_tween_factory", over=MAIN)

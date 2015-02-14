@@ -44,9 +44,7 @@ def test_configure_alembic(monkeypatch):
     monkeypatch.setattr(alembic.config, "Config", config_cls)
 
     config = pretend.stub(
-        registry={
-            "config": pretend.stub(database=pretend.stub(url=pretend.stub())),
-        },
+        registry=pretend.stub(settings={"database.url": pretend.stub()}),
     )
 
     alembic_config = _configure_alembic(config)
@@ -54,7 +52,7 @@ def test_configure_alembic(monkeypatch):
     assert alembic_config is config_obj
     assert alembic_config.set_main_option.calls == [
         pretend.call("script_location", "warehouse:migrations"),
-        pretend.call("url", config.registry["config"].database.url),
+        pretend.call("url", config.registry.settings["database.url"]),
     ]
 
 
@@ -80,13 +78,14 @@ def test_create_session(monkeypatch):
 
 
 def test_includeme(monkeypatch):
+    class FakeRegistry(dict):
+        settings = {"database.url": pretend.stub()}
+
     engine = pretend.stub()
     create_engine = pretend.call_recorder(lambda url: engine)
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda *a: None),
-        registry={
-            "config": pretend.stub(database=pretend.stub(url=pretend.stub())),
-        },
+        registry=FakeRegistry(),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
     )
 
@@ -98,7 +97,7 @@ def test_includeme(monkeypatch):
         pretend.call("alembic_config", _configure_alembic),
     ]
     assert create_engine.calls == [
-        pretend.call(config.registry["config"].database.url),
+        pretend.call(config.registry.settings["database.url"]),
     ]
     assert config.registry["sqlalchemy.engine"] is engine
     assert config.add_request_method.calls == [

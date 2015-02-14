@@ -47,7 +47,9 @@ _Session = sessionmaker()
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
-    alembic_cfg.set_main_option("url", config.registry["config"].database.url)
+    alembic_cfg.set_main_option(
+        "url", config.registry.settings["database.url"],
+    )
     return alembic_cfg
 
 
@@ -68,7 +70,7 @@ def includeme(config):
 
     # Create our SQLAlchemy Engine.
     config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
-        config.registry["config"].database.url,
+        config.registry.settings["database.url"],
     )
 
     # Register our request.db property

@@ -673,9 +673,8 @@ def test_includeme(monkeypatch, pyramid_config):
         session_factory_cls,
     )
 
-    pyramid_config.registry["config"] = pretend.stub(
-        sessions=pretend.stub(secret="my secret", url="my url"),
-    )
+    pyramid_config.registry.settings["sessions.secret"] = "my secret"
+    pyramid_config.registry.settings["sessions.url"] = "my url"
     includeme(pyramid_config)
 
     session_factory = pyramid_config.registry.queryUtility(ISessionFactory)
