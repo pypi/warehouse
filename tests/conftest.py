@@ -51,9 +51,6 @@ def database(request, postgresql_proc):
     pg_port = postgresql_proc.port
     pg_user = config.postgresql.user
     pg_db = config.postgresql.db
-    db_url = "postgresql://{}@{}:{}/{}".format(
-        pg_user, pg_host, pg_port, pg_db,
-    )
 
     # Create our Database.
     init_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
@@ -63,26 +60,11 @@ def database(request, postgresql_proc):
     def drop_database():
         drop_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
 
-    # Create enough of a configuration to run the migrations.
-    config = configure(
-        settings={
-            "env": "production",
-            "database.url": db_url,
-            "sessions.secret": "123456",
-            "sessions.url": "redis://localhost:0/",
-        },
-    )
-
-    # Actually run our migrations
-    alembic.command.upgrade(config.alembic_config(), "head")
-
-    # Give back our database url for other things to use.
-    return db_url
+    return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 
 
 @pytest.fixture
 def app_config(database):
-    # Create our configuration
     config = configure(
         settings={
             "env": "production",
@@ -91,6 +73,9 @@ def app_config(database):
             "sessions.url": "redis://localhost:0/",
         },
     )
+
+    # Ensure our migrations have been ran.
+    alembic.command.upgrade(config.alembic_config(), "head")
 
     return config
 
