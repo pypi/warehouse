@@ -25,12 +25,6 @@ def configure(settings=None):
     if settings is None:
         settings = {}
 
-    # Pull our configuration location of the environment
-    if "WAREHOUSE_CONFIG_DIR" in os.environ:
-        settings.setdefault("yml.location", []).append(
-            os.path.abspath(os.environ["WAREHOUSE_CONFIG_DIR"])
-        )
-
     # Pull our configuration environment of the environment
     if "WAREHOUSE_ENV" in os.environ:
         settings["env"] = os.environ["WAREHOUSE_ENV"]

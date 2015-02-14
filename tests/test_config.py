@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import itertools
-import os.path
 
 from unittest import mock
 
@@ -32,13 +31,8 @@ from warehouse.utils.mapper import WarehouseMapper
             {"yml.locations": ["/foo/"]},
         ],
         [
-            {"WAREHOUSE_CONFIG_DIR": None, "WAREHOUSE_ENV": None},
-            {"WAREHOUSE_CONFIG_DIR": "/config-dir/", "WAREHOUSE_ENV": None},
-            {"WAREHOUSE_CONFIG_DIR": None, "WAREHOUSE_ENV": "production"},
-            {
-                "WAREHOUSE_CONFIG_DIR": "/config-dir/",
-                "WAREHOUSE_ENV": "production",
-            },
+            {"WAREHOUSE_ENV": None},
+            {"WAREHOUSE_ENV": "production"},
         ]
     ),
 )
@@ -75,11 +69,6 @@ def test_configure(monkeypatch, settings, env):
         expected_settings = {}
     else:
         expected_settings = settings.copy()
-
-    if env["WAREHOUSE_CONFIG_DIR"]:
-        expected_settings.setdefault("yml.location", []).append(
-            os.path.abspath(env["WAREHOUSE_CONFIG_DIR"]),
-        )
 
     if env["WAREHOUSE_ENV"]:
         expected_settings["env"] = env["WAREHOUSE_ENV"]
