@@ -50,12 +50,23 @@ def serve(config, bind, reload_):
     Serve Warehouse using gunicorn.
     """
 
+    # Default options which can be overriden later.
     options = {
-        "bind": bind,
-        "reload": reload_,
         # The gunicorn docs recommend (2 x $num_cores) + 1
         "workers": (2 * multiprocessing.cpu_count()) + 1,
-        "proc_name": "warehouse",
     }
 
+    # Pull in configuration file options.
+    options.update(config.registry["config"].get("serve", {}))
+
+    # We want these values to override the values from the config file if
+    # they've been given.
+    cli_options = {"bind": bind, "reload": reload_}
+    options.update({k: v for k, v in cli_options.items() if v is not None})
+
+    # This is a non optional "option", we always want our proc_name to be
+    # warehouse.
+    options["proc_name"] = "warehouse"
+
+    # Actually run our WSGI application now.
     Application(config.make_wsgi_app(), options=options).run()

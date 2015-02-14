@@ -55,6 +55,7 @@ def test_serve(monkeypatch, cli):
 
     wsgi_app = pretend.stub()
     config = pretend.stub(
+        registry={"config": {}},
         make_wsgi_app=pretend.call_recorder(lambda: wsgi_app),
     )
 
@@ -64,12 +65,7 @@ def test_serve(monkeypatch, cli):
     assert app_cls.calls == [
         pretend.call(
             wsgi_app,
-            options={
-                "bind": None,
-                "reload": False,
-                "workers": 3,
-                "proc_name": "warehouse",
-            },
+            options={"reload": False, "workers": 3, "proc_name": "warehouse"},
         ),
     ]
     assert app_obj.run.calls == [pretend.call()]
