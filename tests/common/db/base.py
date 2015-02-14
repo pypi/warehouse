@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from factory import base
+import random
+import string
+
+from factory import base, fuzzy
 
 
 class WarehouseFactory(base.Factory):
@@ -24,3 +27,15 @@ class WarehouseFactory(base.Factory):
         session.add(obj)
         session.flush()
         return obj
+
+
+class FuzzyEmail(fuzzy.BaseFuzzyAttribute):
+
+    def __init__(self, domain="example.com", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.domain = domain
+
+    def fuzz(self):
+        chars = string.ascii_letters + string.digits
+        username = "".join(random.choice(chars) for i in range(12))
+        return "@".join([username, self.domain])

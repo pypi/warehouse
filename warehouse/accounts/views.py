@@ -42,7 +42,7 @@ def profile(request, username):
     renderer="accounts/login.html",
     decorator=[csrf_protect("accounts.login"), uses_session],
 )
-def login(request):
+def login(request, _form_class=LoginForm):
     # TODO: If already logged in just redirect to ?next=
     # TODO: Logging in should reset request.user
     # TODO: Prevent session fixation:
@@ -50,7 +50,7 @@ def login(request):
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
-    form = LoginForm(
+    form = _form_class(
         request.POST,
         db=request.db,
         password_hasher=request.password_hasher,
@@ -92,6 +92,10 @@ def logout(request):
         # need a post body that contains the CSRF token.
         headers = forget(request)
         request.response.headerlist.extend(headers)
+
+        # Cycle the CSRF token since we've crossed an authentication boundary
+        # and we don't want to continue using the old one.
+        request.session.new_csrf_token()
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.

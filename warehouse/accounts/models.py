@@ -58,20 +58,12 @@ class User(db.ModelBase):
         if primaries:
             return primaries[0].email
 
-    @email.setter
-    def email(self, value):
-        if not self.emails:
-            primary_email = Email(user=self, primary=True)
-        else:
-            primary_email = self.email
-
-        primary_email.email = value
-
     @email.expression
-    def email(cls):  # noqa
+    def email(self):  # noqa
         return (
             select([Email.email])
-            .where((Email.user == cls) & (Email.primary == True))  # noqa
+            .where((Email.user_id == self.id) & (Email.primary == True))  # noqa
+            .as_scalar()
         )
 
 
