@@ -46,10 +46,10 @@ def test_cli_with_settings(monkeypatch, cli):
 
     result = cli.invoke(
         warehouse.cli.warehouse,
-        ["--config-dir", ".", "cli_test_command"],
+        ["--config", ".", "cli_test_command"],
     )
 
     assert result.exit_code == 0
     assert configure.calls == [
-        pretend.call(settings={"yml.location": [os.path.abspath(".")]}),
+        pretend.call(settings={"yml.location": (os.path.abspath("."),)}),
     ]

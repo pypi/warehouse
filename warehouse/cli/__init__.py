@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import importlib
-import os.path
 import pkgutil
 
 import click
@@ -21,15 +20,16 @@ from warehouse.config import configure
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.option(
-    "--config-dir",
-    type=click.Path(file_okay=False, dir_okay=True, resolve_path=True),
+    "--config", "-c",
+    multiple=True,
+    type=click.Path(resolve_path=True),
 )
 @click.pass_context
-def warehouse(ctx, config_dir):
+def warehouse(ctx, config):
     settings = {}
 
-    if config_dir is not None:
-        settings["yml.location"] = [os.path.abspath(config_dir)]
+    if config:
+        settings["yml.location"] = config
 
     ctx.obj = configure(settings=settings)
 
