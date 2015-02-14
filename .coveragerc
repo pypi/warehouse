@@ -8,3 +8,6 @@ omit =
     # It doesn't make sense to try and cover this code in unit tests, the whole
     # point is this is dead code/tables laying around until we can delete them.
     warehouse/legacy/tables.py
+
+    # We don't want to get cover inforation for our migrations.
+    warehouse/migrations/*
