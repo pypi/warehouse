@@ -7,4 +7,6 @@ recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
 recursive-include warehouse/templates *.html
 
+exclude dev-requirements.txt
+
 prune etc
