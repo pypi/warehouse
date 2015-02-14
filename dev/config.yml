@@ -6,11 +6,11 @@ include:
 
 configurator:
   database:
-    url: "postgresql://localhost/warehouse"
+    url: "postgresql://postgres@db/warehouse"
 
   sessions:
     secret: "an insecure development secret"
-    url: "redis://localhost:6379/0"
+    url: "redis://redis:6379/0"
 
   debugtoolbar:
     panels:
