@@ -81,12 +81,6 @@ setuptools.setup(
         "zope.sqlalchemy",
     ],
 
-    extras_require={
-        "devel": [
-            "pyramid_debugtoolbar",
-        ],
-    },
-
     entry_points={
         "console_scripts": [
             "warehouse = warehouse.cli:warehouse",
