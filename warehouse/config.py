@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import os.path
-
 import transaction
 
 from pyramid.config import Configurator
@@ -24,10 +21,6 @@ from warehouse.utils.mapper import WarehouseMapper
 def configure(settings=None):
     if settings is None:
         settings = {}
-
-    # Pull our configuration environment of the environment
-    if "WAREHOUSE_ENV" in os.environ:
-        settings["env"] = os.environ["WAREHOUSE_ENV"]
 
     config = Configurator(settings=settings)
 

@@ -67,7 +67,6 @@ def database(request, postgresql_proc):
 def app_config(database):
     config = configure(
         settings={
-            "env": "production",
             "database.url": database,
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",

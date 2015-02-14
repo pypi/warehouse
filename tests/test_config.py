@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import itertools
-
 from unittest import mock
 
 import pretend
@@ -22,27 +20,15 @@ from warehouse.utils.mapper import WarehouseMapper
 
 
 @pytest.mark.parametrize(
-    ("settings", "env"),
-    itertools.product(
-        [
-            None,
-            {},
-            {"my settings": "the settings value"},
-            {"yml.locations": ["/foo/"]},
-        ],
-        [
-            {"WAREHOUSE_ENV": None},
-            {"WAREHOUSE_ENV": "production"},
-        ]
-    ),
+    "settings",
+    [
+        None,
+        {},
+        {"my settings": "the settings value"},
+        {"yml.locations": ["/foo/"]},
+    ],
 )
-def test_configure(monkeypatch, settings, env):
-    for key, value in env.items():
-        if value is None:
-            monkeypatch.delenv(key, raising=False)
-        else:
-            monkeypatch.setenv(key, value)
-
+def test_configure(monkeypatch, settings):
     configurator_obj = pretend.stub(
         set_view_mapper=pretend.call_recorder(lambda mapper: None),
         include=pretend.call_recorder(lambda include: None),
@@ -69,9 +55,6 @@ def test_configure(monkeypatch, settings, env):
         expected_settings = {}
     else:
         expected_settings = settings.copy()
-
-    if env["WAREHOUSE_ENV"]:
-        expected_settings["env"] = env["WAREHOUSE_ENV"]
 
     assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
     assert config_defaults.calls == [
