@@ -143,14 +143,10 @@ class TestLogout:
         monkeypatch.setattr(views, "forget", forget)
 
         pyramid_request.method = "POST"
-        pyramid_request.session = pretend.stub(
-            new_csrf_token=pretend.call_recorder(lambda: None)
-        )
 
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert forget.calls == [pretend.call(pyramid_request)]
-        assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
         assert ("foo", "bar") in pyramid_request.response.headerlist

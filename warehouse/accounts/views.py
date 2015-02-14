@@ -93,10 +93,6 @@ def logout(request):
         headers = forget(request)
         request.response.headerlist.extend(headers)
 
-        # Cycle the CSRF token since we've crossed an authentication boundary
-        # and we don't want to continue using the old one.
-        request.session.new_csrf_token()
-
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
         # TODO: Implement ?next= support.
