@@ -62,6 +62,7 @@ setuptools.setup(
     install_requires=[
         "alembic>=0.7.0",
         "click",
+        "gunicorn",
         "hiredis",
         "itsdangerous",
         "msgpack-python",
@@ -71,6 +72,7 @@ setuptools.setup(
         "pyramid_jinja2",
         "pyramid_tm>=0.11",
         "redis",
+        "setproctitle",
         "sqlalchemy>=0.9",
         "sqlalchemy-citext",
         "transaction",
@@ -82,10 +84,6 @@ setuptools.setup(
     extras_require={
         "devel": [
             "pyramid_debugtoolbar",
-        ],
-        "serve": [
-            "gunicorn",
-            "setproctitle",
         ],
     },
 

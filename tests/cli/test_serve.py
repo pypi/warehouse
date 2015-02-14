@@ -21,7 +21,7 @@ class TestApplication:
 
     def test_basic_setup(self):
         wsgi_app = pretend.stub()
-        options = pretend.stub()
+        options = pretend.stub(items=lambda: [])
         app = Application(wsgi_app, options=options)
         assert app.options is options
         assert app.application is wsgi_app
@@ -46,42 +46,30 @@ class TestApplication:
         assert app.load() is wsgi_app
 
 
-class TestServe:
+def test_serve(monkeypatch, cli):
+    app_obj = pretend.stub(run=pretend.call_recorder(lambda: None))
+    app_cls = pretend.call_recorder(lambda app, options: app_obj)
+    mp = pretend.stub(cpu_count=lambda: 1)
+    monkeypatch.setattr(warehouse.cli.serve, "Application", app_cls)
+    monkeypatch.setattr(warehouse.cli.serve, "multiprocessing", mp)
 
-    def test_without_gunicorn(self, monkeypatch, cli):
-        monkeypatch.setattr(warehouse.cli.serve, "HAS_GUNICORN", False)
-        config = pretend.stub()
-        result = cli.invoke(serve, obj=config)
-        assert result.exit_code == 1
-        assert result.output == (
-            "Error: Cannot use 'warehouse serve' without gunicorn installed.\n"
-        )
+    wsgi_app = pretend.stub()
+    config = pretend.stub(
+        make_wsgi_app=pretend.call_recorder(lambda: wsgi_app),
+    )
 
-    def test_with_gunicorn(self, monkeypatch, cli):
-        app_obj = pretend.stub(run=pretend.call_recorder(lambda: None))
-        app_cls = pretend.call_recorder(lambda app, options: app_obj)
-        mp = pretend.stub(cpu_count=lambda: 1)
-        monkeypatch.setattr(warehouse.cli.serve, "HAS_GUNICORN", True)
-        monkeypatch.setattr(warehouse.cli.serve, "Application", app_cls)
-        monkeypatch.setattr(warehouse.cli.serve, "multiprocessing", mp)
+    result = cli.invoke(serve, obj=config)
 
-        wsgi_app = pretend.stub()
-        config = pretend.stub(
-            make_wsgi_app=pretend.call_recorder(lambda: wsgi_app),
-        )
-
-        result = cli.invoke(serve, obj=config)
-
-        assert result.exit_code == 0
-        assert app_cls.calls == [
-            pretend.call(
-                wsgi_app,
-                options={
-                    "bind": None,
-                    "reload": False,
-                    "workers": 3,
-                    "proc_name": "warehouse",
-                },
-            ),
-        ]
-        assert app_obj.run.calls == [pretend.call()]
+    assert result.exit_code == 0
+    assert app_cls.calls == [
+        pretend.call(
+            wsgi_app,
+            options={
+                "bind": None,
+                "reload": False,
+                "workers": 3,
+                "proc_name": "warehouse",
+            },
+        ),
+    ]
+    assert app_obj.run.calls == [pretend.call()]

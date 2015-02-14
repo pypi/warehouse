@@ -13,19 +13,12 @@
 import multiprocessing
 
 import click
-
-try:  # pragma: no cover
-    from gunicorn.app.base import BaseApplication
-    HAS_GUNICORN = True
-except ImportError:
-    class BaseApplication:
-        pass
-    HAS_GUNICORN = False
+import gunicorn.app.base
 
 from warehouse.cli import warehouse
 
 
-class Application(BaseApplication):
+class Application(gunicorn.app.base.BaseApplication):
 
     def __init__(self, app, *args, options, **kwargs):
         self.options = options
@@ -55,14 +48,7 @@ class Application(BaseApplication):
 def serve(config, bind, reload_):
     """
     Serve Warehouse using gunicorn.
-
-    Note: Requires installing with the serve extra.
     """
-
-    if not HAS_GUNICORN:
-        raise click.ClickException(
-            "Cannot use 'warehouse serve' without gunicorn installed."
-        )
 
     options = {
         "bind": bind,
