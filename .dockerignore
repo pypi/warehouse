@@ -1,2 +1,4 @@
 .git/*
 .tox/*
+
+dev/example.sql
