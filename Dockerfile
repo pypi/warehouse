@@ -3,7 +3,7 @@ FROM python:3.4-slim
 # Install Warehouse's Dependencies
 RUN set -x \
     && apt-get update \
-    && apt-get install libpq5 --no-install-recommends -y \
+    && apt-get install libpq5 postgresql-client --no-install-recommends -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
