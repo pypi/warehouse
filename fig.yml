@@ -2,15 +2,15 @@ db:
   image: postgres:9.4
 
 redis:
-  image: redis
+  image: redis:latest
 
 web:
-  build: dev/
+  build: .
   command: warehouse --config dev/config.yml serve --reload --bind 0.0.0.0
   ports:
-   - "8000:8000"
+    - "8000:8000"
   volumes:
-   - .:/code
+    - .:/app/
   links:
-   - db
-   - redis
+    - db
+    - redis

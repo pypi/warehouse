@@ -1,7 +1,3 @@
-# I (dstufft) try to keep a number of Wheels here for projects we use but which
-# don't provide wheels of their own. These are only pure Python wheels however.
---find-links https://wheels.caremad.io/
-
 # Install Warehouse itself.
 -e .
 
