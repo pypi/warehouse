@@ -17,13 +17,22 @@ from pyramid.path import AssetResolver
 
 class WarehouseCacheBuster:
 
-    def __init__(self, manifest):
+    def __init__(self, manifest, cache=True):
         self.manifest_asset = manifest
+        self.cache = cache
 
     def _load_manifest(self):
-        manifest = AssetResolver().resolve(self.manifest_asset)
-        with manifest.stream() as fp:
-            return json.loads(fp.read().decode("utf8"))
+        manifest = getattr(self, "_manifest", None)
+
+        if manifest is None:
+            manifest = AssetResolver().resolve(self.manifest_asset)
+            with manifest.stream() as fp:
+                manifest = json.loads(fp.read().decode("utf8"))
+
+            if self.cache:
+                self._manifest = manifest
+
+        return manifest
 
     def token(self, pathspec):
         """

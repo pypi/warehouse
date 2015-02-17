@@ -30,6 +30,7 @@ from warehouse.utils.mapper import WarehouseMapper
 )
 def test_configure(monkeypatch, settings):
     configurator_obj = pretend.stub(
+        registry=pretend.stub(settings={"pyramid.reload_assets": False}),
         set_view_mapper=pretend.call_recorder(lambda mapper: None),
         include=pretend.call_recorder(lambda include: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
@@ -44,7 +45,7 @@ def test_configure(monkeypatch, settings):
     monkeypatch.setattr(config, "Configurator", configurator_cls)
 
     cachebuster_obj = pretend.stub()
-    cachebuster_cls = pretend.call_recorder(lambda m: cachebuster_obj)
+    cachebuster_cls = pretend.call_recorder(lambda m, cache: cachebuster_obj)
     monkeypatch.setattr(config, "WarehouseCacheBuster", cachebuster_cls)
 
     config_defaults = pretend.call_recorder(lambda config, files: None)
@@ -101,7 +102,7 @@ def test_configure(monkeypatch, settings):
         ),
     ]
     assert cachebuster_cls.calls == [
-        pretend.call("warehouse:static/manifest.json"),
+        pretend.call("warehouse:static/manifest.json", cache=True),
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env"]),

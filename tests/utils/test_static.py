@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.utils import static
 
@@ -21,7 +22,8 @@ class TestWarehouseCacheBuster:
         cachebuster = static.WarehouseCacheBuster("foo")
         assert cachebuster.manifest_asset == "foo"
 
-    def test_load_manifest(self, monkeypatch):
+    @pytest.mark.parametrize("cache", [True, False])
+    def test_load_manifest(self, monkeypatch, cache):
         class FakeStream:
             def __enter__(self):
                 return self
@@ -37,12 +39,19 @@ class TestWarehouseCacheBuster:
                 return FakeStream()
 
         assetresolver_obj = pretend.stub(resolve=lambda spec: FakeAsset())
-        monkeypatch.setattr(static, "AssetResolver", lambda: assetresolver_obj)
+        assetresolver_cls = pretend.call_recorder(lambda: assetresolver_obj)
+        monkeypatch.setattr(static, "AssetResolver", assetresolver_cls)
 
-        cachebuster = static.WarehouseCacheBuster("foo")
+        cachebuster = static.WarehouseCacheBuster("foo", cache=cache)
+        manifest = cachebuster._load_manifest()
         manifest = cachebuster._load_manifest()
 
         assert manifest == {"css/style.css": "css/style-foo.css"}
+
+        if cache:
+            assert assetresolver_cls.calls == [pretend.call()]
+        else:
+            assert assetresolver_cls.calls == [pretend.call(), pretend.call()]
 
     def test_token(self):
         cachebuster = static.WarehouseCacheBuster("no-op")

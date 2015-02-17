@@ -74,7 +74,10 @@ def configure(settings=None):
     config.add_static_view(
         name="static",
         path="warehouse:static",
-        cachebust=WarehouseCacheBuster("warehouse:static/manifest.json"),
+        cachebust=WarehouseCacheBuster(
+            "warehouse:static/manifest.json",
+            cache=not config.registry.settings["pyramid.reload_assets"],
+        ),
     )
 
     # Scan everything for configuration
