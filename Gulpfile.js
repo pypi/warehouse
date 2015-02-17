@@ -38,4 +38,8 @@ gulp.task("dist", ["dist:css"], function() { gulp.start("dist:cachebuster") });
 
 gulp.task("clean", function(cb) { del([paths.css], cb) });
 
+gulp.task("watch", function() {
+    gulp.watch(path.join(paths.sass, "*.scss"), ["default"]);
+});
+
 gulp.task("default", ["clean"], function() { gulp.start("dist") });
