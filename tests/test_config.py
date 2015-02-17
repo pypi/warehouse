@@ -35,10 +35,17 @@ def test_configure(monkeypatch, settings):
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
         add_settings=pretend.call_recorder(lambda d: None),
+        add_static_view=pretend.call_recorder(
+            lambda name, path, cachebust: None
+        ),
         scan=pretend.call_recorder(lambda ignore: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
     monkeypatch.setattr(config, "Configurator", configurator_cls)
+
+    cachebuster_obj = pretend.stub()
+    cachebuster_cls = pretend.call_recorder(lambda m: cachebuster_obj)
+    monkeypatch.setattr(config, "WarehouseCacheBuster", cachebuster_cls)
 
     config_defaults = pretend.call_recorder(lambda config, files: None)
     monkeypatch.setattr(config, "config_defaults", config_defaults)
@@ -86,6 +93,16 @@ def test_configure(monkeypatch, settings):
     add_settings_dict = configurator_obj.add_settings.calls[0].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
+    assert configurator_obj.add_static_view.calls == [
+        pretend.call(
+            name="static",
+            path="warehouse:static",
+            cachebust=cachebuster_obj,
+        ),
+    ]
+    assert cachebuster_cls.calls == [
+        pretend.call("warehouse:static/manifest.json"),
+    ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env"]),
     ]

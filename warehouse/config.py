@@ -16,6 +16,7 @@ from pyramid.config import Configurator
 from tzf.pyramid_yml import config_defaults
 
 from warehouse.utils.mapper import WarehouseMapper
+from warehouse.utils.static import WarehouseCacheBuster
 
 
 def configure(settings=None):
@@ -68,6 +69,13 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Enable Warehouse to service our static files
+    config.add_static_view(
+        name="static",
+        path="warehouse:static",
+        cachebust=WarehouseCacheBuster("warehouse:static/manifest.json"),
+    )
 
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env"])
