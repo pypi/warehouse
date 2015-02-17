@@ -16,12 +16,27 @@ import click
 import pretend
 
 import warehouse.cli
+import warehouse.config
+
+
+def test_lazy_config_delays(monkeypatch):
+    config = pretend.stub(foo="bar", another="thing")
+    configure = pretend.call_recorder(lambda a, settings: config)
+    monkeypatch.setattr(warehouse.config, "configure", configure)
+
+    lconfig = warehouse.cli.LazyConfig("thing", settings={"lol": "wat"})
+
+    assert configure.calls == []
+    assert lconfig.foo == "bar"
+    assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
+    assert lconfig.another == "thing"
+    assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
 
 
 def test_cli_no_settings(monkeypatch, cli):
     config = pretend.stub()
     configure = pretend.call_recorder(lambda settings: config)
-    monkeypatch.setattr(warehouse.cli, "configure", configure)
+    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
 
     @warehouse.cli.warehouse.command()
     @click.pass_obj
@@ -37,7 +52,7 @@ def test_cli_no_settings(monkeypatch, cli):
 def test_cli_with_settings(monkeypatch, cli):
     config = pretend.stub()
     configure = pretend.call_recorder(lambda settings: config)
-    monkeypatch.setattr(warehouse.cli, "configure", configure)
+    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
 
     @warehouse.cli.warehouse.command()
     @click.pass_obj

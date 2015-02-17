@@ -15,7 +15,23 @@ import pkgutil
 
 import click
 
-from warehouse.config import configure
+
+class LazyConfig:
+    # This is defined here instead of anywhere else because we want to limit
+    # the modules that this imports from Warehouse. Anything imported in
+    # warehouse/__init__.py or warehouse/cli/__init__.py will not be able to
+    # be reloaded by ``warehouse serve --reload``.
+
+    def __init__(self, *args, **kwargs):
+        self.__args = args
+        self.__kwargs = kwargs
+        self.__config = None
+
+    def __getattr__(self, name):
+        if self.__config is None:
+            from warehouse.config import configure
+            self.__config = configure(*self.__args, **self.__kwargs)
+        return getattr(self.__config, name)
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -31,7 +47,7 @@ def warehouse(ctx, config):
     if config:
         settings["yml.location"] = config
 
-    ctx.obj = configure(settings=settings)
+    ctx.obj = LazyConfig(settings=settings)
 
 
 # We want to automatically import all of the warehouse.cli.* modules so that

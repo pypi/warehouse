@@ -20,9 +20,9 @@ from warehouse.cli import warehouse
 
 class Application(gunicorn.app.base.BaseApplication):
 
-    def __init__(self, app, *args, options, **kwargs):
+    def __init__(self, configurator, *args, options, **kwargs):
         self.options = options
-        self.application = app
+        self.configurator = configurator
 
         super().__init__(*args, **kwargs)
 
@@ -35,7 +35,10 @@ class Application(gunicorn.app.base.BaseApplication):
             self.cfg.set(key.lower(), value)
 
     def load(self):
-        return self.application
+        # We wait to load the WSGI app until here, otherwise we'll trigger the
+        # configuration of Warehouse before Gunicorn forks the workers, which
+        # will remove our ability to reload Warehouse.
+        return self.configurator.make_wsgi_app()
 
 
 @warehouse.command()
@@ -44,8 +47,13 @@ class Application(gunicorn.app.base.BaseApplication):
     "--reload/--no-reload", "reload_",
     help="Restart workers when code changes."
 )
+@click.option(
+    "--workers", "-w",
+    type=click.IntRange(min=1),
+    help="How many workers to spawn. [default: (2 * $num_cores) + 1]",
+)
 @click.pass_obj
-def serve(config, bind, reload_):
+def serve(config, bind, reload_, workers):
     """
     Serve Warehouse using gunicorn.
     """
@@ -56,12 +64,9 @@ def serve(config, bind, reload_):
         "workers": (2 * multiprocessing.cpu_count()) + 1,
     }
 
-    # Pull in configuration file options.
-    options.update(config.registry["config"].get("serve", {}))
-
     # We want these values to override the values from the config file if
     # they've been given.
-    cli_options = {"bind": bind, "reload": reload_}
+    cli_options = {"bind": bind, "reload": reload_, "workers": workers}
     options.update({k: v for k, v in cli_options.items() if v is not None})
 
     # This is a non optional "option", we always want our proc_name to be
@@ -69,4 +74,4 @@ def serve(config, bind, reload_):
     options["proc_name"] = "warehouse"
 
     # Actually run our WSGI application now.
-    Application(config.make_wsgi_app(), options=options).run()
+    Application(config, options=options).run()

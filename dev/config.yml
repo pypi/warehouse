@@ -1,6 +1,3 @@
-serve:
-  workers: 1
-
 include:
   pyramid_debugtoolbar: True
 

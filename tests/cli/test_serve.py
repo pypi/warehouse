@@ -20,18 +20,18 @@ from warehouse.cli.serve import Application, serve
 class TestApplication:
 
     def test_basic_setup(self):
-        wsgi_app = pretend.stub()
+        configurator = pretend.stub()
         options = pretend.stub(items=lambda: [])
-        app = Application(wsgi_app, options=options)
+        app = Application(configurator, options=options)
         assert app.options is options
-        assert app.application is wsgi_app
+        assert app.configurator is configurator
 
     def test_load_config(self):
         options = {
             "foo": "another bar",
             "no": "yes",
         }
-        app = Application(pretend.stub, options=options)
+        app = Application(pretend.stub(), options=options)
         settings = {"foo": "bar", "wat": "lol"}
         app.cfg = pretend.stub(
             settings=settings,
@@ -42,8 +42,12 @@ class TestApplication:
 
     def test_load(self):
         wsgi_app = pretend.stub()
-        app = Application(wsgi_app, options={})
+        configurator = pretend.stub(
+            make_wsgi_app=pretend.call_recorder(lambda: wsgi_app),
+        )
+        app = Application(configurator, options={})
         assert app.load() is wsgi_app
+        assert configurator.make_wsgi_app.calls == [pretend.call()]
 
 
 def test_serve(monkeypatch, cli):
@@ -53,18 +57,14 @@ def test_serve(monkeypatch, cli):
     monkeypatch.setattr(warehouse.cli.serve, "Application", app_cls)
     monkeypatch.setattr(warehouse.cli.serve, "multiprocessing", mp)
 
-    wsgi_app = pretend.stub()
-    config = pretend.stub(
-        registry={"config": {}},
-        make_wsgi_app=pretend.call_recorder(lambda: wsgi_app),
-    )
+    config = pretend.stub()
 
     result = cli.invoke(serve, obj=config)
 
     assert result.exit_code == 0
     assert app_cls.calls == [
         pretend.call(
-            wsgi_app,
+            config,
             options={"reload": False, "workers": 3, "proc_name": "warehouse"},
         ),
     ]

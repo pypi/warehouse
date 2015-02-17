@@ -6,7 +6,7 @@ redis:
 
 web:
   build: .
-  command: warehouse --config dev/config.yml serve --reload --bind 0.0.0.0
+  command: warehouse --config dev/config.yml serve -b 0.0.0.0 -w 1 --reload
   ports:
     - "80:8000"
   volumes:
