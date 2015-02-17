@@ -5,7 +5,6 @@ var del = require("del"),
     path = require("path"),
     rename = require("gulp-rename"),
     rev = require("gulp-rev"),
-    revCollector = require("gulp-rev-collector"),
     sass = require("gulp-sass");
 
 
