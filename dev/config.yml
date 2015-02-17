@@ -13,6 +13,8 @@ configurator:
     url: "redis://redis:6379/0"
 
   debugtoolbar:
+    hosts:
+      - 0.0.0.0/0
     panels:
       - pyramid_debugtoolbar.panels.versions.VersionDebugPanel
       - pyramid_debugtoolbar.panels.settings.SettingsDebugPanel
