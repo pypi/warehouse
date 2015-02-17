@@ -14,3 +14,5 @@ web:
   links:
     - db
     - redis
+  environment:
+    PYTHONUNBUFFERED: 1
