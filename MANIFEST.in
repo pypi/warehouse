@@ -9,6 +9,6 @@ recursive-include warehouse/static *.css *.json *.scss
 recursive-include warehouse/templates *.html
 
 exclude Gulpfile.js package.json
-exclude dev-requirements.txt
+exclude .dockerignore Dockerfile fig.yml
 
-prune etc
+prune dev
