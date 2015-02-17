@@ -3,6 +3,7 @@ var del = require("del"),
     minifycss = require("gulp-minify-css"),
     neat = require("node-neat").includePaths,
     path = require("path"),
+    normalize = path.join(require.resolve("normalize.css/package.json"), ".."),
     rename = require("gulp-rename"),
     rev = require("gulp-rev"),
     sass = require("gulp-sass");
@@ -15,6 +16,13 @@ var paths = {
 };
 
 
+gulp.task("dist:css:normalize", function() {
+    return gulp.src(path.join(normalize, "normalize.css"))
+        .pipe(minifycss())
+        .pipe(gulp.dest(paths.css));
+})
+
+
 gulp.task("dist:css:warehouse", function() {
     return gulp.src(path.join(paths.sass, "*.scss"))
         .pipe(sass({ includePaths: [paths.sass].concat(neat) }))
@@ -22,7 +30,7 @@ gulp.task("dist:css:warehouse", function() {
         .pipe(gulp.dest(paths.css));
 });
 
-gulp.task("dist:css", ["dist:css:warehouse"]);
+gulp.task("dist:css", ["dist:css:normalize", "dist:css:warehouse"]);
 
 gulp.task("dist:cachebuster", function() {
     var mpaths = [paths.css].map(function (i){ return path.join(i, "**", "*") });
