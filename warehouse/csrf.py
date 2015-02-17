@@ -83,8 +83,8 @@ def _check_csrf(request):
 
             # Actually check our Origin against our Current
             # Host URL.
-            if ((originp.scheme, originp.hostname, originp.port)
-                    != (hostp.scheme, hostp.hostname, hostp.port)):
+            if ((originp.scheme, originp.hostname, originp.port) !=
+                    (hostp.scheme, hostp.hostname, hostp.port)):
                 reason_origin = origin
                 if origin != "null":
                     reason_origin = urllib.parse.urlunparse(
