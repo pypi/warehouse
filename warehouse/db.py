@@ -14,6 +14,7 @@ import alembic.config
 import sqlalchemy
 import zope.sqlalchemy
 
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -37,6 +38,16 @@ metadata = sqlalchemy.MetaData()
 # Base class for models using declarative syntax
 ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
 
+
+class Model(ModelBase):
+
+    __abstract__ = True
+
+    id = sqlalchemy.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=sqlalchemy.text("gen_random_uuid()"),
+    )
 
 # Create our session class here, this will stay stateless as we'll bind the
 # engine to each new state we create instead of binding it to the session
