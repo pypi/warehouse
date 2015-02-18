@@ -61,6 +61,7 @@ setuptools.setup(
 
     install_requires=[
         "alembic>=0.7.0",
+        "bcrypt",
         "click",
         "gunicorn",
         "hiredis",
