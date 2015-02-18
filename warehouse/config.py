@@ -55,6 +55,9 @@ def configure(settings=None):
     })
     config.include("pyramid_tm")
 
+    # Register support for internationalization and localization
+    config.include(".i18n")
+
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
