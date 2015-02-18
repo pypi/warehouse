@@ -1,9 +1,8 @@
-<html>
-  <head>
-    <title>{{ user.username }}</title>
-  </head>
-  <body>
-    <h1>{{ user.username }}</h1>
-    {{ user.email }}
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block content %}
+  <h1>{{ user.username }}</h1>
+  <p>{{ user.email }}</p>
+{% endblock %}

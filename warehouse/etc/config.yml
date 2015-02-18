@@ -1,3 +1,6 @@
 configurator:
+  site:
+    name: Warehouse
+
   jinja2:
     newstyle: True

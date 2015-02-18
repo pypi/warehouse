@@ -1,26 +1,25 @@
-<html>
-  <head>
-    <title>Login</title>
-  </head>
-  <body>
-    <form method="POST" action="{{ request.current_route_path() }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_scoped_csrf_token('accounts.login') }}">
+{% extends "base.html" %}
 
-      {% if form.errors.__all__ %}
-      <ul class="errors">{% for error in form.errors.__all__ %}<li>{{ error }}</li>{% endfor %}</ul>
-      {% endif %}
+{% block title %}{{ _('Sign in') }}{% endblock %}
 
-      {% if form.username.errors %}
-      <ul class="errors">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-      {% endif %}
-      {{ form.username(placeholder="Username") }}
+{% block content %}
+  <form method="POST" action="{{ request.current_route_path() }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_scoped_csrf_token('accounts.login') }}">
 
-      {% if form.password.errors %}
-      <ul class="errors">{% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-      {% endif %}
-      {{ form.password(placeholder="Password") }}
+    {% if form.errors.__all__ %}
+    <ul class="errors">{% for error in form.errors.__all__ %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
 
-      <input type="submit" value="Login">
-    </form>
-  </body>
-</html>
+    {% if form.username.errors %}
+    <ul class="errors">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    {{ form.username(placeholder="Username") }}
+
+    {% if form.password.errors %}
+    <ul class="errors">{% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    {{ form.password(placeholder="Password") }}
+
+    <input type="submit" value="Login">
+  </form>
+{% endblock %}
