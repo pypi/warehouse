@@ -5,7 +5,7 @@ recursive-include tests *.py
 recursive-include warehouse/etc *.yml
 recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
-recursive-include warehouse/static *.css *.json *.scss
+recursive-include warehouse/static *.css *.json *.scss *.png
 recursive-include warehouse/templates *.html
 
 exclude Gulpfile.js package.json
