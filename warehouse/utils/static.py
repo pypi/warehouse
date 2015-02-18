@@ -34,13 +34,7 @@ class WarehouseCacheBuster:
 
         return manifest
 
-    def token(self, pathspec):
-        """
-        Our cache buster doesn't generate it's own tokens, instead it just
-        looks the asset up in a dictionary and reads that.
-        """
-
-    def pregenerate(self, token, subpath, kw):
+    def pregenerate(self, pathspec, subpath, kw):
         path = "/".join(subpath)
 
         # Attempt to look our path up in our manifest file, if it does not
@@ -49,13 +43,3 @@ class WarehouseCacheBuster:
         path = manifest.get(path, path)
 
         return tuple(path.split("/")), kw
-
-    def match(self, subpath):
-        path = "/".join(subpath)
-
-        # Attempt to look our path up in our manifest file, if it does not
-        # exist then we'll just return the original path.
-        manifest = {v: k for k, v in self._load_manifest().items()}
-        path = manifest.get(path, path)
-
-        return tuple(path.split("/"))

@@ -53,10 +53,6 @@ class TestWarehouseCacheBuster:
         else:
             assert assetresolver_cls.calls == [pretend.call(), pretend.call()]
 
-    def test_token(self):
-        cachebuster = static.WarehouseCacheBuster("no-op")
-        assert cachebuster.token(None) is None
-
     def test_pregenerate(self):
         def load_manifest():
             return {"css/style.css": "css/style-pre.css"}
@@ -66,13 +62,3 @@ class TestWarehouseCacheBuster:
 
         r = cachebuster.pregenerate(None, ("css", "style.css"), {"foo": "bar"})
         assert r == (("css", "style-pre.css"), {"foo": "bar"})
-
-    def test_match(self):
-        def load_manifest():
-            return {"css/style.css": "css/style-match.css"}
-
-        cachebuster = static.WarehouseCacheBuster("match")
-        cachebuster._load_manifest = load_manifest
-
-        r = cachebuster.match(("css", "style-match.css"))
-        assert r == ("css", "style.css")
