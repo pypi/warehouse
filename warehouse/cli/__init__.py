@@ -52,5 +52,5 @@ def warehouse(ctx, config):
 
 # We want to automatically import all of the warehouse.cli.* modules so that
 # any commands registered in any of them will be discovered.
-for _, name, _ in pkgutil.walk_packages(__path__):
-    importlib.import_module("." + name, package=__name__)
+for _, name, _ in pkgutil.walk_packages(__path__, prefix=__name__ + "."):
+    importlib.import_module(name)
