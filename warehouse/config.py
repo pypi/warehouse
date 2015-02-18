@@ -47,6 +47,10 @@ def configure(settings=None):
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("readme", "warehouse.filters:readme_renderer")
 
+    # We also want to register some global functions for Jinja
+    jglobals = config.get_settings().setdefault("jinja2.globals", {})
+    jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
+
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
