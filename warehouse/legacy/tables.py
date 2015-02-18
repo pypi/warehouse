@@ -463,36 +463,6 @@ openids = Table(
 )
 
 
-packages = Table(
-    "packages",
-    db.metadata,
-
-    Column("name", Text(), primary_key=True, nullable=False),
-    Column("stable_version", Text()),
-    Column("normalized_name", Text()),
-    Column("autohide", Boolean(), server_default=sql.true()),
-    Column("comments", Boolean(), server_default=sql.true()),
-    Column("bugtrack_url", Text()),
-    Column(
-        "hosting_mode",
-        Text(),
-        nullable=False,
-        server_default="pypi-explicit",
-    ),
-    Column(
-        "created",
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-    ),
-
-    CheckConstraint(
-        "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-        name="packages_valid_name",
-    ),
-)
-
-
 ratings = Table(
     "ratings",
     db.metadata,
@@ -712,93 +682,6 @@ Index("release_urls_packagetype_idx", release_urls.c.packagetype)
 
 
 Index("release_urls_version_idx", release_urls.c.version)
-
-
-releases = Table(
-    "releases",
-    db.metadata,
-
-    Column(
-        "name",
-        Text(),
-        ForeignKey("packages.name", onupdate="CASCADE"),
-        primary_key=True,
-    ),
-    Column("version", Text(), primary_key=True),
-    Column("author", Text()),
-    Column("author_email", Text()),
-    Column("maintainer", Text()),
-    Column("maintainer_email", Text()),
-    Column("home_page", Text()),
-    Column("license", Text()),
-    Column("summary", Text()),
-    Column("description", Text()),
-    Column("keywords", Text()),
-    Column("platform", Text()),
-    Column("download_url", Text()),
-    Column("_pypi_ordering", Integer()),
-    Column("_pypi_hidden", Boolean()),
-    Column("description_html", Text()),
-    Column(
-        "cheesecake_installability_id",
-        Integer(),
-        ForeignKey("cheesecake_main_indices.id"),
-    ),
-    Column(
-        "cheesecake_documentation_id",
-        Integer(),
-        ForeignKey("cheesecake_main_indices.id"),
-    ),
-    Column(
-        "cheesecake_code_kwalitee_id",
-        Integer(),
-        ForeignKey("cheesecake_main_indices.id"),
-    ),
-    Column("requires_python", Text()),
-    Column("description_from_readme", Boolean()),
-    Column(
-        "created",
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-    ),
-)
-
-
-Index("release_name_created_idx", releases.c.name, releases.c.created.desc())
-
-
-Index("release_name_idx", releases.c.name)
-
-
-Index("release_pypi_hidden_idx", releases.c._pypi_hidden)
-
-
-Index("release_version_idx", releases.c.version)
-
-
-roles = Table(
-    "roles",
-    db.metadata,
-
-    Column("role_name", Text()),
-    Column(
-        "user_name",
-        CIText(),
-        ForeignKey("accounts_user.username", onupdate="CASCADE"),
-    ),
-    Column(
-        "package_name",
-        Text(),
-        ForeignKey("packages.name", onupdate="CASCADE"),
-    ),
-)
-
-
-Index("roles_pack_name_idx", roles.c.package_name)
-
-
-Index("roles_user_name_idx", roles.c.user_name)
 
 
 sshkeys = Table(
