@@ -43,6 +43,10 @@ def configure(settings=None):
     # assume that all templates will be using Jinja.
     config.add_jinja2_renderer(".html")
 
+    # We'll want to configure some filters for Jinja2 as well.
+    filters = config.get_settings().setdefault("jinja2.filters", {})
+    filters.setdefault("readme", "warehouse.filters:readme_renderer")
+
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
