@@ -75,7 +75,7 @@ class TestRedisDownloadStatService:
         svc.redis = pretend.stub(mget=pretend.call_recorder(lambda *a: keys))
 
         call_keys = [
-            "downloads:daily:12-01-{:02d}:foo".format(i+7)
+            "downloads:daily:12-01-{:02d}:foo".format(i + 7)
             for i in reversed(range(8))
         ]
 
@@ -97,7 +97,7 @@ class TestRedisDownloadStatService:
             "downloads:daily:12-01-{:02d}:foo".format(i)
             for i in reversed(range(1, 15))
         ] + [
-            "downloads:daily:11-12-{:02d}:foo".format(i+15)
+            "downloads:daily:11-12-{:02d}:foo".format(i + 15)
             for i in reversed(range(17))
         ]
 

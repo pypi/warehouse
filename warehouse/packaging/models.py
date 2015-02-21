@@ -85,7 +85,7 @@ class Release(db.ModelBase):
     __tablename__ = "releases"
 
     @declared_attr
-    def __table_args__(cls):
+    def __table_args__(cls):  # noqa
         return (
             Index("release_name_created_idx", cls.name, cls.created.desc()),
             Index("release_name_idx", cls.name),

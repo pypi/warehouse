@@ -26,7 +26,7 @@ _PRECISION = collections.namedtuple(
 )
 
 _PRECISIONS = {
-    "daily":  _PRECISION(
+    "daily": _PRECISION(
         type="hour", delta="hours", format="%y-%m-%d-%H", num=26,
     ),
     "weekly": _PRECISION(type="daily", delta="days", format="%y-%m-%d", num=8),
