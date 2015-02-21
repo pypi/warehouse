@@ -29,4 +29,6 @@ def test_routes():
         ("accounts.profile", "/user/{username}/"),
         ("accounts.login", "/account/login/"),
         ("accounts.logout", "/account/logout/"),
+        ("packaging.project", "/project/{name}/"),
+        ("packaging.release", "/project/{name}/{version}/"),
     ]

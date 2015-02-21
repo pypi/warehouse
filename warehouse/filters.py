@@ -41,4 +41,4 @@ def SI_symbol(value):
         if magnitude >= 1 and magnitude < 1000:
             return "{:.3g}{}".format(magnitude, symbol)
 
-    return value
+    return str(value)

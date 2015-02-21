@@ -68,6 +68,7 @@ def app_config(database):
     config = configure(
         settings={
             "database.url": database,
+            "download_stats.url": "redis://localhost:0/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
         },

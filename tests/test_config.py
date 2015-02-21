@@ -29,13 +29,17 @@ from warehouse.utils.mapper import WarehouseMapper
     ],
 )
 def test_configure(monkeypatch, settings):
+    configurator_settings = {}
     configurator_obj = pretend.stub(
         registry=pretend.stub(settings={"pyramid.reload_assets": False}),
         set_view_mapper=pretend.call_recorder(lambda mapper: None),
         include=pretend.call_recorder(lambda include: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
-        add_settings=pretend.call_recorder(lambda d: None),
+        get_settings=lambda: configurator_settings,
+        add_settings=pretend.call_recorder(
+            lambda d: configurator_settings.update(d)
+        ),
         add_static_view=pretend.call_recorder(
             lambda name, path, cachebust: None
         ),
@@ -76,10 +80,13 @@ def test_configure(monkeypatch, settings):
         pretend.call("tzf.pyramid_yml"),
         pretend.call("pyramid_jinja2"),
         pretend.call("pyramid_tm"),
+        pretend.call("pyramid_services"),
+        pretend.call(".i18n"),
         pretend.call(".db"),
         pretend.call(".sessions"),
         pretend.call(".csrf"),
         pretend.call(".accounts"),
+        pretend.call(".packaging"),
         pretend.call(".routes"),
     ]
     assert configurator_obj.add_jinja2_renderer.calls == [

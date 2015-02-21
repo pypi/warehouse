@@ -22,7 +22,7 @@ from warehouse.packaging.models import Project, Release, Role
 
 @view_config(route_name="packaging.project", renderer="packaging/detail.html")
 @view_config(route_name="packaging.release", renderer="packaging/detail.html")
-def project_detail(request, name, version=None):
+def project_detail(request, *, name, version=None):
     try:
         project = request.db.query(Project).filter(
             Project.normalized_name == sql_func.lower(
@@ -36,19 +36,19 @@ def project_detail(request, name, version=None):
         # We've found the project but the project name isn't quite right so
         # we'll redirect them to the correct one.
         return HTTPMovedPermanently(
-            request.current_route_url(project_name=project.name),
+            request.current_route_url(name=project.name),
         )
 
-    if version is None:
-        # If there's no version specified, then we use the latest version
-        release = project.releases.order_by(
-            Release._pypi_ordering.desc()
-        ).first()
-    else:
-        try:
+    try:
+        if version is None:
+            # If there's no version specified, then we use the latest version
+            release = project.releases.order_by(
+                Release._pypi_ordering.desc()
+            ).limit(1).one()
+        else:
             release = project.releases.filter(Release.version == version).one()
-        except NoResultFound:
-            raise HTTPNotFound
+    except NoResultFound:
+        raise HTTPNotFound
 
     # Get all of the registered versions for this Project, in order of newest
     # to oldest.

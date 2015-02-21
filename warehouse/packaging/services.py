@@ -15,6 +15,10 @@ import datetime
 
 import redis
 
+from zope.interface import implementer
+
+from warehouse.packaging.interfaces import IDownloadStatService
+
 
 _PRECISION = collections.namedtuple(
     "_PRECISION",
@@ -32,6 +36,7 @@ _PRECISIONS = {
 }
 
 
+@implementer(IDownloadStatService)
 class RedisDownloadStatService:
 
     def __init__(self, url):
