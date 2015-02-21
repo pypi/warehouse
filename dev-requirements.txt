@@ -5,3 +5,4 @@
 tox
 pretend
 pytest
+factory_boy

@@ -11,16 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import itsdangerous
 from werkzeug.exceptions import NotFound
 
 from warehouse import fastly
-from warehouse.accounts.forms import LoginForm
+from warehouse.accounts.forms import LoginForm, RegisterForm
 from warehouse.csrf import csrf_cycle, csrf_protect
 from warehouse.helpers import url_for
 from warehouse.sessions import uses_session
 from warehouse.templates import render_response
 from warehouse.utils import cache, redirect, redirect_next
+from .utils import get_confirmation_email
 
 
 @cache(browser=1, varnish=120)
@@ -68,16 +69,7 @@ def login(app, request):
             # authenticated user.
             request.session.clear()
 
-        # Cycle the session key to prevent session fixation attacks from
-        # crossing an authentication boundary
-        request.session.cycle()
-
-        # Cycle the CSRF token to prevent a CSRF via session fixation attack
-        # from crossing an authentication boundary
-        csrf_cycle(request.session)
-
-        # Log the user in by storing their user id in their session
-        request.session["user.id"] = user_id
+        _cycle_session_and_login(request, user_id)
 
         # We'll want to redirect the user with a 303 once we've completed the
         # log in process.
@@ -130,3 +122,78 @@ def logout(app, request):
         app, request, "accounts/logout.html",
         next=request.values.get("next"),
     )
+
+
+@csrf_protect
+@uses_session
+def register(app, request):
+    form = RegisterForm(
+        request.form,
+        is_existing_username=app.db.accounts.get_user_id,
+        is_existing_email=app.db.accounts.get_user_id_by_email
+    )
+
+    if request.method == "POST" and form.validate():
+        user_id = app.db.accounts.insert_user(
+            form.username.data,
+            form.email.data,
+            form.password.data
+        )
+
+        _cycle_session_and_login(request, user_id)
+
+        resp = render_response(
+            app, request, "accounts/created_account.html",
+            username=form.username.data,
+            email=form.email.data
+        )
+
+        # display purposes only: set the username
+        resp.set_cookie("username", form.username.data)
+
+        # send the confirmation email
+        confirmation_link = app.signer.sign(bytes(form.email.data, 'UTF-8'))
+        confirmation_email = get_confirmation_email(
+            form.email.data,
+            confirmation_link
+        )
+        app.email_server.send_message(confirmation_email)
+
+        return resp
+
+    return render_response(
+        app, request, "accounts/register.html",
+        form=form
+    )
+
+
+@csrf_protect
+def confirm_account(app, request, signed_value):
+    try:
+        email = app.signer.unsign(signed_value).decode('UTF-8')
+    except itsdangerous.BadSignature:
+        resp = render_response(
+            app, request, "accounts/invalid_confirmation.html"
+        )
+        resp.status_code = 400
+        return resp
+
+    app.db.accounts.activate_user_by_email(email)
+    return render_response(
+        app, request, "accounts/confirmed_account.html",
+        email=email
+    )
+
+
+def _cycle_session_and_login(request, user_id):
+
+    # Cycle the session key to prevent session fixation attacks from
+    # crossing an authentication boundary
+    request.session.cycle()
+
+    # Cycle the CSRF token to prevent a CSRF via session fixation attack
+    # from crossing an authentication boundary
+    csrf_cycle(request.session)
+
+    # Log the user in by storing their user id in their session
+    request.session["user.id"] = user_id

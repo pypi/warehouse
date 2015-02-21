@@ -1,5 +1,7 @@
 debug: false
 
+secret_key: 'warehouse_example'
+
 site:
     name: Warehouse
     hosts: []

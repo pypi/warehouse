@@ -14,6 +14,7 @@
 import logging
 
 from warehouse import db
+from warehouse.accounts.tables import users
 
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,18 @@ class Database(db.Database):
             result = dict(result)
 
         return result
+
+    def is_email_active(self, email):
+        query = \
+            """ SELECT is_active
+                FROM accounts_user
+                LEFT OUTER JOIN accounts_email ON (
+                    accounts_email.user_id = accounts_user.id
+                )
+                WHERE email = %(email)s
+                LIMIT 1
+            """
+        return self.engine.execute(query, email=email).scalar()
 
     def user_authenticate(self, username, password):
         # Get the user with the given username
@@ -128,6 +141,7 @@ class Database(db.Database):
             is_active=str(is_active).upper()
         ).scalar()
         self.update_user(user_id, email=email)
+        return user_id
 
     def update_user(self, user_id, password=None, email=None):
         if password is not None:
@@ -140,6 +154,19 @@ class Database(db.Database):
             "DELETE FROM accounts_user WHERE username = %s",
             username
         )
+
+    def activate_user_by_email(self, email):
+        user_id = self.get_user_id_by_email(email)
+
+        if user_id is None:
+            raise ValueError(
+                "Email {0} is not linked to an account!".format(email))
+
+        self.engine.execute(users.update().where(
+            users.c.id == user_id
+        ).values(
+            is_active=True
+        ))
 
     def update_user_password(self, user_id, password):
         query = \
@@ -175,4 +202,6 @@ class Database(db.Database):
                     WHERE up.user_id = new_values.user_id
                     AND up.primary = new_values.primary
         )"""
+        trans = self.engine.begin()
         self.engine.execute(query, user_id=user_id, email=email)
+        trans.commit()

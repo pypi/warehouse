@@ -20,7 +20,9 @@ import pytest
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import NotFound
 
-from warehouse.accounts.views import user_profile, login, logout
+from warehouse.accounts.views import (
+    user_profile, login, logout, register, confirm_account
+)
 from warehouse.sessions import Session
 
 
@@ -229,3 +231,121 @@ def test_user_logout_post(values, location):
         "username=; Expires=Thu, 01-Jan-1970 00:00:00 GMT; Max-Age=0; Path=/",
     ]
     assert request._session.deleted
+
+
+def test_user_register_get(app):
+    request = pretend.stub(
+        method="GET",
+        values={},
+        form=MultiDict(),
+        _session=Session({}, "1234", False)
+    )
+
+    resp = register(app, request)
+
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/register.html"
+
+
+def test_user_registration_valid(app):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user_id=lambda username: None,
+            get_user_id_by_email=lambda email: None,
+            insert_user=lambda username, email, password: 1
+        ),
+    )
+
+    request = pretend.stub(
+        method="POST",
+        form=MultiDict({
+            "username": "test",
+            "email": "test@example.com",
+            "password": "password",
+            "confirm_password": "password"
+        }),
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+        _session=Session({}, "1234", False),
+    )
+
+    resp = register(app, request)
+
+    assert request.session["user.id"] == 1
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/created_account.html"
+    assert resp.headers.getlist("Set-Cookie") == ["username=test; Path=/"]
+
+
+def test_user_registration_different_password(app):
+    app.db = pretend.stub(
+        accounts=pretend.stub(
+            get_user_id=lambda username: None,
+            get_user_id_by_email=lambda email: None,
+            insert_user=lambda username, email, password: 1
+        ),
+    )
+
+    request = pretend.stub(
+        method="POST",
+        form=MultiDict({
+            "username": "test",
+            "email": "test@example.com",
+            "password": "password",
+            "confirm_password": "different password"
+        }),
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+        _session=Session({}, "1234", False),
+    )
+
+    resp = register(app, request)
+
+    assert "user.id" not in request.session
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/register.html"
+
+
+def test_confirm_account(dbapp, user):
+    request = pretend.stub(
+        method="GET",
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+    )
+
+    signed_value = dbapp.signer.sign(bytes(user['email'], 'UTF-8'))
+
+    resp = confirm_account(dbapp, request, signed_value)
+
+    assert resp.status_code == 200
+    assert resp.response.template.name == "accounts/confirmed_account.html"
+    assert resp.response.context['email'] == user['email']
+    assert dbapp.db.accounts.is_email_active(user['email'])
+
+
+def test_bad_confirm_account(dbapp, user):
+    request = pretend.stub(
+        method="GET",
+        host="example.com",
+        values={},
+        url_adapter=pretend.stub(
+            build=lambda *a, **kw: "/",
+        ),
+    )
+
+    signed_value = dbapp.signer.sign(bytes(user['email'], 'UTF-8')) + b'X'
+
+    resp = confirm_account(dbapp, request, signed_value)
+
+    assert resp.status_code == 400
+    assert resp.response.template.name == "accounts/invalid_confirmation.html"
+    assert not dbapp.db.accounts.is_email_active(user['email'])

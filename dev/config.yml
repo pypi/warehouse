@@ -1,10 +1,15 @@
 debug: true
 
+secret_key: development
+
 site:
     name: Warehouse (dev)
     hosts:
         - "localhost:9000"
     access_token: development
+
+smtp_server:
+    disabled: true
 
 database:
     url: "postgresql://localhost/warehouse"

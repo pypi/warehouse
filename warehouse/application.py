@@ -33,6 +33,7 @@ import redis
 import sqlalchemy
 import yaml
 
+from itsdangerous import Signer
 from raven import Client
 from raven.middleware import Sentry
 from werkzeug.contrib.fixers import HeaderRewriterFix
@@ -55,6 +56,7 @@ from warehouse.packaging.search import ProjectMapping
 from warehouse.search.indexes import Index
 from warehouse.sessions import RedisSessionStore, Session, handle_session
 from warehouse.utils import merge_dict
+from warehouse.email_server import EmailServer
 
 # Register the SQLAlchemy tables by importing them
 import warehouse.accounts.tables
@@ -87,7 +89,9 @@ class Warehouse(object):
 
         # Connect to the database
         if engine is None and self.config.get("database", {}).get("url"):
-            engine = sqlalchemy.create_engine(self.config.database.url)
+            engine = sqlalchemy.create_engine(self.config.database.url,
+                                              echo="debug")
+            engine = engine.connect()
         self.engine = engine
 
         # Create our redis connections
@@ -102,7 +106,6 @@ class Warehouse(object):
             self.db[name] = klass(
                 self,
                 self.metadata,
-                self.engine,
                 self.redises["downloads"],
             )
 
@@ -160,6 +163,13 @@ class Warehouse(object):
             self.redises["sessions"],
             session_class=Session,
         )
+
+        self.signer = Signer(self.config.get("secret_key"))
+
+        email_server_config = self.config.get("smtp_server", {
+            "disabled": True
+        })
+        self.email_server = EmailServer(email_server_config)
 
         # Add our Content Security Policy Middleware
         img_src = ["'self'"]
@@ -335,5 +345,6 @@ class Warehouse(object):
 
             # Dispatch to the loaded view function
             return self.dispatch_view(view, self, request, **kwargs)
+
         except HTTPException as exc:
             return exc

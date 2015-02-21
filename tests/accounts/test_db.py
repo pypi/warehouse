@@ -159,17 +159,17 @@ def test_user_authenticate_invalid(engine, dbapp):
 
 def test_insert_and_delete_user(dbapp):
     username = "guidovanrossum"
-    email = "notanemail@python.org"
+    email = "not.anemail@example.com"
     password = "plaintextpasswordsaregreat"
-    dbapp.db.accounts.insert_user(
+    user_id = dbapp.db.accounts.insert_user(
         username,
         email,
         password
     )
     assert dbapp.db.accounts.user_authenticate(username,
                                                password)
-    assert dbapp.db.accounts.get_user(username)
-    assert dbapp.db.accounts.get_user_id_by_email(email)
+    assert dbapp.db.accounts.get_user_id(username) == user_id
+    assert dbapp.db.accounts.get_user_id_by_email(email) == user_id
     dbapp.db.accounts.delete_user(username)
     assert not dbapp.db.accounts.get_user(username)
 
@@ -186,7 +186,7 @@ def test_insert_with_same_email(dbapp, user):
 
 
 def test_update_user_email(dbapp, user):
-    email = "montypython@python.org"
+    email = "montypython@example.com"
     dbapp.db.accounts.update_user_email(user['id'], email)
     new_info = dbapp.db.accounts.get_user(user['username'])
     assert new_info['email'] == email
@@ -216,3 +216,14 @@ def test_update_nothing(dbapp, user):
     assert info['email'] == user['email']
     assert dbapp.db.accounts.user_authenticate(user['username'],
                                                user['password'])
+
+
+def test_activate_user_by_email(dbapp, user):
+    assert not dbapp.db.accounts.is_email_active(user['email'])
+    dbapp.db.accounts.activate_user_by_email(user['email'])
+    assert dbapp.db.accounts.is_email_active(user['email'])
+
+
+def test_activate_user_by_email_bad_email(dbapp):
+    with pytest.raises(ValueError):
+        dbapp.db.accounts.activate_user_by_email("foonotereal@example.com")

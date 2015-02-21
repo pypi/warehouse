@@ -88,6 +88,7 @@ setup(
         "Werkzeug",
         "whitenoise>=0.12",
         "WTForms>=1.0",
+        "itsdangerous>=0.24",
     ],
 
     entry_points={

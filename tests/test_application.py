@@ -29,14 +29,18 @@ from warehouse import application, cli
 from warehouse.application import Warehouse
 
 
-def test_basic_instantiation():
+# we need 'database' here because warehouse
+# instantiates db connections on initialization
+# postgres will not find a valid db unless
+# database is added.
+def test_basic_instantiation(database):
     Warehouse({
         "debug": False,
         "site": {
             "access_token": "testing",
         },
         "database": {
-            "url": "postgres:///test_warehouse",
+            "url": database.url,
         },
         "redis": {
             "downloads": "redis://localhost:6379/0",
