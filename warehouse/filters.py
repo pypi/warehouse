@@ -35,9 +35,9 @@ def readme_renderer(value, *, format):
 _SI_SYMBOLS = ["k", "M", "G", "T", "P", "E", "Z", "Y"]
 
 
-def SI_symbol(value):
+def shorten_number(value):
     for i, symbol in enumerate(_SI_SYMBOLS):
-        magnitude = value / (1000**(i+1))
+        magnitude = value / (1000 ** (i + 1))
         if magnitude >= 1 and magnitude < 1000:
             return "{:.3g}{}".format(magnitude, symbol)
 

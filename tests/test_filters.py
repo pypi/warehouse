@@ -49,5 +49,5 @@ class TestReadmeRender:
         (9999999999999, "10T"),
     ],
 )
-def test_SI_symbol(inp, expected):
-    assert filters.SI_symbol(inp) == expected
+def test_shorten_number(inp, expected):
+    assert filters.shorten_number(inp) == expected

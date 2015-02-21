@@ -46,7 +46,7 @@ def configure(settings=None):
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("readme", "warehouse.filters:readme_renderer")
-    filters.setdefault("SI_symbol", "warehouse.filters:SI_symbol")
+    filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

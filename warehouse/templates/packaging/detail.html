@@ -77,9 +77,9 @@
         <dt>{{ _('Download Stats') }}</dt>
         <dd class="stats">
           <ul>
-            <li>{{ download_stats.daily|SI_symbol() }} <span class="category">{{ _('Daily') }}</span></li>
-            <li>{{ download_stats.weekly|SI_symbol() }} <span class="category">{{ _('Weekly') }}</span></li>
-            <li>{{ download_stats.monthly|SI_symbol() }} <span class="category">{{ _('Monthly') }}</span></li>
+            <li>{{ download_stats.daily|shorten_number() }} <span class="category">{{ _('Daily') }}</span></li>
+            <li>{{ download_stats.weekly|shorten_number() }} <span class="category">{{ _('Weekly') }}</span></li>
+            <li>{{ download_stats.monthly|shorten_number() }} <span class="category">{{ _('Monthly') }}</span></li>
         </dd>
 
         <dt>{{ _('Versions') }}</dt>
