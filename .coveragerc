@@ -11,3 +11,9 @@ omit =
 
     # We don't want to get cover inforation for our migrations.
     warehouse/migrations/*
+
+
+[report]
+exclude_lines =
+    # pragma: no cover
+    class \w+\(Interface\):
