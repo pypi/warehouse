@@ -39,6 +39,6 @@ def SI_symbol(value):
     for i, symbol in enumerate(_SI_SYMBOLS):
         magnitude = value / (1000**(i+1))
         if magnitude >= 1 and magnitude < 1000:
-            return "{:.2g}{}".format(magnitude, symbol)
+            return "{:.3g}{}".format(magnitude, symbol)
 
     return value
