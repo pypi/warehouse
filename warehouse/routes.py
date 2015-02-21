@@ -16,3 +16,7 @@ def includeme(config):
     config.add_route("accounts.profile", "/user/{username}/")
     config.add_route("accounts.login", "/account/login/")
     config.add_route("accounts.logout", "/account/logout/")
+
+    # Packaging
+    config.add_route("packaging.project", "/project/{name}/")
+    config.add_route("packaging.release", "/project/{name}/{version}/")

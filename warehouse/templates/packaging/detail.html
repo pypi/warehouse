@@ -1,0 +1,114 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<section class="project-detail">
+  <header class="detail-header">
+    <h1>{{ project.name }} <span class="version">{{ release.version }}</span></h1>
+    {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
+  </header>
+
+  <div>
+    <article class="description">
+      {{ release.description|readme(format="rst") }}
+    </article>
+
+    <aside class="metadata">
+      <h2 class="sr-only">{{ _('Project Information') }}</h2>
+      <dl>
+        {% if release.author %}
+        <dt>{{ _('Author') }}</dt>
+        <dd>{{ release.author }}</dd>
+        {% endif %}
+
+        {% if release.maintainer %}
+        <dt>{{ _('Maintainer') }}</dt>
+        <dd>{{ release.maintainer }}</dd>
+        {% endif %}
+
+        {% if release.home_page or release.download_url %}
+        <dt>{{ _('Project URLs') }}</dt>
+        <dd>
+          <ul>
+            {% if release.home_page %}
+            <li>
+              <a rel="nofollow" href="{{ release.home_page }}">{{ _('Home page') }}</a>
+            </li>
+            {% endif %}
+
+            {% if release.download_url %}
+            <li>
+              <a rel="nofollow" href="{{ release.download_url }}">{{ _('Download URL') }}</a>
+            </li>
+            {% endif %}
+          </ul>
+        </dd>
+        {% endif %}
+
+        {% if release.license %}
+        <dt>{{ _('License') }}</dt>
+        <dd>{{ release.license }}</dd>
+        {% endif %}
+
+        {% if release.keywords %}
+        <dt>{{ _('Keywords') }}</dt>
+        <dd>{{ release.keywords }}</dd>
+        {% endif %}
+
+        {% if release.platform %}
+        <dt>{{ _('Platform') }}</dt>
+        <dd>{{ release.platform|replace("\n", ", ") }}</dd>
+        {% endif %}
+
+        <dt>{{ _('Download Stats') }}</dt>
+        <dd class="stats">
+          <ul>
+            <li>{{ download_stats.daily|SI_symbol() }} <span class="category">{{ _('Daily') }}</span></li>
+            <li>{{ download_stats.weekly|SI_symbol() }} <span class="category">{{ _('Weekly') }}</span></li>
+            <li>{{ download_stats.monthly|SI_symbol() }} <span class="category">{{ _('Monthly') }}</span></li>
+        </dd>
+
+        <dt>{{ _('Versions') }}</dt>
+        <dd>
+          <ul>
+            {% for r in all_releases %}
+            <li>
+              <a href="{{ request.route_url('packaging.release', name=project.name, version=r.version) }}">
+                {{ r.version }} <span class="created">{{ r.created|format_date() }}</span>
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </dd>
+
+        <dt>{{ _('Maintainers') }}</dt>
+        <dd>
+          <ul class="maintainers">
+            {% for maintainer in maintainers %}
+            <li>
+              <a href="{{ request.route_url('accounts.profile', username=maintainer.username) }}" title="{{ maintainer.username }}">
+                <img src="{{ gravatar(maintainer.email, size=50) }}" alt="{{ maintainer.username}}" height="50" width="50">
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+.project-detail {
+  @include padding(2em null 2em);
+  @include outer-container;
+
+  .detail-header { @include span-columns(12); }
+  .description { @include span-columns(9); }
+  .metadata { @include span-columns(3); }
+
+  .metadata {
+    .stats {
+      $base-spacing: 1.5em !default;
+      $dark-gray: #333 !default;
+      $base-font-color: $dark-gray !default;
+      $base-accent-color: #477dca !default;
+      $stats-color: lighten($base-accent-color, 10%);
+
+      @include padding($base-spacing / 2);
+      @include clearfix;
+
+      ul { padding: 0; }
+
+      li {
+        border-right: 1px solid transparentize($base-font-color, 0.8);
+        color: $stats-color;
+        display: inline;
+        float: left;
+        font-size: 1.2em;
+        font-weight: 800;
+        line-height: 1.1em;
+        padding: 0 0.7em;
+
+        &:first-child {
+          padding-left: 0;
+        }
+
+        &:last-child {
+          border-right: 0;
+        }
+      }
+
+      span.category {
+        color: $base-font-color;
+        display: block;
+        font-size: 0.7em;
+        font-weight: normal;
+      }
+    }
+
+    .created {
+      color: $medium-gray;
+    }
+
+    .maintainers {
+      @include clearfix;
+
+      li {
+        float: left;
+        margin-right: .4em;
+      }
+
+      img {
+        border-radius: 8px;
+      }
+    }
+  }
+}
