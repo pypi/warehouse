@@ -64,6 +64,9 @@ def configure(settings=None):
     })
     config.include("pyramid_tm")
 
+    # Register support for services
+    config.include("pyramid_services")
+
     # Register support for internationalization and localization
     config.include(".i18n")
 
@@ -78,6 +81,9 @@ def configure(settings=None):
 
     # Register our authentication support.
     config.include(".accounts")
+
+    # Allow the packaging app to register any services it has.
+    config.include(".packaging")
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")

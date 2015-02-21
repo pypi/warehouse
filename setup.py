@@ -72,6 +72,7 @@ setuptools.setup(
         "psycopg2",
         "pyramid>=1.6.dev0",
         "pyramid_jinja2",
+        "pyramid_services",
         "pyramid_tm>=0.11",
         "readme>=0.5.1",
         "redis",

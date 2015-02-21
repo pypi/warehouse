@@ -10,16 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.services import RedisDownloadStatService
+from zope.interface import Interface
 
 
-def includeme(config):
-    # Register our service which will handle get the download statistics for
-    # a project.
-    config.register_service(
-        RedisDownloadStatService(
-            config.registry.settings["download_stats.url"],
-        ),
-        IDownloadStatService,
-    )
+class IDownloadStatService(Interface):
+
+    def get_daily_stats(project):
+        """
+        Return the daily download counts for the given project.
+        """
+
+    def get_weekly_stats(project):
+        """
+        Return the weekly download counts for the given project.
+        """
+
+    def get_monthly_stats(project):
+        """
+        Return the monthly download counts for the given project.
+        """
