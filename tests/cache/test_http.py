@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from warehouse.utils.http import add_vary, cache_control, surrogate_control
+from warehouse.cache.http import add_vary, cache_control, surrogate_control
 
 
 @pytest.mark.parametrize("vary", [None, [], ["wat"]])

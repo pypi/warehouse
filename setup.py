@@ -50,6 +50,7 @@ setuptools.setup(
     packages=[
         "warehouse",
         "warehouse.accounts",
+        "warehouse.cache",
         "warehouse.cli",
         "warehouse.cli.db",
         "warehouse.i18n",

@@ -22,8 +22,8 @@ from pyramid.interfaces import ISession, ISessionFactory
 from pyramid.tweens import MAIN
 from zope.interface import implementer
 
+from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
-from warehouse.utils.http import add_vary
 
 
 def uses_session(view):

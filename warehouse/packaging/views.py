@@ -16,9 +16,9 @@ from sqlalchemy import func as sql_func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.cache.http import cache_control, surrogate_control
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import Project, Release, Role
-from warehouse.utils.http import cache_control, surrogate_control
 
 
 @view_config(

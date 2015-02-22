@@ -18,7 +18,7 @@ from pyramid.config.views import DefaultViewMapper
 from pyramid.interfaces import IViewMapperFactory
 from pyramid.httpexceptions import HTTPForbidden, HTTPMethodNotAllowed
 
-from warehouse.utils.http import add_vary
+from warehouse.cache.http import add_vary
 
 
 REASON_NO_ORIGIN = "Origin checking failed - no Origin or Referer."

@@ -18,9 +18,9 @@ from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.models import User
+from warehouse.cache.http import cache_control, surrogate_control
 from warehouse.csrf import csrf_protect
 from warehouse.sessions import uses_session
-from warehouse.utils.http import cache_control, surrogate_control
 
 
 @view_config(
