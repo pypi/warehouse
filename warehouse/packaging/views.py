@@ -18,10 +18,25 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import Project, Release, Role
+from warehouse.utils.http import cache_control, surrogate_control
 
 
-@view_config(route_name="packaging.project", renderer="packaging/detail.html")
-@view_config(route_name="packaging.release", renderer="packaging/detail.html")
+@view_config(
+    route_name="packaging.project",
+    renderer="packaging/detail.html",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),      # 1 day
+        surrogate_control(7 * 24 * 60 * 60),  # 7 days
+    ],
+)
+@view_config(
+    route_name="packaging.release",
+    renderer="packaging/detail.html",
+    decorator=[
+        cache_control(7 * 24 * 60 * 60),       # 7 days
+        surrogate_control(30 * 24 * 60 * 60),  # 30 days
+    ],
+)
 def project_detail(request, *, name, version=None):
     try:
         project = request.db.query(Project).filter(

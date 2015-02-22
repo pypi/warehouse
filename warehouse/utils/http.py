@@ -29,3 +29,42 @@ def add_vary(*varies):
             return view(context, request)
         return wrapped
     return inner
+
+
+def cache_control(seconds, public=True):
+    def inner(view):
+        @functools.wraps(view)
+        def wrapped(context, request):
+            response = view(context, request)
+
+            if not request.registry.settings.get("prevent_http_cache", False):
+                if seconds:
+                    if public:
+                        response.cache_control.public = True
+                    else:
+                        response.cache_control.private = True
+
+                    response.cache_control.max_age = seconds
+                else:
+                    response.cache_control.no_cache = True
+                    response.cache_control.no_store = True
+                    response.cache_control.must_revalidate = True
+
+            return response
+        return wrapped
+    return inner
+
+
+def surrogate_control(seconds):
+    def inner(view):
+        @functools.wraps(view)
+        def wrapped(context, request):
+            response = view(context, request)
+
+            if not request.registry.settings.get("prevent_http_cache", False):
+                response.headers["Surrogate-Control"] = \
+                    "max-age={}".format(seconds)
+
+            return response
+        return wrapped
+    return inner
