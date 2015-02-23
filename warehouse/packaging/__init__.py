@@ -12,6 +12,7 @@
 
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.services import RedisDownloadStatService
+from warehouse.packaging.models import Project, Release
 
 
 def includeme(config):
@@ -22,4 +23,16 @@ def includeme(config):
             config.registry.settings["download_stats.url"],
         ),
         IDownloadStatService,
+    )
+
+    # Register our origin cache keys
+    config.register_origin_cache_keys(
+        Project,
+        "project",
+        "project/{obj.normalized_name}",
+    )
+    config.register_origin_cache_keys(
+        Release,
+        "project",
+        "project/{obj.project.normalized_name}",
     )

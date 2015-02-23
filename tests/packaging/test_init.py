@@ -14,6 +14,7 @@ import pretend
 
 from warehouse import packaging
 from warehouse.packaging.interfaces import IDownloadStatService
+from warehouse.packaging.models import Project, Release
 
 
 def test_includme(monkeypatch):
@@ -30,6 +31,7 @@ def test_includme(monkeypatch):
             lambda iface, svc: download_stat_service_cls
         ),
         registry=pretend.stub(settings={"download_stats.url": pretend.stub()}),
+        register_origin_cache_keys=pretend.call_recorder(lambda c, *k: None),
     )
 
     packaging.includeme(config)
@@ -41,5 +43,17 @@ def test_includme(monkeypatch):
         pretend.call(
             download_stat_service_obj,
             IDownloadStatService,
+        ),
+    ]
+    assert config.register_origin_cache_keys.calls == [
+        pretend.call(
+            Project,
+            "project",
+            "project/{obj.normalized_name}",
+        ),
+        pretend.call(
+            Release,
+            "project",
+            "project/{obj.project.normalized_name}",
         ),
     ]

@@ -16,6 +16,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control, surrogate_control
+from warehouse.cache.origin import origin_cache
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import Release, Role
 
@@ -26,6 +27,7 @@ from warehouse.packaging.models import Release, Role
     decorator=[
         cache_control(1 * 24 * 60 * 60),      # 1 day
         surrogate_control(7 * 24 * 60 * 60),  # 7 days
+        origin_cache,
     ],
     mapper="pyramid.config.views:DefaultViewMapper",
 )
@@ -51,6 +53,7 @@ def project_detail(project, request):
     decorator=[
         cache_control(7 * 24 * 60 * 60),       # 7 days
         surrogate_control(30 * 24 * 60 * 60),  # 30 days
+        origin_cache,
     ],
     mapper="pyramid.config.views:DefaultViewMapper",
 )
