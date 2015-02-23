@@ -15,7 +15,8 @@ from sqlalchemy import (
     CheckConstraint, Column, ForeignKey, Index, Boolean, DateTime, Integer,
     Text,
 )
-from sqlalchemy import orm, sql
+from sqlalchemy import func, orm, sql
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
 
 from warehouse import db
@@ -45,6 +46,22 @@ class Role(db.Model):
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+
+class ProjectFactory:
+
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, project):
+        try:
+            return self.request.db.query(Project).filter(
+                Project.normalized_name == func.lower(
+                    func.regexp_replace(project, "_", "-", "ig")
+                )
+            ).one()
+        except NoResultFound:
+            raise KeyError from None
 
 
 class Project(db.ModelBase):
@@ -78,6 +95,12 @@ class Project(db.ModelBase):
         cascade="all, delete-orphan",
         lazy="dynamic",
     )
+
+    def __getitem__(self, version):
+        try:
+            return self.releases.filter(Release.version == version).one()
+        except NoResultFound:
+            raise KeyError from None
 
 
 class Release(db.ModelBase):

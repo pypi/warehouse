@@ -12,13 +12,12 @@
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import func as sql_func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control, surrogate_control
 from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.models import Release, Role
 
 
 @view_config(
@@ -28,7 +27,24 @@ from warehouse.packaging.models import Project, Release, Role
         cache_control(1 * 24 * 60 * 60),      # 1 day
         surrogate_control(7 * 24 * 60 * 60),  # 7 days
     ],
+    mapper="pyramid.config.views:DefaultViewMapper",
 )
+def project_detail(project, request):
+    if project.name != request.matchdict.get("name", project.name):
+        return HTTPMovedPermanently(
+            request.current_route_url(name=project.name),
+        )
+
+    try:
+        release = project.releases.order_by(
+            Release._pypi_ordering.desc()
+        ).limit(1).one()
+    except NoResultFound:
+        raise HTTPNotFound from None
+
+    return release_detail(release, request)
+
+
 @view_config(
     route_name="packaging.release",
     renderer="packaging/detail.html",
@@ -36,34 +52,15 @@ from warehouse.packaging.models import Project, Release, Role
         cache_control(7 * 24 * 60 * 60),       # 7 days
         surrogate_control(30 * 24 * 60 * 60),  # 30 days
     ],
+    mapper="pyramid.config.views:DefaultViewMapper",
 )
-def project_detail(request, *, name, version=None):
-    try:
-        project = request.db.query(Project).filter(
-            Project.normalized_name == sql_func.lower(
-                sql_func.regexp_replace(name, "_", "-", "ig")
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPNotFound
+def release_detail(release, request):
+    project = release.project
 
-    if project.name != name:
-        # We've found the project but the project name isn't quite right so
-        # we'll redirect them to the correct one.
+    if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_url(name=project.name),
         )
-
-    try:
-        if version is None:
-            # If there's no version specified, then we use the latest version
-            release = project.releases.order_by(
-                Release._pypi_ordering.desc()
-            ).limit(1).one()
-        else:
-            release = project.releases.filter(Release.version == version).one()
-    except NoResultFound:
-        raise HTTPNotFound
 
     # Get all of the registered versions for this Project, in order of newest
     # to oldest.

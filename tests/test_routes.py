@@ -10,25 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pretend
+
 from warehouse.routes import includeme
 
 
 def test_routes():
     class FakeConfig:
-
-        def __init__(self):
-            self.routes = []
-
-        def add_route(self, *args):
-            self.routes.append(args)
+        @staticmethod
+        @pretend.call_recorder
+        def add_route(*args, **kwargs):
+            pass
 
     config = FakeConfig()
     includeme(config)
 
-    assert config.routes == [
-        ("accounts.profile", "/user/{username}/"),
-        ("accounts.login", "/account/login/"),
-        ("accounts.logout", "/account/logout/"),
-        ("packaging.project", "/project/{name}/"),
-        ("packaging.release", "/project/{name}/{version}/"),
+    assert config.add_route.calls == [
+        pretend.call("accounts.profile", "/user/{username}/"),
+        pretend.call("accounts.login", "/account/login/"),
+        pretend.call("accounts.logout", "/account/logout/"),
+        pretend.call(
+            "packaging.project",
+            "/project/{name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+        ),
+        pretend.call(
+            "packaging.release",
+            "/project/{name}/{version}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/{version}",
+        ),
     ]

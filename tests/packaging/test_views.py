@@ -15,7 +15,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
-from warehouse.packaging.views import project_detail
+from warehouse.packaging import views
 
 from ..common.db.accounts import UserFactory
 from ..common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
@@ -23,28 +23,19 @@ from ..common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 
 class TestProjectDetail:
 
-    @pytest.mark.parametrize("version", [None, "1.0"])
-    def test_missing_project(self, db_request, version):
-        project = ProjectFactory.create(session=db_request.db)
-
-        with pytest.raises(HTTPNotFound):
-            project_detail(
-                db_request, name=project.name + "nope", version=version,
-            )
-
-    @pytest.mark.parametrize("version", [None, "1.0"])
-    def test_normalizing_redirects(self, db_request, version):
+    def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create(session=db_request.db)
 
         name = project.name.lower()
         if name == project.name:
             name = project.name.upper()
 
+        db_request.matchdict = {"name": name}
         db_request.current_route_url = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
 
-        resp = project_detail(db_request, name=name, version=version)
+        resp = views.project_detail(project, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
@@ -52,21 +43,62 @@ class TestProjectDetail:
             pretend.call(name=project.name),
         ]
 
-    @pytest.mark.parametrize("version", [None, "1.0"])
-    def test_missing_release(self, db_request, version):
+    def test_missing_release(self, db_request):
         project = ProjectFactory.create(session=db_request.db)
 
         with pytest.raises(HTTPNotFound):
-            project_detail(db_request, name=project.name, version=version)
+            views.project_detail(project, db_request)
 
-    @pytest.mark.parametrize(
-        ("version", "versions"),
-        [
-            (None, ["1.0", "2.0", "3.0"]),
-            ("2.0", ["1.0", "2.0", "3.0"]),
-        ],
-    )
-    def test_detail_renders(self, db_request, version, versions):
+    def test_calls_release_detail(self, monkeypatch, db_request):
+        project = ProjectFactory.create(session=db_request.db)
+
+        ReleaseFactory.create(
+            session=db_request.db, project=project, version="1.0",
+        )
+        ReleaseFactory.create(
+            session=db_request.db, project=project, version="2.0",
+        )
+
+        release = ReleaseFactory.create(
+            session=db_request.db, project=project, version="3.0",
+        )
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+
+class TestReleaseDetail:
+
+    def test_normalizing_redirects(self, db_request):
+        project = ProjectFactory.create(session=db_request.db)
+        release = ReleaseFactory.create(
+            session=db_request.db, project=project, version="3.0",
+        )
+
+        name = release.project.name.lower()
+        if name == release.project.name:
+            name = release.project.name.upper()
+
+        db_request.matchdict = {"name": name}
+        db_request.current_route_url = pretend.call_recorder(
+            lambda name: "/project/the-redirect/3.0/"
+        )
+
+        resp = views.release_detail(release, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/project/the-redirect/3.0/"
+        assert db_request.current_route_url.calls == [
+            pretend.call(name=release.project.name),
+        ]
+
+    def test_detail_renders(self, db_request):
         users = [
             UserFactory.create(session=db_request.db),
             UserFactory.create(session=db_request.db),
@@ -77,7 +109,7 @@ class TestProjectDetail:
             ReleaseFactory.create(
                 session=db_request.db, project=project, version=v,
             )
-            for v in versions
+            for v in ["1.0", "2.0", "3.0"]
         ]
 
         # Create a role for each user
@@ -104,13 +136,11 @@ class TestProjectDetail:
             get_monthly_stats=lambda p: monthly_stats,
         )
 
-        result = project_detail(db_request, name=project.name, version=version)
-
-        latest_version = version if version is not None else versions[-1]
+        result = views.release_detail(releases[1], db_request)
 
         assert result == {
             "project": project,
-            "release": releases[versions.index(latest_version)],
+            "release": releases[1],
             "all_releases": [
                 (r.version, r.created) for r in reversed(releases)
             ],

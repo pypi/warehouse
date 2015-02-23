@@ -18,5 +18,15 @@ def includeme(config):
     config.add_route("accounts.logout", "/account/logout/")
 
     # Packaging
-    config.add_route("packaging.project", "/project/{name}/")
-    config.add_route("packaging.release", "/project/{name}/{version}/")
+    config.add_route(
+        "packaging.project",
+        "/project/{name}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+    )
+    config.add_route(
+        "packaging.release",
+        "/project/{name}/{version}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/{version}",
+    )
