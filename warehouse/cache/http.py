@@ -53,18 +53,3 @@ def cache_control(seconds, public=True):
             return response
         return wrapped
     return inner
-
-
-def surrogate_control(seconds):
-    def inner(view):
-        @functools.wraps(view)
-        def wrapped(context, request):
-            response = view(context, request)
-
-            if not request.registry.settings.get("prevent_http_cache", False):
-                response.headers["Surrogate-Control"] = \
-                    "max-age={}".format(seconds)
-
-            return response
-        return wrapped
-    return inner

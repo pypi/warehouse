@@ -15,11 +15,14 @@ from zope.interface import Interface
 
 class IOriginCache(Interface):
 
-    def cache(keys, request, response):
+    def cache(keys, request, response, *, seconds=None):
         """
         A hook that will be called after the request has been processed, used
         to associate the request and/or the response with the origin cache
         keys.
+
+        The seconds argument is optional, and if provided should be used to
+        override the number of seconds the origin cache will store the object.
         """
 
     def purge(keys):

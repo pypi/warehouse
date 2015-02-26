@@ -18,7 +18,8 @@ from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.models import User
-from warehouse.cache.http import cache_control, surrogate_control
+from warehouse.cache.origin import origin_cache
+from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
 from warehouse.sessions import uses_session
 
@@ -27,8 +28,8 @@ from warehouse.sessions import uses_session
     route_name="accounts.profile",
     renderer="accounts/profile.html",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),       # 1 day
-        surrogate_control(30 * 24 * 60 * 60),  # 30 days
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
 )
 def profile(request, username):

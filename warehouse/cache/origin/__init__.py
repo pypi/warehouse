@@ -15,24 +15,33 @@ import functools
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
-def origin_cache(view):
-    @functools.wraps(view)
-    def wrapped(context, request):
-        cache_keys = request.registry["cache_keys"]
+def origin_cache(view_or_seconds):
+    def inner(view, seconds=None):
+        @functools.wraps(view)
+        def wrapped(context, request):
+            cache_keys = request.registry["cache_keys"]
 
-        try:
-            key_maker = cache_keys[context.__class__]
-            cacher = request.find_service(IOriginCache)
-        except (KeyError, ValueError):
-            pass
-        else:
-            keys = key_maker(context)
-            request.add_response_callback(
-                functools.partial(cacher.cache, sorted(keys))
-            )
+            try:
+                key_maker = cache_keys[context.__class__]
+                cacher = request.find_service(IOriginCache)
+            except (KeyError, ValueError):
+                pass
+            else:
+                request.add_response_callback(
+                    functools.partial(
+                        cacher.cache,
+                        sorted(key_maker(context)),
+                        seconds=seconds,
+                    )
+                )
 
-        return view(context, request)
-    return wrapped
+            return view(context, request)
+        return wrapped
+
+    if callable(view_or_seconds):
+        return inner(view_or_seconds)
+    else:
+        return functools.partial(inner, seconds=view_or_seconds)
 
 
 def key_maker_factory(keys):

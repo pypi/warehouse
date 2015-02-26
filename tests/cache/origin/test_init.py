@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.cache import origin
 from warehouse.cache.origin.interfaces import IOriginCache
@@ -53,7 +54,8 @@ class TestOriginCache:
         assert view(context, request) is response
         assert raiser.calls == [pretend.call(IOriginCache)]
 
-    def test_response_hook(self):
+    @pytest.mark.parametrize("seconds", [None, 745])
+    def test_response_hook(self, seconds):
         class Fake:
             pass
 
@@ -61,12 +63,17 @@ class TestOriginCache:
 
             @staticmethod
             @pretend.call_recorder
-            def cache(keys, request, response):
+            def cache(keys, request, response, seconds):
                 pass
 
         response = pretend.stub()
 
-        @origin.origin_cache
+        if seconds is None:
+            deco = origin.origin_cache
+        else:
+            deco = origin.origin_cache(seconds)
+
+        @deco
         def view(context, request):
             return response
 
@@ -87,7 +94,7 @@ class TestOriginCache:
         callbacks[0](request, response)
 
         assert cacher.cache.calls == [
-            pretend.call(["one", "two"], request, response),
+            pretend.call(["one", "two"], request, response, seconds=seconds),
         ]
 
 

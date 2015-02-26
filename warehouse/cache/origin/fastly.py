@@ -18,8 +18,12 @@ from warehouse.cache.origin.interfaces import IOriginCache
 @implementer(IOriginCache)
 class FastlyCache:
 
-    def cache(self, keys, request, response):
+    def cache(self, keys, request, response, *, seconds=None):
         response.headers["Surrogate-Key"] = " ".join(keys)
+
+        if seconds is not None:
+            response.headers["Surrogate-Control"] = \
+                "max-age={}".format(seconds)
 
     def purge(self, keys):
         raise NotImplementedError  # TODO: Implement Purging

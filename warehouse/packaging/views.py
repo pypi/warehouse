@@ -15,7 +15,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.cache.http import cache_control, surrogate_control
+from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import Release, Role
@@ -25,9 +25,8 @@ from warehouse.packaging.models import Release, Role
     route_name="packaging.project",
     renderer="packaging/detail.html",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),      # 1 day
-        surrogate_control(7 * 24 * 60 * 60),  # 7 days
-        origin_cache,
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
     mapper="pyramid.config.views:DefaultViewMapper",
 )
@@ -51,9 +50,8 @@ def project_detail(project, request):
     route_name="packaging.release",
     renderer="packaging/detail.html",
     decorator=[
-        cache_control(7 * 24 * 60 * 60),       # 7 days
-        surrogate_control(30 * 24 * 60 * 60),  # 30 days
-        origin_cache,
+        cache_control(7 * 24 * 60 * 60),  # 7 days
+        origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
     mapper="pyramid.config.views:DefaultViewMapper",
 )

@@ -33,6 +33,18 @@ class TestFastlyCache:
 
         assert response.headers == {"Surrogate-Key": "abc defg"}
 
+    def test_adds_surrogate_control(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={})
+
+        cacher = fastly.FastlyCache()
+        cacher.cache(["abc", "defg"], request, response, seconds=9123)
+
+        assert response.headers == {
+            "Surrogate-Key": "abc defg",
+            "Surrogate-Control": "max-age=9123",
+        }
+
     def test_purge_not_implemented(self):
         cacher = fastly.FastlyCache()
 

@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from warehouse.cache.http import add_vary, cache_control, surrogate_control
+from warehouse.cache.http import add_vary, cache_control
 
 
 @pytest.mark.parametrize("vary", [None, [], ["wat"]])
@@ -116,42 +116,6 @@ class TestCacheControl:
         context_obj = pretend.stub()
 
         @cache_control(12)
-        def view(context, request):
-            assert context is context_obj
-            assert request is request_obj
-            return response_obj
-
-        response = view(context_obj, request_obj)
-
-        assert response is response_obj
-
-
-class TestSurrogateControl:
-
-    def test_surrogate(self):
-        response_obj = pretend.stub(headers={})
-        request_obj = pretend.stub(registry=pretend.stub(settings={}))
-        context_obj = pretend.stub()
-
-        @surrogate_control(12)
-        def view(context, request):
-            assert context is context_obj
-            assert request is request_obj
-            return response_obj
-
-        response = view(context_obj, request_obj)
-
-        assert response is response_obj
-        assert response.headers["Surrogate-Control"] == "max-age=12"
-
-    def test_bypass_cache(self):
-        response_obj = pretend.stub()
-        request_obj = pretend.stub(
-            registry=pretend.stub(settings={"prevent_http_cache": True}),
-        )
-        context_obj = pretend.stub()
-
-        @surrogate_control(12)
         def view(context, request):
             assert context is context_obj
             assert request is request_obj
