@@ -76,8 +76,8 @@ def login(request, _form_class=LoginForm):
         # session identifier).
         # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
         #       to handle this for us.
-        if (request.unauthenticated_userid is not None
-                and request.unauthenticated_userid != form.user.id):
+        if (request.unauthenticated_userid is not None and
+                request.unauthenticated_userid != form.user.id):
             # There is already a userid associated with this request and it is
             # a different userid than the one we're trying to remember now. In
             # this case we want to drop the existing session completely because
