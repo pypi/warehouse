@@ -95,17 +95,29 @@ class TestLogin:
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
-    def test_post_validate_redirects(self, monkeypatch, pyramid_request):
+    @pytest.mark.parametrize("with_user", [True, False])
+    def test_post_validate_redirects(self, monkeypatch, pyramid_request,
+                                     with_user):
         remember = pretend.call_recorder(
             lambda request, user_id: [("foo", "bar")]
         )
         monkeypatch.setattr(views, "remember", remember)
 
+        new_session = {}
+
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub()
         pyramid_request.password_hasher = pretend.stub()
         pyramid_request.session = pretend.stub(
-            new_csrf_token=pretend.call_recorder(lambda: None)
+            items=lambda: [("a", "b"), ("foo", "bar")],
+            update=new_session.update,
+            invalidate=pretend.call_recorder(lambda: None),
+            new_csrf_token=pretend.call_recorder(lambda: None),
+        )
+
+        pyramid_request.set_property(
+            lambda r: 1234 if with_user else None,
+            name="unauthenticated_userid",
         )
 
         form_obj = pretend.stub(
@@ -128,6 +140,11 @@ class TestLogin:
             ),
         ]
         assert form_obj.validate.calls == [pretend.call()]
+        if with_user:
+            assert new_session == {}
+        else:
+            assert new_session == {"a": "b", "foo": "bar"}
+        assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert remember.calls == [pretend.call(pyramid_request, 1)]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
         assert ("foo", "bar") in pyramid_request.response.headerlist
@@ -143,10 +160,14 @@ class TestLogout:
         monkeypatch.setattr(views, "forget", forget)
 
         pyramid_request.method = "POST"
+        pyramid_request.session = pretend.stub(
+            invalidate=pretend.call_recorder(lambda: None),
+        )
 
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert forget.calls == [pretend.call(pyramid_request)]
+        assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert ("foo", "bar") in pyramid_request.response.headerlist

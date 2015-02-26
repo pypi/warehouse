@@ -66,6 +66,33 @@ def login(request, _form_class=LoginForm):
     )
 
     if request.method == "POST" and form.validate():
+        # We have a session factory associated with this request, so in order
+        # to protect against session fixation attacks we're going to make sure
+        # that we create a new session (which for sessions with an identifier
+        # will cause it to get a new session identifier).
+
+        # We need to protect against session fixation attacks, so make sure
+        # that we create a new session (which will cause it to get a new
+        # session identifier).
+        # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
+        #       to handle this for us.
+        if (request.unauthenticated_userid is not None
+                and request.unauthenticated_userid != form.user.id):
+            # There is already a userid associated with this request and it is
+            # a different userid than the one we're trying to remember now. In
+            # this case we want to drop the existing session completely because
+            # we don't want to leak any data between authenticated userids.
+            request.session.invalidate()
+        else:
+            # We either do not have an associated userid with this request
+            # already, or the userid is the same one we're trying to remember
+            # now. In either case we want to keep all of the data but we want
+            # to make sure that we create a new session since we're crossing
+            # a privilege boundary.
+            data = dict(request.session.items())
+            request.session.invalidate()
+            request.session.update(data)
+
         # Remember the userid using the authentication policy.
         headers = remember(request, form.user.id)
         request.response.headerlist.extend(headers)
@@ -101,6 +128,18 @@ def logout(request):
         # need a post body that contains the CSRF token.
         headers = forget(request)
         request.response.headerlist.extend(headers)
+
+        # When crossing an authentication boundry we want to create a new
+        # session identifier. We don't want to keep any information in the
+        # session when going from authenticated to unauthenticated because
+        # user's generally expect that logging out is a desctructive action
+        # that erases all of their private data. However if we don't clear the
+        # session then another user can use the computer after them, log in to
+        # their account, and then gain access to anything sensitive stored in
+        # the session for the original user.
+        # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
+        #       to handle this for us.
+        request.session.invalidate()
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
