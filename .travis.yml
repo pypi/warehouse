@@ -12,7 +12,7 @@ env:
     - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
   matrix:
-    - TOXENV=py34
+    - TOXENV=py34 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
     - TOXENV=pep8
     - TOXENV=docs
     - TOXENV=packaging
@@ -27,7 +27,7 @@ install:
   # Run our actual installation for tox now.
   - pip install tox
 
-script: tox
+script: tox $TOXARGS
 
 notifications:
   irc:
