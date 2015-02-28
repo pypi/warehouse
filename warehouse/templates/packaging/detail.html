@@ -74,6 +74,17 @@
         <dd>{{ release.platform|replace("\n", ", ") }}</dd>
         {% endif %}
 
+        {% if release.classifiers %}
+        <dt>{{ _('Classifiers') }}</dt>
+        <dd>
+          <ul>
+            {% for classifier in release.classifiers %}
+            <li>{{ classifier.classifier }}</li>
+            {% endfor %}
+          </ul>
+        </dd>
+        {% endif %}
+
         <dt>{{ _('Download Stats') }}</dt>
         <dd class="stats">
           <ul>
