@@ -52,6 +52,7 @@ setuptools.setup(
         "warehouse.accounts",
         "warehouse.cache",
         "warehouse.cache.origin",
+        "warehouse.classifiers",
         "warehouse.cli",
         "warehouse.cli.db",
         "warehouse.i18n",

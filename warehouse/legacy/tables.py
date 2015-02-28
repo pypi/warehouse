@@ -521,38 +521,6 @@ Index("rego_otk_name_idx", rego_otk.c.name)
 Index("rego_otk_otk_idx", rego_otk.c.otk)
 
 
-release_classifiers = Table(
-    "release_classifiers",
-    db.metadata,
-
-    Column("name", Text()),
-    Column("version", Text()),
-    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
-
-    ForeignKeyConstraint(
-        ["name", "version"],
-        ["releases.name", "releases.version"],
-        onupdate="CASCADE",
-    ),
-)
-
-
-Index("rel_class_name_idx", release_classifiers.c.name)
-
-
-Index(
-    "rel_class_name_version_idx",
-    release_classifiers.c.name,
-    release_classifiers.c.version,
-)
-
-
-Index("rel_class_trove_id_idx", release_classifiers.c.trove_id)
-
-
-Index("rel_class_version_id_idx", release_classifiers.c.version)
-
-
 release_dependencies = Table(
     "release_dependencies",
     db.metadata,
@@ -712,24 +680,3 @@ timestamps = Table(
     Column("name", Text(), primary_key=True, nullable=False),
     Column("value", DateTime(timezone=False)),
 )
-
-
-trove_classifiers = Table(
-    "trove_classifiers",
-    db.metadata,
-
-    Column("id", Integer(), primary_key=True, nullable=False),
-    Column("classifier", Text()),
-    Column("l2", Integer()),
-    Column("l3", Integer()),
-    Column("l4", Integer()),
-    Column("l5", Integer()),
-
-    UniqueConstraint("classifier", name="trove_classifiers_classifier_key"),
-)
-
-
-Index("trove_class_class_idx", trove_classifiers.c.classifier)
-
-
-Index("trove_class_id_idx", trove_classifiers.c.id)
