@@ -49,7 +49,7 @@ site.access_token
 :Description:
     A string that must be sent as part of the request in order for Warehouse
     to trust the ``X-Forwarded-*`` headers sent in the request. This is
-    designed to allow the Fastly CDN to "authenticate" it's ``X-Forwarded-*``
+    designed to allow the Fastly CDN to "authenticate" its ``X-Forwarded-*``
     headers.
 
     This setting requires that any trusted front end sets a header named
