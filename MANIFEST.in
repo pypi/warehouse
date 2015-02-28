@@ -11,5 +11,6 @@ recursive-include warehouse/templates *.html
 exclude Gulpfile.js package.json
 exclude .dockerignore Dockerfile fig.yml
 
+prune .travis
 prune dev
 prune docs/_build
