@@ -45,7 +45,8 @@ format (``%s``).
 Development Environment
 -----------------------
 
-Warehouse development requires Python3.4 and the installation of several external non-Python
+Warehouse development requires Python3.4 (including python3.4 and libffi
+header files) and the installation of several external non-Python
 dependencies. These are:
 
 * `PostgreSQL`_ 9.2+
@@ -54,8 +55,10 @@ dependencies. These are:
 * `Compass`_ (used only for design development)
 * `Grunt`_ (used only for design development)
 
-Once you have all of the above you can install Warehouse, all of its install
-dependencies, and the Python development dependencies using:
+Installation instructions for non-Python dependencies provided in
+:doc:`non-python-dependencies`.  Once you have all of the above you can install
+Warehouse, all of its install dependencies, and the Python development
+dependencies using:
 
 .. code-block:: console
 
@@ -96,7 +99,7 @@ pipeline. You can install the required dependencies by running:
     $ gem install compass
 
     $ # Install Grunt
-    $ npm install
+    $ npm install grunt
 
 Once you have the dependencies install you can iterate on the theme by editing
 the files located in ``warehouse/static/source``. After each edit you'll need

@@ -8,6 +8,7 @@ Contents:
 
    configuration
    contributing
+   non-python-dependencies
    testing
    application
    reference/index
