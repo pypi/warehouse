@@ -12,8 +12,8 @@
 
 from citext import CIText
 from sqlalchemy import (
-    CheckConstraint, Column, ForeignKey, Index, Boolean, DateTime, Integer,
-    Text,
+    CheckConstraint, Column, ForeignKey, ForeignKeyConstraint, Index, Boolean,
+    DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
@@ -21,6 +21,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.classifiers.models import Classifier
 from warehouse.utils.attrs import make_repr
 
 
@@ -157,3 +158,31 @@ class Release(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
+
+    classifiers = orm.relationship(
+        Classifier,
+        backref="project_releases",
+        secondary=lambda: release_classifiers,
+        order_by=Classifier.classifier,
+    )
+
+
+release_classifiers = Table(
+    "release_classifiers",
+    db.metadata,
+
+    Column("name", Text()),
+    Column("version", Text()),
+    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
+
+    ForeignKeyConstraint(
+        ["name", "version"],
+        ["releases.name", "releases.version"],
+        onupdate="CASCADE",
+    ),
+
+    Index("rel_class_name_idx", "name"),
+    Index("rel_class_name_version_idx", "name", "version"),
+    Index("rel_class_trove_id_idx", "trove_id"),
+    Index("rel_class_version_id_idx", "version"),
+)
