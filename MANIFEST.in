@@ -12,3 +12,4 @@ exclude Gulpfile.js package.json
 exclude .dockerignore Dockerfile fig.yml
 
 prune dev
+prune docs/_build
