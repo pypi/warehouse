@@ -3,9 +3,6 @@ python: 3.4
 
 sudo: false
 
-addons:
-  postgresql: "9.4"
-
 cache:
   directories:
     - ~/.cache/pip
