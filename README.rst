@@ -22,6 +22,7 @@ ensure it can connect to a Docker host. If you're running on OSX you may wish
 to use the `Docker installer <https://docs.docker.com/installation/mac/>`_ to
 install both docker and boot2docker.
 
+
 Running Warehouse
 ~~~~~~~~~~~~~~~~~
 
@@ -55,3 +56,31 @@ Warehouse will automatically reload when it detects any changes made to the
 code. However editing the ``Dockerfile`` or adding new dependencies will
 require building a new container which can be done by running ``fig build``
 before running ``fig up`` again.
+
+
+Interactive Shell
+~~~~~~~~~~~~~~~~~
+
+There is an interactive shell available in Warehouse which will automatically
+configure Warehouse and create a database session and make them available as
+variables in the interactive shell.
+
+To run the interactive shell, simply run:
+
+.. code-block:: console
+
+    $ warehouse shell
+
+By default this command will attempt to detect the best interactive shell that
+is available by looking for either bpython or IPython and then falling back to
+a plain shell if neither of those are available. You can force the type of
+shell that is used with the ``--type`` option.
+
+The interactive shell will have the following variables defined in it:
+
+====== ========================================================================
+config The Pyramid ``Configurator`` object which has already been configured by
+       Warehouse.
+db     The SQLAlchemy ORM ``Session`` object which has already been configured
+       to connect to the database.
+====== ========================================================================
