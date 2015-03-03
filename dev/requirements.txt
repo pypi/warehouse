@@ -1,3 +1,7 @@
+#!/usr/bin/env pip install -r
+# Why requirements.txt?
+# See https://caremad.io/2013/07/setup-vs-requirement/
+
 # We need a newer version of Pyramid (1.6) than what is currently available on
 # PyPI, so we'll install it from GitHub first.
 https://github.com/Pylons/pyramid/archive/master.zip#egg=pyramid
