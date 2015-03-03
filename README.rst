@@ -44,18 +44,27 @@ new docker container simply by running:
 
     $ fig run web <command>
 
-In particular, you can create a new database and run the migrations by running:
+In particular, you can create a new database, run migrations, and load some
+example data by running:
 
 .. code-block:: console
 
     $ fig run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
     $ fig run web warehouse -c dev/config.yml db upgrade head
+    $ xz -d -k dev/example.sql.xz
+    $ fig run web psql -h db -d warehouse -U postgres -f dev/example.sql
+    $ rm dev/example.sql
 
 The repository is exposed inside of the web container at ``/app/`` and
 Warehouse will automatically reload when it detects any changes made to the
 code. However editing the ``Dockerfile`` or adding new dependencies will
 require building a new container which can be done by running ``fig build``
 before running ``fig up`` again.
+
+The example data located in ``dev/example.sql.xz`` is taken from
+`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
+anything private. The password for every account has been set to the string
+``password``.
 
 
 Interactive Shell

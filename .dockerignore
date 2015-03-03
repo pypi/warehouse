@@ -2,3 +2,4 @@
 .tox/*
 
 dev/example.sql
+dev/example.sql.xz
