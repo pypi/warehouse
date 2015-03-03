@@ -14,3 +14,5 @@ dist/
 htmlcov/
 
 node_modules/
+
+dev/example.sql
