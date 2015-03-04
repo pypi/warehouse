@@ -212,14 +212,13 @@ class Session(dict):
 
     def get_scoped_csrf_token(self, scope):
         # Here we want to do
-        # HMAC_sha512(HMAC_sha512(unscoped_token, scope), session_id). This
-        # will make it possible to have scope specific CSRF tokens which means
-        # that a single scope token being leaked cannot be used for other
-        # scopes.
+        # HMAC_sha512(scope + unscoped_token, session_id). This will make it
+        # possible to have scope specific CSRF tokens which means that a single
+        # scope token being leaked cannot be used for other scopes.
         unscoped = self.get_csrf_token().encode("utf8")
         scope = scope.encode("utf8")
-        scoped = hmac.new(unscoped, scope, "sha512").hexdigest().encode("utf8")
-        return hmac.new(scoped, self.sid.encode("utf8"), "sha512").hexdigest()
+        session_id = self.sid.encode("utf8")
+        return hmac.new(scope + unscoped, session_id, "sha512").hexdigest()
 
     def has_csrf_token(self):
         return self._csrf_token_key in self
