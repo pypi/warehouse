@@ -387,8 +387,8 @@ class TestSession:
         session.get_csrf_token = pretend.call_recorder(lambda: "123456")
 
         assert session.get_scoped_csrf_token("myscope") == (
-            "8bb131c0e866629d52a55ba72428e8a3a03625cd766ef1d1ba0e44010b126f2c"
-            "3cc61b63413f26c4edd8bcb6586c20499c7193cfb2b09a6ccbd6a4f202becea9"
+            "cdcecc5069f543c8fa99c5ebf0fff014e63b7f618ad789e167b5148c4a81b2d0"
+            "02c321a48c611ab34ef6d7f539d5196fa80b05f161586ee8d0eee31808cf3b38"
         )
         assert session.get_csrf_token.calls == [pretend.call()]
 
