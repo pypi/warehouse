@@ -15,7 +15,6 @@ import transaction
 from pyramid.config import Configurator
 from tzf.pyramid_yml import config_defaults
 
-from warehouse.utils.mapper import WarehouseMapper
 from warehouse.utils.static import WarehouseCacheBuster
 
 
@@ -27,11 +26,6 @@ def configure(settings=None):
 
     # Set our yml.location so that it contains all of our settings files
     config_defaults(config, ["warehouse:etc"])
-
-    # Setup our custom view mapper, this will provide one thing:
-    #   * Pass matched items from views in as keyword arguments to the
-    #     function.
-    config.set_view_mapper(WarehouseMapper)
 
     # We want to load configuration from YAML files
     config.include("tzf.pyramid_yml")
