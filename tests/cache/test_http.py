@@ -13,7 +13,11 @@
 import pretend
 import pytest
 
-from warehouse.cache.http import add_vary, cache_control
+from pyramid.tweens import EXCVIEW
+
+from warehouse.cache.http import (
+    add_vary, cache_control, conditional_http_tween_factory, includeme,
+)
 
 
 @pytest.mark.parametrize("vary", [None, [], ["wat"]])
@@ -124,3 +128,63 @@ class TestCacheControl:
         response = view(context_obj, request_obj)
 
         assert response is response_obj
+
+
+class TestConditionalHTTPTween:
+
+    def test_explicit_etag(self):
+        response = pretend.stub(etag="foo", conditional_response=False)
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub()
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert response.conditional_response
+
+    def test_implicit_etag(self):
+        response = pretend.stub(
+            etag=None,
+            conditional_response=False,
+            md5_etag=pretend.call_recorder(lambda: None),
+            app_iter=[b"foo"],
+        )
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub()
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert response.conditional_response
+        assert response.md5_etag.calls == [pretend.call()]
+
+    def test_no_etag(self):
+        response = pretend.stub(
+            etag=None,
+            conditional_response=False,
+            app_iter=iter([b"foo"]),
+        )
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub()
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert not response.conditional_response
+
+
+def test_includeme():
+    config = pretend.stub(
+        add_tween=pretend.call_recorder(lambda t, under: None),
+    )
+    includeme(config)
+
+    assert config.add_tween.calls == [
+        pretend.call(
+            "warehouse.cache.http.conditional_http_tween_factory",
+            under=EXCVIEW,
+        ),
+    ]
