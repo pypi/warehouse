@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections.abc
 import functools
+
+from pyramid.tweens import EXCVIEW
 
 
 def _add_vary_callback(*varies):
@@ -53,3 +56,30 @@ def cache_control(seconds, public=True):
             return response
         return wrapped
     return inner
+
+
+def conditional_http_tween_factory(handler, registry):
+
+    def conditional_http_tween(request):
+        response = handler(request)
+
+        # We want to only enable the conditional machinery if we were either
+        # given an explicit ETag header by the view, or if we have a buffered
+        # response and can generate the ETag header ourself.
+        if response.etag is not None:
+            response.conditional_response = True
+        elif (isinstance(response.app_iter, collections.abc.Sequence) and
+                len(response.app_iter) == 1):
+            response.conditional_response = True
+            response.md5_etag()
+
+        return response
+
+    return conditional_http_tween
+
+
+def includeme(config):
+    config.add_tween(
+        "warehouse.cache.http.conditional_http_tween_factory",
+        under=EXCVIEW,
+    )

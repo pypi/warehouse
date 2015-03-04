@@ -76,7 +76,8 @@ def configure(settings=None):
     # Register our session support
     config.include(".sessions")
 
-    # Register our support for origin caching
+    # Register our support for http and origin caching
+    config.include(".cache.http")
     config.include(".cache.origin")
 
     # Register our CSRF support

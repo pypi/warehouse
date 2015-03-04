@@ -84,6 +84,7 @@ def test_configure(monkeypatch, settings):
         pretend.call(".i18n"),
         pretend.call(".db"),
         pretend.call(".sessions"),
+        pretend.call(".cache.http"),
         pretend.call(".cache.origin"),
         pretend.call(".csrf"),
         pretend.call(".accounts"),
