@@ -28,7 +28,6 @@ from warehouse.sessions import uses_session
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
-    mapper="pyramid.config.views:DefaultViewMapper",
 )
 def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):

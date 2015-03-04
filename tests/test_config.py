@@ -16,7 +16,6 @@ import pretend
 import pytest
 
 from warehouse import config
-from warehouse.utils.mapper import WarehouseMapper
 
 
 @pytest.mark.parametrize(
@@ -32,7 +31,6 @@ def test_configure(monkeypatch, settings):
     configurator_settings = {}
     configurator_obj = pretend.stub(
         registry=pretend.stub(settings={"pyramid.reload_assets": False}),
-        set_view_mapper=pretend.call_recorder(lambda mapper: None),
         include=pretend.call_recorder(lambda include: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
@@ -73,9 +71,6 @@ def test_configure(monkeypatch, settings):
         pretend.call(configurator_obj, ["warehouse:etc"]),
     ]
     assert result is configurator_obj
-    assert configurator_obj.set_view_mapper.calls == [
-        pretend.call(WarehouseMapper),
-    ]
     assert configurator_obj.include.calls == [
         pretend.call("tzf.pyramid_yml"),
         pretend.call("pyramid_jinja2"),

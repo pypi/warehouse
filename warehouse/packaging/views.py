@@ -28,7 +28,6 @@ from warehouse.packaging.models import Release, Role
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
-    mapper="pyramid.config.views:DefaultViewMapper",
 )
 def project_detail(project, request):
     if project.name != request.matchdict.get("name", project.name):
@@ -53,7 +52,6 @@ def project_detail(project, request):
         cache_control(7 * 24 * 60 * 60),  # 7 days
         origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
-    mapper="pyramid.config.views:DefaultViewMapper",
 )
 def release_detail(release, request):
     project = release.project
