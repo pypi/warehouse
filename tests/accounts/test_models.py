@@ -10,29 +10,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.accounts.models import User
+import pytest
 
-from ..common.db.accounts import UserFactory, EmailFactory
+from warehouse.accounts.models import User, UserFactory
+
+from ..common.db.accounts import (
+    UserFactory as DBUserFactory, EmailFactory as DBEmailFactory,
+)
+
+
+class TestUserFactory:
+
+    @pytest.mark.parametrize(
+        ("username", "normalized"),
+        [
+            ("foo", "foo"),
+            ("Bar", "bar"),
+        ],
+    )
+    def test_traversal_finds(self, db_request, username, normalized):
+        user = DBUserFactory.create(
+            session=db_request.db,
+            username=username,
+        )
+        root = UserFactory(db_request)
+
+        assert root[normalized] == user
+
+    def test_travel_cant_find(self, db_request):
+        user = DBUserFactory.create(session=db_request.db)
+        root = UserFactory(db_request)
+
+        with pytest.raises(KeyError):
+            root[user.username + "invalid"]
 
 
 class TestUser:
 
     def test_get_primary_email_when_no_emails(self, db_session):
-        user = UserFactory.create(session=db_session)
+        user = DBUserFactory.create(session=db_session)
         assert user.email is None
 
     def test_get_primary_email(self, db_session):
-        user = UserFactory.create(session=db_session)
-        email = EmailFactory.create(
+        user = DBUserFactory.create(session=db_session)
+        email = DBEmailFactory.create(
             user=user, primary=True, session=db_session,
         )
-        EmailFactory.create(user=user, primary=False, session=db_session)
+        DBEmailFactory.create(user=user, primary=False, session=db_session)
 
         assert user.email == email.email
 
     def test_query_by_email_when_primary(self, db_session):
-        user = UserFactory.create(session=db_session)
-        email = EmailFactory.create(
+        user = DBUserFactory.create(session=db_session)
+        email = DBEmailFactory.create(
             user=user, primary=True, session=db_session,
         )
 
@@ -43,8 +73,8 @@ class TestUser:
         assert result == user
 
     def test_query_by_email_when_not_primary(self, db_session):
-        user = UserFactory.create(session=db_session)
-        email = EmailFactory.create(
+        user = DBUserFactory.create(session=db_session)
+        email = DBEmailFactory.create(
             user=user, primary=False, session=db_session,
         )
 

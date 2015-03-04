@@ -16,10 +16,25 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, String,
 )
 from sqlalchemy import orm, select, sql
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
+
+
+class UserFactory:
+
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, username):
+        try:
+            return self.request.db.query(User).filter(
+                User.username == username
+            ).one()
+        except NoResultFound:
+            raise KeyError from None
 
 
 class User(db.ModelBase):
