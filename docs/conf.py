@@ -33,6 +33,7 @@ with open(os.path.join(base_dir, "warehouse", "__about__.py")) as f:
 # ones.
 extensions = [
     "sphinx.ext.doctest",
+    "sphinxcontrib.httpdomain",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

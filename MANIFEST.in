@@ -1,4 +1,4 @@
-include .coveragerc tox.ini
+include .coveragerc tox.ini docs/requirements.txt
 
 recursive-include docs conf.py Makefile *.rst
 recursive-include tests *.py
