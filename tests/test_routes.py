@@ -26,7 +26,12 @@ def test_routes():
     includeme(config)
 
     assert config.add_route.calls == [
-        pretend.call("accounts.profile", "/user/{username}/"),
+        pretend.call(
+            "accounts.profile",
+            "/user/{username}/",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
         pretend.call("accounts.login", "/account/login/"),
         pretend.call("accounts.logout", "/account/logout/"),
         pretend.call(

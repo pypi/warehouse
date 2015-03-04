@@ -10,14 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther,
-)
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
-from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
@@ -31,14 +28,10 @@ from warehouse.sessions import uses_session
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
+    mapper="pyramid.config.views:DefaultViewMapper",
 )
-def profile(request, username):
-    user = request.db.query(User).filter(User.username == username).first()
-
-    if user is None:
-        raise HTTPNotFound("Could not find user {}".format(username))
-
-    if user.username != username:
+def profile(user, request):
+    if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(
             request.current_route_url(username=user.username),
         )

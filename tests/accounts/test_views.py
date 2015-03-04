@@ -13,9 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther,
-)
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.accounts import views
 
@@ -23,10 +21,6 @@ from ..common.db.accounts import UserFactory
 
 
 class TestUserProfile:
-
-    def test_no_user(self, db_request):
-        with pytest.raises(HTTPNotFound):
-            views.profile(db_request, "non-existent-user")
 
     def test_user_redirects_username(self, db_request):
         user = UserFactory.create(session=db_request.db)
@@ -39,8 +33,9 @@ class TestUserProfile:
         db_request.current_route_url = pretend.call_recorder(
             lambda username: "/user/the-redirect/"
         )
+        db_request.matchdict = {"username": username}
 
-        result = views.profile(db_request, username)
+        result = views.profile(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
@@ -50,7 +45,7 @@ class TestUserProfile:
 
     def test_returns_user(self, db_request):
         user = UserFactory.create(session=db_request.db)
-        assert views.profile(db_request, user.username) == {"user": user}
+        assert views.profile(user, db_request) == {"user": user}
 
 
 class TestLogin:
