@@ -10,15 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from passlib.context import CryptContext
 from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
+from warehouse.accounts.interfaces import ILoginService
 from warehouse.accounts.models import User
-
-
-def _pw_hasher(request):
-    return request.registry["passwords"]
+from warehouse.accounts.services import database_login_factory
 
 
 def _authenticate(userid, request):
@@ -42,12 +39,8 @@ def _user(request):
 
 
 def includeme(config):
-    # Register our Password Handling
-    config.registry["passwords"] = CryptContext(
-        schemes=["bcrypt_sha256", "bcrypt", "django_bcrypt", "unix_disabled"],
-        deprecated=["auto"],
-    )
-    config.add_request_method(_pw_hasher, name="password_hasher", reify=True)
+    # Register our login service
+    config.register_service_factory(database_login_factory, ILoginService)
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(
