@@ -10,11 +10,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import binascii
+import hmac
+import urllib.parse
+
+import html5lib
+import html5lib.serializer
+import html5lib.treewalkers
 import jinja2
 import readme.rst
 
+from pyramid.threadlocal import get_current_request
 
-def readme_renderer(value, *, format):
+
+def _camo_url(camo_url, camo_key, url):
+    camo_key = camo_key.encode("utf8")
+    url = url.encode("utf8")
+
+    path = "/".join([
+        hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
+        binascii.hexlify(url).decode("utf8"),
+    ])
+
+    return urllib.parse.urljoin(camo_url, path)
+
+
+@jinja2.contextfilter
+def readme_renderer(ctx, value, *, format):
+    request = ctx.get("request") or get_current_request()
+
     # The format parameter is here so we can more easily expand this to cover
     # READMEs which do not use restructuredtext, but for now rst is the only
     # format we support.
@@ -28,6 +52,24 @@ def readme_renderer(value, *, format):
     # so that it shows up nicer when rendered.
     if not rendered:
         value = value.replace("\n", "<br>\n")
+
+    # Parse the rendered output and replace any inline images that don't point
+    # to HTTPS with camouflaged images.
+    camo_url = request.registry.settings.get("camo.url")
+    camo_key = request.registry.settings.get("camo.key")
+    if camo_url is not None and camo_key is not None:
+        tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
+        parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
+        dom = parser.parse(value)
+
+        for element in dom.getElementsByTagName("img"):
+            src = element.getAttribute("src")
+            if src:
+                element.setAttribute("src", _camo_url(camo_url, camo_key, src))
+
+        tree_walker = html5lib.treewalkers.getTreeWalker("dom")
+        html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
+        value = "".join(html_serializer.serialize(tree_walker(dom)))
 
     return jinja2.Markup(value)
 
