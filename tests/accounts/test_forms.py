@@ -16,86 +16,85 @@ import wtforms
 
 from warehouse.accounts.forms import LoginForm
 
-from ..common.db.accounts import UserFactory
-
 
 class TestLoginForm:
 
     def test_creation(self):
-        hasher = pretend.stub()
-        db = pretend.stub()
-        form = LoginForm(db=db, password_hasher=hasher)
+        login_service = pretend.stub()
+        form = LoginForm(login_service=login_service)
 
-        assert form.db is db
-        assert form.password_hasher is hasher
-        assert form.user is None
+        assert form.login_service is login_service
 
-    def test_validate_username_with_no_user(self, db_session):
-        form = LoginForm(db=db_session, password_hasher=None)
+    def test_validate_username_with_no_user(self):
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
+        )
+        form = LoginForm(login_service=login_service)
         field = pretend.stub(data="my_username")
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_username(field)
 
-    def test_validate_username_with_user(self, db_session):
-        user = UserFactory.create(session=db_session)
-        form = LoginForm(db=db_session, password_hasher=None)
-        field = pretend.stub(data=user.username)
+        assert login_service.find_userid.calls == [pretend.call("my_username")]
+
+    def test_validate_username_with_user(self):
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+        )
+        form = LoginForm(login_service=login_service)
+        field = pretend.stub(data="my_username")
 
         form.validate_username(field)
 
-        assert form.user == user
-
-    def test_validate_username_with_user_wrong_case(self, db_session):
-        user = UserFactory.create(session=db_session)
-        form = LoginForm(db=db_session, password_hasher=None)
-
-        if user.username.upper() != user.username:
-            field = pretend.stub(data=user.username.upper())
-        else:
-            field = pretend.stub(data=user.username.lower())
-
-        form.validate_username(field)
-
-        assert form.user == user
+        assert login_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_password_no_user(self):
-        field = pretend.stub()
-        form = LoginForm(db=None, password_hasher=None)
-        form.validate_password(field)
-
-    @pytest.mark.parametrize(
-        ("original", "new", "expected"),
-        [
-            ("hashedpw", None, "hashedpw"),
-            ("hashedpw", "newpassword", "newpassword"),
-        ],
-    )
-    def test_validate_password_ok(self, db_session, original, new, expected):
-        hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda p, h: (True, new)),
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
         )
-        form = LoginForm(db=None, password_hasher=hasher)
-        form.user = UserFactory.create(password=original, session=db_session)
-        field = pretend.stub(data="userpw")
+        form = LoginForm(
+            data={"username": "my_username"},
+            login_service=login_service,
+        )
+        field = pretend.stub(data="password")
+
         form.validate_password(field)
 
-        assert hasher.verify_and_update.calls == [
-            pretend.call("userpw", original),
-        ]
-        assert form.user.password == expected
+        assert login_service.find_userid.calls == [pretend.call("my_username")]
+
+    def test_validate_password_ok(self):
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password: True
+            ),
+        )
+        form = LoginForm(
+            data={"username": "my_username"},
+            login_service=login_service,
+        )
+        field = pretend.stub(data="pw")
+
+        form.validate_password(field)
+
+        assert login_service.find_userid.calls == [pretend.call("my_username")]
+        assert login_service.check_password.calls == [pretend.call(1, "pw")]
 
     def test_validate_password_notok(self, db_session):
-        hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda p, h: (False, None))
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password: False
+            ),
         )
-        form = LoginForm(db=None, password_hasher=hasher)
-        form.user = UserFactory.create(password="hashedpw", session=db_session)
-        field = pretend.stub(data="userpw")
+        form = LoginForm(
+            data={"username": "my_username"},
+            login_service=login_service,
+        )
+        field = pretend.stub(data="pw")
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
 
-        assert hasher.verify_and_update.calls == [
-            pretend.call("userpw", "hashedpw"),
-        ]
+        assert login_service.find_userid.calls == [pretend.call("my_username")]
+        assert login_service.check_password.calls == [pretend.call(1, "pw")]

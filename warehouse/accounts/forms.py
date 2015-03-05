@@ -13,10 +13,9 @@
 import wtforms
 
 from warehouse import forms
-from warehouse.accounts.models import User
 
 
-class LoginForm(forms.DBForm):
+class LoginForm(forms.Form):
 
     username = wtforms.StringField(
         validators=[
@@ -31,37 +30,19 @@ class LoginForm(forms.DBForm):
         ],
     )
 
-    def __init__(self, *args, password_hasher, **kwargs):
+    def __init__(self, *args, login_service, **kwargs):
         super().__init__(*args, **kwargs)
-        self.password_hasher = password_hasher
-        self.user = None
+
+        self.login_service = login_service
 
     def validate_username(self, field):
-        # Attempt to fetch the user from the database.
-        self.user = (
-            self.db.query(User).filter(User.username == field.data).first()
-        )
+        userid = self.login_service.find_userid(field.data)
 
-        # If the user doesn't exist, then this form is invalid.
-        if self.user is None:
-            raise wtforms.validators.ValidationError("Invalid User")
-
-        # If the given username is different than the username in the database
-        # we'll go ahead and coerce it to the correct value.
-        if self.user.username != field.data:
-            field.data = self.user.username
+        if userid is None:
+            raise wtforms.validators.ValidationError("Invalid user.")
 
     def validate_password(self, field):
-        if self.user is not None:
-            ok, new_hash = self.password_hasher.verify_and_update(
-                field.data,
-                self.user.password,
-            )
-
-            # Check if the given password was OK.
-            if not ok:
+        userid = self.login_service.find_userid(self.username.data)
+        if userid is not None:
+            if not self.login_service.check_password(userid, field.data):
                 raise wtforms.validators.ValidationError("Invalid password.")
-
-            # Check if we've gotten a new hash from the password hasher.
-            if new_hash:
-                self.user.password = new_hash

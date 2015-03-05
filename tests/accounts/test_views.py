@@ -16,6 +16,7 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.accounts import views
+from warehouse.accounts.interfaces import ILoginService
 
 from ..common.db.accounts import UserFactory
 
@@ -51,42 +52,40 @@ class TestUserProfile:
 class TestLogin:
 
     def test_get_returns_form(self, pyramid_request):
-        pyramid_request.db = pretend.stub()
-        pyramid_request.password_hasher = pretend.stub()
-        form_obj = pretend.stub()
-        form_class = pretend.call_recorder(
-            lambda d, db, password_hasher: form_obj
+        login_service = pretend.stub()
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda iface: login_service
         )
+        form_obj = pretend.stub()
+        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert result == {"form": form_obj}
+        assert pyramid_request.find_service.calls == [
+            pretend.call(ILoginService),
+        ]
         assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                db=pyramid_request.db,
-                password_hasher=pyramid_request.password_hasher,
-            ),
+            pretend.call(pyramid_request.POST, login_service=login_service),
         ]
 
     def test_post_invalid_returns_form(self, pyramid_request):
-        pyramid_request.method = "POST"
-        pyramid_request.db = pretend.stub()
-        pyramid_request.password_hasher = pretend.stub()
-        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(
-            lambda d, db, password_hasher: form_obj
+        login_service = pretend.stub()
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda iface: login_service
         )
+        pyramid_request.method = "POST"
+        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
+        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert result == {"form": form_obj}
+        assert pyramid_request.find_service.calls == [
+            pretend.call(ILoginService),
+        ]
         assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                db=pyramid_request.db,
-                password_hasher=pyramid_request.password_hasher,
-            ),
+            pretend.call(pyramid_request.POST, login_service=login_service),
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
@@ -100,9 +99,13 @@ class TestLogin:
 
         new_session = {}
 
+        login_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 1),
+        )
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda iface: login_service
+        )
         pyramid_request.method = "POST"
-        pyramid_request.db = pretend.stub()
-        pyramid_request.password_hasher = pretend.stub()
         pyramid_request.session = pretend.stub(
             items=lambda: [("a", "b"), ("foo", "bar")],
             update=new_session.update,
@@ -117,24 +120,22 @@ class TestLogin:
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            user=pretend.stub(id=1),
+            username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(
-            lambda d, db, password_hasher: form_obj
-        )
+        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert pyramid_request.find_service.calls == [
+            pretend.call(ILoginService),
+        ]
         assert form_class.calls == [
-            pretend.call(
-                pyramid_request.POST,
-                db=pyramid_request.db,
-                password_hasher=pyramid_request.password_hasher,
-            ),
+            pretend.call(pyramid_request.POST, login_service=login_service),
         ]
         assert form_obj.validate.calls == [pretend.call()]
+        assert login_service.find_userid.calls == [pretend.call("theuser")]
         if with_user:
             assert new_session == {}
         else:

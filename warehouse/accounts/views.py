@@ -15,6 +15,7 @@ from pyramid.security import remember, forget
 from pyramid.view import view_config
 
 from warehouse.accounts.forms import LoginForm
+from warehouse.accounts.interfaces import ILoginService
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
@@ -51,13 +52,14 @@ def login(request, _form_class=LoginForm):
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
-    form = _form_class(
-        request.POST,
-        db=request.db,
-        password_hasher=request.password_hasher,
-    )
+    login_service = request.find_service(ILoginService)
+
+    form = _form_class(request.POST, login_service=login_service)
 
     if request.method == "POST" and form.validate():
+        # Get the user id for the given username.
+        userid = login_service.find_userid(form.username.data)
+
         # We have a session factory associated with this request, so in order
         # to protect against session fixation attacks we're going to make sure
         # that we create a new session (which for sessions with an identifier
@@ -69,7 +71,7 @@ def login(request, _form_class=LoginForm):
         # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
         #       to handle this for us.
         if (request.unauthenticated_userid is not None and
-                request.unauthenticated_userid != form.user.id):
+                request.unauthenticated_userid != userid):
             # There is already a userid associated with this request and it is
             # a different userid than the one we're trying to remember now. In
             # this case we want to drop the existing session completely because
@@ -86,7 +88,7 @@ def login(request, _form_class=LoginForm):
             request.session.update(data)
 
         # Remember the userid using the authentication policy.
-        headers = remember(request, form.user.id)
+        headers = remember(request, userid)
         request.response.headerlist.extend(headers)
 
         # Cycle the CSRF token since we've crossed an authentication boundary
