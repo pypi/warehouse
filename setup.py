@@ -71,6 +71,7 @@ setuptools.setup(
         "click",
         "gunicorn",
         "hiredis",
+        "html5lib",
         "itsdangerous",
         "msgpack-python",
         "passlib>=1.6",
