@@ -14,28 +14,22 @@ from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 
 from warehouse.accounts.interfaces import ILoginService
-from warehouse.accounts.models import User
 from warehouse.accounts.services import database_login_factory
 
 
 def _authenticate(userid, request):
-    user = request.db.query(User).filter(User.id == userid).first()
+    login_service = request.find_service(ILoginService)
+    user = login_service.get_user(userid)
+
     if user is None:
         return
+
     return []  # TODO: Add other principles.
 
 
 def _user(request):
-    user = request.db.query(User).filter(
-        User.id == request.unauthenticated_userid
-    ).first()
-
-    if user is None:
-        return  # TODO: We need some sort of Anonymous User.
-
-    # TODO: We probably don't want to actually just return the database object,
-    #       here.
-    return user
+    login_service = request.find_service(ILoginService)
+    return login_service.get_user(request.unauthenticated_userid)
 
 
 def includeme(config):

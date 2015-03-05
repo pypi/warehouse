@@ -33,6 +33,12 @@ class DatabaseLoginService:
             deprecated=["auto"],
         )
 
+    def get_user(self, userid):
+        # TODO: We probably don't actually want to just return the database
+        #       object here.
+        # TODO: We need some sort of Anonymous User.
+        return self.db.query(User).get(userid)
+
     def find_userid(self, username):
         try:
             user = (
@@ -46,7 +52,7 @@ class DatabaseLoginService:
         return user.id
 
     def check_password(self, userid, password):
-        user = self.db.query(User).get(userid)
+        user = self.get_user(userid)
         if user is None:
             return False
 
