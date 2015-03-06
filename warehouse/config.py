@@ -18,6 +18,24 @@ from tzf.pyramid_yml import config_defaults
 from warehouse.utils.static import WarehouseCacheBuster
 
 
+def content_security_policy_tween_factory(handler, registry):
+    policy = registry.settings.get("csp", {})
+    policy = "; ".join([" ".join([k] + v) for k, v in sorted(policy.items())])
+
+    def content_security_policy_tween(request):
+        resp = handler(request)
+
+        # We don't want to apply our Content Security Policy to the debug
+        # toolbar, that's not part of our application and it doesn't work with
+        # our restrictive CSP.
+        if not request.path.startswith("/_debug_toolbar/"):
+            resp.headers["Content-Security-Policy"] = policy
+
+        return resp
+
+    return content_security_policy_tween
+
+
 def configure(settings=None):
     if settings is None:
         settings = {}
@@ -85,6 +103,20 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Enable a Content Security Policy
+    config.add_settings({
+        "csp": {
+            "default-src": ["'none'"],
+            "frame-ancestors": ["'none'"],
+            "img-src": ["*"],
+            "referrer": ["cross-origin"],
+            "reflected-xss": ["block"],
+            "script-src": ["'self'"],
+            "style-src": ["'self'"],
+        },
+    })
+    config.add_tween("warehouse.config.content_security_policy_tween_factory")
 
     # Enable Warehouse to service our static files
     config.add_static_view(

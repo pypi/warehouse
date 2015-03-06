@@ -18,6 +18,50 @@ import pytest
 from warehouse import config
 
 
+class TestCSPTween:
+
+    def test_csp_policy(self):
+        response = pretend.stub(headers={})
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub(
+            settings={
+                "csp": {
+                    "default-src": ["*"],
+                    "style-src": ["'self'", "example.net"],
+                },
+            },
+        )
+
+        tween = config.content_security_policy_tween_factory(handler, registry)
+
+        request = pretend.stub(path="/project/foobar/")
+
+        assert tween(request) is response
+        assert response.headers == {
+            "Content-Security-Policy":
+                "default-src *; style-src 'self' example.net",
+        }
+
+    def test_csp_policy_debug_disables(self):
+        response = pretend.stub(headers={})
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub(
+            settings={
+                "csp": {
+                    "default-src": ["*"],
+                    "style-src": ["'self'", "example.net"],
+                },
+            },
+        )
+
+        tween = config.content_security_policy_tween_factory(handler, registry)
+
+        request = pretend.stub(path="/_debug_toolbar/foo/")
+
+        assert tween(request) is response
+        assert response.headers == {}
+
+
 @pytest.mark.parametrize(
     "settings",
     [
@@ -38,6 +82,7 @@ def test_configure(monkeypatch, settings):
         add_settings=pretend.call_recorder(
             lambda d: configurator_settings.update(d)
         ),
+        add_tween=pretend.call_recorder(lambda tween_factory: None),
         add_static_view=pretend.call_recorder(
             lambda name, path, cachebust: None
         ),
@@ -94,10 +139,24 @@ def test_configure(monkeypatch, settings):
     ]
     assert configurator_obj.add_settings.calls == [
         pretend.call({"tm.manager_hook": mock.ANY}),
+        pretend.call({
+            "csp": {
+                "default-src": ["'none'"],
+                "frame-ancestors": ["'none'"],
+                "img-src": ["*"],
+                "referrer": ["cross-origin"],
+                "reflected-xss": ["block"],
+                "script-src": ["'self'"],
+                "style-src": ["'self'"],
+            },
+        }),
     ]
     add_settings_dict = configurator_obj.add_settings.calls[0].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
+    assert configurator_obj.add_tween.calls == [
+        pretend.call("warehouse.config.content_security_policy_tween_factory"),
+    ]
     assert configurator_obj.add_static_view.calls == [
         pretend.call(
             name="static",
