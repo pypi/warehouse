@@ -74,7 +74,12 @@ class TestCSPTween:
 def test_configure(monkeypatch, settings):
     configurator_settings = {}
     configurator_obj = pretend.stub(
-        registry=pretend.stub(settings={"pyramid.reload_assets": False}),
+        registry=pretend.stub(
+            settings={
+                "camo.url": "http://camo.example.com/",
+                "pyramid.reload_assets": False,
+            },
+        ),
         include=pretend.call_recorder(lambda include: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
@@ -143,7 +148,11 @@ def test_configure(monkeypatch, settings):
             "csp": {
                 "default-src": ["'none'"],
                 "frame-ancestors": ["'none'"],
-                "img-src": ["*"],
+                "img-src": [
+                    "'self'",
+                    "http://camo.example.com/",
+                    "https://secure.gravatar.com",
+                ],
                 "referrer": ["cross-origin"],
                 "reflected-xss": ["block"],
                 "script-src": ["'self'"],

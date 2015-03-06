@@ -29,7 +29,8 @@ def content_security_policy_tween_factory(handler, registry):
         # toolbar, that's not part of our application and it doesn't work with
         # our restrictive CSP.
         if not request.path.startswith("/_debug_toolbar/"):
-            resp.headers["Content-Security-Policy"] = policy
+            resp.headers["Content-Security-Policy"] = \
+                policy.format(request=request)
 
         return resp
 
@@ -109,7 +110,11 @@ def configure(settings=None):
         "csp": {
             "default-src": ["'none'"],
             "frame-ancestors": ["'none'"],
-            "img-src": ["*"],
+            "img-src": [
+                "'self'",
+                config.registry.settings["camo.url"],
+                "https://secure.gravatar.com",
+            ],
             "referrer": ["cross-origin"],
             "reflected-xss": ["block"],
             "script-src": ["'self'"],
