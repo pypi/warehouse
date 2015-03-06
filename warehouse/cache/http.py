@@ -40,7 +40,8 @@ def cache_control(seconds, public=True):
         def wrapped(context, request):
             response = view(context, request)
 
-            if not request.registry.settings.get("prevent_http_cache", False):
+            if not request.registry.settings.get(
+                    "pyramid.prevent_http_cache", False):
                 if seconds:
                     if public:
                         response.cache_control.public = True

@@ -115,7 +115,9 @@ class TestCacheControl:
     def test_bypass_cache(self):
         response_obj = pretend.stub()
         request_obj = pretend.stub(
-            registry=pretend.stub(settings={"prevent_http_cache": True}),
+            registry=pretend.stub(
+                settings={"pyramid.prevent_http_cache": True},
+            ),
         )
         context_obj = pretend.stub()
 

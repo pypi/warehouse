@@ -35,3 +35,4 @@ configurator:
   pyramid:
     reload_assets: True
     reload_templates: True
+    prevent_http_cache: True
