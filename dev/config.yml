@@ -12,6 +12,10 @@ configurator:
     secret: "an insecure development secret"
     url: "redis://redis:6379/0"
 
+  camo:
+    key: "insecure camo key"
+    url: "{request.scheme}://{request.domain}:9000/"
+
   debugtoolbar:
     hosts:
       - 0.0.0.0/0

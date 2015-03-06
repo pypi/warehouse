@@ -39,6 +39,9 @@ def _camo_url(camo_url, camo_key, url):
 def readme_renderer(ctx, value, *, format):
     request = ctx.get("request") or get_current_request()
 
+    camo_url = request.registry.settings["camo.url"].format(request=request)
+    camo_key = request.registry.settings["camo.key"]
+
     # The format parameter is here so we can more easily expand this to cover
     # READMEs which do not use restructuredtext, but for now rst is the only
     # format we support.
@@ -55,21 +58,18 @@ def readme_renderer(ctx, value, *, format):
 
     # Parse the rendered output and replace any inline images that don't point
     # to HTTPS with camouflaged images.
-    camo_url = request.registry.settings.get("camo.url")
-    camo_key = request.registry.settings.get("camo.key")
-    if camo_url is not None and camo_key is not None:
-        tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
-        parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
-        dom = parser.parse(value)
+    tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
+    parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
+    dom = parser.parse(value)
 
-        for element in dom.getElementsByTagName("img"):
-            src = element.getAttribute("src")
-            if src:
-                element.setAttribute("src", _camo_url(camo_url, camo_key, src))
+    for element in dom.getElementsByTagName("img"):
+        src = element.getAttribute("src")
+        if src:
+            element.setAttribute("src", _camo_url(camo_url, camo_key, src))
 
-        tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-        html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
-        value = "".join(html_serializer.serialize(tree_walker(dom)))
+    tree_walker = html5lib.treewalkers.getTreeWalker("dom")
+    html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
+    value = "".join(html_serializer.serialize(tree_walker(dom)))
 
     return jinja2.Markup(value)
 

@@ -37,7 +37,16 @@ class TestReadmeRender:
             readme.rst, "render", lambda raw: ("rendered", True)
         )
 
-        ctx = {"request": pretend.stub(registry=pretend.stub(settings={}))}
+        ctx = {
+            "request": pretend.stub(
+                registry=pretend.stub(
+                    settings={
+                        "camo.url": "https://camo.example.net/",
+                        "camo.key": "fake key",
+                    },
+                ),
+            ),
+        }
 
         result = filters.readme_renderer(ctx, "raw thing", format="rst")
 
@@ -48,7 +57,16 @@ class TestReadmeRender:
             readme.rst, "render", lambda raw: ("unrendered\nthing", False)
         )
 
-        ctx = {"request": pretend.stub(registry=pretend.stub(settings={}))}
+        ctx = {
+            "request": pretend.stub(
+                registry=pretend.stub(
+                    settings={
+                        "camo.url": "https://camo.example.net/",
+                        "camo.key": "fake key",
+                    },
+                ),
+            ),
+        }
 
         result = filters.readme_renderer(ctx, "raw thing", format="rst")
 
