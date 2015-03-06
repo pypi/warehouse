@@ -67,6 +67,8 @@ def database(request, postgresql_proc):
 def app_config(database):
     config = configure(
         settings={
+            "camo.url": "http://localhost:9000/",
+            "camo.key": "insecure key",
             "database.url": database,
             "download_stats.url": "redis://localhost:0/",
             "sessions.secret": "123456",

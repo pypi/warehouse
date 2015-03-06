@@ -4,6 +4,15 @@ db:
 redis:
   image: redis:latest
 
+camo:
+  build: dev/camo
+  command: node server.js
+  ports:
+    - "9000:9000"
+  environment:
+    PORT: 9000
+    CAMO_KEY: "insecure camo key"
+
 web:
   build: .
   command: warehouse --config dev/config.yml serve -b 0.0.0.0 -w 1 --reload
