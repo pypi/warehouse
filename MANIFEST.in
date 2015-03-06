@@ -9,7 +9,7 @@ recursive-include warehouse/static *.css *.json *.scss *.png
 recursive-include warehouse/templates *.html
 
 exclude Gulpfile.js package.json
-exclude .dockerignore Dockerfile fig.yml
+exclude .dockerignore Dockerfile docker-compose.yml
 
 prune .travis
 prune dev
