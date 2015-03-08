@@ -166,6 +166,41 @@ class Release(db.ModelBase):
         order_by=Classifier.classifier,
     )
 
+    files = orm.relationship(
+        "File",
+        backref="release",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+        order_by=lambda: File.filename,
+    )
+
+
+class File(db.Model):
+
+    __tablename__ = "release_files"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["name", "version"],
+            ["releases.name", "releases.version"],
+            onupdate="CASCADE",
+        ),
+
+        Index("release_files_name_idx", "name"),
+        Index("release_files_name_version_idx", "name", "version"),
+        Index("release_files_packagetype_idx", "packagetype"),
+        Index("release_files_version_idx", "version"),
+    )
+
+    name = Column(Text)
+    version = Column(Text)
+    python_version = Column(Text)
+    packagetype = Column(Text)
+    comment_text = Column(Text)
+    filename = Column(Text, unique=True)
+    md5_digest = Column(Text, unique=True)
+    downloads = Column(Integer, server_default=sql.text("0"))
+    upload_time = Column(DateTime(timezone=False))
+
 
 release_classifiers = Table(
     "release_classifiers",

@@ -23,7 +23,6 @@ from sqlalchemy import (
     UniqueConstraint,
     Boolean, Date, DateTime, Integer, LargeBinary, String, Text,
 )
-from sqlalchemy import sql
 
 from warehouse import db
 
@@ -554,47 +553,6 @@ Index(
     release_dependencies.c.version,
     release_dependencies.c.kind,
 )
-
-
-release_files = Table(
-    "release_files",
-    db.metadata,
-
-    Column("name", Text()),
-    Column("version", Text()),
-    Column("python_version", Text()),
-    Column("packagetype", Text()),
-    Column("comment_text", Text()),
-    Column("filename", Text()),
-    Column("md5_digest", Text()),
-    Column("downloads", Integer(), server_default=sql.text("0")),
-    Column("upload_time", DateTime(timezone=False)),
-
-    ForeignKeyConstraint(
-        ["name", "version"],
-        ["releases.name", "releases.version"],
-        onupdate="CASCADE",
-    ),
-
-    UniqueConstraint("filename", name="release_files_filename_key"),
-    UniqueConstraint("md5_digest", name="release_files_md5_digest_key"),
-)
-
-
-Index("release_files_name_idx", release_files.c.name)
-
-
-Index(
-    "release_files_name_version_idx",
-    release_files.c.name,
-    release_files.c.version,
-)
-
-
-Index("release_files_packagetype_idx", release_files.c.packagetype)
-
-
-Index("release_files_version_idx", release_files.c.version)
 
 
 release_requires_python = Table(
