@@ -12,8 +12,8 @@
 
 from citext import CIText
 from sqlalchemy import (
-    CheckConstraint, Column, ForeignKey, ForeignKeyConstraint, Index, Boolean,
-    DateTime, Integer, Table, Text,
+    CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
+    Boolean, DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
@@ -194,7 +194,12 @@ class File(db.Model):
     name = Column(Text)
     version = Column(Text)
     python_version = Column(Text)
-    packagetype = Column(Text)
+    packagetype = Column(
+        Enum(
+            "bdist_dmg", "bdist_dumb", "bdist_egg", "bdist_msi", "bdist_rpm",
+            "bdist_wheel", "bdist_wininst", "sdist",
+        ),
+    )
     comment_text = Column(Text)
     filename = Column(Text, unique=True)
     md5_digest = Column(Text, unique=True)
