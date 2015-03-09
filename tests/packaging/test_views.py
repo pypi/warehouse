@@ -10,10 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os.path
+
+import fs.errors
+import fs.memoryfs
 import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from webob import datetime_utils
 
 from warehouse.packaging import views
 
@@ -163,3 +168,138 @@ class TestReleaseDetail:
                 "monthly": monthly_stats,
             },
         }
+
+
+class TestPackages:
+
+    def test_404_when_no_file(self, db_request):
+        db_request.matchdict["path"] = "source/f/foo/foo-1.0.tar.gz"
+
+        with pytest.raises(HTTPNotFound):
+            views.packages(db_request)
+
+    def test_404_when_no_sig(self, db_request, pyramid_config):
+        pyramid_config.registry["filesystems"] = {
+            "packages": pretend.stub(exists=lambda p: False),
+        }
+
+        project = ProjectFactory.create(session=db_request.db)
+        release = ReleaseFactory.create(session=db_request.db, project=project)
+        file_ = FileFactory.create(
+            session=db_request.db,
+            release=release,
+            filename="{}-{}.tar.gz".format(project.name, release.version),
+            python_version="source",
+        )
+
+        db_request.matchdict["path"] = "source/{}/{}/{}.asc".format(
+            project.name[0], project.name, file_.filename
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.packages(db_request)
+
+    def test_404_when_missing_file(self, db_request, pyramid_config):
+        @pretend.call_recorder
+        def opener(path, mode):
+            raise fs.errors.ResourceNotFoundError
+
+        pyramid_config.registry["filesystems"] = {
+            "packages": pretend.stub(open=opener),
+        }
+
+        project = ProjectFactory.create(session=db_request.db)
+        release = ReleaseFactory.create(session=db_request.db, project=project)
+        file_ = FileFactory.create(
+            session=db_request.db,
+            release=release,
+            filename="{}-{}.tar.gz".format(project.name, release.version),
+            python_version="source",
+        )
+
+        path = "source/{}/{}/{}".format(
+            project.name[0], project.name, file_.filename
+        )
+
+        db_request.matchdict["path"] = path
+
+        with pytest.raises(HTTPNotFound):
+            views.packages(db_request)
+
+        assert opener.calls == [pretend.call(path, mode="rb")]
+
+    def test_serves_package_file(self, db_request, pyramid_config):
+        memfs = fs.memoryfs.MemoryFS()
+
+        pyramid_config.registry["filesystems"] = {"packages": memfs}
+
+        project = ProjectFactory.create(session=db_request.db)
+        release = ReleaseFactory.create(session=db_request.db, project=project)
+        file_ = FileFactory.create(
+            session=db_request.db,
+            release=release,
+            filename="{}-{}.tar.gz".format(project.name, release.version),
+            python_version="source",
+        )
+
+        path = "source/{}/{}/{}".format(
+            project.name[0], project.name, file_.filename
+        )
+
+        memfs.makedir(os.path.dirname(path), recursive=True)
+        memfs.setcontents(path, b"some data for the fake file")
+
+        db_request.matchdict["path"] = path
+
+        resp = views.packages(db_request)
+
+        # We want to roundtrip our upload_time
+        last_modified = datetime_utils.parse_date(
+            datetime_utils.serialize_date(file_.upload_time)
+        )
+
+        assert resp.content_type == "application/octet-stream"
+        assert resp.content_encoding is None
+        assert resp.etag == file_.md5_digest
+        assert resp.last_modified == last_modified
+        assert resp.content_length == 27
+        # This needs to be last, as accessing resp.body sets the content_length
+        assert resp.body == b"some data for the fake file"
+
+    def test_serves_signature_file(self, db_request, pyramid_config):
+        memfs = fs.memoryfs.MemoryFS()
+
+        pyramid_config.registry["filesystems"] = {"packages": memfs}
+
+        project = ProjectFactory.create(session=db_request.db)
+        release = ReleaseFactory.create(session=db_request.db, project=project)
+        file_ = FileFactory.create(
+            session=db_request.db,
+            release=release,
+            filename="{}-{}.tar.gz".format(project.name, release.version),
+            python_version="source",
+        )
+
+        path = "source/{}/{}/{}.asc".format(
+            project.name[0], project.name, file_.filename
+        )
+
+        memfs.makedir(os.path.dirname(path), recursive=True)
+        memfs.setcontents(path, b"some data for the fake file")
+
+        db_request.matchdict["path"] = path
+
+        resp = views.packages(db_request)
+
+        # We want to roundtrip our upload_time
+        last_modified = datetime_utils.parse_date(
+            datetime_utils.serialize_date(file_.upload_time)
+        )
+
+        assert resp.content_type == "application/octet-stream"
+        assert resp.content_encoding is None
+        assert resp.etag == file_.md5_digest
+        assert resp.last_modified == last_modified
+        assert resp.content_length is None
+        # This needs to be last, as accessing resp.body sets the content_length
+        assert resp.body == b"some data for the fake file"
