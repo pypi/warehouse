@@ -229,10 +229,25 @@ class File(db.Model):
             self.filename,
         )
 
+    @hybrid_property
+    def pgp_path(self):
+        return self.path + ".asc"
+
+    @pgp_path.expression
+    def pgp_path(self):
+        return func.concat(self.path, ".asc")
+
+    @property
+    def has_pgp_signature(self):
+        # TODO: Move this into the database and elimnate the use of the
+        #       threadlocal here.
+        registry = get_current_registry()
+        return registry["filesystems"]["packages"].exists(self.pgp_path)
+
     @property
     def size(self):
         # TODO: Move this into the database and eliminate the use of the
-        #       threadlocals here.
+        #       threadlocal here.
         registry = get_current_registry()
         try:
             return registry["filesystems"]["packages"].getsize(self.path)
