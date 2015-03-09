@@ -23,9 +23,63 @@
   </header>
 
   <div>
-    <article class="description">
-      {{ release.description|readme(format="rst") }}
-    </article>
+    <div class="content">
+      <article class="description">
+        {{ release.description|readme(format="rst") }}
+      </article>
+
+      {% if files %}
+      <aside class="files">
+        <h2 class="sr-only">{{ _('Files') }}</h2>
+        <table>
+          <tr>
+            <th>{{ _('File') }}</th>
+            <th>{{ _('Type') }}</th>
+            <th>{{ _('Python Version') }}</th>
+            <th>{{ _('Uploaded On') }}</th>
+            <th>{{ _('Size') }}</th>
+          </tr>
+          {% for file in files %}
+          <tr>
+            <td>
+              <a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>
+              (<a href="">{{ _('hash') }}</a>)
+              {% if file.has_pgp_signature %}(<a href="{{ request.route_path('packaging.file', path=file.pgp_path) }}">pgp</a>){% endif %}
+            </td>
+            <td>
+              {# TODO: This should ideally be part of an enum somewhere or
+                       otherwise defined somewhere other than a big if else
+                       chain inside of a template
+              #}
+              {% if file.packagetype == "bdist_dmg" %}
+                OSX Disk Image
+              {% elif file.packagetype == "bdist_dumb" %}
+                "Dumb" Binary
+              {% elif file.packagetype == "bdist_egg" %}
+                Egg
+              {% elif file.packagetype == "bdist_msi" %}
+                Windows MSI Installer
+              {% elif file.packagetype == "bdist_rpm" %}
+                RPM
+              {% elif file.packagetype == "bdist_wheel" %}
+                Wheel
+              {% elif file.packagetype == "bdist_wininst" %}
+                Windows Installer
+              {% elif file.packagetype == "sdist" %}
+                Source
+              {% else %}
+                {[ file.packagetype ]}
+              {% endif %}
+            </td>
+            <td>{% if file.python_version != "source" %}{{ file.python_version }}{% endif %}</td>
+            <td>{{ file.upload_time|format_date() }}</td>
+            <td>{{ file.size|filesizeformat() }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </aside>
+      {% endif %}
+    </div>
 
     <aside class="metadata">
       <h2 class="sr-only">{{ _('Project Information') }}</h2>

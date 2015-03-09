@@ -35,3 +35,4 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
     )
+    config.add_route("packaging.file", "/packages/{path:.*}")
