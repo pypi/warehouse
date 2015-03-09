@@ -3,7 +3,7 @@
   @include outer-container;
 
   .detail-header { @include span-columns(12); }
-  .description { @include span-columns(9); }
+  .content { @include span-columns(9); }
   .metadata { @include span-columns(3); }
 
   .metadata {

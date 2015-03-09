@@ -88,6 +88,7 @@ def release_detail(release, request):
     return {
         "project": project,
         "release": release,
+        "files": release.files.all(),
         "all_releases": all_releases,
         "maintainers": maintainers,
         "download_stats": {

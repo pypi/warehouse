@@ -16,6 +16,9 @@ configurator:
     key: "insecure camo key"
     url: "{request.scheme}://{request.domain}:9000/"
 
+  dirs:
+    packages: /app/data/packages/
+
   debugtoolbar:
     hosts:
       - 0.0.0.0/0

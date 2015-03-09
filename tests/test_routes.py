@@ -46,4 +46,5 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
         ),
+        pretend.call("packaging.file", "/packages/{path:.*}"),
     ]

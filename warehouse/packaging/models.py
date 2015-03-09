@@ -10,14 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import fs.errors
+
 from citext import CIText
+from pyramid.threadlocal import get_current_registry
 from sqlalchemy import (
-    CheckConstraint, Column, ForeignKey, ForeignKeyConstraint, Index, Boolean,
-    DateTime, Integer, Table, Text,
+    CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
+    Boolean, DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -165,6 +169,94 @@ class Release(db.ModelBase):
         secondary=lambda: release_classifiers,
         order_by=Classifier.classifier,
     )
+
+    files = orm.relationship(
+        "File",
+        backref="release",
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+        order_by=lambda: File.filename,
+    )
+
+
+class File(db.Model):
+
+    __tablename__ = "release_files"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["name", "version"],
+            ["releases.name", "releases.version"],
+            onupdate="CASCADE",
+        ),
+
+        Index("release_files_name_idx", "name"),
+        Index("release_files_name_version_idx", "name", "version"),
+        Index("release_files_packagetype_idx", "packagetype"),
+        Index("release_files_version_idx", "version"),
+    )
+
+    name = Column(Text)
+    version = Column(Text)
+    python_version = Column(Text)
+    packagetype = Column(
+        Enum(
+            "bdist_dmg", "bdist_dumb", "bdist_egg", "bdist_msi", "bdist_rpm",
+            "bdist_wheel", "bdist_wininst", "sdist",
+        ),
+    )
+    comment_text = Column(Text)
+    filename = Column(Text, unique=True)
+    md5_digest = Column(Text, unique=True)
+    downloads = Column(Integer, server_default=sql.text("0"))
+    upload_time = Column(DateTime(timezone=False))
+
+    @hybrid_property
+    def path(self):
+        return "/".join([
+            self.python_version,
+            self.name[0],
+            self.name,
+            self.filename,
+        ])
+
+    @path.expression
+    def path(self):
+        return func.concat_ws(
+            "/",
+            self.python_version,
+            func.substring(self.name, 1, 1),
+            self.name,
+            self.filename,
+        )
+
+    @hybrid_property
+    def pgp_path(self):
+        return self.path + ".asc"
+
+    @pgp_path.expression
+    def pgp_path(self):
+        return func.concat(self.path, ".asc")
+
+    @property
+    def has_pgp_signature(self):
+        # TODO: Move this into the database and elimnate the use of the
+        #       threadlocal here.
+        registry = get_current_registry()
+        return registry["filesystems"]["packages"].exists(self.pgp_path)
+
+    @property
+    def size(self):
+        # TODO: Move this into the database and eliminate the use of the
+        #       threadlocal here.
+        registry = get_current_registry()
+        try:
+            return registry["filesystems"]["packages"].getsize(self.path)
+        except fs.errors.ResourceNotFoundError:
+            # When running locally we probably don't have the files laying
+            # around, in addition it's a sad fact that there are currently
+            # some projects which have missing files. Once the size is moved
+            # into the database this should no longer be an issue.
+            return 0
 
 
 release_classifiers = Table(
