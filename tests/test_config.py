@@ -12,6 +12,7 @@
 
 from unittest import mock
 
+import fs.opener
 import pretend
 import pytest
 
@@ -72,14 +73,21 @@ class TestCSPTween:
     ],
 )
 def test_configure(monkeypatch, settings):
-    configurator_settings = {}
-    configurator_obj = pretend.stub(
-        registry=pretend.stub(
-            settings={
+    fs_obj = pretend.stub()
+    opener = pretend.call_recorder(lambda path, create_dir: fs_obj)
+    monkeypatch.setattr(fs.opener, "fsopendir", opener)
+
+    class FakeRegistry(dict):
+        def __init__(self):
+            self.settings = {
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
-            },
-        ),
+                "dirs.packages": "/srv/data/pypi/packages/",
+            }
+
+    configurator_settings = {}
+    configurator_obj = pretend.stub(
+        registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
@@ -166,6 +174,7 @@ def test_configure(monkeypatch, settings):
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.content_security_policy_tween_factory"),
     ]
+    assert configurator_obj.registry["filesystems"] == {"packages": fs_obj}
     assert configurator_obj.add_static_view.calls == [
         pretend.call(
             name="static",
@@ -178,4 +187,7 @@ def test_configure(monkeypatch, settings):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env"]),
+    ]
+    assert opener.calls == [
+        pretend.call("/srv/data/pypi/packages/", create_dir=True),
     ]

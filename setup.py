@@ -69,6 +69,7 @@ setuptools.setup(
         "Babel",
         "bcrypt",
         "click",
+        "fs",
         "gunicorn",
         "hiredis",
         "html5lib",

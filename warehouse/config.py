@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import fs.opener
 import transaction
 
 from pyramid.config import Configurator
@@ -122,6 +123,15 @@ def configure(settings=None):
         },
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
+
+    # Configure the filesystems we use.
+    config.registry["filesystems"] = {}
+    for key, path in {
+            k[5:]: v
+            for k, v in config.registry.settings.items()
+            if k.startswith("dirs.")}.items():
+        config.registry["filesystems"][key] = \
+            fs.opener.fsopendir(path, create_dir=True)
 
     # Enable Warehouse to service our static files
     config.add_static_view(
