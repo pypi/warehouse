@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import fs.errors
+
 from citext import CIText
+from pyramid.threadlocal import get_current_registry
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
     Boolean, DateTime, Integer, Table, Text,
@@ -18,6 +21,7 @@ from sqlalchemy import (
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -205,6 +209,39 @@ class File(db.Model):
     md5_digest = Column(Text, unique=True)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False))
+
+    @hybrid_property
+    def path(self):
+        return "/".join([
+            self.python_version,
+            self.name[0],
+            self.name,
+            self.filename,
+        ])
+
+    @path.expression
+    def path(self):
+        return func.concat_ws(
+            "/",
+            self.python_version,
+            func.substring(self.name, 1, 1),
+            self.name,
+            self.filename,
+        )
+
+    @property
+    def size(self):
+        # TODO: Move this into the database and eliminate the use of the
+        #       threadlocals here.
+        registry = get_current_registry()
+        try:
+            return registry["filesystems"]["packages"].getsize(self.path)
+        except fs.errors.ResourceNotFoundError:
+            # When running locally we probably don't have the files laying
+            # around, in addition it's a sad fact that there are currently
+            # some projects which have missing files. Once the size is moved
+            # into the database this should no longer be an issue.
+            return 0
 
 
 release_classifiers = Table(
