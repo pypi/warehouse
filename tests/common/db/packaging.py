@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import hashlib
 import re
 
 import factory
@@ -45,6 +47,12 @@ class FileFactory(WarehouseFactory):
         model = File
 
     release = factory.SubFactory(ReleaseFactory)
+    md5_digest = factory.LazyAttribute(
+        lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
+    )
+    upload_time = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2008, 1, 1)
+    )
 
 
 class RoleFactory(WarehouseFactory):
