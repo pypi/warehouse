@@ -15,7 +15,7 @@ import re
 import factory
 import factory.fuzzy
 
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.models import Project, Release, Role, File
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
@@ -38,6 +38,13 @@ class ReleaseFactory(WarehouseFactory):
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")
     _pypi_ordering = factory.Sequence(lambda n: n)
+
+
+class FileFactory(WarehouseFactory):
+    class Meta:
+        model = File
+
+    release = factory.SubFactory(ReleaseFactory)
 
 
 class RoleFactory(WarehouseFactory):

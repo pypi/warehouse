@@ -18,7 +18,9 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from warehouse.packaging import views
 
 from ..common.db.accounts import UserFactory
-from ..common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+from ..common.db.packaging import (
+    ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
+)
 
 
 class TestProjectDetail:
@@ -111,6 +113,15 @@ class TestReleaseDetail:
             )
             for v in ["1.0", "2.0", "3.0"]
         ]
+        files = [
+            FileFactory.create(
+                session=db_request.db,
+                release=r,
+                filename="{}-{}.tar.gz".format(project.name, r.version),
+                python_version="source",
+            )
+            for r in releases
+        ]
 
         # Create a role for each user
         for user in users:
@@ -141,6 +152,7 @@ class TestReleaseDetail:
         assert result == {
             "project": project,
             "release": releases[1],
+            "files": [files[1]],
             "all_releases": [
                 (r.version, r.created) for r in reversed(releases)
             ],
