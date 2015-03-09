@@ -43,7 +43,6 @@
           <tr>
             <td>
               <a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-              (<a href="">{{ _('hash') }}</a>)
               {% if file.has_pgp_signature %}(<a href="{{ request.route_path('packaging.file', path=file.pgp_path) }}">pgp</a>){% endif %}
             </td>
             <td>
