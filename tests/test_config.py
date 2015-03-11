@@ -140,6 +140,7 @@ def test_configure(monkeypatch, settings):
     assert result is configurator_obj
     assert configurator_obj.include.calls == [
         pretend.call("tzf.pyramid_yml"),
+        pretend.call(".logging"),
         pretend.call("pyramid_jinja2"),
         pretend.call("pyramid_tm"),
         pretend.call("pyramid_services"),

@@ -1,0 +1,152 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+import logging
+import logging.config
+import uuid
+
+from unittest import mock
+
+import pretend
+import pytest
+import structlog
+import structlog.stdlib
+
+from warehouse import logging as wlogging
+
+
+class TestStructlogFormatter:
+
+    def test_warehouse_logger_no_renderer(self):
+        formatter = wlogging.StructlogFormatter()
+        record = logging.LogRecord(
+            "warehouse.request",
+            logging.INFO,
+            None, None, "the message", None, None,
+        )
+
+        assert formatter.format(record) == "the message"
+
+    def test_non_warehouse_logger_renders(self):
+        formatter = wlogging.StructlogFormatter()
+        record = logging.LogRecord(
+            "another.logger",
+            logging.INFO,
+            None, None, "the message", None, None,
+        )
+
+        assert json.loads(formatter.format(record)) == {
+            "logger": "another.logger",
+            "level": "INFO",
+            "event": "the message",
+        }
+
+
+def test_create_id(monkeypatch):
+    uuid4 = pretend.call_recorder(lambda: "a fake uuid")
+    monkeypatch.setattr(uuid, "uuid4", uuid4)
+
+    request = pretend.stub()
+
+    assert wlogging._create_id(request) == "a fake uuid"
+
+
+def test_create_logging(monkeypatch):
+    bound_logger = pretend.stub()
+    logger = pretend.stub(
+        bind=pretend.call_recorder(lambda **kw: bound_logger),
+    )
+    get_logger = pretend.call_recorder(lambda name: logger)
+    monkeypatch.setattr(structlog, "get_logger", get_logger)
+
+    request = pretend.stub(id="request id")
+
+    assert wlogging._create_logger(request) is bound_logger
+    assert get_logger.calls == [pretend.call("warehouse.request")]
+    assert logger.bind.calls == [pretend.call(**{"request.id": "request id"})]
+
+
+@pytest.mark.parametrize(
+    ("settings", "expected_level"),
+    [
+        ({"logging.level": "DEBUG"}, "DEBUG"),
+        ({}, "INFO"),
+    ],
+)
+def test_includeme(monkeypatch, settings, expected_level):
+    dict_config = pretend.call_recorder(lambda c: None)
+    monkeypatch.setattr(logging.config, "dictConfig", dict_config)
+
+    configure = pretend.call_recorder(lambda **kw: None)
+    monkeypatch.setattr(structlog, "configure", configure)
+
+    config = pretend.stub(
+        registry=pretend.stub(settings=settings),
+        add_request_method=pretend.call_recorder(lambda fn, name, reify: None),
+    )
+
+    wlogging.includeme(config)
+
+    assert dict_config.calls == [
+        pretend.call({
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {
+                "structlog": {
+                    "()": "warehouse.logging.StructlogFormatter",
+                },
+            },
+            "handlers": {
+                "primary": {
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                    "formatter": "structlog",
+                },
+            },
+            "root": {
+                "level": expected_level,
+                "handlers": ["primary"],
+            },
+        }),
+    ]
+    assert configure.calls == [
+        pretend.call(
+            processors=[
+                structlog.stdlib.filter_by_level,
+                structlog.stdlib.add_logger_name,
+                structlog.stdlib.add_log_level,
+                mock.ANY,
+                mock.ANY,
+                structlog.processors.format_exc_info,
+                wlogging.RENDERER,
+            ],
+            logger_factory=mock.ANY,
+            wrapper_class=structlog.stdlib.BoundLogger,
+        ),
+    ]
+    assert isinstance(
+        configure.calls[0].kwargs["processors"][3],
+        structlog.stdlib.PositionalArgumentsFormatter,
+    )
+    assert isinstance(
+        configure.calls[0].kwargs["processors"][4],
+        structlog.processors.StackInfoRenderer,
+    )
+    assert isinstance(
+        configure.calls[0].kwargs["logger_factory"],
+        structlog.stdlib.LoggerFactory,
+    )
+    assert config.add_request_method.calls == [
+        pretend.call(wlogging._create_id, name="id", reify=True),
+        pretend.call(wlogging._create_logger, name="log", reify=True),
+    ]
