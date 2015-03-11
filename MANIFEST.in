@@ -1,3 +1,6 @@
+include LICENSE
+include README.rst
+
 include .coveragerc tox.ini docs/requirements.txt
 
 recursive-include docs conf.py Makefile *.rst
