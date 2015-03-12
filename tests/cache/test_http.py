@@ -134,8 +134,28 @@ class TestCacheControl:
 
 class TestConditionalHTTPTween:
 
+    def test_has_last_modified(self):
+        response = pretend.stub(
+            last_modified=pretend.stub(),
+            etag=None,
+            conditional_response=False,
+            app_iter=iter([b"foo"]),
+        )
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub()
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert response.conditional_response
+
     def test_explicit_etag(self):
-        response = pretend.stub(etag="foo", conditional_response=False)
+        response = pretend.stub(
+            last_modified=None,
+            etag="foo",
+            conditional_response=False,
+        )
         handler = pretend.call_recorder(lambda request: response)
         request = pretend.stub()
 
@@ -147,6 +167,7 @@ class TestConditionalHTTPTween:
 
     def test_implicit_etag(self):
         response = pretend.stub(
+            last_modified=None,
             etag=None,
             conditional_response=False,
             md5_etag=pretend.call_recorder(lambda: None),
@@ -164,6 +185,7 @@ class TestConditionalHTTPTween:
 
     def test_no_etag(self):
         response = pretend.stub(
+            last_modified=None,
             etag=None,
             conditional_response=False,
             app_iter=iter([b"foo"]),
