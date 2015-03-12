@@ -60,13 +60,17 @@ def cache_control(seconds, public=True):
 
 
 def conditional_http_tween_factory(handler, registry):
-
     def conditional_http_tween(request):
         response = handler(request)
 
-        # We want to only enable the conditional machinery if we were either
-        # given an explicit ETag header by the view, or if we have a buffered
-        # response and can generate the ETag header ourself.
+        # If the Last-Modified header has been set, we want to enable the
+        # conditional response processing.
+        if response.last_modified is not None:
+            response.conditional_response = True
+
+        # We want to only enable the conditional machinery if either we
+        # were given an explicit ETag header by the view or we have a
+        # buffered response and can generate the ETag header ourself.
         if response.etag is not None:
             response.conditional_response = True
         elif (isinstance(response.app_iter, collections.abc.Sequence) and
@@ -75,7 +79,6 @@ def conditional_http_tween_factory(handler, registry):
             response.md5_etag()
 
         return response
-
     return conditional_http_tween
 
 
