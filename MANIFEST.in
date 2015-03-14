@@ -1,3 +1,4 @@
+include CONTRIBUTING.rst
 include LICENSE
 include README.rst
 
