@@ -10,12 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import JournalEntry, Project
+from warehouse.packaging.models import JournalEntry, File, Project, Release
 
 
 @view_config(
@@ -39,3 +40,43 @@ def simple_index(request):
     )
 
     return {"projects": projects}
+
+
+@view_config(
+    route_name="legacy.api.simple.detail",
+    renderer="legacy/api/simple/detail.html",
+    decorator=[
+        cache_control(10 * 60),  # 10 minutes
+        origin_cache(7 * 24 * 60 * 60),   # 7 days
+    ],
+)
+def simple_detail(project, request):
+    # TODO: Handle files which are not hosted on PyPI
+
+    # Make sure that we're using the normalized version of the URL.
+    if (project.normalized_name !=
+            request.matchdict.get("name", project.normalized_name)):
+        return HTTPMovedPermanently(
+            request.current_route_url(name=project.normalized_name),
+        )
+
+    # Get the latest serial number for this project.
+    serial = (
+        request.db.query(func.max(JournalEntry.id))
+                  .filter(JournalEntry.name == project.name)
+                  .scalar()
+    )
+    request.response.headers["X-PyPI-Last-Serial"] = serial or 0
+
+    # Get all of the files for this project.
+    files = (
+        request.db.query(File)
+        .filter(
+            File.name == project.name,
+            File.version.in_(project.releases.with_entities(Release.version))
+        )
+        .order_by(File.filename)
+        .all()
+    )
+
+    return {"project": project, "files": files}
