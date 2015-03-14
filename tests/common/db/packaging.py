@@ -17,7 +17,9 @@ import re
 import factory
 import factory.fuzzy
 
-from warehouse.packaging.models import Project, Release, Role, File
+from warehouse.packaging.models import (
+    Project, Release, Role, File, JournalEntry,
+)
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
@@ -62,3 +64,16 @@ class RoleFactory(WarehouseFactory):
     role_name = "Owner"
     user = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
+
+
+class JournalEntryFactory(WarehouseFactory):
+    class Meta:
+        model = JournalEntry
+
+    id = factory.fuzzy.FuzzyInteger(low=1)
+    name = factory.fuzzy.FuzzyText(length=12)
+    version = factory.Sequence(lambda n: str(n) + ".0")
+    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2008, 1, 1)
+    )
+    submitted_by = factory.SubFactory(UserFactory)

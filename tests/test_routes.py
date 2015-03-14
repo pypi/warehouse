@@ -47,4 +47,11 @@ def test_routes():
             traverse="/{name}/{version}",
         ),
         pretend.call("packaging.file", "/packages/{path:.*}"),
+        pretend.call("legacy.api.simple.index", "/simple/"),
+        pretend.call(
+            "legacy.api.simple.detail",
+            "/simple/{name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/",
+        ),
     ]

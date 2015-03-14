@@ -36,3 +36,12 @@ def includeme(config):
         traverse="/{name}/{version}",
     )
     config.add_route("packaging.file", "/packages/{path:.*}")
+
+    # Legacy URLs
+    config.add_route("legacy.api.simple.index", "/simple/")
+    config.add_route(
+        "legacy.api.simple.detail",
+        "/simple/{name}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/",
+    )

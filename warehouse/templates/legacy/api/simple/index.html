@@ -1,0 +1,11 @@
+<html>
+  <head>
+    <title>{{ _('Simple Index') }}</title>
+    <meta name="api-version" value="2" />
+  </head>
+  <body>
+    {% for project in projects -%}
+    <a href="{{ request.route_path('legacy.api.simple.detail', name=project.normalized_name) }}">{{ project.name }}</a>
+    {% endfor %}
+  </body>
+</html>
