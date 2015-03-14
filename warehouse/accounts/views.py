@@ -47,8 +47,6 @@ def profile(user, request):
 def login(request, _form_class=LoginForm):
     # TODO: If already logged in just redirect to ?next=
     # TODO: Logging in should reset request.user
-    # TODO: Prevent session fixation:
-    #       https://github.com/Pylons/pyramid/pull/1570
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
@@ -112,8 +110,6 @@ def login(request, _form_class=LoginForm):
 def logout(request):
     # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
-    # TODO: Prevent session fixation:
-    #       https://github.com/Pylons/pyramid/pull/1570
 
     if request.method == "POST":
         # A POST to the logout view tells us to logout. There's no form to
