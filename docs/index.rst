@@ -6,6 +6,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   development/index
+   security
    application
    api-reference/index
 

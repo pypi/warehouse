@@ -69,7 +69,7 @@ Package Querying
 ``release_urls(package_name, release_version)``
   Retrieve a list of download URLs for the given `release_version`.
   Returns a list of dicts with the following keys:
-  
+
   * url
   * packagetype ('sdist', 'bdist_wheel', etc)
   * filename
@@ -83,7 +83,7 @@ Package Querying
 ``release_data(package_name, release_version)``
   Retrieve metadata describing a specific `release_version`.
   Returns a dict with keys for:
-  
+
   * name
   * version
   * stable_version (always an empty string)
@@ -109,19 +109,19 @@ Package Querying
   * obsoletes_dist
   * project_url
   * docs_url (URL of the packages.python.org docs if they've been supplied)
-  
+
   If the release does not exist, an empty dictionary is returned.
 
 ``search(spec[, operator])``
   Search the package database using the indicated search `spec`.
 
-  The `spec` may include any of the keywords described in the above list (except
-  'stable_version' and 'classifiers'), for example: {'description': 'spam'}
-  will search description fields. Within the spec, a field's value can be a
-  string or a list of strings (the values within the list are combined with an
-  OR), for example: {'name': ['foo', 'bar']}. Valid keys for the spec dict are
-  listed here. Invalid keys are ignored:
-  
+  The `spec` may include any of the keywords described in the above list
+  (except 'stable_version' and 'classifiers'), for example:
+  {'description': 'spam'} will search description fields. Within the spec, a
+  field's value can be a string or a list of strings (the values within the
+  list are combined with an OR), for example: {'name': ['foo', 'bar']}. Valid
+  keys for the spec dict are listed here. Invalid keys are ignored:
+
   * name
   * version
   * author
