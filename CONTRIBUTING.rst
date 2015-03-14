@@ -1,7 +1,7 @@
 Contributing to Warehouse
 =========================
 
-As an open source project, cryptography welcomes contributions of many forms.
+As an open source project, Warehouse welcomes contributions of many forms.
 
 Examples of contributions include:
 
@@ -12,4 +12,4 @@ Examples of contributions include:
 
 Extensive contribution guidelines are available in the repository at
 ``docs/development/index.rst`` or
-`online <https://warehouse.pypa.io/development/>`_.
+`online <https://warehouse.pypa.io/en/latest/development/>`_.
