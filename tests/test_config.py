@@ -16,6 +16,8 @@ import fs.opener
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPMovedPermanently
+
 from warehouse import config
 
 
@@ -194,5 +196,5 @@ def test_configure(monkeypatch, settings):
         pretend.call("/srv/data/pypi/packages/", create_dir=True),
     ]
     assert configurator_obj.add_notfound_view.calls == [
-        pretend.call(append_slash=True),
+        pretend.call(append_slash=HTTPMovedPermanently),
     ]
