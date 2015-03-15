@@ -96,6 +96,7 @@ def test_configure(monkeypatch, settings):
             lambda d: configurator_settings.update(d)
         ),
         add_tween=pretend.call_recorder(lambda tween_factory: None),
+        add_notfound_view=pretend.call_recorder(lambda append_slash: None),
         add_static_view=pretend.call_recorder(
             lambda name, path, cachebust: None
         ),
@@ -190,4 +191,7 @@ def test_configure(monkeypatch, settings):
     ]
     assert opener.calls == [
         pretend.call("/srv/data/pypi/packages/", create_dir=True),
+    ]
+    assert configurator_obj.add_notfound_view.calls == [
+        pretend.call(append_slash=True),
     ]
