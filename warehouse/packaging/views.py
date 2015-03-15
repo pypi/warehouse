@@ -15,13 +15,14 @@ import fs.errors
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import FileIter, Response
 from pyramid.view import view_config
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.models import Release, File, Role
+from warehouse.packaging.models import Release, File, Role, JournalEntry
 
 
 @view_config(
@@ -137,12 +138,6 @@ def packages(request):
     if path == file_.pgp_path and not file_.has_pgp_signature:
         raise HTTPNotFound
 
-    # We also need to get the X-PyPI-Last-Serial for the project associated
-    # with this file. Bandersnatch (and other mirroring clients) will use this
-    # to determine what kind of action to take if the MD5 hash does not match
-    # what it expected.
-    # TODO: Get the X-PyPI-Last-Serial number for this.
-
     # Try to open the file, streaming if possible, and if this file doesn't
     # exist then we'll return a 404 error. However we'll log an error because
     # if the database thinks we have a file, then a file should exist here.
@@ -164,7 +159,7 @@ def packages(request):
     if path == file_.path:
         content_length = file_.size
 
-    return Response(
+    resp = Response(
         # If we have a wsgi.file_wrapper, we'll want to use that so that, if
         # possible, this will use an optimized method of sending. Otherwise
         # we'll just use Pyramid's FileIter as a fallback.
@@ -190,3 +185,16 @@ def packages(request):
         # they handle downloading this response.
         content_length=content_length,
     )
+
+    # We also need to get the X-PyPI-Last-Serial for the project associated
+    # with this file. Bandersnatch (and other mirroring clients) will use this
+    # to determine what kind of action to take if the MD5 hash does not match
+    # what it expected.
+    serial = (
+        request.db.query(func.max(JournalEntry.id))
+                  .filter(JournalEntry.name == file_.name)
+                  .scalar()
+    )
+    resp.headers["X-PyPI-Last-Serial"] = serial or 0
+
+    return resp

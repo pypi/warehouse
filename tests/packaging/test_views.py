@@ -25,6 +25,7 @@ from warehouse.packaging import views
 from ..common.db.accounts import UserFactory
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
+    JournalEntryFactory,
 )
 
 
@@ -241,6 +242,12 @@ class TestPackages:
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
         )
+        user = UserFactory.create(session=db_request.db)
+        je = JournalEntryFactory.create(
+            session=db_request.db,
+            name=project.name,
+            submitted_by=user.username,
+        )
 
         path = "source/{}/{}/{}".format(
             project.name[0], project.name, file_.filename
@@ -263,6 +270,7 @@ class TestPackages:
         assert resp.etag == file_.md5_digest
         assert resp.last_modified == last_modified
         assert resp.content_length == 27
+        assert resp.headers["X-PyPI-Last-Serial"] == je.id
         # This needs to be last, as accessing resp.body sets the content_length
         assert resp.body == b"some data for the fake file"
 
@@ -278,6 +286,12 @@ class TestPackages:
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
+        )
+        user = UserFactory.create(session=db_request.db)
+        je = JournalEntryFactory.create(
+            session=db_request.db,
+            name=project.name,
+            submitted_by=user.username,
         )
 
         path = "source/{}/{}/{}.asc".format(
@@ -301,5 +315,6 @@ class TestPackages:
         assert resp.etag == file_.md5_digest
         assert resp.last_modified == last_modified
         assert resp.content_length is None
+        assert resp.headers["X-PyPI-Last-Serial"] == je.id
         # This needs to be last, as accessing resp.body sets the content_length
         assert resp.body == b"some data for the fake file"
