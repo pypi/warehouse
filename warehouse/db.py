@@ -14,6 +14,7 @@ import alembic.config
 import sqlalchemy
 import zope.sqlalchemy
 
+from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -55,6 +56,19 @@ class Model(ModelBase):
 _Session = sessionmaker()
 
 
+def read_only(info, request):
+    # We'll mark this request as read-only, latter on when our session gets
+    # created it will look at this and intelligently change the session
+    # to a read only serializable transaction to ensure that we get a
+    # consistent state between multiple transactions.
+    request._db_read_only = True
+
+    # Even though this a route predicate, we're not actually using it for that
+    # so we'll just unconditionally return True because we never want this to
+    # influence whether or not a route matches.
+    return True
+
+
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
@@ -65,8 +79,17 @@ def _configure_alembic(config):
 
 
 def _create_session(request):
+    # Check to see if this request has been marked read only, if it has then
+    # we'll use the read only engine instead of our normal engine. The main
+    # difference being that the read only engine will use transactions that
+    # are set to SERIALIZABLE READ ONLY DEFERRABLE.
+    if getattr(request, "_db_read_only", False):
+        engine = request.registry["sqlalchemy.engine.read_only"]
+    else:
+        engine = request.registry["sqlalchemy.engine"]
+
     # Create our session
-    session = _Session(bind=request.registry["sqlalchemy.engine"])
+    session = _Session(bind=engine)
 
     # Register only this particular session with zope.sqlalchemy
     zope.sqlalchemy.register(session, transaction_manager=request.tm)
@@ -75,13 +98,29 @@ def _create_session(request):
     return session
 
 
+def _set_read_only(conn):
+    conn.execute("SET TRANSACTION READ ONLY DEFERRABLE")
+
+
 def includeme(config):
     # Add a directive to get an alembic configuration.
     config.add_directive("alembic_config", _configure_alembic)
 
-    # Create our SQLAlchemy Engine.
+    # Create our SQLAlchemy connection pool and engines.
     config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
         config.registry.settings["database.url"],
+    )
+    config.registry["sqlalchemy.engine.read_only"] = sqlalchemy.create_engine(
+        config.registry.settings["database.url"],
+        isolation_level="SERIALIZABLE",
+        # We want to re-use the connection pool from the primary engine.
+        pool=config.registry["sqlalchemy.engine"].pool,
+    )
+
+    event.listen(
+        config.registry["sqlalchemy.engine.read_only"],
+        "begin",
+        _set_read_only,
     )
 
     # Register our request.db property
