@@ -82,6 +82,7 @@ def includeme(config):
     # Create our SQLAlchemy Engine.
     config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
         config.registry.settings["database.url"],
+        isolation_level="SERIALIZABLE",
     )
 
     # Register our request.db property

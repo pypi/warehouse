@@ -82,7 +82,7 @@ def test_includeme(monkeypatch):
         settings = {"database.url": pretend.stub()}
 
     engine = pretend.stub()
-    create_engine = pretend.call_recorder(lambda url: engine)
+    create_engine = pretend.call_recorder(lambda url, isolation_level: engine)
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda *a: None),
         registry=FakeRegistry(),
@@ -97,7 +97,10 @@ def test_includeme(monkeypatch):
         pretend.call("alembic_config", _configure_alembic),
     ]
     assert create_engine.calls == [
-        pretend.call(config.registry.settings["database.url"]),
+        pretend.call(
+            config.registry.settings["database.url"],
+            isolation_level="SERIALIZABLE",
+        ),
     ]
     assert config.registry["sqlalchemy.engine"] is engine
     assert config.add_request_method.calls == [
