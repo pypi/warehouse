@@ -75,8 +75,13 @@ def conditional_http_tween_factory(handler, registry):
             response.conditional_response = True
         elif (isinstance(response.app_iter, collections.abc.Sequence) and
                 len(response.app_iter) == 1):
-            response.conditional_response = True
-            response.md5_etag()
+            # We can only reasonably implement automatic ETags on 200 responses
+            # to GET or HEAD requests. The subtles of doing it in other cases
+            # are too hard to get right.
+            if (request.method in {"GET", "HEAD"} and
+                    response.status_code == 200):
+                response.conditional_response = True
+                response.md5_etag()
 
         return response
     return conditional_http_tween
