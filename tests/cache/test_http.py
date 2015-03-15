@@ -165,16 +165,18 @@ class TestConditionalHTTPTween:
         assert handler.calls == [pretend.call(request)]
         assert response.conditional_response
 
-    def test_implicit_etag(self):
+    @pytest.mark.parametrize("method", ["GET", "HEAD"])
+    def test_implicit_etag(self, method):
         response = pretend.stub(
             last_modified=None,
             etag=None,
             conditional_response=False,
             md5_etag=pretend.call_recorder(lambda: None),
             app_iter=[b"foo"],
+            status_code=200,
         )
         handler = pretend.call_recorder(lambda request: response)
-        request = pretend.stub()
+        request = pretend.stub(method=method)
 
         tween = conditional_http_tween_factory(handler, pretend.stub())
 
@@ -182,6 +184,46 @@ class TestConditionalHTTPTween:
         assert handler.calls == [pretend.call(request)]
         assert response.conditional_response
         assert response.md5_etag.calls == [pretend.call()]
+
+    @pytest.mark.parametrize("method", ["GET", "HEAD"])
+    def test_no_implicit_etag_no_200(self, method):
+        response = pretend.stub(
+            last_modified=None,
+            etag=None,
+            conditional_response=False,
+            md5_etag=pretend.call_recorder(lambda: None),
+            app_iter=[b"foo"],
+            status_code=201,
+        )
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub(method=method)
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert not response.conditional_response
+        assert response.md5_etag.calls == []
+
+    @pytest.mark.parametrize("method", ["POST", "PUT"])
+    def test_no_implicit_etag_wrong_method(self, method):
+        response = pretend.stub(
+            last_modified=None,
+            etag=None,
+            conditional_response=False,
+            md5_etag=pretend.call_recorder(lambda: None),
+            app_iter=[b"foo"],
+            status_code=200,
+        )
+        handler = pretend.call_recorder(lambda request: response)
+        request = pretend.stub(method=method)
+
+        tween = conditional_http_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert not response.conditional_response
+        assert response.md5_etag.calls == []
 
     def test_no_etag(self):
         response = pretend.stub(
