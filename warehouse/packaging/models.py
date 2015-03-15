@@ -278,3 +278,41 @@ release_classifiers = Table(
     Index("rel_class_trove_id_idx", "trove_id"),
     Index("rel_class_version_id_idx", "version"),
 )
+
+
+class JournalEntry(db.ModelBase):
+
+    __tablename__ = "journals"
+
+    @declared_attr
+    def __table_args__(cls):  # noqa
+        return (
+            Index(
+                "journals_changelog",
+                "submitted_date", "name", "version", "action",
+            ),
+            Index("journals_id_idx", "id"),
+            Index("journals_name_idx", "name"),
+            Index("journals_version_idx", "version"),
+            Index(
+                "journals_latest_releases",
+                "submitted_date", "name", "version",
+                postgresql_where=(
+                    (cls.version != None) & (cls.action == "new release")  # noqa
+                ),
+            ),
+        )
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    name = Column(Text)
+    version = Column(Text)
+    action = Column(Text)
+    submitted_date = Column(DateTime(timezone=False))
+    submitted_by = Column(
+        CIText,
+        ForeignKey(
+            "accounts_user.username",
+            onupdate="CASCADE",
+        ),
+    )
+    submitted_from = Column(Text)

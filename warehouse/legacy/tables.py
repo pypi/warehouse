@@ -229,58 +229,6 @@ file_registry = Table(
 )
 
 
-journals = Table(
-    "journals",
-    db.metadata,
-
-    Column("id", Integer(), primary_key=True, nullable=False),
-    Column("name", Text()),
-    Column("version", Text()),
-    Column("action", Text()),
-    Column("submitted_date", DateTime(timezone=False)),
-    Column(
-        "submitted_by",
-        CIText(),
-        ForeignKey(
-            "accounts_user.username",
-            onupdate="CASCADE",
-        ),
-    ),
-    Column("submitted_from", Text()),
-)
-
-
-Index(
-    "journals_changelog",
-
-    journals.c.submitted_date,
-    journals.c.name,
-    journals.c.version,
-    journals.c.action,
-)
-
-
-Index("journals_id_idx", journals.c.id)
-
-
-Index(
-    "journals_latest_releases",
-
-    journals.c.submitted_date,
-    journals.c.name,
-    journals.c.version,
-    postgresql_where=(
-        (journals.c.version != None) & (journals.c.action == "new release")  # noqa
-    ),
-)
-
-
-Index("journals_name_idx", journals.c.name)
-
-
-Index("journals_version_idx", journals.c.version)
-
-
 mirrors = Table(
     "mirrors",
     db.metadata,
