@@ -143,6 +143,7 @@ def test_configure(monkeypatch, settings):
         pretend.call(".csrf"),
         pretend.call(".accounts"),
         pretend.call(".packaging"),
+        pretend.call(".redirects"),
         pretend.call(".routes"),
     ]
     assert configurator_obj.add_jinja2_renderer.calls == [

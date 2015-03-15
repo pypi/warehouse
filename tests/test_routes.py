@@ -22,6 +22,11 @@ def test_routes():
         def add_route(*args, **kwargs):
             pass
 
+        @staticmethod
+        @pretend.call_recorder
+        def add_redirect(*args, **kwargs):
+            pass
+
     config = FakeConfig()
     includeme(config)
 
@@ -54,4 +59,9 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
         ),
+    ]
+
+    assert config.add_redirect.calls == [
+        pretend.call("/pypi/{name}/", "/project/{name}/"),
+        pretend.call("/pypi/{name}/{version}/", "/project/{name}/{version}/"),
     ]
