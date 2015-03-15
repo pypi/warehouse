@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse import db
+
 
 def includeme(config):
     # Accounts
@@ -35,15 +37,24 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
     )
-    config.add_route("packaging.file", "/packages/{path:.*}")
+    config.add_route(
+        "packaging.file",
+        "/packages/{path:.*}",
+        custom_predicates=[db.read_only],
+    )
 
     # Legacy URLs
-    config.add_route("legacy.api.simple.index", "/simple/")
+    config.add_route(
+        "legacy.api.simple.index",
+        "/simple/",
+        custom_predicates=[db.read_only],
+    )
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
+        custom_predicates=[db.read_only],
     )
 
     # Legacy Redirects

@@ -12,6 +12,7 @@
 
 import pretend
 
+from warehouse import db
 from warehouse.routes import includeme
 
 
@@ -51,13 +52,22 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
         ),
-        pretend.call("packaging.file", "/packages/{path:.*}"),
-        pretend.call("legacy.api.simple.index", "/simple/"),
+        pretend.call(
+            "packaging.file",
+            "/packages/{path:.*}",
+            custom_predicates=[db.read_only],
+        ),
+        pretend.call(
+            "legacy.api.simple.index",
+            "/simple/",
+            custom_predicates=[db.read_only],
+        ),
         pretend.call(
             "legacy.api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            custom_predicates=[db.read_only],
         ),
     ]
 
