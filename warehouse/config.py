@@ -14,6 +14,7 @@ import fs.opener
 import transaction
 
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPMovedPermanently
 from tzf.pyramid_yml import config_defaults
 
 from warehouse.utils.static import WarehouseCacheBuster
@@ -129,7 +130,7 @@ def configure(settings=None):
 
     # If a route matches with a slash appended to it, redirect to that route
     # instead of returning a HTTPNotFound.
-    config.add_notfound_view(append_slash=True)
+    config.add_notfound_view(append_slash=HTTPMovedPermanently)
 
     # Configure the filesystems we use.
     config.registry["filesystems"] = {}
