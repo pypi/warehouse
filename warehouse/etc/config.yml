@@ -4,3 +4,8 @@ configurator:
 
   jinja2:
     newstyle: True
+
+  tm:
+    # We'll just retry views up to three times in order to actually get a
+    # transaction committed.
+    attempts: 3
