@@ -103,6 +103,9 @@ def configure(settings=None):
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
 
+    # Configure redirection support
+    config.include(".redirects")
+
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 

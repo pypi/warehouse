@@ -45,3 +45,10 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
     )
+
+    # Legacy Redirects
+    config.add_redirect("/pypi/{name}/", "/project/{name}/")
+    config.add_redirect(
+        "/pypi/{name}/{version}/",
+        "/project/{name}/{version}/",
+    )
