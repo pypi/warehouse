@@ -124,6 +124,10 @@ def configure(settings=None):
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
 
+    # If a route matches with a slash appended to it, redirect to that route
+    # instead of returning a HTTPNotFound.
+    config.add_notfound_view(append_slash=True)
+
     # Configure the filesystems we use.
     config.registry["filesystems"] = {}
     for key, path in {
