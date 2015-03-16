@@ -15,14 +15,13 @@ import fs.errors
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import FileIter, Response
 from pyramid.view import view_config
-from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.models import Release, File, Role, JournalEntry
+from warehouse.packaging.models import Release, File, Role
 
 
 @view_config(
@@ -113,9 +112,7 @@ def packages(request):
     # The amount of logic that we can do in this view is very limited, this
     # view needs to be able to be handled by Fastly directly hitting S3 instead
     # of actually hitting this view. This more or less means that we're limited
-    # to just setting headers and serving the actual file. In addition the
-    # headers that we can set, have to be able to be determined at file upload
-    # time instead of dynamically.
+    # to just serving the actual file.
 
     # Grab the path of the file that we're attempting to serve
     path = request.matchdict["path"]
@@ -159,7 +156,7 @@ def packages(request):
     if path == file_.path:
         content_length = file_.size
 
-    resp = Response(
+    return Response(
         # If we have a wsgi.file_wrapper, we'll want to use that so that, if
         # possible, this will use an optimized method of sending. Otherwise
         # we'll just use Pyramid's FileIter as a fallback.
@@ -185,16 +182,3 @@ def packages(request):
         # they handle downloading this response.
         content_length=content_length,
     )
-
-    # We also need to get the X-PyPI-Last-Serial for the project associated
-    # with this file. Bandersnatch (and other mirroring clients) will use this
-    # to determine what kind of action to take if the MD5 hash does not match
-    # what it expected.
-    serial = (
-        request.db.query(func.max(JournalEntry.id))
-                  .filter(JournalEntry.name == file_.name)
-                  .scalar()
-    )
-    resp.headers["X-PyPI-Last-Serial"] = serial or 0
-
-    return resp
