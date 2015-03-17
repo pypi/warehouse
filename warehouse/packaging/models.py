@@ -20,6 +20,7 @@ from sqlalchemy import (
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -163,12 +164,13 @@ class Release(db.ModelBase):
         server_default=sql.func.now(),
     )
 
-    classifiers = orm.relationship(
+    _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
         secondary=lambda: release_classifiers,
         order_by=Classifier.classifier,
     )
+    classifiers = association_proxy("_classifiers", "classifier")
 
     files = orm.relationship(
         "File",
