@@ -38,6 +38,16 @@ def content_security_policy_tween_factory(handler, registry):
 
     return content_security_policy_tween
 
+# http://www.gnuterrypratchett.com/
+def gnu_terry_pratchett_tween_factory(handler, registry):
+    def gnu_terry_pratchett_tween(request):
+        resp = handler(request)
+        resp.headers["X-Clacks-Overhead"] = \
+            "GNU Terry Pratchett"
+
+        return resp
+
+    return gnu_terry_pratchett_tween
 
 def configure(settings=None):
     if settings is None:
@@ -127,6 +137,7 @@ def configure(settings=None):
         },
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
+    config.add_tween("warehouse.config.gnu_terry_pratchett_tween_factory")
 
     # If a route matches with a slash appended to it, redirect to that route
     # instead of returning a HTTPNotFound.
