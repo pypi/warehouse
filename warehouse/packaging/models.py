@@ -13,13 +13,14 @@
 import fs.errors
 
 from citext import CIText
-from pyramid.threadlocal import get_current_registry
+from pyramid.threadlocal import get_current_registry, get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
     Boolean, DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -107,6 +108,21 @@ class Project(db.ModelBase):
         except NoResultFound:
             raise KeyError from None
 
+    @property
+    def documentation_url(self):
+        # TODO: Move this into the database and elimnate the use of the
+        #       threadlocal here.
+        registry = get_current_registry()
+        request = get_current_request()
+
+        path = "/".join([self.name, "index.html"])
+
+        # If the path doesn't exist, then we'll just return a None here.
+        if not registry["filesystems"]["documentation"].exists(path):
+            return
+
+        return request.route_url("legacy.docs", project=self.name)
+
 
 class Release(db.ModelBase):
 
@@ -163,12 +179,13 @@ class Release(db.ModelBase):
         server_default=sql.func.now(),
     )
 
-    classifiers = orm.relationship(
+    _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
         secondary=lambda: release_classifiers,
         order_by=Classifier.classifier,
     )
+    classifiers = association_proxy("_classifiers", "classifier")
 
     files = orm.relationship(
         "File",

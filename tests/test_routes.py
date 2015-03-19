@@ -59,6 +59,19 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
         ),
+        pretend.call(
+            "legacy.api.json.project",
+            "/pypi/{name}/json",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+        ),
+        pretend.call(
+            "legacy.api.json.release",
+            "/pypi/{name}/{version}/json",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}/{version}",
+        ),
+        pretend.call("legacy.docs", "https://pythonhosted.org/{project}/"),
     ]
 
     assert config.add_redirect.calls == [

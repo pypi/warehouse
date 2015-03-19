@@ -63,6 +63,45 @@ class TestProject:
         with pytest.raises(KeyError):
             project["1.0"]
 
+    def test_doc_url_doesnt_exist(self, pyramid_config, db_request):
+        @pretend.call_recorder
+        def exists(path):
+            return False
+
+        pyramid_config.registry["filesystems"] = {
+            "documentation": pretend.stub(exists=exists),
+        }
+
+        project = DBProjectFactory.create(session=db_request.db)
+
+        assert project.documentation_url is None
+        assert exists.calls == [
+            pretend.call("/".join([project.name, "index.html"])),
+        ]
+
+    def test_doc_url(self, pyramid_config, db_request):
+        @pretend.call_recorder
+        def exists(path):
+            return True
+
+        pyramid_config.registry["filesystems"] = {
+            "documentation": pretend.stub(exists=exists),
+        }
+
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/docs/url/"
+        )
+
+        project = DBProjectFactory.create(session=db_request.db)
+
+        assert project.documentation_url == "/the/docs/url/"
+        assert exists.calls == [
+            pretend.call("/".join([project.name, "index.html"])),
+        ]
+        assert db_request.route_url.calls == [
+            pretend.call("legacy.docs", project=project.name),
+        ]
+
 
 class TestFile:
 
