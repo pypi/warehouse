@@ -18,6 +18,7 @@ configurator:
 
   dirs:
     packages: /app/data/packages/
+    documentation: /app/data/documentation/
 
   debugtoolbar:
     hosts:

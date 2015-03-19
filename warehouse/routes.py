@@ -46,6 +46,9 @@ def includeme(config):
         traverse="/{name}/",
     )
 
+    # Legacy Documentation
+    config.add_route("legacy.docs", "https://pythonhosted.org/{project}/")
+
     # Legacy Redirects
     config.add_redirect("/pypi/{name}/", "/project/{name}/")
     config.add_redirect(

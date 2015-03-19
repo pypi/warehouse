@@ -59,6 +59,7 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
         ),
+        pretend.call("legacy.docs", "https://pythonhosted.org/{project}/"),
     ]
 
     assert config.add_redirect.calls == [

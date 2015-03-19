@@ -13,7 +13,7 @@
 import fs.errors
 
 from citext import CIText
-from pyramid.threadlocal import get_current_registry
+from pyramid.threadlocal import get_current_registry, get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
     Boolean, DateTime, Integer, Table, Text,
@@ -107,6 +107,21 @@ class Project(db.ModelBase):
             return self.releases.filter(Release.version == version).one()
         except NoResultFound:
             raise KeyError from None
+
+    @property
+    def documentation_url(self):
+        # TODO: Move this into the database and elimnate the use of the
+        #       threadlocal here.
+        registry = get_current_registry()
+        request = get_current_request()
+
+        path = "/".join([self.name, "index.html"])
+
+        # If the path doesn't exist, then we'll just return a None here.
+        if not registry["filesystems"]["documentation"].exists(path):
+            return
+
+        return request.route_url("legacy.docs", project=self.name)
 
 
 class Release(db.ModelBase):
