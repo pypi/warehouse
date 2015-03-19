@@ -16,6 +16,7 @@ import fs.opener
 import pretend
 import pytest
 
+from pyramid import renderers
 from pyramid.httpexceptions import HTTPMovedPermanently
 
 from warehouse import config
@@ -79,6 +80,10 @@ def test_configure(monkeypatch, settings):
     opener = pretend.call_recorder(lambda path, create_dir: fs_obj)
     monkeypatch.setattr(fs.opener, "fsopendir", opener)
 
+    json_renderer_obj = pretend.stub()
+    json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
+    monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
+
     class FakeRegistry(dict):
         def __init__(self):
             self.settings = {
@@ -91,6 +96,7 @@ def test_configure(monkeypatch, settings):
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
+        add_renderer=pretend.call_recorder(lambda name, renderer: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
         get_settings=lambda: configurator_settings,
@@ -197,4 +203,11 @@ def test_configure(monkeypatch, settings):
     ]
     assert configurator_obj.add_notfound_view.calls == [
         pretend.call(append_slash=HTTPMovedPermanently),
+    ]
+    assert configurator_obj.add_renderer.calls == [
+        pretend.call("json", json_renderer_obj),
+    ]
+
+    assert json_renderer_cls.calls == [
+        pretend.call(sort_keys=True, separators=(",", ":")),
     ]
