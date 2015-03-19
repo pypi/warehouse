@@ -45,6 +45,18 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
     )
+    config.add_route(
+        "legacy.api.json.project",
+        "/pypi/{name}/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+    )
+    config.add_route(
+        "legacy.api.json.release",
+        "/pypi/{name}/{version}/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/{version}",
+    )
 
     # Legacy Documentation
     config.add_route("legacy.docs", "https://pythonhosted.org/{project}/")
