@@ -17,7 +17,10 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
 
-from ...common.db.packaging import ProjectFactory, ReleaseFactory, FileFactory
+from ...common.db.accounts import UserFactory
+from ...common.db.packaging import (
+    ProjectFactory, ReleaseFactory, FileFactory, JournalEntryFactory,
+)
 
 
 class TestJSONProject:
@@ -114,6 +117,12 @@ class TestJSONRelease:
             )
             for r in releases[:-1]
         ]
+        user = UserFactory.create(session=db_request.db)
+        je = JournalEntryFactory.create(
+            session=db_request.db,
+            name=project.name,
+            submitted_by=user.username,
+        )
 
         daily_stats = pretend.stub()
         weekly_stats = pretend.stub()
@@ -149,6 +158,11 @@ class TestJSONRelease:
             ),
             pretend.call("legacy.docs", project=project.name),
         }
+
+        headers = db_request.response.headers
+        assert headers["Access-Control-Allow-Origin"] == "*"
+        assert headers["X-PyPI-Last-Serial"] == je.id
+
         assert result == {
             "info": {
                 "author": None,
