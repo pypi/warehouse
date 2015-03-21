@@ -222,11 +222,17 @@ class TestPackages:
         )
 
         db_request.matchdict["path"] = path
+        db_request.log = pretend.stub(
+            error=pretend.call_recorder(lambda event, **kw: None),
+        )
 
         with pytest.raises(HTTPNotFound):
             views.packages(db_request)
 
         assert opener.calls == [pretend.call(path, mode="rb")]
+        assert db_request.log.error.calls == [
+            pretend.call("missing file data", path=path),
+        ]
 
     def test_serves_package_file(self, db_request, pyramid_config):
         memfs = fs.memoryfs.MemoryFS()
