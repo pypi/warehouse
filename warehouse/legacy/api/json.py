@@ -32,7 +32,7 @@ from warehouse.packaging.models import File, Release, JournalEntry
 def json_project(project, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
-            request.current_route_url(name=project.name),
+            request.current_route_path(name=project.name),
         )
 
     try:
@@ -58,7 +58,7 @@ def json_release(release, request):
 
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
-            request.current_route_url(name=project.name),
+            request.current_route_path(name=project.name),
         )
 
     # We want to allow CORS here to enable anyone to fetch data from this API

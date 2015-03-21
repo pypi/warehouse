@@ -20,8 +20,8 @@
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <link rel="stylesheet" href="{{ request.static_url('warehouse:static/css/normalize.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('warehouse:static/css/style.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/css/style.css') }}">
   </head>
 
   <body>
@@ -36,11 +36,11 @@
             <form role="search">
               <input type="search" placeholder="{{ _('Enter Search') }}" />
               <button type="submit">
-                <img src="{{ request.static_url('warehouse:static/images/search-icon.png') }}" alt="{{ _('Search') }}">
+                <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="{{ _('Search') }}">
               </button>
             </form>
           </div>
-          <a href="{{ request.route_url('accounts.login') }}" class="sign-in">{{ _('Sign In') }}</a>
+          <a href="{{ request.route_path('accounts.login') }}" class="sign-in">{{ _('Sign In') }}</a>
           <a href="javascript:void(0)" class="sign-up">{{ _('Sign Up') }}</a>
         </div>
       </div>

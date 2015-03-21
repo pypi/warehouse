@@ -31,7 +31,7 @@ class TestUserProfile:
         else:
             username = user.username.lower()
 
-        db_request.current_route_url = pretend.call_recorder(
+        db_request.current_route_path = pretend.call_recorder(
             lambda username: "/user/the-redirect/"
         )
         db_request.matchdict = {"username": username}
@@ -40,7 +40,7 @@ class TestUserProfile:
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_url.calls == [
+        assert db_request.current_route_path.calls == [
             pretend.call(username=user.username),
         ]
 

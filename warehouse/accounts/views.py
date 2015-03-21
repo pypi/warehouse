@@ -33,7 +33,7 @@ from warehouse.sessions import uses_session
 def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(
-            request.current_route_url(username=user.username),
+            request.current_route_path(username=user.username),
         )
 
     return {"user": user}

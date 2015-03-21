@@ -35,7 +35,7 @@ from warehouse.packaging.models import Release, File, Role
 def project_detail(project, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
-            request.current_route_url(name=project.name),
+            request.current_route_path(name=project.name),
         )
 
     try:
@@ -61,7 +61,7 @@ def release_detail(release, request):
 
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
-            request.current_route_url(name=project.name),
+            request.current_route_path(name=project.name),
         )
 
     # Get all of the registered versions for this Project, in order of newest

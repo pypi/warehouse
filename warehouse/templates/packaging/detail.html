@@ -151,7 +151,7 @@
           <ul>
             {% for r in all_releases %}
             <li>
-              <a href="{{ request.route_url('packaging.release', name=project.name, version=r.version) }}">
+              <a href="{{ request.route_path('packaging.release', name=project.name, version=r.version) }}">
                 {{ r.version }} <span class="created">{{ r.created|format_date() }}</span>
               </a>
             </li>
@@ -164,7 +164,7 @@
           <ul class="maintainers">
             {% for maintainer in maintainers %}
             <li>
-              <a href="{{ request.route_url('accounts.profile', username=maintainer.username) }}" title="{{ maintainer.username }}">
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" title="{{ maintainer.username }}">
                 <img src="{{ gravatar(maintainer.email, size=50) }}" alt="{{ maintainer.username}}" height="50" width="50">
               </a>
             </li>
