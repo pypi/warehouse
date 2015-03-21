@@ -57,7 +57,7 @@ def simple_detail(project, request):
     if (project.normalized_name !=
             request.matchdict.get("name", project.normalized_name)):
         return HTTPMovedPermanently(
-            request.current_route_url(name=project.normalized_name),
+            request.current_route_path(name=project.normalized_name),
         )
 
     # Get the latest serial number for this project.

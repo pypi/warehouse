@@ -70,7 +70,7 @@ class TestSimpleDetail:
         project = pretend.stub(normalized_name="foo")
 
         pyramid_request.matchdict["name"] = "Foo"
-        pyramid_request.current_route_url = pretend.call_recorder(
+        pyramid_request.current_route_path = pretend.call_recorder(
             lambda name: "/foobar/"
         )
 
@@ -78,7 +78,7 @@ class TestSimpleDetail:
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/foobar/"
-        assert pyramid_request.current_route_url.calls == [
+        assert pyramid_request.current_route_path.calls == [
             pretend.call(name="foo"),
         ]
 

@@ -33,7 +33,7 @@ class TestJSONProject:
             name = project.name.upper()
 
         db_request.matchdict = {"name": name}
-        db_request.current_route_url = pretend.call_recorder(
+        db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
 
@@ -41,7 +41,7 @@ class TestJSONProject:
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
-        assert db_request.current_route_url.calls == [
+        assert db_request.current_route_path.calls == [
             pretend.call(name=project.name),
         ]
 
@@ -88,7 +88,7 @@ class TestJSONRelease:
             name = release.project.name.upper()
 
         db_request.matchdict = {"name": name}
-        db_request.current_route_url = pretend.call_recorder(
+        db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )
 
@@ -96,7 +96,7 @@ class TestJSONRelease:
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
-        assert db_request.current_route_url.calls == [
+        assert db_request.current_route_path.calls == [
             pretend.call(name=release.project.name),
         ]
 
