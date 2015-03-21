@@ -59,7 +59,7 @@ def includeme(config):
     )
 
     # Legacy Documentation
-    config.add_route("legacy.docs", "https://pythonhosted.org/{project}/")
+    config.add_route("legacy.docs", config.registry.settings["docs.url"])
 
     # Legacy Redirects
     config.add_redirect("/pypi/{name}/", "/project/{name}/")

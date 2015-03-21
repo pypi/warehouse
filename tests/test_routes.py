@@ -16,7 +16,13 @@ from warehouse.routes import includeme
 
 
 def test_routes():
+    docs_route_url = pretend.stub()
+
     class FakeConfig:
+
+        def __init__(self):
+            self.registry = pretend.stub(settings={"docs.url": docs_route_url})
+
         @staticmethod
         @pretend.call_recorder
         def add_route(*args, **kwargs):
@@ -71,7 +77,7 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
         ),
-        pretend.call("legacy.docs", "https://pythonhosted.org/{project}/"),
+        pretend.call("legacy.docs", docs_route_url),
     ]
 
     assert config.add_redirect.calls == [

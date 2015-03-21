@@ -16,6 +16,9 @@ configurator:
     key: "insecure camo key"
     url: "{request.scheme}://{request.domain}:9000/"
 
+  docs:
+    url: "https://pythonhosted.org/{project}/"
+
   dirs:
     packages: /app/data/packages/
     documentation: /app/data/documentation/
