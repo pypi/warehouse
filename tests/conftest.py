@@ -70,6 +70,7 @@ def app_config(database):
             "camo.url": "http://localhost:9000/",
             "camo.key": "insecure key",
             "database.url": database,
+            "docs.url": "http://docs.example.com/",
             "download_stats.url": "redis://localhost:0/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
