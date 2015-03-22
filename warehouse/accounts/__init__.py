@@ -12,9 +12,19 @@
 
 from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import ILoginService
 from warehouse.accounts.services import database_login_factory
+from warehouse.accounts.auth_policy import BasicAuthAuthenticationPolicy
+
+
+def _login(username, password, request):
+    login_service = request.find_service(ILoginService)
+    userid = login_service.find_userid(username)
+    if userid is not None:
+        if login_service.check_password(userid, password):
+            return _authenticate(userid, request)
 
 
 def _authenticate(userid, request):
@@ -43,7 +53,10 @@ def includeme(config):
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(
-        SessionAuthenticationPolicy(callback=_authenticate),
+        MultiAuthenticationPolicy([
+            SessionAuthenticationPolicy(callback=_authenticate),
+            BasicAuthAuthenticationPolicy(check=_login),
+        ]),
     )
     config.set_authorization_policy(ACLAuthorizationPolicy())
 
