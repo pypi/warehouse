@@ -34,6 +34,11 @@ def _authenticate(userid, request):
     if user is None:
         return
 
+    # Since we've already authenticated the user and fetched the user from the
+    # database, we'll go ahead and stash the user. This will keep the user
+    # inside of the SQLAlchemy identity map.
+    request._user = user
+
     return []  # TODO: Add other principles.
 
 
