@@ -43,7 +43,7 @@ def project_detail(project, request):
             Release._pypi_ordering.desc()
         ).limit(1).one()
     except NoResultFound:
-        raise HTTPNotFound from None
+        return HTTPNotFound()
 
     return release_detail(release, request)
 
@@ -127,13 +127,13 @@ def packages(request):
                       .one()
         )
     except NoResultFound:
-        raise HTTPNotFound from None
+        return HTTPNotFound()
 
     # If this request is for a PGP signature, and the file doesn't have a PGP
     # signature, then we can go ahead and 404 now before hitting the file
     # storage.
     if path == file_.pgp_path and not file_.has_pgp_signature:
-        raise HTTPNotFound
+        return HTTPNotFound()
 
     # Try to open the file, streaming if possible, and if this file doesn't
     # exist then we'll return a 404 error. However we'll log an error because
@@ -146,7 +146,7 @@ def packages(request):
         f = request.registry["filesystems"]["packages"].open(path, mode="rb")
     except fs.errors.ResourceNotFoundError:
         request.log.error("missing file data", path=path)
-        raise HTTPNotFound from None
+        return HTTPNotFound()
 
     # If the path we're accessing is the path for the package itself, as
     # opposed to the path for the signature, then we can include a
