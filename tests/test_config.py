@@ -67,6 +67,19 @@ class TestCSPTween:
 
 
 @pytest.mark.parametrize(
+    ("path", "expected"),
+    [
+        ("/foo/bar/", True),
+        ("/static/wat/", False),
+        ("/_debug_toolbar/thing/", False),
+    ],
+)
+def test_activate_hook(path, expected):
+    request = pretend.stub(path=path)
+    assert config.activate_hook(request) == expected
+
+
+@pytest.mark.parametrize(
     "settings",
     [
         None,
@@ -162,7 +175,10 @@ def test_configure(monkeypatch, settings):
         pretend.call("warehouse:templates", name=".html"),
     ]
     assert configurator_obj.add_settings.calls == [
-        pretend.call({"tm.manager_hook": mock.ANY}),
+        pretend.call({
+            "tm.manager_hook": mock.ANY,
+            "tm.activate_hook": config.activate_hook,
+        }),
         pretend.call({
             "csp": {
                 "default-src": ["'none'"],
