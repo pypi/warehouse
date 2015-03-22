@@ -145,8 +145,7 @@ def packages(request):
         #       We need to get S3FS so that it support rb- as well as r-.
         f = request.registry["filesystems"]["packages"].open(path, mode="rb")
     except fs.errors.ResourceNotFoundError:
-        # TODO: Log an error here, this file doesn't exists for some reason,
-        #       but it should because the database thinks it should.
+        request.log.error("missing file data", path=path)
         raise HTTPNotFound from None
 
     # If the path we're accessing is the path for the package itself, as

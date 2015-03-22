@@ -87,6 +87,7 @@ setuptools.setup(
         "setproctitle",
         "sqlalchemy>=0.9",
         "sqlalchemy-citext",
+        "structlog",
         "transaction",
         "tzf.pyramid_yml",
         "WTForms>=2.0.0",

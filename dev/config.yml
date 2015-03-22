@@ -23,6 +23,9 @@ configurator:
     packages: /app/data/packages/
     documentation: /app/data/documentation/
 
+  logging:
+    level: DEBUG
+
   debugtoolbar:
     hosts:
       - 0.0.0.0/0

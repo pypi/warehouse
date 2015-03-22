@@ -51,6 +51,9 @@ def configure(settings=None):
     # We want to load configuration from YAML files
     config.include("tzf.pyramid_yml")
 
+    # Register our logging support
+    config.include(".logging")
+
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
 
