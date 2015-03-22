@@ -39,6 +39,12 @@ def content_security_policy_tween_factory(handler, registry):
     return content_security_policy_tween
 
 
+def activate_hook(request):
+    if request.path.startswith(("/_debug_toolbar/", "/static/")):
+        return False
+    return True
+
+
 def configure(settings=None):
     if settings is None:
         settings = {}
@@ -86,6 +92,7 @@ def configure(settings=None):
     # lifetime of the request.
     config.add_settings({
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
+        "tm.activate_hook": activate_hook,
     })
     config.include("pyramid_tm")
 
