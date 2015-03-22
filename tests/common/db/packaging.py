@@ -39,6 +39,7 @@ class ReleaseFactory(WarehouseFactory):
     class Meta:
         model = Release
 
+    name = factory.LazyAttribute(lambda o: o.project.name)
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")
     _pypi_ordering = factory.Sequence(lambda n: n)
@@ -48,6 +49,7 @@ class FileFactory(WarehouseFactory):
     class Meta:
         model = File
 
+    name = factory.LazyAttribute(lambda o: o.release.name)
     release = factory.SubFactory(ReleaseFactory)
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()

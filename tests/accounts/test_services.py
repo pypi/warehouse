@@ -54,7 +54,7 @@ class TestDatabaseLoginService:
         assert service.find_userid("my_username") is None
 
     def test_find_userid_existing_user(self, db_session):
-        user = UserFactory.create(session=db_session)
+        user = UserFactory.create()
         service = services.DatabaseLoginService(db_session)
         assert service.find_userid(user.username) == user.id
 
@@ -63,7 +63,7 @@ class TestDatabaseLoginService:
         assert not service.check_password(1, None)
 
     def test_check_password_invalid(self, db_session):
-        user = UserFactory.create(session=db_session)
+        user = UserFactory.create()
         service = services.DatabaseLoginService(db_session)
         service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(
@@ -77,7 +77,7 @@ class TestDatabaseLoginService:
         ]
 
     def test_check_password_valid(self, db_session):
-        user = UserFactory.create(session=db_session)
+        user = UserFactory.create()
         service = services.DatabaseLoginService(db_session)
         service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(lambda l, r: (True, None)),
@@ -89,7 +89,7 @@ class TestDatabaseLoginService:
         ]
 
     def test_check_password_updates(self, db_session):
-        user = UserFactory.create(session=db_session)
+        user = UserFactory.create()
         password = user.password
         service = services.DatabaseLoginService(db_session)
         service.hasher = pretend.stub(

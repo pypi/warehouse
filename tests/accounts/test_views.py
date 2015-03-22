@@ -24,7 +24,7 @@ from ..common.db.accounts import UserFactory
 class TestUserProfile:
 
     def test_user_redirects_username(self, db_request):
-        user = UserFactory.create(session=db_request.db)
+        user = UserFactory.create()
 
         if user.username.upper() != user.username:
             username = user.username.upper()
@@ -45,7 +45,7 @@ class TestUserProfile:
         ]
 
     def test_returns_user(self, db_request):
-        user = UserFactory.create(session=db_request.db)
+        user = UserFactory.create()
         assert views.profile(user, db_request) == {"user": user}
 
 
