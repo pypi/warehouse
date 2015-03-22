@@ -12,9 +12,11 @@ Contents:
    api-reference/index
 
 
-Warehouse is a new code base that implements a Python package index. It is being actively developed and the plan is that it will eventually power https://pypi.python.org/pypi (PyPI) and replace an older code base that is currently powering PyPI. You can see Warehouse in production at https://warehouse.python.org
-
-Warehouse is built on top of the Pyramid web application framework and uses PostgreSQL, Elasticsearch, etc.
+Warehouse is a new code base that implements a Python package repository.
+It is being actively developed and
+the plan is that it will eventually power PyPI_ and
+replace an older code base that is currently powering PyPI.
+You can see Warehouse in production at https://warehouse.python.org
 
 The goal is to improve PyPI by making it:
 
@@ -22,7 +24,7 @@ The goal is to improve PyPI by making it:
 - have a more modern look
 - more features
 - remove legacy APIs
-- have more maintainable code with test coverage, docs, etc. 
+- have more maintainable code with test coverage, docs, etc.
 
 
 
@@ -32,3 +34,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. _PyPI: https://pypi.python.org
