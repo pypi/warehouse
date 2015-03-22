@@ -17,6 +17,60 @@ from warehouse.accounts.interfaces import ILoginService
 from warehouse.accounts.services import database_login_factory
 
 
+class TestLogin:
+
+    def test_with_no_user(self):
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: None),
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: service),
+        )
+        assert accounts._login("myuser", "mypass", request) is None
+        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert service.find_userid.calls == [pretend.call("myuser")]
+
+    def test_with_invalid_password(self):
+        userid = pretend.stub()
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: userid),
+            check_password=pretend.call_recorder(
+                lambda userid, password: False
+            ),
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: service),
+        )
+        assert accounts._login("myuser", "mypass", request) is None
+        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.check_password.calls == [pretend.call(userid, "mypass")]
+
+    def test_with_valid_password(self, monkeypatch):
+        principals = pretend.stub()
+        authenticate = pretend.call_recorder(
+            lambda userid, request: principals
+        )
+        monkeypatch.setattr(accounts, "_authenticate", authenticate)
+
+        userid = pretend.stub()
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: userid),
+            check_password=pretend.call_recorder(
+                lambda userid, password: True
+            ),
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: service),
+        )
+
+        assert accounts._login("myuser", "mypass", request) is principals
+        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.check_password.calls == [pretend.call(userid, "mypass")]
+        assert authenticate.calls == [pretend.call(userid, request)]
+
+
 class TestAuthenticate:
 
     def test_with_user(self):
