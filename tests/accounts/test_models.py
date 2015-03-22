@@ -29,16 +29,13 @@ class TestUserFactory:
         ],
     )
     def test_traversal_finds(self, db_request, username, normalized):
-        user = DBUserFactory.create(
-            session=db_request.db,
-            username=username,
-        )
+        user = DBUserFactory.create(username=username)
         root = UserFactory(db_request)
 
         assert root[normalized] == user
 
     def test_travel_cant_find(self, db_request):
-        user = DBUserFactory.create(session=db_request.db)
+        user = DBUserFactory.create()
         root = UserFactory(db_request)
 
         with pytest.raises(KeyError):
@@ -48,23 +45,19 @@ class TestUserFactory:
 class TestUser:
 
     def test_get_primary_email_when_no_emails(self, db_session):
-        user = DBUserFactory.create(session=db_session)
+        user = DBUserFactory.create()
         assert user.email is None
 
     def test_get_primary_email(self, db_session):
-        user = DBUserFactory.create(session=db_session)
-        email = DBEmailFactory.create(
-            user=user, primary=True, session=db_session,
-        )
-        DBEmailFactory.create(user=user, primary=False, session=db_session)
+        user = DBUserFactory.create()
+        email = DBEmailFactory.create(user=user, primary=True)
+        DBEmailFactory.create(user=user, primary=False)
 
         assert user.email == email.email
 
     def test_query_by_email_when_primary(self, db_session):
-        user = DBUserFactory.create(session=db_session)
-        email = DBEmailFactory.create(
-            user=user, primary=True, session=db_session,
-        )
+        user = DBUserFactory.create()
+        email = DBEmailFactory.create(user=user, primary=True)
 
         result = db_session.query(User).filter(
             User.email == email.email
@@ -73,10 +66,8 @@ class TestUser:
         assert result == user
 
     def test_query_by_email_when_not_primary(self, db_session):
-        user = DBUserFactory.create(session=db_session)
-        email = DBEmailFactory.create(
-            user=user, primary=False, session=db_session,
-        )
+        user = DBUserFactory.create()
+        email = DBEmailFactory.create(user=user, primary=False)
 
         result = db_session.query(User).filter(
             User.email == email.email

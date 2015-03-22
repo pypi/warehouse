@@ -9,3 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from sqlalchemy.orm import scoped_session
+
+from warehouse.db import _Session
+
+
+Session = scoped_session(_Session)

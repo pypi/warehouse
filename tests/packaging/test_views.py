@@ -31,7 +31,7 @@ from ..common.db.packaging import (
 class TestProjectDetail:
 
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
         name = project.name.lower()
         if name == project.name:
@@ -51,24 +51,18 @@ class TestProjectDetail:
         ]
 
     def test_missing_release(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
         with pytest.raises(HTTPNotFound):
             views.project_detail(project, db_request)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
-        ReleaseFactory.create(
-            session=db_request.db, project=project, version="1.0",
-        )
-        ReleaseFactory.create(
-            session=db_request.db, project=project, version="2.0",
-        )
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0")
 
-        release = ReleaseFactory.create(
-            session=db_request.db, project=project, version="3.0",
-        )
+        release = ReleaseFactory.create(project=project, version="3.0")
 
         response = pretend.stub()
         release_detail = pretend.call_recorder(lambda ctx, request: response)
@@ -83,10 +77,8 @@ class TestProjectDetail:
 class TestReleaseDetail:
 
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(
-            session=db_request.db, project=project, version="3.0",
-        )
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
 
         name = release.project.name.lower()
         if name == release.project.name:
@@ -107,20 +99,17 @@ class TestReleaseDetail:
 
     def test_detail_renders(self, db_request):
         users = [
-            UserFactory.create(session=db_request.db),
-            UserFactory.create(session=db_request.db),
-            UserFactory.create(session=db_request.db),
+            UserFactory.create(),
+            UserFactory.create(),
+            UserFactory.create(),
         ]
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         releases = [
-            ReleaseFactory.create(
-                session=db_request.db, project=project, version=v,
-            )
+            ReleaseFactory.create(project=project, version=v)
             for v in ["1.0", "2.0", "3.0"]
         ]
         files = [
             FileFactory.create(
-                session=db_request.db,
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
                 python_version="source",
@@ -130,13 +119,10 @@ class TestReleaseDetail:
 
         # Create a role for each user
         for user in users:
-            RoleFactory.create(
-                session=db_request.db, user=user, project=project,
-            )
+            RoleFactory.create(user=user, project=project)
 
         # Add an extra role for one user, to ensure deduplication
         RoleFactory.create(
-            session=db_request.db,
             user=users[0],
             project=project,
             role_name="another role",
@@ -183,10 +169,9 @@ class TestPackages:
             "packages": pretend.stub(exists=lambda p: False),
         }
 
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(session=db_request.db, project=project)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
-            session=db_request.db,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -208,10 +193,9 @@ class TestPackages:
             "packages": pretend.stub(open=opener),
         }
 
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(session=db_request.db, project=project)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
-            session=db_request.db,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -233,10 +217,9 @@ class TestPackages:
 
         pyramid_config.registry["filesystems"] = {"packages": memfs}
 
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(session=db_request.db, project=project)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
-            session=db_request.db,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -271,10 +254,9 @@ class TestPackages:
 
         pyramid_config.registry["filesystems"] = {"packages": memfs}
 
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(session=db_request.db, project=project)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
-            session=db_request.db,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",

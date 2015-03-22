@@ -13,20 +13,28 @@
 import random
 import string
 
-from factory import base, fuzzy
+from factory import fuzzy
+from factory.alchemy import SQLAlchemyModelFactory
+
+from . import Session
 
 
-class WarehouseFactory(base.Factory):
+class WarehouseFactory(SQLAlchemyModelFactory):
 
     class Meta:
         abstract = True
+        sqlalchemy_session = Session
 
     @classmethod
-    def _create(cls, model_class, *args, session, **kwargs):
-        obj = model_class(*args, **kwargs)
-        session.add(obj)
+    def _setup_next_sequence(cls, *args, **kwargs):
+        return 0
+
+    @classmethod
+    def _create(cls, *args, **kwargs):
+        r = super()._create(*args, **kwargs)
+        session = cls._meta.sqlalchemy_session
         session.flush()
-        return obj
+        return r
 
 
 class FuzzyEmail(fuzzy.BaseFuzzyAttribute):

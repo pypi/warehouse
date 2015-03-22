@@ -29,18 +29,15 @@ class TestSimpleIndex:
         assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
 
     def test_no_results_with_serial(self, db_request):
-        user = UserFactory.create(session=db_request.db)
-        je = JournalEntryFactory.create(
-            session=db_request.db, submitted_by=user.username,
-        )
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(submitted_by=user.username)
         assert simple.simple_index(db_request) == {"projects": []}
         assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
 
     def test_with_results_no_serial(self, db_request):
         projects = [
             (x.name, x.normalized_name)
-            for x in
-            [ProjectFactory.create(session=db_request.db) for _ in range(3)]
+            for x in [ProjectFactory.create() for _ in range(3)]
         ]
         assert simple.simple_index(db_request) == {
             "projects": sorted(projects, key=lambda x: x[1]),
@@ -50,13 +47,10 @@ class TestSimpleIndex:
     def test_with_results_with_serial(self, db_request):
         projects = [
             (x.name, x.normalized_name)
-            for x in
-            [ProjectFactory.create(session=db_request.db) for _ in range(3)]
+            for x in [ProjectFactory.create() for _ in range(3)]
         ]
-        user = UserFactory.create(session=db_request.db)
-        je = JournalEntryFactory.create(
-            session=db_request.db, submitted_by=user.username,
-        )
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(submitted_by=user.username)
 
         assert simple.simple_index(db_request) == {
             "projects": sorted(projects, key=lambda x: x[1]),
@@ -83,12 +77,10 @@ class TestSimpleDetail:
         ]
 
     def test_no_files_no_serial(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
-        user = UserFactory.create(session=db_request.db)
-        JournalEntryFactory.create(
-            session=db_request.db, submitted_by=user.username,
-        )
+        user = UserFactory.create()
+        JournalEntryFactory.create(submitted_by=user.username)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -97,11 +89,10 @@ class TestSimpleDetail:
         assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
 
     def test_no_files_with_seiral(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
-        user = UserFactory.create(session=db_request.db)
+        user = UserFactory.create()
         je = JournalEntryFactory.create(
-            session=db_request.db,
             name=project.name,
             submitted_by=user.username,
         )
@@ -113,24 +104,21 @@ class TestSimpleDetail:
         assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
 
     def test_with_files_no_serial(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         releases = [
-            ReleaseFactory.create(session=db_request.db, project=project)
+            ReleaseFactory.create(project=project)
             for _ in range(3)
         ]
         files = [
             FileFactory.create(
-                session=db_request.db,
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
             )
             for r in releases
         ]
         db_request.matchdict["name"] = project.normalized_name
-        user = UserFactory.create(session=db_request.db)
-        JournalEntryFactory.create(
-            session=db_request.db, submitted_by=user.username,
-        )
+        user = UserFactory.create()
+        JournalEntryFactory.create(submitted_by=user.username)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -139,23 +127,21 @@ class TestSimpleDetail:
         assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
 
     def test_with_files_with_seiral(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         releases = [
-            ReleaseFactory.create(session=db_request.db, project=project)
+            ReleaseFactory.create(project=project)
             for _ in range(3)
         ]
         files = [
             FileFactory.create(
-                session=db_request.db,
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
             )
             for r in releases
         ]
         db_request.matchdict["name"] = project.normalized_name
-        user = UserFactory.create(session=db_request.db)
+        user = UserFactory.create()
         je = JournalEntryFactory.create(
-            session=db_request.db,
             name=project.name,
             submitted_by=user.username,
         )

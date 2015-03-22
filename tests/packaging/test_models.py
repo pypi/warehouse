@@ -33,14 +33,14 @@ class TestProjectFactory:
     )
     def test_traversal_finds(self, db_request, name, normalized):
         project = DBProjectFactory.create(
-            session=db_request.db, name=name, normalized_name=normalized,
+            name=name, normalized_name=normalized,
         )
         root = ProjectFactory(db_request)
 
         assert root[normalized] == project
 
     def test_travel_cant_find(self, db_request):
-        project = DBProjectFactory.create(session=db_request.db)
+        project = DBProjectFactory.create()
         root = ProjectFactory(db_request)
 
         with pytest.raises(KeyError):
@@ -50,15 +50,13 @@ class TestProjectFactory:
 class TestProject:
 
     def test_traversal_finds(self, db_request):
-        project = DBProjectFactory.create(session=db_request.db)
-        release = DBReleaseFactory.create(
-            session=db_request.db, project=project,
-        )
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
 
         assert project[release.version] == release
 
     def test_traversal_cant_find(self, db_request):
-        project = DBProjectFactory.create(session=db_request.db)
+        project = DBProjectFactory.create()
 
         with pytest.raises(KeyError):
             project["1.0"]
@@ -72,7 +70,7 @@ class TestProject:
             "documentation": pretend.stub(exists=exists),
         }
 
-        project = DBProjectFactory.create(session=db_request.db)
+        project = DBProjectFactory.create()
 
         assert project.documentation_url is None
         assert exists.calls == [
@@ -92,7 +90,7 @@ class TestProject:
             lambda route, **kw: "/the/docs/url/"
         )
 
-        project = DBProjectFactory.create(session=db_request.db)
+        project = DBProjectFactory.create()
 
         assert project.documentation_url == "/the/docs/url/"
         assert exists.calls == [
@@ -106,10 +104,9 @@ class TestProject:
 class TestFile:
 
     def test_compute_paths(self, db_session):
-        project = DBProjectFactory.create(session=db_session)
-        release = DBReleaseFactory.create(session=db_session, project=project)
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
-            session=db_session,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -123,10 +120,9 @@ class TestFile:
         assert rfile.pgp_path == expected + ".asc"
 
     def test_query_paths(self, db_session):
-        project = DBProjectFactory.create(session=db_session)
-        release = DBReleaseFactory.create(session=db_session, project=project)
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
-            session=db_session,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -152,10 +148,9 @@ class TestFile:
             "packages": pretend.stub(exists=exister),
         }
 
-        project = DBProjectFactory.create(session=db_session)
-        release = DBReleaseFactory.create(session=db_session, project=project)
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
-            session=db_session,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -170,10 +165,9 @@ class TestFile:
             "packages": pretend.stub(getsize=sizer),
         }
 
-        project = DBProjectFactory.create(session=db_session)
-        release = DBReleaseFactory.create(session=db_session, project=project)
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
-            session=db_session,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
@@ -191,10 +185,9 @@ class TestFile:
             "packages": pretend.stub(getsize=sizer),
         }
 
-        project = DBProjectFactory.create(session=db_session)
-        release = DBReleaseFactory.create(session=db_session, project=project)
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
-            session=db_session,
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",

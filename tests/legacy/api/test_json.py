@@ -26,7 +26,7 @@ from ...common.db.packaging import (
 class TestJSONProject:
 
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
         name = project.name.lower()
         if name == project.name:
@@ -46,24 +46,18 @@ class TestJSONProject:
         ]
 
     def test_missing_release(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
         with pytest.raises(HTTPNotFound):
             json.json_project(project, db_request)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
 
-        ReleaseFactory.create(
-            session=db_request.db, project=project, version="1.0",
-        )
-        ReleaseFactory.create(
-            session=db_request.db, project=project, version="2.0",
-        )
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0")
 
-        release = ReleaseFactory.create(
-            session=db_request.db, project=project, version="3.0",
-        )
+        release = ReleaseFactory.create(project=project, version="3.0")
 
         response = pretend.stub()
         json_release = pretend.call_recorder(lambda ctx, request: response)
@@ -78,10 +72,8 @@ class TestJSONProject:
 class TestJSONRelease:
 
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create(session=db_request.db)
-        release = ReleaseFactory.create(
-            session=db_request.db, project=project, version="3.0",
-        )
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
 
         name = release.project.name.lower()
         if name == release.project.name:
@@ -101,25 +93,21 @@ class TestJSONRelease:
         ]
 
     def test_detail_renders(self, pyramid_config, db_request):
-        project = ProjectFactory.create(session=db_request.db)
+        project = ProjectFactory.create()
         releases = [
-            ReleaseFactory.create(
-                session=db_request.db, project=project, version=v,
-            )
+            ReleaseFactory.create(project=project, version=v)
             for v in ["1.0", "2.0", "3.0"]
         ]
         files = [
             FileFactory.create(
-                session=db_request.db,
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
                 python_version="source",
             )
             for r in releases[:-1]
         ]
-        user = UserFactory.create(session=db_request.db)
+        user = UserFactory.create()
         je = JournalEntryFactory.create(
-            session=db_request.db,
             name=project.name,
             submitted_by=user.username,
         )

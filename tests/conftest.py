@@ -23,7 +23,8 @@ from pytest_dbfixtures.utils import get_config
 from sqlalchemy import event
 
 from warehouse.config import configure
-from warehouse.db import _Session
+
+from .common.db import Session
 
 
 @pytest.fixture
@@ -88,7 +89,7 @@ def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
     trans = conn.begin()
-    session = _Session(bind=conn)
+    session = Session(bind=conn)
 
     # Start the session in a SAVEPOINT
     session.begin_nested()
@@ -103,6 +104,7 @@ def db_session(app_config):
         yield session
     finally:
         session.close()
+        Session.remove()
         trans.rollback()
         conn.close()
         engine.dispose()
