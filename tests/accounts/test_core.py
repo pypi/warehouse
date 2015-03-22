@@ -49,7 +49,7 @@ class TestUser:
 
         request = pretend.stub(
             find_service=lambda iface: service,
-            unauthenticated_userid=100,
+            authenticated_userid=100,
         )
 
         assert accounts._user(request) is user
@@ -62,11 +62,15 @@ class TestUser:
 
         request = pretend.stub(
             find_service=lambda iface: service,
-            unauthenticated_userid=100,
+            authenticated_userid=100,
         )
 
         assert accounts._user(request) is None
         assert service.get_user.calls == [pretend.call(100)]
+
+    def test_without_userid(self):
+        request = pretend.stub(authenticated_userid=None)
+        assert accounts._user(request) is None
 
 
 def test_includeme(monkeypatch):
