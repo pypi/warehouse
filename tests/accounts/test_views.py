@@ -128,6 +128,7 @@ class TestLogin:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert result.headers["foo"] == "bar"
         assert pyramid_request.find_service.calls == [
             pretend.call(ILoginService),
         ]
@@ -143,7 +144,6 @@ class TestLogin:
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert remember.calls == [pretend.call(pyramid_request, 1)]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
-        assert ("foo", "bar") in pyramid_request.response.headerlist
 
 
 class TestLogout:
@@ -164,6 +164,6 @@ class TestLogout:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert result.headers["foo"] == "bar"
         assert forget.calls == [pretend.call(pyramid_request)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
-        assert ("foo", "bar") in pyramid_request.response.headerlist
