@@ -87,7 +87,6 @@ def login(request, _form_class=LoginForm):
 
         # Remember the userid using the authentication policy.
         headers = remember(request, userid)
-        request.response.headerlist.extend(headers)
 
         # Cycle the CSRF token since we've crossed an authentication boundary
         # and we don't want to continue using the old one.
@@ -97,7 +96,7 @@ def login(request, _form_class=LoginForm):
         # where they were trying to go originally, or to the default view.
         # TODO: Implement ?next= support.
         # TODO: Figure out a better way to handle the "default view".
-        return HTTPSeeOther("/")
+        return HTTPSeeOther("/", headers=dict(headers))
 
     return {"form": form}
 
@@ -117,7 +116,6 @@ def logout(request):
         # CSRF attacks still because of the CSRF framework, so users will still
         # need a post body that contains the CSRF token.
         headers = forget(request)
-        request.response.headerlist.extend(headers)
 
         # When crossing an authentication boundry we want to create a new
         # session identifier. We don't want to keep any information in the
@@ -135,6 +133,6 @@ def logout(request):
         # where they were originally, or to the default view.
         # TODO: Implement ?next= support.
         # TODO: Figure out a better way to handle the "default view".
-        return HTTPSeeOther("/")
+        return HTTPSeeOther("/", headers=dict(headers))
 
     return {}
