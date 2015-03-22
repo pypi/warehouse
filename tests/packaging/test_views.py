@@ -15,7 +15,6 @@ import os.path
 import fs.errors
 import fs.memoryfs
 import pretend
-import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from webob import datetime_utils
@@ -52,9 +51,8 @@ class TestProjectDetail:
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
-
-        with pytest.raises(HTTPNotFound):
-            views.project_detail(project, db_request)
+        resp = views.project_detail(project, db_request)
+        assert isinstance(resp, HTTPNotFound)
 
     def test_calls_release_detail(self, monkeypatch, db_request):
         project = ProjectFactory.create()
@@ -160,9 +158,8 @@ class TestPackages:
 
     def test_404_when_no_file(self, db_request):
         db_request.matchdict["path"] = "source/f/foo/foo-1.0.tar.gz"
-
-        with pytest.raises(HTTPNotFound):
-            views.packages(db_request)
+        resp = views.packages(db_request)
+        assert isinstance(resp, HTTPNotFound)
 
     def test_404_when_no_sig(self, db_request, pyramid_config):
         pyramid_config.registry["filesystems"] = {
@@ -181,8 +178,9 @@ class TestPackages:
             project.name[0], project.name, file_.filename
         )
 
-        with pytest.raises(HTTPNotFound):
-            views.packages(db_request)
+        resp = views.packages(db_request)
+
+        assert isinstance(resp, HTTPNotFound)
 
     def test_404_when_missing_file(self, db_request, pyramid_config):
         @pretend.call_recorder
@@ -210,9 +208,9 @@ class TestPackages:
             error=pretend.call_recorder(lambda event, **kw: None),
         )
 
-        with pytest.raises(HTTPNotFound):
-            views.packages(db_request)
+        resp = views.packages(db_request)
 
+        assert isinstance(resp, HTTPNotFound)
         assert opener.calls == [pretend.call(path, mode="rb")]
         assert db_request.log.error.calls == [
             pretend.call("missing file data", path=path),

@@ -40,7 +40,7 @@ def json_project(project, request):
             Release._pypi_ordering.desc()
         ).limit(1).one()
     except NoResultFound:
-        raise HTTPNotFound from None
+        return HTTPNotFound()
 
     return json_release(release, request)
 
