@@ -28,8 +28,13 @@ def _authenticate(userid, request):
 
 
 def _user(request):
+    userid = request.authenticated_userid
+
+    if userid is None:
+        return
+
     login_service = request.find_service(ILoginService)
-    return login_service.get_user(request.unauthenticated_userid)
+    return login_service.get_user(userid)
 
 
 def includeme(config):
