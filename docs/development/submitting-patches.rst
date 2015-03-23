@@ -39,6 +39,9 @@ Every code file must start with the boilerplate licensing notice:
     # See the License for the specific language governing permissions and
     # limitations under the License.
 
+You can view :doc:`patterns` to see more patterns that should be used within
+Warehouse.
+
 
 Tests
 -----

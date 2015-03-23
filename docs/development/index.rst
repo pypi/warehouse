@@ -12,6 +12,7 @@ bug check out `what to put in your bug report`_.
 
     getting-started
     submitting-patches
+    patterns
     reviewing-patches
 
 .. _`GitHub`: https://github.com/pypa/warehouse
