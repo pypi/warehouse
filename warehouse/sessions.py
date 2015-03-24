@@ -18,8 +18,8 @@ import msgpack
 import msgpack.exceptions
 import redis
 
-from pyramid.interfaces import ISession, ISessionFactory
-from pyramid.tweens import MAIN
+from pyramid.config.views import DefaultViewMapper
+from pyramid.interfaces import ISession, ISessionFactory, IViewMapperFactory
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary
@@ -29,44 +29,17 @@ from warehouse.utils import crypto
 def uses_session(view):
     @functools.wraps(view)
     def wrapped(context, request):
-        # We want to restore the session object to the request.session location
-        # because this view is allowed to use the session.
-        session = request.session
-        request.session = request._session
+        # Mark our request as allowing access to the sessions.
+        request._allow_session = True
 
-        # Call our view with our now modified request.
-        try:
-            return view(context, request)
-        finally:
-            # Restore the original session.
-            request.session = session
+        # Actually execute our view.
+        return view(context, request)
 
     # Wrap our already wrapped view with another wrapper which will ensure that
     # there is a Vary: Cookie header applied.
     wrapped = add_vary("Cookie")(wrapped)
 
     return wrapped
-
-
-def session_tween_factory(handler, registry):
-    def session_tween(request):
-        # Stash our real session object in a private location on the request so
-        # we can access it later.
-        request._session = request.session
-
-        # Set our request.session to an InvalidSession() which will raise
-        # errors anytime someone attempts to use it.
-        request.session = InvalidSession()
-
-        # Call our handler with the request, and no matter what ensure that
-        # after we've called it that the request.session has been set back to
-        # it's real value.
-        try:
-            return handler(request)
-        finally:
-            request.session = request._session
-
-    return session_tween
 
 
 def _invalid_method(method):
@@ -318,6 +291,34 @@ class SessionFactory:
             )
 
 
+def session_mapper_factory(mapper):
+    class SessionMapper(mapper):
+
+        def __call__(self, view):
+            view = super().__call__(view)
+
+            @functools.wraps(view)
+            def wrapped(context, request):
+                # Stash our session here so that we can restore it later
+                session = request.session
+
+                # Check if we're allowing access to the session for this
+                # request. If we're not allowing it, then we'll replace it with
+                # an InvalidSession() which won't allow using the session.
+                if not getattr(request, "_allow_session", False):
+                    request.session = InvalidSession()
+
+                try:
+                    # Actually invoke our underlying view.
+                    return view(context, request)
+                finally:
+                    # Restore our session back onto the request
+                    request.session = session
+
+            return wrapped
+    return SessionMapper
+
+
 def includeme(config):
     config.set_session_factory(
         SessionFactory(
@@ -325,4 +326,14 @@ def includeme(config):
             config.registry.settings["sessions.url"],
         ),
     )
-    config.add_tween("warehouse.sessions.session_tween_factory", over=MAIN)
+
+    # We need to commit what's happened so far so that we can get the current
+    # default ViewMapper
+    config.commit()
+
+    # Get the current default ViewMapper, and create a subclass of it that
+    # will wrap our view with our session removal decorator.
+    mapper = config.registry.queryUtility(IViewMapperFactory)
+    if mapper is None:
+        mapper = DefaultViewMapper
+    config.set_view_mapper(session_mapper_factory(mapper))
