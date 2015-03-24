@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import ILoginService
 from warehouse.accounts.services import database_login_factory
-from warehouse.accounts.auth_policy import BasicAuthAuthenticationPolicy
+from warehouse.accounts.auth_policy import (
+    BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
+)
 
 
 def _login(username, password, request):
