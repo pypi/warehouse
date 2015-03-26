@@ -54,7 +54,7 @@ class TestLogin:
     def test_get_returns_form(self, pyramid_request):
         login_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface: login_service
+            lambda iface, context: login_service
         )
         form_obj = pretend.stub()
         form_class = pretend.call_recorder(lambda d, login_service: form_obj)
@@ -63,7 +63,7 @@ class TestLogin:
 
         assert result == {"form": form_obj}
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService),
+            pretend.call(ILoginService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),
@@ -72,7 +72,7 @@ class TestLogin:
     def test_post_invalid_returns_form(self, pyramid_request):
         login_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface: login_service
+            lambda iface, context: login_service
         )
         pyramid_request.method = "POST"
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
@@ -82,7 +82,7 @@ class TestLogin:
 
         assert result == {"form": form_obj}
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService),
+            pretend.call(ILoginService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),
@@ -103,7 +103,7 @@ class TestLogin:
             find_userid=pretend.call_recorder(lambda username: 1),
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface: login_service
+            lambda iface, context: login_service
         )
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
@@ -130,7 +130,7 @@ class TestLogin:
         assert result.headers["Location"] == "/"
         assert result.headers["foo"] == "bar"
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService),
+            pretend.call(ILoginService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),

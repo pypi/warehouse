@@ -21,7 +21,7 @@ from warehouse.accounts.auth_policy import (
 
 
 def _login(username, password, request):
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     userid = login_service.find_userid(username)
     if userid is not None:
         if login_service.check_password(userid, password):
@@ -29,7 +29,7 @@ def _login(username, password, request):
 
 
 def _authenticate(userid, request):
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     user = login_service.get_user(userid)
 
     if user is None:
@@ -49,7 +49,7 @@ def _user(request):
     if userid is None:
         return
 
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     return login_service.get_user(userid)
 
 

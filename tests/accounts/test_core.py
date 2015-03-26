@@ -24,10 +24,12 @@ class TestLogin:
             find_userid=pretend.call_recorder(lambda username: None),
         )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface: service),
+            find_service=pretend.call_recorder(lambda iface, context: service),
         )
         assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert request.find_service.calls == [
+            pretend.call(ILoginService, context=None),
+        ]
         assert service.find_userid.calls == [pretend.call("myuser")]
 
     def test_with_invalid_password(self):
@@ -39,10 +41,12 @@ class TestLogin:
             ),
         )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface: service),
+            find_service=pretend.call_recorder(lambda iface, context: service),
         )
         assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert request.find_service.calls == [
+            pretend.call(ILoginService, context=None),
+        ]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
 
@@ -61,11 +65,13 @@ class TestLogin:
             ),
         )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface: service),
+            find_service=pretend.call_recorder(lambda iface, context: service),
         )
 
         assert accounts._login("myuser", "mypass", request) is principals
-        assert request.find_service.calls == [pretend.call(ILoginService)]
+        assert request.find_service.calls == [
+            pretend.call(ILoginService, context=None),
+        ]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
         assert authenticate.calls == [pretend.call(userid, request)]
@@ -78,7 +84,7 @@ class TestAuthenticate:
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: user)
         )
-        request = pretend.stub(find_service=lambda iface: service)
+        request = pretend.stub(find_service=lambda iface, context: service)
 
         assert accounts._authenticate(1, request) == []
         assert service.get_user.calls == [pretend.call(1)]
@@ -87,7 +93,7 @@ class TestAuthenticate:
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: None)
         )
-        request = pretend.stub(find_service=lambda iface: service)
+        request = pretend.stub(find_service=lambda iface, context: service)
 
         assert accounts._authenticate(1, request) is None
         assert service.get_user.calls == [pretend.call(1)]
@@ -102,7 +108,7 @@ class TestUser:
         )
 
         request = pretend.stub(
-            find_service=lambda iface: service,
+            find_service=lambda iface, context: service,
             authenticated_userid=100,
         )
 
@@ -115,7 +121,7 @@ class TestUser:
         )
 
         request = pretend.stub(
-            find_service=lambda iface: service,
+            find_service=lambda iface, context: service,
             authenticated_userid=100,
         )
 
