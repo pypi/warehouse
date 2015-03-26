@@ -17,6 +17,7 @@ from pyramid import renderers
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
 from tzf.pyramid_yml import config_defaults
+
 from warehouse.utils.static import WarehouseCacheBuster
 
 
