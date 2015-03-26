@@ -10,17 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import ILoginService
 from warehouse.accounts.services import database_login_factory
-from warehouse.accounts.auth_policy import BasicAuthAuthenticationPolicy
+from warehouse.accounts.auth_policy import (
+    BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
+)
 
 
 def _login(username, password, request):
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     userid = login_service.find_userid(username)
     if userid is not None:
         if login_service.check_password(userid, password):
@@ -28,16 +29,11 @@ def _login(username, password, request):
 
 
 def _authenticate(userid, request):
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     user = login_service.get_user(userid)
 
     if user is None:
         return
-
-    # Since we've already authenticated the user and fetched the user from the
-    # database, we'll go ahead and stash the user. This will keep the user
-    # inside of the SQLAlchemy identity map.
-    request._user = user
 
     return []  # TODO: Add other principles.
 
@@ -48,7 +44,7 @@ def _user(request):
     if userid is None:
         return
 
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
     return login_service.get_user(userid)
 
 

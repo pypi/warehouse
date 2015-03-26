@@ -50,7 +50,7 @@ def login(request, _form_class=LoginForm):
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
-    login_service = request.find_service(ILoginService)
+    login_service = request.find_service(ILoginService, context=None)
 
     form = _form_class(request.POST, login_service=login_service)
 

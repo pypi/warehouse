@@ -12,16 +12,38 @@
 
 from pyramid.authentication import (
     BasicAuthAuthenticationPolicy as _BasicAuthAuthenticationPolicy,
+    SessionAuthenticationPolicy as _SessionAuthenticationPolicy,
 )
 
 from warehouse.accounts.interfaces import ILoginService
+from warehouse.cache.http import _add_vary_callback
 
 
 class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
 
     def unauthenticated_userid(self, request):
+        # If we're calling into this API on a request, then we want to register
+        # a callback which will ensure that the response varies based on the
+        # Authorization header.
+        request.add_response_callback(_add_vary_callback("Authorization"))
+
+        # Dispatch to the real basic authentication policy
         username = super().unauthenticated_userid(request)
 
+        # Assuming we got a username from the basic authentication policy, we
+        # want to locate the userid from the ILoginService.
         if username is not None:
             login_service = request.find_service(ILoginService, context=None)
             return login_service.find_userid(username)
+
+
+class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
+
+    def unauthenticated_userid(self, request):
+        # If we're calling into this API on a request, then we want to register
+        # a callback which will ensure that the response varies based on the
+        # Cookie header.
+        request.add_response_callback(_add_vary_callback("Cookie"))
+
+        # Dispatch to the real SessionAuthenticationPolicy
+        return super().unauthenticated_userid(request)

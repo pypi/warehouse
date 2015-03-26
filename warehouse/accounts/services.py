@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
@@ -33,12 +35,14 @@ class DatabaseLoginService:
             deprecated=["auto"],
         )
 
+    @functools.lru_cache()
     def get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
 
+    @functools.lru_cache()
     def find_userid(self, username):
         try:
             user = (

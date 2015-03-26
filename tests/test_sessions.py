@@ -12,142 +12,44 @@
 
 import time
 
+from unittest import mock
+
 import msgpack
 import redis
 import pretend
 import pytest
 
-from pyramid.interfaces import ISessionFactory, ITweens
+from pyramid.config.views import DefaultViewMapper
+from pyramid.interfaces import IViewMapperFactory
 
 import warehouse.sessions
 
 from warehouse.sessions import (
-    InvalidSession, Session, SessionFactory, uses_session,
-    session_tween_factory, includeme,
+    InvalidSession, Session, SessionFactory, uses_session, includeme,
+    session_mapper_factory,
 )
 from warehouse.utils import crypto
 
 
-class TestUsesSession:
+def test_uses_session(monkeypatch):
+    vary_wrapper = pretend.call_recorder(lambda fn: fn)
+    add_vary = pretend.call_recorder(lambda *varies: vary_wrapper)
+    monkeypatch.setattr(warehouse.sessions, "add_vary", add_vary)
 
-    def test_restores_session(self, pyramid_request):
-        session = pretend.stub(valid=True)
-        invalid_session = pretend.stub(valid=False)
-        context = pretend.stub()
+    @pretend.call_recorder
+    def view(context, request):
+        pass
 
-        pyramid_request.session = invalid_session
-        pyramid_request._session = session
+    context = pretend.stub()
+    request = pretend.stub()
 
-        @uses_session
-        @pretend.call_recorder
-        def view(context, request):
-            # Inside the view function we should have the real session
-            assert request.session is session
+    wrapped = uses_session(view)
+    wrapped(context, request)
 
-        view(context, pyramid_request)
-
-        # After the view function is over, the original session should be
-        # restored.
-        assert pyramid_request.session is invalid_session
-
-        # Make sure our view was actually called.
-        view.calls == [pretend.call(context, pyramid_request)]
-
-    def test_restores_session_exception(self, pyramid_request):
-        session = pretend.stub(valid=True)
-        invalid_session = pretend.stub(valid=False)
-        context = pretend.stub()
-
-        pyramid_request.session = invalid_session
-        pyramid_request._session = session
-
-        @uses_session
-        @pretend.call_recorder
-        def view(context, request):
-            # Inside the view function we should have the real session
-            assert request.session is session
-
-            # Raise an exception, this should still cause the invalid session
-            # to be restored.
-            raise Exception
-
-        with pytest.raises(Exception):
-            view(context, pyramid_request)
-
-        # After the view function is over, the original session should be
-        # restored.
-        assert pyramid_request.session is invalid_session
-
-        # Make sure our view was actually called.
-        view.calls == [pretend.call(context, pyramid_request)]
-
-    def test_adds_cookie_vary(self, pyramid_request):
-        context = pretend.stub()
-        pyramid_request._session = pyramid_request.session
-        response = pretend.stub(vary=[])
-
-        @uses_session
-        @pretend.call_recorder
-        def view(context, request):
-            pass
-
-        view(context, pyramid_request)
-
-        assert len(pyramid_request.response_callbacks) == 1
-        pyramid_request.response_callbacks[0](pyramid_request, response)
-        assert response.vary == {"Cookie"}
-
-        # Make sure our view was actually called.
-        view.calls == [pretend.call(context, pyramid_request)]
-
-
-class TestSessionTween:
-
-    def test_makes_session_invalid(self, pyramid_request):
-        real_session = pyramid_request.session
-
-        @pretend.call_recorder
-        def handler(request):
-            # Make sure that our session gets replaced with an invalid session.
-            assert isinstance(request.session, InvalidSession)
-
-            # Make sure that we still stash the real session on the request.
-            assert request._session is real_session
-
-        tween = session_tween_factory(handler, pretend.stub())
-        tween(pyramid_request)
-
-        # Make sure that our original session was restored.
-        assert pyramid_request.session is real_session
-
-        # Make sure that our handler was called.
-        handler.calls == [pretend.call(pyramid_request)]
-
-    def test_makes_session_invalid_exception(self, pyramid_request):
-        real_session = pyramid_request.session
-
-        @pretend.call_recorder
-        def handler(request):
-            # Make sure that our session gets replaced with an invalid session.
-            assert isinstance(request.session, InvalidSession)
-
-            # Make sure that we still stash the real session on the request.
-            assert request._session is real_session
-
-            # Raise an exception, this should still cause things to get
-            # restored.
-            raise Exception
-
-        tween = session_tween_factory(handler, pretend.stub())
-
-        with pytest.raises(Exception):
-            tween(pyramid_request)
-
-        # Make sure that our original session was restored.
-        assert pyramid_request.session is real_session
-
-        # Make sure that our handler was called.
-        handler.calls == [pretend.call(pyramid_request)]
+    assert view.calls == [pretend.call(context, request)]
+    assert request._allow_session
+    assert add_vary.calls == [pretend.call("Cookie")]
+    assert vary_wrapper.calls == [pretend.call(mock.ANY)]
 
 
 class TestInvalidSession:
@@ -662,7 +564,57 @@ class TestSessionFactory:
         ]
 
 
-def test_includeme(monkeypatch, pyramid_config):
+class TestSessionMapperFactory:
+
+    def test_non_session_view(self, monkeypatch):
+        class FakeMapper:
+            def __call__(self, view):
+                return view
+
+        mapper = session_mapper_factory(FakeMapper)()
+
+        context = pretend.stub()
+        request = pretend.stub(session=Session())
+
+        session = request.session
+
+        @pretend.call_recorder
+        def view(context, request):
+            assert request.session is not session
+            assert isinstance(request.session, InvalidSession)
+
+        wrapped = mapper(view)
+        wrapped(context, request)
+
+        assert view.calls == [pretend.call(context, request)]
+        assert request.session is session
+
+    def test_session_view(self, monkeypatch, pyramid_request):
+        class FakeMapper:
+            def __call__(self, view):
+                return view
+
+        mapper = session_mapper_factory(FakeMapper)()
+
+        context = pretend.stub()
+        request = pyramid_request
+        request._allow_session = True
+
+        session = request.session
+
+        @pretend.call_recorder
+        def view(context, request):
+            assert request.session is session
+
+        wrapped = mapper(view)
+        wrapped(context, request)
+
+        assert view.calls == [pretend.call(context, request)]
+        assert request.session is session
+
+
+@pytest.mark.parametrize("mapper", [None, True])
+def test_includeme(monkeypatch, mapper):
     session_factory_obj = pretend.stub()
     session_factory_cls = pretend.call_recorder(
         lambda secret, url: session_factory_obj
@@ -673,13 +625,42 @@ def test_includeme(monkeypatch, pyramid_config):
         session_factory_cls,
     )
 
-    pyramid_config.registry.settings["sessions.secret"] = "my secret"
-    pyramid_config.registry.settings["sessions.url"] = "my url"
-    includeme(pyramid_config)
+    if mapper:
+        class Mapper:
+            pass
 
-    session_factory = pyramid_config.registry.queryUtility(ISessionFactory)
-    assert session_factory is session_factory_obj
+        mapper = Mapper
+
+    mapper_cls = pretend.stub()
+    session_mapper_factory = pretend.call_recorder(lambda m: mapper_cls)
+    monkeypatch.setattr(
+        warehouse.sessions, "session_mapper_factory", session_mapper_factory,
+    )
+
+    config = pretend.stub(
+        commit=pretend.call_recorder(lambda: None),
+        set_session_factory=pretend.call_recorder(lambda factory: None),
+        registry=pretend.stub(
+            queryUtility=pretend.call_recorder(lambda iface: mapper),
+            settings={
+                "sessions.secret": "my secret",
+                "sessions.url": "my url",
+            },
+        ),
+        set_view_mapper=pretend.call_recorder(lambda m: None)
+    )
+
+    includeme(config)
+
+    assert config.set_session_factory.calls == [
+        pretend.call(session_factory_obj),
+    ]
     assert session_factory_cls.calls == [pretend.call("my secret", "my url")]
-
-    tweens = pyramid_config.registry.queryUtility(ITweens)
-    assert "warehouse.sessions.session_tween_factory" in tweens.sorter.names
+    assert config.commit.calls == [pretend.call()]
+    assert config.registry.queryUtility.calls == [
+        pretend.call(IViewMapperFactory),
+    ]
+    assert session_mapper_factory.calls == [
+        pretend.call(mapper if mapper is not None else DefaultViewMapper),
+    ]
+    assert config.set_view_mapper.calls == [pretend.call(mapper_cls)]
