@@ -22,5 +22,5 @@ You can also join ``#pypa`` or ``#pypa-dev`` on Freenode to ask questions or
 get involved.
 
 
-.. _`documentation`: https://warehouse.pypa.io/
+.. _`documentation`: https://warehouse.readthedocs.org/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
