@@ -12,6 +12,7 @@ bug check out `what to put in your bug report`_.
 
     getting-started
     submitting-patches
+    translations
     patterns
     reviewing-patches
 

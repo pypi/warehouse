@@ -11,8 +11,9 @@ recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
 recursive-include warehouse/static *.css *.json *.scss *.png
 recursive-include warehouse/templates *.html
+recursive-include warehouse/translations warehouse.pot *.po
 
-exclude Gulpfile.js package.json
+exclude babel.cfg Makefile Gulpfile.js package.json
 exclude .dockerignore Dockerfile docker-compose.yml
 
 prune .travis
