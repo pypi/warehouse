@@ -26,7 +26,11 @@ from warehouse.sessions import uses_session
     route_name="accounts.profile",
     renderer="accounts/profile.html",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(
+            1 * 24 * 60 * 60,                         # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        ),
         origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
 )

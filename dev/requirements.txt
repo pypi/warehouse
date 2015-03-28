@@ -2,6 +2,10 @@
 # Why requirements.txt?
 # See https://caremad.io/2013/07/setup-vs-requirement/
 
+# We want to use our forked version of Webob to get stale-while-revalidate and
+# stale-if-error support on CacheControl.
+https://github.com/dstufft/webob/archive/support-stale.zip#egg=webob
+
 # We need a newer version of Pyramid (1.6) than what is currently available on
 # PyPI, so we'll install it from GitHub first.
 https://github.com/Pylons/pyramid/archive/master.zip#egg=pyramid

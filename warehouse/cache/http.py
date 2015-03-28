@@ -34,7 +34,8 @@ def add_vary(*varies):
     return inner
 
 
-def cache_control(seconds, public=True):
+def cache_control(seconds, *, public=True, stale_while_revalidate=None,
+                  stale_if_error=None):
     def inner(view):
         @functools.wraps(view)
         def wrapped(context, request):
@@ -48,6 +49,9 @@ def cache_control(seconds, public=True):
                     else:
                         response.cache_control.private = True
 
+                    response.cache_control.stale_while_revalidate = \
+                        stale_while_revalidate
+                    response.cache_control.stale_if_error = stale_if_error
                     response.cache_control.max_age = seconds
                 else:
                     response.cache_control.no_cache = True
