@@ -25,7 +25,11 @@ from warehouse.packaging.models import File, Release, JournalEntry
     route_name="legacy.api.json.project",
     renderer="json",
     decorator=[
-        cache_control(1 * 24 * 60 * 60),  # 1 day
+        cache_control(
+            1 * 24 * 60 * 60,                         # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        ),
         origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
 )
@@ -49,7 +53,11 @@ def json_project(project, request):
     route_name="legacy.api.json.release",
     renderer="json",
     decorator=[
-        cache_control(7 * 24 * 60 * 60),  # 7 days
+        cache_control(
+            7 * 24 * 60 * 60,                         # 7 days
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        ),
         origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
 )
