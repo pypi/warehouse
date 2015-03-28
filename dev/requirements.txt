@@ -6,6 +6,14 @@
 # PyPI, so we'll install it from GitHub first.
 https://github.com/Pylons/pyramid/archive/master.zip#egg=pyramid
 
+# We need a patched version of Jinja2 which gives access to the context in a
+# finalize function.
+https://github.com/dstufft/jinja2/archive/contextfinalize.zip#egg=jinja2
+
+# We need a patched version of pyramid_jinja2 which allows overriding the
+# GetTextWrapper with one of our own.
+https://github.com/dstufft/pyramid_jinja2/archive/allow-override-gettext.zip#egg=pyramid_jinja2
+
 # Install Warehouse itself.
 -e .
 
