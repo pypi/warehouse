@@ -43,10 +43,10 @@ example data by running:
 .. code-block:: console
 
     $ docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-    $ docker-compose run web warehouse -c dev/config.yml db upgrade head
     $ xz -d -k dev/example.sql.xz
-    $ docker-compose run web psql -h db -d warehouse -U postgres -f dev/example.sql
+    $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
     $ rm dev/example.sql
+    $ docker-compose run web warehouse -c dev/config.yml db upgrade head
 
 The repository is exposed inside of the web container at ``/app/`` and
 Warehouse will automatically reload when it detects any changes made to the
