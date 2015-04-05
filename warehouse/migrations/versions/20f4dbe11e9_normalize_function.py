@@ -29,7 +29,7 @@ def upgrade():
                 SELECT lower(
                     regexp_replace(
                         regexp_replace(
-                            regexp_replace($1, '[^a-z0-9]+', '-', 'ig'),
+                            regexp_replace($1, '(\.|_)', '-', 'ig'),
                             '(1|l|I)', '1', 'ig'
                         ),
                         '(0|0)', '0', 'ig'
