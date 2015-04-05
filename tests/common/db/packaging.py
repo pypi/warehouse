@@ -12,7 +12,6 @@
 
 import datetime
 import hashlib
-import re
 
 import factory
 import factory.fuzzy
@@ -30,9 +29,6 @@ class ProjectFactory(WarehouseFactory):
         model = Project
 
     name = factory.fuzzy.FuzzyText(length=12)
-    normalized_name = factory.LazyAttribute(
-        lambda o: re.sub("[^A-Za-z0-9.]+", "-", o.name).lower()
-    )
 
 
 class ReleaseFactory(WarehouseFactory):

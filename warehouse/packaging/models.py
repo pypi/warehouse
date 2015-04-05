@@ -62,9 +62,7 @@ class ProjectFactory:
     def __getitem__(self, project):
         try:
             return self.request.db.query(Project).filter(
-                Project.normalized_name == func.lower(
-                    func.regexp_replace(project, "_", "-", "ig")
-                )
+                Project.normalized_name == func.normalize_pep426_name(project)
             ).one()
         except NoResultFound:
             raise KeyError from None
@@ -83,7 +81,7 @@ class Project(db.ModelBase):
     __repr__ = make_repr("name")
 
     name = Column(Text, primary_key=True, nullable=False)
-    normalized_name = Column(Text)
+    normalized_name = orm.column_property(func.normalize_pep426_name(name))
     stable_version = Column(Text)
     autohide = Column(Boolean, server_default=sql.true())
     comments = Column(Boolean, server_default=sql.true())

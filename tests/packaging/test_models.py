@@ -32,9 +32,7 @@ class TestProjectFactory:
         ],
     )
     def test_traversal_finds(self, db_request, name, normalized):
-        project = DBProjectFactory.create(
-            name=name, normalized_name=normalized,
-        )
+        project = DBProjectFactory.create(name=name)
         root = ProjectFactory(db_request)
 
         assert root[normalized] == project
