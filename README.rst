@@ -2,7 +2,7 @@ Warehouse
 =========
 
 .. image:: https://readthedocs.org/projects/warehouse/badge/?version=latest
-    :target: https://warehouse.pypa.io/
+    :target: https://warehouse.readthedocs.org/
     :alt: Latest Docs
 
 .. image:: https://travis-ci.org/pypa/warehouse.svg?branch=master
