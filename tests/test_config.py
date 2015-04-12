@@ -157,6 +157,7 @@ def test_configure(monkeypatch, settings):
         pretend.call("pyramid_jinja2"),
         pretend.call("pyramid_tm"),
         pretend.call("pyramid_services"),
+        pretend.call(".legacy.action_routing"),
         pretend.call(".i18n"),
         pretend.call(".db"),
         pretend.call(".sessions"),

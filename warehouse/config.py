@@ -100,6 +100,9 @@ def configure(settings=None):
     # Register support for services
     config.include("pyramid_services")
 
+    # Register support for our legacy action URLs
+    config.include(".legacy.action_routing")
+
     # Register support for internationalization and localization
     config.include(".i18n")
 
