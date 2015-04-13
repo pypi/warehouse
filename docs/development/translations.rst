@@ -53,7 +53,15 @@ In Templates
 
 Inside of Jinja2 templates the standard
 `Jinja2 i18n extension <http://jinja.pocoo.org/docs/dev/extensions/#newstyle-gettext>`_
-configured with ``newstyle=True``.
+has been configured with ``newstyle=True``.
+
+You can use it like so:
+
+.. code:: python
+
+    <div>
+        {{ _('some string %(var)s', var='foo') }}
+    </div>
 
 
 Working with Translation Files
