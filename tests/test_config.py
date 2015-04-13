@@ -188,6 +188,7 @@ def test_configure(monkeypatch, settings):
                     "'self'",
                     "http://camo.example.com/",
                     "https://secure.gravatar.com",
+                    "https://raw.githubusercontent.com",
                 ],
                 "referrer": ["cross-origin"],
                 "reflected-xss": ["block"],

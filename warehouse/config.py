@@ -140,6 +140,7 @@ def configure(settings=None):
                 "'self'",
                 config.registry.settings["camo.url"],
                 "https://secure.gravatar.com",
+                "https://raw.githubusercontent.com",
             ],
             "referrer": ["cross-origin"],
             "reflected-xss": ["block"],
