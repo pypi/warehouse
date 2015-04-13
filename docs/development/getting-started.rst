@@ -18,6 +18,8 @@ documentation.
 Running Warehouse
 ~~~~~~~~~~~~~~~~~
 
+.. note:: docker-compose is supported on only Python 2.x while warehouse runs on Python 3
+
 Once you have Docker and Docker Compose installed, all you'll need to do is
 run:
 
@@ -59,8 +61,9 @@ The example data located in ``dev/example.sql.xz`` is taken from
 anything private. The password for every account has been set to the string
 ``password``.
 
-Type `docker ps` to see ip and port for web container to access warehouse webserver.
-Usually it's accessible at ``http://localhost/``.
+Web container is listening on port 80. If you're using boot2docker run `boot2docker ip`
+to figure out the ip where the web container is listening. On Linux it's accessible
+at ``http://localhost/``.
 
 
 Interactive Shell
