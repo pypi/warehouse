@@ -92,12 +92,18 @@ Running tests
 ~~~~~~~~~~~~~
 
 The Warehouse tests are found in the ``tests/`` directory and are designed to
-be run using tox. To run all of the tests all you have to do is:
+be run using tox.
+
+On Debian/Ubuntu systems, these packages must be installed to run the tests:
 
 .. code-block:: console
 
-
     $ apt-get install libffi-dev libpq-dev python3-dev postgresql postgresql-contrib
+
+To run all tests, all you have to do is:
+
+.. code-block:: console
+
     $ tox
     ...
       py34: commands succeeded
