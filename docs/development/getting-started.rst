@@ -96,6 +96,8 @@ be run using tox. To run all of the tests all you have to do is:
 
 .. code-block:: console
 
+
+    $ apt-get install libffi-dev libpq-dev python3-dev postgresql postgresql-contrib
     $ tox
     ...
       py34: commands succeeded
