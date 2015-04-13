@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-03-27 23:58-0400\n"
+"POT-Creation-Date: 2015-04-13 13:09-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,48 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: warehouse/templates/packaging/detail.html:87
-msgid "Author"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:131
-msgid "Classifiers"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:144
-msgid "Daily"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:141
-msgid "Download Stats"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:108
-msgid "Download URL"
-msgstr ""
-
 #: warehouse/templates/base.html:37
 msgid "Enter Search"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:36
-msgid "File"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:33
-msgid "Files"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:102
-msgid "Home page"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:121
-msgid "Keywords"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:116
-msgid "License"
 msgstr ""
 
 #: warehouse/templates/legacy/api/simple/detail.html:3
@@ -69,34 +29,6 @@ msgstr ""
 
 #: warehouse/templates/base.html:31
 msgid "Logo Image"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:92
-msgid "Maintainer"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:162
-msgid "Maintainers"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:146
-msgid "Monthly"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:126
-msgid "Platform"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:84
-msgid "Project Information"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:97
-msgid "Project URLs"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:38
-msgid "Python Version"
 msgstr ""
 
 #: warehouse/templates/base.html:39
@@ -127,25 +59,5 @@ msgstr ""
 
 #: warehouse/templates/legacy/api/simple/index.html:3
 msgid "Simple Index"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:40
-msgid "Size"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:37
-msgid "Type"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:39
-msgid "Uploaded On"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:149
-msgid "Versions"
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:145
-msgid "Weekly"
 msgstr ""
 
