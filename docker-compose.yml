@@ -15,7 +15,7 @@ camo:
 
 web:
   build: .
-  command: warehouse --config dev/config.yml serve -b 0.0.0.0 -w 1 --reload
+  command: python -m warehouse --config dev/config.yml serve -b 0.0.0.0 -w 1 --reload
   ports:
     - "80:8000"
   volumes:

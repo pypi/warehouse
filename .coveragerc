@@ -12,6 +12,10 @@ omit =
     # We don't want to get cover inforation for our migrations.
     warehouse/migrations/*
 
+    # We don't want to actually cover our __main__.py file because it is hard
+    # to cover and it really just acts as a tiny shim to a function.
+    warehouse/__main__.py
+
 
 [report]
 exclude_lines =
