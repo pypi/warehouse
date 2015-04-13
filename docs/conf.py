@@ -33,6 +33,7 @@ with open(os.path.join(base_dir, "warehouse", "__about__.py")) as f:
 # ones.
 extensions = [
     "sphinx.ext.doctest",
+    "sphinx.ext.todo",
     "sphinxcontrib.httpdomain",
 ]
 
@@ -74,3 +75,6 @@ else:
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Warehousedoc'
+
+# Enable display of todos
+todo_include_todos = True

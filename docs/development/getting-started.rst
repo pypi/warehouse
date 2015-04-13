@@ -66,6 +66,26 @@ Web container is listening on port 80. If you're using boot2docker run
 Linux it's accessible at ``http://localhost/``.
 
 
+Building Styles
+~~~~~~~~~~~~~~~
+
+Styles are written in the scss variant of Sass and compiled using Gulp. To
+install Gulp you will need to install `npm`_. Now you can tell npm to install
+Gulp and all the necessary plugins:
+
+.. code-block:: console
+
+    $ npm install
+
+To watch for changes to the .scss files and build the styles run this command:
+
+.. code-block:: console
+
+    $ ./node_modules/.bin/gulp watch
+
+
+.. todo:: Make Docker do this
+
 Interactive Shell
 ~~~~~~~~~~~~~~~~~
 
@@ -138,3 +158,4 @@ The HTML documentation index can now be found at
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`sphinx`: https://pypi.python.org/pypi/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
+.. _`npm`: https://nodejs.org/
