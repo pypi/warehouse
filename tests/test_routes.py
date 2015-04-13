@@ -78,6 +78,7 @@ def test_routes():
             traverse="/{name}/{version}",
         ),
         pretend.call("legacy.docs", docs_route_url),
+        pretend.call("legacy.security", "/security/"),
     ]
 
     assert config.add_redirect.calls == [

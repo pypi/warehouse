@@ -24,13 +24,20 @@
 
   <div class="content">
 
-    <p>If you have a query or report to make regarding security please contact {{ administrators|map(attribute='name')|join(', ') }}. All have GPG keys on key servers like pgp.mit.edu.</p>
+    <p>If you have a query or report to make regarding security please contact
+      {{ _(administrators|map(attribute='name')|join(', ')) }}. All have GPG
+      keys on key servers like pgp.mit.edu.</p>
 
     {% for administrator in administrators %}
-    <p>{{ administrator.name }}'s GPG key has key id {{ administrator.keyid }} (full fingerprint {{ administrator.fingerprint }}) and email address {{ administrator.email }}.</p>
+    <p>{{ _(administrator.name) }}'s GPG key
+      has key id {{ _(administrator.keyid) }}
+      (full fingerprint{{ _(administrator.fingerprint) }})
+      and email address {{ _(administrator.email) }}.</p>
     {% endfor %}
 
-    <p>You may also report issues in the <a href="https://github.com/pypa/warehouse/issues">Warehouse bug tracker</a>.</p>
+    <p>You may also report issues in the
+      <a href="https://github.com/pypa/warehouse/issues">Warehouse bug
+        tracker</a>.</p>
 
   </div>
 
@@ -40,13 +47,23 @@
 
   <div class="content">
 
-    <p>You may sign your uploads with GPG using the "--sign" argument to "python setup.py upload".</p>
+    <p>You may sign your uploads with GPG using the "--sign" argument to
+      "python setup.py upload".</p>
 
-    <p>Additionally you may avoid using the default HTTP authentication used on the site and instead <a href="https://github.com/pypa/twine">upload using twine</a>.</p>
+    <p>Additionally you may avoid using the default HTTP authentication used on
+      the site and instead <a href="https://github.com/pypa/twine">upload using
+        twine</a>.</p>
 
-    <p>The SHA-256 hash provided with files on PyPI exists <b>only</b> to provide some download corruption protection. It is <b>not</b> intended to provide any sort of security regarding tampering. Please use GPG signing for that.</p>
+    <p>The SHA-256 hash provided with files on PyPI exists <b>only</b> to
+      provide some download corruption protection. It is <b>not</b> intended to
+      provide any sort of security regarding tampering. Please use GPG signing
+      for that.</p>
 
-    <p><a href="https://www.python.org/dev/peps/pep-0458/">PEP 458</a> and <a href="https://www.python.org/dev/peps/pep-0480/">PEP 480</a> propose using <a href="http://theupdateframework.com/">The Update Framework (TUF)</a> to secure Warehouse against man-in-the-middle attacks and a compromise of Warehouse itself respectively.</p>
+    <p><a href="https://www.python.org/dev/peps/pep-0458/">PEP 458</a> and
+      <a href="https://www.python.org/dev/peps/pep-0480/">PEP 480</a> propose
+      using <a href="http://theupdateframework.com/">The Update Framework
+        (TUF)</a> to secure Warehouse against man-in-the-middle attacks and a
+        compromise of Warehouse itself respectively.</p>
 
   </div>
 
