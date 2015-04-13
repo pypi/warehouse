@@ -59,6 +59,9 @@ The example data located in ``dev/example.sql.xz`` is taken from
 anything private. The password for every account has been set to the string
 ``password``.
 
+Type `docker ps` to see ip and port for web container to access warehouse webserver.
+Usually it's accessible at ``http://localhost/``.
+
 
 Interactive Shell
 ~~~~~~~~~~~~~~~~~
