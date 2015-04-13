@@ -38,7 +38,6 @@ def includeme(config):
     config.add_route("packaging.file", "/packages/{path:.*}")
 
     # Legacy URLs
-    config.add_route("legacy.api.index", "/")
     config.add_route("legacy.api.simple.index", "/simple/")
     config.add_route(
         "legacy.api.simple.detail",

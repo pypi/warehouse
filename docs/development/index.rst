@@ -14,6 +14,7 @@ bug check out `what to put in your bug report`_.
     submitting-patches
     translations
     patterns
+    database-migrations
     reviewing-patches
 
 .. _`GitHub`: https://github.com/pypa/warehouse
