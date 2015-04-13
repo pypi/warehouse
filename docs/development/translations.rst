@@ -57,7 +57,7 @@ has been configured with ``newstyle=True``.
 
 You can use it like so:
 
-.. code:: python
+.. code:: jinja
 
     <div>
         {{ _('some string %(var)s', var='foo') }}
