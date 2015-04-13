@@ -20,6 +20,11 @@
   <header class="detail-header">
     <h1>{{ project.name }} <span class="version">{{ release.version }}</span></h1>
     {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
+    {% if release.version != all_releases[0].version %}
+    <div class="alert alert-warning">
+      {{ _('The latest version of this package is <a href="%(version_link)s">%(version)s</a>', version_link=request.route_path('packaging.project', name=release.name), version=all_releases[0].version) }}
+    </div>
+    {% endif %}
   </header>
 
   <div>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-03-27 23:58-0400\n"
+"POT-Creation-Date: 2015-04-13 15:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: warehouse/templates/packaging/detail.html:87
+#: warehouse/templates/packaging/detail.html:92
 msgid "Author"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:131
+#: warehouse/templates/packaging/detail.html:136
 msgid "Classifiers"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:144
+#: warehouse/templates/packaging/detail.html:149
 msgid "Daily"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:141
+#: warehouse/templates/packaging/detail.html:146
 msgid "Download Stats"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:108
+#: warehouse/templates/packaging/detail.html:113
 msgid "Download URL"
 msgstr ""
 
@@ -41,23 +41,23 @@ msgstr ""
 msgid "Enter Search"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:36
+#: warehouse/templates/packaging/detail.html:41
 msgid "File"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:33
+#: warehouse/templates/packaging/detail.html:38
 msgid "Files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:102
+#: warehouse/templates/packaging/detail.html:107
 msgid "Home page"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:121
+#: warehouse/templates/packaging/detail.html:126
 msgid "Keywords"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:116
+#: warehouse/templates/packaging/detail.html:121
 msgid "License"
 msgstr ""
 
@@ -71,31 +71,31 @@ msgstr ""
 msgid "Logo Image"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:92
+#: warehouse/templates/packaging/detail.html:97
 msgid "Maintainer"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:167
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:146
+#: warehouse/templates/packaging/detail.html:151
 msgid "Monthly"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:131
 msgid "Platform"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:84
+#: warehouse/templates/packaging/detail.html:89
 msgid "Project Information"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:97
+#: warehouse/templates/packaging/detail.html:102
 msgid "Project URLs"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:38
+#: warehouse/templates/packaging/detail.html:43
 msgid "Python Version"
 msgstr ""
 
@@ -129,23 +129,30 @@ msgstr ""
 msgid "Simple Index"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:40
+#: warehouse/templates/packaging/detail.html:45
 msgid "Size"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:37
+#: warehouse/templates/packaging/detail.html:25
+#, python-format
+msgid ""
+"The latest version of this package is <a "
+"href=\"%(version_link)s\">%(version)s</a>"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:42
 msgid "Type"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:39
+#: warehouse/templates/packaging/detail.html:44
 msgid "Uploaded On"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:149
+#: warehouse/templates/packaging/detail.html:154
 msgid "Versions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:145
+#: warehouse/templates/packaging/detail.html:150
 msgid "Weekly"
 msgstr ""
 
