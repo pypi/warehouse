@@ -78,7 +78,7 @@ To watch for changes to the .scss files and build the styles run this command:
     $ ./node_modules/.bin/gulp watch
 
 
-TODO: Make Docker do this
+.. todo:: Make Docker do this
 
 Interactive Shell
 ~~~~~~~~~~~~~~~~~
