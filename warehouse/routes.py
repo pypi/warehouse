@@ -67,3 +67,6 @@ def includeme(config):
         "/pypi/{name}/{version}/",
         "/project/{name}/{version}/",
     )
+
+    # Security page
+    config.add_route("security", "/security/")
