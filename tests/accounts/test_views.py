@@ -118,16 +118,24 @@ class TestLogin:
             name="unauthenticated_userid",
         )
 
+        route_path = lambda route_name, username: "/accounts/{}/".\
+                                                  format(username)
+        # TODO: Why must I mock this request method? Why is the original
+        # route_path on the request object not already aware of routes?
+        pyramid_request.route_path = pretend.call_recorder(route_path)
+
+        username = "theuser"
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data="theuser"),
+            username=pretend.stub(data=username),
         )
         form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/"
+        assert result.headers["Location"] == route_path("accounts.profile",
+                                                        username)
         assert result.headers["foo"] == "bar"
         assert pyramid_request.find_service.calls == [
             pretend.call(ILoginService, context=None),
