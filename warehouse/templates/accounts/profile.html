@@ -18,12 +18,14 @@
 
 {% block content %}
   <h1> Profile Page </h1>
-  <p> Username: {{ user.username }}</p>
-  <p> Name: {{ user.name }}</p>
-  <p> User ID: {{ user.id }}</p>
-  <p> Email: {{ user.email }}</p>
-  <p> Account Active: {{ user.is_active }}</p>
-  <p> Staff: {{ user.is_staff }}</p>
-  <p> Date Joined: {{ user.date_joined }}</p>
-  <p> Last Login: {{ user.last_login }}</p>
+  <ul>
+    <li> Username: {{ user.username }} </li>
+    <li> Name: {{ user.name }} </li>
+    <li> User ID: {{ user.id }} </li>
+    <li> Email: {{ user.email }} </li>
+    <li> Account Active: {{ user.is_active }} </li>
+    <li> Staff: {{ user.is_staff }} </li>
+    <li> Date Joined: {{ user.date_joined }} </li>
+    <li> Last Login: {{ user.last_login }} </li>
+  </ul>
 {% endblock %}
