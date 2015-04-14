@@ -107,6 +107,13 @@ class Project(db.ModelBase):
             raise KeyError from None
 
     @property
+    def latest_release(self):
+        try:
+            return self.releases.order_by('created')[0]
+        except IndexError:
+            return None
+
+    @property
     def documentation_url(self):
         # TODO: Move this into the database and elimnate the use of the
         #       threadlocal here.
