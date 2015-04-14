@@ -15,9 +15,12 @@ from warehouse.utils.http import is_safe_url
 
 class TestHttp:
 
-    # FROM https://github.com/django/django/blob/
+    # (MOSTLY) FROM https://github.com/django/django/blob/
     # 011a54315e46acdf288003566b8570440f5ac985/tests/utils_tests/test_http.py
     def test_is_safe_url(self):
+        # A None URL is not safe!
+        assert not is_safe_url(None)
+
         for bad_url in ('http://example.com',
                         'http:///example.com',
                         'https://example.com',
