@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import fs.errors
 
 from citext import CIText
@@ -91,6 +92,10 @@ class Project(db.ModelBase):
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
+    )
+    updated = Column(
+        DateTime(timezone=False),
+        onupdate=datetime.datetime.now
     )
 
     releases = orm.relationship(
