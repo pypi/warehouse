@@ -118,6 +118,7 @@ class TestLogin:
             name="unauthenticated_userid",
         )
 
+        route_name = "accounts.profile"
         route_path = lambda route_name, username: "/accounts/{}/".\
                                                   format(username)
         # TODO: Why must I mock this request method? Why is the original
@@ -134,23 +135,30 @@ class TestLogin:
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == route_path("accounts.profile",
-                                                        username)
+
+        assert result.headers["Location"] == route_path(route_name, username)
         assert result.headers["foo"] == "bar"
-        assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
-        ]
+
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),
         ]
         assert form_obj.validate.calls == [pretend.call()]
+
         assert login_service.find_userid.calls == [pretend.call("theuser")]
+
         if with_user:
             assert new_session == {}
         else:
             assert new_session == {"a": "b", "foo": "bar"}
-        assert pyramid_request.session.invalidate.calls == [pretend.call()]
+
         assert remember.calls == [pretend.call(pyramid_request, 1)]
+        assert pyramid_request.session.invalidate.calls == [pretend.call()]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(ILoginService, context=None),
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(route_name, username=username),
+        ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
 
