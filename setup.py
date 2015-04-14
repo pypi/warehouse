@@ -85,6 +85,7 @@ setuptools.setup(
         "pyramid_tm>=0.11",
         "readme>=0.5.1",
         "redis",
+        "elasticsearch",
         "setproctitle",
         "sqlalchemy>=0.9",
         "sqlalchemy-citext",
