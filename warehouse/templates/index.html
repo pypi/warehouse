@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="index-page">
+    <header class="header">
+        <div class="flash-notice">
+            <p><strong class="site-name hidden-xs hidden-sm">Warehouse (pypi.python.org)</strong>
+            is a repository of software for the Python programming language.</p>
+            <span>For up to date best practices about packaging read
+            <a href="https://packaging.python.org/en/latest/">packaging.python.org</a></span>.
+        </div>
+        
+        <form class="search-bar" role="search" action="{{ request.route_path('packaging.search') }}" method="GET">
+          <input type="search" placeholder="Search packages ..." />
+          <button type="submit">
+            <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="Search Icon">
+          </button>
+        </form>
+        
+        <div class="stats">
+          <ul>
+            <li>{{ num_projects }}<span>Projects</span></li>
+            <li>{{ num_releases }}<span>Releases</span></li>
+            <li>{{ num_files }}<span>Files</span></li>
+            <li>{{ num_users }}<span>Users</span></li>
+          </ul>
+        </div>
+    </header>
+
+    <div class="content">
+        <h1>{{ _('Recently Released') }}</h1>
+        <ul>
+            {% for project in latest_updated_projects %}
+            <div class="comment">
+              <div class="comment-image">
+                    <img src="{{ gravatar(project.latest_release.author_email, size=50) }}" alt="{{ project.latest_release.author}}" height="50" width="50">
+              </div>
+              <div class="comment-content">
+                <h1><a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+                      {{ project.name }}</a>
+                </h1>
+                <p>{{ project.latest_release.summary }}</p>
+                <p class="comment-detail"><strong>{{ project.latest_release.version }}</strong> by
+                  {{ project.latest_release.author }}
+                </p>
+              </div>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endblock %}
