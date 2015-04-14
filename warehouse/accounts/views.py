@@ -120,7 +120,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     renderer="accounts/logout.html",
     decorator=[csrf_protect("accounts.logout"), uses_session],
 )
-def logout(request):
+def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
 
@@ -143,10 +143,15 @@ def logout(request):
         #       to handle this for us.
         request.session.invalidate()
 
+        redirect_to = request.POST.get(redirect_field_name,
+                                       request.GET.get(redirect_field_name))
+
+        # Security check -- don't allow redirection to a different host.
+        if not is_safe_url(url=redirect_to, host=request.host):
+            redirect_to = request.path
+
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
-        # TODO: Implement ?next= support.
-        # TODO: Figure out a better way to handle the "default view".
-        return HTTPSeeOther("/", headers=dict(headers))
+        return HTTPSeeOther(redirect_to, headers=dict(headers))
 
     return {}

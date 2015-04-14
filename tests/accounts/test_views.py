@@ -263,3 +263,27 @@ class TestLogout:
         assert result.headers["foo"] == "bar"
         assert forget.calls == [pretend.call(pyramid_request)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
+
+    def test_post_redirects_user(self, monkeypatch, pyramid_request):
+        forget = pretend.call_recorder(lambda request: [("foo", "bar")])
+        monkeypatch.setattr(views, "forget", forget)
+
+        # The set of all possible next URLs. Since this set is infinite, we
+        # test only a finite set of reasonable URLs.
+        nexts = ["/security/"]
+
+        pyramid_request.method = "POST"
+        pyramid_request.session = pretend.stub(
+            invalidate=pretend.call_recorder(lambda: None),
+        )
+
+        for next in nexts:
+            pyramid_request.POST["next"] = next
+
+            result = views.logout(pyramid_request)
+
+            assert isinstance(result, HTTPSeeOther)
+            assert result.headers["Location"] == next
+            assert result.headers["foo"] == "bar"
+            assert forget.calls == [pretend.call(pyramid_request)]
+            assert pyramid_request.session.invalidate.calls == [pretend.call()]
