@@ -78,7 +78,7 @@ setuptools.setup(
         "msgpack-python",
         "passlib>=1.6",
         "psycopg2",
-        "pyramid>=1.6.dev0",
+        "pyramid>=1.6a1",
         "pyramid_jinja2>=2.4",
         "pyramid_multiauth",
         "pyramid_services",

@@ -8,10 +8,6 @@
 # We need to use a newer version of webob than is available on PyPI.
 https://github.com/Pylons/webob/archive/master.zip#egg=webob
 
-# We need a newer version of Pyramid (1.6) than what is currently available on
-# PyPI, so we'll install it from GitHub first.
-https://github.com/Pylons/pyramid/archive/master.zip#egg=pyramid
-
 # We need a patched version of Jinja2 which gives access to the context in a
 # finalize function.
 https://github.com/dstufft/jinja2/archive/contextfinalize.zip#egg=jinja2
