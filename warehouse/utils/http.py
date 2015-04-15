@@ -46,4 +46,4 @@ def is_safe_url(url, host=None):
     if unicodedata.category(url[0])[0] == 'C':
         return False
     return ((not url_info.netloc or url_info.netloc == host) and
-            (not url_info.scheme or url_info.scheme in ['http', 'https']))
+            (not url_info.scheme or url_info.scheme in {'http', 'https'}))
