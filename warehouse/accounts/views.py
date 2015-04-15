@@ -103,10 +103,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         request.session.new_csrf_token()
 
         # If the user-originating redirection url is not safe, then redirect to
-        # the user's profile instead.
+        # the index instead.
         if not is_safe_url(url=redirect_to, host=request.host):
-            redirect_to = request.route_path("accounts.profile",
-                                             username=username)
+            redirect_to = "/"
 
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
@@ -146,9 +145,10 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         redirect_to = request.POST.get(redirect_field_name,
                                        request.GET.get(redirect_field_name))
 
-        # Security check -- don't allow redirection to a different host.
+        # If the user-originating redirection url is not safe, then redirect to
+        # the index instead.
         if not is_safe_url(url=redirect_to, host=request.host):
-            redirect_to = request.path
+            redirect_to = "/"
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
