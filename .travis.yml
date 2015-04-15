@@ -20,11 +20,8 @@ env:
 
 install:
   # Build wheels for our entire dependency chain.
-  - pip wheel -e . --find-links https://github.com/Pylons/pyramid/archive/master.zip#egg=pyramid-1.6.dev0
+  - pip wheel -e .
   - pip wheel tox coverage factory_boy freezegun pretend pytest pytest-dbfixtures>=0.9.0 sphinx sphinx_rtd_theme flake8 pep8-naming check-manifest readme>=0.5.1
-  # Delete the Pyramid wheel, we'll want to pull from HEAD each time for that
-  # until we have a released version of Pyramid we can use instead.
-  - rm $PIP_WHEEL_DIR/pyramid-*.whl
   # Run our actual installation for tox now.
   - pip install tox
 
