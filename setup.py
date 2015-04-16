@@ -79,7 +79,7 @@ setuptools.setup(
         "passlib>=1.6",
         "psycopg2",
         "pyramid>=1.6a1",
-        "pyramid_jinja2>=2.4",
+        "pyramid_jinja2>=2.5",
         "pyramid_multiauth",
         "pyramid_services",
         "pyramid_tm>=0.11",
