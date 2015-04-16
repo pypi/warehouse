@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
 import fs.errors
 
 from citext import CIText
@@ -93,10 +92,6 @@ class Project(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
-    updated = Column(
-        DateTime(timezone=False),
-        onupdate=datetime.datetime.now
-    )
 
     releases = orm.relationship(
         "Release",
@@ -110,13 +105,6 @@ class Project(db.ModelBase):
             return self.releases.filter(Release.version == version).one()
         except NoResultFound:
             raise KeyError from None
-
-    @property
-    def latest_release(self):
-        try:
-            return self.releases.order_by('created')[0]
-        except IndexError:
-            return None
 
     @property
     def documentation_url(self):

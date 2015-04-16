@@ -30,18 +30,18 @@
     <div class="content">
         <h1>{{ _('Recently Released') }}</h1>
         <ul>
-            {% for project in latest_updated_projects %}
+            {% for release in latest_updated_releases %}
             <div class="comment">
               <div class="comment-image">
-                    <img src="{{ gravatar(project.latest_release.author_email, size=50) }}" alt="{{ project.latest_release.author}}" height="50" width="50">
+                    <img src="{{ gravatar(release.author_email, size=50) }}" alt="{{ release.author}}" height="50" width="50">
               </div>
               <div class="comment-content">
-                <h1><a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-                      {{ project.name }}</a>
+                <h1><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
+                      {{ release.project.name }}</a>
                 </h1>
-                <p>{{ project.latest_release.summary }}</p>
-                <p class="comment-detail"><strong>{{ project.latest_release.version }}</strong> by
-                  {{ project.latest_release.author }}
+                <p>{{ release.summary }}</p>
+                <p class="comment-detail"><strong>{{ release.version }}</strong> by
+                  {{ release.author }}
                 </p>
               </div>
             </div>

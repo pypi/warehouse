@@ -21,15 +21,15 @@ from warehouse.accounts.models import User
     renderer="index.html",
 )
 def index(request):
-    latest_updated_projects = request.db.query(Project)\
-                                        .order_by(Project.updated)[:20]
+    latest_updated_releases = request.db.query(Release)\
+                                        .order_by(Release.created)[:20]
     num_projects = request.db.query(Project).count()
     num_users = request.db.query(User).count()
     num_files = request.db.query(File).count()
     num_releases = request.db.query(Release).count()
 
     return {
-        'latest_updated_projects': latest_updated_projects,
+        'latest_updated_releases': latest_updated_releases,
         'num_projects': num_projects,
         'num_users': num_users,
         'num_releases': num_releases,
