@@ -14,12 +14,14 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 
+from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.interfaces import ILoginService
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
 from warehouse.sessions import uses_session
+from warehouse.utils.http import is_safe_url
 
 
 @view_config(
@@ -48,19 +50,23 @@ def profile(user, request):
     renderer="accounts/login.html",
     decorator=[csrf_protect("accounts.login"), uses_session],
 )
-def login(request, _form_class=LoginForm):
-    # TODO: If already logged in just redirect to ?next=
+def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
+          _form_class=LoginForm):
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
     login_service = request.find_service(ILoginService, context=None)
 
+    redirect_to = request.POST.get(redirect_field_name,
+                                   request.GET.get(redirect_field_name))
+
     form = _form_class(request.POST, login_service=login_service)
 
     if request.method == "POST" and form.validate():
         # Get the user id for the given username.
-        userid = login_service.find_userid(form.username.data)
+        username = form.username.data
+        userid = login_service.find_userid(username)
 
         # We have a session factory associated with this request, so in order
         # to protect against session fixation attacks we're going to make sure
@@ -96,13 +102,23 @@ def login(request, _form_class=LoginForm):
         # and we don't want to continue using the old one.
         request.session.new_csrf_token()
 
+        # If the user-originating redirection url is not safe, then redirect to
+        # the index instead.
+        if (not redirect_to or
+                not is_safe_url(url=redirect_to, host=request.host)):
+            redirect_to = "/"
+
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
-        # TODO: Implement ?next= support.
-        # TODO: Figure out a better way to handle the "default view".
-        return HTTPSeeOther("/", headers=dict(headers))
+        return HTTPSeeOther(redirect_to, headers=dict(headers))
 
-    return {"form": form}
+    return {
+        "form": form,
+        "redirect": {
+            "field": REDIRECT_FIELD_NAME,
+            "data": redirect_to,
+        },
+    }
 
 
 @view_config(
@@ -110,9 +126,12 @@ def login(request, _form_class=LoginForm):
     renderer="accounts/logout.html",
     decorator=[csrf_protect("accounts.logout"), uses_session],
 )
-def logout(request):
+def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
+
+    redirect_to = request.POST.get(redirect_field_name,
+                                   request.GET.get(redirect_field_name))
 
     if request.method == "POST":
         # A POST to the logout view tells us to logout. There's no form to
@@ -133,10 +152,14 @@ def logout(request):
         #       to handle this for us.
         request.session.invalidate()
 
+        # If the user-originating redirection url is not safe, then redirect to
+        # the index instead.
+        if (not redirect_to or
+                not is_safe_url(url=redirect_to, host=request.host)):
+            redirect_to = "/"
+
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
-        # TODO: Implement ?next= support.
-        # TODO: Figure out a better way to handle the "default view".
-        return HTTPSeeOther("/", headers=dict(headers))
+        return HTTPSeeOther(redirect_to, headers=dict(headers))
 
-    return {}
+    return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}
