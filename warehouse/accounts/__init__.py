@@ -19,6 +19,8 @@ from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
 )
 
+REDIRECT_FIELD_NAME = 'next'
+
 
 def _login(username, password, request):
     login_service = request.find_service(ILoginService, context=None)
