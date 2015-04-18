@@ -59,7 +59,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     login_service = request.find_service(ILoginService, context=None)
 
     redirect_to = request.POST.get(redirect_field_name,
-                                   request.GET.get(redirect_field_name, ''))
+                                   request.GET.get(redirect_field_name))
 
     form = _form_class(request.POST, login_service=login_service)
 
@@ -104,14 +104,21 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
         # If the user-originating redirection url is not safe, then redirect to
         # the index instead.
-        if not is_safe_url(url=redirect_to, host=request.host):
+        if (not redirect_to or
+                not is_safe_url(url=redirect_to, host=request.host)):
             redirect_to = "/"
 
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
         return HTTPSeeOther(redirect_to, headers=dict(headers))
 
-    return {"form": form}
+    return {
+        "form": form,
+        "redirect": {
+            "field": REDIRECT_FIELD_NAME,
+            "data": redirect_to,
+        },
+    }
 
 
 @view_config(
@@ -122,6 +129,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
+
+    redirect_to = request.POST.get(redirect_field_name,
+                                   request.GET.get(redirect_field_name))
 
     if request.method == "POST":
         # A POST to the logout view tells us to logout. There's no form to
@@ -142,16 +152,14 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         #       to handle this for us.
         request.session.invalidate()
 
-        redirect_to = request.POST.get(redirect_field_name,
-                                       request.GET.get(redirect_field_name))
-
         # If the user-originating redirection url is not safe, then redirect to
         # the index instead.
-        if not is_safe_url(url=redirect_to, host=request.host):
+        if (not redirect_to or
+                not is_safe_url(url=redirect_to, host=request.host)):
             redirect_to = "/"
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
         return HTTPSeeOther(redirect_to, headers=dict(headers))
 
-    return {}
+    return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}

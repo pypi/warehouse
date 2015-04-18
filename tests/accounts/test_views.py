@@ -51,7 +51,8 @@ class TestUserProfile:
 
 class TestLogin:
 
-    def test_get_returns_form(self, pyramid_request):
+    @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
+    def test_get_returns_form(self, pyramid_request, next_url):
         login_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
             lambda iface, context: login_service
@@ -59,9 +60,15 @@ class TestLogin:
         form_obj = pretend.stub()
         form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
+        if next_url is not None:
+            pyramid_request.GET["next"] = next_url
+
         result = views.login(pyramid_request, _form_class=form_class)
 
-        assert result == {"form": form_obj}
+        assert result == {
+            "form": form_obj,
+            "redirect": {"field": "next", "data": next_url},
+        }
         assert pyramid_request.find_service.calls == [
             pretend.call(ILoginService, context=None),
         ]
@@ -69,18 +76,24 @@ class TestLogin:
             pretend.call(pyramid_request.POST, login_service=login_service),
         ]
 
-    def test_post_invalid_returns_form(self, pyramid_request):
+    @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
+    def test_post_invalid_returns_form(self, pyramid_request, next_url):
         login_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
             lambda iface, context: login_service
         )
         pyramid_request.method = "POST"
+        if next_url is not None:
+            pyramid_request.POST["next"] = next_url
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
         form_class = pretend.call_recorder(lambda d, login_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
-        assert result == {"form": form_obj}
+        assert result == {
+            "form": form_obj,
+            "redirect": {"field": "next", "data": next_url},
+        }
         assert pyramid_request.find_service.calls == [
             pretend.call(ILoginService, context=None),
         ]
@@ -185,8 +198,13 @@ class TestLogin:
 
 class TestLogout:
 
-    def test_get_returns_empty(self, pyramid_request):
-        assert views.logout(pyramid_request) == {}
+    @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
+    def test_get_returns_empty(self, pyramid_request, next_url):
+        if next_url is not None:
+            pyramid_request.GET["next"] = next_url
+
+        assert views.logout(pyramid_request) == \
+            {"redirect": {"field": "next", "data": next_url}}
 
     def test_post_forgets_user(self, monkeypatch, pyramid_request):
         forget = pretend.call_recorder(lambda request: [("foo", "bar")])
