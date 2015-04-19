@@ -29,24 +29,22 @@
 
     <div class="content">
         <h1>{{ _('Recently Released') }}</h1>
-        <ul>
-            {% for release in latest_updated_releases %}
-            <div class="comment">
-              <div class="comment-image">
-                    <img src="{{ gravatar(release.author_email, size=50) }}" alt="{{ release.author}}" height="50" width="50">
-              </div>
-              <div class="comment-content">
-                <h1><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
-                      {{ release.project.name }}</a>
-                </h1>
-                <p>{{ release.summary }}</p>
-                <p class="comment-detail"><strong>{{ release.version }}</strong> by
-                  {{ release.author }}
-                </p>
-              </div>
-            </div>
-            {% endfor %}
-        </ul>
+        {% for release in latest_updated_releases %}
+        <div class="comment">
+          <div class="comment-image">
+                <img src="{{ gravatar(release.author_email, size=50) }}" alt="{{ release.author}}" height="50" width="50">
+          </div>
+          <div class="comment-content">
+            <h1><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
+                  {{ release.project.name }}</a>
+            </h1>
+            {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
+            <p class="comment-detail"><strong>{{ release.version }}</strong> by
+              {{ release.author }}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
