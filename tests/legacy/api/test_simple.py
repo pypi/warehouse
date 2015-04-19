@@ -116,6 +116,8 @@ class TestSimpleDetail:
             )
             for r in releases
         ]
+        # let's assert the result is ordered by string comparison of filename
+        files = sorted(files, key=lambda key: key.filename)
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user.username)
@@ -139,6 +141,8 @@ class TestSimpleDetail:
             )
             for r in releases
         ]
+        # let's assert the result is ordered by string comparison of filename
+        files = sorted(files, key=lambda key: key.filename)
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(

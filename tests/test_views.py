@@ -24,11 +24,10 @@ class TestIndex:
     def test_index(self, db_request):
 
         project = ProjectFactory.create()
-        release1 = ReleaseFactory.create(project=project, version="2.0")
+        release1 = ReleaseFactory.create(project=project)
         release1.created = datetime.date(2011, 1, 1)
-        release2 = ReleaseFactory.create(project=project, version="1.0")
+        release2 = ReleaseFactory.create(project=project)
         release2.created = datetime.date(2012, 1, 1)
-        db_request.db.commit()
         FileFactory.create(
             release=release1,
             filename="{}-{}.tar.gz".format(project.name, release1.version),
