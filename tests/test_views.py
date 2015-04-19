@@ -11,8 +11,6 @@
 # limitations under the License.
 import datetime
 
-from pyramid.testing import DummyRequest
-
 from warehouse.views import index
 
 from .common.db.packaging import (
