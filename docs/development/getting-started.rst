@@ -128,7 +128,7 @@ On Debian/Ubuntu systems, these packages must be installed to run the tests:
 
     $ apt-get install libffi-dev libpq-dev python3-dev postgresql postgresql-contrib
 
-To use `<Nix <http://nixos.org/nix/>`_ run:
+To use `Nix <http://nixos.org/nix/>`_ run:
 
 .. code-block:: console
 
