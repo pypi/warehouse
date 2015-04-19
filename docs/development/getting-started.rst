@@ -117,6 +117,8 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 Running tests
 ~~~~~~~~~~~~~
 
+.. note:: PostgreSQL 9.4 is required because of pgcrypto extension
+
 The Warehouse tests are found in the ``tests/`` directory and are designed to
 be run using tox.
 
@@ -125,6 +127,13 @@ On Debian/Ubuntu systems, these packages must be installed to run the tests:
 .. code-block:: console
 
     $ apt-get install libffi-dev libpq-dev python3-dev postgresql postgresql-contrib
+
+To use `<Nix <http://nixos.org/nix/>`_ run:
+
+.. code-block:: console
+
+    $ bash <(curl https://nixos.org/nix/install)
+    $ nix-shell -p libffi postgresql94 python34
 
 To run all tests, all you have to do is:
 
@@ -138,7 +147,7 @@ To run all tests, all you have to do is:
       packaging: commands succeeded
       congratulations :)
 
-This will run the tests with the suported interpreter as well as all of the
+This will run the tests with the supported interpreter as well as all of the
 additional testing that we require. You may not have all the required Python
 versions installed, in which case you will see one or more
 ``InterpreterNotFound`` errors.
