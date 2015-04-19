@@ -37,6 +37,7 @@ def test_routes():
     includeme(config)
 
     assert config.add_route.calls == [
+        pretend.call('index', '/'),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",

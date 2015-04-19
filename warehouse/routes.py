@@ -12,6 +12,8 @@
 
 
 def includeme(config):
+    config.add_route("index", "/")
+
     # Accounts
     config.add_route(
         "accounts.profile",

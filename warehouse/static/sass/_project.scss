@@ -4,9 +4,10 @@
 
   .detail-header { @include span-columns(12); }
   .content { @include span-columns(9); }
-  .metadata { @include span-columns(3); }
 
   .metadata {
+    @include span-columns(3);
+
     .stats {
       $base-spacing: 1.5em !default;
       $dark-gray: #333 !default;
@@ -62,5 +63,23 @@
         border-radius: 8px;
       }
     }
+  }
+}
+
+.index-page {
+  @include padding(2em null 2em);
+  @include outer-container;
+
+  .header {
+    @include span-columns(12);
+  }
+  .content {
+    @include span-columns(9);
+    h1 { font-size: 30px; }
+  }
+
+  .stats ul {
+    margin: 20px auto;
+    display: table;
   }
 }
