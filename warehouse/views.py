@@ -22,7 +22,7 @@ from warehouse.accounts.models import User
 )
 def index(request):
     latest_updated_releases = request.db.query(Release)\
-                                        .order_by(Release.created)[:20]
+                                        .order_by(Release.created.desc())[:20]
     num_projects = request.db.query(Project).count()
     num_users = request.db.query(User).count()
     num_files = request.db.query(File).count()
