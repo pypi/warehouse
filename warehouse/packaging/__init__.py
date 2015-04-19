@@ -36,3 +36,4 @@ def includeme(config):
         "project",
         "project/{obj.project.normalized_name}",
     )
+    config.include('.elasticsearch')
