@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-04-18 11:17-0400\n"
+"POT-Creation-Date: 2015-04-18 21:10-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,6 +45,7 @@ msgstr ""
 msgid "File"
 msgstr ""
 
+#: warehouse/templates/index.html:24
 #: warehouse/templates/packaging/detail.html:38
 msgid "Files"
 msgstr ""
@@ -95,8 +96,20 @@ msgstr ""
 msgid "Project URLs"
 msgstr ""
 
+#: warehouse/templates/index.html:22
+msgid "Projects"
+msgstr ""
+
 #: warehouse/templates/packaging/detail.html:43
 msgid "Python Version"
+msgstr ""
+
+#: warehouse/templates/index.html:31
+msgid "Recently Released"
+msgstr ""
+
+#: warehouse/templates/index.html:23
+msgid "Releases"
 msgstr ""
 
 #: warehouse/templates/base.html:39
@@ -148,11 +161,19 @@ msgstr ""
 msgid "Uploaded On"
 msgstr ""
 
+#: warehouse/templates/index.html:25
+msgid "Users"
+msgstr ""
+
 #: warehouse/templates/packaging/detail.html:154
 msgid "Versions"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:150
 msgid "Weekly"
+msgstr ""
+
+#: warehouse/templates/index.html:42
+msgid "by"
 msgstr ""
 

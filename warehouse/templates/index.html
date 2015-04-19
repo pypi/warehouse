@@ -19,10 +19,10 @@
         
         <div class="stats">
           <ul>
-            <li>{{ num_projects }}<span>Projects</span></li>
-            <li>{{ num_releases }}<span>Releases</span></li>
-            <li>{{ num_files }}<span>Files</span></li>
-            <li>{{ num_users }}<span>Users</span></li>
+            <li>{{ num_projects }}<span>{{ _('Projects') }}</span></li>
+            <li>{{ num_releases }}<span>{{ _('Releases') }}</span></li>
+            <li>{{ num_files }}<span>{{ _('Files') }}</span></li>
+            <li>{{ num_users }}<span>{{ _('Users') }}</span></li>
           </ul>
         </div>
     </header>
@@ -39,7 +39,7 @@
                   {{ release.project.name }}</a>
             </h1>
             {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
-            <p class="comment-detail"><strong>{{ release.version }}</strong> by
+            <p class="comment-detail"><strong>{{ release.version }}</strong> {{ _('by') }}
               {{ release.author }}
             </p>
           </div>
