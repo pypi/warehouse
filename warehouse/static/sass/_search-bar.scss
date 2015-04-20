@@ -1,0 +1,46 @@
+form.search-bar {  
+  ///////////////////////////////////////////////////////////////////////////////////
+  $base-border-color: gainsboro !default;
+  $base-border-radius: 3px !default;
+  $base-line-height: 1.5em !default;
+  $action-color: #477DCA !default;
+  $dark-gray: #333 !default;
+  //////////////////////////////////////////////////////////////////////////////////
+
+  $search-bar-border-color: $base-border-color;
+  $search-bar-border: 1px solid $search-bar-border-color;
+  $search-bar-background: lighten($search-bar-border-color, 10%);
+
+  position: relative;
+
+  input[type=search] {
+    @include appearance(none);
+    @include box-sizing(border-box);
+    @include transition(border-color);
+    background-color: white;
+    border-radius: $base-border-radius;
+    border-radius: $base-border-radius;
+    border: 1px solid $base-border-color;
+    display: block;
+    font-size: 1em;
+    font-style: italic;
+    margin: 0;
+    padding: ($base-spacing / 3) ($base-spacing / 3);
+    position: relative;
+    width: 100%;
+  }
+
+  button[type=submit] {
+    @include button(flat, $action-color);
+    @include position(absolute, 0em 0em 0em null);
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    outline: none;
+    padding: 5px 10px;
+
+    img {
+      height: 12px;
+      opacity: 0.7;
+    }
+  }
+}

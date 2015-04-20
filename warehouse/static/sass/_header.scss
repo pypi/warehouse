@@ -59,6 +59,7 @@ header.navigation {
     background: #505050;
     clear: both;
     display: block;
+    min-width: 500px;
     height: $navigation-height;
     padding-left: $navigation-padding / 2;
     padding-right: $navigation-padding;
