@@ -4,19 +4,17 @@
 <section class="index-page">
     <header class="header">
         <div class="flash-notice">
-            <p><strong class="site-name hidden-xs hidden-sm">Warehouse (pypi.python.org)</strong>
-            is a repository of software for the Python programming language.</p>
-            <span>For up to date best practices about packaging read
-            <a href="https://packaging.python.org/en/latest/">packaging.python.org</a></span>.
+            <p>{{ _('%(site_name)s is a repository of software for the Python programming language.', site_name=request.registry.settings['site.name']) }}</p>
+            <p>{{ _('For up to date best practices about packaging read <a href="%(packaging_guide_url)s">packaging.python.org</a>.', packaging_guide_url='https://packaging.python.org/en/latest/') }}</p>
         </div>
-        
+
         <form class="search-bar" role="search" action="TODO" method="GET">
-          <input type="search" placeholder="Search packages ..." />
+          <input type="search" placeholder="{{ _('Search packages...') }}" />
           <button type="submit">
             <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="Search Icon">
           </button>
         </form>
-        
+
         <div class="stats">
           <ul>
             <li>{{ num_projects }}<span>{{ _('Projects') }}</span></li>
@@ -39,8 +37,8 @@
                   {{ release.project.name }}</a>
             </h1>
             {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
-            <p class="comment-detail"><strong>{{ release.version }}</strong> {{ _('by') }}
-              {{ release.author }}
+            <p class="comment-detail">
+              {{ _('<strong>%(version)s</strong> by %(author)s', version=release.version, author=release.author) }}
             </p>
           </div>
         </div>

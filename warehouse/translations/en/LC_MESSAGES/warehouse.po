@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-04-18 21:10-0400\n"
+"POT-Creation-Date: 2015-04-19 23:26-0400\n"
 "PO-Revision-Date: 2015-03-27 23:41-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
+
+#: warehouse/templates/index.html:7
+#, python-format
+msgid ""
+"%(site_name)s is a repository of software for the Python programming "
+"language."
+msgstr ""
+
+#: warehouse/templates/index.html:41
+#, python-format
+msgid "<strong>%(version)s</strong> by %(author)s"
+msgstr ""
 
 #: warehouse/templates/packaging/detail.html:92
 msgid "Author"
@@ -46,9 +58,16 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#: warehouse/templates/index.html:24
+#: warehouse/templates/index.html:22
 #: warehouse/templates/packaging/detail.html:38
 msgid "Files"
+msgstr ""
+
+#: warehouse/templates/index.html:8
+#, python-format
+msgid ""
+"For up to date best practices about packaging read <a "
+"href=\"%(packaging_guide_url)s\">packaging.python.org</a>."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:107
@@ -97,7 +116,7 @@ msgstr ""
 msgid "Project URLs"
 msgstr ""
 
-#: warehouse/templates/index.html:22
+#: warehouse/templates/index.html:20
 msgid "Projects"
 msgstr ""
 
@@ -105,16 +124,20 @@ msgstr ""
 msgid "Python Version"
 msgstr ""
 
-#: warehouse/templates/index.html:31
+#: warehouse/templates/index.html:29
 msgid "Recently Released"
 msgstr ""
 
-#: warehouse/templates/index.html:23
+#: warehouse/templates/index.html:21
 msgid "Releases"
 msgstr ""
 
 #: warehouse/templates/base.html:39
 msgid "Search"
+msgstr ""
+
+#: warehouse/templates/index.html:12
+msgid "Search packages..."
 msgstr ""
 
 #: warehouse/templates/base.html:43
@@ -162,7 +185,7 @@ msgstr ""
 msgid "Uploaded On"
 msgstr ""
 
-#: warehouse/templates/index.html:25
+#: warehouse/templates/index.html:23
 msgid "Users"
 msgstr ""
 
@@ -172,9 +195,5 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:150
 msgid "Weekly"
-msgstr ""
-
-#: warehouse/templates/index.html:42
-msgid "by"
 msgstr ""
 
