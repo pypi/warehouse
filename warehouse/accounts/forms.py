@@ -15,8 +15,9 @@ import wtforms
 from warehouse import forms
 
 
-def validate_legacy_username(username):
+def validate_legacy_username(form, username_field):
     """ ensures that the username satisfies legacy pypi requirements. """
+    username = username_field.data
     valid = username[0].isalnum() and username[-1].isalnum()
     if not valid:
         raise wtforms.validators.ValidationError(
@@ -24,12 +25,11 @@ def validate_legacy_username(username):
         )
 
     for c in username:
-        if not (c.alnum() or c in '._-'):
+        if not (c.isalnum() or c in '._-'):
             raise wtforms.validators.ValidationError(
                 "Username can only contain alphanumeric characters, "
                 "or those in \"._-\""
             )
-    return all((c.isalnum() or c in '._-') for c in username)
 
 
 class LoginForm(forms.Form):

@@ -175,5 +175,12 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=RegisterForm):
     form = _form_class(request.POST)
+
+    if request.method == "POST" and form.validate():
+        return {
+            "username": form.username.data,
+            "email": form.email.data
+        }
+
     return {"form": form}
 >>>>>>> starting work on register page

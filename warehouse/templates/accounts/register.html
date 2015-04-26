@@ -3,6 +3,7 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+  {% if form %}
   <h1>{{ _('Register with Warehouse') }}</h1>
   <h2>{{ _('Why Register?') }}</h2>
   <p>
@@ -10,11 +11,16 @@
     new Python packages, and maintain old ones
   </p>
   <form method="POST" action="{{ request.current_route_path() }}">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_scoped_csrf_token('accounts.login') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_scoped_csrf_token('accounts.register') }}">
 
     {% if form.errors.__all__ %}
     <ul class="errors">{% for error in form.errors.__all__ %}<li>{{ error }}</li>{% endfor %}</ul>
     {% endif %}
+
+    {% if form.email.errors %}
+    <ul class="errors">{% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    {% endif %}
+    {{ form.email(placeholder="Email") }}
 
     {% if form.username.errors %}
     <ul class="errors">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
@@ -33,4 +39,14 @@
 
     <input type="submit" value="Register">
   </form>
+  {% else %}
+  <h1>{{ _('Registration Succeeded!') }}</h1>
+  <p>
+    Congratulations, {{ username }}! You've created for an account.
+
+    We've sent an e-mail to {{ email }}. Please go to the URL on in
+    the e-mail to validate your account, and complete your
+    registration.
+  </p>
+  {% endif %}
 {% endblock %}

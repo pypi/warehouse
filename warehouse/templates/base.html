@@ -41,7 +41,7 @@
             </form>
           </div>
           <a href="{{ request.route_path('accounts.login') }}" class="sign-in">{{ _('Sign In') }}</a>
-          <a href="javascript:void(0)" class="sign-up">{{ _('Sign Up') }}</a>
+          <a href="{{ request.route_path('accounts.register') }}" class="sign-up">{{ _('Sign Up') }}</a>
         </div>
       </div>
     </header>
