@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-04-19 23:26-0400\n"
+"POT-Creation-Date: 2015-04-25 17:36-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,6 +127,14 @@ msgstr ""
 msgid "Recently Released"
 msgstr ""
 
+#: warehouse/templates/accounts/register.html:7
+msgid "Register with Warehouse"
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:43
+msgid "Registration Succeeded!"
+msgstr ""
+
 #: warehouse/templates/index.html:21
 msgid "Releases"
 msgstr ""
@@ -194,5 +202,9 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:150
 msgid "Weekly"
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:8
+msgid "Why Register?"
 msgstr ""
 
