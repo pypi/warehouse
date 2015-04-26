@@ -162,10 +162,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # where they were originally, or to the default view.
         return HTTPSeeOther(redirect_to, headers=dict(headers))
 
-<<<<<<< HEAD
     return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}
-=======
-    return {}
 
 
 @view_config(
@@ -183,4 +180,3 @@ def register(request, _form_class=RegisterForm):
         }
 
     return {"form": form}
->>>>>>> starting work on register page

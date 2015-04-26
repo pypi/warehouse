@@ -215,7 +215,7 @@ class TestLogout:
             invalidate=pretend.call_recorder(lambda: None),
         )
 
-        result = views.logout(pyrmid_request)
+        result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
