@@ -104,27 +104,33 @@ class TestRegisterForm:
 
     def _get_valid_formdata(self):
         return {
-            'email': 'myusername@username.com',
-            'username': 'my_username',
-            'password': 'foo',
-            'confirm': 'foo',
+            "email": "myusername@username.com",
+            "username": "my_username",
+            "password": "foo",
+            "confirm": "foo",
         }
 
     def test_validate_username_with_user_leading_nonalphanumeric(self):
         data = self._get_valid_formdata()
-        data['username'] = '_my_username'
+        data["username"] = "_my_username"
         form = RegisterForm(data=data)
         assert not form.validate()
 
     def test_validate_username_user_trailing_nonalphanumeric(self):
         data = self._get_valid_formdata()
-        data['username'] = 'thisisnotok_'
+        data["username"] = "thisisnotok_"
         form = RegisterForm(data=data)
         assert not form.validate()
 
     def test_validate_username_user_invalid_character(self):
         data = self._get_valid_formdata()
-        data['username'] = 'yes@@no'
+        data["username"] = "yes@@no"
+        form = RegisterForm(data=data)
+        assert not form.validate()
+
+    def test_validate_passwords_dont_match(self):
+        data = self._get_valid_formdata()
+        data["confirm"] = "not " + data["password"]
         form = RegisterForm(data=data)
         assert not form.validate()
 

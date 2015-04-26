@@ -96,3 +96,9 @@ class RegisterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def validate_confirm(self, field):
+        if field.data != self.password.data:
+            raise wtforms.validators.ValidationError(
+                "Password and confirm must match!"
+            )
