@@ -13,7 +13,7 @@
 from zope.interface import Interface
 
 
-class ILoginService(Interface):
+class IUserService(Interface):
 
     def get_user(userid):
         """

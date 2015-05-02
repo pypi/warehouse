@@ -16,12 +16,12 @@ from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 
 
-@implementer(ILoginService)
-class DatabaseLoginService:
+@implementer(IUserService)
+class DatabaseUserService:
 
     def __init__(self, session):
         self.db = session
@@ -77,4 +77,4 @@ class DatabaseLoginService:
 
 
 def database_login_factory(context, request):
-    return DatabaseLoginService(request.db)
+    return DatabaseUserService(request.db)

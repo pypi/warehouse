@@ -15,7 +15,7 @@ from pyramid.authentication import (
     SessionAuthenticationPolicy as _SessionAuthenticationPolicy,
 )
 
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import _add_vary_callback
 
 
@@ -31,9 +31,9 @@ class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
         username = super().unauthenticated_userid(request)
 
         # Assuming we got a username from the basic authentication policy, we
-        # want to locate the userid from the ILoginService.
+        # want to locate the userid from the IUserService.
         if username is not None:
-            login_service = request.find_service(ILoginService, context=None)
+            login_service = request.find_service(IUserService, context=None)
             return login_service.find_userid(username)
 
 

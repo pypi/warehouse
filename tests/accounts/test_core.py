@@ -13,7 +13,7 @@
 import pretend
 
 from warehouse import accounts
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.services import database_login_factory
 
 
@@ -28,7 +28,7 @@ class TestLogin:
         )
         assert accounts._login("myuser", "mypass", request) is None
         assert request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert service.find_userid.calls == [pretend.call("myuser")]
 
@@ -45,7 +45,7 @@ class TestLogin:
         )
         assert accounts._login("myuser", "mypass", request) is None
         assert request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
@@ -70,7 +70,7 @@ class TestLogin:
 
         assert accounts._login("myuser", "mypass", request) is principals
         assert request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
@@ -153,7 +153,7 @@ def test_includeme(monkeypatch):
     accounts.includeme(config)
 
     config.register_service_factory.calls == [
-        pretend.call(database_login_factory, ILoginService),
+        pretend.call(database_login_factory, IUserService),
     ]
     config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),

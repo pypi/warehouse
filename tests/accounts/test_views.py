@@ -16,7 +16,7 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.accounts import views
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 
 from ..common.db.accounts import UserFactory
 
@@ -70,7 +70,7 @@ class TestLogin:
             "redirect": {"field": "next", "data": next_url},
         }
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),
@@ -95,7 +95,7 @@ class TestLogin:
             "redirect": {"field": "next", "data": next_url},
         }
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, login_service=login_service),
@@ -159,7 +159,7 @@ class TestLogin:
         assert remember.calls == [pretend.call(pyramid_request, 1)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
