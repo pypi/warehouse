@@ -16,7 +16,10 @@ from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import (
+    IUserService,
+    UserAlreadyExists
+)
 from warehouse.accounts.models import User
 
 
@@ -74,6 +77,19 @@ class DatabaseUserService:
             user.password = new_hash
 
         return True
+
+    def create_user(self, user):
+        if self.find_userid(user.username):
+            raise UserAlreadyExists(
+                "User with username {0} already exists!".format(user.username)
+            )
+        self.db.add(user)
+        self.db.commit()
+
+    def update_user(self, user):
+        user = self.db.merge(user)
+        self.db.add(user)
+        self.db.commit()
 
 
 def database_login_factory(context, request):

@@ -11,11 +11,14 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import (
+    IUserService, UserAlreadyExists
+)
 
 from ..common.db.accounts import UserFactory
 
@@ -103,6 +106,28 @@ class TestDatabaseUserService:
             pretend.call("user password", password),
         ]
         assert user.password == "new password"
+
+    def test_create_user(self, db_session):
+        user = UserFactory.build()
+        service = services.DatabaseUserService(db_session)
+        service.create_user(user)
+        user_from_db = service.get_user(user.id)
+        assert user_from_db.username == user.username
+
+    def test_create_user_already_exists(self, db_session):
+        user = UserFactory.create()
+        service = services.DatabaseUserService(db_session)
+        with pytest.raises(UserAlreadyExists):
+            service.create_user(user)
+
+    def test_update_user(self, db_session):
+        user = UserFactory.create()
+        service = services.DatabaseUserService(db_session)
+        new_name = "new username"
+        user.name = new_name
+        service.update_user(user)
+        user_from_db = service.get_user(user.id)
+        assert user_from_db.username == user.username
 
 
 def test_database_login_factory(monkeypatch):
