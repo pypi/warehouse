@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-04-19 23:26-0400\n"
+"POT-Creation-Date: 2015-05-07 22:00-0700\n"
 "PO-Revision-Date: 2015-03-27 23:41-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: en <LL@li.org>\n"
@@ -92,6 +92,10 @@ msgstr ""
 msgid "Logo Image"
 msgstr ""
 
+#: warehouse/templates/base.html:44
+msgid "Logout"
+msgstr ""
+
 #: warehouse/templates/packaging/detail.html:97
 msgid "Maintainer"
 msgstr ""
@@ -140,11 +144,11 @@ msgstr ""
 msgid "Search packages..."
 msgstr ""
 
-#: warehouse/templates/base.html:43
+#: warehouse/templates/base.html:47
 msgid "Sign In"
 msgstr ""
 
-#: warehouse/templates/base.html:44
+#: warehouse/templates/base.html:48
 msgid "Sign Up"
 msgstr ""
 
