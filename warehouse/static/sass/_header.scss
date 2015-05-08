@@ -71,7 +71,7 @@ header.navigation {
     }
   }
 
-  .sign-up, .sign-in {
+  .sign-up, .sign-in, .profile, .sign-out {
     @include button(flat, $base-accent-color);
     display: inline;
     float: right;
