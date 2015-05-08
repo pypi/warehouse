@@ -50,6 +50,10 @@ example data by running:
     $ rm dev/example.sql
     $ docker-compose run web warehouse -c dev/config.yml db upgrade head
 
+If running the last command raises ``pkg_resources.DistributionNotFound: warehouse==15.0.dev0``,
+run ``docker-compose run web pip install -e .`` and then retry. See
+`Issue 501 <https://github.com/pypa/warehouse/issues/501>`_.
+
 The repository is exposed inside of the web container at ``/app/`` and
 Warehouse will automatically reload when it detects any changes made to the
 code. However editing the ``Dockerfile`` or adding new dependencies will
