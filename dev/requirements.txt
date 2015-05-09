@@ -12,6 +12,10 @@ https://github.com/Pylons/webob/archive/master.zip#egg=webob
 # finalize function.
 https://github.com/dstufft/jinja2/archive/contextfinalize.zip#egg=jinja2
 
+# We need a patched copy of pyramid_tm to enable disable the annotation of
+# username in the transaction.
+https://github.com/dstufft/pyramid_tm/archive/optional-user.zip#egg=pyramid_tm
+
 # Install Warehouse itself.
 -e .
 
