@@ -461,6 +461,15 @@ class TestSessionFactory:
         assert session.sid == "123456"
         assert not session.new
 
+    def test_no_save_invalid_session(self, pyramid_request):
+        session_factory = SessionFactory(
+            "mysecret", "redis://redis://localhost:6379/0",
+        )
+        session_factory.redis = pretend.stub()
+        pyramid_request.session = InvalidSession()
+        response = pretend.stub()
+        session_factory._process_response(pyramid_request, response)
+
     def test_noop_unused_session(self, pyramid_request):
         session_factory = SessionFactory(
             "mysecret", "redis://redis://localhost:6379/0",
@@ -587,7 +596,7 @@ class TestSessionMapperFactory:
         wrapped(context, request)
 
         assert view.calls == [pretend.call(context, request)]
-        assert request.session is session
+        assert isinstance(request.session, InvalidSession)
 
     def test_session_view(self, monkeypatch, pyramid_request):
         class FakeMapper:
