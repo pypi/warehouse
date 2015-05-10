@@ -16,7 +16,7 @@ import pytest
 
 from warehouse.packaging.models import ProjectFactory, File
 
-from ..common.db.packaging import (
+from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory, ReleaseFactory as DBReleaseFactory,
     FileFactory as DBFileFactory,
 )
