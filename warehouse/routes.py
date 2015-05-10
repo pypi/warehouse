@@ -23,6 +23,7 @@ def includeme(config):
     )
     config.add_route("accounts.login", "/account/login/")
     config.add_route("accounts.logout", "/account/logout/")
+    config.add_route("accounts.register", "/account/register/")
 
     # Packaging
     config.add_route(

@@ -242,3 +242,50 @@ class TestLogout:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
+
+
+class TestRegister:
+
+    def test_get_form(self, pyramid_request):
+        form_obj = pretend.stub()
+        form_class = pretend.call_recorder(lambda d: form_obj)
+        result = views.register(pyramid_request, _form_class=form_class)
+
+        assert result == {"form": form_obj}
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST)
+        ]
+
+    def test_post_invalid_returns_form(self, pyramid_request):
+        pyramid_request.method = "POST"
+        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
+        form_class = pretend.call_recorder(lambda d: form_obj)
+
+        result = views.register(pyramid_request, _form_class=form_class)
+
+        assert result == {"form": form_obj}
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+
+    def test_post_valid_returns_email_username(self, pyramid_request):
+        pyramid_request.method = "POST"
+        username, email = "fooname", "foo@example.com"
+        pyramid_request.POST.update({
+            "email": email, "username": username,
+        })
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=username),
+            email=pretend.stub(data=email),
+        )
+        form_class = pretend.call_recorder(lambda d: form_obj)
+
+        result = views.register(pyramid_request, _form_class=form_class)
+
+        assert result == {"email": email, "username": username}
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST),
+        ]
+        assert form_obj.validate.calls == [pretend.call()]

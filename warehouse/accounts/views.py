@@ -15,7 +15,7 @@ from pyramid.security import remember, forget
 from pyramid.view import view_config
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts.forms import LoginForm
+from warehouse.accounts.forms import LoginForm, RegisterForm
 from warehouse.accounts.interfaces import ILoginService
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
@@ -163,3 +163,20 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         return HTTPSeeOther(redirect_to, headers=dict(headers))
 
     return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}
+
+
+@view_config(
+    route_name="accounts.register",
+    renderer="accounts/register.html",
+    decorator=[csrf_protect("accounts.register"), uses_session],
+)
+def register(request, _form_class=RegisterForm):
+    form = _form_class(request.POST)
+
+    if request.method == "POST" and form.validate():
+        return {
+            "username": form.username.data,
+            "email": form.email.data
+        }
+
+    return {"form": form}

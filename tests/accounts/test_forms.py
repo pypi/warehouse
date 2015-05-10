@@ -14,7 +14,7 @@ import pretend
 import pytest
 import wtforms
 
-from warehouse.accounts.forms import LoginForm
+from warehouse.accounts.forms import LoginForm, RegisterForm
 
 
 class TestLoginForm:
@@ -98,3 +98,43 @@ class TestLoginForm:
 
         assert login_service.find_userid.calls == [pretend.call("my_username")]
         assert login_service.check_password.calls == [pretend.call(1, "pw")]
+
+
+class TestRegisterForm:
+
+    def _get_valid_formdata(self):
+        return {
+            "email": "myusername@username.com",
+            "username": "my_username",
+            "password": "foo",
+            "confirm": "foo",
+        }
+
+    def test_validate_username_with_user_leading_nonalphanumeric(self):
+        data = self._get_valid_formdata()
+        data["username"] = "_my_username"
+        form = RegisterForm(data=data)
+        assert not form.validate()
+
+    def test_validate_username_user_trailing_nonalphanumeric(self):
+        data = self._get_valid_formdata()
+        data["username"] = "thisisnotok_"
+        form = RegisterForm(data=data)
+        assert not form.validate()
+
+    def test_validate_username_user_invalid_character(self):
+        data = self._get_valid_formdata()
+        data["username"] = "yes@@no"
+        form = RegisterForm(data=data)
+        assert not form.validate()
+
+    def test_validate_passwords_dont_match(self):
+        data = self._get_valid_formdata()
+        data["confirm"] = "not " + data["password"]
+        form = RegisterForm(data=data)
+        assert not form.validate()
+
+    def test_validate_valid_form(self):
+        data = self._get_valid_formdata()
+        form = RegisterForm(data=data)
+        assert form.validate()

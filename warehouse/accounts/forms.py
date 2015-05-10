@@ -15,6 +15,23 @@ import wtforms
 from warehouse import forms
 
 
+def validate_legacy_username(form, username_field):
+    """ ensures that the username satisfies legacy pypi requirements. """
+    username = username_field.data
+    valid = username[0].isalnum() and username[-1].isalnum()
+    if not valid:
+        raise wtforms.validators.ValidationError(
+            "Username must start and end with an alphanumeric character."
+        )
+
+    for c in username:
+        if not (c.isalnum() or c in '._-'):
+            raise wtforms.validators.ValidationError(
+                "Username can only contain alphanumeric characters, "
+                "or those in \"._-\""
+            )
+
+
 class LoginForm(forms.Form):
 
     username = wtforms.StringField(
@@ -46,3 +63,42 @@ class LoginForm(forms.Form):
         if userid is not None:
             if not self.login_service.check_password(userid, field.data):
                 raise wtforms.validators.ValidationError("Invalid password.")
+
+
+class RegisterForm(forms.Form):
+
+    email = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(max=50),
+        ],
+    )
+
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(max=50),
+            validate_legacy_username
+        ],
+    )
+
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+        ],
+    )
+
+    confirm = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+        ],
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def validate_confirm(self, field):
+        if field.data != self.password.data:
+            raise wtforms.validators.ValidationError(
+                "Password and confirm must match!"
+            )
