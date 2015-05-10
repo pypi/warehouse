@@ -179,6 +179,7 @@ def test_configure(monkeypatch, settings):
         pretend.call({
             "tm.manager_hook": mock.ANY,
             "tm.activate_hook": config.activate_hook,
+            "tm.annotate_user": False,
         }),
         pretend.call({
             "csp": {
