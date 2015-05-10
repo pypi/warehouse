@@ -13,6 +13,7 @@ env:
     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
   matrix:
     - TOXENV=py34 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
+    - TOXENV=cover TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
     - TOXENV=pep8
     - TOXENV=docs
     - TOXENV=packaging

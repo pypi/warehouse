@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import ILoginService
 
-from ..common.db.accounts import UserFactory
+from ...common.db.accounts import UserFactory
 
 
 class TestUserProfile:

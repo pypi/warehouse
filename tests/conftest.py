@@ -10,11 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os.path
+
 import alembic.command
 import click.testing
 import psycopg2
 import pyramid.testing
 import pytest
+import webtest as _webtest
 
 from pytest_dbfixtures.factories.postgresql import (
     init_postgresql_database, drop_postgresql_database,
@@ -25,6 +28,27 @@ from sqlalchemy import event
 from warehouse.config import configure
 
 from .common.db import Session
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if not hasattr(item, "module"):  # e.g.: DoctestTextfile
+            continue
+
+        module_path = os.path.relpath(
+            item.module.__file__,
+            os.path.commonprefix([__file__, item.module.__file__]),
+        )
+
+        module_root_dir = module_path.split(os.pathsep)[0]
+        if (module_root_dir.startswith("functional")):
+            item.add_marker(pytest.mark.functional)
+        elif module_root_dir.startswith("unit"):
+            item.add_marker(pytest.mark.unit)
+        else:
+            raise RuntimeError(
+                "Unknown test type (filename = {0})".format(module_path)
+            )
 
 
 @pytest.fixture
@@ -114,3 +138,11 @@ def db_session(app_config):
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     return pyramid_request
+
+
+@pytest.yield_fixture
+def webtest(app_config):
+    try:
+        yield _webtest.TestApp(app_config.make_wsgi_app())
+    finally:
+        app_config.registry["sqlalchemy.engine"].dispose()
