@@ -17,6 +17,7 @@ import click.testing
 import psycopg2
 import pyramid.testing
 import pytest
+import webtest as _webtest
 
 from pytest_dbfixtures.factories.postgresql import (
     init_postgresql_database, drop_postgresql_database,
@@ -137,3 +138,11 @@ def db_session(app_config):
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     return pyramid_request
+
+
+@pytest.yield_fixture
+def webtest(app_config):
+    try:
+        yield _webtest.TestApp(app_config.make_wsgi_app())
+    finally:
+        app_config.registry["sqlalchemy.engine"].dispose()
