@@ -82,7 +82,7 @@ setuptools.setup(
         "pyramid_jinja2>=2.5",
         "pyramid_multiauth",
         "pyramid_services",
-        "pyramid_tm>=0.11",
+        "pyramid_tm>=0.12",
         "readme>=0.5.1",
         "redis",
         "setproctitle",
