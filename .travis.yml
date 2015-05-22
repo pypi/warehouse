@@ -19,12 +19,7 @@ env:
     - TOXENV=packaging
     - TOXENV=translations
 
-install:
-  # Build wheels for our entire dependency chain.
-  - pip wheel -e .
-  - pip wheel tox coverage factory_boy freezegun pretend pytest pytest-dbfixtures>=0.9.0 sphinx sphinx_rtd_theme flake8 pep8-naming check-manifest readme>=0.5.1
-  # Run our actual installation for tox now.
-  - pip install tox
+install: pip install -U pip wheel tox
 
 script: tox $TOXARGS
 
