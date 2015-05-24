@@ -13,10 +13,10 @@ import datetime
 
 from warehouse.views import index
 
-from .common.db.packaging import (
+from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
 )
-from .common.db.accounts import UserFactory
+from ..common.db.accounts import UserFactory
 
 
 class TestIndex:

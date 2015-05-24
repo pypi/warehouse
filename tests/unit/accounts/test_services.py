@@ -17,7 +17,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import IUserService
 
-from ..common.db.accounts import UserFactory, EmailFactory
+from ...common.db.accounts import UserFactory, EmailFactory
 
 
 class TestDatabaseUserService:

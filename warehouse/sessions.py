@@ -256,6 +256,11 @@ class SessionFactory:
         return session
 
     def _process_response(self, request, response):
+        # If the request has an InvalidSession, then the view can't have
+        # accessed the session, and we can just skip all of this anyways.
+        if isinstance(request.session, InvalidSession):
+            return
+
         # Check to see if the session has been marked to be deleted, if it has
         # benn then we'll delete it, and tell our response to delete the
         # session cookie as well.
@@ -299,21 +304,14 @@ def session_mapper_factory(mapper):
 
             @functools.wraps(view)
             def wrapped(context, request):
-                # Stash our session here so that we can restore it later
-                session = request.session
-
                 # Check if we're allowing access to the session for this
                 # request. If we're not allowing it, then we'll replace it with
                 # an InvalidSession() which won't allow using the session.
                 if not getattr(request, "_allow_session", False):
                     request.session = InvalidSession()
 
-                try:
-                    # Actually invoke our underlying view.
-                    return view(context, request)
-                finally:
-                    # Restore our session back onto the request
-                    request.session = session
+                # Actually invoke our underlying view.
+                return view(context, request)
 
             return wrapped
     return SessionMapper

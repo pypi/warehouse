@@ -16,8 +16,8 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
 
-from ...common.db.accounts import UserFactory
-from ...common.db.packaging import (
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, JournalEntryFactory,
 )
 

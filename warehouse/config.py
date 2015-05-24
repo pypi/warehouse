@@ -94,6 +94,7 @@ def configure(settings=None):
     config.add_settings({
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
         "tm.activate_hook": activate_hook,
+        "tm.annotate_user": False,
     })
     config.include("pyramid_tm")
 

@@ -21,8 +21,8 @@ from webob import datetime_utils
 
 from warehouse.packaging import views
 
-from ..common.db.accounts import UserFactory
-from ..common.db.packaging import (
+from ...common.db.accounts import UserFactory
+from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
 
