@@ -33,7 +33,8 @@ class IUserService(Interface):
         the given userid.
         """
 
-    def create_user(user):
+    def create_user(username, name, password, email,
+                    is_active=False, is_staff=False, is_superuser=False):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.
@@ -41,11 +42,12 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
-    def update_user(user):
+    def update_user(user_id, **changes):
         """
         Updates the user object
         """
 
-
-class UserAlreadyExists(Exception):
-    pass
+    def verify_user(user_id):
+        """
+        verifies the user
+        """

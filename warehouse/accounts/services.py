@@ -10,17 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import (
-    IUserService,
-    UserAlreadyExists
-)
-from warehouse.accounts.models import User
+from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import Email, User
 
 
 @implementer(IUserService)
@@ -78,18 +76,34 @@ class DatabaseUserService:
 
         return True
 
-    def create_user(self, user):
-        if self.find_userid(user.username):
-            raise UserAlreadyExists(
-                "User with username {0} already exists!".format(user.username)
-            )
+    def create_user(self, username, name, password, email,
+                    is_active=False, is_staff=False, is_superuser=False):
+        user = User(username=username,
+                    name=name,
+                    password=password,
+                    is_active=is_active,
+                    is_staff=is_staff,
+                    is_superuser=is_superuser)
+        user.last_login = datetime.datetime.now()
         self.db.add(user)
-        self.db.commit()
+        self.db.flush()
+        email_object = Email(email=email, user_id=user.id,
+                             primary=True, verified=False)
+        self.db.add(email_object)
+        return user
 
-    def update_user(self, user):
-        user = self.db.merge(user)
+    def update_user(self, user_id, **changes):
+        user = self.get_user(user_id)
+        for attr, value in changes.items():
+            setattr(user, attr, value)
         self.db.add(user)
-        self.db.commit()
+        return user
+
+    def verify_user(self, user_id):
+        user = self.get_user(user_id)
+        primary_emails = [x for x in user.emails if x.primary]
+        for p in primary_emails:
+            p.verified = True
 
 
 def database_login_factory(context, request):

@@ -11,16 +11,13 @@
 # limitations under the License.
 
 import pretend
-import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
-from warehouse.accounts.interfaces import (
-    IUserService, UserAlreadyExists
-)
+from warehouse.accounts.interfaces import IUserService
 
-from ..common.db.accounts import UserFactory
+from ..common.db.accounts import UserFactory, EmailFactory
 
 
 class TestDatabaseUserService:
@@ -109,25 +106,36 @@ class TestDatabaseUserService:
 
     def test_create_user(self, db_session):
         user = UserFactory.build()
+        email = "foo@example.com"
         service = services.DatabaseUserService(db_session)
-        service.create_user(user)
-        user_from_db = service.get_user(user.id)
+        new_user = service.create_user(username=user.username,
+                                       name=user.name,
+                                       password=user.password,
+                                       email=email)
+        user_from_db = service.get_user(new_user.id)
+        db_session.flush()
         assert user_from_db.username == user.username
-
-    def test_create_user_already_exists(self, db_session):
-        user = UserFactory.create()
-        service = services.DatabaseUserService(db_session)
-        with pytest.raises(UserAlreadyExists):
-            service.create_user(user)
+        assert user_from_db.name == user.name
+        assert user_from_db.password == user.password
+        assert user_from_db.email == email
 
     def test_update_user(self, db_session):
         user = UserFactory.create()
         service = services.DatabaseUserService(db_session)
         new_name = "new username"
-        user.name = new_name
-        service.update_user(user)
+        service.update_user(user.id, username=new_name)
         user_from_db = service.get_user(user.id)
         assert user_from_db.username == user.username
+
+    def test_verify_user(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = UserFactory.create()
+        EmailFactory.create(user=user, primary=True,
+                            verified=False)
+        service.verify_user(user.id)
+        user_emails = user.emails
+        for email in user_emails:
+            assert email.verified
 
 
 def test_database_login_factory(monkeypatch):
