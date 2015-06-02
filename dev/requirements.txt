@@ -8,9 +8,9 @@
 # We need to use a newer version of webob than is available on PyPI.
 https://github.com/Pylons/webob/archive/master.zip#egg=webob
 
-# We need a patched version of Jinja2 which gives access to the context in a
+# We need a newer version of Jinja2 which gives access to the context in a
 # finalize function.
-https://github.com/dstufft/jinja2/archive/contextfinalize.zip#egg=jinja2
+https://github.com/mitsuhiko/jinja2/archive/master.zip#egg=jinja2
 
 # Install Warehouse itself.
 -e .
