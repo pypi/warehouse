@@ -144,7 +144,7 @@ def packages(request):
     # If this request is for a PGP signature, and the file doesn't have a PGP
     # signature, then we can go ahead and 404 now before hitting the file
     # storage.
-    if path == file_.pgp_path and not file_.has_pgp_signature:
+    if path == file_.pgp_path and not file_.has_signature:
         return HTTPNotFound()
 
     # Try to open the file, streaming if possible, and if this file doesn't

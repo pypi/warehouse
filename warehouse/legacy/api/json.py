@@ -105,7 +105,7 @@ def json_release(release, request):
                 "filename": f.filename,
                 "packagetype": f.packagetype,
                 "python_version": f.python_version,
-                "has_sig": f.has_pgp_signature,
+                "has_sig": f.has_signature,
                 "comment_text": f.comment_text,
                 "md5_digest": f.md5_digest,
                 "size": f.size,

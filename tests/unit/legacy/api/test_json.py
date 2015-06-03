@@ -91,7 +91,7 @@ class TestJSONRelease:
         ]
 
     def test_detail_renders(self, pyramid_config, db_request):
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(has_docs=True)
         releases = [
             ReleaseFactory.create(project=project, version=v)
             for v in ["1.0", "2.0", "3.0"]
@@ -101,6 +101,8 @@ class TestJSONRelease:
                 release=r,
                 filename="{}-{}.tar.gz".format(project.name, r.version),
                 python_version="source",
+                size=200,
+                has_signature=True,
             )
             for r in releases[:-1]
         ]
@@ -122,14 +124,6 @@ class TestJSONRelease:
 
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
-
-        pyramid_config.registry["filesystems"] = {
-            "packages": pretend.stub(
-                exists=lambda x: True,
-                getsize=lambda x: 200,
-            ),
-            "documentation": pretend.stub(exists=lambda x: True),
-        }
 
         result = json.json_release(releases[1], db_request)
 
