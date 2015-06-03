@@ -227,6 +227,7 @@ class TestPackages:
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
+            size=27,
         )
 
         path = "source/{}/{}/{}".format(
@@ -264,6 +265,7 @@ class TestPackages:
             release=release,
             filename="{}-{}.tar.gz".format(project.name, release.version),
             python_version="source",
+            has_signature=True,
         )
 
         path = "source/{}/{}/{}.asc".format(

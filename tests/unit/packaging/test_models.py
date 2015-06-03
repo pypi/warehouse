@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fs.errors
 import pretend
 import pytest
 
@@ -59,41 +58,18 @@ class TestProject:
         with pytest.raises(KeyError):
             project["1.0"]
 
-    def test_doc_url_doesnt_exist(self, pyramid_config, db_request):
-        @pretend.call_recorder
-        def exists(path):
-            return False
-
-        pyramid_config.registry["filesystems"] = {
-            "documentation": pretend.stub(exists=exists),
-        }
-
+    def test_doc_url_doesnt_exist(self, db_request):
         project = DBProjectFactory.create()
-
         assert project.documentation_url is None
-        assert exists.calls == [
-            pretend.call("/".join([project.name, "index.html"])),
-        ]
 
     def test_doc_url(self, pyramid_config, db_request):
-        @pretend.call_recorder
-        def exists(path):
-            return True
-
-        pyramid_config.registry["filesystems"] = {
-            "documentation": pretend.stub(exists=exists),
-        }
-
         db_request.route_url = pretend.call_recorder(
             lambda route, **kw: "/the/docs/url/"
         )
 
-        project = DBProjectFactory.create()
+        project = DBProjectFactory.create(has_docs=True)
 
         assert project.documentation_url == "/the/docs/url/"
-        assert exists.calls == [
-            pretend.call("/".join([project.name, "index.html"])),
-        ]
         assert db_request.route_url.calls == [
             pretend.call("legacy.docs", project=project.name),
         ]
@@ -138,58 +114,3 @@ class TestFile:
         )
 
         assert results == (expected, expected + ".asc")
-
-    @pytest.mark.parametrize("should_exist", [True, False])
-    def test_has_pgp_signature(self, pyramid_config, db_session, should_exist):
-        exister = pretend.call_recorder(lambda path: should_exist)
-        pyramid_config.registry["filesystems"] = {
-            "packages": pretend.stub(exists=exister),
-        }
-
-        project = DBProjectFactory.create()
-        release = DBReleaseFactory.create(project=project)
-        rfile = DBFileFactory.create(
-            release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
-            python_version="source",
-        )
-
-        assert rfile.has_pgp_signature is should_exist
-        assert exister.calls == [pretend.call(rfile.pgp_path)]
-
-    def test_size_valid(self, pyramid_config, db_session):
-        sizer = pretend.call_recorder(lambda path: 1934)
-        pyramid_config.registry["filesystems"] = {
-            "packages": pretend.stub(getsize=sizer),
-        }
-
-        project = DBProjectFactory.create()
-        release = DBReleaseFactory.create(project=project)
-        rfile = DBFileFactory.create(
-            release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
-            python_version="source",
-        )
-
-        assert rfile.size == 1934
-        assert sizer.calls == [pretend.call(rfile.path)]
-
-    def test_size_returns_0_on_invalid(self, pyramid_config, db_session):
-        @pretend.call_recorder
-        def sizer(path):
-            raise fs.errors.ResourceNotFoundError
-
-        pyramid_config.registry["filesystems"] = {
-            "packages": pretend.stub(getsize=sizer),
-        }
-
-        project = DBProjectFactory.create()
-        release = DBReleaseFactory.create(project=project)
-        rfile = DBFileFactory.create(
-            release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
-            python_version="source",
-        )
-
-        assert rfile.size == 0
-        assert sizer.calls == [pretend.call(rfile.path)]
