@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fs.errors
-
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import FileIter, Response
 from pyramid.view import view_config
@@ -20,7 +18,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.interfaces import IDownloadStatService
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.models import Release, File, Role
 
 
@@ -147,16 +145,11 @@ def packages(request):
     if path == file_.pgp_path and not file_.has_signature:
         return HTTPNotFound()
 
-    # Try to open the file, streaming if possible, and if this file doesn't
-    # exist then we'll return a 404 error. However we'll log an error because
-    # if the database thinks we have a file, then a file should exist here.
+    # Try to get the file from the file file storage service, logging an error
+    # and returning a HTTPNotFound if one can't be found.
     try:
-        # TODO: We need to use mode="rb" here because this is a binary file
-        #       and we don't want Python to attempt to decode it. However S3FS
-        #       checks explicitly for mode="r-" to support streaming access.
-        #       We need to get S3FS so that it support rb- as well as r-.
-        f = request.registry["filesystems"]["packages"].open(path, mode="rb")
-    except fs.errors.ResourceNotFoundError:
+        f = request.find_service(IFileStorage).get(path)
+    except FileNotFoundError:
         request.log.error("missing file data", path=path)
         return HTTPNotFound()
 

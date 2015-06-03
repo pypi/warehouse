@@ -160,6 +160,7 @@ def test_configure(monkeypatch, settings):
         pretend.call(".legacy.action_routing"),
         pretend.call(".i18n"),
         pretend.call(".db"),
+        pretend.call(".aws"),
         pretend.call(".sessions"),
         pretend.call(".cache.http"),
         pretend.call(".cache.origin"),

@@ -10,6 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
+import boto3.session
+import botocore.exceptions
 import freezegun
 import pretend
 import pytest
@@ -17,8 +21,10 @@ import redis
 
 from zope.interface.verify import verifyClass
 
-from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.services import RedisDownloadStatService
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
+from warehouse.packaging.services import (
+    RedisDownloadStatService, LocalFileStorage, S3FileStorage,
+)
 
 
 @freezegun.freeze_time("2012-01-14")
@@ -103,3 +109,97 @@ class TestRedisDownloadStatService:
 
         assert svc.get_monthly_stats("foo") == result
         assert svc.redis.mget.calls == [pretend.call(*call_keys)]
+
+
+class TestLocalFileStorage:
+
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, LocalFileStorage)
+
+    def test_basic_init(self):
+        storage = LocalFileStorage("/foo/bar/")
+        assert storage.base == "/foo/bar/"
+
+    def test_create_service(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"files.path": "/the/one/two/"},
+            ),
+        )
+        storage = LocalFileStorage.create_service(None, request)
+        assert storage.base == "/the/one/two/"
+
+    def test_gets_file(self, tmpdir):
+        with open(str(tmpdir.join("file.txt")), "wb") as fp:
+            fp.write(b"my test file contents")
+
+        storage = LocalFileStorage(str(tmpdir))
+        file_object = storage.get("file.txt")
+        assert file_object.read() == b"my test file contents"
+
+    def test_raises_when_file_non_existant(self, tmpdir):
+        storage = LocalFileStorage(str(tmpdir))
+        with pytest.raises(FileNotFoundError):
+            storage.get("file.txt")
+
+
+class TestS3FileStorage:
+
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, S3FileStorage)
+
+    def test_basic_init(self):
+        bucket = pretend.stub()
+        storage = S3FileStorage(bucket)
+        assert storage.bucket is bucket
+
+    def test_create_service(self):
+        session = boto3.session.Session()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: session),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = S3FileStorage.create_service(None, request)
+
+        assert request.find_service.calls == [pretend.call(name="aws.session")]
+        assert storage.bucket.name == "froblob"
+
+    def test_gets_file(self):
+        s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        file_object = storage.get("file.txt")
+
+        assert file_object.read() == b"my contents"
+        assert bucket.Object.calls == [pretend.call("file.txt")]
+
+    def test_raises_when_key_non_existant(self):
+        def raiser():
+            raise botocore.exceptions.ClientError(
+                {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}},
+                "some operation",
+            )
+
+        s3key = pretend.stub(get=raiser)
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get("file.txt")
+
+        assert bucket.Object.calls == [pretend.call("file.txt")]
+
+    def test_passes_up_error_when_not_no_such_key(self):
+        def raiser():
+            raise botocore.exceptions.ClientError(
+                {"Error": {"Code": "SomeOtherError", "Message": "Who Knows!"}},
+                "some operation",
+            )
+
+        s3key = pretend.stub(get=raiser)
+        bucket = pretend.stub(Object=lambda path: s3key)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(botocore.exceptions.ClientError):
+            storage.get("file.txt")

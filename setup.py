@@ -69,6 +69,7 @@ setuptools.setup(
         "alembic>=0.7.0",
         "Babel",
         "bcrypt",
+        "boto3",
         "click",
         "fs",
         "gunicorn",

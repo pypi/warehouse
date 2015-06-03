@@ -19,8 +19,11 @@ configurator:
   docs:
     url: "https://pythonhosted.org/{project}/"
 
+  files:
+    backend: warehouse.packaging.services.LocalFileStorage
+    path: /app/data/packages/
+
   dirs:
-    packages: /app/data/packages/
     documentation: /app/data/documentation/
 
   debugtoolbar:

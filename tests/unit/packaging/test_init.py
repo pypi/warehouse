@@ -13,11 +13,13 @@
 import pretend
 
 from warehouse import packaging
-from warehouse.packaging.interfaces import IDownloadStatService
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.models import Project, Release
 
 
 def test_includme(monkeypatch):
+    storage_class = pretend.stub(create_service=pretend.stub())
+
     download_stat_service_obj = pretend.stub()
     download_stat_service_cls = pretend.call_recorder(
         lambda url: download_stat_service_obj
@@ -27,10 +29,19 @@ def test_includme(monkeypatch):
     )
 
     config = pretend.stub(
+        maybe_dotted=lambda dotted: storage_class,
         register_service=pretend.call_recorder(
             lambda iface, svc: download_stat_service_cls
         ),
-        registry=pretend.stub(settings={"download_stats.url": pretend.stub()}),
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface: None,
+        ),
+        registry=pretend.stub(
+            settings={
+                "download_stats.url": pretend.stub(),
+                "files.backend": "foo.bar",
+            },
+        ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, *k: None),
     )
 
@@ -39,11 +50,15 @@ def test_includme(monkeypatch):
     assert download_stat_service_cls.calls == [
         pretend.call(config.registry.settings["download_stats.url"]),
     ]
+
     assert config.register_service.calls == [
         pretend.call(
             download_stat_service_obj,
             IDownloadStatService,
         ),
+    ]
+    assert config.register_service_factory.calls == [
+        pretend.call(storage_class.create_service, IFileStorage),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(

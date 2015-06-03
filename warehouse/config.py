@@ -110,6 +110,9 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
+    # Register the support for AWS
+    config.include(".aws")
+
     # Register our session support
     config.include(".sessions")
 
