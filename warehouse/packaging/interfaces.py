@@ -29,3 +29,18 @@ class IDownloadStatService(Interface):
         """
         Return the monthly download counts for the given project.
         """
+
+
+class IFileStorage(Interface):
+
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created for.
+        """
+
+    def get(path):
+        """
+        Return a file like object that can be read to access the file located
+        at the given path.
+        """

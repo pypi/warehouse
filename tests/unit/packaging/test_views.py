@@ -10,16 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
+import io
 
-import fs.errors
-import fs.memoryfs
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from webob import datetime_utils
 
 from warehouse.packaging import views
+from warehouse.packaging.interfaces import IFileStorage
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -184,12 +183,10 @@ class TestPackages:
 
     def test_404_when_missing_file(self, db_request, pyramid_config):
         @pretend.call_recorder
-        def opener(path, mode):
-            raise fs.errors.ResourceNotFoundError
+        def raiser(path):
+            raise FileNotFoundError
 
-        pyramid_config.registry["filesystems"] = {
-            "packages": pretend.stub(open=opener),
-        }
+        storage_service = pretend.stub(get=raiser)
 
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project)
@@ -207,20 +204,20 @@ class TestPackages:
         db_request.log = pretend.stub(
             error=pretend.call_recorder(lambda event, **kw: None),
         )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface: storage_service
+        )
 
         resp = views.packages(db_request)
 
         assert isinstance(resp, HTTPNotFound)
-        assert opener.calls == [pretend.call(path, mode="rb")]
+        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert storage_service.get.calls == [pretend.call(path)]
         assert db_request.log.error.calls == [
             pretend.call("missing file data", path=path),
         ]
 
-    def test_serves_package_file(self, db_request, pyramid_config):
-        memfs = fs.memoryfs.MemoryFS()
-
-        pyramid_config.registry["filesystems"] = {"packages": memfs}
-
+    def test_serves_package_file(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
@@ -234,10 +231,16 @@ class TestPackages:
             project.name[0], project.name, file_.filename
         )
 
-        memfs.makedir(os.path.dirname(path), recursive=True)
-        memfs.setcontents(path, b"some data for the fake file")
+        storage_service = pretend.stub(
+            get=pretend.call_recorder(
+                lambda path: io.BytesIO(b"some data for the fake file")
+            )
+        )
 
         db_request.matchdict["path"] = path
+        db_request.find_service = pretend.call_recorder(
+            lambda iface: storage_service
+        )
 
         resp = views.packages(db_request)
 
@@ -245,6 +248,9 @@ class TestPackages:
         last_modified = datetime_utils.parse_date(
             datetime_utils.serialize_date(file_.upload_time)
         )
+
+        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert storage_service.get.calls == [pretend.call(path)]
 
         assert resp.content_type == "application/octet-stream"
         assert resp.content_encoding is None
@@ -254,11 +260,7 @@ class TestPackages:
         # This needs to be last, as accessing resp.body sets the content_length
         assert resp.body == b"some data for the fake file"
 
-    def test_serves_signature_file(self, db_request, pyramid_config):
-        memfs = fs.memoryfs.MemoryFS()
-
-        pyramid_config.registry["filesystems"] = {"packages": memfs}
-
+    def test_serves_signature_file(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project)
         file_ = FileFactory.create(
@@ -272,10 +274,16 @@ class TestPackages:
             project.name[0], project.name, file_.filename
         )
 
-        memfs.makedir(os.path.dirname(path), recursive=True)
-        memfs.setcontents(path, b"some data for the fake file")
+        storage_service = pretend.stub(
+            get=pretend.call_recorder(
+                lambda path: io.BytesIO(b"some data for the fake file")
+            )
+        )
 
         db_request.matchdict["path"] = path
+        db_request.find_service = pretend.call_recorder(
+            lambda iface: storage_service
+        )
 
         resp = views.packages(db_request)
 
@@ -283,6 +291,9 @@ class TestPackages:
         last_modified = datetime_utils.parse_date(
             datetime_utils.serialize_date(file_.upload_time)
         )
+
+        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert storage_service.get.calls == [pretend.call(path)]
 
         assert resp.content_type == "application/octet-stream"
         assert resp.content_encoding is None

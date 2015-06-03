@@ -12,12 +12,15 @@
 
 import collections
 import datetime
+import os.path
+import warnings
 
+import botocore.exceptions
 import redis
 
 from zope.interface import implementer
 
-from warehouse.packaging.interfaces import IDownloadStatService
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 
 
 _PRECISION = collections.namedtuple(
@@ -76,3 +79,50 @@ class RedisDownloadStatService:
         Return the monthly download counts for the given project.
         """
         return self._get_stats(project, _PRECISIONS["monthly"])
+
+
+@implementer(IFileStorage)
+class LocalFileStorage:
+
+    def __init__(self, base):
+        # This class should not be used in production, it's trivial for it to
+        # be used to read arbitrary files from the disk. It is intended ONLY
+        # for local development with trusted users. To make this clear, we'll
+        # raise a warning.
+        warnings.warn(
+            "LocalFileStorage is intended only for use in development, you "
+            "should not use it in production due to the lack of safe guards "
+            "for safely locating files on disk.",
+            RuntimeWarning,
+        )
+
+        self.base = base
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.registry.settings["files.path"])
+
+    def get(self, path):
+        return open(os.path.join(self.base, path), "rb")
+
+
+@implementer(IFileStorage)
+class S3FileStorage:
+
+    def __init__(self, bucket):
+        self.bucket = bucket
+
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3 = session.resource("s3")
+        bucket = s3.Bucket(request.registry.settings["files.bucket"])
+        return cls(bucket)
+
+    def get(self, path):
+        try:
+            return self.bucket.Object(path).get()["Body"]
+        except botocore.exceptions.ClientError as exc:
+            if exc.response["Error"]["Code"] != "NoSuchKey":
+                raise
+            raise FileNotFoundError("No such key: {!r}".format(path)) from None
