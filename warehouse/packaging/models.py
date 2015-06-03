@@ -152,7 +152,6 @@ class Release(db.ModelBase):
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
     _pypi_hidden = Column(Boolean)
-    description_html = Column(Text)
     cheesecake_installability_id = Column(
         Integer,
         ForeignKey("cheesecake_main_indices.id"),
