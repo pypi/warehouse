@@ -8,16 +8,12 @@ cache:
     - ~/.cache/pip
 
 env:
-  global:
-    - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
-    - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
-  matrix:
-    - TOXENV=py34 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
-    - TOXENV=cover TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
-    - TOXENV=pep8
-    - TOXENV=docs
-    - TOXENV=packaging
-    - TOXENV=translations
+  - TOXENV=py34 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
+  - TOXENV=cover TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
+  - TOXENV=pep8
+  - TOXENV=docs
+  - TOXENV=packaging
+  - TOXENV=translations
 
 install: pip install -U pip wheel tox
 
