@@ -10,18 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import ILoginService
-from warehouse.accounts.models import User
+from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import Email, User
 
 
-@implementer(ILoginService)
-class DatabaseLoginService:
+@implementer(IUserService)
+class DatabaseUserService:
 
     def __init__(self, session):
         self.db = session
@@ -75,6 +76,33 @@ class DatabaseLoginService:
 
         return True
 
+    def create_user(self, username, name, password, email,
+                    is_active=False, is_staff=False, is_superuser=False):
+        user = User(username=username,
+                    name=name,
+                    password=password,
+                    is_active=is_active,
+                    is_staff=is_staff,
+                    is_superuser=is_superuser)
+        user.last_login = datetime.datetime.now()
+        self.db.add(user)
+        email_object = Email(email=email, user=user,
+                             primary=True, verified=False)
+        self.db.add(email_object)
+        return user
+
+    def update_user(self, user_id, **changes):
+        user = self.get_user(user_id)
+        for attr, value in changes.items():
+            setattr(user, attr, value)
+        return user
+
+    def verify_email(self, user_id, email_address):
+        user = self.get_user(user_id)
+        for email in user.emails:
+            if email.email == email_address:
+                email.verified = True
+
 
 def database_login_factory(context, request):
-    return DatabaseLoginService(request.db)
+    return DatabaseUserService(request.db)

@@ -16,7 +16,7 @@ from pyramid.interfaces import IAuthenticationPolicy
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import auth_policy
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 
 
 class TestBasicAuthAuthenticationPolicy:
@@ -69,7 +69,7 @@ class TestBasicAuthAuthenticationPolicy:
 
         assert policy.unauthenticated_userid(request) is userid
         assert request.find_service.calls == [
-            pretend.call(ILoginService, context=None),
+            pretend.call(IUserService, context=None),
         ]
         assert service.find_userid.calls == [pretend.call("username")]
         assert add_vary_cb.calls == [pretend.call("Authorization")]

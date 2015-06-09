@@ -16,7 +16,7 @@ from pyramid.view import view_config
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import LoginForm
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
@@ -56,7 +56,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
-    login_service = request.find_service(ILoginService, context=None)
+    login_service = request.find_service(IUserService, context=None)
 
     redirect_to = request.POST.get(redirect_field_name,
                                    request.GET.get(redirect_field_name))

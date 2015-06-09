@@ -13,7 +13,7 @@
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import ILoginService
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.services import database_login_factory
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
@@ -23,7 +23,7 @@ REDIRECT_FIELD_NAME = 'next'
 
 
 def _login(username, password, request):
-    login_service = request.find_service(ILoginService, context=None)
+    login_service = request.find_service(IUserService, context=None)
     userid = login_service.find_userid(username)
     if userid is not None:
         if login_service.check_password(userid, password):
@@ -31,7 +31,7 @@ def _login(username, password, request):
 
 
 def _authenticate(userid, request):
-    login_service = request.find_service(ILoginService, context=None)
+    login_service = request.find_service(IUserService, context=None)
     user = login_service.get_user(userid)
 
     if user is None:
@@ -46,13 +46,13 @@ def _user(request):
     if userid is None:
         return
 
-    login_service = request.find_service(ILoginService, context=None)
+    login_service = request.find_service(IUserService, context=None)
     return login_service.get_user(userid)
 
 
 def includeme(config):
     # Register our login service
-    config.register_service_factory(database_login_factory, ILoginService)
+    config.register_service_factory(database_login_factory, IUserService)
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(

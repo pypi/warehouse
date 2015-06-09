@@ -13,7 +13,7 @@
 from zope.interface import Interface
 
 
-class ILoginService(Interface):
+class IUserService(Interface):
 
     def get_user(userid):
         """
@@ -31,4 +31,23 @@ class ILoginService(Interface):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
+        """
+
+    def create_user(username, name, password, email,
+                    is_active=False, is_staff=False, is_superuser=False):
+        """
+        Accepts a user object, and attempts to create a user with those
+        attributes.
+
+        A UserAlreadyExists Exception is raised if the user already exists.
+        """
+
+    def update_user(user_id, **changes):
+        """
+        Updates the user object
+        """
+
+    def verify_email(user_id, email_address):
+        """
+        verifies the user
         """
