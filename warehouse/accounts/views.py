@@ -76,8 +76,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # We need to protect against session fixation attacks, so make sure
         # that we create a new session (which will cause it to get a new
         # session identifier).
-        # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
-        #       to handle this for us.
         if (request.unauthenticated_userid is not None and
                 request.unauthenticated_userid != userid):
             # There is already a userid associated with this request and it is
@@ -148,8 +146,6 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # session then another user can use the computer after them, log in to
         # their account, and then gain access to anything sensitive stored in
         # the session for the original user.
-        # TODO: This should be removed once/if Pylons/pyramid#1570 gets merged
-        #       to handle this for us.
         request.session.invalidate()
 
         # If the user-originating redirection url is not safe, then redirect to

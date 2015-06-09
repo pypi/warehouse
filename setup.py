@@ -69,6 +69,7 @@ setuptools.setup(
         "alembic>=0.7.0",
         "Babel",
         "bcrypt",
+        "boto3",
         "click",
         "fs",
         "gunicorn",
@@ -90,6 +91,7 @@ setuptools.setup(
         "sqlalchemy-citext",
         "structlog",
         "transaction",
+        "pymlconf!=0.3.12,!=0.3.13,!=0.3.14",  # Needed by tzf.pyramid_yml
         "tzf.pyramid_yml",
         "WTForms>=2.0.0",
         "zope.sqlalchemy",

@@ -10,10 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import fs.errors
-
 from citext import CIText
-from pyramid.threadlocal import get_current_registry, get_current_request
+from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
     Boolean, DateTime, Integer, Table, Text,
@@ -92,6 +90,7 @@ class Project(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
+    has_docs = Column(Boolean)
 
     releases = orm.relationship(
         "Release",
@@ -110,13 +109,10 @@ class Project(db.ModelBase):
     def documentation_url(self):
         # TODO: Move this into the database and elimnate the use of the
         #       threadlocal here.
-        registry = get_current_registry()
         request = get_current_request()
 
-        path = "/".join([self.name, "index.html"])
-
-        # If the path doesn't exist, then we'll just return a None here.
-        if not registry["filesystems"]["documentation"].exists(path):
+        # If the project doesn't have docs, then we'll just return a None here.
+        if not self.has_docs:
             return
 
         return request.route_url("legacy.docs", project=self.name)
@@ -156,7 +152,6 @@ class Release(db.ModelBase):
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
     _pypi_hidden = Column(Boolean)
-    description_html = Column(Text)
     cheesecake_installability_id = Column(
         Integer,
         ForeignKey("cheesecake_main_indices.id"),
@@ -221,6 +216,8 @@ class File(db.Model):
     )
     comment_text = Column(Text)
     filename = Column(Text, unique=True)
+    size = Column(Integer)
+    has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False))
@@ -251,27 +248,6 @@ class File(db.Model):
     @pgp_path.expression
     def pgp_path(self):
         return func.concat(self.path, ".asc")
-
-    @property
-    def has_pgp_signature(self):
-        # TODO: Move this into the database and elimnate the use of the
-        #       threadlocal here.
-        registry = get_current_registry()
-        return registry["filesystems"]["packages"].exists(self.pgp_path)
-
-    @property
-    def size(self):
-        # TODO: Move this into the database and eliminate the use of the
-        #       threadlocal here.
-        registry = get_current_registry()
-        try:
-            return registry["filesystems"]["packages"].getsize(self.path)
-        except fs.errors.ResourceNotFoundError:
-            # When running locally we probably don't have the files laying
-            # around, in addition it's a sad fact that there are currently
-            # some projects which have missing files. Once the size is moved
-            # into the database this should no longer be an issue.
-            return 0
 
 
 release_classifiers = Table(

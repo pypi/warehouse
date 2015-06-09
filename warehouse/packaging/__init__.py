@@ -10,12 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.packaging.interfaces import IDownloadStatService
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.services import RedisDownloadStatService
 from warehouse.packaging.models import Project, Release
 
 
 def includeme(config):
+    # Register whatever file storage backend has been configured for storing
+    # our package files.
+    storage_class = config.maybe_dotted(
+        config.registry.settings["files.backend"],
+    )
+    config.register_service_factory(storage_class.create_service, IFileStorage)
+
     # Register our service which will handle get the download statistics for
     # a project.
     config.register_service(
