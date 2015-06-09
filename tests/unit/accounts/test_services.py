@@ -112,8 +112,8 @@ class TestDatabaseUserService:
                                        name=user.name,
                                        password=user.password,
                                        email=email)
-        user_from_db = service.get_user(new_user.id)
         db_session.flush()
+        user_from_db = service.get_user(new_user.id)
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
         assert user_from_db.password == user.password
@@ -127,15 +127,16 @@ class TestDatabaseUserService:
         user_from_db = service.get_user(user.id)
         assert user_from_db.username == user.username
 
-    def test_verify_user(self, db_session):
+    def test_verify_email(self, db_session):
         service = services.DatabaseUserService(db_session)
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True,
                             verified=False)
-        service.verify_user(user.id)
-        user_emails = user.emails
-        for email in user_emails:
-            assert email.verified
+        EmailFactory.create(user=user, primary=False,
+                            verified=False)
+        service.verify_email(user.id, user.emails[0].email)
+        assert user.emails[0].verified
+        assert not user.emails[1].verified
 
 
 def test_database_login_factory(monkeypatch):

@@ -86,8 +86,7 @@ class DatabaseUserService:
                     is_superuser=is_superuser)
         user.last_login = datetime.datetime.now()
         self.db.add(user)
-        self.db.flush()
-        email_object = Email(email=email, user_id=user.id,
+        email_object = Email(email=email, user=user,
                              primary=True, verified=False)
         self.db.add(email_object)
         return user
@@ -96,14 +95,13 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         for attr, value in changes.items():
             setattr(user, attr, value)
-        self.db.add(user)
         return user
 
-    def verify_user(self, user_id):
+    def verify_email(self, user_id, email_address):
         user = self.get_user(user_id)
-        primary_emails = [x for x in user.emails if x.primary]
-        for p in primary_emails:
-            p.verified = True
+        for email in user.emails:
+            if email.email == email_address:
+                email.verified = True
 
 
 def database_login_factory(context, request):
