@@ -12,7 +12,7 @@
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from pyramid.security import remember, forget
-from pyramid.view import view_config
+from pyramid.view import forbidden_view_config, view_config
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import LoginForm
@@ -44,7 +44,7 @@ def profile(user, request):
 
     return {"user": user}
 
-
+@forbidden_view_config()
 @view_config(
     route_name="accounts.login",
     renderer="accounts/login.html",
