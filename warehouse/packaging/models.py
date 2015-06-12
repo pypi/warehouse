@@ -250,6 +250,14 @@ class File(db.Model):
         return func.concat(self.path, ".asc")
 
 
+class Filename(db.ModelBase):
+
+    __tablename__ = "file_registry"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    filename = Column(Text, unique=True, nullable=False)
+
+
 release_classifiers = Table(
     "release_classifiers",
     db.metadata,

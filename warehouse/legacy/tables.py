@@ -218,17 +218,6 @@ dual = Table(
 )
 
 
-file_registry = Table(
-    "file_registry",
-    db.metadata,
-
-    Column("id", Integer(), primary_key=True, nullable=False),
-    Column("filename", Text(), nullable=False),
-
-    UniqueConstraint("filename", name="file_registry_filename_key"),
-)
-
-
 mirrors = Table(
     "mirrors",
     db.metadata,
