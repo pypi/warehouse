@@ -226,8 +226,8 @@ class File(db.Model):
     def path(self):
         return "/".join([
             self.python_version,
-            self.name[0],
-            self.name,
+            self.release.project.name[0],
+            self.release.project.name,
             self.filename,
         ])
 
