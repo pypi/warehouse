@@ -220,7 +220,7 @@ class File(db.Model):
     has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
     downloads = Column(Integer, server_default=sql.text("0"))
-    upload_time = Column(DateTime(timezone=False))
+    upload_time = Column(DateTime(timezone=False), server_default=func.now())
 
     @hybrid_property
     def path(self):
