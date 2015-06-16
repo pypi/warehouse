@@ -44,6 +44,7 @@ def profile(user, request):
 
     return {"user": user}
 
+
 @forbidden_view_config()
 @view_config(
     route_name="accounts.login",
