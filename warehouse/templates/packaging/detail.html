@@ -77,7 +77,7 @@
             </td>
             <td>{% if file.python_version != "source" %}{{ file.python_version }}{% endif %}</td>
             <td>{{ file.upload_time|format_date() }}</td>
-            <td>{{ file.size|filesizeformat() }}</td>
+            <td>{% if file.size %}{{ size|filesizeformat() }}{% endif %}</td>
           </tr>
           {% endfor %}
         </table>
