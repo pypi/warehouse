@@ -3,6 +3,19 @@
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block content %}
-  <h1>{{ user.username }}</h1>
-  <p>{{ user.email }}</p>
+<img src="{{ gravatar(user.email, size=100) }}" alt="{{ user.username}}" height="100" width="100" id='gravatar'>
+<h1>{{ user.username }} | <a href="mailto:{{ user.email }}">Email</a></h1>
+
+<ul class="project-list">
+{% for project in user.projects %}
+<li>
+  <hr/>
+  <ul class="project-list">
+    <li><b>Project Name:</b> {{ project.name }}</li>
+    <li><b>Stable Release :</b>{{ project.stable_version }}</li>
+    <li><b>Bug Tracker: </b> <a href="{{ project.bugtrack_url }}">Bugs</a></li>
+  </ul>
+</li>
+{% endfor %}
+</ul>
 {% endblock %}
