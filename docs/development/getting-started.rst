@@ -1,13 +1,104 @@
 Getting started
 ===============
 
-Working on Warehouse requires the installation of
-`Docker Compose <https://docs.docker.com/compose/>`_, which Warehouse uses to
-automate setting up a development environment that includes all of the required
-external services. You can install Docker Compose using their provided
+We're pleased that you are interested in working on Warehouse.
+
+Setting up a development environment to work on Warehouse should be a
+straightforward process. If you have any difficulty, please contact us so
+we can improve the process.
+
+
+Quickstart for Developers with Docker experience
+================================================
+
+.. code-block:: console
+
+    $ git clone git@github.com:pypa/warehouse.git
+    $ cd warehouse
+    $ pip install tox
+    $ docker start
+    $ docker-compose up
+    $ docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+    $ xz -d -k dev/example.sql.xz
+    $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
+    $ rm dev/example.sql
+    $ docker-compose run web warehouse -c dev/config.yml db upgrade head
+
+View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
+``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
+
+.. note:: Replace ``docker start`` with ``boot2docker up`` if you are using
+          Windows or Mac OS X.
+
+
+Detailed Installation Instructions
+==================================
+
+Getting the warehouse source code
+---------------------------------
+
+Clone the warehouse repository from GitHub:
+
+.. code-block:: console
+
+    $ git clone git@github.com:pypa/warehouse.git
+
+
+Configure the development environment
+-------------------------------------
+
+Why Docker?
+~~~~~~~~~~~
+
+Docker simplifies development environment set up.
+
+Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
+to automate setting up a "batteries included" development environment.
+The Dockerfile and docker-compose.yml files include all the required steps for
+installing and configuring all the required external services of the
+development environment.
+
+Installing Docker
+~~~~~~~~~~~~~~~~~
+
+* Install `Docker <https://docs.docker.com/installation/#installation>`_
+
+On Mac OS X or Windows, the installation instructions will guide you to
+install `boot2docker`:
+
+  * Install `boot2docker` as directed in the operating system specific
+    installation instructions.
+
+  * Run ``boot2docker init``
+
+  * Run ``boot2docker start``
+
+  * To set the environment variables in your shell, run:
+    ``$eval "$(boot2docker shellinit)"``
+
+Verifying Docker Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Check that Docker is installed: ``docker -v``
+
+* On Mac OS X and Windows: Verify that `boot2docker` is installed
+  ``boot2docker -v``
+
+Install Docker Compose
+~~~~~~~~~~~~~~~~~~~~~~
+
+Install Docker Compose using the Docker provided
 `installation instructions <https://docs.docker.com/compose/install/>`_.
 
-Once you have Docker Compose installed, you also want to have `tox`_ installed.
+Verifying Docker Compose Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check that Docker Compose is installed: ``docker-compose -v``
+
+Installing tox
+~~~~~~~~~~~~~~
+
+Once you have Docker Compose installed, you should install `tox`_.
 This is a Python program which can be installed simply with `pip`_ using
 ``pip install tox``.
 
@@ -15,32 +106,42 @@ You are now ready to run Warehouse itself, run the tests, and build the
 documentation.
 
 
-Running Warehouse
-~~~~~~~~~~~~~~~~~
+Building the Warehouse Container
+--------------------------------
 
-.. note:: docker-compose is supported on only Python 2.x while warehouse runs on Python 3
+.. note:: docker-compose is supported on only Python 2.x while warehouse runs
+          on Python 3
 
-Once you have Docker and Docker Compose installed, all you'll need to do is
-run:
+Once you have Docker and Docker Compose installed, run:
 
 .. code-block:: console
 
     $ docker-compose up
 
-This will pull down all of the required docker containers, build one for
+This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
 mounted inside of the docker container at ``/app/``.
 
-Once you have all of the services running, you'll need to create a database and
-run all of the migrations. Docker Compose will enable you to run a command
-inside of a new docker container simply by running:
+
+Running the Warehouse Container and Services
+--------------------------------------------
+
+After building the Docker container, you'll need to create a Postgres database
+and run all of the data migrations. Helpfully, Docker Compose lets you run a
+command inside of a new Docker container simply by running:
 
 .. code-block:: console
 
     $ docker-compose run web <command>
 
-In particular, you can create a new database, run migrations, and load some
-example data by running:
+Next, you will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations, and
+* load some example data from `Test PyPI <https://testpypi.python.org/>`_
+
+Run:
 
 .. code-block:: console
 
@@ -50,28 +151,53 @@ example data by running:
     $ rm dev/example.sql
     $ docker-compose run web warehouse -c dev/config.yml db upgrade head
 
-If running the last command raises ``pkg_resources.DistributionNotFound: warehouse==15.0.dev0``,
+If running the second command raises an error, you may need to install the `xz
+library`. This is highly likely on Mac OS X and Windows.
+
+If running the last command raises
+``pkg_resources.DistributionNotFound: warehouse==15.0.dev0``,
 run ``docker-compose run web pip install -e .`` and then retry. See
 `Issue 501 <https://github.com/pypa/warehouse/issues/501>`_.
 
-The repository is exposed inside of the web container at ``/app/`` and
-Warehouse will automatically reload when it detects any changes made to the
-code. However editing the ``Dockerfile`` or adding new dependencies will
-require building a new container which can be done by running
-``docker-compose build`` before running ``docker-compose up`` again.
 
-The example data located in ``dev/example.sql.xz`` is taken from
-`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
-anything private. The password for every account has been set to the string
-``password``.
+Viewing Warehouse in a browser
+------------------------------
 
 Web container is listening on port 80. If you're using boot2docker run
 `boot2docker ip` to figure out the ip where the web container is listening. On
 Linux it's accessible at ``http://localhost/``.
 
 
+What did we just do and what is happening behind the scenes?
+------------------------------------------------------------
+
+The repository is exposed inside of the web container at ``/app/`` and
+Warehouse will automatically reload when it detects any changes made to the
+code.
+
+The example data located in ``dev/example.sql.xz`` is taken from
+`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
+anything private. The password for every account has been set to the string
+``password``.
+
+
+Troubleshooting
+===============
+
+Errors when executing ``docker-compose up``
+-------------------------------------------
+
+* If the ``Dockerfile`` is edited or new dependencies are added (either by you
+  or a prior pull request), a new container will need to built. A new container
+  can be built by running ``docker-compose build``. This should be done before
+  running ``docker-compose up`` again.
+
+* If ``docker-compose up`` hangs after a new build, you should stop any
+  running containers and repeat ``docker-compose up``.
+
+
 Building Styles
-~~~~~~~~~~~~~~~
+===============
 
 Styles are written in the scss variant of Sass and compiled using Gulp. To
 install Gulp you will need to install `npm`_. Now you can tell npm to install
@@ -90,8 +216,9 @@ To watch for changes to the .scss files and build the styles run this command:
 
 .. todo:: Make Docker do this
 
-Interactive Shell
-~~~~~~~~~~~~~~~~~
+
+Running the Interactive Shell
+=============================
 
 There is an interactive shell available in Warehouse which will automatically
 configure Warehouse and create a database session and make them available as
@@ -119,7 +246,7 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 
 
 Running tests
-~~~~~~~~~~~~~
+=============
 
 .. note:: PostgreSQL 9.4 is required because of pgcrypto extension
 
@@ -158,7 +285,7 @@ versions installed, in which case you will see one or more
 
 
 Building documentation
-~~~~~~~~~~~~~~~~~~~~~~
+======================
 
 The Warehouse documentation is stored in the ``docs/`` directory. It is written
 in `reStructured Text`_ and rendered using `Sphinx`_.
