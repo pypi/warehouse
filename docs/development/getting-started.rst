@@ -266,6 +266,12 @@ To use `Nix <http://nixos.org/nix/>`_ run:
     $ bash <(curl https://nixos.org/nix/install)
     $ nix-shell -p libffi postgresql94 python34
 
+On Mac, you can install PostgreSQL with Homebrew.
+
+.. code-block:: console
+
+    $ brew install postgresql
+
 To run all tests, all you have to do is:
 
 .. code-block:: console
