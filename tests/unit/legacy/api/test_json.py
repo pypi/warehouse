@@ -142,12 +142,16 @@ class TestJSONRelease:
         headers = db_request.response.headers
         assert headers["Access-Control-Allow-Origin"] == "*"
         assert headers["X-PyPI-Last-Serial"] == je.id
-
         assert result == {
             "info": {
+                "_pypi_hidden": None,
+                "_pypi_ordering": 7,
                 "author": None,
                 "author_email": None,
                 "bugtrack_url": None,
+                "cheesecake_code_kwalitee_id": None,
+                "cheesecake_documentation_id": None,
+                "cheesecake_installability_id": None,
                 "classifiers": [],
                 "description": None,
                 "docs_url": "/the/fake/url/",
@@ -166,7 +170,9 @@ class TestJSONRelease:
                 "platform": None,
                 "project_url": "/the/fake/url/",
                 "release_url": "/the/fake/url/",
+                "requires_dist": None,
                 "requires_python": None,
+                "stable_version": None,
                 "summary": None,
                 "version": "2.0",
             },
