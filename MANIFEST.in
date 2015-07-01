@@ -13,9 +13,11 @@ recursive-include warehouse/static *.css *.json *.scss *.png
 recursive-include warehouse/templates *.html
 recursive-include warehouse/translations warehouse.pot *.po
 
+exclude requirements.txt requirements-dev.txt
 exclude babel.cfg Makefile Gulpfile.js package.json
 exclude .dockerignore Dockerfile docker-compose.yml
 
 prune .travis
 prune dev
 prune docs/_build
+prune tasks

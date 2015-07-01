@@ -1,0 +1,8 @@
+# We need a version of pip-tools that is patched and is also from the future
+# branch.
+https://github.com/dstufft/pip-tools/archive/warehouse.zip#egg=pip-tools
+
+# We need a newer version of pyramid_debugtoolbar than what is currently
+# available on PyPI, so we'll install this from Github. This can be switched
+# back when Pylons/pyramid_debugtoolbar#212 is merged and released.
+https://github.com/dstufft/pyramid_debugtoolbar/archive/no-inline.zip#egg=pyramid_debugtoolbar
