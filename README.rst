@@ -8,6 +8,10 @@ Warehouse
 .. image:: https://travis-ci.org/pypa/warehouse.svg?branch=master
     :target: https://travis-ci.org/pypa/warehouse
 
+.. image:: https://requires.io/github/pypa/warehouse/requirements.svg?branch=master
+     :target: https://requires.io/github/pypa/warehouse/requirements/?branch=master
+     :alt: Requirements Status
+
 Warehouse is a next generation Python Package Repository designed to replace
 the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_.
 
