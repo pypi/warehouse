@@ -18,7 +18,6 @@ cffi==1.1.2               # via bcrypt
 click==4.0
 docutils==0.12            # via botocore, readme
 fs==0.5.2
-futures==2.2.0            # via boto3
 gunicorn==19.3.0
 hiredis==0.2.0
 html5lib==0.99999         # via bleach

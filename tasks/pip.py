@@ -46,6 +46,12 @@ def compile():
             line = re.sub(r"^jinja2==(\S+)(.*)$", r"jinja2==2.8.dev0\2", line)
             line = re.sub(r"^webob==(\S+)(.*)$", r"webob==1.5.dev0\2", line)
 
+            # The boto3 wheel includes a futures==2.2.0 even though that is a
+            # Python 2 only dependency. This dependency comes by default on
+            # Python 3, so the backport is never needed. See boto/boto3#163.
+            if re.search(r"^futures==2\.2\.0", line.strip()) is not None:
+                continue
+
             if re.search(r"^-e file:///.+/warehouse$", line.strip()) is None:
                 lines.append(line)
 
