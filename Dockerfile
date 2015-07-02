@@ -18,7 +18,8 @@ WORKDIR /app/
 RUN set -x \
     && apt-get update \
     && apt-get install gcc libpq-dev libffi-dev --no-install-recommends -y \
-    && pip install -r dev/requirements.txt \
+    && pip install -U pip setuptools \
+    && pip install -c requirements.txt -r requirements-dev.txt -e . \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
     && apt-get purge gcc libpq-dev libffi-dev -y \
