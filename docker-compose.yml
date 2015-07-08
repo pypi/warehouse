@@ -4,6 +4,9 @@ db:
 redis:
   image: redis:latest
 
+elasticsearch:
+  image: elasticsearch
+
 camo:
   build: dev/camo
   command: node server.js
@@ -23,5 +26,6 @@ web:
   links:
     - db
     - redis
+    - elasticsearch
   environment:
     PYTHONUNBUFFERED: 1

@@ -123,7 +123,10 @@ def configure(settings=None):
     # Register our CSRF support
     config.include(".csrf")
 
-    # Register our authentication support.
+    # Register our elasticsearch integration
+    config.include(".search")
+
+    # Register our authentication support
     config.include(".accounts")
 
     # Allow the packaging app to register any services it has.
