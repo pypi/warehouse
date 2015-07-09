@@ -80,15 +80,73 @@ def test_activate_hook(path, expected):
 
 
 @pytest.mark.parametrize(
-    "settings",
+    ("environ", "name", "envvar", "coercer", "default", "expected"),
     [
-        None,
-        {},
-        {"my settings": "the settings value"},
-        {"yml.locations": ["/foo/"]},
+        ({}, "test.foo", "TEST_FOO", None, None, {}),
+        (
+            {"TEST_FOO": "bar"}, "test.foo", "TEST_FOO", None, None,
+            {"test.foo": "bar"},
+        ),
+        (
+            {"TEST_INT": "1"}, "test.int", "TEST_INT", int, None,
+            {"test.int": 1},
+        ),
+        ({}, "test.foo", "TEST_FOO", None, "lol", {"test.foo": "lol"}),
+        (
+            {"TEST_FOO": "bar"}, "test.foo", "TEST_FOO", None, "lol",
+            {"test.foo": "bar"},
+        ),
     ],
 )
-def test_configure(monkeypatch, settings):
+def test_maybe_set(monkeypatch, environ, name, envvar, coercer, default,
+                   expected):
+    for key, value in environ.items():
+        monkeypatch.setenv(key, value)
+    settings = {}
+    config.maybe_set(settings, name, envvar, coercer=coercer, default=default)
+    assert settings == expected
+
+
+@pytest.mark.parametrize(
+    ("environ", "base", "name", "envvar", "expected"),
+    [
+        ({}, "test", "foo", "TEST_FOO", {}),
+        ({"TEST_FOO": "bar"}, "test", "foo", "TEST_FOO", {"test.foo": "bar"}),
+        (
+            {"TEST_FOO": "bar thing=other"}, "test", "foo", "TEST_FOO",
+            {"test.foo": "bar", "test.thing": "other"},
+        ),
+        (
+            {"TEST_FOO": "bar thing=other wat=\"one two\""},
+            "test", "foo", "TEST_FOO",
+            {"test.foo": "bar", "test.thing": "other", "test.wat": "one two"},
+        ),
+    ],
+)
+def test_maybe_set_compound(monkeypatch, environ, base, name, envvar,
+                            expected):
+    for key, value in environ.items():
+        monkeypatch.setenv(key, value)
+    settings = {}
+    config.maybe_set_compound(settings, base, name, envvar)
+    assert settings == expected
+
+
+@pytest.mark.parametrize(
+    ("settings", "environment"),
+    [
+        (None, config.Environment.production),
+        ({}, config.Environment.production),
+        ({"my settings": "the settings value"}, config.Environment.production),
+        (None, config.Environment.development),
+        ({}, config.Environment.development),
+        (
+            {"my settings": "the settings value"},
+            config.Environment.development,
+        ),
+    ],
+)
+def test_configure(monkeypatch, settings, environment):
     fs_obj = pretend.stub()
     opener = pretend.call_recorder(lambda path, create_dir: fs_obj)
     monkeypatch.setattr(fs.opener, "fsopendir", opener)
@@ -97,9 +155,13 @@ def test_configure(monkeypatch, settings):
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
 
+    if environment == config.Environment.development:
+        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+
     class FakeRegistry(dict):
         def __init__(self):
             self.settings = {
+                "warehouse.env": environment,
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
                 "dirs.packages": "/srv/data/pypi/packages/",
@@ -130,9 +192,6 @@ def test_configure(monkeypatch, settings):
     cachebuster_cls = pretend.call_recorder(lambda m, cache: cachebuster_obj)
     monkeypatch.setattr(config, "WarehouseCacheBuster", cachebuster_cls)
 
-    config_defaults = pretend.call_recorder(lambda config, files: None)
-    monkeypatch.setattr(config, "config_defaults", config_defaults)
-
     transaction_manager = pretend.stub()
     transaction = pretend.stub(
         TransactionManager=pretend.call_recorder(lambda: transaction_manager),
@@ -141,35 +200,76 @@ def test_configure(monkeypatch, settings):
 
     result = config.configure(settings=settings)
 
-    if settings is None:
-        expected_settings = {}
-    else:
-        expected_settings = settings.copy()
+    expected_settings = {
+        "warehouse.env": environment,
+        "site.name": "Warehouse",
+    }
+
+    if environment == config.Environment.development:
+        expected_settings.update({
+            "pyramid.reload_templates": True,
+            "pyramid.reload_assets": True,
+            "pyramid.prevent_http_cache": True,
+            "debugtoolbar.hosts": ["0.0.0.0/0"],
+            "debugtoolbar.panels": [
+                "pyramid_debugtoolbar.panels.versions.VersionDebugPanel",
+                "pyramid_debugtoolbar.panels.settings.SettingsDebugPanel",
+                "pyramid_debugtoolbar.panels.headers.HeaderDebugPanel",
+                (
+                    "pyramid_debugtoolbar.panels.request_vars."
+                    "RequestVarsDebugPanel"
+                ),
+                "pyramid_debugtoolbar.panels.renderings.RenderingsDebugPanel",
+                "pyramid_debugtoolbar.panels.logger.LoggingPanel",
+                (
+                    "pyramid_debugtoolbar.panels.performance."
+                    "PerformanceDebugPanel"
+                ),
+                "pyramid_debugtoolbar.panels.routes.RoutesDebugPanel",
+                "pyramid_debugtoolbar.panels.sqla.SQLADebugPanel",
+                "pyramid_debugtoolbar.panels.tweens.TweensDebugPanel",
+                (
+                    "pyramid_debugtoolbar.panels.introspection."
+                    "IntrospectionDebugPanel"
+                ),
+            ],
+        })
+
+    if settings is not None:
+        expected_settings.update(settings)
 
     assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
-    assert config_defaults.calls == [
-        pretend.call(configurator_obj, ["warehouse:etc"]),
-    ]
     assert result is configurator_obj
-    assert configurator_obj.include.calls == [
-        pretend.call("tzf.pyramid_yml"),
-        pretend.call(".logging"),
-        pretend.call("pyramid_jinja2"),
-        pretend.call("pyramid_tm"),
-        pretend.call("pyramid_services"),
-        pretend.call(".legacy.action_routing"),
-        pretend.call(".i18n"),
-        pretend.call(".db"),
-        pretend.call(".aws"),
-        pretend.call(".sessions"),
-        pretend.call(".cache.http"),
-        pretend.call(".cache.origin"),
-        pretend.call(".csrf"),
-        pretend.call(".accounts"),
-        pretend.call(".packaging"),
-        pretend.call(".redirects"),
-        pretend.call(".routes"),
-    ]
+    assert configurator_obj.include.calls == (
+        [
+            pretend.call(x) for x in [
+                (
+                    "pyramid_debugtoolbar"
+                    if environment == config.Environment.development else None
+                ),
+            ]
+            if x is not None
+        ]
+        +
+        [
+            pretend.call(".logging"),
+            pretend.call("pyramid_jinja2"),
+            pretend.call("pyramid_tm"),
+            pretend.call("pyramid_services"),
+            pretend.call(".legacy.action_routing"),
+            pretend.call(".i18n"),
+            pretend.call(".db"),
+            pretend.call(".aws"),
+            pretend.call(".sessions"),
+            pretend.call(".cache.http"),
+            pretend.call(".cache.origin"),
+            pretend.call(".csrf"),
+            pretend.call(".accounts"),
+            pretend.call(".packaging"),
+            pretend.call(".redirects"),
+            pretend.call(".routes"),
+        ]
+    )
     assert configurator_obj.add_jinja2_renderer.calls == [
         pretend.call(".html"),
     ]
@@ -177,7 +277,9 @@ def test_configure(monkeypatch, settings):
         pretend.call("warehouse:templates", name=".html"),
     ]
     assert configurator_obj.add_settings.calls == [
+        pretend.call({"jinja2.newstyle": True}),
         pretend.call({
+            "tm.attempts": 3,
             "tm.manager_hook": mock.ANY,
             "tm.activate_hook": config.activate_hook,
             "tm.annotate_user": False,
@@ -198,7 +300,7 @@ def test_configure(monkeypatch, settings):
             },
         }),
     ]
-    add_settings_dict = configurator_obj.add_settings.calls[0].args[0]
+    add_settings_dict = configurator_obj.add_settings.calls[1].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
     assert configurator_obj.add_tween.calls == [

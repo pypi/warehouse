@@ -22,7 +22,7 @@ Quickstart for Developers with Docker experience
     $ xz -d -k dev/example.sql.xz
     $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
     $ rm dev/example.sql
-    $ docker-compose run web warehouse -c dev/config.yml db upgrade head
+    $ docker-compose run web warehouse db upgrade head
 
 View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
 ``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
@@ -149,7 +149,7 @@ Run:
     $ xz -d -k dev/example.sql.xz
     $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
     $ rm dev/example.sql
-    $ docker-compose run web warehouse -c dev/config.yml db upgrade head
+    $ docker-compose run web warehouse db upgrade head
 
 If running the second command raises an error, you may need to install the `xz
 library`. This is highly likely on Mac OS X and Windows.
