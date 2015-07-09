@@ -32,15 +32,13 @@ pastedeploy==1.5.2        # via pyramid
 psycopg2==2.6.1
 pycparser==2.14           # via cffi
 pygments==2.0.2           # via readme
-pymlconf==0.3.17          # via tzf.pyramid-yml
 pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
 pyramid-services==0.2
 pyramid-tm==0.12
-pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-services, pyramid-tm, tzf.pyramid-yml
+pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-services, pyramid-tm
 python-dateutil==2.4.2    # via botocore
 pytz==2015.4              # via babel
-pyyaml==3.11              # via pymlconf
 readme==0.5.1
 redis==2.10.3
 repoze.lru==0.6           # via pyramid
@@ -51,7 +49,6 @@ sqlalchemy==1.0.6         # via alembic, sqlalchemy-citext, zope.sqlalchemy
 structlog==15.2.0
 transaction==1.4.4        # via pyramid-tm, zope.sqlalchemy
 translationstring==1.3    # via pyramid
-tzf.pyramid-yml==1.0.1
 venusian==1.0             # via pyramid
 webob==1.5.dev0              # via pyramid
 wtforms==2.0.2

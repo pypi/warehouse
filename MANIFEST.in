@@ -6,7 +6,6 @@ include .coveragerc tox.ini docs/requirements.txt
 
 recursive-include docs conf.py Makefile *.rst
 recursive-include tests *.py
-recursive-include warehouse/etc *.yml
 recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
 recursive-include warehouse/static *.css *.json *.scss *.png

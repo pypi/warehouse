@@ -10,15 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+import os
+import shlex
+
 import fs.opener
 import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
-from tzf.pyramid_yml import config_defaults
 
 from warehouse.utils.static import WarehouseCacheBuster
+
+
+class Environment(enum.Enum):
+    production = "production"
+    development = "development"
 
 
 def content_security_policy_tween_factory(handler, registry):
@@ -46,23 +54,90 @@ def activate_hook(request):
     return True
 
 
+def maybe_set(settings, name, envvar, coercer=None, default=None):
+    if envvar in os.environ:
+        value = os.environ[envvar]
+        if coercer is not None:
+            value = coercer(value)
+        settings.setdefault(name, value)
+    elif default is not None:
+        settings.setdefault(name, default)
+
+
+def maybe_set_compound(settings, base, name, envvar):
+    if envvar in os.environ:
+        value = shlex.split(os.environ[envvar])
+        kwargs = {k: v for k, v in (i.split("=") for i in value[1:])}
+        settings[".".join([base, name])] = value[0]
+        for key, value in kwargs.items():
+            settings[".".join([base, key])] = value
+
+
 def configure(settings=None):
     if settings is None:
         settings = {}
 
+    # Set the environment from an environment variable, if one hasn't already
+    # been set.
+    maybe_set(
+        settings, "warehouse.env", "WAREHOUSE_ENV", Environment,
+        default=Environment.production,
+    )
+
+    # Pull in default configuration from the environment.
+    maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
+    maybe_set(settings, "database.url", "DATABASE_URL")
+    maybe_set(settings, "sessions.url", "REDIS_URL")
+    maybe_set(settings, "download_stats.url", "STATS_REDIS_URL")
+    maybe_set(settings, "sessions.secret", "SESSION_SECRET")
+    maybe_set(settings, "camo.url", "CAMO_URL")
+    maybe_set(settings, "camo.key", "CAMO_KEY")
+    maybe_set(settings, "docs.url", "DOCS_URL")
+    maybe_set(settings, "dirs.documentation", "DOCS_DIR")
+    maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+
+    # Add the settings we use when the environment is set to development.
+    if settings["warehouse.env"] == Environment.development:
+        settings.setdefault("pyramid.reload_assets", True)
+        settings.setdefault("pyramid.reload_templates", True)
+        settings.setdefault("pyramid.prevent_http_cache", True)
+        settings.setdefault("debugtoolbar.hosts", ["0.0.0.0/0"])
+        settings.setdefault(
+            "debugtoolbar.panels",
+            [
+                ".".join(["pyramid_debugtoolbar.panels", panel])
+                for panel in [
+                    "versions.VersionDebugPanel",
+                    "settings.SettingsDebugPanel",
+                    "headers.HeaderDebugPanel",
+                    "request_vars.RequestVarsDebugPanel",
+                    "renderings.RenderingsDebugPanel",
+                    "logger.LoggingPanel",
+                    "performance.PerformanceDebugPanel",
+                    "routes.RoutesDebugPanel",
+                    "sqla.SQLADebugPanel",
+                    "tweens.TweensDebugPanel",
+                    "introspection.IntrospectionDebugPanel",
+                ]
+            ],
+        )
+
+    # Actually setup our Pyramid Configurator with the values pulled in from
+    # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
 
-    # Set our yml.location so that it contains all of our settings files
-    config_defaults(config, ["warehouse:etc"])
-
-    # We want to load configuration from YAML files
-    config.include("tzf.pyramid_yml")
+    # Include anything needed by the development environment.
+    if config.registry.settings["warehouse.env"] == Environment.development:
+        config.include("pyramid_debugtoolbar")
 
     # Register our logging support
     config.include(".logging")
 
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
+
+    # We want to use newstyle gettext
+    config.add_settings({"jinja2.newstyle": True})
 
     # We also want to use Jinja2 for .html templates as well, because we just
     # assume that all templates will be using Jinja.
@@ -92,6 +167,7 @@ def configure(settings=None):
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
     config.add_settings({
+        "tm.attempts": 3,
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
         "tm.activate_hook": activate_hook,
         "tm.annotate_user": False,

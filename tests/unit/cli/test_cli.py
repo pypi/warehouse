@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
-
 import click
 import pretend
 
@@ -35,7 +33,7 @@ def test_lazy_config_delays(monkeypatch):
 
 def test_cli_no_settings(monkeypatch, cli):
     config = pretend.stub()
-    configure = pretend.call_recorder(lambda settings: config)
+    configure = pretend.call_recorder(lambda: config)
     monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
 
     @warehouse.cli.warehouse.command()
@@ -46,25 +44,4 @@ def test_cli_no_settings(monkeypatch, cli):
     result = cli.invoke(warehouse.cli.warehouse, ["cli_test_command"])
 
     assert result.exit_code == 0
-    assert configure.calls == [pretend.call(settings={})]
-
-
-def test_cli_with_settings(monkeypatch, cli):
-    config = pretend.stub()
-    configure = pretend.call_recorder(lambda settings: config)
-    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
-
-    @warehouse.cli.warehouse.command()
-    @click.pass_obj
-    def cli_test_command(obj):
-        assert obj is config
-
-    result = cli.invoke(
-        warehouse.cli.warehouse,
-        ["--config", ".", "cli_test_command"],
-    )
-
-    assert result.exit_code == 0
-    assert configure.calls == [
-        pretend.call(settings={"yml.location": (os.path.abspath("."),)}),
-    ]
+    assert configure.calls == [pretend.call()]
