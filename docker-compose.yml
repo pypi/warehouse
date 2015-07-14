@@ -22,7 +22,6 @@ web:
     - db
     - redis
   environment:
-    PYTHONUNBUFFERED: 1
     WAREHOUSE_ENV: development
     DATABASE_URL: postgresql://postgres@db/warehouse
     REDIS_URL: redis://redis:6379/0

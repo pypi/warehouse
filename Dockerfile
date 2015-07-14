@@ -1,5 +1,7 @@
 FROM python:3.4-slim
 
+ENV PYTHONUNBUFFERED 1
+
 # Install Warehouse's Dependencies
 RUN set -x \
     && apt-get update \
