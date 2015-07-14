@@ -15,7 +15,7 @@ bleach==1.4.1             # via readme
 boto3==1.1.0
 botocore==1.1.1           # via boto3
 cffi==1.1.2               # via bcrypt
-click==4.0
+click==4.1
 docutils==0.12            # via botocore, readme
 fs==0.5.2
 gunicorn==19.3.0
