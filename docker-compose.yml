@@ -5,12 +5,10 @@ redis:
   image: redis:latest
 
 camo:
-  build: dev/camo
-  command: node server.js
+  image: pypa/warehouse-camo:latest
   ports:
     - "9000:9000"
   environment:
-    PORT: 9000
     CAMO_KEY: "insecure camo key"
 
 web:
