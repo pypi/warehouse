@@ -457,41 +457,6 @@ Index("rego_otk_name_idx", rego_otk.c.name)
 Index("rego_otk_otk_idx", rego_otk.c.otk)
 
 
-release_dependencies = Table(
-    "release_dependencies",
-    db.metadata,
-
-    Column("name", Text()),
-    Column("version", Text()),
-    Column("kind", Integer()),
-    Column("specifier", Text()),
-
-    ForeignKeyConstraint(
-        ["name", "version"],
-        ["releases.name", "releases.version"],
-        onupdate="CASCADE",
-    ),
-)
-
-
-Index("rel_dep_name_idx", release_dependencies.c.name)
-
-
-Index(
-    "rel_dep_name_version_idx",
-    release_dependencies.c.name,
-    release_dependencies.c.version,
-)
-
-
-Index(
-    "rel_dep_name_version_kind_idx",
-    release_dependencies.c.name,
-    release_dependencies.c.version,
-    release_dependencies.c.kind,
-)
-
-
 release_requires_python = Table(
     "release_requires_python",
     db.metadata,
