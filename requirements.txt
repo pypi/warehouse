@@ -12,8 +12,8 @@ alembic==0.7.7
 babel==1.3
 bcrypt==2.0.0
 bleach==1.4.1             # via readme
-boto3==1.1.0
-botocore==1.1.2           # via boto3
+boto3==1.1.1
+botocore==1.1.3           # via boto3
 cffi==1.1.2               # via bcrypt
 click==4.1
 docutils==0.12            # via botocore, readme
@@ -45,7 +45,7 @@ repoze.lru==0.6           # via pyramid
 setproctitle==1.1.9
 six==1.9.0                # via bcrypt, bleach, fs, html5lib, python-dateutil, readme
 sqlalchemy-citext==1.3.post0
-sqlalchemy==1.0.7         # via alembic, sqlalchemy-citext, zope.sqlalchemy
+sqlalchemy==1.0.8         # via alembic, sqlalchemy-citext, zope.sqlalchemy
 structlog==15.2.0
 transaction==1.4.4        # via pyramid-tm, zope.sqlalchemy
 translationstring==1.3    # via pyramid
