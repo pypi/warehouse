@@ -30,7 +30,11 @@
   <div>
     <div class="content">
       <article class="description">
-        {{ release.description|readme(format="rst") }}
+        {% if release.description %}
+          {{ release.description|readme(format="rst") }}
+        {% else %}
+          &nbsp;
+        {% endif %}
       </article>
 
       {% if files %}
