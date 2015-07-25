@@ -26,6 +26,7 @@ REQUIREMENTS_HEADER = """
 
 -f https://github.com/Pylons/webob/archive/master.zip#egg=webob-1.5.dev0
 -f https://github.com/mitsuhiko/jinja2/archive/master.zip#egg=jinja2-2.8.dev0
+-f https://bitbucket.org/ecollins/passlib/get/default.zip#egg=passlib-1.7.dev0
 
 """.lstrip()
 
@@ -43,6 +44,11 @@ def compile():
     lines = [REQUIREMENTS_HEADER]
     with open("requirements.txt", "r") as fp:
         for line in fp:
+            line = re.sub(
+                r"^passlib==(\S+)(.*)$",
+                r"passlib==1.7.dev0\2",
+                line,
+            )
             line = re.sub(r"^jinja2==(\S+)(.*)$", r"jinja2==2.8.dev0\2", line)
             line = re.sub(r"^webob==(\S+)(.*)$", r"webob==1.5.dev0\2", line)
 
