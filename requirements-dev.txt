@@ -1,6 +1,4 @@
-# We need a version of pip-tools that is from the future branch which will
-# bring in the pip-compile command.
-https://github.com/nvie/pip-tools/archive/future.zip#egg=pip-tools
+pip-tools==1.0.5
 
 # We need a newer version of pyramid_debugtoolbar than what is currently
 # available on PyPI, so we'll install this from Github. This can be switched
