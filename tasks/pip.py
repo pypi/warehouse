@@ -25,7 +25,6 @@ REQUIREMENTS_HEADER = """
 #
 
 -f https://github.com/Pylons/webob/archive/master.zip#egg=webob-1.5.dev0
--f https://github.com/mitsuhiko/jinja2/archive/master.zip#egg=jinja2-2.8.dev0
 
 """.lstrip()
 
