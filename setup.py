@@ -76,6 +76,7 @@ setuptools.setup(
         "hiredis",
         "html5lib",
         "itsdangerous",
+        "Jinja2>=2.8",
         "msgpack-python",
         "passlib>=1.6.4",
         "psycopg2",
