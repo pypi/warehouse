@@ -43,7 +43,6 @@ def compile():
     lines = [REQUIREMENTS_HEADER]
     with open("requirements.txt", "r") as fp:
         for line in fp:
-            line = re.sub(r"^jinja2==(\S+)(.*)$", r"jinja2==2.8.dev0\2", line)
             line = re.sub(r"^webob==(\S+)(.*)$", r"webob==1.5.dev0\2", line)
 
             # The boto3 wheel includes a futures==2.2.0 even though that is a
