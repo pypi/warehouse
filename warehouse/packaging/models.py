@@ -13,6 +13,7 @@
 import enum
 
 from citext import CIText
+from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
@@ -106,6 +107,21 @@ class Project(db.ModelBase):
             return self.releases.filter(Release.version == version).one()
         except NoResultFound:
             raise KeyError from None
+
+    def __acl__(self):
+        session = orm.object_session(self)
+        acls = []
+
+        # Get all of the users for this project.
+        query = session.query(Role).filter(Role.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.joinedload("user").lazyload("emails"))
+        for role in sorted(
+                query.all(),
+                key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
+            acls.append((Allow, role.user.id, ["upload"]))
+
+        return acls
 
     @property
     def documentation_url(self):
