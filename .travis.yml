@@ -15,9 +15,11 @@ env:
   - TOXENV=packaging
   - TOXENV=translations
 
-install: pip install -U pip wheel tox
+install: pip install -U pip wheel tox codecov
 
 script: tox $TOXARGS
+
+after_success: codecov
 
 notifications:
   irc:
