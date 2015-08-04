@@ -23,7 +23,7 @@ import wtforms.validators
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
-from pyramid.view import view_config
+from pyramid.view import forbidden_view_config, view_config
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -694,3 +694,11 @@ def submit(request):
         HTTPGone,
         "This API is no longer supported, instead simply upload the file.",
     )
+
+
+@forbidden_view_config(request_param=":action")
+def forbidden_legacy(exc, request):
+    # We're not going to do anything amazing here, this just exists to override
+    # the default forbidden handler we have which does redirects to the login
+    # view, which we do not want on this API.
+    return exc

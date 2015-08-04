@@ -1149,3 +1149,9 @@ def test_submit(pyramid_request):
     assert resp.status_code == 410
     assert resp.status == \
         "410 This API is no longer supported, instead simply upload the file."
+
+
+def test_forbidden_legacy():
+    exc, request = pretend.stub(), pretend.stub()
+    resp = pypi.forbidden_legacy(exc, request)
+    assert resp is exc

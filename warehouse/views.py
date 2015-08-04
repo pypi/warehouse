@@ -10,10 +10,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.view import forbidden_view_config, view_config
 
+from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.packaging.models import Project, Release, File
 from warehouse.accounts.models import User
+
+
+@forbidden_view_config()
+def forbidden(exc, request):
+    # If the forbidden error is because the user isn't logged in, then we'll
+    # redirect them to the log in page.
+    if request.authenticated_userid is None:
+        url = request.route_url(
+            "accounts.login",
+            _query={REDIRECT_FIELD_NAME: request.path_qs},
+        )
+        return HTTPSeeOther(url)
+
+    # If we've reached here, then the user is logged in and they are genuinely
+    # not allowed to access this page.
+    # TODO: Style the forbidden page.
+    return exc
 
 
 @view_config(
