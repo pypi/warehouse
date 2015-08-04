@@ -9,14 +9,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import datetime
 
-from warehouse.views import index
+import pretend
+
+from warehouse.views import forbidden, index
 
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
 )
 from ..common.db.accounts import UserFactory
+
+
+class TestForbiddenView:
+
+    def test_logged_in_returns_exception(self):
+        exc, request = pretend.stub(), pretend.stub(authenticated_userid=1)
+        resp = forbidden(exc, request)
+        assert resp is exc
+
+    def test_logged_out_redirects_login(self):
+        exc = pretend.stub()
+        request = pretend.stub(
+            authenticated_userid=None,
+            path_qs="/foo/bar/?b=s",
+            route_url=pretend.call_recorder(
+                lambda route, _query: "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+            ),
+        )
+
+        resp = forbidden(exc, request)
+
+        assert resp.status_code == 303
+        assert resp.headers["Location"] == \
+            "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
 
 class TestIndex:
