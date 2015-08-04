@@ -93,4 +93,6 @@ def test_routes():
 
     assert config.add_pypi_action_route.calls == [
         pretend.call("legacy.api.pypi.file_upload", "file_upload"),
+        pretend.call("legacy.api.pypi.submit", "submit"),
+        pretend.call("legacy.api.pypi.submit_pkg_info", "submit_pkg_info"),
     ]

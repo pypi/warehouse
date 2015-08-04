@@ -21,7 +21,7 @@ import pkg_resources
 import wtforms
 import wtforms.validators
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func
@@ -679,3 +679,18 @@ def file_upload(request):
         storage.store(file_.pgp_path, signature)
 
     return Response()
+
+
+@view_config(
+    route_name="legacy.api.pypi.submit",
+    decorator=[require_POST, csrf_exempt],
+)
+@view_config(
+    route_name="legacy.api.pypi.submit_pkg_info",
+    decorator=[require_POST, csrf_exempt],
+)
+def submit(request):
+    return _exc_with_message(
+        HTTPGone,
+        "This API is no longer supported, instead simply upload the file.",
+    )

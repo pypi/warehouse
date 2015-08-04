@@ -1141,3 +1141,11 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
+
+
+def test_submit(pyramid_request):
+    resp = pypi.submit(pyramid_request)
+
+    assert resp.status_code == 410
+    assert resp.status == \
+        "410 This API is no longer supported, instead simply upload the file."
