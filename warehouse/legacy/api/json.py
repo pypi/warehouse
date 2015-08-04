@@ -71,6 +71,18 @@ def json_release(release, request):
 
     # We want to allow CORS here to enable anyone to fetch data from this API
     request.response.headers["Access-Control-Allow-Origin"] = "*"
+    request.response.headers["Access-Control-Allow-Headers"] = ", ".join([
+        "Content-Type",
+        "If-Match",
+        "If-Modified-Since",
+        "If-None-Match",
+        "If-Unmodified-Since",
+    ])
+    request.response.headers["Access-Control-Allow-Methods"] = "GET"
+    request.response.headers["Access-Control-Max-Age"] = "86400"
+    request.response.headers["Access-Control-Expose-Headers"] = ", ".join([
+        "X-PyPI-Last-Serial",
+    ])
 
     # Get the latest serial number for this project.
     serial = (
