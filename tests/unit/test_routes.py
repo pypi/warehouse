@@ -33,6 +33,11 @@ def test_routes():
         def add_redirect(*args, **kwargs):
             pass
 
+        @staticmethod
+        @pretend.call_recorder
+        def add_pypi_action_route(name, action, **kwargs):
+            pass
+
     config = FakeConfig()
     includeme(config)
 
@@ -84,4 +89,8 @@ def test_routes():
     assert config.add_redirect.calls == [
         pretend.call("/pypi/{name}/", "/project/{name}/"),
         pretend.call("/pypi/{name}/{version}/", "/project/{name}/{version}/"),
+    ]
+
+    assert config.add_pypi_action_route.calls == [
+        pretend.call("legacy.api.pypi.file_upload", "file_upload"),
     ]

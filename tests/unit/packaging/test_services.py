@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import io
+import os.path
 
 import boto3.session
 import botocore.exceptions
@@ -142,6 +143,21 @@ class TestLocalFileStorage:
         with pytest.raises(FileNotFoundError):
             storage.get("file.txt")
 
+    def test_stores_file(self, tmpdir):
+        storage = LocalFileStorage(str(tmpdir))
+        storage.store("foo/bar.txt", io.BytesIO(b"Test File!"))
+        with open(os.path.join(str(tmpdir), "foo/bar.txt"), "rb") as fp:
+            assert fp.read() == b"Test File!"
+
+    def test_stores_two_files(self, tmpdir):
+        storage = LocalFileStorage(str(tmpdir))
+        storage.store("foo/first.txt", io.BytesIO(b"First Test File!"))
+        storage.store("foo/second.txt", io.BytesIO(b"Second Test File!"))
+        with open(os.path.join(str(tmpdir), "foo/first.txt"), "rb") as fp:
+            assert fp.read() == b"First Test File!"
+        with open(os.path.join(str(tmpdir), "foo/second.txt"), "rb") as fp:
+            assert fp.read() == b"Second Test File!"
+
 
 class TestS3FileStorage:
 
@@ -203,3 +219,26 @@ class TestS3FileStorage:
 
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get("file.txt")
+
+    def test_stores_file(self):
+        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
+        storage = S3FileStorage(bucket)
+        storage.store("foo/bar.txt", io.BytesIO(b"Test File!"))
+        assert bucket.Object.calls == [pretend.call("foo/bar.txt")]
+        assert obj.put.calls == [pretend.call(Body=b"Test File!")]
+
+    def test_stores_two_files(self):
+        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
+        storage = S3FileStorage(bucket)
+        storage.store("foo/first.txt", io.BytesIO(b"First Test File!"))
+        storage.store("foo/second.txt", io.BytesIO(b"Second Test File!"))
+        assert bucket.Object.calls == [
+            pretend.call("foo/first.txt"),
+            pretend.call("foo/second.txt"),
+        ]
+        assert obj.put.calls == [
+            pretend.call(Body=b"First Test File!"),
+            pretend.call(Body=b"Second Test File!"),
+        ]

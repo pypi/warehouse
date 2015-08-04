@@ -13,11 +13,13 @@
 import pretend
 import pytest
 
+from pyramid.security import Allow
+
 from warehouse.packaging.models import ProjectFactory, File
 
 from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory, ReleaseFactory as DBReleaseFactory,
-    FileFactory as DBFileFactory,
+    FileFactory as DBFileFactory, RoleFactory as DBRoleFactory,
 )
 
 
@@ -72,6 +74,26 @@ class TestProject:
         assert project.documentation_url == "/the/docs/url/"
         assert db_request.route_url.calls == [
             pretend.call("legacy.docs", project=project.name),
+        ]
+
+    def test_acl(self, db_session):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        maintainer2 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+
+        assert project.__acl__() == [
+            (Allow, owner1.user.id, ["upload"]),
+            (Allow, owner2.user.id, ["upload"]),
+            (Allow, maintainer1.user.id, ["upload"]),
+            (Allow, maintainer2.user.id, ["upload"]),
         ]
 
 

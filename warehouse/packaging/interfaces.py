@@ -44,3 +44,8 @@ class IFileStorage(Interface):
         Return a file like object that can be read to access the file located
         at the given path.
         """
+
+    def store(path, file_obj):
+        """
+        Save the file object to path.
+        """

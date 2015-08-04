@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 from citext import CIText
+from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
@@ -105,6 +108,21 @@ class Project(db.ModelBase):
         except NoResultFound:
             raise KeyError from None
 
+    def __acl__(self):
+        session = orm.object_session(self)
+        acls = []
+
+        # Get all of the users for this project.
+        query = session.query(Role).filter(Role.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.joinedload("user").lazyload("emails"))
+        for role in sorted(
+                query.all(),
+                key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
+            acls.append((Allow, role.user.id, ["upload"]))
+
+        return acls
+
     @property
     def documentation_url(self):
         # TODO: Move this into the database and elimnate the use of the
@@ -116,6 +134,55 @@ class Project(db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+
+class DependencyKind(enum.IntEnum):
+
+    requires = 1
+    provides = 2
+    obsoletes = 3
+    requires_dist = 4
+    provides_dist = 5
+    obsoletes_dist = 6
+    requires_external = 7
+
+    # TODO: Move project URLs into their own table, since they are not actually
+    #       a "dependency".
+    project_url = 8
+
+
+class Dependency(db.Model):
+
+    __tablename__ = "release_dependencies"
+    __table_args__ = (
+        Index("rel_dep_name_idx", "name"),
+        Index("rel_dep_name_version_idx", "name", "version"),
+        Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
+        ForeignKeyConstraint(
+            ["name", "version"],
+            ["releases.name", "releases.version"],
+            onupdate="CASCADE",
+        ),
+    )
+    __repr__ = make_repr("name", "version", "kind", "specifier")
+
+    name = Column(Text)
+    version = Column(Text)
+    kind = Column(Integer)
+    specifier = Column(Text)
+
+
+def _dependency_relation(kind):
+    return orm.relationship(
+        "Dependency",
+        primaryjoin=lambda: sql.and_(
+            Release.name == Dependency.name,
+            Release.version == Dependency.version,
+            Dependency.kind == kind.value,
+        ),
+        lazy=False,
+        viewonly=True,
+    )
 
 
 class Release(db.ModelBase):
@@ -188,6 +255,32 @@ class Release(db.ModelBase):
         order_by=lambda: File.filename,
     )
 
+    dependencies = orm.relationship("Dependency")
+
+    _requires = _dependency_relation(DependencyKind.requires)
+    requires = association_proxy("_requires", "specifier")
+
+    _provides = _dependency_relation(DependencyKind.provides)
+    provides = association_proxy("_provides", "specifier")
+
+    _obsoletes = _dependency_relation(DependencyKind.obsoletes)
+    obsoletes = association_proxy("_obsoletes", "specifier")
+
+    _requires_dist = _dependency_relation(DependencyKind.requires_dist)
+    requires_dist = association_proxy("_requires_dist", "specifier")
+
+    _provides_dist = _dependency_relation(DependencyKind.provides_dist)
+    provides_dist = association_proxy("_provides_dist", "specifier")
+
+    _obsoletes_dist = _dependency_relation(DependencyKind.obsoletes_dist)
+    obsoletes_dist = association_proxy("_obsoletes_dist", "specifier")
+
+    _requires_external = _dependency_relation(DependencyKind.requires_external)
+    requires_external = association_proxy("_requires_external", "specifier")
+
+    _project_urls = _dependency_relation(DependencyKind.project_url)
+    project_urls = association_proxy("_project_urls", "specifier")
+
 
 class File(db.Model):
 
@@ -220,14 +313,14 @@ class File(db.Model):
     has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
     downloads = Column(Integer, server_default=sql.text("0"))
-    upload_time = Column(DateTime(timezone=False))
+    upload_time = Column(DateTime(timezone=False), server_default=func.now())
 
     @hybrid_property
     def path(self):
         return "/".join([
             self.python_version,
-            self.name[0],
-            self.name,
+            self.release.project.name[0],
+            self.release.project.name,
             self.filename,
         ])
 
@@ -248,6 +341,14 @@ class File(db.Model):
     @pgp_path.expression
     def pgp_path(self):
         return func.concat(self.path, ".asc")
+
+
+class Filename(db.ModelBase):
+
+    __tablename__ = "file_registry"
+
+    id = Column(Integer, primary_key=True, nullable=False)
+    filename = Column(Text, unique=True, nullable=False)
 
 
 release_classifiers = Table(
