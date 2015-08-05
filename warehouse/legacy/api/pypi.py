@@ -20,6 +20,7 @@ import packaging.version
 import pkg_resources
 import wtforms
 import wtforms.validators
+from rfc3986 import uri_reference
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
@@ -194,7 +195,10 @@ def _validate_project_url(value):
     if not url:
         raise wtforms.validators.ValidationError("Must have an URL.")
 
-    # TODO: Actually validate that the URL is a valid URL.
+    url = uri_reference(url)
+    url = url.normalize()
+    if not (url.is_valid() and url.scheme in ('http', 'https')):
+        raise wtforms.validators.ValidationError("Invalid URL.")
 
 
 def _validate_project_url_list(form, field):
