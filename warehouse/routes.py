@@ -67,6 +67,7 @@ def includeme(config):
         "legacy.api.pypi.submit_pkg_info",
         "submit_pkg_info",
     )
+    config.add_pypi_action_route("legacy.api.pypi.doc_upload", "doc_upload")
 
     # Legacy Documentation
     config.add_route("legacy.docs", config.registry.settings["docs.url"])
