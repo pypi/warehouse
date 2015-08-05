@@ -315,7 +315,9 @@ class TestMetadataForm:
 class TestFileUpload:
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
-    def test_fails_invalid_version(self, pyramid_request, version):
+    def test_fails_invalid_version(self, pyramid_config, pyramid_request,
+                                   version):
+        pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.POST["protocol_version"] = version
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -436,7 +438,9 @@ class TestFileUpload:
             ),
         ],
     )
-    def test_fails_invalid_post_data(self, db_request, post_data, message):
+    def test_fails_invalid_post_data(self, pyramid_config, db_request,
+                                     post_data, message):
+        pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict(post_data)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -448,7 +452,8 @@ class TestFileUpload:
         assert resp.status == "400 {}".format(message)
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
-    def test_fails_with_invalid_names(self, db_request, name):
+    def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
+        pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": name,
@@ -465,7 +470,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 The name {!r} is not allowed.".format(name)
 
-    def test_upload_fails_without_file(self, db_request):
+    def test_upload_fails_without_file(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": "example",
@@ -482,7 +488,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
 
-    def test_upload_cleans_unknown_values(self, db_request):
+    def test_upload_cleans_unknown_values(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": "UNKNOWN",
@@ -497,7 +504,9 @@ class TestFileUpload:
         assert "name" not in db_request.POST
 
     @pytest.mark.parametrize("has_signature", [True, False])
-    def test_successful_upload(self, db_request, has_signature):
+    def test_successful_upload(self, pyramid_config, db_request,
+                               has_signature):
+        pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -581,7 +590,10 @@ class TestFileUpload:
                      .filter(Filename.filename == filename).one()
 
     @pytest.mark.parametrize("sig", [b"lol nope"])
-    def test_upload_fails_with_invalid_signature(self, db_request, sig):
+    def test_upload_fails_with_invalid_signature(self, pyramid_config,
+                                                 db_request, sig):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -613,7 +625,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 PGP signature is not ASCII armored."
 
-    def test_upload_fails_with_invalid_classifier(self, db_request):
+    def test_upload_fails_with_invalid_classifier(self, pyramid_config,
+                                                  db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -647,7 +662,9 @@ class TestFileUpload:
             "valid choice for this field"
         )
 
-    def test_upload_fails_with_invalid_hash(self, db_request):
+    def test_upload_fails_with_invalid_hash(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -678,7 +695,10 @@ class TestFileUpload:
             "from the uploaded file."
         )
 
-    def test_upload_fails_with_too_large_file(self, db_request):
+    def test_upload_fails_with_too_large_file(self, pyramid_config,
+                                              db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -706,7 +726,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 File too large."
 
-    def test_upload_fails_with_too_large_signature(self, db_request):
+    def test_upload_fails_with_too_large_signature(self, pyramid_config,
+                                                   db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -738,7 +761,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Signature too large."
 
-    def test_upload_fails_with_previously_used_filename(self, db_request):
+    def test_upload_fails_with_previously_used_filename(self, pyramid_config,
+                                                        db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -771,7 +797,9 @@ class TestFileUpload:
             "different version."
         )
 
-    def test_upload_fails_with_existing_file(self, db_request):
+    def test_upload_fails_with_existing_file(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -801,7 +829,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 File already exists."
 
-    def test_upload_fails_with_wrong_filename(self, db_request):
+    def test_upload_fails_with_wrong_filename(self, pyramid_config,
+                                              db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -834,7 +865,10 @@ class TestFileUpload:
             )
         )
 
-    def test_upload_fails_with_invalid_extension(self, db_request):
+    def test_upload_fails_with_invalid_extension(self, pyramid_config,
+                                                 db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -863,7 +897,10 @@ class TestFileUpload:
         assert resp.status == "400 Invalid file extension."
 
     @pytest.mark.parametrize("character", ["/", "\\"])
-    def test_upload_fails_with_unsafe_filename(self, db_request, character):
+    def test_upload_fails_with_unsafe_filename(self, pyramid_config,
+                                               db_request, character):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -896,7 +933,7 @@ class TestFileUpload:
             "400 Cannot upload a file with '/' or '\\' in the name."
 
     def test_upload_fails_without_permission(self, pyramid_config, db_request):
-        pyramid_config.testing_securitypolicy(permissive=False)
+        pyramid_config.testing_securitypolicy(userid=1, permissive=False)
 
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -922,7 +959,10 @@ class TestFileUpload:
         "plat",
         ["any", "win32", "win-amd64", "win_amd64", "win-ia64", "win_ia64"],
     )
-    def test_upload_succeeds_with_wheel(self, db_request, plat):
+    def test_upload_succeeds_with_wheel(self, pyramid_config, db_request,
+                                        plat):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -982,7 +1022,10 @@ class TestFileUpload:
                      .filter(Filename.filename == filename).one()
 
     @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
-    def test_upload_fails_with_unsupported_wheel_plat(self, db_request, plat):
+    def test_upload_fails_with_unsupported_wheel_plat(self, pyramid_config,
+                                                      db_request, plat):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1015,7 +1058,9 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Binary wheel for an unsupported platform."
 
-    def test_upload_succeeds_creates_release(self, db_request):
+    def test_upload_succeeds_creates_release(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
@@ -1085,7 +1130,9 @@ class TestFileUpload:
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
 
-    def test_upload_succeeds_creates_project(self, db_request):
+    def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
         user = UserFactory.create()
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
@@ -1141,6 +1188,19 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
+
+    def test_fails_without_user(self, pyramid_config, pyramid_request):
+        pyramid_config.testing_securitypolicy(userid=None)
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            pypi.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 Invalid or non-existent authentication information."
+        )
 
 
 def test_submit(pyramid_request):
