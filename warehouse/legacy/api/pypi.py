@@ -419,6 +419,14 @@ class MetadataForm(forms.Form):
     decorator=[require_POST, csrf_exempt, uses_session],
 )
 def file_upload(request):
+    # Before we do anything, if their isn't an authenticated user with this
+    # request, then we'll go ahead and bomb out.
+    if request.authenticated_userid is None:
+        raise _exc_with_message(
+            HTTPForbidden,
+            "Invalid or non-existent authentication information.",
+        )
+
     # distutils "helpfully" substitutes unknown, but "required" values with the
     # string "UNKNOWN". This is basically never what anyone actually wants so
     # we'll just go ahead and delete anything whose value is UNKNOWN.
