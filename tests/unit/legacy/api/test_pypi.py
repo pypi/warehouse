@@ -230,6 +230,8 @@ class TestValidation:
             ", https://pypi.python.org/",
             "Home, ",
             ("A" * 33) + ", https://example.com/",
+            "Home, I am a banana",
+            "Home, ssh://foobar",
         ],
     )
     def test_validate_project_url_invalid(self, project_url):

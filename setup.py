@@ -88,6 +88,7 @@ setuptools.setup(
         "pyramid_tm>=0.12",
         "readme>=0.5.1",
         "redis",
+        "rfc3986",
         "setproctitle",
         "setuptools",
         "sqlalchemy>=0.9",
