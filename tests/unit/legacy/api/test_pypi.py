@@ -1151,6 +1151,16 @@ def test_submit(pyramid_request):
         "410 This API is no longer supported, instead simply upload the file."
 
 
+def test_doc_upload(pyramid_request):
+    resp = pypi.doc_upload(pyramid_request)
+
+    assert resp.status_code == 410
+    assert resp.status == (
+        "410 Uploading documentation is no longer supported, we recommend "
+        "using https://readthedocs.org/."
+    )
+
+
 def test_forbidden_legacy():
     exc, request = pretend.stub(), pretend.stub()
     resp = pypi.forbidden_legacy(exc, request)

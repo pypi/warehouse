@@ -696,6 +696,18 @@ def submit(request):
     )
 
 
+@view_config(
+    route_name="legacy.api.pypi.doc_upload",
+    decorator=[require_POST, csrf_exempt],
+)
+def doc_upload(request):
+    return _exc_with_message(
+        HTTPGone,
+        "Uploading documentation is no longer supported, we recommend using "
+        "https://readthedocs.org/.",
+    )
+
+
 @forbidden_view_config(request_param=":action")
 def forbidden_legacy(exc, request):
     # We're not going to do anything amazing here, this just exists to override
