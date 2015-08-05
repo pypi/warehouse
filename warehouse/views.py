@@ -10,15 +10,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPSeeOther
-from pyramid.view import forbidden_view_config, view_config
+from pyramid.httpexceptions import (
+    HTTPSeeOther,
+    HTTPMovedPermanently,
+)
+from pyramid.view import (
+    forbidden_view_config,
+    notfound_view_config,
+    view_config,
+)
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.packaging.models import Project, Release, File
 from warehouse.accounts.models import User
 
 
-@forbidden_view_config()
+# If a route matches with a slash appended to it, redirect to that route
+# instead of returning a HTTPNotFound.
+# config.add_notfound_view(
+#     renderer="templates/404.html",
+#     append_slash=HTTPMovedPermanently,
+# )
+
+@notfound_view_config(
+    append_slash=HTTPMovedPermanently,
+    renderer='templates/404.html',
+)
+def notfound(context, request):
+    if not isinstance(context, Exception):
+        # backwards compat for an exception response view registered via
+        # config.set_notfound_view or config.set_forbidden_view
+        # instead of as a proper exception view
+        context = request.exception or context
+    return {}
+
+
+@forbidden_view_config(renderer='templates/500.html')
 def forbidden(exc, request):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
@@ -31,8 +58,7 @@ def forbidden(exc, request):
 
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.
-    # TODO: Style the forbidden page.
-    return exc
+    return {}
 
 
 @view_config(
