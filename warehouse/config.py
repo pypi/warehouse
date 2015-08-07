@@ -19,7 +19,6 @@ import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 
 from warehouse import __commit__
