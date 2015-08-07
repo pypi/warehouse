@@ -27,21 +27,11 @@ from warehouse.accounts.models import User
 
 # If a route matches with a slash appended to it, redirect to that route
 # instead of returning a HTTPNotFound.
-# config.add_notfound_view(
-#     renderer="templates/404.html",
-#     append_slash=HTTPMovedPermanently,
-# )
-
 @notfound_view_config(
     append_slash=HTTPMovedPermanently,
     renderer='templates/404.html',
 )
 def notfound(context, request):
-    if not isinstance(context, Exception):
-        # backwards compat for an exception response view registered via
-        # config.set_notfound_view or config.set_forbidden_view
-        # instead of as a proper exception view
-        context = request.exception or context
     return {}
 
 
