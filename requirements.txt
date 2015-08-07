@@ -5,6 +5,8 @@
 #    $ invoke pip.compile
 #
 
+-r requirements-deploy.txt
+
 alembic==0.7.7
 babel==2.0
 bcrypt==2.0.0
