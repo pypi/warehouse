@@ -86,9 +86,12 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
+    maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
+    maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
+    maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "download_stats.url", "STATS_REDIS_URL")
+    maybe_set(settings, "download_stats.url", "REDIS_URL")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
