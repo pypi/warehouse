@@ -1,0 +1,4 @@
+# These requirements are only needed during the actual deployment phase and are
+# not actually a dependency of Warehouse itself.
+
+requests
