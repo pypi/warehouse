@@ -24,10 +24,10 @@ from ..common.db.accounts import UserFactory
 
 class TestForbiddenView:
 
-    def test_logged_in_returns_exception(self):
+    def test_logged_in_returns_empty_context(self):
         exc, request = pretend.stub(), pretend.stub(authenticated_userid=1)
         resp = forbidden(exc, request)
-        assert resp is exc
+        assert resp == {}
 
     def test_logged_out_redirects_login(self):
         exc = pretend.stub()

@@ -17,7 +17,6 @@ import pretend
 import pytest
 
 from pyramid import renderers
-from pyramid.httpexceptions import HTTPMovedPermanently
 
 from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
@@ -244,7 +243,6 @@ def test_configure(monkeypatch, settings, environment):
             lambda d: configurator_settings.update(d)
         ),
         add_tween=pretend.call_recorder(lambda tween_factory: None),
-        add_notfound_view=pretend.call_recorder(lambda append_slash: None),
         add_static_view=pretend.call_recorder(
             lambda name, path, cachebust: None
         ),
@@ -394,9 +392,6 @@ def test_configure(monkeypatch, settings, environment):
     ]
     assert opener.calls == [
         pretend.call("/srv/data/pypi/packages/", create_dir=True),
-    ]
-    assert configurator_obj.add_notfound_view.calls == [
-        pretend.call(append_slash=HTTPMovedPermanently),
     ]
     assert configurator_obj.add_renderer.calls == [
         pretend.call("json", json_renderer_obj),
