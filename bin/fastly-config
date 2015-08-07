@@ -82,7 +82,7 @@ for name in set(name[:-4] for name in vcl_files.keys()) - to_upload:
 
 # If we do not need to upload or delete any VCL files, then we'll just exit
 # with a successful exit code.
-if not to_upload and not to_delete:
+if not to_upload and not to_delete and not to_update:
     sys.exit(0)
 
 # We don't want to inadvertingly deploy pending changes in an existing pending
