@@ -10,6 +10,7 @@ babel==2.0
 bcrypt==2.0.0
 bleach==1.4.1             # via readme
 boto3==1.1.1
+boto==2.38.0
 botocore==1.1.7           # via boto3
 cffi==1.1.2               # via bcrypt
 click==4.1
