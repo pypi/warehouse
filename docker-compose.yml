@@ -25,7 +25,6 @@ web:
     WAREHOUSE_ENV: development
     DATABASE_URL: postgresql://postgres@db/warehouse
     REDIS_URL: redis://redis:6379/0
-    STATS_REDIS_URL: redis://redis:6379/1
     SESSION_SECRET: "an insecure development secret"
     CAMO_URL: "{request.scheme}://{request.domain}:9000/"
     CAMO_KEY: "insecure camo key"

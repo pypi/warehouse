@@ -88,7 +88,7 @@ def configure(settings=None):
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "download_stats.url", "STATS_REDIS_URL")
+    maybe_set(settings, "download_stats.url", "REDIS_URL")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
