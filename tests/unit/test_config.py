@@ -66,6 +66,68 @@ class TestCSPTween:
         assert response.headers == {}
 
 
+class TestRequireHTTPSTween:
+
+    def test_noops_when_disabled(self):
+        handler = pretend.stub()
+        registry = pretend.stub(
+            settings=pretend.stub(
+                get=pretend.call_recorder(lambda k, v: False),
+            ),
+        )
+
+        assert config.require_https_tween_factory(handler, registry) is handler
+        assert registry.settings.get.calls == [
+            pretend.call("enforce_https", True),
+        ]
+
+    @pytest.mark.parametrize(
+        ("params", "scheme"),
+        [
+            ({}, "https"),
+            ({":action": "thing"}, "https"),
+            ({}, "http"),
+        ],
+    )
+    def test_allows_through(self, params, scheme):
+        request = pretend.stub(params=params, scheme=scheme)
+        response = pretend.stub()
+        handler = pretend.call_recorder(lambda req: response)
+        registry = pretend.stub(
+            settings=pretend.stub(
+                get=lambda k, v: True,
+            ),
+        )
+
+        tween = config.require_https_tween_factory(handler, registry)
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+
+    @pytest.mark.parametrize(
+        ("params", "scheme"),
+        [
+            ({":action": "thing"}, "http"),
+        ],
+    )
+    def test_rejects(self, params, scheme):
+        request = pretend.stub(params=params, scheme=scheme)
+        handler = pretend.stub()
+        registry = pretend.stub(
+            settings=pretend.stub(
+                get=lambda k, v: True,
+            ),
+        )
+
+        tween = config.require_https_tween_factory(handler, registry)
+        resp = tween(request)
+
+        assert resp.status == "403 SSL is required"
+        assert resp.headers["X-Fastly-Error"] == "803"
+        assert resp.content_type == "text/plain"
+        assert resp.body == b"SSL is required."
+
+
 @pytest.mark.parametrize(
     ("path", "expected"),
     [
@@ -305,6 +367,7 @@ def test_configure(monkeypatch, settings, environment):
         transaction_manager
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.content_security_policy_tween_factory"),
+        pretend.call("warehouse.config.require_https_tween_factory"),
     ]
     assert configurator_obj.registry["filesystems"] == {"packages": fs_obj}
     assert configurator_obj.add_static_view.calls == [

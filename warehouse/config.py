@@ -20,6 +20,7 @@ import transaction
 from pyramid import renderers
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.response import Response
 
 from warehouse.utils.static import WarehouseCacheBuster
 
@@ -46,6 +47,29 @@ def content_security_policy_tween_factory(handler, registry):
         return resp
 
     return content_security_policy_tween
+
+
+def require_https_tween_factory(handler, registry):
+
+    if not registry.settings.get("enforce_https", True):
+        return handler
+
+    def require_https_tween(request):
+        # If we have an :action URL and we're not using HTTPS, then we want to
+        # return a 403 error.
+        if request.params.get(":action", None) and request.scheme != "https":
+            resp = Response(
+                "SSL is required.",
+                status=403,
+                content_type="text/plain",
+            )
+            resp.status = "403 SSL is required"
+            resp.headers["X-Fastly-Error"] = "803"
+            return resp
+
+        return handler(request)
+
+    return require_https_tween
 
 
 def activate_hook(request):
@@ -231,6 +255,10 @@ def configure(settings=None):
         },
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
+
+    # Block non HTTPS requests for the legacy ?:action= routes when they are
+    # sent via POST.
+    config.add_tween("warehouse.config.require_https_tween_factory")
 
     # If a route matches with a slash appended to it, redirect to that route
     # instead of returning a HTTPNotFound.
