@@ -143,6 +143,9 @@ def db_request(pyramid_request, db_session):
 
 @pytest.yield_fixture
 def webtest(app_config):
+    # We want to disable anything that relies on TLS here.
+    app_config.add_settings(enforce_https=False)
+
     try:
         yield _webtest.TestApp(app_config.make_wsgi_app())
     finally:
