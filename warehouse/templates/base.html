@@ -50,5 +50,9 @@
       {% block content %}
       {% endblock %}
     </div>
+
+    <footer>
+    Powered By <a href="https://github.com/pypa/warehouse">Warehouse</a>{% if request.registry.settings.get('warehouse.commit') %} (<a href="https://github.com/pypa/warehouse/tree/{{ request.registry.settings['warehouse.commit'] }}">{{ request.registry.settings['warehouse.commit'][:10] }}</a>){% endif %}
+    </footer>
   </body>
 </html>
