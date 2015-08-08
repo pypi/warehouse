@@ -65,7 +65,7 @@ sub vcl_fetch {
 #FASTLY fetch
 
     # Trigger a "SSL is required" error if the backend has indicated to do so.
-    if (beresp.http.X-Fastly-Error == 803) {
+    if (beresp.http.X-Fastly-Error == "803") {
         error 803 "SSL is required";
     }
 
