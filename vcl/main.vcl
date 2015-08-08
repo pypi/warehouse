@@ -39,13 +39,11 @@ sub vcl_recv {
         }
     }
 
-    # Tell Varnish to use X-Forwarded-Proto to set the "real" protocol http
-    #   or https.
+    # Set a header to tell the backend if we're using https or http.
     if (req.http.Fastly-SSL) {
-        set req.http.X-Forwarded-Proto = "https";
-    }
-    else {
-        set req.http.X-Forwarded-Proto = "http";
+        set req.http.X-Warehouse-Proto = "https";
+    } else {
+        set req.http.X-Warehouse-Proto = "http";
     }
 
     # Do not bother to attempt to run the caching mechanisms for methods that
