@@ -62,6 +62,8 @@ def serve(config, bind, reload_, workers):
     options = {
         # The gunicorn docs recommend (2 x $num_cores) + 1
         "workers": (2 * multiprocessing.cpu_count()) + 1,
+        "secure_scheme_headers": {"X-WAREHOUSE-PROTO": "https"},
+        "forwarded_allow_ips": "*",
     }
 
     # We want these values to override the values from the config file if

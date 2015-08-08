@@ -65,7 +65,13 @@ def test_serve(monkeypatch, cli):
     assert app_cls.calls == [
         pretend.call(
             config,
-            options={"reload": False, "workers": 3, "proc_name": "warehouse"},
+            options={
+                "reload": False,
+                "workers": 3,
+                "proc_name": "warehouse",
+                "secure_scheme_headers": {"X-WAREHOUSE-PROTO": "https"},
+                "forwarded_allow_ips": "*",
+            },
         ),
     ]
     assert app_obj.run.calls == [pretend.call()]
