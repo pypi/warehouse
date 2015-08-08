@@ -41,9 +41,9 @@ sub vcl_recv {
 
     # Set a header to tell the backend if we're using https or http.
     if (req.http.Fastly-SSL) {
-        set req.http.X-Warehouse-Proto = "https";
+        set req.http.Warehouse-Proto = "https";
     } else {
-        set req.http.X-Warehouse-Proto = "http";
+        set req.http.Warehouse-Proto = "http";
     }
 
     # Do not bother to attempt to run the caching mechanisms for methods that
