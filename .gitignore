@@ -18,3 +18,5 @@ node_modules/
 
 dev/example.sql
 data/
+
+warehouse/.commit

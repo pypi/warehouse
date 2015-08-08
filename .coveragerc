@@ -16,6 +16,9 @@ omit =
     # to cover and it really just acts as a tiny shim to a function.
     warehouse/__main__.py
 
+    # This bit of code is hard to test, and it shouldn't actually matter.
+    warehouse/__about__.py
+
 
 [report]
 exclude_lines =

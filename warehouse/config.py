@@ -22,6 +22,7 @@ from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 
+from warehouse import __commit__
 from warehouse.utils.static import WarehouseCacheBuster
 
 
@@ -100,6 +101,9 @@ def maybe_set_compound(settings, base, name, envvar):
 def configure(settings=None):
     if settings is None:
         settings = {}
+
+    # Add information about the current copy of the code.
+    settings.setdefault("warehouse.commit", __commit__)
 
     # Set the environment from an environment variable, if one hasn't already
     # been set.

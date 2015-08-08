@@ -264,6 +264,7 @@ def test_configure(monkeypatch, settings, environment):
 
     expected_settings = {
         "warehouse.env": environment,
+        "warehouse.commit": None,
         "site.name": "Warehouse",
     }
 
