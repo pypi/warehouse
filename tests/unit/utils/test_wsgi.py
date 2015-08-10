@@ -90,3 +90,30 @@ class TestProxyFixer:
 
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
+
+
+class TestVhmRootRemover:
+
+    def test_removes_header(self):
+        response = pretend.stub()
+        app = pretend.call_recorder(lambda e, s: response)
+        environ = {"HTTP_X_VHM_ROOT": "/foo/bar"}
+        start_response = pretend.stub()
+
+        resp = wsgi.VhmRootRemover(app)(environ, start_response)
+
+        assert resp is response
+        assert app.calls == [pretend.call({}, start_response)]
+
+    def test_passes_through_headers(self):
+        response = pretend.stub()
+        app = pretend.call_recorder(lambda e, s: response)
+        environ = {"HTTP_X_FOOBAR": "wat"}
+        start_response = pretend.stub()
+
+        resp = wsgi.VhmRootRemover(app)(environ, start_response)
+
+        assert resp is response
+        assert app.calls == [
+            pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response),
+        ]

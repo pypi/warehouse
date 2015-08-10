@@ -49,3 +49,16 @@ class ProxyFixer:
 
         # Dispatch to the real underlying application.
         return self.app(environ, start_response)
+
+
+class VhmRootRemover:
+
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        # Delete the X-Vhm-Root header if it exists.
+        if "HTTP_X_VHM_ROOT" in environ:
+            del environ["HTTP_X_VHM_ROOT"]
+
+        return self.app(environ, start_response)
