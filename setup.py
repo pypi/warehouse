@@ -85,6 +85,7 @@ setuptools.setup(
         "pyramid>=1.6a1",
         "pyramid_jinja2>=2.5",
         "pyramid_multiauth",
+        "pyramid_rpc",
         "pyramid_services",
         "pyramid_tm>=0.12",
         "readme>=0.5.1",

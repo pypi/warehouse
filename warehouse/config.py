@@ -228,6 +228,9 @@ def configure(settings=None):
     # Register support for services
     config.include("pyramid_services")
 
+    # Register support for XMLRPC
+    config.include("pyramid_rpc.xmlrpc")
+
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")
 
