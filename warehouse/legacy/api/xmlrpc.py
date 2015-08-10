@@ -15,7 +15,8 @@ import functools
 from pyramid_rpc.xmlrpc import xmlrpc_method
 from sqlalchemy import func
 
-from warehouse.packaging.models import Project, Release
+from warehouse.accounts.models import User
+from warehouse.packaging.models import Role, Project, Release
 
 
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
@@ -42,3 +43,16 @@ def package_releases(request, package_name, show_hidden=False):
                   .all()
     )
     return [v[0] for v in versions]
+
+
+@pypi_xmlrpc(method="package_roles")
+def package_roles(request, package_name):
+    roles = (
+        request.db.query(Role)
+                  .join(User, Project)
+                  .filter(Project.normalized_name ==
+                          func.normalize_pep426_name(package_name))
+                  .order_by(Role.role_name.desc(), User.username)
+                  .all()
+    )
+    return [(r.role_name, r.user.username) for r in roles]

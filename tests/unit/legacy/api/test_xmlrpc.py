@@ -12,7 +12,7 @@
 
 from warehouse.legacy.api import xmlrpc
 
-from ....common.db.packaging import ProjectFactory, ReleaseFactory
+from ....common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
 
 
 def test_list_packages(db_request):
@@ -29,4 +29,25 @@ def test_package_releases(db_request):
     assert result == [
         r.version
         for r in sorted(releases1, key=lambda x: x._pypi_ordering)
+    ]
+
+
+def test_package_roles(db_request):
+    project1, project2 = ProjectFactory.create(), ProjectFactory.create()
+    owners1 = [RoleFactory.create(project=project1) for _ in range(3)]
+    for _ in range(3):
+        RoleFactory.create(project=project2)
+    maintainers1 = [
+        RoleFactory.create(project=project1, role_name="Maintainer")
+        for _ in range(3)
+    ]
+    for _ in range(3):
+        RoleFactory.create(project=project2, role_name="Maintainer")
+    result = xmlrpc.package_roles(db_request, project1.name)
+    assert result == [
+        (r.role_name, r.user.username)
+        for r in (
+            sorted(owners1, key=lambda x: x.user.username.lower()) +
+            sorted(maintainers1, key=lambda x: x.user.username.lower())
+        )
     ]
