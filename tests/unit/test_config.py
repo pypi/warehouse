@@ -20,7 +20,7 @@ from pyramid import renderers
 from pyramid.httpexceptions import HTTPMovedPermanently
 
 from warehouse import config
-from warehouse.utils.proxy import ProxyFixer
+from warehouse.utils.wsgi import ProxyFixer
 
 
 class TestCSPTween:

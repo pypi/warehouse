@@ -23,8 +23,8 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 
 from warehouse import __commit__
-from warehouse.utils.proxy import ProxyFixer
 from warehouse.utils.static import WarehouseCacheBuster
+from warehouse.utils.wsgi import ProxyFixer
 
 
 class Environment(enum.Enum):

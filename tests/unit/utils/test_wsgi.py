@@ -12,7 +12,7 @@
 
 import pretend
 
-from warehouse.utils import proxy
+from warehouse.utils import wsgi
 
 
 class TestProxyFixer:
@@ -29,7 +29,7 @@ class TestProxyFixer:
         }
         start_response = pretend.stub()
 
-        resp = proxy.ProxyFixer(app, token=None)(environ, start_response)
+        resp = wsgi.ProxyFixer(app, token=None)(environ, start_response)
 
         assert resp is response
         assert app.calls == [
@@ -48,7 +48,7 @@ class TestProxyFixer:
         }
         start_response = pretend.stub()
 
-        resp = proxy.ProxyFixer(app, token="1234")(environ, start_response)
+        resp = wsgi.ProxyFixer(app, token="1234")(environ, start_response)
 
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
@@ -65,7 +65,7 @@ class TestProxyFixer:
         }
         start_response = pretend.stub()
 
-        resp = proxy.ProxyFixer(app, token="1234")(environ, start_response)
+        resp = wsgi.ProxyFixer(app, token="1234")(environ, start_response)
 
         assert resp is response
         assert app.calls == [
@@ -86,7 +86,7 @@ class TestProxyFixer:
         environ = {"HTTP_WAREHOUSE_TOKEN": "1234"}
         start_response = pretend.stub()
 
-        resp = proxy.ProxyFixer(app, token="1234")(environ, start_response)
+        resp = wsgi.ProxyFixer(app, token="1234")(environ, start_response)
 
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
