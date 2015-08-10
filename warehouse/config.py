@@ -23,8 +23,8 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 
 from warehouse import __commit__
-from warehouse.utils.proxy import ProxyFixer
 from warehouse.utils.static import WarehouseCacheBuster
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class Environment(enum.Enum):
@@ -313,6 +313,9 @@ def configure(settings=None):
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
     )
+
+    # Protect against cache poisoning via the X-Vhm-Root headers.
+    config.add_wsgi_middleware(VhmRootRemover)
 
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env"])

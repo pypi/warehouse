@@ -20,7 +20,7 @@ from pyramid import renderers
 from pyramid.httpexceptions import HTTPMovedPermanently
 
 from warehouse import config
-from warehouse.utils.proxy import ProxyFixer
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestCSPTween:
@@ -308,6 +308,7 @@ def test_configure(monkeypatch, settings, environment):
     assert result is configurator_obj
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token"),
+        pretend.call(VhmRootRemover),
     ]
     assert configurator_obj.include.calls == (
         [
