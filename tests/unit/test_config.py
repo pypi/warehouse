@@ -20,6 +20,7 @@ from pyramid import renderers
 from pyramid.httpexceptions import HTTPMovedPermanently
 
 from warehouse import config
+from warehouse.utils.proxy import ProxyFixer
 
 
 class TestCSPTween:
@@ -223,6 +224,7 @@ def test_configure(monkeypatch, settings, environment):
     class FakeRegistry(dict):
         def __init__(self):
             self.settings = {
+                "warehouse.token": "insecure token",
                 "warehouse.env": environment,
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
@@ -233,6 +235,7 @@ def test_configure(monkeypatch, settings, environment):
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
+        add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
         add_renderer=pretend.call_recorder(lambda name, renderer: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
@@ -303,6 +306,9 @@ def test_configure(monkeypatch, settings, environment):
 
     assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
     assert result is configurator_obj
+    assert configurator_obj.add_wsgi_middleware.calls == [
+        pretend.call(ProxyFixer, token="insecure token"),
+    ]
     assert configurator_obj.include.calls == (
         [
             pretend.call(x) for x in [

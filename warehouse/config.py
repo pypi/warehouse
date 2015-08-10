@@ -18,17 +18,36 @@ import fs.opener
 import transaction
 
 from pyramid import renderers
-from pyramid.config import Configurator
+from pyramid.config import Configurator as _Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 
 from warehouse import __commit__
+from warehouse.utils.proxy import ProxyFixer
 from warehouse.utils.static import WarehouseCacheBuster
 
 
 class Environment(enum.Enum):
     production = "production"
     development = "development"
+
+
+class Configurator(_Configurator):
+
+    def add_wsgi_middleware(self, middleware, *args, **kwargs):
+        middlewares = self.get_settings().setdefault("wsgi.middlewares", [])
+        middlewares.append((middleware, args, kwargs))
+
+    def make_wsgi_app(self, *args, **kwargs):
+        # Get the WSGI application from the underlying configurator
+        app = super().make_wsgi_app(*args, **kwargs)
+
+        # Look to see if we have any WSGI middlewares configured.
+        for middleware, args, kw in self.get_settings()["wsgi.middlewares"]:
+            app = middleware(app, *args, **kw)
+
+        # Finally, return our now wrapped app
+        return app
 
 
 def content_security_policy_tween_factory(handler, registry):
@@ -113,6 +132,7 @@ def configure(settings=None):
     )
 
     # Pull in default configuration from the environment.
+    maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
@@ -285,6 +305,13 @@ def configure(settings=None):
             "warehouse:static/manifest.json",
             cache=not config.registry.settings["pyramid.reload_assets"],
         ),
+    )
+
+    # Enable support of passing certain values like remote host, client
+    # address, and protocol support in from an outer proxy to the application.
+    config.add_wsgi_middleware(
+        ProxyFixer,
+        token=config.registry.settings["warehouse.token"],
     )
 
     # Scan everything for configuration

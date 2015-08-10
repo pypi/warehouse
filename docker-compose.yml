@@ -23,6 +23,7 @@ web:
     - redis
   environment:
     WAREHOUSE_ENV: development
+    WAREHOUSE_TOKEN: insecuretoken
     DATABASE_URL: postgresql://postgres@db/warehouse
     REDIS_URL: redis://redis:6379/0
     SESSION_SECRET: "an insecure development secret"

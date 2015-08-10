@@ -69,7 +69,6 @@ def test_serve(monkeypatch, cli):
                 "reload": False,
                 "workers": 3,
                 "proc_name": "warehouse",
-                "secure_scheme_headers": {"WAREHOUSE-PROTO": "https"},
                 "forwarded_allow_ips": "*",
             },
         ),
