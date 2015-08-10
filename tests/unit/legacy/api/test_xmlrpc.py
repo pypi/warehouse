@@ -12,9 +12,21 @@
 
 from warehouse.legacy.api import xmlrpc
 
-from ....common.db.packaging import ProjectFactory
+from ....common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 def test_list_packages(db_request):
     projects = [ProjectFactory.create() for _ in range(10)]
     assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
+
+
+def test_package_releases(db_request):
+    project1 = ProjectFactory.create()
+    releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
+    project2 = ProjectFactory.create()
+    [ReleaseFactory.create(project=project2) for _ in range(10)]
+    result = xmlrpc.package_releases(db_request, project1.name)
+    assert result == [
+        r.version
+        for r in sorted(releases1, key=lambda x: x._pypi_ordering)
+    ]

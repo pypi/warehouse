@@ -13,8 +13,9 @@
 import functools
 
 from pyramid_rpc.xmlrpc import xmlrpc_method
+from sqlalchemy import func
 
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Project, Release
 
 
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
@@ -24,3 +25,20 @@ pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
 def list_packages(request):
     names = request.db.query(Project.name).order_by(Project.name).all()
     return [n[0] for n in names]
+
+
+@pypi_xmlrpc(method="package_releases")
+def package_releases(request, package_name, show_hidden=False):
+    # This used to support the show_hidden parameter to determine if it should
+    # show hidden releases or not. However, Warehouse doesn't support the
+    # concept of hidden releases, so it is just no-opd now and left here for
+    # compatability sake.
+    versions = (
+        request.db.query(Release.version)
+                  .join(Project)
+                  .filter(Project.normalized_name ==
+                          func.normalize_pep426_name(package_name))
+                  .order_by(Release._pypi_ordering)
+                  .all()
+    )
+    return [v[0] for v in versions]
