@@ -38,6 +38,11 @@ def test_routes():
         def add_pypi_action_route(name, action, **kwargs):
             pass
 
+        @staticmethod
+        @pretend.call_recorder
+        def add_xmlrpc_endpoint(endpoint, pattern, header):
+            pass
+
     config = FakeConfig()
     includeme(config)
 
@@ -96,4 +101,8 @@ def test_routes():
         pretend.call("legacy.api.pypi.submit", "submit"),
         pretend.call("legacy.api.pypi.submit_pkg_info", "submit_pkg_info"),
         pretend.call("legacy.api.pypi.doc_upload", "doc_upload"),
+    ]
+
+    assert config.add_xmlrpc_endpoint.calls == [
+        pretend.call("pypi", pattern="/pypi", header="Content-Type:text/xml"),
     ]

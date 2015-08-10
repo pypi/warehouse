@@ -69,6 +69,13 @@ def includeme(config):
     )
     config.add_pypi_action_route("legacy.api.pypi.doc_upload", "doc_upload")
 
+    # Legacy XMLRPC
+    config.add_xmlrpc_endpoint(
+        "pypi",
+        pattern="/pypi",
+        header="Content-Type:text/xml",
+    )
+
     # Legacy Documentation
     config.add_route("legacy.docs", config.registry.settings["docs.url"])
 
