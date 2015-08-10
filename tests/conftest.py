@@ -92,6 +92,7 @@ def database(request, postgresql_proc):
 def app_config(database):
     config = configure(
         settings={
+            "warehouse.token": "insecure token",
             "camo.url": "http://localhost:9000/",
             "camo.key": "insecure key",
             "database.url": database,

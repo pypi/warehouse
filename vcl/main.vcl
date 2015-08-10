@@ -46,6 +46,16 @@ sub vcl_recv {
         set req.http.Warehouse-Proto = "http";
     }
 
+    # Pass the client IP address back to the backend.
+    if (req.http.Fastly-Client-IP) {
+        set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
+    }
+
+    # Pass the real host value back to the backend.
+    if (req.http.Host) {
+        set req.http.Warehouse-Host = req.http.Host;
+    }
+
     # Do not bother to attempt to run the caching mechanisms for methods that
     # are not generally safe to cache.
     if (req.request != "HEAD" &&
