@@ -14,6 +14,7 @@ import functools
 
 from pyramid_rpc.xmlrpc import xmlrpc_method
 from sqlalchemy import func
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Role, Project, Release, JournalEntry
@@ -36,6 +37,21 @@ def list_packages_with_serial(request):
                   .group_by(JournalEntry.name)
     )
     return dict((serial[0], serial[1]) for serial in serials)
+
+
+@pypi_xmlrpc(method="package_hosting_mode")
+def package_hosting_mode(request, package_name):
+    try:
+        project = (
+            request.db.query(Project)
+                      .filter(Project.normalized_name ==
+                              func.normalize_pep426_name(package_name))
+                      .one()
+        )
+    except NoResultFound:
+        return None
+    else:
+        return project.hosting_mode
 
 
 @pypi_xmlrpc(method="package_releases")

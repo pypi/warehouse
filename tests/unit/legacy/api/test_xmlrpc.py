@@ -34,6 +34,16 @@ def test_list_packages_with_serial(db_request):
     assert xmlrpc.list_packages_with_serial(db_request) == expected
 
 
+def test_package_hosting_mode_shows_none(db_request):
+    assert xmlrpc.package_hosting_mode(db_request, "nope") is None
+
+
+def test_package_hosting_mode_results(db_request):
+    project = ProjectFactory.create()
+    assert xmlrpc.package_hosting_mode(db_request, project.name) == \
+        "pypi-explicit"
+
+
 def test_package_releases(db_request):
     project1 = ProjectFactory.create()
     releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
