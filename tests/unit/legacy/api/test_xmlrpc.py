@@ -12,12 +12,26 @@
 
 from warehouse.legacy.api import xmlrpc
 
-from ....common.db.packaging import ProjectFactory, ReleaseFactory, RoleFactory
+from ....common.db.packaging import (
+    ProjectFactory, ReleaseFactory, RoleFactory, JournalEntryFactory,
+)
 
 
 def test_list_packages(db_request):
     projects = [ProjectFactory.create() for _ in range(10)]
     assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
+
+
+def test_list_packages_with_serial(db_request):
+    projects = [ProjectFactory.create() for _ in range(10)]
+    expected = {}
+    for project in projects:
+        expected.setdefault(project.name, 0)
+        for _ in range(10):
+            entry = JournalEntryFactory.create(name=project.name)
+            if entry.id > expected[project.name]:
+                expected[project.name] = entry.id
+    assert xmlrpc.list_packages_with_serial(db_request) == expected
 
 
 def test_package_releases(db_request):

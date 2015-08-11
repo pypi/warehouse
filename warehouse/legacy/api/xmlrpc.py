@@ -16,7 +16,7 @@ from pyramid_rpc.xmlrpc import xmlrpc_method
 from sqlalchemy import func
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Role, Project, Release
+from warehouse.packaging.models import Role, Project, Release, JournalEntry
 
 
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
@@ -26,6 +26,16 @@ pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
 def list_packages(request):
     names = request.db.query(Project.name).order_by(Project.name).all()
     return [n[0] for n in names]
+
+
+@pypi_xmlrpc(method="list_packages_with_serial")
+def list_packages_with_serial(request):
+    serials = (
+        request.db.query(JournalEntry.name, func.max(JournalEntry.id))
+                  .join(Project, JournalEntry.name == Project.name)
+                  .group_by(JournalEntry.name)
+    )
+    return dict((serial[0], serial[1]) for serial in serials)
 
 
 @pypi_xmlrpc(method="package_releases")
