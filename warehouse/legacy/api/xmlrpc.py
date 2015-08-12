@@ -54,6 +54,18 @@ def package_hosting_mode(request, package_name):
         return project.hosting_mode
 
 
+@pypi_xmlrpc(method="user_packages")
+def user_packages(request, username):
+    roles = (
+        request.db.query(Role)
+                  .join(User, Project)
+                  .filter(User.username == username)
+                  .order_by(Role.role_name.desc(), Project.name)
+                  .all()
+    )
+    return [(r.role_name, r.project.name) for r in roles]
+
+
 @pypi_xmlrpc(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should

@@ -12,6 +12,7 @@
 
 from warehouse.legacy.api import xmlrpc
 
+from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
     ProjectFactory, ReleaseFactory, RoleFactory, JournalEntryFactory,
 )
@@ -42,6 +43,28 @@ def test_package_hosting_mode_results(db_request):
     project = ProjectFactory.create()
     assert xmlrpc.package_hosting_mode(db_request, project.name) == \
         "pypi-explicit"
+
+
+def test_user_packages(db_request):
+    user = UserFactory.create()
+    other_user = UserFactory.create()
+    owned_projects = [ProjectFactory.create() for _ in range(5)]
+    maintained_projects = [ProjectFactory.create() for _ in range(5)]
+    unowned_projects = [ProjectFactory.create() for _ in range(5)]
+    for project in owned_projects:
+        RoleFactory.create(project=project, user=user)
+    for project in maintained_projects:
+        RoleFactory.create(project=project, user=user, role_name="Maintainer")
+    for project in unowned_projects:
+        RoleFactory.create(project=project, user=other_user)
+
+    assert set(xmlrpc.user_packages(db_request, user.username)) == set([
+        ("Owner", p.name)
+        for p in sorted(owned_projects, key=lambda x: x.name)
+    ] + [
+        ("Maintainer", p.name)
+        for p in sorted(maintained_projects, key=lambda x: x.name)
+    ])
 
 
 def test_package_releases(db_request):
