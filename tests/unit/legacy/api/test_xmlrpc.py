@@ -10,11 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+import random
+
+import pytest
+
 from warehouse.legacy.api import xmlrpc
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory, ReleaseFactory, RoleFactory, JournalEntryFactory,
+    ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
+    JournalEntryFactory,
 )
 
 
@@ -65,6 +71,24 @@ def test_user_packages(db_request):
         ("Maintainer", p.name)
         for p in sorted(maintained_projects, key=lambda x: x.name)
     ])
+
+
+@pytest.mark.parametrize("num", [None, 1, 5])
+def test_top_packages(db_request, num):
+    projects = [ProjectFactory.create() for _ in range(10)]
+    files = collections.Counter()
+    for project in projects:
+        releases = [ReleaseFactory.create(project=project) for _ in range(3)]
+        for release in releases:
+            file_ = FileFactory.create(
+                release=release,
+                filename="{}-{}.tar.gz".format(project.name, release.version),
+                downloads=random.randint(0, 1000),
+            )
+            files[project.name] += file_.downloads
+
+    assert set(xmlrpc.top_packages(db_request, num)) == \
+        set(files.most_common(num))
 
 
 def test_package_releases(db_request):

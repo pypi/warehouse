@@ -17,7 +17,9 @@ from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Role, Project, Release, JournalEntry
+from warehouse.packaging.models import (
+    Role, Project, Release, File, JournalEntry,
+)
 
 
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
@@ -64,6 +66,22 @@ def user_packages(request, username):
                   .all()
     )
     return [(r.role_name, r.project.name) for r in roles]
+
+
+@pypi_xmlrpc(method="top_packages")
+def top_packages(request, num=None):
+    fdownloads = func.sum(File.downloads).label("downloads")
+
+    downloads = (
+        request.db.query(File.name, fdownloads)
+                  .group_by(File.name)
+                  .order_by(fdownloads.desc())
+    )
+
+    if num is not None:
+        downloads = downloads.limit(num)
+
+    return [(d[0], d[1]) for d in downloads.all()]
 
 
 @pypi_xmlrpc(method="package_releases")
