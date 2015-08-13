@@ -7,13 +7,13 @@
 
 -r requirements-deploy.txt
 
-alembic==0.7.7
+alembic==0.8.0
 babel==2.0
 bcrypt==2.0.0
 bleach==1.4.1             # via readme
 boto3==1.1.1
 boto==2.38.0
-botocore==1.1.7           # via boto3
+botocore==1.1.8           # via boto3
 cffi==1.1.2               # via bcrypt
 click==4.1
 docutils==0.12            # via botocore, readme
@@ -40,6 +40,7 @@ pyramid-services==0.2
 pyramid-tm==0.12
 pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, pyramid-services, pyramid-tm
 python-dateutil==2.4.2    # via botocore
+python-editor==0.3        # via alembic
 pytz==2015.4              # via babel
 readme==0.5.1
 redis==2.10.3
