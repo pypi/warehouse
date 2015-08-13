@@ -30,7 +30,7 @@ class TestSimpleIndex:
 
     def test_no_results_with_serial(self, db_request):
         user = UserFactory.create()
-        je = JournalEntryFactory.create(submitted_by=user.username)
+        je = JournalEntryFactory.create(submitted_by=user)
         assert simple.simple_index(db_request) == {"projects": []}
         assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
 
@@ -50,7 +50,7 @@ class TestSimpleIndex:
             for x in [ProjectFactory.create() for _ in range(3)]
         ]
         user = UserFactory.create()
-        je = JournalEntryFactory.create(submitted_by=user.username)
+        je = JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_index(db_request) == {
             "projects": sorted(projects, key=lambda x: x[1]),
@@ -80,7 +80,7 @@ class TestSimpleDetail:
         project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
-        JournalEntryFactory.create(submitted_by=user.username)
+        JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -92,10 +92,7 @@ class TestSimpleDetail:
         project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user.username,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -120,7 +117,7 @@ class TestSimpleDetail:
         files = sorted(files, key=lambda key: key.filename)
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
-        JournalEntryFactory.create(submitted_by=user.username)
+        JournalEntryFactory.create(submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -145,10 +142,7 @@ class TestSimpleDetail:
         files = sorted(files, key=lambda key: key.filename)
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user.username,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,

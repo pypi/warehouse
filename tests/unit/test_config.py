@@ -218,6 +218,12 @@ def test_configure(monkeypatch, settings, environment):
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
 
+    xmlrpc_renderer_obj = pretend.stub()
+    xmlrpc_renderer_cls = pretend.call_recorder(
+        lambda **kw: xmlrpc_renderer_obj
+    )
+    monkeypatch.setattr(config, "XMLRPCRenderer", xmlrpc_renderer_cls)
+
     if environment == config.Environment.development:
         monkeypatch.setenv("WAREHOUSE_ENV", "development")
 
@@ -400,8 +406,11 @@ def test_configure(monkeypatch, settings, environment):
     ]
     assert configurator_obj.add_renderer.calls == [
         pretend.call("json", json_renderer_obj),
+        pretend.call("xmlrpc", xmlrpc_renderer_obj),
     ]
 
     assert json_renderer_cls.calls == [
         pretend.call(sort_keys=True, separators=(",", ":")),
     ]
+
+    assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]

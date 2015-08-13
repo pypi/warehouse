@@ -21,6 +21,7 @@ from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
+from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
 from warehouse.utils.static import WarehouseCacheBuster
@@ -228,8 +229,10 @@ def configure(settings=None):
     # Register support for services
     config.include("pyramid_services")
 
-    # Register support for XMLRPC
+    # Register support for XMLRPC and override it's renderer to allow
+    # specifying custom dumps arguments.
     config.include("pyramid_rpc.xmlrpc")
+    config.add_renderer("xmlrpc", XMLRPCRenderer(allow_none=True))
 
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")

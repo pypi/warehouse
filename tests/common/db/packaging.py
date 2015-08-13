@@ -68,7 +68,7 @@ class JournalEntryFactory(WarehouseFactory):
     class Meta:
         model = JournalEntry
 
-    id = factory.fuzzy.FuzzyInteger(low=1)
+    id = factory.Sequence(lambda n: n)
     name = factory.fuzzy.FuzzyText(length=12)
     version = factory.Sequence(lambda n: str(n) + ".0")
     submitted_date = factory.fuzzy.FuzzyNaiveDateTime(

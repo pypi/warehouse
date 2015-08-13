@@ -400,11 +400,13 @@ class JournalEntry(db.ModelBase):
     version = Column(Text)
     action = Column(Text)
     submitted_date = Column(DateTime(timezone=False))
-    submitted_by = Column(
+    _submitted_by = Column(
+        "submitted_by",
         CIText,
         ForeignKey(
             "accounts_user.username",
             onupdate="CASCADE",
         ),
     )
+    submitted_by = orm.relationship(User)
     submitted_from = Column(Text)

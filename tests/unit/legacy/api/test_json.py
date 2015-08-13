@@ -109,7 +109,7 @@ class TestJSONRelease:
         user = UserFactory.create()
         je = JournalEntryFactory.create(
             name=project.name,
-            submitted_by=user.username,
+            submitted_by=user,
         )
 
         daily_stats = pretend.stub()
