@@ -14,12 +14,13 @@ import datetime
 import functools
 
 from pyramid_rpc.xmlrpc import xmlrpc_method
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import (
-    Role, Project, Release, File, JournalEntry,
+    Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
 
@@ -168,3 +169,31 @@ def changelog(request, since):
         )
         for e in entries
     ]
+
+
+@pypi_xmlrpc(method="browse")
+def browse(request, classifiers):
+    classifiers_q = (
+        request.db.query(Classifier)
+               .filter(Classifier.classifier.in_(classifiers))
+               .subquery()
+    )
+
+    release_classifiers_q = (
+        select([release_classifiers])
+        .where(release_classifiers.c.trove_id == classifiers_q.c.id)
+        .alias("rc")
+    )
+
+    releases = (
+        request.db.query(Release.name, Release.version)
+                  .join(release_classifiers_q,
+                        (Release.name == release_classifiers_q.c.name) &
+                        (Release.version == release_classifiers_q.c.version))
+                  .group_by(Release.name, Release.version)
+                  .having(func.count() == len(classifiers))
+                  .order_by(Release.name, Release.version)
+                  .all()
+    )
+
+    return [(r.name, r.version) for r in releases]

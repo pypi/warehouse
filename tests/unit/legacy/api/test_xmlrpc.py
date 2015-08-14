@@ -17,6 +17,7 @@ import random
 import pytest
 
 from warehouse.legacy.api import xmlrpc
+from warehouse.packaging.models import Classifier
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -199,3 +200,56 @@ def test_changelog(db_request):
     )
 
     assert xmlrpc.changelog(db_request, since - 1) == expected
+
+
+def test_browse(db_request):
+    classifiers = [
+        Classifier(classifier="Environment :: Other Environment"),
+        Classifier(classifier="Development Status :: 5 - Production/Stable"),
+        Classifier(classifier="Programming Language :: Python"),
+    ]
+    for classifier in classifiers:
+        db_request.db.add(classifier)
+
+    projects = [ProjectFactory.create() for _ in range(3)]
+    releases = []
+    for project in projects:
+        for _ in range(10):
+            releases.append(
+                ReleaseFactory.create(
+                    project=project,
+                    _classifiers=[classifiers[0]]
+                ),
+            )
+
+    releases = sorted(releases, key=lambda x: (x.project.name, x.version))
+
+    expected_release = releases[0]
+    expected_release._classifiers = classifiers
+
+    assert set(xmlrpc.browse(
+        db_request,
+        ["Environment :: Other Environment"]
+    )) == {(r.name, r.version) for r in releases}
+    assert set(xmlrpc.browse(
+        db_request,
+        [
+            "Environment :: Other Environment",
+            "Development Status :: 5 - Production/Stable",
+        ],
+    )) == {(expected_release.name, expected_release.version)}
+    assert set(xmlrpc.browse(
+        db_request,
+        [
+            "Environment :: Other Environment",
+            "Development Status :: 5 - Production/Stable",
+            "Programming Language :: Python",
+        ],
+    )) == {(expected_release.name, expected_release.version)}
+    assert set(xmlrpc.browse(
+        db_request,
+        [
+            "Development Status :: 5 - Production/Stable",
+            "Programming Language :: Python",
+        ],
+    )) == {(expected_release.name, expected_release.version)}
