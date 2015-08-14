@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import datetime
 import random
 
 import pytest
@@ -138,3 +139,30 @@ def test_changelog_last_serial(db_request):
     expected = max(e.id for e in entries)
 
     assert xmlrpc.changelog_last_serial(db_request) == expected
+
+
+def test_changelog_since_serial(db_request):
+    projects = [ProjectFactory.create() for _ in range(10)]
+    entries = []
+    for project in projects:
+        for _ in range(10):
+            entries.append(JournalEntryFactory.create(name=project.name))
+
+    expected = [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ][int(len(entries) / 2):]
+
+    serial = entries[int(len(entries) / 2) - 1].id
+
+    assert xmlrpc.changelog_since_serial(db_request, serial) == expected

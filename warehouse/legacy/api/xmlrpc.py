@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from pyramid_rpc.xmlrpc import xmlrpc_method
@@ -117,3 +118,28 @@ def package_roles(request, package_name):
 @pypi_xmlrpc(method="changelog_last_serial")
 def changelog_last_serial(request):
     return request.db.query(func.max(JournalEntry.id)).scalar()
+
+
+@pypi_xmlrpc(method="changelog_since_serial")
+def changelog_since_serial(request, serial):
+    entries = (
+        request.db.query(JournalEntry)
+                  .filter(JournalEntry.id > serial)
+                  .order_by(JournalEntry.id)
+                  .all()
+    )
+
+    return [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ]
