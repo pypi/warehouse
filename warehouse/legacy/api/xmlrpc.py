@@ -112,3 +112,8 @@ def package_roles(request, package_name):
                   .all()
     )
     return [(r.role_name, r.user.username) for r in roles]
+
+
+@pypi_xmlrpc(method="changelog_last_serial")
+def changelog_last_serial(request):
+    return request.db.query(func.max(JournalEntry.id)).scalar()

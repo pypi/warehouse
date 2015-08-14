@@ -122,3 +122,19 @@ def test_package_roles(db_request):
             sorted(maintainers1, key=lambda x: x.user.username.lower())
         )
     ]
+
+
+def test_changelog_last_serial_none(db_request):
+    assert xmlrpc.changelog_last_serial(db_request) is None
+
+
+def test_changelog_last_serial(db_request):
+    projects = [ProjectFactory.create() for _ in range(10)]
+    entries = []
+    for project in projects:
+        for _ in range(10):
+            entries.append(JournalEntryFactory.create(name=project.name))
+
+    expected = max(e.id for e in entries)
+
+    assert xmlrpc.changelog_last_serial(db_request) == expected
