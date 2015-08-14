@@ -166,3 +166,36 @@ def test_changelog_since_serial(db_request):
     serial = entries[int(len(entries) / 2) - 1].id
 
     assert xmlrpc.changelog_since_serial(db_request, serial) == expected
+
+
+def test_changelog(db_request):
+    projects = [ProjectFactory.create() for _ in range(10)]
+    entries = []
+    for project in projects:
+        for _ in range(10):
+            entries.append(JournalEntryFactory.create(name=project.name))
+
+    entries = sorted(entries, key=lambda x: x.submitted_date)
+
+    expected = [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ][int(len(entries) / 2):]
+
+    since = int(
+        entries[int(len(entries) / 2)].submitted_date
+                                      .replace(tzinfo=datetime.timezone.utc)
+                                      .timestamp()
+    )
+
+    assert xmlrpc.changelog(db_request, since - 1) == expected

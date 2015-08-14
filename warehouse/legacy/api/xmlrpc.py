@@ -143,3 +143,28 @@ def changelog_since_serial(request, serial):
         )
         for e in entries
     ]
+
+
+@pypi_xmlrpc(method="changelog")
+def changelog(request, since):
+    since = datetime.datetime.utcfromtimestamp(since)
+    entries = (
+        request.db.query(JournalEntry)
+                  .filter(JournalEntry.submitted_date > since)
+                  .order_by(JournalEntry.submitted_date)
+                  .all()
+    )
+    return [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ]
