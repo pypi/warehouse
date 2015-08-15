@@ -10,15 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import functools
 
 from pyramid_rpc.xmlrpc import xmlrpc_method
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import (
-    Role, Project, Release, File, JournalEntry,
+    Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
 
@@ -112,3 +114,86 @@ def package_roles(request, package_name):
                   .all()
     )
     return [(r.role_name, r.user.username) for r in roles]
+
+
+@pypi_xmlrpc(method="changelog_last_serial")
+def changelog_last_serial(request):
+    return request.db.query(func.max(JournalEntry.id)).scalar()
+
+
+@pypi_xmlrpc(method="changelog_since_serial")
+def changelog_since_serial(request, serial):
+    entries = (
+        request.db.query(JournalEntry)
+                  .filter(JournalEntry.id > serial)
+                  .order_by(JournalEntry.id)
+                  .all()
+    )
+
+    return [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ]
+
+
+@pypi_xmlrpc(method="changelog")
+def changelog(request, since):
+    since = datetime.datetime.utcfromtimestamp(since)
+    entries = (
+        request.db.query(JournalEntry)
+                  .filter(JournalEntry.submitted_date > since)
+                  .order_by(JournalEntry.submitted_date)
+                  .all()
+    )
+    return [
+        (
+            e.name,
+            e.version,
+            int(
+                e.submitted_date
+                 .replace(tzinfo=datetime.timezone.utc)
+                 .timestamp()
+            ),
+            e.action,
+            e.id,
+        )
+        for e in entries
+    ]
+
+
+@pypi_xmlrpc(method="browse")
+def browse(request, classifiers):
+    classifiers_q = (
+        request.db.query(Classifier)
+               .filter(Classifier.classifier.in_(classifiers))
+               .subquery()
+    )
+
+    release_classifiers_q = (
+        select([release_classifiers])
+        .where(release_classifiers.c.trove_id == classifiers_q.c.id)
+        .alias("rc")
+    )
+
+    releases = (
+        request.db.query(Release.name, Release.version)
+                  .join(release_classifiers_q,
+                        (Release.name == release_classifiers_q.c.name) &
+                        (Release.version == release_classifiers_q.c.version))
+                  .group_by(Release.name, Release.version)
+                  .having(func.count() == len(classifiers))
+                  .order_by(Release.name, Release.version)
+                  .all()
+    )
+
+    return [(r.name, r.version) for r in releases]
