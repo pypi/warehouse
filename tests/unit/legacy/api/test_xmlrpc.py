@@ -14,9 +14,11 @@ import collections
 import datetime
 import random
 
+import pretend
 import pytest
 
 from warehouse.legacy.api import xmlrpc
+from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import Classifier
 
 from ....common.db.accounts import UserFactory
@@ -102,6 +104,85 @@ def test_package_releases(db_request):
     assert result == [
         r.version
         for r in sorted(releases1, key=lambda x: x._pypi_ordering)
+    ]
+
+
+def test_release_data_no_project(db_request):
+    assert xmlrpc.release_data(db_request, "foo", "1.0") == {}
+
+
+def test_release_data_no_release(db_request):
+    project = ProjectFactory.create()
+    assert xmlrpc.release_data(db_request, project.name, "1.0") == {}
+
+
+def test_release_data(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+
+    svc = pretend.stub(
+        get_daily_stats=pretend.call_recorder(lambda n: 10),
+        get_weekly_stats=pretend.call_recorder(lambda n: 70),
+        get_monthly_stats=pretend.call_recorder(lambda n: 300),
+    )
+    db_request.find_service = pretend.call_recorder(lambda s: svc)
+
+    urls = [pretend.stub(), pretend.stub()]
+    urls_iter = iter(urls)
+    db_request.route_url = pretend.call_recorder(
+        lambda r, **kw: next(urls_iter)
+    )
+
+    assert xmlrpc.release_data(db_request, project.name, release.version) == {
+        "name": release.project.name,
+        "version": release.version,
+        "stable_version": release.project.stable_version,
+        "bugtrack_url": release.project.bugtrack_url,
+        "package_url": urls[0],
+        "release_url": urls[1],
+        "docs_url": release.project.documentation_url,
+        "home_page": release.home_page,
+        "download_url": release.download_url,
+        "project_url": list(release.project_urls),
+        "author": release.author,
+        "author_email": release.author_email,
+        "maintainer": release.maintainer,
+        "maintainer_email": release.maintainer_email,
+        "summary": release.summary,
+        "description": release.description,
+        "license": release.license,
+        "keywords": release.keywords,
+        "platform": release.platform,
+        "classifiers": list(release.classifiers),
+        "requires": list(release.requires),
+        "requires_dist": list(release.requires_dist),
+        "provides": list(release.provides),
+        "provides_dist": list(release.provides_dist),
+        "obsoletes": list(release.obsoletes),
+        "obsoletes_dist": list(release.obsoletes_dist),
+        "requires_python": release.requires_python,
+        "requires_external": list(release.requires_external),
+        "_pypi_ordering": release._pypi_ordering,
+        "_pypi_hidden": release._pypi_hidden,
+        "downloads": {
+            "last_day": 10,
+            "last_week": 70,
+            "last_month": 300,
+        },
+    }
+    assert db_request.find_service.calls == [
+        pretend.call(IDownloadStatService),
+    ]
+    assert svc.get_daily_stats.calls == [pretend.call(project.name)]
+    assert svc.get_weekly_stats.calls == [pretend.call(project.name)]
+    assert svc.get_monthly_stats.calls == [pretend.call(project.name)]
+    db_request.route_url.calls == [
+        pretend.call("packaging.project", name=project.name),
+        pretend.call(
+            "packaging.release",
+            name=project.name,
+            version=release.version,
+        ),
     ]
 
 

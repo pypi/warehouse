@@ -19,6 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
@@ -101,6 +102,68 @@ def package_releases(request, package_name, show_hidden=False):
                   .all()
     )
     return [v[0] for v in versions]
+
+
+@pypi_xmlrpc(method="release_data")
+def release_data(request, package_name, version):
+    try:
+        release = (
+            request.db.query(Release)
+                      .join(Project)
+                      .filter((Project.normalized_name ==
+                               func.normalize_pep426_name(package_name)) &
+                              (Release.version == version))
+                      .one()
+        )
+    except NoResultFound:
+        return {}
+
+    stats_svc = request.find_service(IDownloadStatService)
+
+    return {
+        "name": release.project.name,
+        "version": release.version,
+        "stable_version": release.project.stable_version,
+        "bugtrack_url": release.project.bugtrack_url,
+        "package_url": request.route_url(
+            "packaging.project",
+            name=release.project.name,
+        ),
+        "release_url": request.route_url(
+            "packaging.release",
+            name=release.project.name,
+            version=release.version,
+        ),
+        "docs_url": release.project.documentation_url,
+        "home_page": release.home_page,
+        "download_url": release.download_url,
+        "project_url": list(release.project_urls),
+        "author": release.author,
+        "author_email": release.author_email,
+        "maintainer": release.maintainer,
+        "maintainer_email": release.maintainer_email,
+        "summary": release.summary,
+        "description": release.description,
+        "license": release.license,
+        "keywords": release.keywords,
+        "platform": release.platform,
+        "classifiers": list(release.classifiers),
+        "requires": list(release.requires),
+        "requires_dist": list(release.requires_dist),
+        "provides": list(release.provides),
+        "provides_dist": list(release.provides_dist),
+        "obsoletes": list(release.obsoletes),
+        "obsoletes_dist": list(release.obsoletes_dist),
+        "requires_python": release.requires_python,
+        "requires_external": list(release.requires_external),
+        "_pypi_ordering": release._pypi_ordering,
+        "_pypi_hidden": release._pypi_hidden,
+        "downloads": {
+            "last_day": stats_svc.get_daily_stats(release.project.name),
+            "last_week": stats_svc.get_weekly_stats(release.project.name),
+            "last_month": stats_svc.get_monthly_stats(release.project.name),
+        },
+    }
 
 
 @pypi_xmlrpc(method="package_roles")
