@@ -169,7 +169,8 @@ def test_changelog_since_serial(db_request):
     assert xmlrpc.changelog_since_serial(db_request, serial) == expected
 
 
-def test_changelog(db_request):
+@pytest.mark.parametrize("with_ids", [True, False, None])
+def test_changelog(db_request, with_ids):
     projects = [ProjectFactory.create() for _ in range(10)]
     entries = []
     for project in projects:
@@ -193,13 +194,20 @@ def test_changelog(db_request):
         for e in entries
     ][int(len(entries) / 2):]
 
+    if not with_ids:
+        expected = [e[:-1] for e in expected]
+
     since = int(
         entries[int(len(entries) / 2)].submitted_date
                                       .replace(tzinfo=datetime.timezone.utc)
                                       .timestamp()
     )
 
-    assert xmlrpc.changelog(db_request, since - 1) == expected
+    extra_args = []
+    if with_ids is not None:
+        extra_args.append(with_ids)
+
+    assert xmlrpc.changelog(db_request, since - 1, *extra_args) == expected
 
 
 def test_browse(db_request):
