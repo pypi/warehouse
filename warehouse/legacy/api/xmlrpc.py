@@ -166,6 +166,34 @@ def release_data(request, package_name, version):
     }
 
 
+@pypi_xmlrpc(method="release_urls")
+def release_urls(request, package_name, version):
+    files = (
+        request.db.query(File)
+                  .join(Release, Project)
+                  .filter((Project.normalized_name ==
+                           func.normalize_pep426_name(package_name)) &
+                          (Release.version == version))
+                  .all()
+    )
+
+    return [
+        {
+            "filename": f.filename,
+            "packagetype": f.packagetype,
+            "python_version": f.python_version,
+            "size": f.size,
+            "md5_digest": f.md5_digest,
+            "has_sig": f.has_signature,
+            "upload_time": f.upload_time,
+            "comment_text": f.comment_text,
+            "downloads": f.downloads,
+            "url": request.route_url("packaging.file", path=f.path),
+        }
+        for f in files
+    ]
+
+
 @pypi_xmlrpc(method="package_roles")
 def package_roles(request, package_name):
     roles = (

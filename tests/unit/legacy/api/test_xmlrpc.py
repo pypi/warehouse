@@ -186,6 +186,40 @@ def test_release_data(db_request):
     ]
 
 
+def test_release_urls(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    file_ = FileFactory.create(
+        release=release,
+        filename="{}-{}.tar.gz".format(project.name, release.version),
+        python_version="source",
+    )
+
+    urls = [pretend.stub()]
+    urls_iter = iter(urls)
+    db_request.route_url = pretend.call_recorder(
+        lambda r, **kw: next(urls_iter)
+    )
+
+    assert xmlrpc.release_urls(db_request, project.name, release.version) == [
+        {
+            "filename": file_.filename,
+            "packagetype": file_.packagetype,
+            "python_version": file_.python_version,
+            "size": file_.size,
+            "md5_digest": file_.md5_digest,
+            "has_sig": file_.has_signature,
+            "upload_time": file_.upload_time,
+            "comment_text": file_.comment_text,
+            "downloads": file_.downloads,
+            "url": urls[0],
+        }
+    ]
+    assert db_request.route_url.calls == [
+        pretend.call("packaging.file", path=file_.path),
+    ]
+
+
 def test_package_roles(db_request):
     project1, project2 = ProjectFactory.create(), ProjectFactory.create()
     owners1 = [RoleFactory.create(project=project1) for _ in range(3)]
