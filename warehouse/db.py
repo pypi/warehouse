@@ -10,10 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 import alembic.config
 import sqlalchemy
+import venusian
 import zope.sqlalchemy
 
+from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -53,6 +57,18 @@ class Model(ModelBase):
 # engine to each new state we create instead of binding it to the session
 # class.
 Session = sessionmaker()
+
+
+def listens_for(target, identifier, *args, **kwargs):
+    def deco(wrapped):
+        def callback(scanner, _name, wrapped):
+            wrapped = functools.partial(wrapped, scanner.config)
+            event.listen(target, identifier, wrapped, *args, **kwargs)
+
+        venusian.attach(wrapped, callback)
+
+        return wrapped
+    return deco
 
 
 def _configure_alembic(config):
