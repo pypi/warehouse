@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import os.path
+import xmlrpc.client
 
 import alembic.command
 import click.testing
@@ -142,12 +143,20 @@ def db_request(pyramid_request, db_session):
     return pyramid_request
 
 
+class _TestApp(_webtest.TestApp):
+
+    def xmlrpc(self, path, method, *args):
+        body = xmlrpc.client.dumps(args, methodname=method)
+        resp = self.post(path, body, headers={"Content-Type": "text/xml"})
+        return xmlrpc.client.loads(resp.body)
+
+
 @pytest.yield_fixture
 def webtest(app_config):
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
 
     try:
-        yield _webtest.TestApp(app_config.make_wsgi_app())
+        yield _TestApp(app_config.make_wsgi_app())
     finally:
         app_config.registry["sqlalchemy.engine"].dispose()

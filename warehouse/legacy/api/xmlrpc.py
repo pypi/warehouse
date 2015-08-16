@@ -13,12 +13,14 @@
 import datetime
 import functools
 
-from pyramid_rpc.xmlrpc import xmlrpc_method
+from pyramid.view import view_config
+from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
 from sqlalchemy import func, select
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.csrf import csrf_exempt
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
@@ -26,6 +28,16 @@ from warehouse.packaging.models import (
 
 
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
+
+
+@view_config(
+    route_name="pypi",
+    context=Exception,
+    renderer="xmlrpc",
+    decorator=[csrf_exempt],
+)
+def exception_view(exc, request):
+    return _exception_view(exc, request)
 
 
 @pypi_xmlrpc(method="list_packages")
