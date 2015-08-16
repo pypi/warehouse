@@ -17,6 +17,82 @@ from warehouse.cache import origin
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
+def test_store_purge_keys():
+    class Type1:
+        pass
+
+    class Type2:
+        pass
+
+    class Type3:
+        pass
+
+    class Type4:
+        pass
+
+    config = pretend.stub(
+        registry={
+            "cache_keys": {
+                Type1: lambda o: {"type_1"},
+                Type2: lambda o: {"type_2", "foo"},
+                Type3: lambda o: {"type_3", "foo"},
+            },
+        },
+    )
+    session = pretend.stub(
+        info={},
+        new={Type1()},
+        dirty={Type2()},
+        deleted={Type3(), Type4()},
+    )
+
+    origin.store_purge_keys(config, session, pretend.stub())
+
+    assert session.info["warehouse.cache.origin.purges"] == {
+        "type_1", "type_2", "type_3", "foo",
+    }
+
+
+def test_execute_purge_success():
+    cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
+    factory = pretend.call_recorder(lambda ctx, config: cacher)
+    config = pretend.stub(
+        find_service_factory=pretend.call_recorder(lambda i: factory),
+    )
+    session = pretend.stub(
+        info={
+            "warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"},
+        },
+    )
+
+    origin.execute_purge(config, session)
+
+    assert config.find_service_factory.calls == [
+        pretend.call(origin.IOriginCache),
+    ]
+    assert factory.calls == [pretend.call(None, config)]
+    assert cacher.purge.calls == [pretend.call({"type_1", "type_2", "foobar"})]
+    assert "warehouse.cache.origin.purges" not in session.info
+
+
+def test_execute_purge_no_backend():
+    @pretend.call_recorder
+    def find_service_factory(interface):
+        raise ValueError
+
+    config = pretend.stub(find_service_factory=find_service_factory)
+    session = pretend.stub(
+        info={
+            "warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"},
+        },
+    )
+
+    origin.execute_purge(config, session)
+
+    assert find_service_factory.calls == [pretend.call(origin.IOriginCache)]
+    assert "warehouse.cache.origin.purges" not in session.info
+
+
 class TestOriginCache:
 
     def test_no_cache_key(self):

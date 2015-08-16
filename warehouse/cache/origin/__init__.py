@@ -12,7 +12,40 @@
 
 import functools
 
+from warehouse import db
 from warehouse.cache.origin.interfaces import IOriginCache
+
+
+@db.listens_for(db.Session, "after_flush")
+def store_purge_keys(config, session, flush_context):
+    cache_keys = config.registry["cache_keys"]
+
+    # We'll (ab)use the session.info dictionary to store a list of pending
+    # purges to the session.
+    purges = session.info.setdefault("warehouse.cache.origin.purges", set())
+
+    # Go through each new, changed, and deleted object and attempt to store
+    # a cache key that we'll want to purge when the session has been committed.
+    for obj in (session.new | session.dirty | session.deleted):
+        try:
+            key_maker = cache_keys[obj.__class__]
+        except KeyError:
+            continue
+
+        purges.update(key_maker(obj))
+
+
+@db.listens_for(db.Session, "after_commit")
+def execute_purge(config, session):
+    purges = session.info.pop("warehouse.cache.origin.purges", set())
+
+    try:
+        cacher_factory = config.find_service_factory(IOriginCache)
+    except ValueError:
+        return
+
+    cacher = cacher_factory(None, config)
+    cacher.purge(purges)
 
 
 def origin_cache(view_or_seconds):
