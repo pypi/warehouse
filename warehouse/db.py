@@ -52,7 +52,7 @@ class Model(ModelBase):
 # Create our session class here, this will stay stateless as we'll bind the
 # engine to each new state we create instead of binding it to the session
 # class.
-_Session = sessionmaker()
+Session = sessionmaker()
 
 
 def _configure_alembic(config):
@@ -66,7 +66,7 @@ def _configure_alembic(config):
 
 def _create_session(request):
     # Create our session
-    session = _Session(bind=request.registry["sqlalchemy.engine"])
+    session = Session(bind=request.registry["sqlalchemy.engine"])
 
     # Register only this particular session with zope.sqlalchemy
     zope.sqlalchemy.register(session, transaction_manager=request.tm)

@@ -78,7 +78,7 @@ class TestCLIShell:
 
         session = pretend.stub()
         session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "_Session", session_cls)
+        monkeypatch.setattr(db, "Session", session_cls)
 
         plain = pretend.call_recorder(lambda **kw: None)
         monkeypatch.setattr(shell, "plain", plain)
@@ -100,7 +100,7 @@ class TestCLIShell:
 
         session = pretend.stub()
         session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "_Session", session_cls)
+        monkeypatch.setattr(db, "Session", session_cls)
 
         runner = pretend.call_recorder(lambda **kw: None)
         monkeypatch.setattr(shell, type_, runner)
@@ -122,7 +122,7 @@ class TestCLIShell:
 
         session = pretend.stub()
         session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "_Session", session_cls)
+        monkeypatch.setattr(db, "Session", session_cls)
 
         @pretend.call_recorder
         def runner(**kw):

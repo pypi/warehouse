@@ -58,14 +58,14 @@ def shell(config, type_):
 
     # Imported here because we don't want to trigger an import from anything
     # but warehouse.cli at the module scope.
-    from warehouse.db import _Session
+    from warehouse.db import Session
 
     if type_ is None:
         type_ = autodetect()
 
     runner = {"bpython": bpython, "ipython": ipython, "plain": plain}[type_]
 
-    session = _Session(bind=config.registry["sqlalchemy.engine"])
+    session = Session(bind=config.registry["sqlalchemy.engine"])
 
     try:
         runner(config=config, db=session)

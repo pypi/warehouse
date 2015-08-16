@@ -59,7 +59,7 @@ def test_configure_alembic(monkeypatch):
 def test_create_session(monkeypatch):
     session_obj = pretend.stub()
     session_cls = pretend.call_recorder(lambda bind: session_obj)
-    monkeypatch.setattr(db, "_Session", session_cls)
+    monkeypatch.setattr(db, "Session", session_cls)
 
     engine = pretend.stub()
     request = pretend.stub(

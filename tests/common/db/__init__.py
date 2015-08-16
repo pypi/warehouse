@@ -12,7 +12,7 @@
 
 from sqlalchemy.orm import scoped_session
 
-from warehouse.db import _Session
+from warehouse.db import Session
 
 
-Session = scoped_session(_Session)
+Session = scoped_session(Session)
