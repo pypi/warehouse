@@ -279,6 +279,7 @@ def test_configure(monkeypatch, settings, environment):
 
     if environment == config.Environment.development:
         expected_settings.update({
+            "enforce_https": False,
             "pyramid.reload_templates": True,
             "pyramid.reload_assets": True,
             "pyramid.prevent_http_cache": True,
