@@ -148,6 +148,7 @@ def configure(settings=None):
     maybe_set(settings, "docs.url", "DOCS_URL")
     maybe_set(settings, "dirs.documentation", "DOCS_DIR")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:

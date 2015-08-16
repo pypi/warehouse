@@ -131,9 +131,10 @@ def test_register_origin_keys(monkeypatch):
     }
 
 
-def test_includeme():
+def test_includeme_no_origin_cache():
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda name, func: None),
+        registry=pretend.stub(settings={}),
     )
 
     origin.includeme(config)
@@ -143,4 +144,34 @@ def test_includeme():
             "register_origin_cache_keys",
             origin.register_origin_cache_keys,
         ),
+    ]
+
+
+def test_includeme_with_origin_cache():
+    cache_class = pretend.stub(create_service=pretend.stub())
+    config = pretend.stub(
+        add_directive=pretend.call_recorder(lambda name, func: None),
+        registry=pretend.stub(
+            settings={
+                "origin_cache.backend":
+                    "warehouse.cache.origin.fastly.FastlyCache",
+            },
+        ),
+        maybe_dotted=pretend.call_recorder(lambda n: cache_class),
+        register_service_factory=pretend.call_recorder(lambda f, iface: None)
+    )
+
+    origin.includeme(config)
+
+    assert config.add_directive.calls == [
+        pretend.call(
+            "register_origin_cache_keys",
+            origin.register_origin_cache_keys,
+        ),
+    ]
+    assert config.maybe_dotted.calls == [
+        pretend.call("warehouse.cache.origin.fastly.FastlyCache"),
+    ]
+    assert config.register_service_factory.calls == [
+        pretend.call(cache_class.create_service, IOriginCache),
     ]

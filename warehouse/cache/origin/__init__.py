@@ -56,6 +56,15 @@ def register_origin_cache_keys(config, klass, *keys):
 
 
 def includeme(config):
+    if "origin_cache.backend" in config.registry.settings:
+        cache_class = config.maybe_dotted(
+            config.registry.settings["origin_cache.backend"],
+        )
+        config.register_service_factory(
+            cache_class.create_service,
+            IOriginCache,
+        )
+
     config.add_directive(
         "register_origin_cache_keys",
         register_origin_cache_keys,
