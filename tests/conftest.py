@@ -96,6 +96,8 @@ def app_config(database):
             "warehouse.token": "insecure token",
             "camo.url": "http://localhost:9000/",
             "camo.key": "insecure key",
+            "celery.broker_url": "amqp://",
+            "celery.result_url": "redis://localhost:0/",
             "database.url": database,
             "docs.url": "http://docs.example.com/",
             "download_stats.url": "redis://localhost:0/",

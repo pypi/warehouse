@@ -138,6 +138,8 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
+    maybe_set(settings, "celery.broker_url", "AMQP_URL")
+    maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "download_stats.url", "REDIS_URL")
@@ -246,6 +248,9 @@ def configure(settings=None):
 
     # Register the support for AWS
     config.include(".aws")
+
+    # Register the support for Celery
+    config.include(".celery")
 
     # Register our session support
     config.include(".sessions")

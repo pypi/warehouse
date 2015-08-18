@@ -338,6 +338,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".aws"),
+            pretend.call(".celery"),
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),

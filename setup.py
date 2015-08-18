@@ -71,6 +71,7 @@ setuptools.setup(
         "bcrypt",
         "boto",  # Needed for hosting Documentation on S3
         "boto3",
+        "celery>=3.1",
         "click",
         "fs",
         "gunicorn",
@@ -89,7 +90,7 @@ setuptools.setup(
         "pyramid_services",
         "pyramid_tm>=0.12",
         "readme>=0.5.1",
-        "redis",
+        "redis>=2.8.0",
         "rfc3986",
         "setproctitle",
         "setuptools",
