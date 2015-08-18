@@ -8,12 +8,16 @@
 -r requirements-deploy.txt
 
 alembic==0.8.0
+amqp==1.4.6               # via kombu
+anyjson==0.3.3            # via kombu
 babel==2.0
 bcrypt==2.0.0
+billiard==3.3.0.20        # via celery
 bleach==1.4.1             # via readme
 boto3==1.1.1
 boto==2.38.0
 botocore==1.1.8           # via boto3
+celery==3.1.18
 cffi==1.1.2               # via bcrypt
 click==5.1
 docutils==0.12            # via botocore, readme
@@ -24,6 +28,7 @@ html5lib==0.999999        # via bleach
 itsdangerous==0.24
 jinja2==2.8               # via pyramid-jinja2
 jmespath==0.7.1           # via boto3, botocore
+kombu==3.0.26             # via celery
 mako==1.0.1               # via alembic
 markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.6
@@ -41,7 +46,7 @@ pyramid-tm==0.12
 pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, pyramid-services, pyramid-tm
 python-dateutil==2.4.2    # via botocore
 python-editor==0.3        # via alembic
-pytz==2015.4              # via babel
+pytz==2015.4              # via babel, celery
 readme==0.5.1
 redis==2.10.3
 repoze.lru==0.6           # via pyramid
