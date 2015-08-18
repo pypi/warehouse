@@ -11,16 +11,10 @@ camo:
   environment:
     CAMO_KEY: "insecure camo key"
 
-web:
+app:
   build: .
-  command: python -m warehouse serve -b 0.0.0.0 -w 1 --reload
-  ports:
-    - "80:8000"
   volumes:
     - .:/app/
-  links:
-    - db
-    - redis
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken
@@ -32,3 +26,14 @@ web:
     DOCS_URL: "https://pythonhosted.org/{project}/"
     DOCS_DIR: /app/data/documentation/
     FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/"
+
+web:
+  extends:
+    service: app
+  command: python -m warehouse serve -b 0.0.0.0 -w 1 --reload
+  ports:
+    - "80:8000"
+  links:
+    - db
+    - redis
+    - rabbitmq
