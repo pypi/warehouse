@@ -150,6 +150,7 @@ def configure(settings=None):
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
+        settings.setdefault("enforce_https", False)
         settings.setdefault("pyramid.reload_assets", True)
         settings.setdefault("pyramid.reload_templates", True)
         settings.setdefault("pyramid.prevent_http_cache", True)
