@@ -10,10 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest import mock
+
 import alembic.config
 import pretend
 import sqlalchemy
+import venusian
 import zope.sqlalchemy
+
+from sqlalchemy import event
 
 from warehouse import db
 from warehouse.db import (
@@ -31,6 +36,32 @@ def test_model_base_repr():
     assert repr(model) == "Base(foo={})".format(repr("bar"))
     assert model.__repr__ is not original_repr
     assert repr(model) == "Base(foo={})".format(repr("bar"))
+
+
+def test_listens_for(monkeypatch):
+    venusian_attach = pretend.call_recorder(lambda fn, cb: None)
+    monkeypatch.setattr(venusian, "attach", venusian_attach)
+
+    event_listen = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(event, "listen", event_listen)
+
+    target = pretend.stub()
+    identifier = pretend.stub()
+    args = [pretend.stub()]
+    kwargs = {"my_kwarg": pretend.stub}
+
+    @db.listens_for(target, identifier, *args, **kwargs)
+    def handler(config):
+        pass
+
+    assert venusian_attach.calls == [pretend.call(handler, mock.ANY)]
+
+    scanner = pretend.stub(config=pretend.stub())
+    venusian_attach.calls[0].args[1](scanner, None, handler)
+
+    assert event_listen.calls == [
+        pretend.call(target, identifier, mock.ANY, *args, **kwargs),
+    ]
 
 
 def test_configure_alembic(monkeypatch):
@@ -59,7 +90,7 @@ def test_configure_alembic(monkeypatch):
 def test_create_session(monkeypatch):
     session_obj = pretend.stub()
     session_cls = pretend.call_recorder(lambda bind: session_obj)
-    monkeypatch.setattr(db, "_Session", session_cls)
+    monkeypatch.setattr(db, "Session", session_cls)
 
     engine = pretend.stub()
     request = pretend.stub(
