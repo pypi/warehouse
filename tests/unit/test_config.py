@@ -398,7 +398,7 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call("warehouse:static/manifest.json", cache=True),
     ]
     assert configurator_obj.scan.calls == [
-        pretend.call(ignore=["warehouse.migrations.env"]),
+        pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),
     ]
     assert opener.calls == [
         pretend.call("/srv/data/pypi/packages/", create_dir=True),

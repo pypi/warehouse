@@ -330,6 +330,6 @@ def configure(settings=None):
     config.add_wsgi_middleware(VhmRootRemover)
 
     # Scan everything for configuration
-    config.scan(ignore=["warehouse.migrations.env"])
+    config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])
 
     return config
