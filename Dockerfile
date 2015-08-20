@@ -1,6 +1,7 @@
 FROM python:3.4-slim
 
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /app/
 
 # Install Warehouse's Dependencies
 RUN set -x \

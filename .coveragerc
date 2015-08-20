@@ -19,6 +19,10 @@ omit =
     # This bit of code is hard to test, and it shouldn't actually matter.
     warehouse/__about__.py
 
+    # Again, tiny shim code that we don't actually need to test and trying to
+    # do so would just get in the way.
+    warehouse/wsgi.py
+
 
 [report]
 exclude_lines =

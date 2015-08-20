@@ -34,7 +34,7 @@ app:
 web:
   extends:
     service: app
-  command: python -m warehouse serve -b 0.0.0.0 -w 1 --reload
+  command: gunicorn -b 0.0.0.0 -w 1 --reload warehouse.wsgi
   ports:
     - "80:8000"
   links:
