@@ -720,6 +720,11 @@ def doc_upload(request):
     )
 
 
+@view_config(route_name="legacy.api.pypi.doap")
+def doap(request):
+    return _exc_with_message(HTTPGone, "DOAP is no longer supported.")
+
+
 @forbidden_view_config(request_param=":action")
 def forbidden_legacy(exc, request):
     # We're not going to do anything amazing here, this just exists to override

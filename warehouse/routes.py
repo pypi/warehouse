@@ -68,6 +68,7 @@ def includeme(config):
         "submit_pkg_info",
     )
     config.add_pypi_action_route("legacy.api.pypi.doc_upload", "doc_upload")
+    config.add_pypi_action_route("legacy.api.pypi.doap", "doap")
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(

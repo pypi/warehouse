@@ -101,6 +101,7 @@ def test_routes():
         pretend.call("legacy.api.pypi.submit", "submit"),
         pretend.call("legacy.api.pypi.submit_pkg_info", "submit_pkg_info"),
         pretend.call("legacy.api.pypi.doc_upload", "doc_upload"),
+        pretend.call("legacy.api.pypi.doap", "doap"),
     ]
 
     assert config.add_xmlrpc_endpoint.calls == [
