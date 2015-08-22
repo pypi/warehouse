@@ -7,7 +7,7 @@
 
 -r requirements-deploy.txt
 
-alembic==0.8.0
+alembic==0.8.1
 amqp==1.4.6               # via kombu
 anyjson==0.3.3            # via kombu
 babel==2.0
