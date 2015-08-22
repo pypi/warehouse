@@ -19,7 +19,6 @@ import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.response import Response
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -295,10 +294,6 @@ def configure(settings=None):
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")
-
-    # If a route matches with a slash appended to it, redirect to that route
-    # instead of returning a HTTPNotFound.
-    config.add_notfound_view(append_slash=HTTPMovedPermanently)
 
     # Configure the filesystems we use.
     config.registry["filesystems"] = {}

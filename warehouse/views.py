@@ -10,12 +10,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPSeeOther
-from pyramid.view import forbidden_view_config, view_config
+from pyramid.httpexceptions import (
+    HTTPException, HTTPSeeOther, HTTPMovedPermanently,
+)
+from pyramid.view import (
+    notfound_view_config, forbidden_view_config, view_config,
+)
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
+from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
 from warehouse.accounts.models import User
+
+
+@view_config(context=HTTPException, decorator=[csrf_exempt])
+@notfound_view_config(
+    append_slash=HTTPMovedPermanently,
+    decorator=[csrf_exempt],
+)
+def exception_view(exc, request):
+    return exc
 
 
 @forbidden_view_config()

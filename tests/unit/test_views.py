@@ -14,12 +14,18 @@ import datetime
 
 import pretend
 
-from warehouse.views import forbidden, index
+from warehouse.views import forbidden, index, exception_view
 
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
 )
 from ..common.db.accounts import UserFactory
+
+
+def test_exception_view():
+    response = context = pretend.stub()
+    request = pretend.stub()
+    assert exception_view(context, request) is response
 
 
 class TestForbiddenView:
