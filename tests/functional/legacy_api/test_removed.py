@@ -26,3 +26,8 @@ def test_remove_doc_upload(webtest):
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."
     )
+
+
+def test_doap(webtest):
+    resp = webtest.get("/pypi?:action=doap&name=foo&version=1.0", status=410)
+    assert resp.status == "410 DOAP is no longer supported."

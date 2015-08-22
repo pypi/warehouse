@@ -1223,6 +1223,13 @@ def test_doc_upload(pyramid_request):
     )
 
 
+def test_doap(pyramid_request):
+    resp = pypi.doap(pyramid_request)
+
+    assert resp.status_code == 410
+    assert resp.status == "410 DOAP is no longer supported."
+
+
 def test_forbidden_legacy():
     exc, request = pretend.stub(), pretend.stub()
     resp = pypi.forbidden_legacy(exc, request)
