@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import functools
 
 from warehouse import db
@@ -32,7 +33,7 @@ def store_purge_keys(config, session, flush_context):
         except KeyError:
             continue
 
-        purges.update(key_maker(obj))
+        purges.update(key_maker(obj).purge)
 
 
 @db.listens_for(db.Session, "after_commit")
@@ -63,7 +64,7 @@ def origin_cache(view_or_seconds):
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(key_maker(context)),
+                        sorted(key_maker(context).cache),
                         seconds=seconds,
                     )
                 )
@@ -77,15 +78,32 @@ def origin_cache(view_or_seconds):
         return functools.partial(inner, seconds=view_or_seconds)
 
 
-def key_maker_factory(keys):
+CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+
+
+def key_maker_factory(cache_keys, purge_keys):
+    if cache_keys is None:
+        cache_keys = []
+
+    if purge_keys is None:
+        purge_keys = []
+
     def key_maker(obj):
-        return [k.format(obj=obj) for k in keys]
+        return CacheKeys(
+            cache=[k.format(obj=obj) for k in cache_keys],
+            purge=[k.format(obj=obj) for k in purge_keys],
+        )
+
     return key_maker
 
 
-def register_origin_cache_keys(config, klass, *keys):
-    cache_keys = config.registry.setdefault("cache_keys", {})
-    cache_keys[klass] = key_maker_factory(keys)
+def register_origin_cache_keys(config, klass, cache_keys=None,
+                               purge_keys=None):
+    key_makers = config.registry.setdefault("cache_keys", {})
+    key_makers[klass] = key_maker_factory(
+        cache_keys=cache_keys,
+        purge_keys=purge_keys,
+    )
 
 
 def includeme(config):

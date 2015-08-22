@@ -33,9 +33,15 @@ def test_store_purge_keys():
     config = pretend.stub(
         registry={
             "cache_keys": {
-                Type1: lambda o: {"type_1"},
-                Type2: lambda o: {"type_2", "foo"},
-                Type3: lambda o: {"type_3", "foo"},
+                Type1: lambda o: origin.CacheKeys(cache=[], purge=["type_1"]),
+                Type2: lambda o: origin.CacheKeys(
+                    cache=[],
+                    purge=["type_2", "foo"],
+                ),
+                Type3: lambda o: origin.CacheKeys(
+                    cache=[],
+                    purge=["type_3", "foo"],
+                ),
             },
         },
     )
@@ -153,7 +159,9 @@ class TestOriginCache:
         def view(context, request):
             return response
 
-        key_maker = pretend.call_recorder(lambda obj: ["one", "two"])
+        key_maker = pretend.call_recorder(
+            lambda obj: origin.CacheKeys(cache=["one", "two"], purge=[])
+        )
         cacher = Cache()
         context = Fake()
         callbacks = []
@@ -174,9 +182,37 @@ class TestOriginCache:
         ]
 
 
-def test_key_maker():
-    key_maker = origin.key_maker_factory(["foo", "foo/{obj.attr}"])
-    assert key_maker(pretend.stub(attr="bar")) == ["foo", "foo/bar"]
+class TestKeyMaker:
+
+    def test_both_cache_and_purge(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo", "foo/{obj.attr}"],
+            purge_keys=["bar", "bar/{obj.attr}"],
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=["foo", "foo/bar"],
+            purge=["bar", "bar/bar"],
+        )
+
+    def test_only_cache(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo", "foo/{obj.attr}"],
+            purge_keys=None,
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=["foo", "foo/bar"],
+            purge=[],
+        )
+
+    def test_only_purge(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=None,
+            purge_keys=["bar", "bar/{obj.attr}"],
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=[],
+            purge=["bar", "bar/bar"],
+        )
 
 
 def test_register_origin_keys(monkeypatch):
@@ -187,17 +223,20 @@ def test_register_origin_keys(monkeypatch):
         pass
 
     key_maker = pretend.stub()
-    key_maker_factory = pretend.call_recorder(lambda keys: key_maker)
+    key_maker_factory = pretend.call_recorder(lambda **kw: key_maker)
     monkeypatch.setattr(origin, "key_maker_factory", key_maker_factory)
 
     config = pretend.stub(registry={})
 
-    origin.register_origin_cache_keys(config, Fake1, "one", "two/{obj.attr}")
-    origin.register_origin_cache_keys(config, Fake2, "three")
+    origin.register_origin_cache_keys(
+        config, Fake1, cache_keys=["one", "two/{obj.attr}"])
+    origin.register_origin_cache_keys(
+        config, Fake2, cache_keys=["three"], purge_keys=["lol"],
+    )
 
     assert key_maker_factory.calls == [
-        pretend.call(("one", "two/{obj.attr}")),
-        pretend.call(("three",)),
+        pretend.call(cache_keys=["one", "two/{obj.attr}"], purge_keys=None),
+        pretend.call(cache_keys=["three"], purge_keys=["lol"]),
     ]
     assert config.registry == {
         "cache_keys": {
