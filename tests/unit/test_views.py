@@ -14,7 +14,7 @@ import datetime
 
 import pretend
 
-from warehouse.views import forbidden, index
+from warehouse.views import notfound, forbidden, index
 
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
@@ -24,10 +24,10 @@ from ..common.db.accounts import UserFactory
 
 class TestForbiddenView:
 
-    def test_logged_in_returns_exception(self):
+    def test_logged_in_returns_empty_context(self):
         exc, request = pretend.stub(), pretend.stub(authenticated_userid=1)
         resp = forbidden(exc, request)
-        assert resp is exc
+        assert resp == {}
 
     def test_logged_out_redirects_login(self):
         exc = pretend.stub()
@@ -44,6 +44,14 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == \
             "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+
+
+class TestNotFoundView:
+
+    def test_returns_empty_context(self):
+        exc, request = pretend.stub(), pretend.stub()
+        resp = notfound(exc, request)
+        assert resp == {}
 
 
 class TestIndex:

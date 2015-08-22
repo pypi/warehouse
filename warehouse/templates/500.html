@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _("Page not found") }}{% endblock title %}
+
+{% block content %}
+<section id="notfound">
+    <header class="header">
+        <h1>{{ _("The page you're looking for isn't there.") }}</h1>
+    </header>
+    <div class="content">
+        <p>{{ _("Perhaps it is somewhere else?") }}</p>
+    </div>
+</section>
+{% endblock content %}
