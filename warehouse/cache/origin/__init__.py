@@ -49,8 +49,11 @@ def execute_purge(config, session):
     cacher.purge(purges)
 
 
-def origin_cache(view_or_seconds):
-    def inner(view, seconds=None):
+def origin_cache(seconds, keys=None):
+    if keys is None:
+        keys = []
+
+    def inner(view):
         @functools.wraps(view)
         def wrapped(context, request):
             cache_keys = request.registry["cache_keys"]
@@ -64,7 +67,7 @@ def origin_cache(view_or_seconds):
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(key_maker(context).cache),
+                        sorted(key_maker(context).cache + keys),
                         seconds=seconds,
                     )
                 )
@@ -72,10 +75,7 @@ def origin_cache(view_or_seconds):
             return view(context, request)
         return wrapped
 
-    if callable(view_or_seconds):
-        return inner(view_or_seconds)
-    else:
-        return functools.partial(inner, seconds=view_or_seconds)
+    return inner
 
 
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])

@@ -104,7 +104,7 @@ class TestOriginCache:
     def test_no_cache_key(self):
         response = pretend.stub()
 
-        @origin.origin_cache
+        @origin.origin_cache(1)
         def view(context, request):
             return response
 
@@ -119,7 +119,7 @@ class TestOriginCache:
 
         response = pretend.stub()
 
-        @origin.origin_cache
+        @origin.origin_cache(1)
         def view(context, request):
             return response
 
@@ -136,8 +136,14 @@ class TestOriginCache:
         assert view(context, request) is response
         assert raiser.calls == [pretend.call(IOriginCache)]
 
-    @pytest.mark.parametrize("seconds", [None, 745])
-    def test_response_hook(self, seconds):
+    @pytest.mark.parametrize(
+        ("seconds", "keys"),
+        [
+            (745, None),
+            (823, ["nope", "yup"]),
+        ],
+    )
+    def test_response_hook(self, seconds, keys):
         class Fake:
             pass
 
@@ -150,10 +156,7 @@ class TestOriginCache:
 
         response = pretend.stub()
 
-        if seconds is None:
-            deco = origin.origin_cache
-        else:
-            deco = origin.origin_cache(seconds)
+        deco = origin.origin_cache(seconds, keys=keys)
 
         @deco
         def view(context, request):
@@ -178,7 +181,12 @@ class TestOriginCache:
         callbacks[0](request, response)
 
         assert cacher.cache.calls == [
-            pretend.call(["one", "two"], request, response, seconds=seconds),
+            pretend.call(
+                sorted(["one", "two"] + ([] if keys is None else keys)),
+                request,
+                response,
+                seconds=seconds,
+            ),
         ]
 
 
