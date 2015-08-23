@@ -36,8 +36,10 @@ def includeme(config):
     config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],
+        purge_keys=["project/{obj.normalized_name}", "all-projects"],
     )
     config.register_origin_cache_keys(
         Release,
         cache_keys=["project/{obj.project.normalized_name}"],
+        purge_keys=["project/{obj.project.normalized_name}", "all-projects"],
     )
