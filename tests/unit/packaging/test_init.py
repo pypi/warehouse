@@ -64,9 +64,14 @@ def test_includme(monkeypatch):
         pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
+            purge_keys=["project/{obj.normalized_name}", "all-projects"],
         ),
         pretend.call(
             Release,
             cache_keys=["project/{obj.project.normalized_name}"],
+            purge_keys=[
+                "project/{obj.project.normalized_name}",
+                "all-projects",
+            ],
         ),
     ]

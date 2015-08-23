@@ -10,13 +10,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import celery.exceptions
 import pretend
+import pytest
 import requests
 
 from zope.interface.verify import verifyClass
 
 from warehouse.cache.origin import fastly
 from warehouse.cache.origin.interfaces import IOriginCache
+
+
+class TestPurgeKey:
+
+    def test_purges_successfully(self, monkeypatch):
+        task = pretend.stub()
+        cacher = pretend.stub(purge_key=pretend.call_recorder(lambda k: None))
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: cacher),
+        )
+
+        fastly.purge_key.__wrapped__.__func__(task, request, "foo")
+
+        assert request.find_service.calls == [pretend.call(IOriginCache)]
+        assert cacher.purge_key.calls == [pretend.call("foo")]
+
+    @pytest.mark.parametrize(
+        "exception_type",
+        [
+            requests.ConnectionError,
+            requests.HTTPError,
+            requests.Timeout,
+            fastly.UnsuccessfulPurge,
+        ],
+    )
+    def test_purges_fails(self, monkeypatch, exception_type):
+        exc = exception_type()
+
+        class Cacher:
+            @staticmethod
+            @pretend.call_recorder
+            def purge_key(key):
+                raise exc
+
+        class Task:
+            @staticmethod
+            @pretend.call_recorder
+            def retry(exc):
+                raise celery.exceptions.Retry
+
+        task = Task()
+        cacher = Cacher()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: cacher),
+        )
+
+        with pytest.raises(celery.exceptions.Retry):
+            fastly.purge_key.__wrapped__.__func__(task, request, "foo")
+
+        assert request.find_service.calls == [pretend.call(IOriginCache)]
+        assert cacher.purge_key.calls == [pretend.call("foo")]
+        assert task.retry.calls == [pretend.call(exc=exc)]
 
 
 class TestFastlyCache:
@@ -65,21 +119,29 @@ class TestFastlyCache:
             service_id="the-service-id",
         )
 
-        response = pretend.stub(
-            raise_for_status=pretend.call_recorder(lambda: None),
-        )
-        session_obj = pretend.stub(
-            post=pretend.call_recorder(lambda *a, **kw: response),
-            __enter__=lambda: session_obj,
-            __exit__=lambda *a, **kw: None,
-        )
-        session_cls = pretend.call_recorder(lambda: session_obj)
-        monkeypatch.setattr(requests, "session", session_cls)
+        purge_delay = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(fastly.purge_key, "delay", purge_delay)
 
         cacher.purge(["one", "two"])
 
-        assert session_cls.calls == [pretend.call()]
-        assert session_obj.post.calls == [
+        assert purge_delay.calls == [pretend.call("one"), pretend.call("two")]
+
+    def test_purge_key_ok(self, monkeypatch):
+        cacher = fastly.FastlyCache(
+            api_key="an api key",
+            service_id="the-service-id",
+        )
+
+        response = pretend.stub(
+            raise_for_status=pretend.call_recorder(lambda: None),
+            json=lambda: {"status": "ok"},
+        )
+        requests_post = pretend.call_recorder(lambda *a, **kw: response)
+        monkeypatch.setattr(requests, "post", requests_post)
+
+        cacher.purge_key("one")
+
+        assert requests_post.calls == [
             pretend.call(
                 "https://api.fastly.com/service/the-service-id/purge/one",
                 headers={
@@ -88,8 +150,29 @@ class TestFastlyCache:
                     "Fastly-Soft-Purge": "1",
                 },
             ),
+        ]
+        assert response.raise_for_status.calls == [pretend.call()]
+
+    @pytest.mark.parametrize("result", [{"status": "fail"}, {}])
+    def test_purge_key_unsuccessful(self, monkeypatch, result):
+        cacher = fastly.FastlyCache(
+            api_key="an api key",
+            service_id="the-service-id",
+        )
+
+        response = pretend.stub(
+            raise_for_status=pretend.call_recorder(lambda: None),
+            json=lambda: result,
+        )
+        requests_post = pretend.call_recorder(lambda *a, **kw: response)
+        monkeypatch.setattr(requests, "post", requests_post)
+
+        with pytest.raises(fastly.UnsuccessfulPurge):
+            cacher.purge_key("one")
+
+        assert requests_post.calls == [
             pretend.call(
-                "https://api.fastly.com/service/the-service-id/purge/two",
+                "https://api.fastly.com/service/the-service-id/purge/one",
                 headers={
                     "Accept": "application/json",
                     "Fastly-Key": "an api key",
@@ -97,7 +180,4 @@ class TestFastlyCache:
                 },
             ),
         ]
-        assert response.raise_for_status.calls == [
-            pretend.call(),
-            pretend.call(),
-        ]
+        assert response.raise_for_status.calls == [pretend.call()]

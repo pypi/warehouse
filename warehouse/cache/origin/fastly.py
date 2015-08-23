@@ -16,7 +16,22 @@ import requests
 
 from zope.interface import implementer
 
+from warehouse import celery
 from warehouse.cache.origin.interfaces import IOriginCache
+
+
+class UnsuccessfulPurge(Exception):
+    pass
+
+
+@celery.task(bind=True, ignore_result=True, acks_late=True)
+def purge_key(task, request, key):
+    cacher = request.find_service(IOriginCache)
+    try:
+        cacher.purge_key(key)
+    except (requests.ConnectionError, requests.HTTPError, requests.Timeout,
+            UnsuccessfulPurge) as exc:
+        raise task.retry(exc=exc)
 
 
 @implementer(IOriginCache)
@@ -35,13 +50,6 @@ class FastlyCache:
             service_id=request.registry.settings["origin_cache.service_id"],
         )
 
-    def _mkurl(self, key):
-        path = "/service/{service_id}/purge/{key}".format(
-            service_id=self.service_id,
-            key=key,
-        )
-        return urllib.parse.urljoin(self._api_domain, path)
-
     def cache(self, keys, request, response, *, seconds=None):
         response.headers["Surrogate-Key"] = " ".join(keys)
 
@@ -50,14 +58,25 @@ class FastlyCache:
                 "max-age={}".format(seconds)
 
     def purge(self, keys):
-        with requests.session() as session:
-            for key in keys:
-                resp = session.post(
-                    self._mkurl(key),
-                    headers={
-                        "Accept": "application/json",
-                        "Fastly-Key": self.api_key,
-                        "Fastly-Soft-Purge": "1",
-                    },
-                )
-                resp.raise_for_status()
+        for key in keys:
+            purge_key.delay(key)
+
+    def purge_key(self, key):
+        path = "/service/{service_id}/purge/{key}".format(
+            service_id=self.service_id,
+            key=key,
+        )
+        url = urllib.parse.urljoin(self._api_domain, path)
+        headers = {
+            "Accept": "application/json",
+            "Fastly-Key": self.api_key,
+            "Fastly-Soft-Purge": "1",
+        }
+
+        resp = requests.post(url, headers=headers)
+        resp.raise_for_status()
+
+        if resp.json().get("status") != "ok":
+            raise UnsuccessfulPurge(
+                "Could not successfully purge {!r}".format(key)
+            )
