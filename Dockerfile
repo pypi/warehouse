@@ -24,6 +24,7 @@ RUN set -x \
     && pip install -U pip setuptools \
     && pip install pyinotify \
     && pip install -c requirements.txt -r requirements-dev.txt -e . \
+    && pip install -U https://github.com/dstufft/pyramid/archive/route-found.zip#egg=pyramid \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
     && apt-get purge gcc libpq-dev libffi-dev -y \
