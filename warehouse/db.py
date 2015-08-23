@@ -17,6 +17,7 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.events import RouteFound, subscriber
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
@@ -71,6 +72,37 @@ def listens_for(target, identifier, *args, **kwargs):
     return deco
 
 
+# We'll add a basic predicate that won't do anything except allow marking a
+# route as read only (or not).
+class ReadOnlyPredicate(object):
+
+    def __init__(self, val, config):
+        self.val = val
+
+    def text(self):
+        return "read_only = {!r}".format(self.val)
+
+    phash = text
+
+    # This predicate doesn't actually participate in the route selection
+    # process, so we'll just always return True.
+    def __call__(self, info, request):
+        return True
+
+
+# We want to be able to mark a particular route as read only, and if so we'll
+# change default transaction isolation to
+@subscriber(RouteFound)
+def _set_transaction_isolation(event):
+    for predicate in event.request.matched_route.predicates:
+        if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
+            event.request.db.execute(
+                """ SET TRANSACTION
+                    ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE
+                """
+            )
+
+
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
@@ -103,3 +135,6 @@ def includeme(config):
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
+
+    # Add a route predicate to mark a route as read only.
+    config.add_route_predicate("read_only", ReadOnlyPredicate)
