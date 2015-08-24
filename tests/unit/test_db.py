@@ -18,12 +18,58 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.traversal import DefaultRootFactory
 from sqlalchemy import event
 
 from warehouse import db
+from warehouse.accounts.models import UserFactory
 from warehouse.db import (
     ModelBase, includeme, _configure_alembic, _create_session,
 )
+
+
+class TestReadOnly:
+
+    def test_defaults_to_default_factory(self):
+        obj = db.ReadOnly()
+        assert obj.factory is DefaultRootFactory
+
+    def test_resolves_dotted(self):
+        obj = db.ReadOnly("warehouse.accounts.models:UserFactory")
+        assert obj.factory is UserFactory
+
+    def test_accepts_factory(self):
+        obj = db.ReadOnly(UserFactory)
+        assert obj.factory is UserFactory
+
+    def test_repr(self):
+        assert repr(db.ReadOnly()) == \
+            "<ReadOnly: <class 'pyramid.traversal.DefaultRootFactory'>>"
+
+    def test_sets_readonly(self):
+        result = pretend.stub()
+        factory = pretend.call_recorder(lambda request: result)
+        obj = db.ReadOnly(factory)
+        request = pretend.stub(
+            db=pretend.stub(
+                execute=pretend.call_recorder(lambda sql: None),
+            ),
+        )
+        assert obj(request) is result
+        assert request.db.execute.calls == [
+            pretend.call(
+                """ SET TRANSACTION
+                ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE
+            """
+            ),
+        ]
+        assert factory.calls == [pretend.call(request)]
+
+    def test_equals(self):
+        assert db.ReadOnly(UserFactory) == db.ReadOnly(UserFactory)
+
+    def test_not_equals(self):
+        assert db.ReadOnly(UserFactory) != object()
 
 
 def test_model_base_repr():
