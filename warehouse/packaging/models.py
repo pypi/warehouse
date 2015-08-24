@@ -180,7 +180,6 @@ def _dependency_relation(kind):
             Release.version == Dependency.version,
             Dependency.kind == kind.value,
         ),
-        lazy=False,
         viewonly=True,
     )
 
@@ -192,6 +191,7 @@ class Release(db.ModelBase):
     @declared_attr
     def __table_args__(cls):  # noqa
         return (
+            Index("release_created_idx", cls.created.desc()),
             Index("release_name_created_idx", cls.name, cls.created.desc()),
             Index("release_name_idx", cls.name),
             Index("release_pypi_hidden_idx", cls._pypi_hidden),

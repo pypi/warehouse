@@ -16,6 +16,7 @@ from pyramid.httpexceptions import (
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.cache.origin import origin_cache
@@ -58,8 +59,13 @@ def forbidden(exc, request):
     ]
 )
 def index(request):
-    latest_updated_releases = request.db.query(Release)\
-                                        .order_by(Release.created.desc())[:20]
+    latest_updated_releases = (
+        request.db.query(Release)
+                  .options(joinedload(Release.project))
+                  .order_by(Release.created.desc())
+                  .limit(20)
+                  .all()
+    )
     num_projects = request.db.query(Project).count()
     num_users = request.db.query(User).count()
     num_files = request.db.query(File).count()
