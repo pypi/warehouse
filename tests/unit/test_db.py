@@ -14,6 +14,7 @@ from unittest import mock
 
 import alembic.config
 import pretend
+import pytest
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
@@ -87,7 +88,15 @@ def test_configure_alembic(monkeypatch):
     ]
 
 
-def test_create_session(monkeypatch):
+@pytest.mark.parametrize(
+    "predicates",
+    [
+        [],
+        [db.ReadOnlyPredicate(False, None)],
+        [object()],
+    ],
+)
+def test_create_session(monkeypatch, predicates):
     session_obj = pretend.stub()
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
@@ -96,6 +105,7 @@ def test_create_session(monkeypatch):
     request = pretend.stub(
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(),
+        matched_route=pretend.stub(predicates=predicates),
     )
 
     register = pretend.call_recorder(lambda session, transaction_manager: None)
@@ -105,6 +115,37 @@ def test_create_session(monkeypatch):
     assert session_cls.calls == [pretend.call(bind=engine)]
     assert register.calls == [
         pretend.call(session_obj, transaction_manager=request.tm),
+    ]
+
+
+def test_creates_readonly_session(monkeypatch):
+    session_obj = pretend.stub(execute=pretend.call_recorder(lambda sql: None))
+    session_cls = pretend.call_recorder(lambda bind: session_obj)
+    monkeypatch.setattr(db, "Session", session_cls)
+
+    engine = pretend.stub()
+    request = pretend.stub(
+        registry={"sqlalchemy.engine": engine},
+        tm=pretend.stub(),
+        matched_route=pretend.stub(
+            predicates=[db.ReadOnlyPredicate(True, None)],
+        ),
+    )
+
+    register = pretend.call_recorder(lambda session, transaction_manager: None)
+    monkeypatch.setattr(zope.sqlalchemy, "register", register)
+
+    assert _create_session(request) is session_obj
+    assert session_cls.calls == [pretend.call(bind=engine)]
+    assert register.calls == [
+        pretend.call(session_obj, transaction_manager=request.tm),
+    ]
+    assert session_obj.execute.calls == [
+        pretend.call(
+            """ SET TRANSACTION
+                    ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE
+                """
+        ),
     ]
 
 
@@ -118,6 +159,7 @@ def test_includeme(monkeypatch):
         add_directive=pretend.call_recorder(lambda *a: None),
         registry=FakeRegistry(),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
+        add_route_predicate=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     monkeypatch.setattr(sqlalchemy, "create_engine", create_engine)
@@ -136,4 +178,7 @@ def test_includeme(monkeypatch):
     assert config.registry["sqlalchemy.engine"] is engine
     assert config.add_request_method.calls == [
         pretend.call(_create_session, name="db", reify=True),
+    ]
+    assert config.add_route_predicate.calls == [
+        pretend.call("read_only", db.ReadOnlyPredicate),
     ]

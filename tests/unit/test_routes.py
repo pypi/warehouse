@@ -40,19 +40,20 @@ def test_routes():
 
         @staticmethod
         @pretend.call_recorder
-        def add_xmlrpc_endpoint(endpoint, pattern, header):
+        def add_xmlrpc_endpoint(endpoint, pattern, header, read_only=False):
             pass
 
     config = FakeConfig()
     includeme(config)
 
     assert config.add_route.calls == [
-        pretend.call('index', '/'),
+        pretend.call('index', '/', read_only=True),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
+            read_only=True,
         ),
         pretend.call("accounts.login", "/account/login/"),
         pretend.call("accounts.logout", "/account/logout/"),
@@ -61,32 +62,37 @@ def test_routes():
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            read_only=True,
         ),
         pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
+            read_only=True,
         ),
-        pretend.call("packaging.file", "/packages/{path:.*}"),
-        pretend.call("legacy.api.simple.index", "/simple/"),
+        pretend.call("packaging.file", "/packages/{path:.*}", read_only=True),
+        pretend.call("legacy.api.simple.index", "/simple/", read_only=True),
         pretend.call(
             "legacy.api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            read_only=True,
         ),
         pretend.call(
             "legacy.api.json.project",
             "/pypi/{name}/json",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            read_only=True,
         ),
         pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
+            read_only=True,
         ),
         pretend.call("legacy.docs", docs_route_url),
     ]
@@ -105,5 +111,10 @@ def test_routes():
     ]
 
     assert config.add_xmlrpc_endpoint.calls == [
-        pretend.call("pypi", pattern="/pypi", header="Content-Type:text/xml"),
+        pretend.call(
+            "pypi",
+            pattern="/pypi",
+            header="Content-Type:text/xml",
+            read_only=True,
+        ),
     ]

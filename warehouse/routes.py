@@ -12,7 +12,7 @@
 
 
 def includeme(config):
-    config.add_route("index", "/")
+    config.add_route("index", "/", read_only=True)
 
     # Accounts
     config.add_route(
@@ -20,6 +20,7 @@ def includeme(config):
         "/user/{username}/",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
+        read_only=True,
     )
     config.add_route("accounts.login", "/account/login/")
     config.add_route("accounts.logout", "/account/logout/")
@@ -30,34 +31,39 @@ def includeme(config):
         "/project/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        read_only=True,
     )
     config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
+        read_only=True,
     )
-    config.add_route("packaging.file", "/packages/{path:.*}")
+    config.add_route("packaging.file", "/packages/{path:.*}", read_only=True)
 
     # Legacy URLs
-    config.add_route("legacy.api.simple.index", "/simple/")
+    config.add_route("legacy.api.simple.index", "/simple/", read_only=True)
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
+        read_only=True,
     )
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        read_only=True,
     )
     config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
+        read_only=True,
     )
 
     # Legacy Action URLs
@@ -75,6 +81,7 @@ def includeme(config):
         "pypi",
         pattern="/pypi",
         header="Content-Type:text/xml",
+        read_only=True,
     )
 
     # Legacy Documentation

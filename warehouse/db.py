@@ -28,6 +28,24 @@ from warehouse.utils.attrs import make_repr
 __all__ = ["includeme", "metadata", "ModelBase"]
 
 
+# We'll add a basic predicate that won't do anything except allow marking a
+# route as read only (or not).
+class ReadOnlyPredicate:
+
+    def __init__(self, val, config):
+        self.val = val
+
+    def text(self):
+        return "read_only = {!r}".format(self.val)
+
+    phash = text
+
+    # This predicate doesn't actually participate in the route selection
+    # process, so we'll just always return True.
+    def __call__(self, info, request):
+        return True
+
+
 class ModelBase:
 
     def __repr__(self):
@@ -84,6 +102,16 @@ def _create_session(request):
     # Create our session
     session = Session(bind=request.registry["sqlalchemy.engine"])
 
+    # Set our transaction to read only if the route has been marked as read
+    # only.
+    for predicate in request.matched_route.predicates:
+        if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
+            session.execute(
+                """ SET TRANSACTION
+                    ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE
+                """
+            )
+
     # Register only this particular session with zope.sqlalchemy
     zope.sqlalchemy.register(session, transaction_manager=request.tm)
 
@@ -103,3 +131,6 @@ def includeme(config):
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
+
+    # Add a route predicate to mark a route as read only.
+    config.add_route_predicate("read_only", ReadOnlyPredicate)
