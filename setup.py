@@ -90,6 +90,7 @@ setuptools.setup(
         "pyramid_services",
         "pyramid_tm>=0.12",
         "readme>=0.5.1",
+        "requests",
         "redis>=2.8.0",
         "rfc3986",
         "setproctitle",

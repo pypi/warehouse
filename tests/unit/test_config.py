@@ -15,6 +15,7 @@ from unittest import mock
 import fs.opener
 import pretend
 import pytest
+import zope.interface
 
 from pyramid import renderers
 
@@ -194,6 +195,27 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar,
     assert settings == expected
 
 
+@pytest.mark.parametrize("factory", [None, pretend.stub()])
+def test_find_service_factory(monkeypatch, factory):
+    context_iface = pretend.stub()
+    provided_by = pretend.call_recorder(lambda context: context_iface)
+    monkeypatch.setattr(zope.interface, "providedBy", provided_by)
+
+    config_or_request = pretend.stub(
+        registry=pretend.stub(
+            adapters=pretend.stub(
+                lookup=pretend.call_recorder(lambda *a, **kw: factory),
+            ),
+        ),
+    )
+
+    if factory is None:
+        with pytest.raises(ValueError):
+            config.find_service_factory(config_or_request)
+    else:
+        assert config.find_service_factory(config_or_request) is factory
+
+
 @pytest.mark.parametrize(
     ("settings", "environment"),
     [
@@ -240,8 +262,10 @@ def test_configure(monkeypatch, settings, environment):
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
+        add_directive=pretend.call_recorder(lambda name, fn: None),
         add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
         add_renderer=pretend.call_recorder(lambda name, renderer: None),
+        add_request_method=pretend.call_recorder(lambda fn: None),
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
         get_settings=lambda: configurator_settings,
@@ -380,6 +404,12 @@ def test_configure(monkeypatch, settings, environment):
     add_settings_dict = configurator_obj.add_settings.calls[1].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
+    assert configurator_obj.add_directive.calls == [
+        pretend.call("find_service_factory", config.find_service_factory),
+    ]
+    assert configurator_obj.add_request_method.calls == [
+        pretend.call(config.find_service_factory),
+    ]
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.content_security_policy_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),

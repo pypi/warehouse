@@ -42,7 +42,7 @@ def test_includme(monkeypatch):
                 "files.backend": "foo.bar",
             },
         ),
-        register_origin_cache_keys=pretend.call_recorder(lambda c, *k: None),
+        register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
     )
 
     packaging.includeme(config)
@@ -63,12 +63,15 @@ def test_includme(monkeypatch):
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
             Project,
-            "project",
-            "project/{obj.normalized_name}",
+            cache_keys=["project/{obj.normalized_name}"],
+            purge_keys=["project/{obj.normalized_name}", "all-projects"],
         ),
         pretend.call(
             Release,
-            "project",
-            "project/{obj.project.normalized_name}",
+            cache_keys=["project/{obj.project.normalized_name}"],
+            purge_keys=[
+                "project/{obj.project.normalized_name}",
+                "all-projects",
+            ],
         ),
     ]

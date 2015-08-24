@@ -31,8 +31,6 @@ REQUIREMENTS_HEADER = """
 #    $ invoke pip.compile
 #
 
--r requirements-deploy.txt
-
 """.lstrip()
 
 

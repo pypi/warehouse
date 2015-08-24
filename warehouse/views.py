@@ -18,6 +18,7 @@ from pyramid.view import (
 )
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
+from warehouse.cache.origin import origin_cache
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
 from warehouse.accounts.models import User
@@ -52,6 +53,9 @@ def forbidden(exc, request):
 @view_config(
     route_name="index",
     renderer="index.html",
+    decorator=[
+        origin_cache(1 * 60 * 60, keys=["all-projects"]),  # 1 Hour.
+    ]
 )
 def index(request):
     latest_updated_releases = request.db.query(Release)\

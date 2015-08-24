@@ -5,8 +5,6 @@
 #    $ invoke pip.compile
 #
 
--r requirements-deploy.txt
-
 alembic==0.8.1
 amqp==1.4.6               # via kombu
 anyjson==0.3.3            # via kombu
@@ -51,6 +49,7 @@ pytz==2015.4              # via babel, celery
 readme==0.5.1
 redis==2.10.3
 repoze.lru==0.6           # via pyramid
+requests==2.7.0
 rfc3986==0.2.2
 setproctitle==1.1.9
 six==1.9.0                # via bcrypt, bleach, fs, html5lib, python-dateutil, readme

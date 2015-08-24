@@ -17,12 +17,94 @@ from warehouse.cache import origin
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
+def test_store_purge_keys():
+    class Type1:
+        pass
+
+    class Type2:
+        pass
+
+    class Type3:
+        pass
+
+    class Type4:
+        pass
+
+    config = pretend.stub(
+        registry={
+            "cache_keys": {
+                Type1: lambda o: origin.CacheKeys(cache=[], purge=["type_1"]),
+                Type2: lambda o: origin.CacheKeys(
+                    cache=[],
+                    purge=["type_2", "foo"],
+                ),
+                Type3: lambda o: origin.CacheKeys(
+                    cache=[],
+                    purge=["type_3", "foo"],
+                ),
+            },
+        },
+    )
+    session = pretend.stub(
+        info={},
+        new={Type1()},
+        dirty={Type2()},
+        deleted={Type3(), Type4()},
+    )
+
+    origin.store_purge_keys(config, session, pretend.stub())
+
+    assert session.info["warehouse.cache.origin.purges"] == {
+        "type_1", "type_2", "type_3", "foo",
+    }
+
+
+def test_execute_purge_success():
+    cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
+    factory = pretend.call_recorder(lambda ctx, config: cacher)
+    config = pretend.stub(
+        find_service_factory=pretend.call_recorder(lambda i: factory),
+    )
+    session = pretend.stub(
+        info={
+            "warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"},
+        },
+    )
+
+    origin.execute_purge(config, session)
+
+    assert config.find_service_factory.calls == [
+        pretend.call(origin.IOriginCache),
+    ]
+    assert factory.calls == [pretend.call(None, config)]
+    assert cacher.purge.calls == [pretend.call({"type_1", "type_2", "foobar"})]
+    assert "warehouse.cache.origin.purges" not in session.info
+
+
+def test_execute_purge_no_backend():
+    @pretend.call_recorder
+    def find_service_factory(interface):
+        raise ValueError
+
+    config = pretend.stub(find_service_factory=find_service_factory)
+    session = pretend.stub(
+        info={
+            "warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"},
+        },
+    )
+
+    origin.execute_purge(config, session)
+
+    assert find_service_factory.calls == [pretend.call(origin.IOriginCache)]
+    assert "warehouse.cache.origin.purges" not in session.info
+
+
 class TestOriginCache:
 
     def test_no_cache_key(self):
         response = pretend.stub()
 
-        @origin.origin_cache
+        @origin.origin_cache(1)
         def view(context, request):
             return response
 
@@ -37,7 +119,7 @@ class TestOriginCache:
 
         response = pretend.stub()
 
-        @origin.origin_cache
+        @origin.origin_cache(1)
         def view(context, request):
             return response
 
@@ -54,8 +136,14 @@ class TestOriginCache:
         assert view(context, request) is response
         assert raiser.calls == [pretend.call(IOriginCache)]
 
-    @pytest.mark.parametrize("seconds", [None, 745])
-    def test_response_hook(self, seconds):
+    @pytest.mark.parametrize(
+        ("seconds", "keys"),
+        [
+            (745, None),
+            (823, ["nope", "yup"]),
+        ],
+    )
+    def test_response_hook(self, seconds, keys):
         class Fake:
             pass
 
@@ -68,16 +156,15 @@ class TestOriginCache:
 
         response = pretend.stub()
 
-        if seconds is None:
-            deco = origin.origin_cache
-        else:
-            deco = origin.origin_cache(seconds)
+        deco = origin.origin_cache(seconds, keys=keys)
 
         @deco
         def view(context, request):
             return response
 
-        key_maker = pretend.call_recorder(lambda obj: ["one", "two"])
+        key_maker = pretend.call_recorder(
+            lambda obj: origin.CacheKeys(cache=["one", "two"], purge=[])
+        )
         cacher = Cache()
         context = Fake()
         callbacks = []
@@ -94,13 +181,46 @@ class TestOriginCache:
         callbacks[0](request, response)
 
         assert cacher.cache.calls == [
-            pretend.call(["one", "two"], request, response, seconds=seconds),
+            pretend.call(
+                sorted(["one", "two"] + ([] if keys is None else keys)),
+                request,
+                response,
+                seconds=seconds,
+            ),
         ]
 
 
-def test_key_maker():
-    key_maker = origin.key_maker_factory(["foo", "foo/{obj.attr}"])
-    assert key_maker(pretend.stub(attr="bar")) == ["foo", "foo/bar"]
+class TestKeyMaker:
+
+    def test_both_cache_and_purge(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo", "foo/{obj.attr}"],
+            purge_keys=["bar", "bar/{obj.attr}"],
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=["foo", "foo/bar"],
+            purge=["bar", "bar/bar"],
+        )
+
+    def test_only_cache(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=["foo", "foo/{obj.attr}"],
+            purge_keys=None,
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=["foo", "foo/bar"],
+            purge=[],
+        )
+
+    def test_only_purge(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=None,
+            purge_keys=["bar", "bar/{obj.attr}"],
+        )
+        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
+            cache=[],
+            purge=["bar", "bar/bar"],
+        )
 
 
 def test_register_origin_keys(monkeypatch):
@@ -111,17 +231,20 @@ def test_register_origin_keys(monkeypatch):
         pass
 
     key_maker = pretend.stub()
-    key_maker_factory = pretend.call_recorder(lambda keys: key_maker)
+    key_maker_factory = pretend.call_recorder(lambda **kw: key_maker)
     monkeypatch.setattr(origin, "key_maker_factory", key_maker_factory)
 
     config = pretend.stub(registry={})
 
-    origin.register_origin_cache_keys(config, Fake1, "one", "two/{obj.attr}")
-    origin.register_origin_cache_keys(config, Fake2, "three")
+    origin.register_origin_cache_keys(
+        config, Fake1, cache_keys=["one", "two/{obj.attr}"])
+    origin.register_origin_cache_keys(
+        config, Fake2, cache_keys=["three"], purge_keys=["lol"],
+    )
 
     assert key_maker_factory.calls == [
-        pretend.call(("one", "two/{obj.attr}")),
-        pretend.call(("three",)),
+        pretend.call(cache_keys=["one", "two/{obj.attr}"], purge_keys=None),
+        pretend.call(cache_keys=["three"], purge_keys=["lol"]),
     ]
     assert config.registry == {
         "cache_keys": {
@@ -131,9 +254,10 @@ def test_register_origin_keys(monkeypatch):
     }
 
 
-def test_includeme():
+def test_includeme_no_origin_cache():
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda name, func: None),
+        registry=pretend.stub(settings={}),
     )
 
     origin.includeme(config)
@@ -143,4 +267,34 @@ def test_includeme():
             "register_origin_cache_keys",
             origin.register_origin_cache_keys,
         ),
+    ]
+
+
+def test_includeme_with_origin_cache():
+    cache_class = pretend.stub(create_service=pretend.stub())
+    config = pretend.stub(
+        add_directive=pretend.call_recorder(lambda name, func: None),
+        registry=pretend.stub(
+            settings={
+                "origin_cache.backend":
+                    "warehouse.cache.origin.fastly.FastlyCache",
+            },
+        ),
+        maybe_dotted=pretend.call_recorder(lambda n: cache_class),
+        register_service_factory=pretend.call_recorder(lambda f, iface: None)
+    )
+
+    origin.includeme(config)
+
+    assert config.add_directive.calls == [
+        pretend.call(
+            "register_origin_cache_keys",
+            origin.register_origin_cache_keys,
+        ),
+    ]
+    assert config.maybe_dotted.calls == [
+        pretend.call("warehouse.cache.origin.fastly.FastlyCache"),
+    ]
+    assert config.register_service_factory.calls == [
+        pretend.call(cache_class.create_service, IOriginCache),
     ]
