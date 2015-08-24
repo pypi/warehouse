@@ -180,7 +180,6 @@ def _dependency_relation(kind):
             Release.version == Dependency.version,
             Dependency.kind == kind.value,
         ),
-        lazy=False,
         viewonly=True,
     )
 
