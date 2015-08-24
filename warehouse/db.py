@@ -17,15 +17,42 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.traversal import DefaultRootFactory
 from sqlalchemy import event
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from warehouse.config import maybe_dotted
 from warehouse.utils.attrs import make_repr
 
 
 __all__ = ["includeme", "metadata", "ModelBase"]
+
+
+class ReadOnly:
+
+    def __init__(self, factory=None):
+        if factory is None:
+            factory = DefaultRootFactory
+        self.factory = maybe_dotted(factory)
+
+    def __repr__(self):
+        return "<ReadOnly: {!r}>".format(self.factory)
+
+    def __eq__(self, other):
+        if isinstance(other, ReadOnly):
+            return self.factory == other.factory
+        else:
+            return NotImplemented
+
+    def __call__(self, request):
+        request.db.execute(
+            """ SET TRANSACTION
+                ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE
+            """
+        )
+        return self.factory(request)
 
 
 class ModelBase:

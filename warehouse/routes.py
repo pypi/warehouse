@@ -10,15 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.db import ReadOnly
+
 
 def includeme(config):
-    config.add_route("index", "/")
+    config.add_route("index", "/", factory=ReadOnly())
 
     # Accounts
     config.add_route(
         "accounts.profile",
         "/user/{username}/",
-        factory="warehouse.accounts.models:UserFactory",
+        factory=ReadOnly("warehouse.accounts.models:UserFactory"),
         traverse="/{username}",
     )
     config.add_route("accounts.login", "/account/login/")
@@ -28,35 +30,39 @@ def includeme(config):
     config.add_route(
         "packaging.project",
         "/project/{name}/",
-        factory="warehouse.packaging.models:ProjectFactory",
+        factory=ReadOnly("warehouse.packaging.models:ProjectFactory"),
         traverse="/{name}",
     )
     config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
-        factory="warehouse.packaging.models:ProjectFactory",
+        factory=ReadOnly("warehouse.packaging.models:ProjectFactory"),
         traverse="/{name}/{version}",
     )
-    config.add_route("packaging.file", "/packages/{path:.*}")
+    config.add_route(
+        "packaging.file",
+        "/packages/{path:.*}",
+        factory=ReadOnly(),
+    )
 
     # Legacy URLs
-    config.add_route("legacy.api.simple.index", "/simple/")
+    config.add_route("legacy.api.simple.index", "/simple/", factory=ReadOnly())
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
-        factory="warehouse.packaging.models:ProjectFactory",
+        factory=ReadOnly("warehouse.packaging.models:ProjectFactory"),
         traverse="/{name}/",
     )
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
-        factory="warehouse.packaging.models:ProjectFactory",
+        factory=ReadOnly("warehouse.packaging.models:ProjectFactory"),
         traverse="/{name}",
     )
     config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
-        factory="warehouse.packaging.models:ProjectFactory",
+        factory=ReadOnly("warehouse.packaging.models:ProjectFactory"),
         traverse="/{name}/{version}",
     )
 
@@ -75,6 +81,7 @@ def includeme(config):
         "pypi",
         pattern="/pypi",
         header="Content-Type:text/xml",
+        factory=ReadOnly(),
     )
 
     # Legacy Documentation

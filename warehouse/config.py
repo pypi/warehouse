@@ -21,12 +21,16 @@ import zope.interface
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
+from pyramid.path import DottedNameResolver
 from pyramid.response import Response
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
 from warehouse.utils.static import WarehouseCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
+
+
+maybe_dotted = DottedNameResolver("warehouse").maybe_resolve
 
 
 class Environment(enum.Enum):
