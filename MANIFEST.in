@@ -18,6 +18,7 @@ exclude .dockerignore Dockerfile docker-compose.yml
 exclude Procfile runtime.txt
 
 prune bin
+prune conf
 prune vcl
 prune .travis
 prune dev
