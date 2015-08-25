@@ -327,9 +327,9 @@ class File(db.Model):
     @path.expression
     def path(self):
         return func.concat_ws(
-            "/",
+            sql.text("'/'"),
             self.python_version,
-            func.substring(self.name, 1, 1),
+            func.substring(self.name, sql.text("1"), sql.text("1")),
             self.name,
             self.filename,
         )
