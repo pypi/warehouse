@@ -13,6 +13,7 @@
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import FileIter, Response
 from pyramid.view import view_config
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -133,6 +134,8 @@ def packages(request):
     try:
         file_ = (
             request.db.query(File)
+                      .options(joinedload(File.release)
+                               .joinedload(Release.project))
                       .filter((File.path == path) | (File.pgp_path == path))
                       .one()
         )
