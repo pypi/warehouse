@@ -16,6 +16,7 @@ from pyramid.httpexceptions import (
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
@@ -66,10 +67,10 @@ def index(request):
                   .limit(20)
                   .all()
     )
-    num_projects = request.db.query(Project).count()
-    num_users = request.db.query(User).count()
-    num_files = request.db.query(File).count()
-    num_releases = request.db.query(Release).count()
+    num_projects = request.db.query(func.count(Project.name)).scalar()
+    num_users = request.db.query(func.count(User.id)).scalar()
+    num_files = request.db.query(func.count(File.id)).scalar()
+    num_releases = request.db.query(func.count(Release.name)).scalar()
 
     return {
         'latest_updated_releases': latest_updated_releases,

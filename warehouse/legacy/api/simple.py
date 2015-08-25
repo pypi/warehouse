@@ -13,6 +13,7 @@
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
@@ -79,6 +80,7 @@ def simple_detail(project, request):
     # Get all of the files for this project.
     files = (
         request.db.query(File)
+        .options(joinedload(File.release))
         .filter(
             File.name == project.name,
             File.version.in_(project.releases.with_entities(Release.version))
