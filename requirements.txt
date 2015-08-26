@@ -12,9 +12,9 @@ babel==2.0
 bcrypt==2.0.0
 billiard==3.3.0.20        # via celery
 bleach==1.4.1             # via readme
-boto3==1.1.1
+boto3==1.1.2
 boto==2.38.0
-botocore==1.1.9           # via boto3
+botocore==1.1.10          # via boto3
 celery==3.1.18
 cffi==1.2.1               # via bcrypt
 click==5.1
