@@ -19,6 +19,7 @@ import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
 import readme.rst
+import readme.txt
 
 from pyramid.threadlocal import get_current_request
 
@@ -49,18 +50,18 @@ def readme_renderer(ctx, value, *, format):
 
     # Actually render the given value, this will not only render the value, but
     # also ensure that it's had any disallowed markup removed.
-    value, rendered = readme.rst.render(value)
+    rendered = readme.rst.render(value)
 
     # If the content was not rendered, we'll replace the newlines with breaks
     # so that it shows up nicer when rendered.
-    if not rendered:
-        value = value.replace("\n", "<br>\n")
+    if rendered is None:
+        rendered = readme.txt.render(value)
 
     # Parse the rendered output and replace any inline images that don't point
     # to HTTPS with camouflaged images.
     tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
     parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
-    dom = parser.parse(value)
+    dom = parser.parse(rendered)
 
     for element in dom.getElementsByTagName("img"):
         src = element.getAttribute("src")
@@ -69,9 +70,9 @@ def readme_renderer(ctx, value, *, format):
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
     html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
-    value = "".join(html_serializer.serialize(tree_walker(dom)))
+    rendered = "".join(html_serializer.serialize(tree_walker(dom)))
 
-    return jinja2.Markup(value)
+    return jinja2.Markup(rendered)
 
 
 _SI_SYMBOLS = ["k", "M", "G", "T", "P", "E", "Z", "Y"]

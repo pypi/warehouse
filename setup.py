@@ -89,7 +89,7 @@ setuptools.setup(
         "pyramid_rpc>=0.7",
         "pyramid_services",
         "pyramid_tm>=0.12",
-        "readme>=0.5.1",
+        "readme>=0.6.0",
         "requests",
         "redis>=2.8.0",
         "rfc3986",
