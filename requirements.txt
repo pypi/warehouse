@@ -44,7 +44,7 @@ pyramid-services==0.2
 pyramid-tm==0.12
 pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, pyramid-services, pyramid-tm
 python-dateutil==2.4.2    # via botocore
-python-editor==0.3        # via alembic
+python-editor==0.4        # via alembic
 pytz==2015.4              # via babel, celery
 readme==0.6.0
 redis==2.10.3
