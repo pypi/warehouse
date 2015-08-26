@@ -77,7 +77,7 @@ to_update = set()
 for name in set(name[:-4] for name in vcl_files.keys()) - to_upload:
     existing = [v for v in vcls if v["name"] == name][0]
     new = vcl_files[name + ".vcl"]
-    if existing != new:
+    if existing["content"] != new:
         to_update.add(name)
 
 # If we do not need to upload or delete any VCL files, then we'll just exit
