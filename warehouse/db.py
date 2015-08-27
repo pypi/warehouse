@@ -115,6 +115,10 @@ def _create_session(request):
     # Register only this particular session with zope.sqlalchemy
     zope.sqlalchemy.register(session, transaction_manager=request.tm)
 
+    # Set a finished callback to close the session at the end of the HTTP
+    # request so that the connection is returned back into the pool.
+    request.add_finished_callback(lambda request: request.db.close())
+
     # Return our session now that it's created and registered
     return session
 
