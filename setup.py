@@ -73,6 +73,7 @@ setuptools.setup(
         "boto3",
         "celery>=3.1",
         "click",
+        "eventlet",
         "fs",
         "gunicorn",
         "hiredis",
