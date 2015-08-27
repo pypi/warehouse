@@ -106,6 +106,13 @@ def test_create_session(monkeypatch, predicates):
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(),
         matched_route=pretend.stub(predicates=predicates),
+        add_finished_callback=pretend.call_recorder(lambda callback: None),
+    )
+
+    request2 = pretend.stub(
+        db=pretend.stub(
+            close=pretend.call_recorder(lambda: None),
+        ),
     )
 
     register = pretend.call_recorder(lambda session, transaction_manager: None)
@@ -116,6 +123,9 @@ def test_create_session(monkeypatch, predicates):
     assert register.calls == [
         pretend.call(session_obj, transaction_manager=request.tm),
     ]
+    assert request.add_finished_callback.calls == [pretend.call(mock.ANY)]
+    request.add_finished_callback.calls[0].args[0](request2)
+    assert request2.db.close.calls == [pretend.call()]
 
 
 def test_creates_readonly_session(monkeypatch):
@@ -129,6 +139,13 @@ def test_creates_readonly_session(monkeypatch):
         tm=pretend.stub(),
         matched_route=pretend.stub(
             predicates=[db.ReadOnlyPredicate(True, None)],
+        ),
+        add_finished_callback=pretend.call_recorder(lambda callback: None),
+    )
+
+    request2 = pretend.stub(
+        db=pretend.stub(
+            close=pretend.call_recorder(lambda: None),
         ),
     )
 
@@ -147,6 +164,9 @@ def test_creates_readonly_session(monkeypatch):
                 """
         ),
     ]
+    assert request.add_finished_callback.calls == [pretend.call(mock.ANY)]
+    request.add_finished_callback.calls[0].args[0](request2)
+    assert request2.db.close.calls == [pretend.call()]
 
 
 def test_includeme(monkeypatch):
