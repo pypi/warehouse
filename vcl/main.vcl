@@ -121,7 +121,7 @@ sub vcl_fetch {
     }
     else {
         # Apply the default ttl
-        set beresp.ttl = 3600s;
+        set beresp.ttl = 60s;
     }
 
     # Actually deliver the fetched response.
