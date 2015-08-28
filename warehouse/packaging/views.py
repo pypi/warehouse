@@ -27,12 +27,11 @@ from warehouse.packaging.models import Release, File, Role
     route_name="packaging.project",
     renderer="packaging/detail.html",
     decorator=[
-        cache_control(
+        origin_cache(
             1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+            stale_if_error=5 * 24 * 60 * 60,          # 5 days
         ),
-        origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
 )
 def project_detail(project, request):
@@ -55,12 +54,11 @@ def project_detail(project, request):
     route_name="packaging.release",
     renderer="packaging/detail.html",
     decorator=[
-        cache_control(
-            7 * 24 * 60 * 60,                         # 7 days
+        origin_cache(
+            1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+            stale_if_error=5 * 24 * 60 * 60,          # 5 days
         ),
-        origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
 )
 def release_detail(release, request):
@@ -112,10 +110,11 @@ def release_detail(release, request):
 @view_config(
     route_name="packaging.file",
     decorator=[
-        cache_control(
-            365 * 24 * 60 * 60,                        # 1 year
-            stale_while_revalidate=30 * 24 * 60 * 60,  # 30 days
-            stale_if_error=30 * 24 * 60 * 60,          # 30 days
+        cache_control(365 * 24 * 60 * 60),            # 1 year
+        origin_cache(
+            365 * 24 * 60 * 60,                       # 1 year
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=5 * 24 * 60 * 60,          # 5 days
         ),
     ],
 )

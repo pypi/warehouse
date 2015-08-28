@@ -50,12 +50,25 @@ class FastlyCache:
             service_id=request.registry.settings["origin_cache.service_id"],
         )
 
-    def cache(self, keys, request, response, *, seconds=None):
+    def cache(self, keys, request, response, *, seconds=None,
+              stale_while_revalidate=None, stale_if_error=None):
         response.headers["Surrogate-Key"] = " ".join(keys)
 
+        values = []
+
         if seconds is not None:
-            response.headers["Surrogate-Control"] = \
-                "max-age={}".format(seconds)
+            values.append("max-age={}".format(seconds))
+
+        if stale_while_revalidate is not None:
+            values.append(
+                "stale-while-revalidate={}".format(stale_while_revalidate)
+            )
+
+        if stale_if_error is not None:
+            values.append("stale-if-error={}".format(stale_if_error))
+
+        if values:
+            response.headers["Surrogate-Control"] = ", ".join(values)
 
     def purge(self, keys):
         for key in keys:
