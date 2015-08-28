@@ -40,8 +40,9 @@
               </button>
             </form>
           </div>
-          <a href="{{ request.route_path('accounts.login') }}" class="sign-in">{{ _('Sign In') }}</a>
-          <a href="javascript:void(0)" class="sign-up">{{ _('Sign Up') }}</a>
+
+          {{ esi_include(request.route_path("esi.current-user-indicator"), cookies=True) }}
+
         </div>
       </div>
     </header>

@@ -14,7 +14,9 @@ import datetime
 
 import pretend
 
-from warehouse.views import forbidden, index, exception_view
+from warehouse.views import (
+    forbidden, index, exception_view, current_user_indicator,
+)
 
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
@@ -76,3 +78,7 @@ class TestIndex:
             'num_releases': 2,
             'num_files': 1,
         }
+
+
+def test_esi_current_user_indicator():
+    assert current_user_indicator(pretend.stub()) == {}
