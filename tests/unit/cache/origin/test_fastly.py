@@ -106,11 +106,21 @@ class TestFastlyCache:
         response = pretend.stub(headers={})
 
         cacher = fastly.FastlyCache(api_key=None, service_id=None)
-        cacher.cache(["abc", "defg"], request, response, seconds=9123)
+        cacher.cache(
+            ["abc", "defg"],
+            request,
+            response,
+            seconds=9123,
+            stale_while_revalidate=4567,
+            stale_if_error=2276,
+        )
 
         assert response.headers == {
             "Surrogate-Key": "abc defg",
-            "Surrogate-Control": "max-age=9123",
+            "Surrogate-Control": (
+                "max-age=9123, stale-while-revalidate=4567, "
+                "stale-if-error=2276"
+            ),
         }
 
     def test_purge(self, monkeypatch):

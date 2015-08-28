@@ -108,8 +108,14 @@ class TestOriginCache:
         def view(context, request):
             return response
 
+        def raiser(iface):
+            raise ValueError
+
         context = pretend.stub()
-        request = pretend.stub(registry={"cache_keys": {}})
+        request = pretend.stub(
+            registry={"cache_keys": {}},
+            find_service=raiser,
+        )
 
         assert view(context, request) is response
 
@@ -129,7 +135,11 @@ class TestOriginCache:
 
         context = Fake()
         request = pretend.stub(
-            registry={"cache_keys": {Fake: pretend.stub()}},
+            registry={
+                "cache_keys": {
+                    Fake: lambda X: origin.CacheKeys(cache=[], purge=[]),
+                },
+            },
             find_service=raiser,
         )
 
@@ -151,7 +161,8 @@ class TestOriginCache:
 
             @staticmethod
             @pretend.call_recorder
-            def cache(keys, request, response, seconds):
+            def cache(keys, request, response, seconds, stale_while_revalidate,
+                      stale_if_error):
                 pass
 
         response = pretend.stub()
@@ -186,6 +197,8 @@ class TestOriginCache:
                 request,
                 response,
                 seconds=seconds,
+                stale_while_revalidate=None,
+                stale_if_error=None,
             ),
         ]
 

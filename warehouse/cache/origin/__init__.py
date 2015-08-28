@@ -49,7 +49,8 @@ def execute_purge(config, session):
     cacher.purge(purges)
 
 
-def origin_cache(seconds, keys=None):
+def origin_cache(seconds, keys=None, stale_while_revalidate=None,
+                 stale_if_error=None):
     if keys is None:
         keys = []
 
@@ -58,17 +59,22 @@ def origin_cache(seconds, keys=None):
         def wrapped(context, request):
             cache_keys = request.registry["cache_keys"]
 
+            context_keys = []
+            if context.__class__ in cache_keys:
+                context_keys = cache_keys[context.__class__](context).cache
+
             try:
-                key_maker = cache_keys[context.__class__]
                 cacher = request.find_service(IOriginCache)
-            except (KeyError, ValueError):
+            except ValueError:
                 pass
             else:
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(key_maker(context).cache + keys),
+                        sorted(context_keys + keys),
                         seconds=seconds,
+                        stale_while_revalidate=stale_while_revalidate,
+                        stale_if_error=stale_if_error,
                     )
                 )
 
