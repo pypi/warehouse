@@ -16,7 +16,7 @@ from pyramid.authentication import (
 )
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.cache.http import _add_vary_callback
+from warehouse.cache.http import add_vary_callback
 
 
 class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
@@ -25,7 +25,7 @@ class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.
-        request.add_response_callback(_add_vary_callback("Authorization"))
+        request.add_response_callback(add_vary_callback("Authorization"))
 
         # Dispatch to the real basic authentication policy
         username = super().unauthenticated_userid(request)
@@ -43,7 +43,7 @@ class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Cookie header.
-        request.add_response_callback(_add_vary_callback("Cookie"))
+        request.add_response_callback(add_vary_callback("Cookie"))
 
         # Dispatch to the real SessionAuthenticationPolicy
         return super().unauthenticated_userid(request)

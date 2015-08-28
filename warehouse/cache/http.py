@@ -16,7 +16,7 @@ import functools
 from pyramid.tweens import EXCVIEW
 
 
-def _add_vary_callback(*varies):
+def add_vary_callback(*varies):
     def inner(request, response):
         vary = set(response.vary if response.vary is not None else [])
         vary |= set(varies)
@@ -28,7 +28,7 @@ def add_vary(*varies):
     def inner(view):
         @functools.wraps(view)
         def wrapped(context, request):
-            request.add_response_callback(_add_vary_callback(*varies))
+            request.add_response_callback(add_vary_callback(*varies))
             return view(context, request)
         return wrapped
     return inner
