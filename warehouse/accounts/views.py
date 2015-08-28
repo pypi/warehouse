@@ -18,7 +18,6 @@ from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
-from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_protect
 from warehouse.sessions import uses_session
 from warehouse.utils.http import is_safe_url
@@ -28,12 +27,11 @@ from warehouse.utils.http import is_safe_url
     route_name="accounts.profile",
     renderer="accounts/profile.html",
     decorator=[
-        cache_control(
-            1 * 24 * 60 * 60,                         # 1 day
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,                 # 1 day
+            stale_while_revalidate=5 * 60,    # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
-        origin_cache(30 * 24 * 60 * 60),  # 30 days
     ],
 )
 def profile(user, request):

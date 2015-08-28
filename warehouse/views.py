@@ -56,7 +56,12 @@ def forbidden(exc, request):
     route_name="index",
     renderer="index.html",
     decorator=[
-        origin_cache(1 * 60 * 60, keys=["all-projects"]),  # 1 Hour.
+        origin_cache(
+            1 * 60 * 60,                      # 1 hour
+            stale_while_revalidate=10 * 60,   # 10 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            keys=["all-projects"],
+        ),
     ]
 )
 def index(request):

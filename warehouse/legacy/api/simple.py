@@ -24,12 +24,12 @@ from warehouse.packaging.models import JournalEntry, File, Project, Release
     route_name="legacy.api.simple.index",
     renderer="legacy/api/simple/index.html",
     decorator=[
-        cache_control(
-            10 * 60,                                  # 10 minutes
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        cache_control(10 * 60),               # 10 minutes
+        origin_cache(
+            1 * 24 * 60 * 60,                 # 1 day
+            stale_while_revalidate=5 * 60,    # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
-        origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
 )
 def simple_index(request):
@@ -51,12 +51,12 @@ def simple_index(request):
     route_name="legacy.api.simple.detail",
     renderer="legacy/api/simple/detail.html",
     decorator=[
-        cache_control(
-            10 * 60,                                  # 10 minutes
-            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=1 * 24 * 60 * 60,          # 1 day
+        cache_control(10 * 60),               # 10 minutes
+        origin_cache(
+            1 * 24 * 60 * 60,                 # 1 day
+            stale_while_revalidate=5 * 60,    # 5 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
         ),
-        origin_cache(7 * 24 * 60 * 60),   # 7 days
     ],
 )
 def simple_detail(project, request):
