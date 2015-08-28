@@ -135,8 +135,11 @@ def json_release(release, request):
 
     return {
         "info": {
+            "_pypi_hidden": release._pypi_hidden,
+            "_pypi_ordering": release._pypi_ordering,
             "name": project.name,
             "version": release.version,
+            "stable_version": project.stable_version,
             "summary": release.summary,
             "description": release.description,
             "keywords": release.keywords,
@@ -146,6 +149,7 @@ def json_release(release, request):
             "author_email": release.author_email,
             "maintainer": release.maintainer,
             "maintainer_email": release.maintainer_email,
+            "requires_dist": release.requires_dist,
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {
@@ -166,6 +170,12 @@ def json_release(release, request):
             "bugtrack_url": project.bugtrack_url,
             "home_page": release.home_page,
             "download_url": release.download_url,
+            "cheesecake_code_kwalitee_id":
+                release.cheesecake_code_kwalitee_id,
+            "cheesecake_documentation_id":
+                release.cheesecake_documentation_id,
+            "cheesecake_installability_id":
+                release.cheesecake_installability_id,
         },
         "urls": releases[release.version],
         "releases": releases,

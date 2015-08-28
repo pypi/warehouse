@@ -232,6 +232,7 @@ class Release(db.ModelBase):
         ForeignKey("cheesecake_main_indices.id"),
     )
     requires_python = Column(Text)
+    requires_dist = Column(Text)
     description_from_readme = Column(Boolean)
     created = Column(
         DateTime(timezone=False),
