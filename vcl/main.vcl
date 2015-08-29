@@ -180,6 +180,11 @@ sub vcl_deliver {
     # the output.
     unset resp.http.Warehouse-ESI-Enable;
 
+    # Unset headers that we don't need/want to send on to the client because
+    # they are not generally useful.
+    unset resp.http.Server;
+    unset resp.http.Via;
+
     return(deliver);
 }
 
