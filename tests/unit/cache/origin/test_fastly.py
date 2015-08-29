@@ -217,6 +217,9 @@ class TestFastlyCache:
         cb = request.add_response_callback.calls[0].args[0]
         cb(cb_request, cb_response)
         if cookies:
-            assert cb_response.headers == {"Warehouse-ESI-Vary": "Cookie"}
+            assert cb_response.headers == {
+                "Warehouse-ESI-Vary": "Cookie",
+                "Warehouse-ESI-Enable": "1",
+            }
         else:
-            assert cb_response.headers == {}
+            assert cb_response.headers == {"Warehouse-ESI-Enable": "1"}

@@ -99,6 +99,7 @@ class FastlyCache:
         def _esi_vary(request, response):
             if cookies:
                 response.headers["Warehouse-ESI-Vary"] = "Cookie"
+            response.headers["Warehouse-ESI-Enable"] = "1"
 
         if cookies:
             path += "?esi-cookies=1"
