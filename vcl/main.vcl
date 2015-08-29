@@ -90,9 +90,8 @@ sub vcl_recv {
 sub vcl_fetch {
 #FASTLY fetch
 
-    # Only enable ESI on requests that could possibly support it, for now just
-    # ones that return HTML, but not the /simple/ API.
-    if (beresp.http.Content-type ~ "html" && !(req.url ~ "^/simple/")) {
+    # Only enable ESI on responses that have opted into them.
+    if (beresp.http.Warehouse-ESI-Enable) {
         # Conditional HTTP requests are not compatible with Varnish's
         # implementation of ESI, in particularl the ETag and the Last-Modified
         # won't be updated when the included content changes, causing Varnish
@@ -176,6 +175,10 @@ sub vcl_deliver {
 
         unset resp.http.Warehouse-ESI-Vary;
     }
+
+    # We no longer need the header that enables ESI, so we'll remove it from
+    # the output.
+    unset resp.http.Warehouse-ESI-Enable;
 
     return(deliver);
 }
