@@ -11,7 +11,7 @@ sub vcl_recv {
     # opted into cookies, then we'll go ahead and strip any cookies from the
     # request. In addition, we'll strip out any Authorization or Authentication
     # headers.
-    if (req.esis > 0) {
+    if (req.url ~ "^/_esi/") {
         unset req.http.Authenticate;
         unset req.http.Authorization;
 
