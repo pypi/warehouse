@@ -20,10 +20,11 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
+from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
-from warehouse.accounts.models import User
+from warehouse.sessions import uses_session
 
 
 @view_config(context=HTTPException, decorator=[csrf_exempt])
@@ -84,3 +85,12 @@ def index(request):
         'num_releases': num_releases,
         'num_files': num_files,
     }
+
+
+@view_config(
+    route_name="esi.current-user-indicator",
+    renderer="includes/current-user-indicator.html",
+    decorator=[uses_session],
+)
+def current_user_indicator(request):
+    return {}

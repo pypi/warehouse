@@ -35,7 +35,7 @@ class TestBasicAuthAuthenticationPolicy:
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "_add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
@@ -56,7 +56,7 @@ class TestBasicAuthAuthenticationPolicy:
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "_add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
 
         userid = pretend.stub()
         service = pretend.stub(
@@ -89,7 +89,7 @@ class TestSessionAuthenticationPolicy:
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(auth_policy, "_add_vary_callback", add_vary_cb)
+        monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
 
         userid = pretend.stub()
         request = pretend.stub(

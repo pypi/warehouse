@@ -12,7 +12,15 @@
 
 
 def includeme(config):
+    # Basic global routes
     config.add_route("index", "/", read_only=True)
+
+    # ESI Routes
+    config.add_route(
+        "esi.current-user-indicator",
+        "/_esi/current-user-indicator/",
+        read_only=True,
+    )
 
     # Accounts
     config.add_route(

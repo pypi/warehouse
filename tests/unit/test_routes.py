@@ -49,6 +49,11 @@ def test_routes():
     assert config.add_route.calls == [
         pretend.call('index', '/', read_only=True),
         pretend.call(
+            "esi.current-user-indicator",
+            "/_esi/current-user-indicator/",
+            read_only=True,
+        ),
+        pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",

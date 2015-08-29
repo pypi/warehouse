@@ -2,6 +2,24 @@
 sub vcl_recv {
 #FASTLY recv
 
+    # Disable ESI processing when doing a shield request.
+    if (req.http.Fastly-FF) {
+        set req.esi = false;
+    }
+
+    # If we're serving an ESI request, and the request in question has NOT
+    # opted into cookies, then we'll go ahead and strip any cookies from the
+    # request. In addition, we'll strip out any Authorization or Authentication
+    # headers.
+    if (req.esis > 0) {
+        unset req.http.Authenticate;
+        unset req.http.Authorization;
+
+        if (req.url !~ "esi-cookies=1") {
+            unset req.http.Cookie;
+        }
+    }
+
     # We want to Force SSL for the WebUI by redirecting to the HTTPS version of
     # the page, however for API calls we want to return an error code directing
     # people to instead use HTTPS.
@@ -72,6 +90,20 @@ sub vcl_recv {
 sub vcl_fetch {
 #FASTLY fetch
 
+    # Only enable ESI on requests that could possibly support it, for now just
+    # ones that return HTML, but not the /simple/ API.
+    if (beresp.http.Content-type ~ "html" && !(req.url ~ "^/simple/")) {
+        # Conditional HTTP requests are not compatible with Varnish's
+        # implementation of ESI, in particularl the ETag and the Last-Modified
+        # won't be updated when the included content changes, causing Varnish
+        # to return a 304 Not Modified.
+        unset beresp.http.ETag;
+        unset beresp.http.Last-Modified;
+
+        # Enable ESI.
+        esi;
+    }
+
     # Trigger a "SSL is required" error if the backend has indicated to do so.
     if (beresp.http.X-Fastly-Error == "803") {
         error 803 "SSL is required";
@@ -125,6 +157,26 @@ sub vcl_fetch {
     }
 
     # Actually deliver the fetched response.
+    return(deliver);
+}
+
+
+sub vcl_deliver {
+#FASTLY deliver
+
+    # If the backend has indicated additional Vary headers to add once the
+    # ESI result has been processed, then we'll go ahead and either append them
+    # to our existing Vary header or we'll set the Vary header equal to it.
+    if (resp.http.Warehouse-ESI-Vary) {
+        if (resp.http.Vary) {
+            set resp.http.Vary = resp.http.Vary ", " resp.http.Warehouse-ESI-Vary;
+        } else {
+            set resp.http.Vary = resp.http.Warehouse-ESI-Vary;
+        }
+
+        unset resp.http.Warehouse-ESI-Vary;
+    }
+
     return(deliver);
 }
 
