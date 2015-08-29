@@ -5,12 +5,14 @@ import os
 import os.path
 import sys
 
+import redis
 import requests
 import requests.auth
 
 
 FASTLY_KEY = os.environ["FASTLY_KEY"]
 FASTLY_SERVICE = os.environ["FASTLY_SERVICE"]
+REDIS_URL = os.environ["REDIS_URL"]
 
 
 def fastly_url(url, **kw):
@@ -29,135 +31,143 @@ class KeyAuth(requests.auth.AuthBase):
         return request
 
 
-# Get the the VCL files that we're going to be uploading.
-vcl_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "vcl"))
-vcl_files = {}
-for filename in glob.glob(os.path.join(vcl_dir, "*.vcl")):
-    with open(filename) as fp:
-        vcl_files[os.path.basename(filename)] = fp.read()
+r = redis.StrictRedis.from_url(REDIS_URL)
 
-# If we don't have any files, then we'll bail out early instead of doing any
-# additional work.
-if not vcl_files:
-    sys.exit("Could not locate any VCL files to upload.")
 
-# Initialize our session
-session = requests.session()
-session.auth = KeyAuth(FASTLY_KEY)
+with r.lock("fastly-config", timeout=60):
+    # Get the the VCL files that we're going to be uploading.
+    vcl_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "vcl")
+    )
+    vcl_files = {}
+    for filename in glob.glob(os.path.join(vcl_dir, "*.vcl")):
+        with open(filename) as fp:
+            vcl_files[os.path.basename(filename)] = fp.read()
 
-# Get a list of all of the versions available.
-resp = session.get(fastly_url("/service/{service}/version"))
-resp.raise_for_status()
-versions = resp.json()
+    # If we don't have any files, then we'll bail out early instead of doing
+    # any additional work.
+    if not vcl_files:
+        sys.exit("Could not locate any VCL files to upload.")
 
-# Locate the currently active version.
-active_version = [v for v in versions if v["active"]][0]
+    # Initialize our session
+    session = requests.session()
+    session.auth = KeyAuth(FASTLY_KEY)
 
-# Fetch all of the VCL files for the currently active version.
-resp = session.get(
-    fastly_url(
-        "/service/{service}/version/{version}/vcl",
-        version=active_version["number"],
-    ),
-)
-resp.raise_for_status()
-vcls = resp.json()
-vcl_names = {vcl["name"] for vcl in vcls}
+    # Get a list of all of the versions available.
+    resp = session.get(fastly_url("/service/{service}/version"))
+    resp.raise_for_status()
+    versions = resp.json()
 
-# First, we'll determine what brand new VCL files need to be uploaded.
-to_upload = set(name[:-4] for name in vcl_files.keys()) - vcl_names
+    # Locate the currently active version.
+    active_version = [v for v in versions if v["active"]][0]
 
-# Then, we'll determine what VCL files no longer are needed and should be
-# deleted.
-to_delete = vcl_names - set(name[:-4] for name in vcl_files.keys())
-
-# Finally, we'll figure out what VCL files already exist, but need to be
-# updated.
-to_update = set()
-for name in set(name[:-4] for name in vcl_files.keys()) - to_upload:
-    existing = [v for v in vcls if v["name"] == name][0]
-    new = vcl_files[name + ".vcl"]
-    if existing["content"] != new:
-        to_update.add(name)
-
-# If we do not need to upload or delete any VCL files, then we'll just exit
-# with a successful exit code.
-if not to_upload and not to_delete and not to_update:
-    sys.exit(0)
-
-# We don't want to inadvertingly deploy pending changes in an existing pending
-# configuration, so instead we'll go ahead and clone the currently active
-# configuration.
-resp = session.put(
-    fastly_url(
-        "/service/{service}/version/{version}/clone",
-        version=active_version["number"],
-    ),
-)
-resp.raise_for_status()
-new_version = resp.json()
-
-# Upload any new VCL files.
-for name in to_upload:
-    resp = session.post(
+    # Fetch all of the VCL files for the currently active version.
+    resp = session.get(
         fastly_url(
             "/service/{service}/version/{version}/vcl",
-            version=new_version["number"],
+            version=active_version["number"],
         ),
-        data={"name": name, "content": vcl_files[name + ".vcl"]}
     )
     resp.raise_for_status()
+    vcls = resp.json()
+    vcl_names = {vcl["name"] for vcl in vcls}
 
-# Update any existing VCL files.
-for name in to_update:
+    # First, we'll determine what brand new VCL files need to be uploaded.
+    to_upload = set(name[:-4] for name in vcl_files.keys()) - vcl_names
+
+    # Then, we'll determine what VCL files no longer are needed and should be
+    # deleted.
+    to_delete = vcl_names - set(name[:-4] for name in vcl_files.keys())
+
+    # Finally, we'll figure out what VCL files already exist, but need to be
+    # updated.
+    to_update = set()
+    for name in set(name[:-4] for name in vcl_files.keys()) - to_upload:
+        existing = [v for v in vcls if v["name"] == name][0]
+        new = vcl_files[name + ".vcl"]
+        if existing["content"] != new:
+            to_update.add(name)
+
+    # If we do not need to upload or delete any VCL files, then we'll just exit
+    # with a successful exit code.
+    if not to_upload and not to_delete and not to_update:
+        sys.exit(0)
+
+    # We don't want to inadvertingly deploy pending changes in an existing
+    # pending configuration, so instead we'll go ahead and clone the currently
+    # active configuration.
     resp = session.put(
         fastly_url(
-            "/service/{service}/version/{version}/vcl/{name}",
-            version=new_version["number"],
-            name=name,
+            "/service/{service}/version/{version}/clone",
+            version=active_version["number"],
         ),
-        data={"content": vcl_files[name + ".vcl"]}
     )
     resp.raise_for_status()
+    new_version = resp.json()
 
-# Delete any no longer existing VCL files.
-for name in to_delete:
-    resp = session.delete(
+    # Upload any new VCL files.
+    for name in to_upload:
+        resp = session.post(
+            fastly_url(
+                "/service/{service}/version/{version}/vcl",
+                version=new_version["number"],
+            ),
+            data={"name": name, "content": vcl_files[name + ".vcl"]}
+        )
+        resp.raise_for_status()
+
+    # Update any existing VCL files.
+    for name in to_update:
+        resp = session.put(
+            fastly_url(
+                "/service/{service}/version/{version}/vcl/{name}",
+                version=new_version["number"],
+                name=name,
+            ),
+            data={"content": vcl_files[name + ".vcl"]}
+        )
+        resp.raise_for_status()
+
+    # Delete any no longer existing VCL files.
+    for name in to_delete:
+        resp = session.delete(
+            fastly_url(
+                "/service/{service}/version/{version}/vcl/{name}",
+                version=new_version["number"],
+                name=name,
+            ),
+        )
+        resp.raise_for_status()
+
+    # Finally, ensure that the main VCL is set to be the main VCL.
+    if "main.vcl" in vcl_files:
+        resp = session.put(
+            fastly_url(
+                "/service/{service}/version/{version}/vcl/main/main",
+                version=new_version["number"],
+            ),
+        )
+        resp.raise_for_status()
+
+    # Now that we've updated our VCL, we need to lock and activate our new
+    # version after first validating that it is OK.
+    resp = session.get(
         fastly_url(
-            "/service/{service}/version/{version}/vcl/{name}",
+            "/service/{service}/version/{version}/validate",
             version=new_version["number"],
-            name=name,
         ),
     )
     resp.raise_for_status()
 
-# Finally, ensure that the main VCL is set to be the main VCL.
-if "main.vcl" in vcl_files:
+    if resp.json()["status"] != "ok":
+        sys.exit(
+            "The configuration did not validate: {!r}".format(resp.json())
+        )
+
     resp = session.put(
         fastly_url(
-            "/service/{service}/version/{version}/vcl/main/main",
+            "/service/{service}/version/{version}/activate",
             version=new_version["number"],
         ),
     )
     resp.raise_for_status()
-
-# Now that we've updated our VCL, we need to lock and activate our new version
-# after first validating that it is OK.
-resp = session.get(
-    fastly_url(
-        "/service/{service}/version/{version}/validate",
-        version=new_version["number"],
-    ),
-)
-resp.raise_for_status()
-
-if resp.json()["status"] != "ok":
-    sys.exit("The configuration did not validate: {!r}".format(resp.json()))
-
-resp = session.put(
-    fastly_url(
-        "/service/{service}/version/{version}/activate",
-        version=new_version["number"],
-    ),
-)
-resp.raise_for_status()
