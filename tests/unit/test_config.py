@@ -369,6 +369,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".raven"),
         ]
     )
     assert configurator_obj.add_jinja2_renderer.calls == [

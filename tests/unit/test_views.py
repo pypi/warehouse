@@ -14,8 +14,11 @@ import datetime
 
 import pretend
 
+from pyramid.httpexceptions import HTTPInternalServerError
+
 from warehouse.views import (
-    forbidden, index, exception_view, current_user_indicator,
+    forbidden, index, httpexception_view, exception_view,
+    current_user_indicator,
 )
 
 from ..common.db.packaging import (
@@ -25,9 +28,20 @@ from ..common.db.accounts import UserFactory
 
 
 def test_exception_view():
+    context = pretend.stub()
+    request = pretend.stub(
+        raven=pretend.stub(
+            captureException=pretend.call_recorder(lambda: None),
+        ),
+    )
+    resp = exception_view(context, request)
+    assert isinstance(resp, HTTPInternalServerError)
+
+
+def test_httpexception_view():
     response = context = pretend.stub()
     request = pretend.stub()
-    assert exception_view(context, request) is response
+    assert httpexception_view(context, request) is response
 
 
 class TestForbiddenView:
