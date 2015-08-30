@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os.path
+
 from pyramid.httpexceptions import (
     HTTPException, HTTPInternalServerError, HTTPSeeOther, HTTPMovedPermanently,
 )
+from pyramid.response import Response
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
@@ -22,6 +25,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
+from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
 from warehouse.sessions import uses_session
@@ -57,6 +61,25 @@ def forbidden(exc, request):
     # not allowed to access this page.
     # TODO: Style the forbidden page.
     return exc
+
+
+@view_config(
+    route_name="robots.txt",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),         # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,                    # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,     # 1 day
+        ),
+    ],
+)
+def robotstxt(request):
+    here = os.path.dirname(__file__)
+    with open(os.path.join(here, "static", "robots.txt")) as fp:
+        content = fp.read()
+
+    return Response(content_type="text/plain", body=content)
 
 
 @view_config(

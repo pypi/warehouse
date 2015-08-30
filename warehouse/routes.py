@@ -14,6 +14,7 @@
 def includeme(config):
     # Basic global routes
     config.add_route("index", "/", read_only=True)
+    config.add_route("robots.txt", "/robots.txt", read_only=True)
 
     # ESI Routes
     config.add_route(

@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /simple/
+Disallow: /packages/
+Disallow: /_esi/
+Disallow: /pypi/*/json
+Disallow: /pypi/*/*/json
+Disallow: /pypi*?
