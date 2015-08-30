@@ -161,6 +161,8 @@ def configure(settings=None):
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
+    maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
+    maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "download_stats.url", "REDIS_URL")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
@@ -350,6 +352,10 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
+
+    # We want Raven to be the last things we add here so that it's the outer
+    # most WSGI middleware.
+    config.include(".raven")
 
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])

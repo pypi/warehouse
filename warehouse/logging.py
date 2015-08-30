@@ -71,10 +71,16 @@ def includeme(config):
                 "stream": "ext://sys.stdout",
                 "formatter": "structlog",
             },
+            "sentry": {
+                "class": "raven.handlers.logging.SentryHandler",
+                "level": "ERROR",
+                "dsn": config.registry.settings.get("sentry.dsn"),
+                "transport": config.registry.settings.get("sentry.transport")
+            },
         },
         "root": {
             "level": config.registry.settings.get("logging.level", "INFO"),
-            "handlers": ["primary"],
+            "handlers": ["primary", "sentry"],
         },
     })
 

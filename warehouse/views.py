@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import (
-    HTTPException, HTTPSeeOther, HTTPMovedPermanently,
+    HTTPException, HTTPInternalServerError, HTTPSeeOther, HTTPMovedPermanently,
 )
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
@@ -27,12 +27,18 @@ from warehouse.packaging.models import Project, Release, File
 from warehouse.sessions import uses_session
 
 
+@view_config(context=Exception, decorator=[csrf_exempt])
+def exception_view(exc, request):
+    request.raven.captureException()
+    return HTTPInternalServerError()
+
+
 @view_config(context=HTTPException, decorator=[csrf_exempt])
 @notfound_view_config(
     append_slash=HTTPMovedPermanently,
     decorator=[csrf_exempt],
 )
-def exception_view(exc, request):
+def httpexception_view(exc, request):
     return exc
 
 
