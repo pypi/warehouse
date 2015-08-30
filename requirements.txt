@@ -21,7 +21,7 @@ click==5.1
 docutils==0.12            # via botocore, readme
 eventlet==0.17.4
 fs==0.5.2
-greenlet==0.4.7           # via eventlet
+greenlet==0.4.9           # via eventlet
 gunicorn==19.3.0
 hiredis==0.2.0
 html5lib==0.999999        # via bleach
