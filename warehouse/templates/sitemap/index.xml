@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for bucket in buckets %}
+  <sitemap>
+    <loc>{{ request.route_url("bucket.sitemap.xml", bucket=bucket.name) }}</loc>
+    {%- if bucket.modified %}
+    <lastmod>{{ bucket.modified.isoformat() }}{% if bucket.modified.utcoffset() == None %}Z{% endif %}</lastmod>
+    {%- endif %}
+  </sitemap>
+  {% endfor %}
+</sitemapindex>

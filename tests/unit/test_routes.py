@@ -49,6 +49,12 @@ def test_routes():
     assert config.add_route.calls == [
         pretend.call('index', '/', read_only=True),
         pretend.call("robots.txt", "/robots.txt", read_only=True),
+        pretend.call("index.sitemap.xml", "/sitemap.xml", read_only=True),
+        pretend.call(
+            "bucket.sitemap.xml",
+            "/{bucket}.sitemap.xml",
+            read_only=True,
+        ),
         pretend.call(
             "esi.current-user-indicator",
             "/_esi/current-user-indicator/",

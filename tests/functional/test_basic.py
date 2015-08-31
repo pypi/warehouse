@@ -16,6 +16,7 @@ def test_robots_txt(webtest):
     assert resp.status_code == 200
     assert resp.content_type == "text/plain"
     assert resp.body.decode(resp.charset) == (
+        "Sitemap: http://localhost/sitemap.xml\n\n"
         "User-agent: *\n"
         "Disallow: /simple/\n"
         "Disallow: /packages/\n"
