@@ -221,6 +221,10 @@ def configure(settings=None):
     # assume that all templates will be using Jinja.
     config.add_jinja2_renderer(".html")
 
+    # Sometimes our files are .txt files and we still want to use Jinja2 to
+    # render them.
+    config.add_jinja2_renderer(".txt")
+
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("readme", "warehouse.filters:readme_renderer")
@@ -234,6 +238,7 @@ def configure(settings=None):
     # We'll store all of our templates in one location, warehouse/templates
     # so we'll go ahead and add that to the Jinja2 search path.
     config.add_jinja2_search_path("warehouse:templates", name=".html")
+    config.add_jinja2_search_path("warehouse:templates", name=".txt")
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.

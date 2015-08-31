@@ -10,12 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
-
 from pyramid.httpexceptions import (
     HTTPException, HTTPInternalServerError, HTTPSeeOther, HTTPMovedPermanently,
 )
-from pyramid.response import Response
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
@@ -65,6 +62,7 @@ def forbidden(exc, request):
 
 @view_config(
     route_name="robots.txt",
+    renderer="robots.txt",
     decorator=[
         cache_control(1 * 24 * 60 * 60),         # 1 day
         origin_cache(
@@ -75,11 +73,8 @@ def forbidden(exc, request):
     ],
 )
 def robotstxt(request):
-    here = os.path.dirname(__file__)
-    with open(os.path.join(here, "static", "robots.txt")) as fp:
-        content = fp.read()
-
-    return Response(content_type="text/plain", body=content)
+    request.response.content_type = "text/plain"
+    return {}
 
 
 @view_config(

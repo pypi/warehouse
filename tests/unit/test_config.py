@@ -374,9 +374,11 @@ def test_configure(monkeypatch, settings, environment):
     )
     assert configurator_obj.add_jinja2_renderer.calls == [
         pretend.call(".html"),
+        pretend.call(".txt"),
     ]
     assert configurator_obj.add_jinja2_search_path.calls == [
         pretend.call("warehouse:templates", name=".html"),
+        pretend.call("warehouse:templates", name=".txt"),
     ]
     assert configurator_obj.add_settings.calls == [
         pretend.call({"jinja2.newstyle": True}),

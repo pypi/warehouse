@@ -8,8 +8,8 @@ recursive-include docs conf.py Makefile *.rst
 recursive-include tests *.py
 recursive-include warehouse/migrations *.mako
 recursive-include warehouse/migrations/versions *.py
-recursive-include warehouse/static *.css *.json *.scss *.png *.txt
-recursive-include warehouse/templates *.html
+recursive-include warehouse/static *.css *.json *.scss *.png
+recursive-include warehouse/templates *.html *.txt
 recursive-include warehouse/translations warehouse.pot *.po
 
 exclude requirements.txt requirements-dev.txt requirements-deploy.txt

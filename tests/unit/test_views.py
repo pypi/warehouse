@@ -11,13 +11,10 @@
 # limitations under the License.
 
 import datetime
-import os.path
 
 import pretend
 
 from pyramid.httpexceptions import HTTPInternalServerError
-
-import warehouse
 
 from warehouse.views import (
     forbidden, index, httpexception_view, exception_view, robotstxt,
@@ -72,15 +69,8 @@ class TestForbiddenView:
 
 
 def test_robotstxt(pyramid_request):
-    warehouse_here = os.path.dirname(warehouse.__file__)
-    with open(os.path.join(warehouse_here, "static", "robots.txt")) as fp:
-        content = fp.read()
-
-    resp = robotstxt(pyramid_request)
-
-    assert resp.status_code == 200
-    assert resp.content_type == "text/plain"
-    assert resp.body.decode(resp.charset) == content
+    assert robotstxt(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/plain"
 
 
 class TestIndex:
