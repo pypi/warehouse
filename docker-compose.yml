@@ -7,6 +7,9 @@ redis:
 rabbitmq:
   image: rabbitmq:latest
 
+elasticsearch:
+  image: elasticsearch:1.7
+
 camo:
   image: pypa/warehouse-camo:latest
   ports:
@@ -42,6 +45,7 @@ web:
     - db
     - redis
     - rabbitmq
+    - elasticsearch
 
 worker:
   extends:
@@ -51,3 +55,4 @@ worker:
     - db
     - redis
     - rabbitmq
+    - elasticsearch
