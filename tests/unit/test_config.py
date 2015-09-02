@@ -354,6 +354,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".legacy.action_routing"),
             pretend.call(".i18n"),
             pretend.call(".db"),
+            pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".celery"),
             pretend.call(".sessions"),

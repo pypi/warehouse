@@ -41,9 +41,13 @@ def project_detail(project, request):
         )
 
     try:
-        release = project.releases.order_by(
-            Release._pypi_ordering.desc()
-        ).limit(1).one()
+        release = (
+            request.db.query(Release)
+                      .filter(Release.project == project)
+                      .order_by(Release._pypi_ordering.desc())
+                      .limit(1)
+                      .one()
+        )
     except NoResultFound:
         return HTTPNotFound()
 
@@ -72,10 +76,11 @@ def release_detail(release, request):
     # Get all of the registered versions for this Project, in order of newest
     # to oldest.
     all_releases = (
-        project.releases
-        .with_entities(Release.version, Release.created)
-        .order_by(Release._pypi_ordering.desc())
-        .all()
+        request.db.query(Release)
+                  .filter(Release.project == project)
+                  .with_entities(Release.version, Release.created)
+                  .order_by(Release._pypi_ordering.desc())
+                  .all()
     )
 
     # Get all of the maintainers for this project.

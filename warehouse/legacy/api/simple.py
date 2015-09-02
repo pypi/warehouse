@@ -83,7 +83,11 @@ def simple_detail(project, request):
         .options(joinedload(File.release))
         .filter(
             File.name == project.name,
-            File.version.in_(project.releases.with_entities(Release.version))
+            File.version.in_(
+                request.db.query(Release)
+                          .filter(Release.project == project)
+                          .with_entities(Release.version)
+            )
         )
         .order_by(File.filename)
         .all()

@@ -160,6 +160,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
+    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
@@ -280,6 +281,8 @@ def configure(settings=None):
 
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
+
+    config.include(".search")
 
     # Register the support for AWS
     config.include(".aws")
