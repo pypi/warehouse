@@ -87,7 +87,7 @@ class Project(db.ModelBase):
     autohide = Column(Boolean, server_default=sql.true())
     comments = Column(Boolean, server_default=sql.true())
     bugtrack_url = Column(Text)
-    hosting_mode = Column(Text, nullable=False, server_default="pypi-explicit")
+    hosting_mode = Column(Text, nullable=False, server_default="pypi-only")
     created = Column(
         DateTime(timezone=False),
         nullable=False,

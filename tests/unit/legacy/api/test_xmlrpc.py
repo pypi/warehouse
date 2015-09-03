@@ -50,7 +50,7 @@ def test_package_hosting_mode_shows_none(db_request):
 
 
 def test_package_hosting_mode_results(db_request):
-    project = ProjectFactory.create()
+    project = ProjectFactory.create(hosting_mode="pypi-explicit")
     assert xmlrpc.package_hosting_mode(db_request, project.name) == \
         "pypi-explicit"
 
