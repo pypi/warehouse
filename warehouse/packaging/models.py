@@ -94,6 +94,7 @@ class Project(db.ModelBase):
         server_default=sql.func.now(),
     )
     has_docs = Column(Boolean)
+    upload_limit = Column(Integer, nullable=True)
 
     releases = orm.relationship(
         "Release",
