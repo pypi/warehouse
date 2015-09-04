@@ -716,7 +716,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -751,7 +751,7 @@ class TestFileUpload:
             ),
             "gpg_signature": pretend.stub(
                 filename=filename + ".asc",
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -782,7 +782,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -817,7 +817,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -850,7 +850,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -886,7 +886,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -921,7 +921,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 
@@ -950,7 +950,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (pypi.MAXIMUM_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
             ),
         })
 

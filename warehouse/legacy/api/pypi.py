@@ -38,7 +38,8 @@ from warehouse.packaging.models import (
 from warehouse.utils.http import require_POST
 
 
-MAXIMUM_FILESIZE = 60 * 1024 * 1024  # 60M
+MAX_FILESIZE = 60 * 1024 * 1024  # 60M
+MAX_SIGSIZE = 8 * 1024           # 8K
 
 
 ALLOWED_PLATFORMS = {
@@ -606,6 +607,11 @@ def file_upload(request):
             "different version.",
         )
 
+    # The project may or may not have a file size specified on the project, if
+    # it does then it may or may not be smaller or larger than our global file
+    # size limits.
+    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+
     # Buffer the entire file into memory, checking the hash of the file as we
     # go along.
     file_content = io.BytesIO()
@@ -613,7 +619,7 @@ def file_upload(request):
     file_hash = hashlib.md5()
     for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
         file_size += len(chunk)
-        if file_size > MAXIMUM_FILESIZE:
+        if file_size > file_size_limit:
             raise _exc_with_message(HTTPBadRequest, "File too large.")
         file_content.write(chunk)
         file_hash.update(chunk)
@@ -626,7 +632,7 @@ def file_upload(request):
         for chunk in iter(
                 lambda: request.POST["gpg_signature"].file.read(8096), b""):
             signature_size += len(chunk)
-            if signature_size > MAXIMUM_FILESIZE:
+            if signature_size > MAX_SIGSIZE:
                 raise _exc_with_message(HTTPBadRequest, "Signature too large.")
             signature.write(chunk)
         signature.seek(0)
