@@ -11,8 +11,10 @@
 # limitations under the License.
 
 import pretend
+import pytest
 import raven as real_raven
 
+from pyramid.tweens import EXCVIEW
 from raven.middleware import Sentry as SentryMiddleware
 from unittest import mock
 
@@ -22,6 +24,49 @@ from warehouse import raven
 def test_invalid_serializer():
     s = raven.InvalidSessionSerializer(pretend.stub())
     assert s.serialize(pretend.stub()) == "<InvalidSession>"
+
+
+class TestRavenTween:
+
+    def test_with_error(self):
+        request = pretend.stub(
+            raven=pretend.stub(
+                captureException=pretend.call_recorder(lambda: None),
+            ),
+        )
+
+        class TestException(Exception):
+            pass
+
+        @pretend.call_recorder
+        def handler(request):
+            raise TestException
+
+        tween = raven.raven_tween_factory(handler, pretend.stub())
+
+        with pytest.raises(TestException):
+            tween(request)
+
+        assert handler.calls == [pretend.call(request)]
+        assert request.raven.captureException.calls == [pretend.call()]
+
+    def test_without_error(self):
+        request = pretend.stub(
+            raven=pretend.stub(
+                captureException=pretend.call_recorder(lambda: None),
+            ),
+        )
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def handler(request):
+            return response
+
+        tween = raven.raven_tween_factory(handler, pretend.stub())
+
+        assert tween(request) is response
+        assert handler.calls == [pretend.call(request)]
+        assert request.raven.captureException.calls == []
 
 
 def test_raven_request_method():
@@ -57,6 +102,7 @@ def test_includeme(monkeypatch):
         registry=Registry(),
         add_request_method=pretend.call_recorder(lambda *a, **kw: None),
         add_wsgi_middleware=pretend.call_recorder(lambda *a, **kw: None),
+        add_tween=pretend.call_recorder(lambda *a, **kw: None),
     )
     config.registry.settings.update({
         "warehouse.commit": "blargh",
@@ -77,6 +123,9 @@ def test_includeme(monkeypatch):
     assert config.registry["raven.client"] is client_obj
     assert config.add_request_method.calls == [
         pretend.call(raven._raven, name="raven", reify=True),
+    ]
+    assert config.add_tween.calls == [
+        pretend.call("warehouse.raven.raven_tween_factory", over=EXCVIEW),
     ]
     assert config.add_wsgi_middleware.calls == [
         pretend.call(SentryMiddleware, client=client_obj),

@@ -13,6 +13,7 @@
 import raven
 import raven.middleware
 
+from pyramid.tweens import EXCVIEW
 from raven.utils.serializer.base import Serializer
 from raven.utils.serializer.manager import manager as serialization_manager
 
@@ -33,6 +34,18 @@ serializer_registry = serialization_manager._SerializationManager__registry
 serializer_registry.insert(0, InvalidSessionSerializer)
 
 
+def raven_tween_factory(handler, registry):
+
+    def raven_tween(request):
+        try:
+            return handler(request)
+        except:
+            request.raven.captureException()
+            raise
+
+    return raven_tween
+
+
 def _raven(request):
     request.add_finished_callback(lambda r: r.raven.context.clear())
     return request.registry["raven.client"]
@@ -50,6 +63,9 @@ def includeme(config):
 
     # Create a request method that'll get us the Raven client in each request.
     config.add_request_method(_raven, name="raven", reify=True)
+
+    # Add a tween that will handle catching any exceptions that get raised.
+    config.add_tween("warehouse.raven.raven_tween_factory", over=EXCVIEW)
 
     # Wrap the WSGI object with the middle to catch any exceptions we don't
     # catch elsewhere.

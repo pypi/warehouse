@@ -14,28 +14,14 @@ import datetime
 
 import pretend
 
-from pyramid.httpexceptions import HTTPInternalServerError
-
 from warehouse.views import (
-    forbidden, index, httpexception_view, exception_view, robotstxt,
-    current_user_indicator,
+    forbidden, index, httpexception_view, robotstxt, current_user_indicator,
 )
 
 from ..common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory,
 )
 from ..common.db.accounts import UserFactory
-
-
-def test_exception_view():
-    context = pretend.stub()
-    request = pretend.stub(
-        raven=pretend.stub(
-            captureException=pretend.call_recorder(lambda: None),
-        ),
-    )
-    resp = exception_view(context, request)
-    assert isinstance(resp, HTTPInternalServerError)
 
 
 def test_httpexception_view():
