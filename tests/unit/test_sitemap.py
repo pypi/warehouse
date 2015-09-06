@@ -56,19 +56,28 @@ def test_generate_urls(db_request):
 
 
 def test_sitemap_index(db_request):
-    expected = ["/", "/project/foobar/", "/user/jarjar/"]
+    expected = ["/", "/project/foobar/", "/user/jarjar/", "/user/jarjar/"]
     expected_iter = iter(expected)
     db_request.route_url = pretend.call_recorder(
         lambda *a, **kw: next(expected_iter)
     )
 
     project = ProjectFactory.create()
-    user = UserFactory.create()
+    users = [
+        UserFactory.create(username="a"),
+        UserFactory.create(username="b"),
+    ]
+
+    # Have to pass this here, because passing date_joined=None to the create
+    # function above makes the factory think it needs to generate a random
+    # date.
+    users[1].date_joined = None
+    db_request.db.flush()
 
     assert sitemap.sitemap_index(db_request) == {
         "buckets": [
             sitemap.Bucket("5", modified=None),
-            sitemap.Bucket("6", modified=user.date_joined),
+            sitemap.Bucket("6", modified=users[0].date_joined),
             sitemap.Bucket("c", modified=project.created),
         ],
     }

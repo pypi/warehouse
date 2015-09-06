@@ -40,7 +40,11 @@ def _generate_urls(request):
     yield SitemapURL(url=request.route_url("index"), modified=None)
 
     # Collect all of the URLs for all of our Projects.
-    projects = request.db.query(Project.normalized_name, Project.created).all()
+    projects = (
+        request.db.query(Project.normalized_name, Project.created)
+                  .order_by(Project.name)
+                  .all()
+    )
     for project in projects:
         url = request.route_url(
             "packaging.project",
@@ -49,7 +53,11 @@ def _generate_urls(request):
         yield SitemapURL(url=url, modified=project.created)
 
     # Collect all of the URLs for all of our Users.
-    users = request.db.query(User.username, User.date_joined)
+    users = (
+        request.db.query(User.username, User.date_joined)
+                  .order_by(User.username)
+                  .all()
+    )
     for user in users:
         url = request.route_url("accounts.profile", username=user.username)
         yield SitemapURL(url=url, modified=user.date_joined)
@@ -89,7 +97,8 @@ def sitemap_index(request):
     for url in _generate_urls(request):
         bucket = _url2bucket(url.url)
         current = buckets.setdefault(bucket, url.modified)
-        if current is None or url.modified > current:
+        if (current is None or
+                (url.modified is not None and url.modified > current)):
             buckets[bucket] = url.modified
 
     buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
