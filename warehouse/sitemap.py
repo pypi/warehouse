@@ -77,7 +77,7 @@ def _generate_urls(request):
     ],
 )
 def sitemap_index(request):
-    buckets = {}
+    request.response.content_type = "text/xml"
 
     # We have > 50,000 URLs on PyPI and a single sitemap file can only support
     # a maximum of 50,000 URLs. We need to split our URLs up into multiple
@@ -94,13 +94,13 @@ def sitemap_index(request):
     # characters of the hash instead of just the first. Since the hash is a
     # property of the URL what bucket an URL goes into won't be influenced by
     # what other URLs exist in the system.
+    buckets = {}
     for url in _generate_urls(request):
         bucket = _url2bucket(url.url)
         current = buckets.setdefault(bucket, url.modified)
         if (current is None or
                 (url.modified is not None and url.modified > current)):
             buckets[bucket] = url.modified
-
     buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
     buckets.sort(key=lambda x: x.name)
 
@@ -121,8 +121,9 @@ def sitemap_index(request):
     ],
 )
 def sitemap_bucket(request):
-    urls = []
+    request.response.content_type = "text/xml"
 
+    urls = []
     for url in _generate_urls(request):
         bucket = _url2bucket(url.url)
         if bucket == request.matchdict["bucket"]:

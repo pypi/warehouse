@@ -81,6 +81,7 @@ def test_sitemap_index(db_request):
             sitemap.Bucket("c", modified=project.created),
         ],
     }
+    assert db_request.response.content_type == "text/xml"
 
 
 def test_sitemap_bucket(db_request):
@@ -96,6 +97,7 @@ def test_sitemap_bucket(db_request):
     UserFactory.create()
 
     assert sitemap.sitemap_bucket(db_request) == {"urls": ["/project/foobar/"]}
+    assert db_request.response.content_type == "text/xml"
 
 
 def test_sitemap_bucket_too_many(monkeypatch, db_request):
