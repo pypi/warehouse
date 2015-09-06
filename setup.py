@@ -70,12 +70,10 @@ setuptools.setup(
         "alembic>=0.7.0",
         "Babel",
         "bcrypt",
-        "boto",  # Needed for hosting Documentation on S3
         "boto3",
         "celery>=3.1",
         "click",
         "eventlet",
-        "fs",
         "gunicorn",
         "hiredis",
         "html5lib",

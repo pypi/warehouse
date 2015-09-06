@@ -12,7 +12,6 @@
 
 from unittest import mock
 
-import fs.opener
 import pretend
 import pytest
 import zope.interface
@@ -231,10 +230,6 @@ def test_find_service_factory(monkeypatch, factory):
     ],
 )
 def test_configure(monkeypatch, settings, environment):
-    fs_obj = pretend.stub()
-    opener = pretend.call_recorder(lambda path, create_dir: fs_obj)
-    monkeypatch.setattr(fs.opener, "fsopendir", opener)
-
     json_renderer_obj = pretend.stub()
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
@@ -419,7 +414,6 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call("warehouse.config.content_security_policy_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
     ]
-    assert configurator_obj.registry["filesystems"] == {"packages": fs_obj}
     assert configurator_obj.add_static_view.calls == [
         pretend.call(
             name="static",
@@ -432,9 +426,6 @@ def test_configure(monkeypatch, settings, environment):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),
-    ]
-    assert opener.calls == [
-        pretend.call("/srv/data/pypi/packages/", create_dir=True),
     ]
     assert configurator_obj.add_renderer.calls == [
         pretend.call("json", json_renderer_obj),
