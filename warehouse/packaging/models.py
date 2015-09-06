@@ -28,6 +28,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 
 
@@ -69,7 +70,7 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(db.ModelBase):
+class Project(SitemapMixin, db.ModelBase):
 
     __tablename__ = "packages"
     __table_args__ = (
