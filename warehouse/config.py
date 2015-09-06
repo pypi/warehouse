@@ -14,7 +14,6 @@ import enum
 import os
 import shlex
 
-import fs.opener
 import pyramid_services
 import transaction
 import zope.interface
@@ -169,7 +168,6 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "dirs.documentation", "DOCS_DIR")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
@@ -332,15 +330,6 @@ def configure(settings=None):
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")
-
-    # Configure the filesystems we use.
-    config.registry["filesystems"] = {}
-    for key, path in {
-            k[5:]: v
-            for k, v in config.registry.settings.items()
-            if k.startswith("dirs.")}.items():
-        config.registry["filesystems"][key] = \
-            fs.opener.fsopendir(path, create_dir=True)
 
     # Enable Warehouse to service our static files
     config.add_static_view(

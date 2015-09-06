@@ -28,7 +28,6 @@ app:
     CAMO_URL: "{request.scheme}://{request.domain}:9000/"
     CAMO_KEY: "insecure camo key"
     DOCS_URL: "https://pythonhosted.org/{project}/"
-    DOCS_DIR: /app/data/documentation/
     FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/"
 
 web:
