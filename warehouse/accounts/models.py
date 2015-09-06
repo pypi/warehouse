@@ -20,6 +20,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
+from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 
 
@@ -37,7 +38,7 @@ class UserFactory:
             raise KeyError from None
 
 
-class User(db.ModelBase):
+class User(SitemapMixin, db.ModelBase):
 
     __tablename__ = "accounts_user"
     __table_args__ = (

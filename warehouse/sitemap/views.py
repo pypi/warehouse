@@ -11,9 +11,10 @@
 # limitations under the License.
 
 import collections
-import hashlib
+import itertools
 
 from pyramid.view import view_config
+from sqlalchemy import func
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
@@ -21,46 +22,10 @@ from warehouse.cache.http import cache_control
 from warehouse.packaging.models import Project
 
 
-BUCKET_LEN = 1
-
 SITEMAP_MAXSIZE = 50000
 
 
 Bucket = collections.namedtuple("Bucket", ["name", "modified"])
-
-SitemapURL = collections.namedtuple("SitemapURL", ["url", "modified"])
-
-
-def _url2bucket(url):
-    return hashlib.sha512(url.encode("utf8")).hexdigest()[:BUCKET_LEN]
-
-
-def _generate_urls(request):
-    # Yield our important site URLS like the / page and such.
-    yield SitemapURL(url=request.route_url("index"), modified=None)
-
-    # Collect all of the URLs for all of our Projects.
-    projects = (
-        request.db.query(Project.normalized_name, Project.created)
-                  .order_by(Project.name)
-                  .all()
-    )
-    for project in projects:
-        url = request.route_url(
-            "packaging.project",
-            name=project.normalized_name,
-        )
-        yield SitemapURL(url=url, modified=project.created)
-
-    # Collect all of the URLs for all of our Users.
-    users = (
-        request.db.query(User.username, User.date_joined)
-                  .order_by(User.username)
-                  .all()
-    )
-    for user in users:
-        url = request.route_url("accounts.profile", username=user.username)
-        yield SitemapURL(url=url, modified=user.date_joined)
 
 
 @view_config(
@@ -94,13 +59,24 @@ def sitemap_index(request):
     # characters of the hash instead of just the first. Since the hash is a
     # property of the URL what bucket an URL goes into won't be influenced by
     # what other URLs exist in the system.
+    projects = (
+        request.db.query(Project.sitemap_bucket,
+                         func.max(Project.created).label("modified"))
+                  .group_by(Project.sitemap_bucket)
+                  .all()
+    )
+    users = (
+        request.db.query(User.sitemap_bucket,
+                         func.max(User.date_joined).label("modified"))
+                  .group_by(User.sitemap_bucket)
+                  .all()
+    )
     buckets = {}
-    for url in _generate_urls(request):
-        bucket = _url2bucket(url.url)
-        current = buckets.setdefault(bucket, url.modified)
+    for b in itertools.chain(projects, users):
+        current = buckets.setdefault(b.sitemap_bucket, b.modified)
         if (current is None or
-                (url.modified is not None and url.modified > current)):
-            buckets[bucket] = url.modified
+                (b.modified is not None and b.modified > current)):
+            buckets[b.sitemap_bucket] = b.modified
     buckets = [Bucket(name=k, modified=v) for k, v in buckets.items()]
     buckets.sort(key=lambda x: x.name)
 
@@ -123,12 +99,32 @@ def sitemap_index(request):
 def sitemap_bucket(request):
     request.response.content_type = "text/xml"
 
-    urls = []
-    for url in _generate_urls(request):
-        bucket = _url2bucket(url.url)
-        if bucket == request.matchdict["bucket"]:
-            urls.append(url.url)
+    bucket = request.matchdict["bucket"]
 
+    projects = (
+        request.db.query(Project.normalized_name)
+                  .filter(Project.sitemap_bucket == bucket)
+                  .all()
+    )
+    users = (
+        request.db.query(User.username)
+                  .filter(User.sitemap_bucket == bucket)
+                  .all()
+    )
+
+    urls = [
+        request.route_url("packaging.project", name=project.normalized_name)
+        for project in projects
+    ]
+    urls += [
+        request.route_url("accounts.profile", username=user.username)
+        for user in users
+    ]
+
+    # If the length of our bucket name isn't enough to ensure that all of our
+    # buckets have less than our maximum number of URLs then we want to error
+    # out so that we can adjust our bucket size to spread the URLs out over
+    # more buckets.
     if len(urls) > SITEMAP_MAXSIZE:
         raise ValueError(
             "Too many URLs in the sitemap for bucket: {!r}.".format(

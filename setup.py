@@ -60,6 +60,7 @@ setuptools.setup(
         "warehouse.legacy.api",
         "warehouse.migrations",
         "warehouse.packaging",
+        "warehouse.sitemap",
         "warehouse.utils",
     ],
 
