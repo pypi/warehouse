@@ -61,6 +61,13 @@ def test_routes():
             read_only=True,
         ),
         pretend.call(
+            "esi.project-stats",
+            "/_esi/project-stats/{name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            read_only=True,
+        ),
+        pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",

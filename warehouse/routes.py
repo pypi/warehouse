@@ -28,6 +28,13 @@ def includeme(config):
         "/_esi/current-user-indicator/",
         read_only=True,
     )
+    config.add_route(
+        "esi.project-stats",
+        "/_esi/project-stats/{name}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+    )
 
     # Accounts
     config.add_route(
