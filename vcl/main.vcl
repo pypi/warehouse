@@ -173,7 +173,9 @@ sub vcl_deliver {
     # If the backend has indicated additional Vary headers to add once the
     # ESI result has been processed, then we'll go ahead and either append them
     # to our existing Vary header or we'll set the Vary header equal to it.
-    if (resp.http.Warehouse-ESI-Vary) {
+    # However, we only want this logic to happen on the edge nodes, not on the
+    # shielding nodes.
+    if (resp.http.Warehouse-ESI-Vary && !req.http.Fastly-FF) {
         if (resp.http.Vary) {
             set resp.http.Vary = resp.http.Vary ", " resp.http.Warehouse-ESI-Vary;
         } else {
@@ -184,8 +186,11 @@ sub vcl_deliver {
     }
 
     # We no longer need the header that enables ESI, so we'll remove it from
-    # the output.
-    unset resp.http.Warehouse-ESI-Enable;
+    # the output if we're not on a shielding node, otherwise we want to pass
+    # this header on to the edge nodes so that they can handle the ESI.
+    if (!req.http.Fastly-FF) {
+        unset resp.http.Warehouse-ESI-Enable;
+    }
 
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
