@@ -147,13 +147,7 @@
         </dd>
         {% endif %}
 
-        <dt>{{ _('Download Stats') }}</dt>
-        <dd class="stats">
-          <ul>
-            <li>{{ download_stats.daily|shorten_number() }} <span class="category">{{ _('Daily') }}</span></li>
-            <li>{{ download_stats.weekly|shorten_number() }} <span class="category">{{ _('Weekly') }}</span></li>
-            <li>{{ download_stats.monthly|shorten_number() }} <span class="category">{{ _('Monthly') }}</span></li>
-        </dd>
+        {{ esi_include(request.route_path("esi.project-stats", name=project.name)) }}
 
         <dt>{{ _('Versions') }}</dt>
         <dd>

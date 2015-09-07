@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from webob import datetime_utils
 
 from warehouse.packaging import views
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -125,16 +125,6 @@ class TestReleaseDetail:
             role_name="another role",
         )
 
-        daily_stats = pretend.stub()
-        weekly_stats = pretend.stub()
-        monthly_stats = pretend.stub()
-
-        db_request.find_service = lambda x: pretend.stub(
-            get_daily_stats=lambda p: daily_stats,
-            get_weekly_stats=lambda p: weekly_stats,
-            get_monthly_stats=lambda p: monthly_stats,
-        )
-
         result = views.release_detail(releases[1], db_request)
 
         assert result == {
@@ -145,12 +135,51 @@ class TestReleaseDetail:
                 (r.version, r.created) for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
-            "download_stats": {
-                "daily": daily_stats,
-                "weekly": weekly_stats,
-                "monthly": monthly_stats,
-            },
         }
+
+
+class TestProjectStats:
+
+    def test_normalizing_redirects(self, pyramid_request):
+        project = pretend.stub(name="Foo")
+        name = project.name.lower()
+
+        pyramid_request.matchdict = {"name": name}
+        pyramid_request.current_route_path = pretend.call_recorder(
+            lambda name: "/_esi/project-stats/the-redirect/"
+        )
+
+        resp = views.project_stats(project, pyramid_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/_esi/project-stats/the-redirect/"
+        assert pyramid_request.current_route_path.calls == [
+            pretend.call(name=project.name),
+        ]
+
+    def test_project_stats(self, pyramid_request):
+        project = pretend.stub(name="Foo")
+
+        class DownloadService:
+            _stats = {"Foo": {"daily": 10, "weekly": 70, "monthly": 300}}
+
+            def get_daily_stats(self, name):
+                return self._stats[name]["daily"]
+
+            def get_weekly_stats(self, name):
+                return self._stats[name]["weekly"]
+
+            def get_monthly_stats(self, name):
+                return self._stats[name]["monthly"]
+
+        services = {IDownloadStatService: DownloadService()}
+
+        pyramid_request.matchdict = {"name": project.name}
+        pyramid_request.find_service = lambda iface: services[iface]
+
+        stats = views.project_stats(project, pyramid_request)
+
+        assert stats == {"daily": 10, "weekly": 70, "monthly": 300}
 
 
 class TestPackages:

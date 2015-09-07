@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-08-28 22:06-0400\n"
+"POT-Creation-Date: 2015-09-07 17:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,11 +37,11 @@ msgstr ""
 msgid "Classifiers"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:153
+#: warehouse/templates/packaging/includes/project-stats.html:4
 msgid "Daily"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/includes/project-stats.html:1
 msgid "Download Stats"
 msgstr ""
 
@@ -99,11 +99,11 @@ msgstr ""
 msgid "Maintainer"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:171
+#: warehouse/templates/packaging/detail.html:165
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:155
+#: warehouse/templates/packaging/includes/project-stats.html:6
 msgid "Monthly"
 msgstr ""
 
@@ -192,11 +192,11 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:158
+#: warehouse/templates/packaging/detail.html:152
 msgid "Versions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:154
+#: warehouse/templates/packaging/includes/project-stats.html:5
 msgid "Weekly"
 msgstr ""
 
