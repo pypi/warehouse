@@ -33,7 +33,9 @@ app:
 web:
   extends:
     service: app
-  command: uwsgi --ini=uwsgi.ini --http-socket=0.0.0.0:8000
+  command: uwsgi --ini=uwsgi.ini
+  environment:
+    PORT: 8000
   ports:
     - "80:8000"
   links:
