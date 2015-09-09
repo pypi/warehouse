@@ -148,7 +148,7 @@ class TestJSONRelease:
         assert headers["Access-Control-Allow-Methods"] == "GET"
         assert headers["Access-Control-Max-Age"] == "86400"
         assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
-        assert headers["X-PyPI-Last-Serial"] == je.id
+        assert headers["X-PyPI-Last-Serial"] == str(je.id)
 
         assert result == {
             "info": {

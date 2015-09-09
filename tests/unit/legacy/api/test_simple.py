@@ -26,13 +26,13 @@ class TestSimpleIndex:
 
     def test_no_results_no_serial(self, db_request):
         assert simple.simple_index(db_request) == {"projects": []}
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
     def test_no_results_with_serial(self, db_request):
         user = UserFactory.create()
         je = JournalEntryFactory.create(submitted_by=user)
         assert simple.simple_index(db_request) == {"projects": []}
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
     def test_with_results_no_serial(self, db_request):
         projects = [
@@ -42,7 +42,7 @@ class TestSimpleIndex:
         assert simple.simple_index(db_request) == {
             "projects": sorted(projects, key=lambda x: x[1]),
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
     def test_with_results_with_serial(self, db_request):
         projects = [
@@ -55,7 +55,7 @@ class TestSimpleIndex:
         assert simple.simple_index(db_request) == {
             "projects": sorted(projects, key=lambda x: x[1]),
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
 
 class TestSimpleDetail:
@@ -86,7 +86,7 @@ class TestSimpleDetail:
             "project": project,
             "files": [],
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
     def test_no_files_with_seiral(self, db_request):
         project = ProjectFactory.create()
@@ -98,7 +98,7 @@ class TestSimpleDetail:
             "project": project,
             "files": [],
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
 
     def test_with_files_no_serial(self, db_request):
         project = ProjectFactory.create()
@@ -123,7 +123,7 @@ class TestSimpleDetail:
             "project": project,
             "files": files,
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == 0
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
     def test_with_files_with_seiral(self, db_request):
         project = ProjectFactory.create()
@@ -148,4 +148,4 @@ class TestSimpleDetail:
             "project": project,
             "files": files,
         }
-        assert db_request.response.headers["X-PyPI-Last-Serial"] == je.id
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)

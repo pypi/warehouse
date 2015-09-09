@@ -90,7 +90,7 @@ def json_release(release, request):
                   .filter(JournalEntry.name == project.name)
                   .scalar()
     )
-    request.response.headers["X-PyPI-Last-Serial"] = serial or 0
+    request.response.headers["X-PyPI-Last-Serial"] = str(serial or 0)
 
     # Get all of the releases and files for this project.
     release_files = (
