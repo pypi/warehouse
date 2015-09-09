@@ -33,7 +33,9 @@ app:
 web:
   extends:
     service: app
-  command: gunicorn -b 0.0.0.0 -w 1 -k eventlet --reload warehouse.wsgi
+  command: uwsgi --ini=uwsgi.ini
+  environment:
+    PORT: "8000"
   ports:
     - "80:8000"
   links:

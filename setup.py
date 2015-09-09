@@ -100,6 +100,7 @@ setuptools.setup(
         "sqlalchemy-citext",
         "structlog",
         "transaction",
+        "uwsgi",
         "WebOb>=1.5.0a0",
         "WTForms>=2.0.0",
         "zope.sqlalchemy",
