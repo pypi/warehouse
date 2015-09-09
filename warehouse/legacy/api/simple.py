@@ -35,7 +35,7 @@ from warehouse.packaging.models import JournalEntry, File, Project, Release
 def simple_index(request):
     # Get the latest serial number
     serial = request.db.query(func.max(JournalEntry.id)).scalar() or 0
-    request.response.headers["X-PyPI-Last-Serial"] = serial
+    request.response.headers["X-PyPI-Last-Serial"] = str(serial)
 
     # Fetch the name and normalized name for all of our projects
     projects = (
@@ -75,7 +75,7 @@ def simple_detail(project, request):
                   .filter(JournalEntry.name == project.name)
                   .scalar()
     )
-    request.response.headers["X-PyPI-Last-Serial"] = serial or 0
+    request.response.headers["X-PyPI-Last-Serial"] = str(serial or 0)
 
     # Get all of the files for this project.
     files = (
