@@ -15,7 +15,7 @@ recursive-include warehouse/translations warehouse.pot *.po
 exclude requirements.txt requirements-dev.txt requirements-deploy.txt
 exclude babel.cfg Makefile Gulpfile.js package.json
 exclude .dockerignore Dockerfile docker-compose.yml
-exclude Procfile runtime.txt
+exclude Procfile runtime.txt uwsgi.ini
 
 prune bin
 prune vcl
