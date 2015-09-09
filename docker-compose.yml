@@ -33,7 +33,7 @@ app:
 web:
   extends:
     service: app
-  command: uwsgi --ini=uwsgi.ini --py-autoreload=3
+  command: uwsgi --ini=uwsgi.ini --processes=1 --py-autoreload=3
   environment:
     PORT: 8000
   ports:
