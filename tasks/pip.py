@@ -20,6 +20,7 @@ REQUIREMENTS_IN = """
 -e .
 
 newrelic
+uwsgi
 """
 
 
