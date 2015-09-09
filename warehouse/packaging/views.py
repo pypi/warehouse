@@ -182,10 +182,7 @@ def packages(request):
         content_length = file_.size
 
     return Response(
-        # If we have a wsgi.file_wrapper, we'll want to use that so that, if
-        # possible, this will use an optimized method of sending. Otherwise
-        # we'll just use Pyramid's FileIter as a fallback.
-        app_iter=request.environ.get("wsgi.file_wrapper", FileIter)(f),
+        app_iter=FileIter(f),
         # We use application/octet-stream instead of something nicer because
         # different HTTP libraries will treat different combinations of
         # Content-Type and Content-Encoding differently. The only thing that
