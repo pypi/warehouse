@@ -108,9 +108,9 @@ sub vcl_fetch {
         error 803 "SSL is required";
     }
 
-    # If we've gotten a 500 or a 503 from the backend, we'll go ahead and retry
+    # If we've gotten a 502 or a 503 from the backend, we'll go ahead and retry
     # the request.
-    if ((beresp.status == 500 || beresp.status == 503) &&
+    if ((beresp.status == 502 || beresp.status == 503) &&
             req.restarts < 1 &&
             (req.request == "GET" || req.request == "HEAD")) {
         restart;
