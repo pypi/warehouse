@@ -19,7 +19,7 @@ cffi==1.2.1               # via bcrypt
 click==5.1
 docutils==0.12            # via botocore, readme
 hiredis==0.2.0
-html5lib==0.999999        # via bleach
+html5lib==0.9999999       # via bleach
 itsdangerous==0.24
 jinja2==2.8               # via pyramid-jinja2
 jmespath==0.7.1           # via boto3, botocore
