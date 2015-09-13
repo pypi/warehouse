@@ -21,7 +21,7 @@ the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_.
 You can find more information in the `documentation`_.
 
 Discussion
-~~~~~~~~~~
+----------
 
 If you run into bugs, you can file them in our `issue tracker`_.
 
