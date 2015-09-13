@@ -31,3 +31,12 @@ get involved.
 
 .. _`documentation`: https://warehouse.readthedocs.org/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
+
+
+Code of Conduct
+---------------
+
+Everyone interacting in the Warehouse project's codebases, issue trackers, chat
+rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
+
+.. _PyPA Code of Conduct: https://www.pypa.io/en/latest/code-of-conduct/
