@@ -36,7 +36,7 @@ pycparser==2.14           # via cffi
 pygments==2.0.2           # via readme
 pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
-pyramid-rpc==0.7
+pyramid-rpc==0.7.1
 pyramid-services==0.2
 pyramid-tm==0.12
 pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, pyramid-services, pyramid-tm
