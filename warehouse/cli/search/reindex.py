@@ -15,7 +15,7 @@ import os
 
 import click
 
-from elasticsearch.helpers import streaming_bulk
+from elasticsearch.helpers import bulk
 from sqlalchemy.orm import lazyload, joinedload
 
 from warehouse.cli.search import search
@@ -76,8 +76,7 @@ def reindex(config, **kwargs):
         )
         db.execute("SET statement_timeout = '600s'")
 
-        for _ in streaming_bulk(client, _project_docs(db)):
-            pass
+        bulk(client, _project_docs(db))
     except:
         new_index.delete()
         raise

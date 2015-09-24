@@ -42,7 +42,6 @@ def test_build_search():
 
     assert obj.meta.id == "foobar"
     assert obj["name"] == "Foobar"
-    assert obj["name.normalized"] == "foobar"
     assert obj["version"] == ["1.0", "2.0", "3.0", "4.0"]
     assert obj["summary"] == "This is my summary"
     assert obj["description"] == "This is my description"
