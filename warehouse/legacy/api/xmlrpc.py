@@ -12,7 +12,6 @@
 
 import datetime
 import functools
-import re
 
 from elasticsearch_dsl import Q
 from pyramid.view import view_config
