@@ -104,6 +104,12 @@ class Project(SitemapMixin, db.ModelBase):
         lazy="dynamic",
     )
 
+    maintainers = orm.relationship(
+        "User",
+        backref="projects",
+        secondary="roles",
+    )
+
     def __getitem__(self, version):
         try:
             return self.releases.filter(Release.version == version).one()
