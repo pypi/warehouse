@@ -58,28 +58,19 @@ def search(request, spec, operator="and"):
         }
     }
 
-    query_type = {"version": "term"}
-
     primary_queries = []
     for field, value in spec.items():
         q = None
         for item in value:
             if q is None:
-                q = Q(query_type.get(field, "match"), **{field: item})
+                q = Q("match", **{field: item})
             else:
-                q |= Q(query_type.get(field, "match"), **{field: item})
+                q |= Q("match", **{field: item})
         primary_queries.append(q)
-
-    should_queries = []
-    if "name" in spec:
-        for name in spec["name"]:
-            normalized = re.sub(r"[^a-z0-9]+", "-", name.lower())
-            should_queries.append(
-                Q("term", **{"name.normalized": normalized})
-            )
 
     if operator == "and":
         must_queries = primary_queries
+        should_queries = []
     else:
         must_queries = []
         should_queries.extend(primary_queries)
@@ -88,9 +79,9 @@ def search(request, spec, operator="and"):
     results = query.execute()
 
     return [
-        {"name": r["name"], "summary": r.get("summary"), "version": v}
-        for r in (h["_source"] for h in results.hits.hits)
-        for v in r["version"]
+        {"name": r.name, "summary": r.summary, "version": v}
+        for r in results
+        for v in r.version
         if v in spec.get("version", [v])
     ]
 

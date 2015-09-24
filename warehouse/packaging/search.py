@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from elasticsearch_dsl import DocType, String, analyzer
+from elasticsearch_dsl import DocType, String, analyzer, MetaField
 
 from warehouse.search import doc_type
 
@@ -25,8 +25,8 @@ EmailAnalyzer = analyzer(
 @doc_type
 class Project(DocType):
 
-    name = String(fields={"normalized": String(analyzer="keyword")})
-    version = String(analyzer="keyword", multi=True)
+    name = String()
+    version = String(index="not_analyzed", multi=True)
     summary = String(analyzer="snowball")
     description = String(analyzer="snowball")
     author = String()
@@ -34,16 +34,19 @@ class Project(DocType):
     maintainer = String()
     maintainer_email = String(analyzer=EmailAnalyzer)
     license = String()
-    home_page = String(analyzer="keyword")
-    download_url = String(analyzer="keyword")
+    home_page = String(index="not_analyzed")
+    download_url = String(index="not_analyzed")
     keywords = String(analyzer="snowball")
     platform = String(index="not_analyzed")
+
+    class Meta:
+        # disable the _all field to save some space
+        all = MetaField(enabled=False)
 
     @classmethod
     def from_db(cls, release):
         obj = cls(meta={"id": release.project.normalized_name})
         obj["name"] = release.project.name
-        obj["name.normalized"] = release.project.normalized_name
         obj["version"] = [r.version for r in release.project.releases]
         obj["summary"] = release.summary
         obj["description"] = release.description
