@@ -102,7 +102,7 @@ def app_config(database):
             "database.url": database,
             "docs.url": "http://docs.example.com/",
             "download_stats.url": "redis://localhost:0/",
-            "elasticsearch.url": "https://localhost/",
+            "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",

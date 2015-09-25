@@ -22,7 +22,7 @@ from warehouse.cli.search import search
 from warehouse.db import Session
 from warehouse.packaging.models import Release, Project
 from warehouse.packaging.search import Project as ProjectDocType
-from warehouse.search import INDEX_NAME, get_index
+from warehouse.search import get_index
 
 
 def _project_docs(db):
@@ -57,8 +57,9 @@ def reindex(config, **kwargs):
     # our randomly named index, and then delete the old randomly named index.
 
     # Create the new index and associate all of our doc types with it.
+    index_base = config.registry["elasticsearch.index"]
     random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
-    new_index_name = "{}-{}".format(INDEX_NAME, random_token)
+    new_index_name = "{}-{}".format(index_base, random_token)
     doc_types = config.registry.get("search.doc_types", set())
     new_index = get_index(new_index_name, doc_types, using=client)
     new_index.create()
@@ -85,14 +86,14 @@ def reindex(config, **kwargs):
 
     # Now that we've finished indexing all of our data, we'll point the alias
     # at our new randomly named index and delete the old index.
-    if client.indices.exists_alias(name=INDEX_NAME):
+    if client.indices.exists_alias(name=index_base):
         to_delete = set()
         actions = []
-        for name in client.indices.get_alias(name=INDEX_NAME):
+        for name in client.indices.get_alias(name=index_base):
             to_delete.add(name)
-            actions.append({"remove": {"index": name, "alias": INDEX_NAME}})
-        actions.append({"add": {"index": new_index_name, "alias": INDEX_NAME}})
+            actions.append({"remove": {"index": name, "alias": index_base}})
+        actions.append({"add": {"index": new_index_name, "alias": index_base}})
         client.indices.update_aliases({"actions": actions})
         client.indices.delete(",".join(to_delete))
     else:
-        client.indices.put_alias(name=INDEX_NAME, index=new_index_name)
+        client.indices.put_alias(name=index_base, index=new_index_name)

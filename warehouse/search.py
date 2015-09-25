@@ -10,13 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import urllib.parse
+
 import elasticsearch
 import venusian
 
 from elasticsearch_dsl import Index
-
-
-INDEX_NAME = "warehouse"
 
 
 def doc_type(cls):
@@ -39,13 +38,16 @@ def get_index(name, doc_types, *, using):
 def es(request):
     client = request.registry["elasticsearch.client"]
     doc_types = request.registry.get("search.doc_types", set())
-    index = get_index(INDEX_NAME, doc_types, using=client)
+    index_name = request.registry["elasticsearch.index"]
+    index = get_index(index_name, doc_types, using=client)
     return index.search()
 
 
 def includeme(config):
+    p = urllib.parse.urlparse(config.registry.settings["elasticsearch.url"])
     config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(
-        [config.registry.settings["elasticsearch.url"]],
+        [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
     )
+    config.registry["elasticsearch.index"] = p.path.strip("/")
     config.add_request_method(es, name="es", reify=True)

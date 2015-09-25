@@ -30,6 +30,7 @@ def test_es(monkeypatch):
     request = pretend.stub(
         registry={
             "elasticsearch.client": client,
+            "elasticsearch.index": "warehouse",
             "search.doc_types": doc_types,
         },
     )

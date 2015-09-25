@@ -114,6 +114,7 @@ class TestReindex:
         config = pretend.stub(
             registry={
                 "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -169,6 +170,7 @@ class TestReindex:
         config = pretend.stub(
             registry={
                 "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -225,6 +227,7 @@ class TestReindex:
         config = pretend.stub(
             registry={
                 "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
                 "sqlalchemy.engine": db_engine,
             },
         )
