@@ -13,6 +13,7 @@
 import datetime
 import functools
 
+from elasticsearch_dsl import Q
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
 from sqlalchemy import func, select
@@ -38,6 +39,47 @@ pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
 )
 def exception_view(exc, request):
     return _exception_view(exc, request)
+
+
+@pypi_xmlrpc(method="search")
+def search(request, spec, operator="and"):
+    if operator not in {"and", "or"}:
+        raise ValueError("Invalid operator, must be one of 'and' or 'or'.")
+
+    # Remove any invalid spec fields
+    spec = {
+        k: [v] if isinstance(v, str) else v
+        for k, v in spec.items()
+        if v and k in {
+            "name", "version", "author", "author_email", "maintainer",
+            "maintainer_email", "home_page", "license", "summary",
+            "description", "keywords", "platform", "download_url",
+        }
+    }
+
+    queries = []
+    for field, value in sorted(spec.items()):
+        q = None
+        for item in value:
+            if q is None:
+                q = Q("match", **{field: item})
+            else:
+                q |= Q("match", **{field: item})
+        queries.append(q)
+
+    if operator == "and":
+        query = request.es.query("bool", must=queries)
+    else:
+        query = request.es.query("bool", should=queries)
+
+    results = query[:1000].execute()
+
+    return [
+        {"name": r.name, "summary": r.summary, "version": v}
+        for r in results
+        for v in r.version
+        if v in spec.get("version", [v])
+    ]
 
 
 @pypi_xmlrpc(method="list_packages")

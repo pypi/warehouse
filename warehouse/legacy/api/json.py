@@ -40,9 +40,13 @@ def json_project(project, request):
         )
 
     try:
-        release = project.releases.order_by(
-            Release._pypi_ordering.desc()
-        ).limit(1).one()
+        release = (
+            request.db.query(Release)
+                      .filter(Release.project == project)
+                      .order_by(Release._pypi_ordering.desc())
+                      .limit(1)
+                      .one()
+        )
     except NoResultFound:
         return HTTPNotFound()
 

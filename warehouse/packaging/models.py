@@ -101,12 +101,19 @@ class Project(SitemapMixin, db.ModelBase):
         "Release",
         backref="project",
         cascade="all, delete-orphan",
-        lazy="dynamic",
+        order_by=lambda: Release._pypi_ordering.desc(),
     )
 
     def __getitem__(self, version):
+        session = orm.object_session(self)
+
         try:
-            return self.releases.filter(Release.version == version).one()
+            return (
+                session.query(Release)
+                       .filter((Release.project == self) &
+                               (Release.version == version))
+                       .one()
+            )
         except NoResultFound:
             raise KeyError from None
 

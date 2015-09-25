@@ -18,6 +18,8 @@ celery==3.1.18
 cffi==1.2.1               # via bcrypt
 click==5.1
 docutils==0.12            # via botocore, readme
+elasticsearch-dsl==0.0.8
+elasticsearch==1.7.0      # via elasticsearch-dsl
 hiredis==0.2.0
 html5lib==0.9999999       # via bleach
 itsdangerous==0.24
@@ -40,7 +42,7 @@ pyramid-rpc==0.7.1
 pyramid-services==0.2
 pyramid-tm==0.12
 pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, pyramid-services, pyramid-tm
-python-dateutil==2.4.2    # via botocore
+python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.4        # via alembic
 pytz==2015.6              # via babel, celery
 raven==5.7.2
@@ -49,12 +51,13 @@ redis==2.10.3
 repoze.lru==0.6           # via pyramid
 requests==2.7.0
 rfc3986==0.2.2
-six==1.9.0                # via bcrypt, bleach, html5lib, python-dateutil, readme
+six==1.9.0                # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme
 sqlalchemy-citext==1.3.post0
 sqlalchemy==1.0.8         # via alembic, sqlalchemy-citext, zope.sqlalchemy
 structlog==15.2.0
 transaction==1.4.4        # via pyramid-tm, zope.sqlalchemy
 translationstring==1.3    # via pyramid
+urllib3==1.12             # via elasticsearch
 uwsgi==2.0.11.1
 venusian==1.0             # via pyramid, pyramid-rpc
 webob==1.5.0b0            # via pyramid

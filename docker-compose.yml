@@ -7,6 +7,9 @@ redis:
 rabbitmq:
   image: rabbitmq:latest
 
+elasticsearch:
+  image: elasticsearch:1.7
+
 camo:
   image: pypa/warehouse-camo:latest
   ports:
@@ -23,6 +26,7 @@ app:
     WAREHOUSE_TOKEN: insecuretoken
     AMQP_URL: amqp://guest@rabbitmq:5672//
     DATABASE_URL: postgresql://postgres@db/warehouse
+    ELASTICSEARCH_URL: http://elasticsearch:9200/
     REDIS_URL: redis://redis:6379/0
     SESSION_SECRET: "an insecure development secret"
     CAMO_URL: "{request.scheme}://{request.domain}:9000/"
@@ -42,6 +46,7 @@ web:
     - db
     - redis
     - rabbitmq
+    - elasticsearch
 
 worker:
   extends:
@@ -51,3 +56,4 @@ worker:
     - db
     - redis
     - rabbitmq
+    - elasticsearch
