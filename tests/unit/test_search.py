@@ -16,13 +16,13 @@ from warehouse import search
 
 
 def test_es(monkeypatch):
-    index_obj = pretend.stub(doc_type=pretend.call_recorder(lambda d: None))
+    search_obj = pretend.stub()
+    index_obj = pretend.stub(
+        doc_type=pretend.call_recorder(lambda d: None),
+        search=pretend.call_recorder(lambda: search_obj),
+    )
     index_cls = pretend.call_recorder(lambda name, using: index_obj)
     monkeypatch.setattr(search, "Index", index_cls)
-
-    search_obj = pretend.stub()
-    search_cls = pretend.call_recorder(lambda client: search_obj)
-    monkeypatch.setattr(search, "Search", search_cls)
 
     doc_types = [pretend.stub(), pretend.stub()]
 
@@ -37,6 +37,6 @@ def test_es(monkeypatch):
     es = search.es(request)
 
     assert es is search_obj
-    assert search_cls.calls == [pretend.call(client)]
     assert index_cls.calls == [pretend.call("warehouse", using=client)]
     assert index_obj.doc_type.calls == [pretend.call(d) for d in doc_types]
+    assert index_obj.search.calls == [pretend.call()]

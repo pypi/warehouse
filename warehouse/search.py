@@ -13,7 +13,7 @@
 import elasticsearch
 import venusian
 
-from elasticsearch_dsl import Index, Search
+from elasticsearch_dsl import Index
 
 
 INDEX_NAME = "warehouse"
@@ -29,12 +29,18 @@ def doc_type(cls):
     return cls
 
 
+def get_index(name, doc_types, *, using):
+    index = Index(name, using=using)
+    for doc_type in doc_types:
+        index.doc_type(doc_type)
+    return index
+
+
 def es(request):
     client = request.registry["elasticsearch.client"]
-    index = Index(INDEX_NAME, using=client)
-    for doc_type in request.registry.get("search.doc_types", set()):
-        index.doc_type(doc_type)
-    return Search(client)
+    doc_types = request.registry.get("search.doc_types", set())
+    index = get_index(INDEX_NAME, doc_types, using=client)
+    return index.search()
 
 
 def includeme(config):

@@ -22,7 +22,7 @@ from warehouse.cli.search import search
 from warehouse.db import Session
 from warehouse.packaging.models import Release, Project
 from warehouse.packaging.search import Project as ProjectDocType
-from warehouse.search import INDEX_NAME, Index
+from warehouse.search import INDEX_NAME, get_index
 
 
 def _project_docs(db):
@@ -59,9 +59,8 @@ def reindex(config, **kwargs):
     # Create the new index and associate all of our doc types with it.
     random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
     new_index_name = "{}-{}".format(INDEX_NAME, random_token)
-    new_index = Index(new_index_name, using=client)
-    for doc_type in config.registry.get("search.doc_types", set()):
-        new_index.doc_type(doc_type)
+    doc_types = config.registry.get("search.doc_types", set())
+    new_index = get_index(new_index_name, doc_types, using=client)
     new_index.create()
 
     # From this point on, if any error occurs, we want to be able to delete our
