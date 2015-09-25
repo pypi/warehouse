@@ -42,7 +42,7 @@ def test_project_docs(db_session):
                 "version": [r.version for r in prs],
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].name)
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
     ]
 
 
