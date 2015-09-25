@@ -58,7 +58,7 @@ def search(request, spec, operator="and"):
     }
 
     queries = []
-    for field, value in spec.items():
+    for field, value in sorted(spec.items()):
         q = None
         for item in value:
             if q is None:
@@ -72,7 +72,7 @@ def search(request, spec, operator="and"):
     else:
         query = request.es.query("bool", should=queries)
 
-    results = query.execute()
+    results = query[:1000].execute()
 
     return [
         {"name": r.name, "summary": r.summary, "version": v}

@@ -28,6 +28,171 @@ from ....common.db.packaging import (
 )
 
 
+class TestSearch:
+
+    def test_fails_with_invalid_operator(self):
+        with pytest.raises(ValueError):
+            xmlrpc.search(pretend.stub(), {}, "lol nope")
+
+    def test_default_search_operator(self):
+        class FakeQuery:
+            def __init__(self, type, must):
+                self.type = type
+                self.must = must
+
+            def __getitem__(self, name):
+                self.offset = name.start
+                self.limit = name.stop
+                self.step = name.step
+                return self
+
+            def execute(self):
+                assert self.type == "bool"
+                assert [q.to_dict() for q in self.must] == [
+                    {"match": {"name": "foo"}},
+                    {
+                        "bool": {
+                            "should": [
+                                {"match": {"summary": "one"}},
+                                {"match": {"summary": "two"}},
+                            ],
+                        },
+                    },
+                ]
+                assert self.offset is None
+                assert self.limit == 1000
+                assert self.step is None
+                return [
+                    pretend.stub(
+                        name="foo",
+                        summary="my summary",
+                        version=["1.0"],
+                    ),
+                    pretend.stub(
+                        name="foo-bar",
+                        summary="other summary",
+                        version=["2.0", "1.0"],
+                    ),
+                ]
+
+        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        results = xmlrpc.search(
+            request,
+            {"name": "foo", "summary": ["one", "two"]},
+        )
+        assert results == [
+            {"name": "foo", "summary": "my summary", "version": "1.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
+        ]
+
+    def test_searches_with_and(self):
+        class FakeQuery:
+            def __init__(self, type, must):
+                self.type = type
+                self.must = must
+
+            def __getitem__(self, name):
+                self.offset = name.start
+                self.limit = name.stop
+                self.step = name.step
+                return self
+
+            def execute(self):
+                assert self.type == "bool"
+                assert [q.to_dict() for q in self.must] == [
+                    {"match": {"name": "foo"}},
+                    {
+                        "bool": {
+                            "should": [
+                                {"match": {"summary": "one"}},
+                                {"match": {"summary": "two"}},
+                            ],
+                        },
+                    },
+                ]
+                assert self.offset is None
+                assert self.limit == 1000
+                assert self.step is None
+                return [
+                    pretend.stub(
+                        name="foo",
+                        summary="my summary",
+                        version=["1.0"],
+                    ),
+                    pretend.stub(
+                        name="foo-bar",
+                        summary="other summary",
+                        version=["2.0", "1.0"],
+                    ),
+                ]
+
+        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        results = xmlrpc.search(
+            request,
+            {"name": "foo", "summary": ["one", "two"]},
+            "and",
+        )
+        assert results == [
+            {"name": "foo", "summary": "my summary", "version": "1.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
+        ]
+
+    def test_searches_with_or(self):
+        class FakeQuery:
+            def __init__(self, type, should):
+                self.type = type
+                self.should = should
+
+            def __getitem__(self, name):
+                self.offset = name.start
+                self.limit = name.stop
+                self.step = name.step
+                return self
+
+            def execute(self):
+                assert self.type == "bool"
+                assert [q.to_dict() for q in self.should] == [
+                    {"match": {"name": "foo"}},
+                    {
+                        "bool": {
+                            "should": [
+                                {"match": {"summary": "one"}},
+                                {"match": {"summary": "two"}},
+                            ],
+                        },
+                    },
+                ]
+                assert self.offset is None
+                assert self.limit == 1000
+                assert self.step is None
+                return [
+                    pretend.stub(
+                        name="foo",
+                        summary="my summary",
+                        version=["1.0"],
+                    ),
+                    pretend.stub(
+                        name="foo-bar",
+                        summary="other summary",
+                        version=["2.0", "1.0"],
+                    ),
+                ]
+
+        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        results = xmlrpc.search(
+            request,
+            {"name": "foo", "summary": ["one", "two"]},
+            "or",
+        )
+        assert results == [
+            {"name": "foo", "summary": "my summary", "version": "1.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
+        ]
+
+
 def test_list_packages(db_request):
     projects = [ProjectFactory.create() for _ in range(10)]
     assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
