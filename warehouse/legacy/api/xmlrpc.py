@@ -57,7 +57,7 @@ def search(request, spec, operator="and"):
         }
     }
 
-    primary_queries = []
+    queries = []
     for field, value in spec.items():
         q = None
         for item in value:
@@ -65,16 +65,13 @@ def search(request, spec, operator="and"):
                 q = Q("match", **{field: item})
             else:
                 q |= Q("match", **{field: item})
-        primary_queries.append(q)
+        queries.append(q)
 
     if operator == "and":
-        must_queries = primary_queries
-        should_queries = []
+        query = request.es.query("bool", must=queries)
     else:
-        must_queries = []
-        should_queries.extend(primary_queries)
+        query = request.es.query("bool", should=queries)
 
-    query = request.es.query("bool", must=must_queries, should=should_queries)
     results = query.execute()
 
     return [
