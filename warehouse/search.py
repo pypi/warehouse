@@ -12,6 +12,7 @@
 
 import urllib.parse
 
+import certifi
 import elasticsearch
 import venusian
 
@@ -48,6 +49,7 @@ def includeme(config):
     config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
+        ca_certs=certifi.where(),
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.add_request_method(es, name="es", reify=True)
