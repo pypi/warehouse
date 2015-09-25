@@ -73,6 +73,7 @@ setuptools.setup(
         "bcrypt",
         "boto3",
         "celery>=3.1",
+        "certifi",
         "click",
         "elasticsearch>=1.0.0,<2.0.0",
         "elasticsearch_dsl",

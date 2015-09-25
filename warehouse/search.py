@@ -12,6 +12,7 @@
 
 import urllib.parse
 
+import certifi
 import elasticsearch
 import venusian
 
@@ -56,6 +57,7 @@ def includeme(config):
     config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
+        ca_certs=certifi.where(),
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
