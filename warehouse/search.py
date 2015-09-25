@@ -28,10 +28,11 @@ def doc_type(cls):
     return cls
 
 
-def get_index(name, doc_types, *, using):
+def get_index(name, doc_types, *, using, shards=1, replicas=1):
     index = Index(name, using=using)
     for doc_type in doc_types:
         index.doc_type(doc_type)
+    index.settings(number_of_shards=shards, number_of_replicas=replicas)
     return index
 
 
@@ -39,15 +40,25 @@ def es(request):
     client = request.registry["elasticsearch.client"]
     doc_types = request.registry.get("search.doc_types", set())
     index_name = request.registry["elasticsearch.index"]
-    index = get_index(index_name, doc_types, using=client)
+    index = get_index(
+        index_name,
+        doc_types,
+        using=client,
+        shards=request.registry.get("elasticsearch.shards", 1),
+        replicas=request.registry.get("elasticsearch.replicas", 1),
+    )
     return index.search()
 
 
 def includeme(config):
     p = urllib.parse.urlparse(config.registry.settings["elasticsearch.url"])
+    qs = urllib.parse.parse_qs(p.query)
     config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
+    config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
+    config.registry["elasticsearch.replicas"] = \
+        int(qs.get("replicas", ["1"])[0])
     config.add_request_method(es, name="es", reify=True)
