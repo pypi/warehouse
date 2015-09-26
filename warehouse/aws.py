@@ -21,7 +21,8 @@ class _Boto3Session(boto3.session.Session):
         # CA Bundle which does not have the 1024 bit roots that Amazon requires
         # so instead we'll override this so that it uses the old bundle when
         # talking to Amazon.
-        kwargs.setdefault("verify", certifi.old_where())
+        if kwargs.get("verify") is None:
+            kwargs["verify"] = certifi.old_where()
 
         return super().client(*args, **kwargs)
 
