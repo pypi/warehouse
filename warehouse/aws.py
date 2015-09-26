@@ -11,6 +11,19 @@
 # limitations under the License.
 
 import boto3.session
+import certifi
+
+
+class _Boto3Session(boto3.session.Session):
+
+    def client(self, *args, **kwargs):
+        # We have certifi installed, which causes botocore to use the newer
+        # CA Bundle which does not have the 1024 bit roots that Amazon requires
+        # so instead we'll override this so that it uses the old bundle when
+        # talking to Amazon.
+        kwargs.setdefault("verify", certifi.old_where())
+
+        return super().client(*args, **kwargs)
 
 
 def aws_session_factory(context, request):
@@ -20,7 +33,7 @@ def aws_session_factory(context, request):
     if request.registry.settings.get("aws.region") is not None:
         kwargs["region_name"] = request.registry.settings["aws.region"]
 
-    return boto3.session.Session(
+    return _Boto3Session(
         aws_access_key_id=request.registry.settings["aws.key_id"],
         aws_secret_access_key=request.registry.settings["aws.secret_key"],
         **kwargs
