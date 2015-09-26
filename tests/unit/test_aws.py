@@ -17,10 +17,17 @@ import pytest
 from warehouse import aws
 
 
-def test_boto3_session_client():
-    session = aws._Boto3Session()
-    client = session.client(service_name="s3")
-    assert client._endpoint.verify == certifi.old_where()
+class TestBoto3Session:
+
+    def test_boto3_session_client_defaults_old_certifi(self):
+        session = aws._Boto3Session()
+        client = session.client(service_name="s3")
+        assert client._endpoint.verify == certifi.old_where()
+
+    def test_boto3_session_client_overrides_verify(self):
+        session = aws._Boto3Session()
+        client = session.client(service_name="s3", verify="LOL")
+        assert client._endpoint.verify == "LOL"
 
 
 @pytest.mark.parametrize("region", [None, "us-west-2"])
