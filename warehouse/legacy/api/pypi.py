@@ -12,8 +12,9 @@
 
 import hashlib
 import hmac
-import io
+import os.path
 import re
+import tempfile
 
 import packaging.specifiers
 import packaging.version
@@ -612,91 +613,99 @@ def file_upload(request):
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
 
-    # Buffer the entire file into memory, checking the hash of the file as we
-    # go along.
-    file_content = io.BytesIO()
-    file_size = 0
-    file_hash = hashlib.md5()
-    for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
-        file_size += len(chunk)
-        if file_size > file_size_limit:
-            raise _exc_with_message(HTTPBadRequest, "File too large.")
-        file_content.write(chunk)
-        file_hash.update(chunk)
-    file_content.seek(0)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Buffer the entire file onto disk, checking the hash of the file as we
+        # go along.
+        with open(os.path.join(tmpdir, filename), "wb") as fp:
+            file_size = 0
+            file_hash = hashlib.md5()
+            for chunk in iter(
+                    lambda: request.POST["content"].file.read(8096), b""):
+                file_size += len(chunk)
+                if file_size > file_size_limit:
+                    raise _exc_with_message(HTTPBadRequest, "File too large.")
+                fp.write(chunk)
+                file_hash.update(chunk)
 
-    # Get the signature if it was included.
-    signature_size = 0
-    if "gpg_signature" in request.POST:
-        signature = io.BytesIO()
-        for chunk in iter(
-                lambda: request.POST["gpg_signature"].file.read(8096), b""):
-            signature_size += len(chunk)
-            if signature_size > MAX_SIGSIZE:
-                raise _exc_with_message(HTTPBadRequest, "Signature too large.")
-            signature.write(chunk)
-        signature.seek(0)
-    else:
-        signature = None
-
-    # Actually verify that the md5 hash of the file matches the expected md5
-    # hash. We probably don't actually need to use hmac.compare_digest here
-    # since both the md5_digest and the file whose file_hash we've compute
-    # comes from the remote user, however better safe than sorry.
-    if not hmac.compare_digest(form.md5_digest.data, file_hash.hexdigest()):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "The MD5 digest supplied does not match a digest calculated from "
-            "the uploaded file."
-        )
-
-    # TODO: Check the file to make sure it is a valid distribution file.
-
-    # Check that if it's a binary wheel, it's on a supported platform
-    if filename.endswith(".whl"):
-        wheel_info = _wheel_file_re.match(filename)
-        plats = wheel_info.group("plat").split(".")
-        if set(plats) - ALLOWED_PLATFORMS:
+        # Actually verify that the md5 hash of the file matches the expected
+        # md5 hash. We probably don't actually need to use hmac.compare_digest
+        # here since both the md5_digest and the file whose file_hash we've
+        # computed comes from the remote user, however better safe than sorry.
+        if not hmac.compare_digest(
+                form.md5_digest.data, file_hash.hexdigest()):
             raise _exc_with_message(
                 HTTPBadRequest,
-                "Binary wheel for an unsupported platform.",
+                "The MD5 digest supplied does not match a digest calculated "
+                "from the uploaded file."
             )
 
-    # Check whether signature is ASCII armored
-    if (signature is not None and
-            not signature.getvalue().startswith(
-                b"-----BEGIN PGP SIGNATURE-----")):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "PGP signature is not ASCII armored.",
+        # TODO: Check the file to make sure it is a valid distribution file.
+
+        # Check that if it's a binary wheel, it's on a supported platform
+        if filename.endswith(".whl"):
+            wheel_info = _wheel_file_re.match(filename)
+            plats = wheel_info.group("plat").split(".")
+            if set(plats) - ALLOWED_PLATFORMS:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Binary wheel for an unsupported platform.",
+                )
+
+        # Also buffer the entire signature file to disk.
+        if "gpg_signature" in request.POST:
+            has_signature = True
+            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
+                signature_size = 0
+                for chunk in iter(
+                        lambda: request.POST["gpg_signature"].file.read(8096),
+                        b""):
+                    signature_size += len(chunk)
+                    if signature_size > MAX_SIGSIZE:
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            "Signature too large.",
+                        )
+                    fp.write(chunk)
+
+            # Check whether signature is ASCII armored
+            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
+                if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "PGP signature is not ASCII armored.",
+                    )
+        else:
+            has_signature = False
+
+        # TODO: We need some sort of trigger that will automatically add
+        #       filenames to Filename instead of relying on this code running
+        #       inside of our upload API.
+        request.db.add(Filename(filename=filename))
+
+        # Store the information about the file in the database.
+        file_ = File(
+            release=release,
+            filename=filename,
+            python_version=form.pyversion.data,
+            packagetype=form.filetype.data,
+            comment_text=form.comment.data,
+            size=file_size,
+            has_signature=bool(has_signature),
+            md5_digest=form.md5_digest.data,
         )
+        request.db.add(file_)
 
-    # TODO: We need some sort of trigger that will automatically add filenames
-    #       to Filename instead of relying on this code running inside of our
-    #       upload API.
-    request.db.add(Filename(filename=filename))
-
-    # Store the information about the file in the database.
-    file_ = File(
-        release=release,
-        filename=filename,
-        python_version=form.pyversion.data,
-        packagetype=form.filetype.data,
-        comment_text=form.comment.data,
-        size=file_size,
-        has_signature=bool(signature),
-        md5_digest=form.md5_digest.data,
-    )
-    request.db.add(file_)
-
-    # TODO: We need a better answer about how to make this transactional so
-    #       this won't take affect until after a commit has happened, for now
-    #       we'll just ignore it and save it before the transaction is
-    #       commited.
-    storage = request.find_service(IFileStorage)
-    storage.store(file_.path, file_content)
-    if signature is not None:
-        storage.store(file_.pgp_path, signature)
+        # TODO: We need a better answer about how to make this transactional so
+        #       this won't take affect until after a commit has happened, for
+        #       now we'll just ignore it and save it before the transaction is
+        #       commited.
+        storage = request.find_service(IFileStorage)
+        storage.store(file_.path, os.path.join(tmpdir, filename))
+        if has_signature:
+            storage.store(
+                file_.pgp_path,
+                os.path.join(tmpdir, filename + ".asc"),
+            )
 
     return Response()
 
