@@ -135,8 +135,4 @@ class S3FileStorage:
             raise FileNotFoundError("No such key: {!r}".format(path)) from None
 
     def store(self, path, file_path):
-        # TODO: This should ideally be using multipart uploading which will
-        #       enable "commiting" and "rollingback" the upload based on the
-        #       transaction state.
-        with open(file_path, "rb") as fp:
-            self.bucket.Object(path).put(Body=fp.read())
+        self.bucket.upload_file(file_path, path)

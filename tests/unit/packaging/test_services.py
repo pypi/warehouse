@@ -242,12 +242,15 @@ class TestS3FileStorage:
         with open(filename, "wb") as fp:
             fp.write(b"Test File!")
 
-        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
-        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
+        bucket = pretend.stub(
+            upload_file=pretend.call_recorder(lambda filename, key: None),
+        )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
-        assert bucket.Object.calls == [pretend.call("foo/bar.txt")]
-        assert obj.put.calls == [pretend.call(Body=b"Test File!")]
+
+        assert bucket.upload_file.calls == [
+            pretend.call(filename, "foo/bar.txt"),
+        ]
 
     def test_stores_two_files(self, tmpdir):
         filename1 = str(tmpdir.join("testfile1.txt"))
@@ -258,17 +261,14 @@ class TestS3FileStorage:
         with open(filename2, "wb") as fp:
             fp.write(b"Second Test File!")
 
-        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
-        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
+        bucket = pretend.stub(
+            upload_file=pretend.call_recorder(lambda filename, key: None),
+        )
         storage = S3FileStorage(bucket)
         storage.store("foo/first.txt", filename1)
         storage.store("foo/second.txt", filename2)
 
-        assert bucket.Object.calls == [
-            pretend.call("foo/first.txt"),
-            pretend.call("foo/second.txt"),
-        ]
-        assert obj.put.calls == [
-            pretend.call(Body=b"First Test File!"),
-            pretend.call(Body=b"Second Test File!"),
+        assert bucket.upload_file.calls == [
+            pretend.call(filename1, "foo/first.txt"),
+            pretend.call(filename2, "foo/second.txt"),
         ]
