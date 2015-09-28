@@ -52,7 +52,7 @@
           <tr>
             <td>
               <a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-              {% if file.has_pgp_signature %}(<a href="{{ request.route_path('packaging.file', path=file.pgp_path) }}">pgp</a>){% endif %}
+              {% if file.has_signature %}(<a href="{{ request.route_path('packaging.file', path=file.pgp_path) }}">pgp</a>){% endif %}
             </td>
             <td>
               {# TODO: This should ideally be part of an enum somewhere or
