@@ -105,11 +105,12 @@ class LocalFileStorage:
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
 
-    def store(self, path, file_obj):
+    def store(self, path, file_path):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as fp:
-            fp.write(file_obj.read())
+        with open(destination, "wb") as dest_fp:
+            with open(file_path, "rb") as src_fp:
+                dest_fp.write(src_fp.read())
 
 
 @implementer(IFileStorage)
@@ -133,8 +134,5 @@ class S3FileStorage:
                 raise
             raise FileNotFoundError("No such key: {!r}".format(path)) from None
 
-    def store(self, path, file_obj):
-        # TODO: This should ideally be using multipart uploading which will
-        #       enable "commiting" and "rollingback" the upload based on the
-        #       transaction state.
-        self.bucket.Object(path).put(Body=file_obj.read())
+    def store(self, path, file_path):
+        self.bucket.upload_file(file_path, path)

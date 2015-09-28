@@ -45,7 +45,8 @@ class IFileStorage(Interface):
         at the given path.
         """
 
-    def store(path, file_obj):
+    def store(path, file_path):
         """
-        Save the file object to path.
+        Save the file located at file_path to the file storage at the location
+        specified by path.
         """

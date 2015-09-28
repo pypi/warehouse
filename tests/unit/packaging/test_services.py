@@ -144,18 +144,35 @@ class TestLocalFileStorage:
             storage.get("file.txt")
 
     def test_stores_file(self, tmpdir):
-        storage = LocalFileStorage(str(tmpdir))
-        storage.store("foo/bar.txt", io.BytesIO(b"Test File!"))
-        with open(os.path.join(str(tmpdir), "foo/bar.txt"), "rb") as fp:
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/bar.txt", filename)
+
+        with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
             assert fp.read() == b"Test File!"
 
     def test_stores_two_files(self, tmpdir):
-        storage = LocalFileStorage(str(tmpdir))
-        storage.store("foo/first.txt", io.BytesIO(b"First Test File!"))
-        storage.store("foo/second.txt", io.BytesIO(b"Second Test File!"))
-        with open(os.path.join(str(tmpdir), "foo/first.txt"), "rb") as fp:
+        filename1 = str(tmpdir.join("testfile1.txt"))
+        with open(filename1, "wb") as fp:
+            fp.write(b"First Test File!")
+
+        filename2 = str(tmpdir.join("testfile2.txt"))
+        with open(filename2, "wb") as fp:
+            fp.write(b"Second Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/first.txt", filename1)
+        storage.store("foo/second.txt", filename2)
+
+        with open(os.path.join(storage_dir, "foo/first.txt"), "rb") as fp:
             assert fp.read() == b"First Test File!"
-        with open(os.path.join(str(tmpdir), "foo/second.txt"), "rb") as fp:
+
+        with open(os.path.join(storage_dir, "foo/second.txt"), "rb") as fp:
             assert fp.read() == b"Second Test File!"
 
 
@@ -220,25 +237,38 @@ class TestS3FileStorage:
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get("file.txt")
 
-    def test_stores_file(self):
-        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
-        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
-        storage = S3FileStorage(bucket)
-        storage.store("foo/bar.txt", io.BytesIO(b"Test File!"))
-        assert bucket.Object.calls == [pretend.call("foo/bar.txt")]
-        assert obj.put.calls == [pretend.call(Body=b"Test File!")]
+    def test_stores_file(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
 
-    def test_stores_two_files(self):
-        obj = pretend.stub(put=pretend.call_recorder(lambda Body: None))
-        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: obj))
+        bucket = pretend.stub(
+            upload_file=pretend.call_recorder(lambda filename, key: None),
+        )
         storage = S3FileStorage(bucket)
-        storage.store("foo/first.txt", io.BytesIO(b"First Test File!"))
-        storage.store("foo/second.txt", io.BytesIO(b"Second Test File!"))
-        assert bucket.Object.calls == [
-            pretend.call("foo/first.txt"),
-            pretend.call("foo/second.txt"),
+        storage.store("foo/bar.txt", filename)
+
+        assert bucket.upload_file.calls == [
+            pretend.call(filename, "foo/bar.txt"),
         ]
-        assert obj.put.calls == [
-            pretend.call(Body=b"First Test File!"),
-            pretend.call(Body=b"Second Test File!"),
+
+    def test_stores_two_files(self, tmpdir):
+        filename1 = str(tmpdir.join("testfile1.txt"))
+        with open(filename1, "wb") as fp:
+            fp.write(b"First Test File!")
+
+        filename2 = str(tmpdir.join("testfile2.txt"))
+        with open(filename2, "wb") as fp:
+            fp.write(b"Second Test File!")
+
+        bucket = pretend.stub(
+            upload_file=pretend.call_recorder(lambda filename, key: None),
+        )
+        storage = S3FileStorage(bucket)
+        storage.store("foo/first.txt", filename1)
+        storage.store("foo/second.txt", filename2)
+
+        assert bucket.upload_file.calls == [
+            pretend.call(filename1, "foo/first.txt"),
+            pretend.call(filename2, "foo/second.txt"),
         ]

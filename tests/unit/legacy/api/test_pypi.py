@@ -12,6 +12,7 @@
 
 import io
 import os.path
+import tempfile
 
 from unittest import mock
 
@@ -506,8 +507,10 @@ class TestFileUpload:
         assert "name" not in db_request.POST
 
     @pytest.mark.parametrize("has_signature", [True, False])
-    def test_successful_upload(self, pyramid_config, db_request,
-                               has_signature):
+    def test_successful_upload(self, tmpdir, monkeypatch, pyramid_config,
+                               db_request, has_signature):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         project = ProjectFactory.create()
@@ -545,9 +548,20 @@ class TestFileUpload:
                 ),
             )
 
-        storage_service = pretend.stub(
-            store=pretend.call_recorder(lambda path, content: None),
-        )
+        @pretend.call_recorder
+        def storage_service_store(path, file_path):
+            if file_path.endswith(".asc"):
+                expected = (
+                    b"-----BEGIN PGP SIGNATURE-----\n"
+                    b" This is a Fake Signature"
+                )
+            else:
+                expected = b"A fake file."
+
+            with open(file_path, "rb") as fp:
+                assert fp.read() == expected
+
+        storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
             lambda svc: storage_service
         )
@@ -566,7 +580,6 @@ class TestFileUpload:
             ),
             mock.ANY,
         )
-        assert storage_service.store.calls[0].args[1].read() == b"A fake file."
 
         if has_signature:
             assert storage_service.store.calls[1] == pretend.call(
@@ -578,8 +591,6 @@ class TestFileUpload:
                 ),
                 mock.ANY,
             )
-            assert storage_service.store.calls[1].args[1].read() == \
-                db_request.POST["gpg_signature"].file.getvalue()
 
         # Ensure that a File object has been created.
         db_request.db.query(File) \
@@ -744,7 +755,7 @@ class TestFileUpload:
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
-            "md5_digest": "nope!",
+            "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a"),
@@ -961,8 +972,10 @@ class TestFileUpload:
         "plat",
         ["any", "win32", "win-amd64", "win_amd64", "win-ia64", "win_ia64"],
     )
-    def test_upload_succeeds_with_wheel(self, pyramid_config, db_request,
-                                        plat):
+    def test_upload_succeeds_with_wheel(self, tmpdir, monkeypatch,
+                                        pyramid_config, db_request, plat):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -989,9 +1002,12 @@ class TestFileUpload:
             ),
         })
 
-        storage_service = pretend.stub(
-            store=pretend.call_recorder(lambda path, content: None),
-        )
+        @pretend.call_recorder
+        def storage_service_store(path, file_path):
+            with open(file_path, "rb") as fp:
+                assert fp.read() == b"A fake file."
+
+        storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
             lambda svc: storage_service
         )
@@ -1011,7 +1027,6 @@ class TestFileUpload:
                 mock.ANY,
             ),
         ]
-        assert storage_service.store.calls[0].args[1].read() == b"A fake file."
 
         # Ensure that a File object has been created.
         db_request.db.query(File) \
