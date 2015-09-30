@@ -30,7 +30,7 @@ kombu==3.0.26             # via celery
 mako==1.0.2               # via alembic
 markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.6
-newrelic==2.54.0.41
+newrelic==2.56.0.42
 packaging==15.3
 passlib==1.6.5
 pastedeploy==1.5.2        # via pyramid
