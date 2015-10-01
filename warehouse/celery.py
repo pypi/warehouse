@@ -10,7 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import celery.backends
+
+# We need to trick Celery into supporting rediss:// URLs which is how redis-py
+# signals that you should use Redis with TLS.
+celery.backends.BACKEND_ALIASES["rediss"] = "warehouse.celery:TLSRedisBackend"
+
 from celery import Celery, Task
+from celery.backends.redis import RedisBackend as _RedisBackend
 from celery.signals import celeryd_init
 from pyramid import scripting
 from pyramid.threadlocal import get_current_request
@@ -22,6 +29,14 @@ from warehouse.config import Environment, configure
 @celeryd_init.connect
 def _configure_celery(*args, **kwargs):
     configure()
+
+
+class TLSRedisBackend(_RedisBackend):
+
+    def _params_from_url(self, url, defaults):
+        params = super()._params_from_url(url, defaults)
+        params.update({"connection_class": self.redis.SSLConnection})
+        return params
 
 
 class WarehouseTask(Task):

@@ -31,6 +31,16 @@ def test_configure_celery(monkeypatch):
     assert configure.calls == [pretend.call()]
 
 
+def test_tls_redis_backend():
+    backend = celery.TLSRedisBackend(app=Celery())
+    params = backend._params_from_url("rediss://localhost", {})
+    assert params == {
+        "connection_class": backend.redis.SSLConnection,
+        "host": "localhost",
+        "db": 0,
+    }
+
+
 class TestWarehouseTask:
 
     @pytest.mark.parametrize("uses_request", [True, False])
