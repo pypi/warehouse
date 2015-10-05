@@ -64,7 +64,7 @@ venusian==1.0             # via pyramid, pyramid-rpc
 webob==1.5.0b0            # via pyramid
 wtforms==2.0.2
 zope.deprecation==4.1.2   # via pyramid, pyramid-jinja2
-zope.interface==4.1.2     # via pyramid, pyramid-services, transaction, zope.sqlalchemy
+zope.interface==4.1.3     # via pyramid, pyramid-services, transaction, zope.sqlalchemy
 zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
