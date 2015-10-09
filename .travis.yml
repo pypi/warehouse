@@ -1,5 +1,5 @@
 language: python
-python: 3.4
+python: 3.5.0
 
 dist: trusty
 
@@ -10,7 +10,7 @@ cache:
     - ~/.cache/pip
 
 env:
-  - TOXENV=py34 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
+  - TOXENV=py35 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
   - TOXENV=pep8
   - TOXENV=docs
   - TOXENV=packaging
