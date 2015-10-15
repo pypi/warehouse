@@ -53,7 +53,11 @@ class Configurator(_Configurator):
 
 def content_security_policy_tween_factory(handler, registry):
     policy = registry.settings.get("csp", {})
-    policy = "; ".join([" ".join([k] + v) for k, v in sorted(policy.items())])
+    policy = "; ".join([
+        " ".join([k] + [v2 for v2 in v if v2 is not None])
+        for k, v in sorted(policy.items())
+        if [v2 for v2 in v if v2 is not None]
+    ])
 
     def content_security_policy_tween(request):
         resp = handler(request)
