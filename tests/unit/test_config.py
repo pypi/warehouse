@@ -397,6 +397,7 @@ def test_configure(monkeypatch, settings, environment):
                 ],
                 "referrer": ["cross-origin"],
                 "reflected-xss": ["block"],
+                "report-uri": [None],
                 "script-src": ["'self'"],
                 "style-src": ["'self'"],
             },
