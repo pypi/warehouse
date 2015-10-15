@@ -395,7 +395,7 @@ def test_configure(monkeypatch, settings, environment):
                     "http://camo.example.com/",
                     "https://secure.gravatar.com",
                 ],
-                "referrer": ["cross-origin"],
+                "referrer": ["origin-when-cross-origin"],
                 "reflected-xss": ["block"],
                 "report-uri": [None],
                 "script-src": ["'self'"],

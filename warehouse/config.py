@@ -327,7 +327,7 @@ def configure(settings=None):
                 config.registry.settings["camo.url"],
                 "https://secure.gravatar.com",
             ],
-            "referrer": ["cross-origin"],
+            "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
             "report-uri": [config.registry.settings.get("csp.report_uri")],
             "script-src": ["'self'"],
