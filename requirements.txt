@@ -13,7 +13,7 @@ bcrypt==2.0.0
 billiard==3.3.0.20        # via celery
 bleach==1.4.2             # via readme
 boto3==1.1.4
-botocore==1.2.10          # via boto3
+botocore==1.2.11          # via boto3
 celery==3.1.18
 certifi==2015.9.6.2
 cffi==1.2.1               # via bcrypt
