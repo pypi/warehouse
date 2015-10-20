@@ -26,6 +26,7 @@ EmailAnalyzer = analyzer(
 class Project(DocType):
 
     name = String()
+    normalized_name = String(index="not_analyzed")
     version = String(index="not_analyzed", multi=True)
     summary = String(analyzer="snowball")
     description = String(analyzer="snowball")
@@ -47,6 +48,7 @@ class Project(DocType):
     def from_db(cls, release):
         obj = cls(meta={"id": release.project.normalized_name})
         obj["name"] = release.project.name
+        obj["normalized_name"] = release.project.normalized_name
         obj["version"] = [r.version for r in release.project.releases]
         obj["summary"] = release.summary
         obj["description"] = release.description
