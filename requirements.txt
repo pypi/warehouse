@@ -20,7 +20,7 @@ cffi==1.2.1               # via bcrypt
 click==5.1
 docutils==0.12            # via botocore, readme
 elasticsearch-dsl==0.0.8
-elasticsearch==1.8.0      # via elasticsearch-dsl rq.filter: >=1.0.0,<2.0.0
+elasticsearch==1.9.0      # via elasticsearch-dsl rq.filter: >=1.0.0,<2.0.0
 hiredis==0.2.0
 html5lib==0.9999999       # via bleach
 itsdangerous==0.24
