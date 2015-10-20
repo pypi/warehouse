@@ -46,7 +46,7 @@ pyramid==1.6a2            # via pyramid-jinja2, pyramid-multiauth, pyramid-rpc, 
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.4        # via alembic
 pytz==2015.6              # via babel, celery
-raven==5.7.2
+raven==5.8.1
 readme==0.6.0
 redis==2.10.3
 repoze.lru==0.6           # via pyramid
