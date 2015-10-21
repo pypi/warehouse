@@ -16,7 +16,7 @@ boto3==1.1.4
 botocore==1.2.11          # via boto3
 celery==3.1.18
 certifi==2015.9.6.2
-cffi==1.2.1               # via bcrypt
+cffi==1.3.0               # via bcrypt
 click==5.1
 docutils==0.12            # via botocore, readme
 elasticsearch-dsl==0.0.8
