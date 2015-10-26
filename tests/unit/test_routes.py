@@ -67,6 +67,7 @@ def test_routes():
             traverse="/{name}",
             read_only=True,
         ),
+        pretend.call("search", "/search/", read_only=True),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",

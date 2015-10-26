@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ol>
+  {% for item in page.items %}
+  <li><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a> {{ item.summary }}</li>
+  {% endfor %}
+</ol>
+
+{{ page.pager()|safe }}
+
+{% endblock %}

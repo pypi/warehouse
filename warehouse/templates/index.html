@@ -8,8 +8,8 @@
             <p>{{ _('For up to date best practices about packaging read <a href="%(packaging_guide_url)s">packaging.python.org</a>.', packaging_guide_url='https://packaging.python.org/en/latest/') }}</p>
         </div>
 
-        <form class="search-bar" role="search" action="TODO" method="GET">
-          <input type="search" placeholder="{{ _('Search packages...') }}" />
+        <form class="search-bar" role="search" action="{{ request.route_path('search') }}" method="GET">
+          <input type="search" name="q" placeholder="{{ _('Search packages...') }}" />
           <button type="submit">
             <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="Search Icon">
           </button>
