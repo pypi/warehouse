@@ -13,7 +13,7 @@ bcrypt==2.0.0
 billiard==3.3.0.21        # via celery
 bleach==1.4.2             # via readme
 boto3==1.2.1
-botocore==1.3.2           # via boto3
+botocore==1.3.4           # via boto3
 celery==3.1.19
 certifi==2015.9.6.2
 cffi==1.3.0               # via bcrypt
@@ -48,7 +48,7 @@ python-editor==0.4        # via alembic
 pytz==2015.7              # via babel, celery
 raven==5.8.1
 readme==0.6.0
-redis==2.10.3
+redis==2.10.5
 repoze.lru==0.6           # via pyramid
 requests==2.8.1
 rfc3986==0.3.0
@@ -69,4 +69,4 @@ zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
-# setuptools==18.4          # via pyramid, zope.deprecation, zope.interface, zope.sqlalchemy
+# setuptools==18.5          # via pyramid, zope.deprecation, zope.interface, zope.sqlalchemy
