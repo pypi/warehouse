@@ -69,4 +69,4 @@ zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
-# setuptools==18.4          # via pyramid, zope.deprecation, zope.interface, zope.sqlalchemy
+# setuptools==18.5          # via pyramid, zope.deprecation, zope.interface, zope.sqlalchemy
