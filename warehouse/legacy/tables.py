@@ -400,7 +400,7 @@ openids = Table(
 )
 
 
-Index('openids_subkey', openids.c.sub)
+Index('openids_subkey', openids.c.sub, unique=True)
 
 
 ratings = Table(
