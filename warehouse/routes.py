@@ -36,6 +36,9 @@ def includeme(config):
         read_only=True,
     )
 
+    # Search Routes
+    config.add_route("search", "/search/", read_only=True)
+
     # Accounts
     config.add_route(
         "accounts.profile",

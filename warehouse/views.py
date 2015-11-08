@@ -26,6 +26,7 @@ from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
 from warehouse.sessions import uses_session
+from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
 
 @view_config(context=HTTPException, decorator=[csrf_exempt])
@@ -103,6 +104,41 @@ def index(request):
         'num_releases': num_releases,
         'num_files': num_files,
     }
+
+
+@view_config(
+    route_name="search",
+    renderer="search/results.html",
+    decorator=[
+        origin_cache(
+            1 * 60 * 60,                      # 1 hour
+            stale_while_revalidate=10 * 60,   # 10 minutes
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+            keys=["all-projects"],
+        )
+    ],
+)
+def search(request):
+    if request.params.get("q"):
+        query = request.es.query(
+            "multi_match",
+            query=request.params["q"],
+            fields=[
+                "name", "version", "author", "author_email", "maintainer",
+                "maintainer_email", "home_page", "license", "summary",
+                "description", "keywords", "platform", "download_url",
+            ],
+        )
+    else:
+        query = request.es.query()
+
+    page = ElasticsearchPage(
+        query,
+        page=int(request.params.get("page", 1)),
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"page": page}
 
 
 @view_config(

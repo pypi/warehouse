@@ -39,6 +39,7 @@ def test_project_docs(db_session):
             "_type": "project",
             "_source": {
                 "name": p.name,
+                "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
             },
         }

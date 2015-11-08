@@ -32,6 +32,7 @@ markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.6
 newrelic==2.56.0.42
 packaging==15.3
+paginate==0.5.2
 passlib==1.6.5
 pastedeploy==1.5.2        # via pyramid
 psycopg2==2.6.1
