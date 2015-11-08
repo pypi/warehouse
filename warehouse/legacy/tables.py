@@ -396,7 +396,11 @@ openids = Table(
             ondelete="CASCADE",
         ),
     ),
+    Column("sub", Text()),
 )
+
+
+Index('openids_subkey', openids.c.sub, unique=True)
 
 
 ratings = Table(
