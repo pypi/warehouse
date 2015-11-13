@@ -22,7 +22,6 @@ REQUIREMENTS_IN = """
 
 -e .
 
-newrelic
 gevent>=1.1a1
 gunicorn>=19.4.dev
 setproctitle
