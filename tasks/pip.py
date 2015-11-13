@@ -17,10 +17,15 @@ import invoke
 
 
 REQUIREMENTS_IN = """
+
+-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
+
 -e .
 
 newrelic
-uwsgi
+gevent>=1.1a1
+gunicorn>=19.4.dev
+setproctitle
 """
 
 
@@ -31,6 +36,8 @@ REQUIREMENTS_HEADER = """
 #
 #    $ invoke pip.compile
 #
+
+-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
 
 """.lstrip()
 

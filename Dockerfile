@@ -22,8 +22,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install gcc libpq-dev libffi-dev --no-install-recommends -y \
     && pip install -U pip setuptools \
-    && pip install pyinotify \
-    && pip install -c requirements.txt uwsgi \
+    && pip install -c requirements.txt gunicorn gevent setproctitle \
     && pip install -c requirements.txt -r requirements-dev.txt -e . \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
