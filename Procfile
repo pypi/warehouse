@@ -1,2 +1,2 @@
-web: bin/redis-tls bin/fastly-config && bin/redis-tls newrelic-admin run-program uwsgi --ini=uwsgi.ini --processes=${WEB_CONCURRENCY:=1}
+web: bin/redis-tls bin/fastly-config && bin/redis-tls newrelic-admin run-program gunicorn -b 0.0.0.0:$PORT -n warehouse -k gevent --preload warehouse.wsgi
 worker: bin/redis-tls newrelic-admin run-program celery -A warehouse worker -l info

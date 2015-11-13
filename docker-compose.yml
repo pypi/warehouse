@@ -37,7 +37,7 @@ app:
 web:
   extends:
     service: app
-  command: uwsgi --ini=uwsgi.ini --processes=1 --py-autoreload=3
+  command: gunicorn -b 0.0.0.0:8000 -n warehouse -k gevent --reload warehouse.wsgi
   environment:
     PORT: 8000
   ports:
