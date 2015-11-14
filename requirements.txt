@@ -23,7 +23,7 @@ click==5.1
 docutils==0.12            # via botocore, readme
 elasticsearch-dsl==0.0.9
 elasticsearch==2.1.0      # via elasticsearch-dsl
-gevent==1.1b6
+gevent==1.1rc1
 greenlet==0.4.9           # via gevent
 gunicorn==19.4.dev0
 hiredis==0.2.0
