@@ -16,7 +16,6 @@ from pyramid.httpexceptions import (
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
-from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
@@ -26,6 +25,7 @@ from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
 from warehouse.sessions import uses_session
+from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
 
@@ -92,17 +92,25 @@ def index(request):
                   .limit(20)
                   .all()
     )
-    num_projects = request.db.query(func.count(Project.name)).scalar()
-    num_users = request.db.query(func.count(User.id)).scalar()
-    num_files = request.db.query(func.count(File.id)).scalar()
-    num_releases = request.db.query(func.count(Release.name)).scalar()
+
+    counts = dict(
+        request.db.query(RowCount.table_name, RowCount.count)
+                  .filter(
+                      RowCount.table_name.in_([
+                          Project.__tablename__,
+                          Release.__tablename__,
+                          File.__tablename__,
+                          User.__tablename__,
+                      ]))
+                  .all()
+    )
 
     return {
-        'latest_updated_releases': latest_updated_releases,
-        'num_projects': num_projects,
-        'num_users': num_users,
-        'num_releases': num_releases,
-        'num_files': num_files,
+        "latest_updated_releases": latest_updated_releases,
+        "num_projects": counts.get(Project.__tablename__, 0),
+        "num_releases": counts.get(Release.__tablename__, 0),
+        "num_files": counts.get(File.__tablename__, 0),
+        "num_users": counts.get(User.__tablename__, 0),
     }
 
 
