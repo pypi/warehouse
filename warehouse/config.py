@@ -20,11 +20,12 @@ import zope.interface
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
+from pyramid.path import AssetResolver
 from pyramid.response import Response
+from pyramid.static import ManifestCacheBuster
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
-from warehouse.utils.static import WarehouseCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -341,12 +342,14 @@ def configure(settings=None):
     config.add_tween("warehouse.config.require_https_tween_factory")
 
     # Enable Warehouse to service our static files
+    resolver = AssetResolver()
+    manifest = resolver.resolve("warehouse:static/manifest.json")
     config.add_static_view(
         name="static",
         path="warehouse:static",
-        cachebust=WarehouseCacheBuster(
-            "warehouse:static/manifest.json",
-            cache=not config.registry.settings["pyramid.reload_assets"],
+        cachebust=ManifestCacheBuster(
+            manifest.abspath(),
+            reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )
 

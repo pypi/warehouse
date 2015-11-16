@@ -86,7 +86,7 @@ setuptools.setup(
         "paginate>=0.5.2",
         "passlib>=1.6.4",
         "psycopg2",
-        "pyramid>=1.6a1",
+        "pyramid>=1.6b1",
         "pyramid_jinja2>=2.5",
         "pyramid_multiauth",
         "pyramid_rpc>=0.7",

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os.path
+
 from unittest import mock
 
 import pretend
@@ -17,6 +19,8 @@ import pytest
 import zope.interface
 
 from pyramid import renderers
+
+import warehouse
 
 from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
@@ -277,8 +281,8 @@ def test_configure(monkeypatch, settings, environment):
     monkeypatch.setattr(config, "Configurator", configurator_cls)
 
     cachebuster_obj = pretend.stub()
-    cachebuster_cls = pretend.call_recorder(lambda m, cache: cachebuster_obj)
-    monkeypatch.setattr(config, "WarehouseCacheBuster", cachebuster_cls)
+    cachebuster_cls = pretend.call_recorder(lambda p, reload: cachebuster_obj)
+    monkeypatch.setattr(config, "ManifestCacheBuster", cachebuster_cls)
 
     transaction_manager = pretend.stub()
     transaction = pretend.stub(
@@ -424,7 +428,14 @@ def test_configure(monkeypatch, settings, environment):
         ),
     ]
     assert cachebuster_cls.calls == [
-        pretend.call("warehouse:static/manifest.json", cache=True),
+        pretend.call(
+            os.path.join(
+                os.path.dirname(warehouse.__file__),
+                "static",
+                "manifest.json",
+            ),
+            reload=False,
+        ),
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),
