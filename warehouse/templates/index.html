@@ -30,7 +30,7 @@
         {% for release in latest_updated_releases %}
         <div class="comment">
           <div class="comment-image">
-                <img src="{{ gravatar(release.author_email, size=50) }}" alt="{{ release.author}}" height="50" width="50">
+                <img src="{{ gravatar(release.uploader.email, size=50) }}" alt="{{ release.uploader.name|default(release.uploader.username, true) }}" height="50" width="50">
           </div>
           <div class="comment-content">
             <h1><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
@@ -38,7 +38,7 @@
             </h1>
             {% if release.summary %}<p>{{ release.summary }}</p>{% endif %}
             <p class="comment-detail">
-              {{ _('<strong>%(version)s</strong> by %(author)s', version=release.version, author=release.author) }}
+              {{ _('<strong>%(version)s</strong> by %(author)s', version=release.version, author=release.uploader.name|default(release.uploader.username, true)) }}
             </p>
           </div>
         </div>

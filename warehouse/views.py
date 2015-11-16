@@ -87,7 +87,8 @@ def robotstxt(request):
 def index(request):
     latest_updated_releases = (
         request.db.query(Release)
-                  .options(joinedload(Release.project))
+                  .options(joinedload(Release.project),
+                           joinedload(Release.uploader))
                   .order_by(Release.created.desc())
                   .limit(20)
                   .all()
