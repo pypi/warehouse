@@ -20,7 +20,6 @@ import zope.interface
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.path import AssetResolver
 from pyramid.response import Response
 from pyramid.static import ManifestCacheBuster
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
@@ -342,13 +341,11 @@ def configure(settings=None):
     config.add_tween("warehouse.config.require_https_tween_factory")
 
     # Enable Warehouse to service our static files
-    resolver = AssetResolver()
-    manifest = resolver.resolve("warehouse:static/manifest.json")
     config.add_static_view(
         name="static",
         path="warehouse:static",
         cachebust=ManifestCacheBuster(
-            manifest.abspath(),
+            "warehouse:static/manifest.json",
             reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )
