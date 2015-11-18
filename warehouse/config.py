@@ -343,9 +343,9 @@ def configure(settings=None):
     # Enable Warehouse to service our static files
     config.add_static_view(
         name="static",
-        path="warehouse:static",
+        path="warehouse:static/dist",
         cachebust=ManifestCacheBuster(
-            "warehouse:static/manifest.json",
+            "warehouse:static/dist/manifest.json",
             reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )

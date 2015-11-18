@@ -11,7 +11,7 @@
         <form class="search-bar" role="search" action="{{ request.route_path('search') }}" method="GET">
           <input type="search" name="q" placeholder="{{ _('Search packages...') }}" />
           <button type="submit">
-            <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="Search Icon">
+            <img src="{{ request.static_path('warehouse:static/dist/images/search-icon.png') }}" alt="Search Icon">
           </button>
         </form>
 

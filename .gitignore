@@ -11,7 +11,8 @@
 
 docs/_build/
 build/
-dist/
+dist/*.tar.gz
+dist/*.whl
 htmlcov/
 
 node_modules/

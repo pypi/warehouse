@@ -20,15 +20,14 @@
     <title>{% block title_base %}{% block title %}{% endblock %} &middot; {{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/css/normalize.css') }}">
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/css/style.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/main.css') }}">
   </head>
 
   <body>
     <header class="navigation" role="banner">
       <div class="navigation-wrapper">
         <a href="{{ request.route_path('index') }}" class="logo">
-          <img src="{{ request.static_path('warehouse:static/images/logo.png') }}" alt="{{ _('Logo Image') }}">
+          <img src="{{ request.static_path('warehouse:static/dist/images/logo.png') }}" alt="{{ _('Logo Image') }}">
         </a>
 
         <div class="navigation-tools">
@@ -36,7 +35,7 @@
             <form role="search" action="{{ request.route_path('search') }}" method="GET">
               <input type="search" name="q" placeholder="{{ _('Enter Search') }}" />
               <button type="submit">
-                <img src="{{ request.static_path('warehouse:static/images/search-icon.png') }}" alt="{{ _('Search') }}">
+                <img src="{{ request.static_path('warehouse:static/dist/images/search-icon.png') }}" alt="{{ _('Search') }}">
               </button>
             </form>
           </div>
