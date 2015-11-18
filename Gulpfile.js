@@ -5,7 +5,8 @@ var del = require("del"),
     rename = require("gulp-rename"),
     rev = require("gulp-rev"),
     runSequence = require("run-sequence"),
-    sass = require("gulp-sass");
+    sass = require("gulp-sass"),
+    sassLint = require("gulp-sass-lint");
 
 
 var paths = {
@@ -15,23 +16,32 @@ var paths = {
 };
 
 
-gulp.task("dist:css:warehouse", ["clean"], function() {
-    return gulp.src(path.join(paths.sass, "*.scss"))
-        .pipe(sass({ includePaths: [paths.sass] }))
-        .pipe(minifyCSS({ keepBreaks: true }))
-        .pipe(gulp.dest(paths.css));
+gulp.task("lint:sass", function() {
+    return gulp.src(path.join(paths.sass, "**", "*.s+(a|c)ss"))
+               .pipe(sassLint())
+               .pipe(sassLint.format())
+               .pipe(sassLint.failOnError())
 });
 
-gulp.task("dist:css", ["dist:css:warehouse"]);
+gulp.task("lint", ["lint:sass"]);
+
+gulp.task("dist:css:main", ["clean"], function() {
+    return gulp.src(path.join(paths.sass, "*.scss"))
+               .pipe(sass({ includePaths: [paths.sass] }))
+               .pipe(minifyCSS({ keepBreaks: true }))
+               .pipe(gulp.dest(paths.css));
+});
+
+gulp.task("dist:css", ["dist:css:main"]);
 
 gulp.task("dist:cachebuster", function() {
     var mpaths = [paths.css].map(function (i){ return path.join(i, "**", "*") });
 
     return gulp.src(mpaths, { base: path.join(__dirname, paths.base) })
-        .pipe(rev())
-        .pipe(gulp.dest(paths.base))
-        .pipe(rev.manifest({ path: "manifest.json" }))
-        .pipe(gulp.dest(paths.base));
+               .pipe(rev())
+               .pipe(gulp.dest(paths.base))
+               .pipe(rev.manifest({ path: "manifest.json" }))
+               .pipe(gulp.dest(paths.base));
 });
 
 gulp.task("dist", function() {

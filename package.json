@@ -12,6 +12,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-rev": "^6.0.1",
     "gulp-sass": "^2.1.0",
+    "gulp-sass-lint": "^1.1.0",
     "run-sequence": "^1.1.4"
   },
   "private": true
