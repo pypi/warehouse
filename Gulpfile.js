@@ -1,11 +1,10 @@
 var del = require("del"),
     gulp = require("gulp"),
-    minifycss = require("gulp-minify-css"),
-    neat = require("node-neat").includePaths,
+    minifyCSS = require("gulp-minify-css"),
     path = require("path"),
-    normalize = path.join(require.resolve("normalize.css/package.json"), ".."),
     rename = require("gulp-rename"),
     rev = require("gulp-rev"),
+    runSequence = require("run-sequence"),
     sass = require("gulp-sass");
 
 
@@ -16,21 +15,14 @@ var paths = {
 };
 
 
-gulp.task("dist:css:normalize", function() {
-    return gulp.src(path.join(normalize, "normalize.css"))
-        .pipe(minifycss())
-        .pipe(gulp.dest(paths.css));
-})
-
-
-gulp.task("dist:css:warehouse", function() {
+gulp.task("dist:css:warehouse", ["clean"], function() {
     return gulp.src(path.join(paths.sass, "*.scss"))
-        .pipe(sass({ includePaths: [paths.sass].concat(neat) }))
-        .pipe(minifycss())
+        .pipe(sass({ includePaths: [paths.sass] }))
+        .pipe(minifyCSS({ keepBreaks: true }))
         .pipe(gulp.dest(paths.css));
 });
 
-gulp.task("dist:css", ["dist:css:normalize", "dist:css:warehouse"]);
+gulp.task("dist:css", ["dist:css:warehouse"]);
 
 gulp.task("dist:cachebuster", function() {
     var mpaths = [paths.css].map(function (i){ return path.join(i, "**", "*") });
@@ -42,12 +34,14 @@ gulp.task("dist:cachebuster", function() {
         .pipe(gulp.dest(paths.base));
 });
 
-gulp.task("dist", ["dist:css"], function() { gulp.start("dist:cachebuster") });
+gulp.task("dist", function() {
+    return runSequence("dist:css", "dist:cachebuster");
+});
 
-gulp.task("clean", function(cb) { del([paths.css], cb) });
+gulp.task("clean", function() { return del([paths.css]) });
 
 gulp.task("watch", function() {
     gulp.watch(path.join(paths.sass, "*.scss"), ["default"]);
 });
 
-gulp.task("default", ["clean"], function() { gulp.start("dist") });
+gulp.task("default", ["dist"]);

@@ -6,15 +6,13 @@
     "url": "https://github.com/pypa/warehouse.git"
   },
   "devDependencies": {
-    "del": "^1.1.1",
-    "gulp": "^3.8.11",
-    "gulp-minify-css": "^0.4.5",
-    "gulp-rename": "^1.2.0",
-    "gulp-rev": "^3.0.1",
-    "gulp-sass": "^1.3.3",
-    "node-bourbon": "^1.2.3",
-    "node-neat": "^1.4.2",
-    "normalize.css": "^3.0.2"
+    "del": "^2.1.0",
+    "gulp": "^3.9.0",
+    "gulp-minify-css": "^1.2.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-rev": "^6.0.1",
+    "gulp-sass": "^2.1.0",
+    "run-sequence": "^1.1.4"
   },
   "private": true
 }
