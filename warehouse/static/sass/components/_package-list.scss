@@ -1,18 +1,17 @@
 .package-list {
   padding-top: 5px;
-  margin-bottom:40px;
+  margin-bottom: 40px;
 }
 
 .package-snippet {
-  border: 1px solid darken(#ececec, 5);
-  box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.05);
+  @extend .card-style;
   padding: 15px 20px 15px 80px;
   margin: 10px 0 20px;
-  background: $white url('../images/white-cube.png') no-repeat 0 50%;
+  background: url('../images/white-cube.png') no-repeat 0 50%;
   background-position: 20px;
 
   @media screen and (max-width: 400px) {
-    margin: 5px 0 15px 0;
+    margin: 5px 0 15px;
   }
 
   .title {
@@ -21,17 +20,17 @@
   }
 
   .meta {
-    margin: 1px 0 2px;
     font-size: 16px;
+    margin: 1px 0 2px;
 
     .version {
-      font-weight: 700;
+      font-weight: $bold-font-weight;
     }
   }
 
   .description {
     clear: both;
+    font-size: 1rem;
     font-style: italic;
-    font-size: 16px;
   }
 }

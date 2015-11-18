@@ -1,73 +1,77 @@
 .package-status {
   padding: 15px 0 5px 0;
   background-color: darken($base-grey, 10);
+}
 
-  .status-badge {
-    @include span-columns(3);
-    color: $white;
-    box-sizing: border-box;
-    border-radius: 3px;
-    display: inline-block;
-    font-size: 16px;
-    margin-bottom: 10px;
+.status-badge {
+  @include span-columns(3);
+  color: $white;
+  box-sizing: border-box;
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 10px;
 
-    @media only screen and (max-width: 1200px){
-       @include span-columns(6);
-    }
-
-    @media only screen and (max-width: 600px){
-       @include span-columns(12);
-    }
-
-    @media only screen and (max-width: 300px){
-       font-size: 14px;
-    }
+  &:hover {
+    color: #fff;
   }
 
   @media only screen and (max-width: 1200px){
-     .status-badge.dependencies {
-       margin-right: 0;
-     }
+     @include span-columns(6);
   }
 
-  .status-badge::before {
-    font-family: 'FontAwesome';
-    margin-right: 3px;
-    display: inline-block;
-    padding: 8px 12px;
-    width: 40px;
-    margin-right: 12px;
-    text-align: center;
+  @media only screen and (max-width: 600px){
+     @include span-columns(12);
   }
 
-  .good {
-    background-color: $success-color;
-    border: 1px solid darken($success-color, 5);
+  @media only screen and (max-width: 300px){
+     font-size: 14px;
   }
+}
 
-  .good::before{
-    content: '\f00c';
-    border-right: 1px solid darken($success-color, 5);
-  }
+@media only screen and (max-width: 1200px){
+   .status-badge.dependencies {
+     margin-right: 0;
+   }
+}
 
-  .bad {
-    background-color: $danger-color;
-    border: 1px solid darken($danger-color, 7);
-  }
+.status-badge::before {
+  font-family: 'FontAwesome';
+  margin-right: 3px;
+  display: inline-block;
+  padding: 8px 12px;
+  width: 40px;
+  margin-right: 12px;
+  text-align: center;
+}
 
-  .bad::before{
-    content: '\f071';
-    border-right: 1px solid darken($danger-color, 7);
-  }
+.status-badge.-good {
+  background-color: $success-color;
+  border: 1px solid darken($success-color, 5);
+}
 
-  .unknown {
-    background-color: $white;
-    border: 1px solid #bebebe;
-    color: $text-color;
-  }
+.status-badge.-good::before{
+  content: '\f00c';
+  border-right: 1px solid darken($success-color, 5);
+}
 
-  .unknown::before {
-    content: '\f059';
-    border-right: 1px solid #bebebe;
-  }
+.status-badge.-bad {
+  background-color: $danger-color;
+  border: 1px solid darken($danger-color, 7);
+}
+
+.status-badge.-bad::before{
+  content: '\f071';
+  border-right: 1px solid darken($danger-color, 7);
+}
+
+.status-badge.-unknown {
+  background-color: $white;
+  border: 1px solid #bebebe;
+  color: $text-color;
+}
+
+.status-badge.-unknown::before {
+  content: '\f059';
+  border-right: 1px solid #bebebe;
 }

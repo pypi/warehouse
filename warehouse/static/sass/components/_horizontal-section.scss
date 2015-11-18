@@ -16,8 +16,12 @@
   border-top: 1px solid darken($base-grey, 10);
 }
 
+.horizontal-section.-medium {
+  padding: 40px 0;
+}
+
 .horizontal-section.-thin {
-  padding: 10px;
+  padding: 10px 0;
 }
 
 @media only screen and (max-width: 400px){

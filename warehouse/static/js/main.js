@@ -41,14 +41,14 @@ $(document).ready(function() {
   // Launch filter popover on mobile
   $('body').on('click', '.add-filter', function(e){
     e.preventDefault();
-    $('.overlay').show();
-    $('.filter-packages').show();
+    $('.dark-overlay').show();
+    $('.panel-overlay').show();
   });
 
   $('body').on('click', '.close-panel', function(e){
     e.preventDefault();
-    $('.overlay').hide();
-    $('.filter-packages').hide();
+    $('.dark-overlay').hide();
+    $('.panel-overlay').hide();
   });
 
   // Position Sticky bar

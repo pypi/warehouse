@@ -1,7 +1,7 @@
 .homepage-hero {
   text-align: center;
 
-  h1 {
+  .title {
     max-width: 810px;
     margin: 0 auto;
     padding: 0 20px 40px 20px;
@@ -11,13 +11,9 @@
     }
   }
 
-  .browse-packages {
+  .browse {
     font-size: 1.2rem;
     margin: 30px 0 10px 0;
-
-    @media only screen and (max-width: 400px){
-       font-size: 18px;
-    }
 
     a {
       color: $white;

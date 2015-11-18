@@ -1,12 +1,10 @@
 .about-pypi {
-  display: table;
+  @extend .split-layout.-table;
   max-width: 1000px;
   margin: 0 auto;
 
   .large-logo,
   .about-text {
-    display: table-cell;
-    vertical-align: middle;
     float: none;
 
     @media only screen and (max-width: 550px){
