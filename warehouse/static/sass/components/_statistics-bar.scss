@@ -1,0 +1,16 @@
+.statistics-bar {
+  text-align: center;
+
+  > .statistic {
+    color: darken($brand-color, 15);
+    font-size: 20px;
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0;
+    box-sizing: border-box;
+
+    @media only screen and (max-width: 800px){
+       font-size: 18px;
+    }
+  }
+}

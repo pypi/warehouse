@@ -1,0 +1,39 @@
+.about-pypi {
+  display: table;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  .large-logo,
+  .about-text {
+    display: table-cell;
+    vertical-align: middle;
+    float: none;
+
+    @media only screen and (max-width: 550px){
+       display: block;
+       width: 100%;
+    }
+
+    @media only screen and (max-width: 550px){
+      margin-bottom: -10px;
+    }
+  }
+
+  .large-logo {
+    text-align: right;
+
+    @media only screen and (max-width: 550px){
+      display: none;
+    }
+
+    img {
+      width: 220px;
+      max-width: 100%;
+      margin: -15px 50px 0 0;
+
+      @media only screen and (max-width: 800px){
+         margin-right: 20px;
+      }
+    }
+  }
+}

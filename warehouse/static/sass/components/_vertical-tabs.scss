@@ -1,0 +1,117 @@
+.vertical-tabs-container {
+  $base-border-radius: 3px !default;
+  $base-background-color: $white !default;
+  $base-line-height: 1.5em !default;
+  $base-spacing: 1.5em !default;
+  $action-color: $brand-color !default;
+  $dark-gray: #333 !default;
+  $medium-screen: em(640) !default;
+  $base-font-color: $dark-gray !default;
+  $tab-border: 1px solid #ececec;
+  $tab-content-background: #ececec;
+  $tab-inactive-color: $base-background-color;
+  $vertical-tabs-height: em(300);
+  $vertical-tab-mode: $medium-screen;
+
+  @include clearfix;
+  overflow: hidden;
+  margin: 30px 0;
+
+  .vertical-tabs {
+    @include media($vertical-tab-mode) {
+      display: inline;
+      float: left;
+      width: 25%;
+    }
+    border-right: 2px solid $base-grey;
+    display: none;
+    padding: 0 30px 0 0;
+  }
+
+  .vertical-tab {
+    @include media($vertical-tab-mode) {
+      display: block;
+      margin-right: -1px;
+      padding: ($base-spacing / 2) ($gutter / 2);
+
+      &.is-active {
+        background: $brand-color;
+        color: $white;
+        margin-right: -1px;
+      }
+    }
+  }
+
+  a.vertical-tab-accordion-heading,
+  a.vertical-tab {
+    color: $brand-color;
+  }
+
+  .vertical-tab:focus {
+    outline: none;
+  }
+
+  .vertical-tab-content-container {
+    display: block;
+    margin: 0 auto;
+
+    & a:focus {
+      outline: none;
+    }
+
+    @include media($vertical-tab-mode) {
+      width: 75%;
+      display: inline-block;
+    }
+  }
+
+  .vertical-tab-content {
+    padding: 0 0 0 30px;
+
+    @media screen and (max-width: 1200px) {
+      padding: 0 0 0 20px;
+    }
+
+    @media only screen and (max-width: 640px){
+      padding: 20px 10px;
+    }
+
+    p {
+      color: $base-font-color;
+      line-height: $base-line-height;
+    }
+
+    @include media($vertical-tab-mode) {
+      border: none;
+      display: none;
+    }
+  }
+
+  .vertical-tab-accordion-heading {
+    border-top: $tab-border;
+    cursor: pointer;
+    display: block;
+    font-weight: 600;
+    color: $brand-color;
+    padding: $base-spacing / 2 $gutter / 2;
+
+    &:focus,
+    &:hover {
+      color: darken($brand-color, 10);
+    }
+
+    &:first-child {
+      border-top: none;
+    }
+
+    &.is-active {
+      color: $white;
+      background: $brand-color;
+      border-bottom: none;
+    }
+
+    @include media($vertical-tab-mode) {
+      display: none;
+    }
+  }
+}

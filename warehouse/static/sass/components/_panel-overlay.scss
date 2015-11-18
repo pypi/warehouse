@@ -1,0 +1,46 @@
+
+aside.filter-packages {
+  a.close-panel {
+    display: none;
+  }
+
+  @media only screen and (max-width: 1000px){
+    display: none;
+    margin: 0;
+    padding: 25px;
+    overflow: scroll;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: $brand-color;
+    z-index: 20;
+    width: 280px;
+    max-width: 100%;
+
+    h2, label, a, {
+      color: $white;
+    }
+
+    a.close-panel {
+      display: inline-block;
+      position: absolute;
+      padding: 10px 15px;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+    }
+  }
+}
+
+
+.overlay {
+  display: none;
+  background-color: transparentize(#000, .4);
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}

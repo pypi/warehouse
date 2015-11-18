@@ -1,0 +1,21 @@
+.notification-bar {
+    @extend .h3;
+    border-bottom: 2px solid $white;
+    border-top: 2px solid $white;
+    text-align: center;
+    background-color: darken($brand-color, 10);
+    color: $white;
+    padding: 15px;
+
+    .icon {
+      font-size: $small-font-size;
+    }
+}
+
+.notification-bar.-warning {
+  background-color: $danger-color;
+}
+
+.notification-bar.-success {
+  background-color: $success-color;
+}

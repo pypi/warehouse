@@ -1,0 +1,26 @@
+.horizontal-menu {
+  .link {
+    text-decoration: none;
+    display: inline-block;
+
+    @media only screen and (max-width: 400px){
+      padding: 25px 10px;
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.horizontal-menu.-light .link {
+    color: $white;
+
+    &:hover {
+      text-decoration-color: rgba(255,255,255, 0.4);
+    }
+}
+
+.horizontal-menu.-tall .link {
+    padding: 32px 15px; 
+}

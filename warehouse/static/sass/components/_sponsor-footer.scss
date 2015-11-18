@@ -1,0 +1,76 @@
+.sponsors {
+  text-align: center;
+  border-top: 1px solid darken($brand-color, 2);
+  background-color: $brand-color;
+  margin-top: 60px;
+  padding: 15px;
+
+  @media only screen and (max-width: 400px){
+    margin-top: 40px;
+  }
+
+  .supported-by {
+    display: none;
+    font-style: italic;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid transparentize($white, .8);
+
+    @media only screen and (max-width: 600px){
+      display: block;
+    }
+  }
+
+  .sponsor {
+    display: inline-block;
+    text-align: center;
+    padding: 15px 13px 10px 13px;
+    opacity: 0.6;
+    text-decoration: none;
+
+    @media only screen and (max-width: 800px){
+      padding: 7px 10px;
+    }
+
+    @media only screen and (max-width: 600px){
+      padding: 5px 7px;
+    }
+
+    span {
+      max-width: 100px;
+      display: block;
+      font-size: 13px;
+      color: $white;
+    }
+
+    img {
+      max-height: 45px;
+
+      @media only screen and (max-width: 800px){
+        display: none;
+      }
+    }
+
+    span.provider {
+      font-weight: 600;
+      margin-top: 10px;
+
+      @media only screen and (max-width: 600px){
+        margin: 0;
+        font-weight: normal;
+      }
+    }
+
+    span.service {
+      font-style: italic;
+
+      @media only screen and (max-width: 600px){
+        display: none;
+      }
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,9 @@
+.mobile-search {
+  display: none;
+  padding: 10px;
+  background-color: darken($brand-color, 5);
+
+  @media screen and (max-width: 750px) {
+    display: block;
+  }
+}

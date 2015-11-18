@@ -1,0 +1,34 @@
+.expander {
+  margin-top: 10px;
+
+  .expander-trigger {
+    padding: 5px;
+    display: block;
+    text-decoration: none;
+
+    &::before {
+      font-family: 'FontAwesome';
+      content: "\f139";
+      margin-right: 0.5em;
+    }
+  }
+
+  .expander-content {
+    padding: 10px 0;
+      a {
+      display: block;
+      margin-right: 10px;
+    }
+  }
+
+  .expander-hidden {
+    &::before {
+      font-family: 'FontAwesome';
+      content: "\f13a";
+    }
+  }
+
+  .expander-hidden + .expander-content {
+    display: none;
+  }
+}

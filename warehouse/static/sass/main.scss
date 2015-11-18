@@ -1,0 +1,154 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@charset "utf-8";
+
+// WAREHOUSE
+
+/*
+  This is the primary import file for the CSS for the Warehouse project (PyPI).
+  This project uses a variation of the ITCSS system to control CSS inheritance.
+  The basic idea is that you should define CSS rules in an order moving
+  from generic to specific. This is done so we avoid rules overwriting rules
+  overwriting rules overwriting... you get the picture.
+  Imports are organised into the seven layers defined below:
+*/
+
+
+/*
+ * CONTENTS
+ *
+ * TOOLS LAYER
+ * Got a cool SASS functions you want to use?  Import them here.
+ * Bourbon..............Mixins and functions provided from Bourbon (bourbon.io)
+ * Neat.................Grid mixins and functions from Neat (neat.bourbon.io)
+ * Grid-helpers.........
+ *
+ * SETTINGS LAYER
+ * Here we import our high level variables to use throughout the rest of the
+ * project
+ * Colors...............Manage our color palette in isolation.
+ * Fonts................Define our font families and base sizes.
+ * Neat-settings........Custom settings for the neat library.
+ * Grid-settings........
+ *
+ * GENERIC LAYER
+ * Let's lay our foundation and clean off any browser CSS.
+ * Normalize.css........A level playing field.
+ * Reset................A pared back reset to remove margins.
+ * Box-sizing...........Better default `box-sizing`.
+ *
+ * BASE LAYER
+ * High-level styles, applied to unnamed HTML elements (e.g. p, ol, ul, etc.)
+ * Page.................Page-level styles, including universal styles.
+ * Headings.............Heading styles
+ * Type.................Misc type styles, including link styling
+ * ImagesFigures........Images and Figures.
+ * Lists................inuitcss list styles
+ * Tables...............
+ * Forms................
+
+ * LAYOUT
+ * Containers
+ * Collapsable columns
+
+ *
+ * COMPONENTS
+
+ * Subtitle
+ * Button
+ * Horizontal-section
+ * Package list.........Includes styles for individual package cards.
+ * Badge
+ * Lede-paragraph
+ * Sponsor footer
+ * Author-profile
+ * Notification-bar
+ * Horizontal menu
+ * Mobile-search-bar
+ * Site header
+
+ *
+ * TRUMPS
+ *
+ */
+
+// TOOLS LAYER
+@import "tools/bourbon/bourbon"; //Also imports bourbon's default settings
+@import "tools/neat/neat"; //Also imports neat's default settings
+@import "tools/grid-helpers";
+
+// SETTINGS LAYER
+@import "settings/colours";
+@import "settings/fonts";
+@import "settings/neat";
+@import "settings/grid";
+
+// GENERIC LAYER
+@import "generic/normalize";
+@import "generic/reset";
+@import "generic/boxsizing";
+
+// BASE LAYER
+@import "base/page";
+@import "base/headings";
+@import "base/type";
+@import "base/images-figures";
+@import "base/lists";
+@import "base/tables";
+@import "base/forms";
+
+// LAYOUT LAYER
+@import "layout/collapsing-columns";
+@import "layout/containers";
+@import "layout/sticky-bar";
+@import "layout/split-layout";
+@import "layout/banner-block";
+@import "layout/onethird-twothirds";
+
+// COMPONENTS LAYER
+@import "components/large-input";
+@import "components/brand-logo";
+@import "components/heading-wsubtitle";
+@import "components/wh-buttons";
+@import "components/button-set";
+@import "components/horizontal-section";
+@import "components/package-list";
+@import "components/highlight-badge";
+@import "components/lede-paragraph";
+@import "components/author-profile";
+@import "components/sponsor-footer";
+@import "components/notification-bar";
+@import "components/mobile-search-bar";
+@import "components/horizontal-menu";
+@import "components/site-header";
+@import "components/card-style";
+@import "components/statistics-bar";
+@import "components/about-pypi";
+@import "components/homepage-hero";
+@import "components/footer";
+@import "components/package-header";
+@import "components/package-status";
+@import "components/package-links";
+@import "components/search-form";
+@import "components/vertical-tabs";
+@import "components/sidebar-section";
+@import "components/downloads-table";
+@import "components/download-graph";
+@import "components/history-timeline";
+@import "components/filter-badge";
+@import "components/accordion-menu";
+@import "components/checkbox-tree";
+@import "components/filter-list";
+@import "components/panel-overlay";

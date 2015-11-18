@@ -1,0 +1,54 @@
+/*
+-primary : Used on the primary site navigation
+-large: large centered search bar
+-fullwidth: Full width (used on mobile displays)
+
+*/
+
+.search-form {
+  @include clearfix;
+
+  .search,
+  .wh-button{
+    display: inline;
+    float: left;
+  }
+
+  .search {
+    margin-right: 5px;
+  }
+}
+
+.search-form.-primary {
+    margin: 25px 0 0 40px;
+
+    @media screen and (max-width: 750px) {
+      display: none;
+    }
+
+    .search {
+      width: 400px;
+
+      @media screen and (max-width: 900px) {
+        width: 250px;
+      }
+    }
+}
+
+.search-form.-fullwidth {
+    .search {
+      width: 79%;
+      margin-right: 1%;
+    }
+
+    .wh-button {
+      width: 20%;
+    }
+}
+
+.search-form.-large {
+  padding: 0 20px;
+  width: 650px;
+  max-width: 100%;
+  margin: 0 auto;
+}

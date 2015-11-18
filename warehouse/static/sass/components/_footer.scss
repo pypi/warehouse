@@ -1,0 +1,85 @@
+/**
+ * Site footer
+ */
+
+.footer {
+  $base-spacing: 1.5em !default;
+  $action-color: #477DCA !default;
+  $footer-link-color: transparentize($white, 0.3);
+  $footer-disclaimer-color: transparentize($white, 0.3);
+
+  background-color: lighten($brand-color, 2);
+  color: $white;
+  padding: 60px 0 0 0;
+  width: 100%;
+
+  @media only screen and (max-width: 400px){
+    padding-top: 40px;
+  }
+
+  .footer-logo {
+    margin-bottom: 2em;
+    text-align: center;
+  }
+
+  .footer-links {
+    @include display(flex);
+    @include justify-content(center);
+    @include flex-wrap(wrap);
+    margin-bottom: $base-spacing;
+
+    @media only screen and (max-width: 400px){
+      margin-bottom: 10px;
+    }
+  }
+
+  ul {
+    @include flex-basis(13em);
+    @include flex-shrink(0);
+    margin: 0 15px 40px 15px;
+    padding: 0;
+
+    li {
+      line-height: 1.5em;
+      list-style: none;
+      text-align: center;
+
+      a {
+        color: $footer-link-color;
+        text-decoration: none;
+
+        &:focus,
+        &:hover {
+          color: transparentize($white, 0);
+        }
+      }
+
+      h3 {
+        color: $white;
+        font-size: 1em;
+        margin-bottom: 0.4em;
+      }
+    }
+  }
+
+  hr {
+    border: 1px solid transparentize($footer-disclaimer-color, 0.3);
+    margin: 0 auto $base-spacing;
+    width: 12em;
+  }
+
+  p {
+    color: $footer-disclaimer-color;
+    font-size: 0.9em;
+    line-height: 1.5em;
+    margin: auto;
+    max-width: 40em;
+    text-align: center;
+    padding: 0 20px;
+
+    a {
+      color: transparentize($white, .5);
+      text-decoration: underline;
+    }
+  }
+}

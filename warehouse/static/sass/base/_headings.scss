@@ -1,0 +1,46 @@
+// BASE - HEADINGS
+
+/*
+  Why are we adding classes here?
+  Sometimes we want one of our headings, or text items to look like another
+  heading... but it doesn't make sense semantically in our HTML.
+  Creating heading classes allows us to apply the style using @extend.
+  These classes should NOT be directly applied to our HTML.
+*/
+
+h1, .h1 {
+  font-size: 2.5rem;
+  line-height: 1.3;
+  font-weight: $bold-font-weight;
+
+  // All the other headings resize relative to the body...
+  // But for h1s we want a little more control.
+  @media screen and (max-width: 800px) {
+    font-size: 2.2rem;
+  }
+
+  @media screen and (max-width: 400px) {
+    font-size: 1.8rem;
+  }
+}
+
+h2, .h2 {
+  font-size: 1.3rem;
+  font-weight: $bold-font-weight;
+}
+
+h3, .h3 {
+  font-size: 1.15rem;
+  font-weight: $bold-font-weight;
+}
+
+h4, .h4 {
+  font-size: 1.1rem;
+  font-weight: $bold-font-weight;
+}
+
+h5, h6, .h5, .h6 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: $bold-font-weight;
+}

@@ -1,0 +1,30 @@
+html {
+  font-size: 100%;
+
+  @media screen and (max-width: 800px) {
+    font-size: 95%;
+  }
+}
+
+body {
+  font-family: $base-font-family;
+  font-size: $base-font-size;
+  line-height: $base-line-height;
+  font-weight: $base-font-weight;
+  color: $text-color;
+  -webkit-text-size-adjust: 100%;
+}
+
+strong {
+  font-weight: $bold-font-weight;
+}
+
+a {
+  color: $brand-color;
+  text-decoration: none;
+
+  &:hover {
+    color: darken($brand-color, 10);
+    text-decoration: underline;
+  }
+}

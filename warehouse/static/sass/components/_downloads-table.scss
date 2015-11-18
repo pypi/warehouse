@@ -1,0 +1,51 @@
+.downloads-table {
+  box-sizing: border-box;
+  table-layout: fixed;
+  word-wrap: break-word;
+  margin-bottom: 10px;
+
+  .filename {
+    width: 40%;
+  }
+
+  .checksum {
+    width: 25%;
+  }
+
+  .type,
+  .upload-date {
+    width: 13%;
+  }
+
+  .version {
+    width: 9%;
+  }
+
+  @media only screen and (max-width: 1150px){
+    // Hide 'file type' column
+    th:nth-child(3),
+    td:nth-child(3) {
+      display: none;
+    }
+  }
+
+  @media only screen and (max-width: 1000px){
+    // Hide 'version' column
+    th:nth-child(5),
+    td:nth-child(5) {
+      display: none;
+    }
+  }
+
+  @media only screen and (max-width: 800px){
+    // Hide 'upload date' column
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+  }
+
+  .md5-link {
+    margin-left: 5px;
+  }
+}
