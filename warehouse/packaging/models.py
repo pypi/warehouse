@@ -97,6 +97,12 @@ class Project(SitemapMixin, db.ModelBase):
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
 
+    users = orm.relationship(
+        User,
+        secondary=Role.__table__,
+        backref="projects",
+    )
+
     releases = orm.relationship(
         "Release",
         backref="project",
