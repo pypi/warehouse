@@ -159,7 +159,7 @@ input.-large{font-size:1.3rem;padding:5px 7px;height:46px}
 .horizontal-section.-grey{background-color:#ececec;border-bottom:1px solid #d3d3d3;border-top:1px solid #d3d3d3}
 .horizontal-section.-thin{padding:10px}
 .package-list{padding-top:5px;margin-bottom:40px}
-.package-snippet{border:1px solid #dfdfdf;padding:15px 20px 15px 80px;margin:10px 0 20px;background:url(../img/white-cube.png) 20px no-repeat #fff}
+.package-snippet{border:1px solid #dfdfdf;padding:15px 20px 15px 80px;margin:10px 0 20px;background:url(../images/white-cube.png) 20px no-repeat #fff}
 @media screen and (max-width:400px){.brand-logo{max-width:50px}
 .package-snippet{margin:5px 0 15px}
 }
