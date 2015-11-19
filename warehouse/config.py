@@ -345,6 +345,8 @@ def configure(settings=None):
     config.add_static_view(
         name="static",
         path="warehouse:static/dist/",
+        # TODO: Remove this once we have cache busting completely working
+        cache_max_age=0,
         cachebust=ManifestCacheBuster(
             "warehouse:static/dist/manifest.json",
             reload=config.registry.settings["pyramid.reload_assets"],
