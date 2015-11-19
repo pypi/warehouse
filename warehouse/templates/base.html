@@ -32,12 +32,7 @@
 
   <body>
 
-    <section class="sticky-bar">
-      <div class="notification-bar -warning">
-        <span class="icon"><i class="fa fa-exclamation-triangle"></i></span>
-        <span class="message">{{ _('Warning: You are using the test version of PyPI') }}</span>
-      </div>
-    </section>
+    {% include "warehouse:templates/includes/warning-banner.html" %}
 
     <header class="site-header">
       <div class="site-container">
