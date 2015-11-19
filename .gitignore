@@ -21,4 +21,6 @@ dev/example.sql
 ./data/
 
 warehouse/.commit
+warehouse/static/dist
+
 requirements.txt

@@ -14,6 +14,9 @@ var del = require("del"),
     uglify = require("gulp-uglify");
 
 
+var STATIC_DIST_PATH = process.env.WAREHOUSE_STATIC_DIST_PATH || "warehouse/static/dist";
+
+
 var srcPaths = {
   components: "warehouse/static/components",
   images: "warehouse/static/images/",
@@ -21,12 +24,13 @@ var srcPaths = {
   sass: "warehouse/static/sass/"
 }
 
+
 var dstPaths = {
-  base: "warehouse/static/dist/",
-  components: "warehouse/static/dist/components/",
-  css: "warehouse/static/dist/css/",
-  images: "warehouse/static/dist/images/",
-  js: "warehouse/static/dist/js/"
+  base: STATIC_DIST_PATH,
+  components: path.join(STATIC_DIST_PATH, "components"),
+  css: path.join(STATIC_DIST_PATH, "css"),
+  images: path.join(STATIC_DIST_PATH, "images"),
+  js: path.join(STATIC_DIST_PATH, "js"),
 }
 
 
@@ -137,7 +141,7 @@ gulp.task("clean", [
   "clean:manifest"
 ]);
 
-gulp.task("watch", function() {
+gulp.task("watch", ["dist"], function() {
     gulp.watch(path.join(srcPaths.sass, "*.scss"), ["default"]);
 });
 

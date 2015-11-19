@@ -6,7 +6,9 @@ ENV PYTHONPATH /app/
 # Install Warehouse's Dependencies
 RUN set -x \
     && apt-get update \
-    && apt-get install libpq5 libffi6 postgresql-client --no-install-recommends -y \
+    && apt-get install curl -y \
+    && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
+    && apt-get install git libpq5 libffi6 postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -24,7 +26,11 @@ WORKDIR /app/
 # Install Warehouse
 RUN set -x \
     && apt-get update \
-    && apt-get install gcc libpq-dev libffi-dev --no-install-recommends -y \
+    && apt-get install gcc make libpq-dev libffi-dev --no-install-recommends -y \
+    && rm -rf node_modules \
+    && npm install -g npm \
+    && npm install -g node-gyp gulp-cli \
+    && npm install \
     && pip install -U pip setuptools \
     && pip install -r requirements/main.txt -r requirements/dev.txt \
                    -r requirements/tests.txt \
@@ -34,7 +40,7 @@ RUN set -x \
     # && pip install -c requirements/main.txt -r requirements/deploy.txt \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
-    && apt-get purge gcc libpq-dev libffi-dev -y \
+    && apt-get purge gcc make libpq-dev libffi-dev -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
