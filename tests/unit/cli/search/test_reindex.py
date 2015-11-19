@@ -41,6 +41,8 @@ def test_project_docs(db_session):
                 "name": p.name,
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
+                "uploader_name": prs[0].uploader.name,
+                "uploader_username": prs[0].uploader.username,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())

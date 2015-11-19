@@ -97,6 +97,17 @@ class TestProject:
         ]
 
 
+class TestRelease:
+
+    def test_has_meta_true_with_keywords(self, db_session):
+        release = DBReleaseFactory.create(keywords="foo, bar")
+        assert release.has_meta
+
+    def test_has_meta_false(self, db_session):
+        release = DBReleaseFactory.create()
+        assert not release.has_meta
+
+
 class TestFile:
 
     def test_compute_paths(self, db_session):

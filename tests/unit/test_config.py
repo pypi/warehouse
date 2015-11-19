@@ -216,20 +216,26 @@ def test_find_service_factory(monkeypatch, factory):
 
 
 @pytest.mark.parametrize(
-    ("settings", "environment"),
+    ("settings", "environment", "other_settings"),
     [
-        (None, config.Environment.production),
-        ({}, config.Environment.production),
-        ({"my settings": "the settings value"}, config.Environment.production),
-        (None, config.Environment.development),
-        ({}, config.Environment.development),
+        (None, config.Environment.production, {}),
+        ({}, config.Environment.production, {}),
+        (
+            {"my settings": "the settings value"},
+            config.Environment.production,
+            {},
+        ),
+        (None, config.Environment.development, {}),
+        ({}, config.Environment.development, {}),
         (
             {"my settings": "the settings value"},
             config.Environment.development,
+            {},
         ),
+        (None, config.Environment.production, {"warehouse.theme": "my_theme"}),
     ],
 )
-def test_configure(monkeypatch, settings, environment):
+def test_configure(monkeypatch, settings, environment, other_settings):
     json_renderer_obj = pretend.stub()
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
@@ -253,7 +259,7 @@ def test_configure(monkeypatch, settings, environment):
                 "dirs.packages": "/srv/data/pypi/packages/",
             }
 
-    configurator_settings = {}
+    configurator_settings = other_settings.copy()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
@@ -269,7 +275,7 @@ def test_configure(monkeypatch, settings, environment):
         ),
         add_tween=pretend.call_recorder(lambda tween_factory: None),
         add_static_view=pretend.call_recorder(
-            lambda name, path, cachebust: None
+            lambda name, path, cache_max_age, cachebust: None
         ),
         scan=pretend.call_recorder(lambda ignore: None),
     )
@@ -367,6 +373,13 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".routes"),
             pretend.call(".raven"),
         ]
+        +
+        [
+            pretend.call(x) for x in [
+                configurator_settings.get("warehouse.theme"),
+            ]
+            if x
+        ]
     )
     assert configurator_obj.add_jinja2_renderer.calls == [
         pretend.call(".html"),
@@ -389,6 +402,7 @@ def test_configure(monkeypatch, settings, environment):
         pretend.call({
             "csp": {
                 "default-src": ["'none'"],
+                "font-src": ["'self'", "fonts.gstatic.com"],
                 "frame-ancestors": ["'none'"],
                 "img-src": [
                     "'self'",
@@ -399,7 +413,7 @@ def test_configure(monkeypatch, settings, environment):
                 "reflected-xss": ["block"],
                 "report-uri": [None],
                 "script-src": ["'self'"],
-                "style-src": ["'self'"],
+                "style-src": ["'self'", "fonts.googleapis.com"],
             },
         }),
     ]
@@ -419,12 +433,13 @@ def test_configure(monkeypatch, settings, environment):
     assert configurator_obj.add_static_view.calls == [
         pretend.call(
             name="static",
-            path="warehouse:static",
+            path="warehouse:static/dist/",
+            cache_max_age=0,
             cachebust=cachebuster_obj,
         ),
     ]
     assert cachebuster_cls.calls == [
-        pretend.call("warehouse:static/manifest.json", reload=False),
+        pretend.call("warehouse:static/dist/manifest.json", reload=False),
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),

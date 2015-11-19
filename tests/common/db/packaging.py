@@ -40,6 +40,8 @@ class ReleaseFactory(WarehouseFactory):
     version = factory.Sequence(lambda n: str(n) + ".0")
     _pypi_ordering = factory.Sequence(lambda n: n)
 
+    uploader = factory.SubFactory(UserFactory)
+
 
 class FileFactory(WarehouseFactory):
     class Meta:

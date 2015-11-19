@@ -313,6 +313,7 @@ class Release(db.ModelBase):
         # on ordering and implicitly selecting the first object to make this
         # happen,
         uselist=False,
+        viewonly=True,
     )
 
     @property
