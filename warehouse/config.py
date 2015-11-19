@@ -333,10 +333,7 @@ def configure(settings=None):
             "reflected-xss": ["block"],
             "report-uri": [config.registry.settings.get("csp.report_uri")],
             "script-src": ["'self'"],
-            "style-src": [
-                "'self'",
-                "fonts.googleapis.com",
-            ],
+            "style-src": ["'self'", "fonts.googleapis.com"],
         },
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
