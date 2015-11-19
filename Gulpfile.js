@@ -12,6 +12,7 @@ var del = require("del"),
 
 
 var srcPaths = {
+  components: "warehouse/static/components",
   images: "warehouse/static/images/",
   js: "warehouse/static/js/",
   sass: "warehouse/static/sass/"
@@ -36,7 +37,7 @@ gulp.task("lint:sass", function() {
 gulp.task("lint", ["lint:sass"]);
 
 gulp.task("dist:components", ["clean:components"], function() {
-  return gulp.src(mainBowerFiles())
+  return gulp.src(mainBowerFiles(), { base: srcPaths.components })
              .pipe(gulp.dest(dstPaths.components));
 });
 

@@ -1,5 +1,5 @@
 {
-  "components/jquery.js": "components/jquery-107fbe9555.js",
+  "components/jquery/dist/jquery.js": "components/jquery/dist/jquery-107fbe9555.js",
   "components/modernizr.js": "components/modernizr-488309e3c0.js",
   "css/main.css": "css/main-14353a337b.css",
   "images/blue-cube-small.png": "images/blue-cube-small-d599f56b40.png",
