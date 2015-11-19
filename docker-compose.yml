@@ -27,7 +27,7 @@ app:
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained in
     # it.
-    # WAREHOUSE_THEME: pypi_theme
+    # WAREHOUSE_THEME: pypi_theme.pypi
     AMQP_URL: amqp://guest@rabbitmq:5672//
     DATABASE_URL: postgresql://postgres@db/warehouse
     ELASTICSEARCH_URL: http://elasticsearch:9200/development

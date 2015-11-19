@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse 15.0.dev0\n"
 "Report-Msgid-Bugs-To: distutils-sig@python.org\n"
-"POT-Creation-Date: 2015-11-19 11:31-0500\n"
+"POT-Creation-Date: 2015-11-19 12:54-0500\n"
 "PO-Revision-Date: 2015-03-27 23:41-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -44,7 +44,7 @@ msgstr ""
 msgid "<strong>%(num)s</strong> projects match '<em>%(term)s</em>'."
 msgstr ""
 
-#: warehouse/templates/base.html:74
+#: warehouse/templates/base.html:69
 msgid "About PyPI"
 msgstr ""
 
@@ -56,15 +56,15 @@ msgstr ""
 msgid "By Development Status"
 msgstr ""
 
-#: warehouse/templates/base.html:83
+#: warehouse/templates/base.html:78
 msgid "Contribute on Github"
 msgstr ""
 
-#: warehouse/templates/base.html:81
+#: warehouse/templates/base.html:76
 msgid "Contributing to PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:86
 msgid "Copyright © 1990-2015, Python Software Foundation."
 msgstr ""
 
@@ -94,13 +94,13 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: warehouse/templates/base.html:90
+#: warehouse/templates/base.html:85
 msgid ""
 "Developed and maintained by the Python community, for the Python "
 "community."
 msgstr ""
 
-#: warehouse/templates/base.html:84
+#: warehouse/templates/base.html:79
 msgid "Development Credits"
 msgstr ""
 
@@ -146,11 +146,11 @@ msgstr ""
 msgid "Find, install and publish Python packages with the Python Package Index"
 msgstr ""
 
-#: warehouse/templates/base.html:67
+#: warehouse/templates/base.html:62
 msgid "Get Help"
 msgstr ""
 
-#: warehouse/templates/base.html:51
+#: warehouse/templates/base.html:46
 msgid "Help"
 msgstr ""
 
@@ -170,7 +170,7 @@ msgstr ""
 msgid "How do I install this?"
 msgstr ""
 
-#: warehouse/templates/base.html:68
+#: warehouse/templates/base.html:63
 msgid "Installing Packages"
 msgstr ""
 
@@ -188,7 +188,7 @@ msgstr ""
 msgid "Latest Version"
 msgstr ""
 
-#: warehouse/templates/base.html:91
+#: warehouse/templates/base.html:86
 msgid "Legal Statements"
 msgstr ""
 
@@ -203,11 +203,11 @@ msgstr ""
 msgid "Links for %(project)s"
 msgstr ""
 
-#: warehouse/templates/base.html:49
+#: warehouse/templates/base.html:44
 msgid "Login"
 msgstr ""
 
-#: warehouse/templates/base.html:46 warehouse/templates/index.html:46
+#: warehouse/templates/base.html:41 warehouse/templates/index.html:46
 msgid "Logo"
 msgstr ""
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "Order packages by"
 msgstr ""
 
-#: warehouse/templates/base.html:77
+#: warehouse/templates/base.html:72
 msgid "Our Sponsors"
 msgstr ""
 
@@ -282,11 +282,11 @@ msgid ""
 "installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/base.html:70
+#: warehouse/templates/base.html:65
 msgid "Reference Guide"
 msgstr ""
 
-#: warehouse/templates/base.html:50
+#: warehouse/templates/base.html:45
 msgid "Register"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgstr ""
 msgid "Relevance"
 msgstr ""
 
-#: warehouse/templates/base.html:82
+#: warehouse/templates/base.html:77
 msgid "Report a Bug"
 msgstr ""
 
@@ -311,7 +311,7 @@ msgstr ""
 msgid "Search Packages"
 msgstr ""
 
-#: warehouse/templates/base.html:76
+#: warehouse/templates/base.html:71
 msgid "Security Policy"
 msgstr ""
 
@@ -357,7 +357,7 @@ msgstr ""
 msgid "Statistics"
 msgstr ""
 
-#: warehouse/templates/base.html:75
+#: warehouse/templates/base.html:70
 msgid "Status: Operational"
 msgstr ""
 
@@ -403,7 +403,7 @@ msgstr ""
 msgid "Upload Date"
 msgstr ""
 
-#: warehouse/templates/base.html:69
+#: warehouse/templates/base.html:64
 msgid "Uploading Packages"
 msgstr ""
 
@@ -416,15 +416,11 @@ msgstr ""
 msgid "Version History & Changelog"
 msgstr ""
 
-#: warehouse/templates/base.html:38
-msgid "Warning: You are using the test version of PyPI"
-msgstr ""
-
 #: warehouse/templates/packaging/includes/project-stats.html:5
 msgid "Weekly"
 msgstr ""
 
-#: warehouse/templates/base.html:62
+#: warehouse/templates/base.html:57
 msgid "White Cube"
 msgstr ""
 
