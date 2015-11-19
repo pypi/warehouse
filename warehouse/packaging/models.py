@@ -315,6 +315,10 @@ class Release(db.ModelBase):
         uselist=False,
     )
 
+    @property
+    def has_meta(self):
+        return any([self.keywords])
+
 
 class File(db.Model):
 

@@ -241,7 +241,7 @@ select{padding:7px 5px}
 }
 @media only screen and (max-width:800px){.history-section .graphic{display:none}
 }
-.history-section .graphic .line{position:absolute;left:0;bottom:0;width:100%;height:100%;z-index:1;background:url(../img/history-line.png) 50% 50% repeat-y}
+.history-section .graphic .line{position:absolute;left:0;bottom:0;width:100%;height:100%;z-index:1;background:url(../images/history-line.png) 50% 50% repeat-y}
 .history-section .graphic img.history-node{background-color:#fdfdfd;padding:7px 0;position:relative;z-index:2}
 .history-section .changelog{width:75%;display:table-cell}
 @media only screen and (max-width:1200px){.history-section .changelog{width:65%}

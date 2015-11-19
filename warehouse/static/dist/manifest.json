@@ -1,7 +1,10 @@
 {
   "components/jquery.js": "components/jquery-107fbe9555.js",
   "components/modernizr.js": "components/modernizr-488309e3c0.js",
-  "css/main.css": "css/main-bf46c2efa9.css",
+  "css/main.css": "css/main-14353a337b.css",
+  "images/blue-cube-small.png": "images/blue-cube-small-d599f56b40.png",
+  "images/history-line.png": "images/history-line-204e13aef5.png",
+  "images/white-cube-small.png": "images/white-cube-small-8008f793a9.png",
   "images/white-cube.png": "images/white-cube-c497a098f3.png",
   "js/main.js": "js/main-90e9a534ff.js",
   "js/plugins.js": "js/plugins-074c4c08f0.js"
