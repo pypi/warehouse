@@ -6,8 +6,8 @@
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('../fonts/fontawesome-webfont.eot?v=4.4.0');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.4.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff2?v=4.4.0') format('woff2'), url('../fonts/fontawesome-webfont.woff?v=4.4.0') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.4.0') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.4.0#fontawesomeregular') format('svg');
+  src: url('../fonts/fontawesome-webfont.25aa6008.eot?v=4.4.0');
+  src: url('../fonts/fontawesome-webfont.25aa6008.eot?#iefix&v=4.4.0') format('embedded-opentype'), url('../fonts/fontawesome-webfont.d396b505.woff2?v=4.4.0') format('woff2'), url('../fonts/fontawesome-webfont.1a5f7cb3.woff?v=4.4.0') format('woff'), url('../fonts/fontawesome-webfont.99e3ea8d.ttf?v=4.4.0') format('truetype'), url('../fonts/fontawesome-webfont.76a4f23c.svg?v=4.4.0#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }
