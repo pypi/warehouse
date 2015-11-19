@@ -1,0 +1,36 @@
+.package-list {
+  padding-top: 5px;
+  margin-bottom: 40px;
+}
+
+.package-snippet {
+  @extend .card-style;
+  padding: 15px 20px 15px 80px;
+  margin: 10px 0 20px;
+  background: url('../images/white-cube.png') no-repeat 0 50%;
+  background-position: 20px;
+
+  @media screen and (max-width: 400px) {
+    margin: 5px 0 15px;
+  }
+
+  .title {
+    margin-bottom: 0;
+    word-wrap: break-word;
+  }
+
+  .meta {
+    font-size: 16px;
+    margin: 1px 0 2px;
+
+    .version {
+      font-weight: $bold-font-weight;
+    }
+  }
+
+  .description {
+    clear: both;
+    font-size: 1rem;
+    font-style: italic;
+  }
+}

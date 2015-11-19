@@ -1,0 +1,25 @@
+/*
+<div class="button-set">
+  <a href="#" class="wh-button -highlight">All versions</a>
+  <a href="#" class="wh-button">This version only (3.1)</a>
+</div>
+*/
+
+.button-set {
+  display: block;
+  margin: 15px 0 25px;
+  @include clearfix;
+
+  .wh-button {
+    float: left;
+    border-radius: 0;
+  }
+
+  .wh-button:first-child {
+    border-radius: 3px 0 0 3px;
+  }
+
+  .wh-button:last-child {
+    border-radius: 0 3px 3px 0;
+  }
+}

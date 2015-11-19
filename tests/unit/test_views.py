@@ -80,9 +80,10 @@ class TestIndex:
 
         assert index(db_request) == {
             # assert that ordering is correct
-            'latest_updated_releases': [release2, release1],
+            'latest_releases': [release2, release1],
+            'top_projects': [release2],
             'num_projects': 1,
-            'num_users': 1,
+            'num_users': 3,
             'num_releases': 2,
             'num_files': 1,
         }

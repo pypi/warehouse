@@ -1,25 +1,39 @@
 table {
-  @include font-feature-settings("kern", "liga", "tnum");
+  @extend .card-style;
+  @include border-width(1px null);
   border-collapse: collapse;
-  margin: $small-spacing 0;
-  table-layout: fixed;
-  width: 100%;
-}
-
-th {
-  border-bottom: 1px solid darken($base-border-color, 15%);
-  font-weight: 600;
-  padding: $small-spacing 0;
+  border-spacing: 0;
   text-align: left;
-}
+  margin: 25px 0 0 0;
+  font-size: $small-font-size;
+  width: 100%;
 
-td {
-  border-bottom: $base-border;
-  padding: $small-spacing 0;
-}
+  tr {
+    border-bottom: 1px solid $border-color;
+  }
 
-tr,
-td,
-th {
-  vertical-align: middle;
+  th, td {
+    margin: 0;
+    border: 0;
+    padding: 15px 10px;
+    border-right: 1px solid $border-color;
+  }
+
+  thead tr {
+    background-color: $white;
+
+    th {
+      vertical-align: bottom;
+      font-weight: $bold-font-weight;
+    }
+  }
+
+  tbody {
+    tr {
+      background-color: darken($background-color, .75);
+    }
+    tr:nth-child(even) {
+      background-color: darken($background-color, 2);
+    }
+  }
 }

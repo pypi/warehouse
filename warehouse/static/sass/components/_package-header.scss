@@ -1,0 +1,78 @@
+.package-header {
+  @extend .site-container;
+
+  h1 {
+    margin-bottom: 0;
+  }
+
+  .description {
+    font-size: 1.2rem;
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  .license {
+    float: right;
+
+    @media only screen and (max-width: 800px){
+       float: none;
+       margin-bottom: 10px;
+    }
+  }
+
+  .pip-instructions {
+    @include clearfix;
+    margin: 20px 0 15px 0;
+
+    span {
+      font-family: $code-font;
+      font-weight: 500;
+      font-size: 22px;
+      float: left;
+      background-color: rgba(0,0,0,.15);
+      padding: 10px;
+      border: 1px dotted rgba(255,255,255, 0.4);
+      line-height: 30px;
+
+      @media only screen and (max-width: 800px){
+         font-size: 20px;
+         line-height: 25px;
+      }
+
+      @media only screen and (max-width: 400px){
+         font-size: 18px;
+         line-height: 22px;
+      }
+    }
+
+    a {
+      line-height: 30px;
+      float: left;
+      padding: 10px 15px;
+      background-color: rgba(0,0,0,.15);
+      border-right: 1px dotted rgba(255,255,255, 0.4);
+      border-top: 1px dotted rgba(255,255,255, 0.4);
+      border-bottom: 1px dotted rgba(255,255,255, 0.4);
+
+      @media only screen and (max-width: 800px){
+         line-height: 25px;
+         padding: 10px;
+      }
+
+      @media only screen and (max-width: 400px){
+         display: none;
+      }
+    }
+  }
+
+  a {
+    color: $white;
+    text-decoration: underline;
+    text-decoration-color: rgba(255,255,255, 0.4);
+  }
+
+  p.help-link {
+    display: block;
+    margin-bottom: 5px;
+  }
+}

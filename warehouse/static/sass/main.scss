@@ -1,0 +1,97 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@charset "utf-8";
+
+// WAREHOUSE
+
+/*
+  This is the primary import file for the CSS for the Warehouse project (PyPI).
+  This project uses a variation of the ITCSS system to control CSS inheritance.
+  The basic idea is that you should define CSS rules in an order moving
+  from generic to specific. This is done so we avoid rules overwriting rules
+  overwriting rules overwriting... you get the picture.
+  Imports are organised into the six layers defined below:
+*/
+
+
+// TOOLS LAYER
+@import "tools/bourbon/bourbon"; //Also imports bourbon's default settings
+@import "tools/neat/neat"; //Also imports neat's default settings
+@import "tools/grid-helpers";
+
+// SETTINGS LAYER
+@import "settings/colours";
+@import "settings/fonts";
+@import "settings/neat";
+@import "settings/grid";
+
+// RESETS LAYER
+@import "generic/normalize";
+@import "generic/reset";
+@import "generic/boxsizing";
+
+// BASE LAYER
+@import "base/page";
+@import "base/headings";
+@import "base/typography";
+@import "base/images-figures";
+@import "base/lists";
+@import "base/tables";
+@import "base/forms";
+
+// LAYOUT LAYER
+@import "layout/half-column";
+@import "layout/site-container";
+@import "layout/sticky-bar";
+@import "layout/split-layout";
+@import "layout/banner-block";
+@import "layout/left-sidebar";
+
+// REUSABLE COMPONENTS LAYER
+@import "components/about-pypi"; // Move me
+@import "components/accordion-menu";
+@import "components/applied-filters";
+@import "components/author-profile"; // Move this?
+@import "components/brand-logo";
+@import "components/button-set";
+@import "components/card-style";
+@import "components/checkbox-tree";
+@import "components/dark-overlay";
+@import "components/download-graph";
+@import "components/downloads-table";
+@import "components/filter-badge";
+@import "components/footer"; // refactor
+@import "components/heading-wsubtitle";
+@import "components/highlight-badge";
+@import "components/history-timeline";
+@import "components/homepage-hero"; //refactor
+@import "components/horizontal-menu";
+@import "components/horizontal-section";
+@import "components/large-input";
+@import "components/lede-paragraph";
+@import "components/mobile-search-bar";
+@import "components/notification-bar";
+@import "components/package-header";
+@import "components/package-links";
+@import "components/package-list";
+@import "components/package-status";
+@import "components/panel-overlay";
+@import "components/search-form";
+@import "components/sidebar-section";
+@import "components/site-header"; // refactor
+@import "components/sponsor-footer";
+@import "components/statistics-bar";
+@import "components/vertical-tabs";
+@import "components/wh-buttons";

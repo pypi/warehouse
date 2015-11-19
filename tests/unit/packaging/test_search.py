@@ -37,6 +37,10 @@ def test_build_search():
         download_url="https://example.com/foobar/downloads/",
         keywords="the, keywords, lol",
         platform="any platform",
+        uploader=pretend.stub(
+            username="some-username",
+            name="the-users-name",
+        ),
     )
     obj = search.Project.from_db(release)
 
@@ -53,3 +57,5 @@ def test_build_search():
     assert obj["download_url"] == "https://example.com/foobar/downloads/"
     assert obj["keywords"] == "the, keywords, lol"
     assert obj["platform"] == "any platform"
+    assert obj["uploader_name"] == "the-users-name"
+    assert obj["uploader_username"] == "some-username"

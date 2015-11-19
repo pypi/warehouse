@@ -97,6 +97,12 @@ class Project(SitemapMixin, db.ModelBase):
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
 
+    users = orm.relationship(
+        User,
+        secondary=Role.__table__,
+        backref="projects",
+    )
+
     releases = orm.relationship(
         "Release",
         backref="project",
@@ -307,7 +313,12 @@ class Release(db.ModelBase):
         # on ordering and implicitly selecting the first object to make this
         # happen,
         uselist=False,
+        viewonly=True,
     )
+
+    @property
+    def has_meta(self):
+        return any([self.keywords])
 
 
 class File(db.Model):

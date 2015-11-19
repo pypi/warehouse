@@ -16,7 +16,8 @@ from pyramid.httpexceptions import (
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
-from sqlalchemy.orm import joinedload
+from sqlalchemy import func
+from sqlalchemy.orm import aliased, joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -85,12 +86,36 @@ def robotstxt(request):
     ]
 )
 def index(request):
-    latest_updated_releases = (
+    project_names = [
+        r[0] for r in (
+            request.db.query(File.name)
+                   .group_by(File.name)
+                   .order_by(func.sum(File.downloads).desc())
+                   .limit(5)
+                   .all())
+    ]
+    release_a = aliased(
+        Release,
+        request.db.query(Release)
+                  .distinct(Release.name)
+                  .filter(Release.name.in_(project_names))
+                  .order_by(Release.name, Release._pypi_ordering.desc())
+                  .subquery(),
+    )
+    top_projects = (
+        request.db.query(release_a)
+               .options(joinedload(release_a.project),
+                        joinedload(release_a.uploader))
+               .order_by(func.array_idx(project_names, release_a.name))
+               .all()
+    )
+
+    latest_releases = (
         request.db.query(Release)
                   .options(joinedload(Release.project),
                            joinedload(Release.uploader))
                   .order_by(Release.created.desc())
-                  .limit(20)
+                  .limit(5)
                   .all()
     )
 
@@ -107,7 +132,8 @@ def index(request):
     )
 
     return {
-        "latest_updated_releases": latest_updated_releases,
+        "latest_releases": latest_releases,
+        "top_projects": top_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),

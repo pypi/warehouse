@@ -1,0 +1,28 @@
+.filter-packages {
+  label {
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: table;
+    width: 100%;
+    line-height: 1.2;
+    padding: 3px 0;
+
+    input[type=checkbox] {
+      display: table-cell;
+      vertical-align: middle;
+      width: 10%;
+    }
+
+    span {
+      width: 90%;
+      display: table-cell;
+      vertical-align: middle;
+    }
+  }
+
+  .child-category {
+    margin-left: 15px;
+  }
+}

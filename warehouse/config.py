@@ -157,6 +157,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
@@ -321,6 +322,7 @@ def configure(settings=None):
     config.add_settings({
         "csp": {
             "default-src": ["'none'"],
+            "font-src": ["'self'", "fonts.gstatic.com"],
             "frame-ancestors": ["'none'"],
             "img-src": [
                 "'self'",
@@ -331,7 +333,7 @@ def configure(settings=None):
             "reflected-xss": ["block"],
             "report-uri": [config.registry.settings.get("csp.report_uri")],
             "script-src": ["'self'"],
-            "style-src": ["'self'"],
+            "style-src": ["'self'", "fonts.googleapis.com"],
         },
     })
     config.add_tween("warehouse.config.content_security_policy_tween_factory")
@@ -343,9 +345,11 @@ def configure(settings=None):
     # Enable Warehouse to service our static files
     config.add_static_view(
         name="static",
-        path="warehouse:static",
+        path="warehouse:static/dist/",
+        # TODO: Remove this once we have cache busting completely working
+        cache_max_age=0,
         cachebust=ManifestCacheBuster(
-            "warehouse:static/manifest.json",
+            "warehouse:static/dist/manifest.json",
             reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )
@@ -363,6 +367,10 @@ def configure(settings=None):
     # We want Raven to be the last things we add here so that it's the outer
     # most WSGI middleware.
     config.include(".raven")
+
+    # Add our theme if one was configured
+    if config.get_settings().get("warehouse.theme"):
+        config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])

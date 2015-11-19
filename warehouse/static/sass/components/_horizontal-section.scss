@@ -1,0 +1,31 @@
+.horizontal-section {
+  padding: 70px 0;
+
+  @media only screen and (max-width: 800px){
+    padding: 50px 0;
+  }
+
+  @media only screen and (max-width: 400px){
+    padding: 40px 0;
+  }
+}
+
+.horizontal-section.-grey {
+  background-color: $base-grey;
+  border-bottom: 1px solid darken($base-grey, 10);
+  border-top: 1px solid darken($base-grey, 10);
+}
+
+.horizontal-section.-medium {
+  padding: 40px 0;
+}
+
+.horizontal-section.-thin {
+  padding: 10px 0;
+}
+
+@media only screen and (max-width: 400px){
+  .horizontal-section.-statistics {
+    display: none;
+  }
+}

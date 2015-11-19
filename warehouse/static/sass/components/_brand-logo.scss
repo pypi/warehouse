@@ -1,0 +1,9 @@
+.brand-logo {
+  padding: 15px 0;
+  max-width: 65px;
+  float: left;
+
+  @media screen and (max-width: 400px) {
+    max-width: 50px;
+  }
+}

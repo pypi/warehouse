@@ -1,0 +1,95 @@
+/*
+<!-- Standard Button (border only) -->
+<a class="wh-button">Button Text</a>
+
+<!-- Solid Button for on dark backgrounds-->
+<a class="wh-button -dark">Button Text</a>
+
+<!-- Solid Button for on light backgrounds-->
+<a class="wh-button -highlight">Button Text</a>
+
+<!-- Large Button -->
+<a class="wh-button -large">Button Text</a>
+
+<!-- Small Button -->
+<a class="wh-button -small">Button Text</a>
+
+<!-- Button where text turns into an icon on mobile devices -->
+<a class="wh-button">
+  <i class="icon fa-something"></i><!-- icon here -->
+  <span class="text">Link Text</span>
+</a>
+*/
+
+#{$all-buttons},
+.wh-button {
+  font-size: $button-font-size;
+  font-weight: $bold-font-weight;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 7px 15px;
+  color: lighten($text-color, 10);
+  border: 2px solid darken($base-grey, 10);
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.wh-button.-large {
+  @extend .h3;
+  padding: 8px 15px 9px 15px;
+}
+
+.wh-button.-small {
+  font-size: $small-font-size;
+  padding: 3px 10px;
+}
+
+.wh-button:focus,
+#{$all-buttons-focus},
+.wh-button:hover,
+#{$all-buttons-hover},
+.wh-button:active,
+#{$all-buttons-active}  {
+  border: 2px solid $brand-color;
+  color: darken($brand-color, 10);
+  text-decoration: none;
+}
+
+.wh-button.-dark {
+  border-color: darken($brand-color, 16);
+  background-color: darken($brand-color, 15);
+  color: $white;
+
+  &:hover {
+    border-color: darken($brand-color, 21);
+    background-color: darken($brand-color, 20);
+  }
+}
+
+.wh-button.-highlight {
+  border-color: $brand-color;
+  background-color: $brand-color;
+  color: $white;
+
+  &:hover {
+    background-color: darken($brand-color, 2);
+    text-decoration-color: rgba(255,255,255, .2);
+  }
+}
+
+
+// Toggle icons / text on mobile devices
+
+.wh-button .icon {
+  display: none;
+}
+
+@media only screen and (max-width: 450px){
+  .wh-button .icon {
+    display: inline-block;
+  }
+
+  .wh-button .text {
+    display: none;
+  }
+}

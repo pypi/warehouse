@@ -1,53 +1,108 @@
 var del = require("del"),
     gulp = require("gulp"),
-    minifycss = require("gulp-minify-css"),
-    neat = require("node-neat").includePaths,
+    mainBowerFiles = require("main-bower-files"),
+    minifyCSS = require("gulp-minify-css"),
+    modernizr = require("gulp-modernizr"),
     path = require("path"),
-    normalize = path.join(require.resolve("normalize.css/package.json"), ".."),
     rename = require("gulp-rename"),
     rev = require("gulp-rev"),
-    sass = require("gulp-sass");
+    runSequence = require("run-sequence"),
+    sass = require("gulp-sass"),
+    sassLint = require("gulp-sass-lint");
 
 
-var paths = {
-    base: "warehouse/static/",
-    css: "warehouse/static/css/",
-    sass: "warehouse/static/sass/"
-};
+var srcPaths = {
+  components: "warehouse/static/components",
+  images: "warehouse/static/images/",
+  js: "warehouse/static/js/",
+  sass: "warehouse/static/sass/"
+}
+
+var dstPaths = {
+  base: "warehouse/static/dist/",
+  components: "warehouse/static/dist/components/",
+  css: "warehouse/static/dist/css/",
+  images: "warehouse/static/dist/images/",
+  js: "warehouse/static/dist/js/"
+}
 
 
-gulp.task("dist:css:normalize", function() {
-    return gulp.src(path.join(normalize, "normalize.css"))
-        .pipe(minifycss())
-        .pipe(gulp.dest(paths.css));
-})
-
-
-gulp.task("dist:css:warehouse", function() {
-    return gulp.src(path.join(paths.sass, "*.scss"))
-        .pipe(sass({ includePaths: [paths.sass].concat(neat) }))
-        .pipe(minifycss())
-        .pipe(gulp.dest(paths.css));
+gulp.task("lint:sass", function() {
+  return gulp.src(path.join(srcPaths.sass, "**", "*.s+(a|c)ss"))
+             .pipe(sassLint())
+             .pipe(sassLint.format())
+             .pipe(sassLint.failOnError())
 });
 
-gulp.task("dist:css", ["dist:css:normalize", "dist:css:warehouse"]);
+gulp.task("lint", ["lint:sass"]);
+
+gulp.task("dist:components", ["clean:components"], function() {
+  return gulp.src(mainBowerFiles(), { base: srcPaths.components })
+             .pipe(gulp.dest(dstPaths.components));
+});
+
+gulp.task("dist:css", ["clean:css"], function() {
+  return gulp.src(path.join(srcPaths.sass, "*.scss"))
+             .pipe(sass({ includePaths: [srcPaths.sass] }))
+             .pipe(minifyCSS({ keepBreaks: true }))
+             .pipe(gulp.dest(dstPaths.css));
+});
+
+gulp.task("dist:images", ["clean:images"], function() {
+  return gulp.src(path.join(srcPaths.images, "**", "*"))
+             .pipe(gulp.dest(dstPaths.images));
+});
+
+gulp.task("dist:js", ["clean:js"], function() {
+  return gulp.src(path.join(srcPaths.js, "**", "*"))
+             .pipe(gulp.dest(dstPaths.js));
+});
+
+gulp.task("dist:modernizr", function() {
+  return gulp.src(path.join(dstPaths.js, "**", "*.js"))
+             .pipe(modernizr())
+             .pipe(gulp.dest(dstPaths.components));
+});
 
 gulp.task("dist:cachebuster", function() {
-    var mpaths = [paths.css].map(function (i){ return path.join(i, "**", "*") });
+  var mpaths = [
+    dstPaths.components,
+    dstPaths.css,
+    dstPaths.images,
+    dstPaths.js
+  ].map(function (i){ return path.join(i, "**", "*") });
 
-    return gulp.src(mpaths, { base: path.join(__dirname, paths.base) })
-        .pipe(rev())
-        .pipe(gulp.dest(paths.base))
-        .pipe(rev.manifest({ path: "manifest.json" }))
-        .pipe(gulp.dest(paths.base));
+  return gulp.src(mpaths, { base: path.join(__dirname, dstPaths.base) })
+             .pipe(rev())
+             .pipe(gulp.dest(dstPaths.base))
+             .pipe(rev.manifest({ path: "manifest.json" }))
+             .pipe(gulp.dest(dstPaths.base));
 });
 
-gulp.task("dist", ["dist:css"], function() { gulp.start("dist:cachebuster") });
+gulp.task("dist", function() {
+    return runSequence(
+      ["dist:components", "dist:css", "dist:images", "dist:js"],
+      "dist:modernizr",
+      "dist:cachebuster"
+    );
+});
 
-gulp.task("clean", function(cb) { del([paths.css], cb) });
+gulp.task("clean:components", function() {
+  return del([dstPaths.components])
+});
+
+gulp.task("clean:css", function() { return del([dstPaths.css]) });
+
+gulp.task("clean:images", function() { return del([dstPaths.images]) });
+
+gulp.task("clean:js", function() { return del([dstPaths.js]) });
+
+gulp.task("clean",
+  ["clean:components", "clean:css", "clean:images", "clean:js"]
+);
 
 gulp.task("watch", function() {
-    gulp.watch(path.join(paths.sass, "*.scss"), ["default"]);
+    gulp.watch(path.join(srcPaths.sass, "*.scss"), ["default"]);
 });
 
-gulp.task("default", ["clean"], function() { gulp.start("dist") });
+gulp.task("default", ["dist"]);

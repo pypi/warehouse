@@ -40,6 +40,9 @@ class Project(DocType):
     keywords = String(analyzer="snowball")
     platform = String(index="not_analyzed")
 
+    uploader_name = String()
+    uploader_username = String()
+
     class Meta:
         # disable the _all field to save some space
         all = MetaField(enabled=False)
@@ -60,5 +63,8 @@ class Project(DocType):
         obj["download_url"] = release.download_url
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
+
+        obj["uploader_name"] = release.uploader.name
+        obj["uploader_username"] = release.uploader.username
 
         return obj

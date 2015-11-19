@@ -1,0 +1,75 @@
+// Author Details
+
+.author-details {
+  display: table;
+  width: 100%;
+  vertical-align: top;
+
+  .profile-img {
+    display: table-cell;
+    padding: 10px 30px 0 0;
+    width: 140px;
+
+    @media screen and (max-width: 600px) {
+      display: none;
+    }
+  }
+
+  .author-meta {
+    display: table-cell;
+    vertical-align: top;
+
+    h1 {
+      display: inline-block;
+      margin: 10px 5px 5px 0;
+    }
+
+    .prolific {
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+   .dates {
+      display: block;
+      border-top: 2px solid transparentize($white, 0.6);
+      border-bottom: 2px solid transparentize($white, 0.6);
+      margin-top: 5px;
+      padding: 10px 0;
+
+      @media screen and (max-width: 600px) {
+        display: block;
+        padding: 5px 0;
+      }
+
+      span.joined {
+        margin-right: 15px;
+      }
+
+      @media screen and (max-width: 600px) {
+        span {
+          display: block;
+          width: 100%;
+          margin: 0;
+          padding: 5px 0;
+        }
+      }
+    }
+
+    .bio {
+      font-style: italic;
+      margin: 25px 0 0 0;
+
+      a {
+       color: $white;
+       text-decoration: underline;
+       text-decoration-color: rgba(255,255,255, 0.4);
+      }
+    }
+
+    .highlight-badge {
+      position: relative;
+      top: -4px;
+      left: 2px;
+    }
+  }
+}

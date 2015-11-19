@@ -13,12 +13,14 @@
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from pyramid.security import remember, forget
 from pyramid.view import view_config
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import LoginForm
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
 from warehouse.csrf import csrf_protect
+from warehouse.packaging.models import Project, Release
 from warehouse.sessions import uses_session
 from warehouse.utils.http import is_safe_url
 
@@ -40,7 +42,17 @@ def profile(user, request):
             request.current_route_path(username=user.username),
         )
 
-    return {"user": user}
+    projects = (
+        request.db.query(Release)
+                  .options(joinedload(Release.project))
+                  .join(Project)
+                  .distinct(Project.name)
+                  .filter(Project.users.contains(user))
+                  .order_by(Project.name)
+                  .all()
+    )
+
+    return {"user": user, "projects": projects}
 
 
 @view_config(

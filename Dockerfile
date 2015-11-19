@@ -17,6 +17,10 @@ COPY . /app/
 # Set our work directory to our app directory
 WORKDIR /app/
 
+# Uncomment the below line and add the appropriate private index for the
+# pypi-theme package.
+# ENV PIP_EXTRA_INDEX_URL ...
+
 # Install Warehouse
 RUN set -x \
     && apt-get update \
@@ -24,6 +28,10 @@ RUN set -x \
     && pip install -U pip setuptools \
     && pip install -c requirements.txt gunicorn gevent setproctitle \
     && pip install -c requirements.txt -r requirements-dev.txt -e . \
+    # Uncomment the below line if you're working on the PyPI theme, this is a
+    # private repository due to the fact that other people's IP is contained
+    # in it.
+    # && pip install -c requirements.txt pypi-theme \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
     && apt-get purge gcc libpq-dev libffi-dev -y \

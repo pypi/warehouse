@@ -46,7 +46,10 @@ class TestUserProfile:
 
     def test_returns_user(self, db_request):
         user = UserFactory.create()
-        assert views.profile(user, db_request) == {"user": user}
+        assert views.profile(user, db_request) == {
+            "user": user,
+            "projects": [],
+        }
 
 
 class TestLogin:

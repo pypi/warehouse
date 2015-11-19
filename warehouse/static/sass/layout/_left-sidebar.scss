@@ -1,0 +1,22 @@
+.left-sidebar {
+  @extend .site-container;
+
+  .sidebar {
+    float: left;
+    @include calc(width, "25% - " $spacing-unit / 2);
+    margin-right: $spacing-unit;
+  }
+
+  .main {
+    float: left;
+    @include calc(width, "75% - " $spacing-unit / 2);
+    margin-right: 0;
+  }
+
+  @media only screen and (max-width: 1000px){
+    .main {
+      width: 100%;
+      margin: 0;
+    }
+  }
+}

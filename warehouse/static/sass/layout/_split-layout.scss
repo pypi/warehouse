@@ -1,0 +1,34 @@
+// LAYOUT - SPLIT LAYOUT
+
+// Float one child left, the other right.
+.split-layout {
+  @include clearfix;
+
+  > :first-child {
+    float: left;
+  }
+
+  > :last-child {
+    float: right;
+  }
+}
+
+
+// Or do the same, but this time using a table layout...
+.split-layout.-table {
+  display: table;
+  width: 100%;
+
+  > :first-child {
+    float: none;
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  > :last-child {
+    float: none;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: right;
+  }
+}
