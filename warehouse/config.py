@@ -322,7 +322,7 @@ def configure(settings=None):
     config.add_settings({
         "csp": {
             "default-src": ["'none'"],
-            "font-src": ["fonts.gstatic.com"],
+            "font-src": ["'self'", "fonts.gstatic.com"],
             "frame-ancestors": ["'none'"],
             "img-src": [
                 "'self'",
