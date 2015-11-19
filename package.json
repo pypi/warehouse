@@ -15,6 +15,7 @@
     "gulp-rev-all": "^0.8.22",
     "gulp-sass": "^2.1.0",
     "gulp-sass-lint": "^1.1.0",
+    "gulp-uglify": "^1.5.1",
     "imagemin-optipng": "^4.3.0",
     "main-bower-files": "^2.9.0",
     "run-sequence": "^1.1.4"

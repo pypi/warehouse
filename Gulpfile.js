@@ -10,7 +10,8 @@ var del = require("del"),
     revAll = require("gulp-rev-all"),
     runSequence = require("run-sequence"),
     sass = require("gulp-sass"),
-    sassLint = require("gulp-sass-lint");
+    sassLint = require("gulp-sass-lint"),
+    uglify = require("gulp-uglify");
 
 
 var srcPaths = {
@@ -38,8 +39,14 @@ gulp.task("lint:sass", function() {
 
 gulp.task("lint", ["lint:sass"]);
 
-gulp.task("dist:components", ["clean:components"], function() {
+gulp.task("dist:components:collect", ["clean:components"], function() {
   return gulp.src(mainBowerFiles(), { base: srcPaths.components })
+             .pipe(gulp.dest(dstPaths.components));
+});
+
+gulp.task("dist:components", ["dist:components:collect"], function() {
+  return gulp.src(path.join(dstPaths.components, "**", "*.js"))
+             .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.components));
 });
 
@@ -65,12 +72,14 @@ gulp.task("dist:images", ["clean:images"], function() {
 
 gulp.task("dist:js", ["clean:js"], function() {
   return gulp.src(path.join(srcPaths.js, "**", "*"))
+             .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.js));
 });
 
 gulp.task("dist:modernizr", function() {
   return gulp.src(path.join(dstPaths.js, "**", "*.js"))
              .pipe(modernizr())
+             .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.components));
 });
 
