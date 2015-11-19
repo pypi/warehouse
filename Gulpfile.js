@@ -1,5 +1,7 @@
 var del = require("del"),
     gulp = require("gulp"),
+    imagemin = require("gulp-imagemin"),
+    imageminOptipng = require("imagemin-optipng"),
     mainBowerFiles = require("main-bower-files"),
     minifyCSS = require("gulp-minify-css"),
     modernizr = require("gulp-modernizr"),
@@ -8,7 +10,8 @@ var del = require("del"),
     revAll = require("gulp-rev-all"),
     runSequence = require("run-sequence"),
     sass = require("gulp-sass"),
-    sassLint = require("gulp-sass-lint");
+    sassLint = require("gulp-sass-lint"),
+    uglify = require("gulp-uglify");
 
 
 var srcPaths = {
@@ -36,9 +39,29 @@ gulp.task("lint:sass", function() {
 
 gulp.task("lint", ["lint:sass"]);
 
-gulp.task("dist:components", ["clean:components"], function() {
+gulp.task("dist:components:collect", ["clean:components"], function() {
   return gulp.src(mainBowerFiles(), { base: srcPaths.components })
              .pipe(gulp.dest(dstPaths.components));
+});
+
+gulp.task("dist:components:js", function() {
+  return gulp.src(path.join(dstPaths.components, "**", "*.js"))
+             .pipe(uglify({ preserveComments: "license" }))
+             .pipe(gulp.dest(dstPaths.components));
+});
+
+gulp.task("dist:components:css", function() {
+  return gulp.src(path.join(dstPaths.components, "**", "*.css"))
+             .pipe(minifyCSS({ keepBreaks: true }))
+             .pipe(gulp.dest(dstPaths.components));
+});
+
+
+gulp.task("dist:components", function() {
+  return runSequence(
+    "dist:components:collect",
+    ["dist:components:js", "dist:components:css"]
+  );
 });
 
 gulp.task("dist:css", ["clean:css"], function() {
@@ -50,17 +73,27 @@ gulp.task("dist:css", ["clean:css"], function() {
 
 gulp.task("dist:images", ["clean:images"], function() {
   return gulp.src(path.join(srcPaths.images, "**", "*"))
+             .pipe(
+               imagemin({
+                 progressive: true,
+                 interlaced: true,
+                 multipass: true,
+                 svgoPlugins: [{removeViewBox: false}],
+                 use: [imageminOptipng()]
+             }))
              .pipe(gulp.dest(dstPaths.images));
 });
 
 gulp.task("dist:js", ["clean:js"], function() {
   return gulp.src(path.join(srcPaths.js, "**", "*"))
+             .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.js));
 });
 
 gulp.task("dist:modernizr", function() {
   return gulp.src(path.join(dstPaths.js, "**", "*.js"))
              .pipe(modernizr())
+             .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.components));
 });
 
