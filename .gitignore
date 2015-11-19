@@ -18,6 +18,6 @@ htmlcov/
 node_modules/
 
 dev/example.sql
-data/
+./data/
 
 warehouse/.commit
