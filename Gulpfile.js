@@ -1,5 +1,7 @@
 var del = require("del"),
     gulp = require("gulp"),
+    imagemin = require("gulp-imagemin"),
+    imageminOptipng = require("imagemin-optipng"),
     mainBowerFiles = require("main-bower-files"),
     minifyCSS = require("gulp-minify-css"),
     modernizr = require("gulp-modernizr"),
@@ -50,6 +52,14 @@ gulp.task("dist:css", ["clean:css"], function() {
 
 gulp.task("dist:images", ["clean:images"], function() {
   return gulp.src(path.join(srcPaths.images, "**", "*"))
+             .pipe(
+               imagemin({
+                 progressive: true,
+                 interlaced: true,
+                 multipass: true,
+                 svgoPlugins: [{removeViewBox: false}],
+                 use: [imageminOptipng()]
+             }))
              .pipe(gulp.dest(dstPaths.images));
 });
 

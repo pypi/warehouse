@@ -8,11 +8,11 @@
   "js/main.js": "js/main.90e9a534.js",
   "js/plugins.js": "js/plugins.074c4c08.js",
   "components/font-awesome/css/font-awesome.css": "components/font-awesome/css/font-awesome.00bd491c.css",
-  "components/jquery/dist/jquery.js": "components/jquery/dist/jquery.67a50be5.js",
   "components/font-awesome/fonts/FontAwesome.otf": "components/font-awesome/fonts/FontAwesome.cecf871b.otf",
   "components/font-awesome/fonts/fontawesome-webfont.eot": "components/font-awesome/fonts/fontawesome-webfont.25aa6008.eot",
   "components/font-awesome/fonts/fontawesome-webfont.svg": "components/font-awesome/fonts/fontawesome-webfont.76a4f23c.svg",
   "components/font-awesome/fonts/fontawesome-webfont.ttf": "components/font-awesome/fonts/fontawesome-webfont.99e3ea8d.ttf",
   "components/font-awesome/fonts/fontawesome-webfont.woff": "components/font-awesome/fonts/fontawesome-webfont.1a5f7cb3.woff",
-  "components/font-awesome/fonts/fontawesome-webfont.woff2": "components/font-awesome/fonts/fontawesome-webfont.d396b505.woff2"
+  "components/font-awesome/fonts/fontawesome-webfont.woff2": "components/font-awesome/fonts/fontawesome-webfont.d396b505.woff2",
+  "components/jquery/dist/jquery.js": "components/jquery/dist/jquery.67a50be5.js"
 }
