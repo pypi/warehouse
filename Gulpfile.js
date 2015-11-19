@@ -5,7 +5,7 @@ var del = require("del"),
     modernizr = require("gulp-modernizr"),
     path = require("path"),
     rename = require("gulp-rename"),
-    rev = require("gulp-rev"),
+    revAll = require("gulp-rev-all"),
     runSequence = require("run-sequence"),
     sass = require("gulp-sass"),
     sassLint = require("gulp-sass-lint");
@@ -64,18 +64,13 @@ gulp.task("dist:modernizr", function() {
              .pipe(gulp.dest(dstPaths.components));
 });
 
-gulp.task("dist:cachebuster", function() {
-  var mpaths = [
-    dstPaths.components,
-    dstPaths.css,
-    dstPaths.images,
-    dstPaths.js
-  ].map(function (i){ return path.join(i, "**", "*") });
+gulp.task("dist:manifest", ["clean:manifest"], function() {
+  var revision = new revAll({ fileNameManifest: "manifest.json" });
 
-  return gulp.src(mpaths, { base: path.join(__dirname, dstPaths.base) })
-             .pipe(rev())
+  return gulp.src(path.join(dstPaths.base, "**"))
+             .pipe(revision.revision())
              .pipe(gulp.dest(dstPaths.base))
-             .pipe(rev.manifest({ path: "manifest.json" }))
+             .pipe(revision.manifestFile())
              .pipe(gulp.dest(dstPaths.base));
 });
 
@@ -83,7 +78,7 @@ gulp.task("dist", function() {
     return runSequence(
       ["dist:components", "dist:css", "dist:images", "dist:js"],
       "dist:modernizr",
-      "dist:cachebuster"
+      "dist:manifest"
     );
 });
 
@@ -97,9 +92,17 @@ gulp.task("clean:images", function() { return del([dstPaths.images]) });
 
 gulp.task("clean:js", function() { return del([dstPaths.js]) });
 
-gulp.task("clean",
-  ["clean:components", "clean:css", "clean:images", "clean:js"]
-);
+gulp.task("clean:manifest", function() {
+  return del([path.join(dstPaths.base, "manifest.json")]);
+});
+
+gulp.task("clean", [
+  "clean:components",
+  "clean:css",
+  "clean:images",
+  "clean:js",
+  "clean:manifest"
+]);
 
 gulp.task("watch", function() {
     gulp.watch(path.join(srcPaths.sass, "*.scss"), ["default"]);

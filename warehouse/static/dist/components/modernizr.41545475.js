@@ -1053,13 +1053,13 @@
   ;
 
   /**
-   * Create our "modernizr" element that we do most feature tests on.
+   * Create our "modernizr.41545475" element that we do most feature tests on.
    *
    * @access private
    */
 
   var modElem = {
-    elem : createElement('modernizr')
+    elem : createElement('modernizr.41545475')
   };
 
   // Clean up this element
@@ -1119,7 +1119,7 @@
    */
 
   function injectElementWithStyles(rule, callback, nodes, testnames) {
-    var mod = 'modernizr';
+    var mod = 'modernizr.41545475';
     var style;
     var ret;
     var node;
@@ -1288,7 +1288,7 @@
     // inside of an SVG element, in certain browsers, the `style` element is only
     // defined for valid tags. Therefore, if `modernizr` does not have one, we
     // fall back to a less used element and hope for the best.
-    var elems = ['modernizr', 'tspan'];
+    var elems = ['modernizr.41545475', 'tspan'];
     while (!mStyle.style) {
       afterInit = true;
       mStyle.modElem = createElement(elems.shift());
