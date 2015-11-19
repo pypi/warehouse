@@ -31,7 +31,7 @@ RUN set -x \
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained
     # in it.
-    # && pip install -c requirements.txt pypi-theme \
+    # && pip install -c requirements.txt -r requirements-deploy.txt \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
     && apt-get purge gcc libpq-dev libffi-dev -y \
