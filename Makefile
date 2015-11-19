@@ -2,6 +2,9 @@ default:
 	@echo "Must call a specific subcommand"
 	@exit 1
 
+update-deps:
+	pip-compile requirements.in > requirements.txt
+
 .tox/translations:
 	tox -e translations --notest
 
@@ -27,4 +30,4 @@ init-translations: .tox/translations
 compile-translations: .tox/translations
 	.tox/translations/bin/pybabel compile -f -D warehouse -d warehouse/translations
 
-.PHONY: clean extract-translations init-translations compile-translations
+.PHONY: clean extract-translations init-translations compile-translations update-deps
