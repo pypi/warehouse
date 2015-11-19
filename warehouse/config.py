@@ -157,6 +157,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
@@ -363,6 +364,10 @@ def configure(settings=None):
     # We want Raven to be the last things we add here so that it's the outer
     # most WSGI middleware.
     config.include(".raven")
+
+    # Add our theme if one was configured
+    if config.get_settings().get("warehouse.theme"):
+        config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])

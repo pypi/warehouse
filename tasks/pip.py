@@ -38,6 +38,10 @@ REQUIREMENTS_HEADER = """
 
 -f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
 
+# This is handled manually, to adjust it edit tasks/pip.py and then rerun the
+# pip.compile task.
+pypi-theme==1.7
+
 """.lstrip()
 
 
