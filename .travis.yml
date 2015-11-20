@@ -9,18 +9,16 @@ cache:
   directories:
     - ~/.cache/pip
 
-env:
-  - TOXENV=py35 TOXARGS="-- --dbfixtures-config .travis/dbfixtures.conf"
-  - TOXENV=pep8
-  - TOXENV=docs
-  - TOXENV=packaging
-  - TOXENV=translations
-
 install:
-  - pip install -U pip
-  - pip install -U wheel tox codecov
+  - pip install -U pip setuptools wheel
+  - pip install -r requirements/tests.txt
 
-script: tox $TOXARGS
+script: bin/tests --dbfixtures-config tests/dbfixtures.travis.conf
+
+matrix:
+  include:
+    - script: make lint
+    - script: make docs
 
 after_success: codecov
 

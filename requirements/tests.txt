@@ -1,0 +1,7 @@
+coverage
+factory_boy
+freezegun
+pretend
+pytest
+pytest-dbfixtures>=0.9.0
+webtest

@@ -1,0 +1,3 @@
+doc8
+flake8
+pep8-naming
