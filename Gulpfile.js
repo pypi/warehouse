@@ -63,11 +63,13 @@ gulp.task("dist:components:css", function() {
 });
 
 
-gulp.task("dist:components", gulpSequence(
+gulp.task("dist:components", function(cb) {
+  return gulpSequence(
     "dist:components:install",
     "dist:components:collect",
     ["dist:components:js", "dist:components:css"]
-));
+  )(cb);
+});
 
 gulp.task("dist:css", function() {
   return gulp.src(path.join(srcPaths.sass, "*.scss"))
@@ -112,12 +114,14 @@ gulp.task("dist:manifest", function() {
              .pipe(gulp.dest(dstPaths.base));
 });
 
-gulp.task("dist", gulpSequence(
-  "clean",
-  ["dist:components", "dist:css", "dist:images", "dist:js"],
-  "dist:modernizr",
-  "dist:manifest"
-));
+gulp.task("dist", function(cb) {
+  return gulpSequence(
+    "clean",
+    ["dist:components", "dist:css", "dist:images", "dist:js"],
+    "dist:modernizr",
+    "dist:manifest"
+  )(cb);
+});
 
 gulp.task("clean:components", function() {
   return del([dstPaths.components])
@@ -142,7 +146,7 @@ gulp.task("clean", [
 ]);
 
 gulp.task("watch", ["dist"], function() {
-    return gulp.watch(path.join(srcPaths.sass, "*.scss"), ["dist"]);
+  return gulp.watch(path.join(srcPaths.sass, "*.scss"), ["dist"]);
 });
 
 gulp.task("default", ["dist"]);
