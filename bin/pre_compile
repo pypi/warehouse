@@ -2,10 +2,15 @@
 set -e
 set -x
 
+# Write out what commit we were built from.
 if [[ $SOURCE_VERSION ]]; then
     echo "$SOURCE_VERSION" > warehouse/.commit
 fi
 
+# Create our requirements.txt file that Heroku will use to build.
 echo "-r requirements/main.txt" > requirements.txt
 echo "-r requirements/deploy.txt" >> requirements.txt
 echo "-r requirements/theme.txt" >> requirements.txt
+
+# Build our Static files before doing anything else.
+gulp dist
