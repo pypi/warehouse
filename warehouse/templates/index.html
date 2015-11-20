@@ -30,7 +30,7 @@
     <h1 class="title">{{ _("Find, install and publish Python packages with the Python Package Index") }}</h1>
 
     <form class="search-form -large -fullwidth" action="{{ request.route_path('search') }}">
-      <input class="search -large" type="text" placeholder="{{ _('Search Packages') }}">
+      <input class="search -large" type="text" name="q" placeholder="{{ _('Search Packages') }}">
       <button class="wh-button -dark -large">
         <i class="icon fa fa-search"></i>
         <span class="text">{{ _("Search") }}</span>
