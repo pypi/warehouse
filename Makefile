@@ -68,4 +68,13 @@ initdb:
 shell:
 	docker-compose run web python -m warehouse shell
 
-.PHONY: default build serve initdb shell tests docs
+clean:
+	rm -rf warehouse/static/components
+	rm -rf warehouse/static/dist
+
+purge: clean
+	rm -rf .state
+	docker-compose rm --force
+
+
+.PHONY: default build serve initdb shell tests docs clean purge
