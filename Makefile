@@ -20,8 +20,6 @@ default:
 requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
 	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
 
-	grep '# pypi-theme' requirements/deploy.in | sed 's/# //' >> requirements/deploy.txt
-
 	echo "" >> requirements/deploy.txt
 	echo "# Add additional search locations" >> requirements/deploy.txt
 	echo "-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev" >> requirements/deploy.txt
