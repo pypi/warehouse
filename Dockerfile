@@ -32,7 +32,9 @@ RUN set -x \
     && npm install -g node-gyp gulp-cli \
     && npm install \
     && pip install -U pip setuptools \
-    && pip install -r requirements/main.txt -r requirements/dev.txt \
+    && pip install -r requirements/dev.txt \
+                   -r requirements/deploy.txt \
+                   -r requirements/main.txt \
                    -r requirements/tests.txt \
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained
