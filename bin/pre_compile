@@ -12,5 +12,8 @@ echo "-r requirements/main.txt" > requirements.txt
 echo "-r requirements/deploy.txt" >> requirements.txt
 echo "-r requirements/theme.txt" >> requirements.txt
 
+# We need to install gulp and bower
+npm install -g gulp bower
+
 # Build our Static files before doing anything else.
 gulp dist
