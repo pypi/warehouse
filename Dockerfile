@@ -29,7 +29,7 @@ RUN set -x \
     && apt-get install gcc make libpq-dev libffi-dev --no-install-recommends -y \
     && rm -rf node_modules \
     && npm install -g npm \
-    && npm install -g node-gyp gulp-cli \
+    && npm install -g bower node-gyp gulp-cli \
     && npm install \
     && pip install -U pip setuptools \
     && pip install -r requirements/dev.txt \

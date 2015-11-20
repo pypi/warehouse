@@ -27,7 +27,7 @@ requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
 requirements/main.txt: .state/env/pyvenv.cfg requirements/main.in
 	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
 
-.state/docker-build: Dockerfile requirements/main.txt requirements/deploy.txt
+.state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
 
