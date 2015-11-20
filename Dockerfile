@@ -3,6 +3,12 @@ FROM python:3.5.0-slim
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/
 
+# Setup the locales in the Dockerfile
+RUN set -x \
+    && apt-get update \
+    && apt-get install locales -y \
+    && locale-gen en_US.UTF-8
+
 # Install Warehouse's Dependencies
 RUN set -x \
     && apt-get update \
