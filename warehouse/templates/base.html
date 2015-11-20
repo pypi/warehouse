@@ -37,9 +37,19 @@
     <header class="site-header">
       <div class="site-container">
         <div class="split-layout">
-          <a class="brand-logo" href="{{ request.route_path('index') }}">
-            <img class="logo" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}" alt="{{ _('Logo') }}"/>
-          </a>
+          {% block brand %}
+          <div class="split-layout">
+            <a class="brand-logo" href="{{ request.route_path('index') }}">
+              <img class="logo" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}" alt="{{ _('Logo') }}"/>
+            </a>
+
+            <form class="search-form -primary" action="{{ request.route_path('search') }}">
+              <input class="search" type="text" placeholder="Search Packages">
+              <button class="wh-button -dark">Search</button>
+            </form>
+          </div>
+          {% endblock %}
+
           <nav class="horizontal-menu -light -tall">
             <a class="link" href="TODO">{{ _("Login") }}</a>
             <a class="link" href="TODO">{{ _("Register") }}</a>
@@ -48,6 +58,18 @@
         </div>
       </div>
     </header>
+
+    {% block mobile_search %}
+    <section class="mobile-search">
+      <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
+        <input class="search" type="text" placeholder="Search Projects">
+        <button class="wh-button -dark">
+          <i class="icon fa fa-search"></i>
+          <span class="text">Search</span>
+        </button>
+      </form>
+    </section>
+    {% endblock mobile_search %}
 
     {% block content %}
     {% endblock content %}
