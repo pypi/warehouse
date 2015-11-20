@@ -2,8 +2,13 @@ language: python
 python: 3.5.0
 
 dist: trusty
-
 sudo: false
+
+addons:
+  postgresql: "9.4"
+
+services:
+  - postgresql
 
 cache:
   directories:
