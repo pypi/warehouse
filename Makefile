@@ -15,14 +15,19 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
+requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
+	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
+
+	grep '# pypi-theme' requirements/deploy.in | sed 's/# //' >> requirements/deploy.txt
+
+	echo "" >> requirements/deploy.txt
+	echo "# Add additional search locations" >> requirements/deploy.txt
+	echo "-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev" >> requirements/deploy.txt
+
 requirements/main.txt: .state/env/pyvenv.cfg requirements/main.in
 	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
 
-	echo "" >> requirements/main.txt
-	echo "# Add additional search locations" >> requirements.txt
-	echo "-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev" >> requirements/main.txt
-
-.state/docker-build: Dockerfile requirements/main.txt
+.state/docker-build: Dockerfile requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
 

@@ -20,9 +20,6 @@ click==5.1
 docutils==0.12            # via botocore, readme
 elasticsearch-dsl==0.0.9
 elasticsearch==2.1.0
-gevent==1.1rc1
-greenlet==0.4.9           # via gevent
-gunicorn==19.4.dev0
 hiredis==0.2.0
 html5lib==0.9999999
 itsdangerous==0.24
@@ -54,7 +51,6 @@ redis==2.10.5
 repoze.lru==0.6           # via pyramid
 requests==2.8.1
 rfc3986==0.3.0
-setproctitle==1.1.9
 six==1.10.0               # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme
 sqlalchemy-citext==1.3.post0
 sqlalchemy==1.0.9
@@ -72,5 +68,3 @@ zope.sqlalchemy==0.7.6
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
 # setuptools==18.5
-
--f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
