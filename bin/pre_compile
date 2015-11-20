@@ -5,3 +5,6 @@ set -x
 if [[ $SOURCE_VERSION ]]; then
     echo "$SOURCE_VERSION" > warehouse/.commit
 fi
+
+echo "-r requirements/main.txt" > requirements.txt
+echo "-r requirements/deploy.txt" >> requirements.txt

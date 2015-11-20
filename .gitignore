@@ -21,3 +21,4 @@ dev/example.sql
 ./data/
 
 warehouse/.commit
+requirements.txt
