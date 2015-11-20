@@ -5,9 +5,9 @@
 *.egg
 .eggs/
 
-.tox/
 .cache/
 .coverage
+.state
 
 docs/_build/
 build/
