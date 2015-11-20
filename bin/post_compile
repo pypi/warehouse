@@ -2,4 +2,4 @@
 set -e
 set -x
 
-pip install -c requirements.txt -r requirements-deploy.txt
+pip install -c requirements/main.txt -r requirements/deploy.txt

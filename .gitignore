@@ -5,9 +5,9 @@
 *.egg
 .eggs/
 
-.tox/
 .cache/
 .coverage
+.state
 
 docs/_build/
 build/
@@ -21,3 +21,4 @@ dev/example.sql
 ./data/
 
 warehouse/.commit
+requirements.txt

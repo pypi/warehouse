@@ -15,14 +15,9 @@ Quickstart for Developers with Docker experience
 
     $ git clone git@github.com:pypa/warehouse.git
     $ cd warehouse
-    $ pip install tox
     $ docker start
-    $ docker-compose up
-    $ docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-    $ xz -d -k dev/example.sql.xz
-    $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
-    $ rm dev/example.sql
-    $ docker-compose run web warehouse db upgrade head
+    $ make serve
+    $ make initdb
 
 View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
 ``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
@@ -58,6 +53,7 @@ The Dockerfile and docker-compose.yml files include all the required steps for
 installing and configuring all the required external services of the
 development environment.
 
+
 Installing Docker
 ~~~~~~~~~~~~~~~~~
 
@@ -76,6 +72,7 @@ install `boot2docker`:
   * To set the environment variables in your shell, run:
     ``$eval "$(boot2docker shellinit)"``
 
+
 Verifying Docker Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,26 +81,18 @@ Verifying Docker Installation
 * On Mac OS X and Windows: Verify that `boot2docker` is installed
   ``boot2docker -v``
 
+
 Install Docker Compose
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Install Docker Compose using the Docker provided
 `installation instructions <https://docs.docker.com/compose/install/>`_.
 
+
 Verifying Docker Compose Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker Compose is installed: ``docker-compose -v``
-
-Installing tox
-~~~~~~~~~~~~~~
-
-Once you have Docker Compose installed, you should install `tox`_.
-This is a Python program which can be installed simply with `pip`_ using
-``pip install tox``.
-
-You are now ready to run Warehouse itself, run the tests, and build the
-documentation.
 
 
 Building the Warehouse Container
@@ -116,7 +105,7 @@ Once you have Docker and Docker Compose installed, run:
 
 .. code-block:: console
 
-    $ docker-compose up
+    $ make build
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
@@ -127,12 +116,7 @@ Running the Warehouse Container and Services
 --------------------------------------------
 
 After building the Docker container, you'll need to create a Postgres database
-and run all of the data migrations. Helpfully, Docker Compose lets you run a
-command inside of a new Docker container simply by running:
-
-.. code-block:: console
-
-    $ docker-compose run web <command>
+and run all of the data migrations.
 
 Next, you will:
 
@@ -145,19 +129,10 @@ Run:
 
 .. code-block:: console
 
-    $ docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-    $ xz -d -k dev/example.sql.xz
-    $ docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
-    $ rm dev/example.sql
-    $ docker-compose run web warehouse db upgrade head
+    $ make initdb
 
-If running the second command raises an error, you may need to install the `xz
-library`. This is highly likely on Mac OS X and Windows.
-
-If running the last command raises
-``pkg_resources.DistributionNotFound: warehouse==15.0.dev0``,
-run ``docker-compose run web pip install -e .`` and then retry. See
-`Issue 501 <https://github.com/pypa/warehouse/issues/501>`_.
+If you get an error about xz, you may need to install the `xz` utility. This is
+highly likely on Mac OS X and Windows.
 
 
 Viewing Warehouse in a browser
@@ -184,37 +159,23 @@ anything private. The password for every account has been set to the string
 Troubleshooting
 ===============
 
-Errors when executing ``docker-compose up``
--------------------------------------------
+Errors when executing ``make serve``
+------------------------------------
 
 * If the ``Dockerfile`` is edited or new dependencies are added (either by you
   or a prior pull request), a new container will need to built. A new container
-  can be built by running ``docker-compose build``. This should be done before
-  running ``docker-compose up`` again.
+  can be built by running ``make build``. This should be done before
+  running ``make serve`` again.
 
-* If ``docker-compose up`` hangs after a new build, you should stop any
-  running containers and repeat ``docker-compose up``.
+* If ``make serve`` hangs after a new build, you should stop any
+  running containers and repeat ``make serve``.
 
 
 Building Styles
 ===============
 
-Styles are written in the scss variant of Sass and compiled using Gulp. To
-install Gulp you will need to install `npm`_. Now you can tell npm to install
-Gulp and all the necessary plugins:
-
-.. code-block:: console
-
-    $ npm install
-
-To watch for changes to the .scss files and build the styles run this command:
-
-.. code-block:: console
-
-    $ ./node_modules/.bin/gulp watch
-
-
-.. todo:: Make Docker do this
+Styles are written in the scss variant of Sass and compiled using Gulp. They
+will be automatically built when changed when ``make serve`` is running.
 
 
 Running the Interactive Shell
@@ -228,12 +189,7 @@ To run the interactive shell, simply run:
 
 .. code-block:: console
 
-    $ warehouse shell
-
-By default this command will attempt to detect the best interactive shell that
-is available by looking for either bpython or IPython and then falling back to
-a plain shell if neither of those are available. You can force the type of
-shell that is used with the ``--type`` option.
+    $ make shell
 
 The interactive shell will have the following variables defined in it:
 
@@ -251,32 +207,13 @@ Running tests
 .. note:: PostgreSQL 9.4 is required because of pgcrypto extension
 
 The Warehouse tests are found in the ``tests/`` directory and are designed to
-be run using tox.
-
-On Debian/Ubuntu systems, these packages must be installed to run the tests:
-
-.. code-block:: console
-
-    $ apt-get install libffi-dev libpq-dev python3-dev postgresql postgresql-contrib
-
-To use `Nix <http://nixos.org/nix/>`_ run:
-
-.. code-block:: console
-
-    $ bash <(curl https://nixos.org/nix/install)
-    $ nix-shell -p libffi postgresql94 python34
-
-On Mac, you can install PostgreSQL with Homebrew.
-
-.. code-block:: console
-
-    $ brew install postgresql
+be run using make.
 
 To run all tests, all you have to do is:
 
 .. code-block:: console
 
-    $ tox
+    $ make tests
     ...
       py34: commands succeeded
       docs: commands succeeded
@@ -285,9 +222,7 @@ To run all tests, all you have to do is:
       congratulations :)
 
 This will run the tests with the supported interpreter as well as all of the
-additional testing that we require. You may not have all the required Python
-versions installed, in which case you will see one or more
-``InterpreterNotFound`` errors.
+additional testing that we require.
 
 
 Building documentation
@@ -296,11 +231,11 @@ Building documentation
 The Warehouse documentation is stored in the ``docs/`` directory. It is written
 in `reStructured Text`_ and rendered using `Sphinx`_.
 
-Use `tox`_ to build the documentation. For example:
+Use `make` to build the documentation. For example:
 
 .. code-block:: console
 
-    $ tox -e docs
+    $ make docs
     ...
     docs: commands succeeded
     congratulations :)
@@ -308,8 +243,6 @@ Use `tox`_ to build the documentation. For example:
 The HTML documentation index can now be found at
 ``docs/_build/html/index.html``.
 
-.. _`tox`: https://pypi.python.org/pypi/tox
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`sphinx`: https://pypi.python.org/pypi/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
-.. _`npm`: https://nodejs.org/

@@ -1,1 +1,0 @@
-pypi-theme==1.8

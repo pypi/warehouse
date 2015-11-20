@@ -1,0 +1,9 @@
+-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
+
+# This is commented out so that pip-compile doesn't see it, if it did then it
+# would try to resolve it, and that would fail.
+# pypi-theme==1.8
+
+gevent>=1.1a1
+gunicorn>=19.4.dev
+setproctitle

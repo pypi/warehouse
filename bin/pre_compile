@@ -1,16 +1,10 @@
-#!/usr/bin/env python3
+#!/bin/bash
+set -e
+set -x
 
-import os
-import os.path
+if [[ $SOURCE_VERSION ]]; then
+    echo "$SOURCE_VERSION" > warehouse/.commit
+fi
 
-base_dir = os.path.abspath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "..",
-    "warehouse",
-))
-
-source_version = os.environ.get("SOURCE_VERSION")
-
-if source_version:
-    with open(os.path.join(base_dir, ".commit"), "w") as fp:
-        fp.write(source_version)
+echo "-r requirements/main.txt" > requirements.txt
+echo "-r requirements/deploy.txt" >> requirements.txt

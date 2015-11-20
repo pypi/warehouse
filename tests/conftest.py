@@ -71,10 +71,10 @@ def cli():
 
 
 @pytest.fixture(scope="session")
-def database(request, postgresql_proc):
+def database(request):
     config = get_config(request)
-    pg_host = postgresql_proc.host
-    pg_port = postgresql_proc.port
+    pg_host = config.postgresql.host
+    pg_port = config.postgresql.port
     pg_user = config.postgresql.user
     pg_db = config.postgresql.db
 

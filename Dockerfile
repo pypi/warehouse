@@ -26,12 +26,12 @@ RUN set -x \
     && apt-get update \
     && apt-get install gcc libpq-dev libffi-dev --no-install-recommends -y \
     && pip install -U pip setuptools \
-    && pip install -c requirements.txt gunicorn gevent setproctitle \
-    && pip install -c requirements.txt -r requirements-dev.txt -e . \
+    && pip install -r requirements/main.txt -r requirements/dev.txt \
+                   -r requirements/tests.txt \
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained
     # in it.
-    # && pip install -c requirements.txt -r requirements-deploy.txt \
+    # && pip install -c requirements/main.txt -r requirements/deploy.txt \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
     && apt-get purge gcc libpq-dev libffi-dev -y \
