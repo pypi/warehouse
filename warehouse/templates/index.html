@@ -14,6 +14,16 @@
 {%- endmacro %}
 
 
+{% block brand %}
+<a class="brand-logo" href="{{ request.route_path('index') }}">
+  <img class="logo" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}" alt="{{ _('Logo') }}"/>
+</a>
+{% endblock %}
+
+
+{% block mobile_search %}{% endblock %}
+
+
 {% block content %}
 <section class="banner-block">
   <div class="homepage-hero">
