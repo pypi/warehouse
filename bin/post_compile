@@ -1,5 +1,0 @@
-#!/bin/bash
-set -e
-set -x
-
-pip install -c requirements/main.txt -r requirements/deploy.txt
