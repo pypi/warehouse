@@ -9,16 +9,17 @@
     "del": "^2.1.0",
     "gulp": "^3.9.0",
     "gulp-imagemin": "^2.4.0",
+    "gulp-install": "^0.6.0",
     "gulp-minify-css": "^1.2.1",
     "gulp-modernizr": "0.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-rev-all": "^0.8.22",
     "gulp-sass": "^2.1.0",
     "gulp-sass-lint": "^1.1.0",
+    "gulp-sequence": "^0.4.1",
     "gulp-uglify": "^1.5.1",
     "imagemin-optipng": "^4.3.0",
-    "main-bower-files": "^2.9.0",
-    "run-sequence": "^1.1.4"
+    "main-bower-files": "^2.9.0"
   },
   "private": true
 }

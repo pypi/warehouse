@@ -20,8 +20,6 @@ default:
 requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
 	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
 
-	grep '# pypi-theme' requirements/deploy.in | sed 's/# //' >> requirements/deploy.txt
-
 	echo "" >> requirements/deploy.txt
 	echo "# Add additional search locations" >> requirements/deploy.txt
 	echo "-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev" >> requirements/deploy.txt
@@ -29,7 +27,7 @@ requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
 requirements/main.txt: .state/env/pyvenv.cfg requirements/main.in
 	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
 
-.state/docker-build: Dockerfile requirements/main.txt requirements/deploy.txt
+.state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
 
@@ -49,7 +47,7 @@ serve: .state/docker-build
 	docker-compose up
 
 tests:
-	docker-compose run web env -i bin/tests --dbfixtures-config tests/dbfixtures.conf $(TESTARGS)
+	docker-compose run web env -i ENCODING="C.UTF-8" bin/tests --dbfixtures-config tests/dbfixtures.conf $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
@@ -70,4 +68,13 @@ initdb:
 shell:
 	docker-compose run web python -m warehouse shell
 
-.PHONY: default build serve initdb shell tests docs
+clean:
+	rm -rf warehouse/static/components
+	rm -rf warehouse/static/dist
+
+purge: clean
+	rm -rf .state
+	docker-compose rm --force
+
+
+.PHONY: default build serve initdb shell tests docs clean purge

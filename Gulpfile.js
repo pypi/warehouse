@@ -1,14 +1,15 @@
 var del = require("del"),
     gulp = require("gulp"),
+    gulpSequence = require("gulp-sequence"),
     imagemin = require("gulp-imagemin"),
     imageminOptipng = require("imagemin-optipng"),
+    install = require("gulp-install"),
     mainBowerFiles = require("main-bower-files"),
     minifyCSS = require("gulp-minify-css"),
     modernizr = require("gulp-modernizr"),
     path = require("path"),
     rename = require("gulp-rename"),
     revAll = require("gulp-rev-all"),
-    runSequence = require("run-sequence"),
     sass = require("gulp-sass"),
     sassLint = require("gulp-sass-lint"),
     uglify = require("gulp-uglify");
@@ -21,12 +22,13 @@ var srcPaths = {
   sass: "warehouse/static/sass/"
 }
 
+
 var dstPaths = {
-  base: "warehouse/static/dist/",
-  components: "warehouse/static/dist/components/",
-  css: "warehouse/static/dist/css/",
-  images: "warehouse/static/dist/images/",
-  js: "warehouse/static/dist/js/"
+  base: "warehouse/static/dist",
+  components: "warehouse/static/dist/components",
+  css: "warehouse/static/dist/css",
+  images: "warehouse/static/dist/images",
+  js: "warehouse/static/dist/js",
 }
 
 
@@ -39,7 +41,11 @@ gulp.task("lint:sass", function() {
 
 gulp.task("lint", ["lint:sass"]);
 
-gulp.task("dist:components:collect", ["clean:components"], function() {
+gulp.task("dist:components:install", function() {
+  return gulp.src(["bower.json"]).pipe(install({ allowRoot: true }));
+})
+
+gulp.task("dist:components:collect", function() {
   return gulp.src(mainBowerFiles(), { base: srcPaths.components })
              .pipe(gulp.dest(dstPaths.components));
 });
@@ -57,21 +63,22 @@ gulp.task("dist:components:css", function() {
 });
 
 
-gulp.task("dist:components", function() {
-  return runSequence(
+gulp.task("dist:components", function(cb) {
+  return gulpSequence(
+    "dist:components:install",
     "dist:components:collect",
     ["dist:components:js", "dist:components:css"]
-  );
+  )(cb);
 });
 
-gulp.task("dist:css", ["clean:css"], function() {
+gulp.task("dist:css", function() {
   return gulp.src(path.join(srcPaths.sass, "*.scss"))
              .pipe(sass({ includePaths: [srcPaths.sass] }))
              .pipe(minifyCSS({ keepBreaks: true }))
              .pipe(gulp.dest(dstPaths.css));
 });
 
-gulp.task("dist:images", ["clean:images"], function() {
+gulp.task("dist:images", function() {
   return gulp.src(path.join(srcPaths.images, "**", "*"))
              .pipe(
                imagemin({
@@ -84,7 +91,7 @@ gulp.task("dist:images", ["clean:images"], function() {
              .pipe(gulp.dest(dstPaths.images));
 });
 
-gulp.task("dist:js", ["clean:js"], function() {
+gulp.task("dist:js", function() {
   return gulp.src(path.join(srcPaths.js, "**", "*"))
              .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.js));
@@ -97,7 +104,7 @@ gulp.task("dist:modernizr", function() {
              .pipe(gulp.dest(dstPaths.components));
 });
 
-gulp.task("dist:manifest", ["clean:manifest"], function() {
+gulp.task("dist:manifest", function() {
   var revision = new revAll({ fileNameManifest: "manifest.json" });
 
   return gulp.src(path.join(dstPaths.base, "**"))
@@ -107,12 +114,13 @@ gulp.task("dist:manifest", ["clean:manifest"], function() {
              .pipe(gulp.dest(dstPaths.base));
 });
 
-gulp.task("dist", function() {
-    return runSequence(
-      ["dist:components", "dist:css", "dist:images", "dist:js"],
-      "dist:modernizr",
-      "dist:manifest"
-    );
+gulp.task("dist", function(cb) {
+  return gulpSequence(
+    "clean",
+    ["dist:components", "dist:css", "dist:images", "dist:js"],
+    "dist:modernizr",
+    "dist:manifest"
+  )(cb);
 });
 
 gulp.task("clean:components", function() {
@@ -137,8 +145,8 @@ gulp.task("clean", [
   "clean:manifest"
 ]);
 
-gulp.task("watch", function() {
-    gulp.watch(path.join(srcPaths.sass, "*.scss"), ["default"]);
+gulp.task("watch", ["dist"], function() {
+  return gulp.watch(path.join(srcPaths.sass, "*.scss"), ["dist"]);
 });
 
 gulp.task("default", ["dist"]);

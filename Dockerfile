@@ -3,10 +3,18 @@ FROM python:3.5.0-slim
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/
 
+# Setup the locales in the Dockerfile
+RUN set -x \
+    && apt-get update \
+    && apt-get install locales -y \
+    && locale-gen en_US.UTF-8
+
 # Install Warehouse's Dependencies
 RUN set -x \
     && apt-get update \
-    && apt-get install libpq5 libffi6 postgresql-client --no-install-recommends -y \
+    && apt-get install curl -y \
+    && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
+    && apt-get install git libpq5 libffi6 postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -24,17 +32,23 @@ WORKDIR /app/
 # Install Warehouse
 RUN set -x \
     && apt-get update \
-    && apt-get install gcc libpq-dev libffi-dev --no-install-recommends -y \
+    && apt-get install gcc make libpq-dev libffi-dev --no-install-recommends -y \
+    && rm -rf node_modules \
+    && npm install -g npm \
+    && npm install -g bower node-gyp gulp-cli \
+    && npm install \
     && pip install -U pip setuptools \
-    && pip install -r requirements/main.txt -r requirements/dev.txt \
+    && pip install -r requirements/dev.txt \
+                   -r requirements/deploy.txt \
+                   -r requirements/main.txt \
                    -r requirements/tests.txt \
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained
     # in it.
-    # && pip install -c requirements/main.txt -r requirements/deploy.txt \
+    # && pip install -c requirements/main.txt -r requirements/theme.txt \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
-    && apt-get purge gcc libpq-dev libffi-dev -y \
+    && apt-get purge gcc make libpq-dev libffi-dev -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
