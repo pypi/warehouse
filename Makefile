@@ -64,6 +64,10 @@ initdb:
 	docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
 	rm dev/example.sql
 	docker-compose run web python -m warehouse db upgrade head
+	$(MAKE) reindex
+
+reindex:
+	docker-compose run web python -m warehouse search reindex
 
 shell:
 	docker-compose run web python -m warehouse shell
