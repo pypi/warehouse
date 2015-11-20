@@ -15,7 +15,7 @@ cache:
     - ~/.cache/pip
 
 install:
-  - pip install -U pip setuptools wheel
+  - pip install -U pip setuptools wheel codecov
   - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/main.txt -r requirements/tests.txt
 
 script: bin/tests --dbfixtures-config tests/dbfixtures.travis.conf
