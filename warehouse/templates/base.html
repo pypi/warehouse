@@ -44,7 +44,7 @@
             </a>
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">
-              <input class="search" type="text" placeholder="Search Packages">
+              <input class="search" type="text" name="q" placeholder="Search Packages">
               <button class="wh-button -dark">Search</button>
             </form>
           </div>
@@ -62,7 +62,7 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
-        <input class="search" type="text" placeholder="Search Projects">
+        <input class="search" type="text" name="q" placeholder="Search Projects">
         <button class="wh-button -dark">
           <i class="icon fa fa-search"></i>
           <span class="text">Search</span>
