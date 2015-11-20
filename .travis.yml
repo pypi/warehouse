@@ -11,14 +11,14 @@ cache:
 
 install:
   - pip install -U pip setuptools wheel
-  - pip install -r requirements/tests.txt -r requirements/main.txt
+  - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/main.txt -r requirements/tests.txt
 
 script: bin/tests --dbfixtures-config tests/dbfixtures.travis.conf
 
 matrix:
   include:
-    - script: make lint
-    - script: make docs
+    - script: make lint BINDIR="$(dirname $(which python))"
+    - script: make docs BINDIR="$(dirname $(which python))"
 
 after_success: codecov
 

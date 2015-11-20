@@ -1,3 +1,5 @@
+BINDIR = $(PWD)/.state/env/bin
+
 default:
 	@echo "Must call a specific subcommand"
 	@exit 1
@@ -50,13 +52,13 @@ tests:
 	docker-compose run web env -i bin/tests --dbfixtures-config tests/dbfixtures.conf $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
-	.state/env/bin/flake8 .
-	.state/env/bin/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
+	$(BINDIR)/flake8 .
+	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 
 
 docs: .state/env/pyvenv.cfg
-	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(PWD)/.state/env/bin/sphinx-build"
-	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(PWD)/.state/env/bin/sphinx-build"
+	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
+	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
 initdb:
 	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
