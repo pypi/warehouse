@@ -1,5 +1,6 @@
 var del = require("del"),
     gulp = require("gulp"),
+    gulpSequence = require("gulp-sequence"),
     imagemin = require("gulp-imagemin"),
     imageminOptipng = require("imagemin-optipng"),
     install = require("gulp-install"),
@@ -9,7 +10,6 @@ var del = require("del"),
     path = require("path"),
     rename = require("gulp-rename"),
     revAll = require("gulp-rev-all"),
-    runSequence = require("run-sequence"),
     sass = require("gulp-sass"),
     sassLint = require("gulp-sass-lint"),
     uglify = require("gulp-uglify");
@@ -63,13 +63,11 @@ gulp.task("dist:components:css", function() {
 });
 
 
-gulp.task("dist:components", function() {
-  return runSequence(
+gulp.task("dist:components", gulpSequence(
     "dist:components:install",
     "dist:components:collect",
     ["dist:components:js", "dist:components:css"]
-  );
-});
+));
 
 gulp.task("dist:css", function() {
   return gulp.src(path.join(srcPaths.sass, "*.scss"))
@@ -114,14 +112,12 @@ gulp.task("dist:manifest", function() {
              .pipe(gulp.dest(dstPaths.base));
 });
 
-gulp.task("dist", function() {
-    return runSequence(
-      "clean",
-      ["dist:components", "dist:css", "dist:images", "dist:js"],
-      "dist:modernizr",
-      "dist:manifest"
-    );
-});
+gulp.task("dist", gulpSequence(
+  "clean",
+  ["dist:components", "dist:css", "dist:images", "dist:js"],
+  "dist:modernizr",
+  "dist:manifest"
+));
 
 gulp.task("clean:components", function() {
   return del([dstPaths.components])
