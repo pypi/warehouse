@@ -47,7 +47,7 @@ serve: .state/docker-build
 	docker-compose up
 
 tests:
-	docker-compose run web env -i bin/tests --dbfixtures-config tests/dbfixtures.conf $(TESTARGS)
+	docker-compose run web env -i ENCODING="C.UTF-8" bin/tests --dbfixtures-config tests/dbfixtures.conf $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
