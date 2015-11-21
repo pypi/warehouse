@@ -37,7 +37,7 @@
       </button>
     </form>
 
-    <p class="browse">{{ _('Or <a href="%(url)s">browse packages</a>', url="TODO") }}</p>
+    <p class="browse">{{ _('Or <a href="%(url)s">browse packages</a>', url=request.route_path('search')) }}</p>
   </div>
 </section>
 
