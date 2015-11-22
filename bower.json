@@ -10,7 +10,8 @@
   ],
   "dependencies": {
     "jquery": "2.1.4",
-    "font-awesome": "4.4.0"
+    "font-awesome": "4.4.0",
+    "jquery-timeago": "1.4.3"
   },
   "overrides": {
     "font-awesome": {

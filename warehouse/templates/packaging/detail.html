@@ -78,7 +78,7 @@
         {% endif %}
       </nav>
       <p class="author-info">
-        <span>Released TODO months ago by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <span>Released <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}Z">on {{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
         <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>

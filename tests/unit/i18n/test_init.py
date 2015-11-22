@@ -58,6 +58,7 @@ def test_includeme():
     assert config_settings == {
         "jinja2.filters": {
             "format_date": "warehouse.i18n.filters:format_date",
+            "format_datetime": "warehouse.i18n.filters:format_datetime",
         },
         "jinja2.finalize": i18n.translate_value,
         "jinja2.i18n.domain": "warehouse",
