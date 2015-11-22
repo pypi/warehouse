@@ -17,14 +17,13 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
-requirements/deploy.txt: .state/env/pyvenv.cfg requirements/deploy.in
+update-requirements: .state/env/pyvenv.cfg requirements/deploy.in requirements/main.in
 	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
 
 	echo "" >> requirements/deploy.txt
 	echo "# Add additional search locations" >> requirements/deploy.txt
 	echo "-f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev" >> requirements/deploy.txt
 
-requirements/main.txt: .state/env/pyvenv.cfg requirements/main.in
 	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
 
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
@@ -81,4 +80,4 @@ purge: clean
 	docker-compose rm --force
 
 
-.PHONY: default build serve initdb shell tests docs clean purge
+.PHONY: default build serve initdb shell tests docs clean purge update-requirements
