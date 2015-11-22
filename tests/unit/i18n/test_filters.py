@@ -31,3 +31,20 @@ def test_format_date(monkeypatch):
 
     kwargs.update({"locale": request.locale})
     assert format_date.calls == [pretend.call(*args, **kwargs)]
+
+
+def test_format_datetime(monkeypatch):
+    formatted = pretend.stub()
+    format_datetime = pretend.call_recorder(lambda *a, **kw: formatted)
+    monkeypatch.setattr(babel.dates, "format_datetime", format_datetime)
+
+    request = pretend.stub(locale=pretend.stub())
+    ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
+
+    args = [pretend.stub(), pretend.stub()]
+    kwargs = {"foo": pretend.stub()}
+
+    assert filters.format_datetime(ctx, *args, **kwargs) is formatted
+
+    kwargs.update({"locale": request.locale})
+    assert format_datetime.calls == [pretend.call(*args, **kwargs)]

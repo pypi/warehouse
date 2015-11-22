@@ -53,6 +53,10 @@ def includeme(config):
     # Register our i18n/l10n filters for Jinja2
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("format_date", "warehouse.i18n.filters:format_date")
+    filters.setdefault(
+        "format_datetime",
+        "warehouse.i18n.filters:format_datetime",
+    )
 
     # Register our finalize function for Jinja2
     config.get_settings()["jinja2.finalize"] = translate_value
