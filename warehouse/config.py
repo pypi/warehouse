@@ -321,6 +321,7 @@ def configure(settings=None):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
+            "connect-src": ["'self'"],
             "default-src": ["'none'"],
             "font-src": ["'self'", "fonts.gstatic.com"],
             "frame-ancestors": ["'none'"],
@@ -353,6 +354,9 @@ def configure(settings=None):
             reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )
+
+    # Enable Warehouse to serve our locale files
+    config.add_static_view(name="locales", path="warehouse:locales/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
