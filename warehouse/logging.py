@@ -99,7 +99,7 @@ def includeme(config):
         wrapper_class=structlog.stdlib.BoundLogger,
     )
 
-    # Give every request a unique identifer
+    # Give every request a unique identifier
     config.add_request_method(_create_id, name="id", reify=True)
 
     # Add a log method to every request.
