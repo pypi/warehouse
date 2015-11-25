@@ -6,8 +6,5 @@
 #
 gevent==1.1rc1
 greenlet==0.4.9           # via gevent
-gunicorn==19.4.dev0
+gunicorn==19.4.1
 setproctitle==1.1.9
-
-# Add additional search locations
--f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
