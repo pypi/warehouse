@@ -256,7 +256,7 @@ def configure(settings=None):
         renderers.JSON(sort_keys=True, separators=(",", ":")),
     )
 
-    # Configure our transaction handling so that each request gets it's own
+    # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
     config.add_settings({

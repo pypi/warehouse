@@ -146,7 +146,7 @@ def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
     # concept of hidden releases, so it is just no-opd now and left here for
-    # compatability sake.
+    # compatibility's sake.
     versions = (
         request.db.query(Release.version)
                   .join(Project)

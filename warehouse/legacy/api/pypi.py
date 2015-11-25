@@ -423,7 +423,7 @@ class MetadataForm(forms.Form):
 #     decorator=[require_POST, csrf_exempt, uses_session],
 # )
 def file_upload(request):
-    # Before we do anything, if their isn't an authenticated user with this
+    # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
         raise _exc_with_message(
@@ -466,7 +466,7 @@ def file_upload(request):
             ),
         )
 
-    # TODO: We need a better method of blocking names rather than jsut
+    # TODO: We need a better method of blocking names rather than just
     #       hardcoding some names into source control.
     if form.name.data.lower() in {"requirements.txt", "rrequirements.txt"}:
         raise _exc_with_message(
@@ -567,7 +567,7 @@ def file_upload(request):
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
-    # Make sure that the filename does not contain and path seperators.
+    # Make sure that the filename does not contain any path separators.
     if "/" in filename or "\\" in filename:
         raise _exc_with_message(
             HTTPBadRequest,
@@ -698,7 +698,7 @@ def file_upload(request):
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
-        #       commited.
+        #       committed.
         storage = request.find_service(IFileStorage)
         storage.store(file_.path, os.path.join(tmpdir, filename))
         if has_signature:
