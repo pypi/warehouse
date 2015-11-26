@@ -40,7 +40,7 @@ pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
 pyramid-services==0.2
-pyramid-tm==0.12
+pyramid-tm==0.12.1
 pyramid==1.6b2
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.4        # via alembic
