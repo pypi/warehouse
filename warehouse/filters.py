@@ -12,6 +12,7 @@
 
 import binascii
 import hmac
+import json
 import urllib.parse
 
 import html5lib
@@ -85,3 +86,7 @@ def shorten_number(value):
             return "{:.3g}{}".format(magnitude, symbol)
 
     return str(value)
+
+
+def tojson(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
