@@ -10,20 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import jinja2
+import pytest
 
-from markupsafe import Markup as M
-
-from warehouse.filters import tojson
+from warehouse.i18n import l20n
 
 
-_L20N_TEMPLATE = jinja2.Template(
-    'data-l10n-id="{{ tid }}"'
-    '{% if data %} data-l10n-args="{{ data }}"{% endif %}',
-    autoescape=True,
+@pytest.mark.parametrize(
+    ("tid", "args", "expected"),
+    [
+        ("foo", {}, 'data-l10n-id="foo"'),
+        (
+            "bar",
+            {"thing": "other"},
+            'data-l10n-id="bar" '
+            'data-l10n-args="{&#34;thing&#34;:&#34;other&#34;}"',
+        ),
+    ],
 )
-
-
-def l20n(tid, **kwargs):
-    data = tojson(kwargs) if kwargs else None
-    return M(_L20N_TEMPLATE.render(tid=tid, data=data))
+def test_l20n(tid, args, expected):
+    assert l20n.l20n(tid, **args) == expected

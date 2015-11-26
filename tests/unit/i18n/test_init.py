@@ -27,21 +27,6 @@ def test_sets_locale(monkeypatch):
     assert locale_cls.parse.calls == [pretend.call(request.locale_name)]
 
 
-def test_loads_translations(monkeypatch):
-    translation = pretend.stub()
-    translations = pretend.stub(
-        load=pretend.call_recorder(lambda d, l, domain: translation)
-    )
-    monkeypatch.setattr(i18n, "Translations", translations)
-
-    request = pretend.stub(locale=pretend.stub())
-
-    assert i18n._translation(request) is translation
-    assert translations.load.calls == [
-        pretend.call(i18n.LOCALE_DIR, request.locale, domain="warehouse"),
-    ]
-
-
 def test_includeme():
     config_settings = {}
     config = pretend.stub(
@@ -53,14 +38,13 @@ def test_includeme():
 
     assert config.add_request_method.calls == [
         pretend.call(i18n._locale, name="locale", reify=True),
-        pretend.call(i18n._translation, name="translation", reify=True),
     ]
     assert config_settings == {
         "jinja2.filters": {
             "format_date": "warehouse.i18n.filters:format_date",
             "format_datetime": "warehouse.i18n.filters:format_datetime",
         },
-        "jinja2.finalize": i18n.translate_value,
-        "jinja2.i18n.domain": "warehouse",
-        "jinja2.i18n.gettext": i18n.JinjaRequestTranslation,
+        "jinja2.globals": {
+            "l20n": "warehouse.i18n.l20n:l20n",
+        },
     }

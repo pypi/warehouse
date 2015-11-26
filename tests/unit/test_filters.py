@@ -143,3 +143,13 @@ class TestReadmeRender:
 )
 def test_shorten_number(inp, expected):
     assert filters.shorten_number(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ({"foo": "bar", "left": "right"}, '{"foo":"bar","left":"right"}'),
+    ],
+)
+def test_tojson(inp, expected):
+    assert filters.tojson(inp) == expected
