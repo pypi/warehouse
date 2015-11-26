@@ -53,12 +53,8 @@ measured by `coverage.py`_).
 Translations
 ------------
 
-All user facing content must be marked for translation and anytime content is
-updated the ``.pot`` and ``.po`` must be regenerated using the
-``make extract-translations`` commands and committed as part of the patch.
-
-More details about the Warehouse translation mechanism can be found in
-:doc:`translations`.
+All user facing content must be marked for translation. More details about the
+Warehouse translation mechanism can be found in :doc:`translations`.
 
 
 Documentation
