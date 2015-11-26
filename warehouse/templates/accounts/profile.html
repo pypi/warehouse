@@ -11,10 +11,10 @@
       </div>
       <div class="author-meta">
         <h1>{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
-        <span class="highlight-badge prolific">{{ _("Prolific Pythonista") }}</span>
+        <span class="highlight-badge prolific" {{ l20n("prolificPythonista") }}>Prolific Pythonista</span>
         {% if user.date_joined %}
           <p class="dates">
-            <span class="joined">{{ _("Joined on %(date)s", date=user.date_joined|format_date()) }}</span>
+            <span class="joined" {{ l20n("userJoinedOn", when=user.date_joined|format_date()) }}>Joined on {{ user.date_joined|format_date() }}</span>
           </p>
         {% endif %}
         <div class="bio">
@@ -34,7 +34,7 @@
           <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
 
           <p class="meta">
-            <em>{{ _("Last released on %(date)s", date=release.created|format_date()) }}</em>
+            <em {{ l20n("lastReleasedOn", when=release.created|format_date()) }}>Last released on {{ release.created|format_date() }}</em>
           </p>
 
           <p class="description">{{ release.summary }}</p>
