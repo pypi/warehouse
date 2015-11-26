@@ -63,7 +63,9 @@ $(document).ready(function() {
     positionWarning();
   });
 
-  // Format all of the time.relative tags to display relative time.
-  $(".-js-relative-time").timeago();
+  document.l10n.ready.then(function() {
+    // Format all of the time.relative tags to display relative time.
+    $(".-js-relative-time").timeago();
+  });
 
 });
