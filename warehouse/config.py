@@ -235,6 +235,7 @@ def configure(settings=None):
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
+    filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("readme", "warehouse.filters:readme_renderer")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
 
@@ -321,6 +322,7 @@ def configure(settings=None):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
+            "connect-src": ["'self'"],
             "default-src": ["'none'"],
             "font-src": ["'self'", "fonts.gstatic.com"],
             "frame-ancestors": ["'none'"],
@@ -353,6 +355,9 @@ def configure(settings=None):
             reload=config.registry.settings["pyramid.reload_assets"],
         ),
     )
+
+    # Enable Warehouse to serve our locale files
+    config.add_static_view(name="locales", path="warehouse:locales/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.

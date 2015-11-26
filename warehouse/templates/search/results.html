@@ -15,11 +15,16 @@
 
 
 {% macro project_snippet(item) -%}
+
+{% set version = item.version[0] %}
+{% set uploader_username = item.uploader_username %}
+{% set uploader_name = item.uploader_name|default(uploader_username, true) %}
+
 <div class="package-snippet">
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
 
-  <p class="meta">
-    <span class="version">{{ item.version[0] }}</span> by <a href="{{ request.route_path('accounts.profile', username=item.uploader_username) }}">{{ item.uploader_name|default(item.uploader_username, true) }}</a>
+  <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
+    <span class="version">{{ version }}</span> by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
   </p>
 
   <p class="description">{{ item.summary }}</p>
@@ -34,9 +39,9 @@
       <div class="dark-overlay"></div>
       <aside class="panel-overlay">
         <a class="close-panel"><i class="fa fa-close"></i></a>
-        <h2>{{ _("Filter Packages") }}</h2>
+        <h2 {{ l20n("filterProjects") }}>Filter Projects</h2>
         <div class="expander">
-          <a class="expander-trigger expander-hidden">{{ _("By Development Status") }}</a>
+          <a class="expander-trigger expander-hidden" {{ l20n("filterProjectsByDevStatus") }}>By Development Status</a>
           <div class="expander-content">
             <div class="checkbox-tree">
               <label><input type="checkbox"/><span>1 - Planning</span></label>
@@ -54,12 +59,14 @@
 
     <div class="main">
       <section class="split-layout -table">
-        <p>{{ _("<strong>%(num)s</strong> projects match '<em>%(term)s</em>'.", num="TODO", term="TODO") }}</p>
+        <p {{ l20n("numberOfSearchResults", number="TODO", term="TODO") }}>
+          <strong>TODO</strong> projects match '<em>TODO</em>'.
+        </p>
         <p>
-          <span>{{ _("Order packages by") }}</span>
+          <span {{ l20n("orderProjectsBy") }}>Order projects by</span>
           <select>
-            <option>{{ _("Relevance") }}</option>
-            <option>{{ _("Date Last Updated") }}</option>
+            <option {{ l20n("relevance") }}>Relevance</option>
+            <option {{ l20n("dateLastUpdated") }}>Date Last Updated</option>
           </select>
         </p>
       </section>
@@ -77,7 +84,7 @@
           <a href="#"><i class="fa fa-close"></i></a>
         </div>
 
-        <a href="#" class="add-filter wh-button -small">{{ _("Add Filter") }}</a>
+        <a class="add-filter wh-button -small" {{ l20n("addFilter") }} href="#">Add Filter</a>
       </div>
 
       <section>

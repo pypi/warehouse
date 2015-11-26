@@ -274,9 +274,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             lambda d: configurator_settings.update(d)
         ),
         add_tween=pretend.call_recorder(lambda tween_factory: None),
-        add_static_view=pretend.call_recorder(
-            lambda name, path, cache_max_age, cachebust: None
-        ),
+        add_static_view=pretend.call_recorder(lambda name, path, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -401,6 +399,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         }),
         pretend.call({
             "csp": {
+                "connect-src": ["'self'"],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
                 "frame-ancestors": ["'none'"],
@@ -437,6 +436,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             cache_max_age=0,
             cachebust=cachebuster_obj,
         ),
+        pretend.call(name="locales", path="warehouse:locales/"),
     ]
     assert cachebuster_cls.calls == [
         pretend.call("warehouse:static/dist/manifest.json", reload=False),

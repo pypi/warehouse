@@ -11,13 +11,19 @@
   "dependencies": {
     "jquery": "2.1.4",
     "font-awesome": "4.4.0",
-    "jquery-timeago": "1.4.3"
+    "jquery-timeago": "1.4.3",
+    "l20n": "3.4.1"
   },
   "overrides": {
     "font-awesome": {
       "main": [
         "css/font-awesome.css",
         "fonts/*"
+      ]
+    },
+    "l20n": {
+      "main": [
+        "dist/compat/web/l20n.js"
       ]
     }
   }
