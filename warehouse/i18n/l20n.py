@@ -12,7 +12,7 @@
 
 import jinja2
 
-from markupsafe import Markup as M
+from markupsafe import Markup as M  # noqa
 
 from warehouse.filters import tojson
 
