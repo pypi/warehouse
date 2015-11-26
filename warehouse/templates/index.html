@@ -2,11 +2,16 @@
 
 
 {% macro project_snippet(release) -%}
+
+{% set version = release.version %}
+{% set uploader_username = release.uploader.username %}
+{% set uploader_name = release.uploader.name|default(uploader_username, true) %}
+
 <div class="package-snippet">
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
 
-  <p class="meta">
-    <span class="version">{{ release.version }}</span> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a>
+  <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
+    <span class="version">{{ version }}</span> by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
   </p>
 
   <p class="description">{{ release.summary }}</p>
@@ -16,7 +21,7 @@
 
 {% block brand %}
 <a class="brand-logo" href="{{ request.route_path('index') }}">
-  <img class="logo" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}" alt="{{ _('Logo') }}"/>
+  <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}">
 </a>
 {% endblock %}
 
@@ -27,44 +32,38 @@
 {% block content %}
 <section class="banner-block">
   <div class="homepage-hero">
-    <h1 class="title">{{ _("Find, install and publish Python packages with the Python Package Index") }}</h1>
+    <h1 class="title" {{ l20n("homepageIntroduction") }}>Find, install and publish Python packages with the Python Package Index</h1>
 
     <form class="search-form -large -fullwidth" action="{{ request.route_path('search') }}">
-      <input class="search -large" type="text" name="q" placeholder="{{ _('Search Packages') }}">
+      <input class="search -large" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
       <button class="wh-button -dark -large">
         <i class="icon fa fa-search"></i>
-        <span class="text">{{ _("Search") }}</span>
+        <span class="text" {{ l20n("search") }}>Search</span>
       </button>
     </form>
 
-    <p class="browse">{{ _('Or <a href="%(url)s">browse packages</a>', url=request.route_path('search')) }}</p>
+    <p class="browse" {{ l20n("orBrowse") }}>Or <a href="{{ request.route_path('search') }}">browse projects</a>.</p>
   </div>
 </section>
 
 <section class="horizontal-section -grey -thin -statistics">
   <div class="statistics-bar">
-    <p class="statistic">{{ _("%(num)s Projects", num=num_projects) }}</p>
-    <p class="statistic">{{ _("%(num)s Releases", num=num_releases) }}</p>
-    <p class="statistic">{{ _("%(num)s Files", num=num_files) }}</p>
-    <p class="statistic">{{ _("%(num)s Users", num=num_users) }}</p>
+    <p class="statistic" {{ l20n("numberOfProjects", number=num_projects) }}>{{ num_projects }} Projects</p>
+    <p class="statistic" {{ l20n("numberOfReleases", number=num_releases) }}>{{ num_releases }} Releases</p>
+    <p class="statistic" {{ l20n("numberOfFiles", number=num_files) }}>{{ num_files }} Files</p>
+    <p class="statistic" {{ l20n("numberOfUsers", number=num_users) }}>{{ num_users }} Users</p>
   </div>
 </section>
 
 <section class="horizontal-section">
   <div class="site-container about-pypi">
     <div class="large-logo">
-      <img src="{{ request.static_path('warehouse:static/dist/images/logo-large.png') }}" alt="{{ _('Logo') }}" class="pypi-logo"/>
+      <img class="pypi-logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-large.png') }}">
     </div>
-    <div class="about-text">
-      <p class="lede-paragraph">
-        {{ _("The Python Package Index (PyPI) is a repository of software for the Python programming language.") }}
-      </p>
-      <p>
-        {{ _('PyPI helps you find and install third-party software developed and shared by other members of the Python community. <a href="TODO">Learn about installing packages</a>.') }}
-      </p>
-      <p>
-        {{ _('Package authors use PyPI to distribute their software.  <a href="TODO">Learn how to package your Python code for PyPI</a>.') }}
-      </p>
+    <div class="about-text" {{ l20n("homepageAbout") }}>
+      <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>
+      <p>PyPI helps you find and install third-party software developed and shared by other members of the Python community. <a href="TODO">Learn about installing packages</a>.</p>
+      <p>Package authors use PyPI to distribute their software.  <a href="TODO">Learn how to package your Python code for PyPI</a>.</p>
     </div>
   </div>
 </section>
@@ -73,27 +72,27 @@
   <div class="site-container">
     <div class="half-column">
       <div class="heading-wsubtitle">
-        <h2 class="heading">{{ _("Top Projects") }}</h2>
-        <p class="subtitle">{{ _("Top projects as downloaded by the community") }}</p>
+        <h2 class="heading" {{ l20n("topProjectsTitle") }}>Top Projects</h2>
+        <p class="subtitle" {{ l20n("topProjectsSubTitle") }}>Top projects as downloaded by the community</p>
       </div>
       <div class="package-list">
         {% for release in top_projects %}
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      <a href="TODO" class="wh-button">{{ _("Show More") }}</a>
+      <a class="wh-button" {{ l20n("showMore") }} href="TODO">Show More</a>
     </div>
     <div class="half-column">
       <div class="heading-wsubtitle">
-        <h2 class="heading">{{ _("New Releases") }}</h2>
-        <p class="subtitle">{{ _("Hot off the press: the newest projects to be released to PyPI") }}</p>
+        <h2 class="heading" {{ l20n("newReleasesTitle") }}>New Releases</h2>
+        <p class="subtitle" {{ l20n("newReleasesSubTitle") }}>Hot off the press: the newest projects to be released to PyPI</p>
       </div>
       <div class="package-list">
         {% for release in latest_releases %}
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      <a href="TODO" class="wh-button">{{ _("Show More") }}</a>
+      <a class="wh-button" {{ l20n("showMore") }} href="TODO">Show More</a>
     </div>
   </div>
 </section>
