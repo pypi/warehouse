@@ -1,10 +1,10 @@
 <html>
   <head>
-    <title>{{ _('Links for %(project)s', project=project.name) }}</title>
+    <title>Links for {{ project.name }}</title>
     <meta name="api-version" value="2" />
   </head>
   <body>
-    <h1>{{ _('Links for %(project)s', project=project.name) }}</h1>
+    <h1>Links for {{ project.name }}</h1>
     {% for file in files -%}
     <a href="{{ request.route_path('packaging.file', path=file.path) }}#md5={{ file.md5_digest }}">{{ file.filename }}</a>
     {% endfor %}
