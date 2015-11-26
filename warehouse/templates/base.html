@@ -44,20 +44,20 @@
           {% block brand %}
           <div class="split-layout">
             <a class="brand-logo" href="{{ request.route_path('index') }}">
-              <img class="logo" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}" alt="{{ _('Logo') }}"/>
+              <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}">
             </a>
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">
-              <input class="search" type="text" name="q" placeholder="Search Packages">
-              <button class="wh-button -dark">Search</button>
+              <input class="search" type="text" name="q" {{ l20n("logo") }} placeholder="Search Projects">
+              <button class="wh-button -dark" {{ l20n("logo") }}>Search</button>
             </form>
           </div>
           {% endblock %}
 
           <nav class="horizontal-menu -light -tall">
-            <a class="link" href="TODO">{{ _("Login") }}</a>
-            <a class="link" href="TODO">{{ _("Register") }}</a>
-            <a class="link" href="TODO">{{ _("Help") }}</a>
+            <a class="link" {{ l20n("login") }} href="TODO">Login</a>
+            <a class="link" {{ l20n("register") }} href="TODO">Register</a>
+            <a class="link" {{ l20n("help") }} href="TODO">Help</a>
           </nav>
         </div>
       </div>
@@ -66,10 +66,10 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
-        <input class="search" type="text" name="q" placeholder="Search Projects">
+        <input class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
         <button class="wh-button -dark">
           <i class="icon fa fa-search"></i>
-          <span class="text">Search</span>
+          <span class="text" {{ l20n("search") }}>Search</span>
         </button>
       </form>
     </section>
@@ -80,36 +80,38 @@
 
     <footer class="footer" role="contentinfo">
       <div class="footer-logo">
-        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.png') }}" alt="{{ _('White Cube') }}">
+        <img {{ l20n("footerLogo") }} alt="White Cube" src="{{ request.static_path('warehouse:static/dist/images/white-cube.png') }}">
       </div>
 
       <div class="footer-links">
         <ul>
-          <li><h3>{{ _("Get Help") }}</h3></li>
-          <li><a href="TODO">{{ _("Installing Packages") }}</a></li>
-          <li><a href="TODO">{{ _("Uploading Packages") }}</a></li>
-          <li><a href="TODO">{{ _("Reference Guide") }}</a></li>
+          <li><h3 {{ l20n("getHelp") }}>Get Help</h3></li>
+          <li><a {{ l20n("installingPackages") }} href="TODO">Installing Packages</a></li>
+          <li><a {{ l20n("uploadingPackages") }} href="TODO">Uploading Packages</a></li>
+          <li><a {{ l20n("referenceGuide") }} href="TODO">Reference Guide</a></li>
         </ul>
 
         <ul>
-          <li><h3>{{ _("About PyPI") }}</h3></li>
-          <li><a href="TODO">{{ _("Status: Operational") }}</a></li>
-          <li><a href="TODO">{{ _("Security Policy") }}</a></li>
-          <li><a href="TODO">{{ _("Our Sponsors") }}</a></li>
+          <li><h3 {{ l20n("aboutPyPI") }}>About PyPI</h3></li>
+          <li><a href="TODO">Status: Operational</a></li>
+          <li><a {{ l20n("securityPolicy") }} href="TODO">Security Policy</a></li>
+          <li><a {{ l20n("ourSponsors") }} href="TODO">Our Sponsors</a></li>
         </ul>
 
         <ul>
-          <li><h3>{{ _("Contributing to PyPI") }}</h3></li>
-          <li><a href="TODO">{{ _("Report a Bug") }}</a></li>
-          <li><a href="TODO">{{ _("Contribute on Github") }}</a></li>
-          <li><a href="TODO">{{ _("Development Credits") }}</a></li>
+          <li><h3 {{ l20n("contributingToPyPI") }}>Contributing to PyPI</h3></li>
+          <li><a {{ l20n("reportABug") }} href="TODO">Report a Bug</a></li>
+          <li><a {{ l20n("contributeOnGithub") }} href="TODO">Contribute on Github</a></li>
+          <li><a {{ l20n("devCredits") }} href="TODO">Development Credits</a></li>
         </ul>
       </div>
 
       <hr>
 
-      <p>{{ _("Developed and maintained by the Python community, for the Python community.") }}</p>
-      <p>{{ _("Copyright © 1990-2015, Python Software Foundation.") }} <a href="#">{{ _("Legal Statements") }}</a></p>
+      <div {{ l20n("developedByAndCopyright") }}>
+        <p>Developed and maintained by the Python community, for the Python community.</p>
+        <p>Copyright © 1990-2015, Python Software Foundation. <a href="#">Legal Statements</a></p>
+      </div>
     </footer>
 
     <script src="{{ request.static_path('warehouse:static/dist/components/jquery/dist/jquery.js') }}"></script>
