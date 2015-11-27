@@ -173,7 +173,7 @@ def search(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"page": page}
+    return {"page": page, "term": request.params.get("q")}
 
 
 @view_config(
