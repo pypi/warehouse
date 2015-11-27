@@ -443,7 +443,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(
             name="static",
             path="warehouse:static/dist/",
-            cache_max_age=0,
+            cache_max_age=1,
             cachebust=cachebuster_obj,
         ),
         pretend.call(name="locales", path="warehouse:locales/"),
