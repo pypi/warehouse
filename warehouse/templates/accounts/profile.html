@@ -11,7 +11,6 @@
       </div>
       <div class="author-meta">
         <h1>{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
-        <span class="highlight-badge prolific" {{ l20n("prolificPythonista") }}>Prolific Pythonista</span>
         {% if user.date_joined %}
           <p class="dates">
             <span class="joined" {{ l20n("userJoinedOn", when=user.date_joined|format_date()) }}>Joined on {{ user.date_joined|format_date() }}</span>
