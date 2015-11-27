@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}{{ _('Sign out') }}{% endblock %}
+{% block title %}Sign out{% endblock %}
 
 {% block content %}
-  <h1>{{ _('Sign out of %(username)s', username=request.user.username) }}</h1>
+  <h1 {{ l20n("signOutOf", username=request.username) }}>Sign out of {{ request.user.username }}</h1>
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_scoped_csrf_token('accounts.logout') }}">
     {% if redirect.data %}
     <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
     {% endif %}
-    <input type="submit" value="{{ _('Sign out') }}">
+    <input type="submit" {{ l20n("signout") }} value="Sign out">
   </form>
 {% endblock %}
