@@ -10,7 +10,6 @@ fi
 # Create our requirements.txt file that Heroku will use to build.
 echo "-r requirements/main.txt" > requirements.txt
 echo "-r requirements/deploy.txt" >> requirements.txt
-echo "-r requirements/theme.txt" >> requirements.txt
 
 # We need to install gulp and bower
 npm install -g gulp bower
