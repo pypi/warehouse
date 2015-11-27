@@ -116,7 +116,7 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        assert search(request) == {"page": page_obj}
+        assert search(request) == {"page": page_obj, "term": params.get("q")}
         assert page_cls.calls == [
             pretend.call(query, url_maker=url_maker, page=page or 1),
         ]
@@ -152,7 +152,7 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        assert search(request) == {"page": page_obj}
+        assert search(request) == {"page": page_obj, "term": params.get("q")}
         assert page_cls.calls == [
             pretend.call(query, url_maker=url_maker, page=page or 1),
         ]
