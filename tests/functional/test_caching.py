@@ -16,4 +16,4 @@ import pytest
 @pytest.mark.parametrize("path", ["/"])
 def test_basic_views_dont_vary(webtest, path):
     resp = webtest.get(path)
-    assert "Vary" not in resp.headers
+    assert resp.headers["Vary"] == "Accept-Encoding"

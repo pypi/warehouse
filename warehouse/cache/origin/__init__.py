@@ -34,6 +34,7 @@ def esi_include(ctx, path, cookies=False):
         cacher = request.find_service(IOriginCache)
     except ValueError:
         subreq = Request.blank(path)
+        subreq.accept_encoding = "identity"
         if cookies:
             subreq.cookies.update(request.cookies)
             request.add_response_callback(add_vary_callback("Cookie"))

@@ -22,6 +22,7 @@ from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
 from pyramid.static import ManifestCacheBuster
+from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
@@ -343,6 +344,17 @@ def configure(settings=None):
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")
+
+    # Enable compression of our HTTP responses
+    config.add_tween(
+        "warehouse.utils.compression.compression_tween_factory",
+        over=[
+            "warehouse.cache.http.conditional_http_tween_factory",
+            "pyramid_debugtoolbar.toolbar_tween_factory",
+            "warehouse.raven.raven_tween_factory",
+            EXCVIEW,
+        ],
+    )
 
     # Enable Warehouse to service our static files
     config.add_static_view(
