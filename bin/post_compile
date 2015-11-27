@@ -2,6 +2,10 @@
 set -e
 set -x
 
+# Install our theme. This has to be done here because otherwise Heroku doesn't
+# have access to our private repository.
+pip install -c requirements.txt -r requirements/theme.txt
+
 # Clean up after ourselves
 rm -rf node_modules .npm .cache .config .local
 
