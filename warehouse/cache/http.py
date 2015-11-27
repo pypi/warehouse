@@ -13,8 +13,6 @@
 import collections.abc
 import functools
 
-from pyramid.tweens import EXCVIEW
-
 
 BUFFER_MAX = 1 * 1024 * 1024  # We'll buffer up to 1MB
 
@@ -107,7 +105,4 @@ def conditional_http_tween_factory(handler, registry):
 
 
 def includeme(config):
-    config.add_tween(
-        "warehouse.cache.http.conditional_http_tween_factory",
-        under=EXCVIEW,
-    )
+    config.add_tween("warehouse.cache.http.conditional_http_tween_factory")

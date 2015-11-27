@@ -14,7 +14,7 @@ import pretend
 import pytest
 import raven as real_raven
 
-from pyramid.tweens import EXCVIEW
+from pyramid.tweens import EXCVIEW, INGRESS
 from raven.middleware import Sentry as SentryMiddleware
 from unittest import mock
 
@@ -125,7 +125,14 @@ def test_includeme(monkeypatch):
         pretend.call(raven._raven, name="raven", reify=True),
     ]
     assert config.add_tween.calls == [
-        pretend.call("warehouse.raven.raven_tween_factory", over=EXCVIEW),
+        pretend.call(
+            "warehouse.raven.raven_tween_factory",
+            over=EXCVIEW,
+            under=[
+                "pyramid_debugtoolbar.toolbar_tween_factory",
+                INGRESS,
+            ],
+        ),
     ]
     assert config.add_wsgi_middleware.calls == [
         pretend.call(SentryMiddleware, client=client_obj),

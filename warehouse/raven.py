@@ -13,7 +13,7 @@
 import raven
 import raven.middleware
 
-from pyramid.tweens import EXCVIEW
+from pyramid.tweens import EXCVIEW, INGRESS
 from raven.utils.serializer.base import Serializer
 from raven.utils.serializer.manager import manager as serialization_manager
 
@@ -65,7 +65,14 @@ def includeme(config):
     config.add_request_method(_raven, name="raven", reify=True)
 
     # Add a tween that will handle catching any exceptions that get raised.
-    config.add_tween("warehouse.raven.raven_tween_factory", over=EXCVIEW)
+    config.add_tween(
+        "warehouse.raven.raven_tween_factory",
+        under=[
+            "pyramid_debugtoolbar.toolbar_tween_factory",
+            INGRESS,
+        ],
+        over=EXCVIEW,
+    )
 
     # Wrap the WSGI object with the middle to catch any exceptions we don't
     # catch elsewhere.

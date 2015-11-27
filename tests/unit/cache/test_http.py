@@ -13,8 +13,6 @@
 import pretend
 import pytest
 
-from pyramid.tweens import EXCVIEW
-
 from warehouse.cache.http import (
     add_vary, cache_control, conditional_http_tween_factory, includeme,
 )
@@ -271,13 +269,10 @@ class TestConditionalHTTPTween:
 
 def test_includeme():
     config = pretend.stub(
-        add_tween=pretend.call_recorder(lambda t, under: None),
+        add_tween=pretend.call_recorder(lambda t: None),
     )
     includeme(config)
 
     assert config.add_tween.calls == [
-        pretend.call(
-            "warehouse.cache.http.conditional_http_tween_factory",
-            under=EXCVIEW,
-        ),
+        pretend.call("warehouse.cache.http.conditional_http_tween_factory"),
     ]

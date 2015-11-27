@@ -17,6 +17,7 @@ import pytest
 import zope.interface
 
 from pyramid import renderers
+from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
@@ -273,7 +274,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_settings=pretend.call_recorder(
             lambda d: configurator_settings.update(d)
         ),
-        add_tween=pretend.call_recorder(lambda tween_factory: None),
+        add_tween=pretend.call_recorder(lambda tween_factory, **kw: None),
         add_static_view=pretend.call_recorder(lambda name, path, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
     )
@@ -428,6 +429,15 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.content_security_policy_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
+        pretend.call(
+            "warehouse.utils.compression.compression_tween_factory",
+            over=[
+                "warehouse.cache.http.conditional_http_tween_factory",
+                "pyramid_debugtoolbar.toolbar_tween_factory",
+                "warehouse.raven.raven_tween_factory",
+                EXCVIEW,
+            ],
+        ),
     ]
     assert configurator_obj.add_static_view.calls == [
         pretend.call(
