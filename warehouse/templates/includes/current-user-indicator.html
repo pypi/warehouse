@@ -1,7 +1,13 @@
 {% if request.user %}
-<a href="{{ request.route_path('accounts.logout') }}" class="sign-out">{{ _('Logout') }}</a>
-<a href="{{ request.route_path('accounts.profile', username=request.user.username) }}" class="profile">{{ request.user.username }}</a>
+  <nav class="horizontal-menu -light -tall">
+    <a class="link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
+    <a class="link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+    <a class="link" {{ l20n("help") }} href="TODO">Help</a>
+  </nav>
 {% else %}
-<a href="{{ request.route_path('accounts.login') }}" class="sign-in">{{ _('Sign In') }}</a>
-<a href="javascript:void(0)" class="sign-up">{{ _('Sign Up') }}</a>
+  <nav class="horizontal-menu -light -tall">
+    <a class="link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
+    <a class="link" {{ l20n("register") }} href="TODO">Register</a>
+    <a class="link" {{ l20n("help") }} href="TODO">Help</a>
+  </nav>
 {% endif %}

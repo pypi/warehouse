@@ -54,11 +54,7 @@
           </div>
           {% endblock %}
 
-          <nav class="horizontal-menu -light -tall">
-            <a class="link" {{ l20n("login") }} href="TODO">Login</a>
-            <a class="link" {{ l20n("register") }} href="TODO">Register</a>
-            <a class="link" {{ l20n("help") }} href="TODO">Help</a>
-          </nav>
+          {{ esi_include(request.route_path("esi.current-user-indicator"), cookies=True) }}
         </div>
       </div>
     </header>
