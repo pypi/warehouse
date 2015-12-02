@@ -13,11 +13,11 @@ services:
 cache:
   directories:
     - ~/.cache/pip
+    - node_modules/
 
 install:
   - pip install -U pip setuptools wheel codecov
   - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/main.txt -r requirements/tests.txt
-  - npm install bower gulp
   - npm install
 
 script:
