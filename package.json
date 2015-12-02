@@ -6,6 +6,7 @@
     "url": "https://github.com/pypa/warehouse.git"
   },
   "devDependencies": {
+    "bower": "",
     "del": "^2.1.0",
     "gulp": "^3.9.0",
     "gulp-imagemin": "^2.4.0",
