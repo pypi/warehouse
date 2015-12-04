@@ -590,6 +590,11 @@ def file_upload(request):
             )
         )
 
+    # Check the content type of what is being uploaded
+    if (not request.POST["content"].type
+            or request.POST["content"].type.startswith("image/")):
+        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+
     # Check to see if the file that was uploaded exists already or not.
     if request.db.query(
             request.db.query(File)

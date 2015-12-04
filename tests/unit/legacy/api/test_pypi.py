@@ -533,6 +533,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
         db_request.POST.extend([
@@ -602,6 +603,49 @@ class TestFileUpload:
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
 
+    @pytest.mark.parametrize("content_type", [None, "image/foobar"])
+    def test_upload_fails_invlaid_content_type(self, tmpdir, monkeypatch,
+                                               pyramid_config, db_request,
+                                               content_type):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        db_request.db.add(
+            Classifier(classifier="Environment :: Other Environment"),
+        )
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "pyversion": "source",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"A fake file."),
+                type=content_type,
+            ),
+        })
+        db_request.POST.extend([
+            ("classifiers", "Environment :: Other Environment"),
+        ])
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            pypi.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == "400 Invalid distribution file."
+
     @pytest.mark.parametrize("sig", [b"lol nope"])
     def test_upload_fails_with_invalid_signature(self, pyramid_config,
                                                  db_request, sig):
@@ -623,6 +667,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
             "gpg_signature": pretend.stub(
                 filename=filename + ".asc",
@@ -658,6 +703,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
         db_request.POST.extend([
@@ -694,6 +740,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
 
@@ -728,6 +775,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -759,6 +807,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a"),
+                type="application/tar",
             ),
             "gpg_signature": pretend.stub(
                 filename=filename + ".asc",
@@ -794,6 +843,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -829,6 +879,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -862,6 +913,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -898,6 +950,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -933,6 +986,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -962,6 +1016,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"a" * (pypi.MAX_FILESIZE + 1)),
+                type="application/tar",
             ),
         })
 
@@ -999,6 +1054,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
 
@@ -1064,6 +1120,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
 
@@ -1101,6 +1158,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
         db_request.POST.extend([
@@ -1164,6 +1222,7 @@ class TestFileUpload:
             "content": pretend.stub(
                 filename=filename,
                 file=io.BytesIO(b"A fake file."),
+                type="application/tar",
             ),
         })
 
