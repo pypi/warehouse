@@ -33,6 +33,12 @@
       display: block;
       margin-right: -1px;
       padding: ($base-spacing / 2) ($gutter / 2);
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: none;
+        color: darken($brand-color, 10)
+      }
 
       &.is-active {
         background: $brand-color;
@@ -54,10 +60,6 @@
   .vertical-tab-content-container {
     display: block;
     margin: 0 auto;
-
-    & a:focus {
-      outline: none;
-    }
 
     @include media($vertical-tab-mode) {
       width: 75%;
