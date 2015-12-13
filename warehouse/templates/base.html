@@ -48,7 +48,8 @@
             </a>
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">
-              <input class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
+              <label for="search" class="sr-only">Search PyPI</label>
+              <input id="search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
               <input class="wh-button -dark" type="submit" {{ l20n("search") }} value="Search">
             </form>
           </div>
@@ -62,7 +63,8 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
-        <input class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
+        <label for="mobile-search" class="sr-only">Search PyPI</label>
+        <input id="mobile-search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
         <input class="wh-button -dark -desktop" type="submit" {{ l20n("search") }} value="Search">
         <input class="wh-button -dark -mobile fa" type="submit" {{ l20n("search") }} value="&#xf002;">
       </form>
