@@ -177,7 +177,9 @@
                 </div>
 
                 <div class="graphic">
-                  <div class="line"></div>
+                  {% if loop.length > 1 %}
+                    <div class="line"></div>
+                  {% endif %}
                   {% if is_current %}
                     <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube-small.png') }}">
                   {% else %}
