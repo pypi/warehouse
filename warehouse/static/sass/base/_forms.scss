@@ -8,8 +8,6 @@ select {
   line-height: em(37px);
   border: 1px solid $border-color;
   color: $text-color;
-  vertical-align: bottom;
-  overflow: hidden;
 }
 
 #{$all-text-inputs-focus},

@@ -69,8 +69,8 @@
           </p>
         {% endif %}
         <p>
-          <span {{ l20n("orderProjectsBy") }}>Order projects by</span>
-          <select>
+          <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
+          <select id="order">
             <option {{ l20n("relevance") }}>Relevance</option>
             <option {{ l20n("dateLastUpdated") }}>Date Last Updated</option>
           </select>
