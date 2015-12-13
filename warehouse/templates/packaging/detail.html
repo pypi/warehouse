@@ -67,8 +67,8 @@
 
 <section class="horizontal-section -grey -thin">
   <div class="site-container">
-    <div class="split-layout">
-      <nav class="horizonal-menu">
+    <div class="package-links">
+      <nav class="horizontal-menu">
         {% if release.home_page %}
         <a class="link" {{ l20n("projectHomepage") }} href="{{ release.home_page }}" rel="nofollow"><i class="fa fa-home"></i>Homepage</a>
         {% endif %}
@@ -82,9 +82,9 @@
         <a class="link" {{ l20n("projectDownloadURL") }} href="{{ release.download_url }}" rel="nofollow"><i class="fa fa-external-link-square"></i>Download</a>
         {% endif %}
       </nav>
-      <p class="author-info">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Released <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}Z">{{ release.created|format_datetime() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
-        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
+      <p class="author">
+        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Released <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_datetime() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>
   </div>
