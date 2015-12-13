@@ -158,9 +158,11 @@
         {# Tab: Version History & Changelog #}
         <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab3" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
         <div id="tab3" class="js-vertical-tab-content vertical-tab-content">
-          <div class="split-layout">
+          <div class="split-layout -table">
             <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
-            <a class="wh-button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
+            <div>
+              <a class="wh-button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
+            </div>
           </div>
 
           <section class="version-history-graphic">
