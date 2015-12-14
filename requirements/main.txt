@@ -5,18 +5,19 @@
 #    pip-compile main.in
 #
 alembic==0.8.3
-amqp==1.4.7               # via kombu
+amqp==1.4.8               # via kombu
 anyjson==0.3.3            # via kombu
 babel==2.1.1
 bcrypt==2.0.0
-billiard==3.3.0.21        # via celery
+billiard==3.3.0.22        # via celery
 bleach==1.4.2             # via readme
 boto3==1.2.2
-botocore==1.3.10          # via boto3
+botocore==1.3.12          # via boto3
 celery==3.1.19
 certifi==2015.11.20.1
 cffi==1.3.1               # via bcrypt
 click==6.2
+contextlib2==0.4.0        # via raven
 docutils==0.12            # via botocore, readme
 elasticsearch-dsl==0.0.9
 elasticsearch==2.1.0
@@ -25,7 +26,7 @@ html5lib==0.9999999
 itsdangerous==0.24
 jinja2==2.8
 jmespath==0.9.0           # via boto3, botocore
-kombu==3.0.29             # via celery
+kombu==3.0.30             # via celery
 mako==1.0.3               # via alembic
 markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.6
@@ -39,21 +40,21 @@ pygments==2.0.2           # via readme
 pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
-pyramid-services==0.2
+pyramid-services==0.3
 pyramid-tm==0.12.1
 pyramid==1.6b2
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.5        # via alembic
 pytz==2015.7              # via babel, celery
-raven==5.8.1
+raven==5.9.0
 readme==0.6.0
 redis==2.10.5
 repoze.lru==0.6           # via pyramid
 requests==2.8.1
-rfc3986==0.3.0
+rfc3986==0.3.1
 six==1.10.0               # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme
 sqlalchemy-citext==1.3.post0
-sqlalchemy==1.0.9
+sqlalchemy==1.0.10
 structlog==15.3.0
 transaction==1.4.4
 translationstring==1.3    # via pyramid
@@ -67,4 +68,4 @@ zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
-# setuptools==18.7.1
+# setuptools==18.8.1
