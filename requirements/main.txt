@@ -68,4 +68,4 @@ zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
-# setuptools==18.7.1
+# setuptools==18.8.1
