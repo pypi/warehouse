@@ -5,21 +5,26 @@
   font-weight: $bold-font-weight;
   cursor: pointer;
   text-decoration: none;
-  padding: 7px 15px;
+  padding: 0 em(15px);
   color: lighten($text-color, 10);
+  height: em(41px);
+  line-height: em(35px);
   border: 2px solid darken($base-grey, 10);
   border-radius: 3px;
   display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+  overflow: hidden;
 }
 
 .wh-button.-large {
-  @extend .h3;
-  padding: 8px 15px 9px 15px;
+  font-size: $button-font-size * 1.2;
 }
 
 .wh-button.-small {
   font-size: $small-font-size;
-  padding: 3px 10px;
+  height: em(40px);
+  line-height: em(36px);
 }
 
 .wh-button:focus,
@@ -54,23 +59,23 @@
 
   &:hover {
     background-color: darken($brand-color, 2);
-    text-decoration-color: rgba(255,255,255, .2);
+    text-decoration-colozr: rgba(255,255,255, .2);
     color: $white;
   }
 }
 
-// Toggle icons / text on mobile devices
+// Toggle mobile / desktop button variations
 
-.wh-button .icon {
+.wh-button.-mobile {
   display: none;
 }
 
 @media only screen and (max-width: 450px){
-  .wh-button .icon {
+  .wh-button.-mobile  {
     display: inline-block;
   }
 
-  .wh-button .text {
+  .wh-button.-desktop  {
     display: none;
   }
 }

@@ -22,13 +22,13 @@
   The basic idea is that you should define CSS rules in an order moving
   from generic to specific. This is done so we avoid rules overwriting rules
   overwriting rules overwriting... you get the picture.
-  Imports are organised into the six layers defined below:
+  Imports are organised into the seven layers defined below:
 */
 
 
 // TOOLS LAYER
-@import "tools/bourbon/bourbon"; //Also imports bourbon's default settings
-@import "tools/neat/neat"; //Also imports neat's default settings
+@import "tools/bourbon/bourbon"; // Also imports bourbon's default settings
+@import "tools/neat/neat"; // Also imports neat's default settings
 @import "tools/grid-helpers";
 
 // SETTINGS LAYER
@@ -95,3 +95,10 @@
 @import "components/statistics-bar";
 @import "components/vertical-tabs";
 @import "components/wh-buttons";
+
+
+// TRUMPS LAYER
+.sr-only {
+  position: absolute;
+  @include hide-text;
+}

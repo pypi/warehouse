@@ -1,5 +1,5 @@
-input.-large {
-    font-size: 1.3rem;
-    padding: 5px 7px;
-    height: 46px;
+input.large-input {
+    font-size: $input-font-size * 1.2;
+    height: em(37px);
+    line-height: em(39px);
 }

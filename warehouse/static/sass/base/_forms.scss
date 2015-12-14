@@ -1,17 +1,21 @@
 #{$all-text-inputs},
 select {
+  font-size: $input-font-size;
   border-radius: 2px;
   background-color: $white;
-  padding: em(8px);
-  height: em(40px);
+  padding: 0 em(8px);
+  height: em(37px);
+  line-height: em(37px);
   border: 1px solid $border-color;
   color: $text-color;
 }
 
 #{$all-text-inputs-focus},
 #{$all-text-inputs-hover},
+#{$all-text-inputs-active},
 select:focus,
-select:hover {
+select:hover,
+select:active {
   box-shadow: inset 0px 0px 0px 2px $brand-color-soft;
   border-color: $brand-color-soft;
 }
