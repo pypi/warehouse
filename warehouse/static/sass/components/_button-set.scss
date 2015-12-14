@@ -1,18 +1,20 @@
-/*
-<div class="button-set">
-  <a href="#" class="wh-button -highlight">All versions</a>
-  <a href="#" class="wh-button">This version only (3.1)</a>
-</div>
-*/
-
 .button-set {
   display: block;
   margin: 15px 0 25px;
-  @include clearfix;
+
+  &::after {
+    clear: both;
+    content: "";
+    display: table;
+  }
 
   .wh-button {
     float: left;
     border-radius: 0;
+  }
+
+  .wh-button + .wh-button {
+    margin-left: -2px;
   }
 
   .wh-button:first-child {

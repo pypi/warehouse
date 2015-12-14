@@ -10,11 +10,11 @@
 
   background-color: lighten($brand-color, 2);
   color: $white;
-  padding: 60px 0 0 0;
+  padding: 60px 0;
   width: 100%;
 
   @media only screen and (max-width: 400px){
-    padding-top: 40px;
+    padding-top: 40px 0;
   }
 
   .footer-logo {

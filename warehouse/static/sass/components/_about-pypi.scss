@@ -6,6 +6,7 @@
   .large-logo,
   .about-text {
     float: none;
+    text-align: left;
 
     @media only screen and (max-width: 550px){
        display: block;
