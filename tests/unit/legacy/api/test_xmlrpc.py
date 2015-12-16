@@ -457,7 +457,13 @@ def test_changelog(db_request, with_ids):
         for _ in range(10):
             entries.append(JournalEntryFactory.create(name=project.name))
 
-    entries = sorted(entries, key=lambda x: x.submitted_date)
+    entries = sorted(entries, key=lambda x: x.id)
+
+    since = int(
+        entries[int(len(entries) / 2)].submitted_date
+                                      .replace(tzinfo=datetime.timezone.utc)
+                                      .timestamp()
+    )
 
     expected = [
         (
@@ -472,16 +478,12 @@ def test_changelog(db_request, with_ids):
             e.id,
         )
         for e in entries
-    ][int(len(entries) / 2):]
+        if (e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()
+            > since)
+    ]
 
     if not with_ids:
         expected = [e[:-1] for e in expected]
-
-    since = int(
-        entries[int(len(entries) / 2)].submitted_date
-                                      .replace(tzinfo=datetime.timezone.utc)
-                                      .timestamp()
-    )
 
     extra_args = []
     if with_ids is not None:
