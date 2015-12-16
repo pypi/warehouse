@@ -15,6 +15,7 @@ import hmac
 import os.path
 import re
 import tempfile
+import zipfile
 
 import packaging.specifiers
 import packaging.version
@@ -35,7 +36,9 @@ from warehouse.csrf import csrf_exempt
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
+    JournalEntry,
 )
+from warehouse.sessions import uses_session
 from warehouse.utils.http import require_POST
 
 
@@ -415,13 +418,85 @@ class MetadataForm(forms.Form):
                 )
 
 
-# TODO: Uncomment the below code once the upload view is safe to be used on
-#       warehouse.python.org. For now, we'll disable it so people can't use
-#       Warehouse to upload and get broken or not properly validated data.
-# @view_config(
-#     route_name="legacy.api.pypi.file_upload",
-#     decorator=[require_POST, csrf_exempt, uses_session],
-# )
+_safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
+
+
+def _is_valid_dist_file(filename, filetype):
+    """
+    Perform some basic checks to see whether the indicated file could be
+    a valid distribution file.
+    """
+
+    if filename.endswith(".exe"):
+        # The only valid filetype for a .exe file is "bdist_wininst".
+        if filetype != "bdist_wininst":
+            return False
+
+        # Ensure that the .exe is a valid zip file, and that all of the files
+        # contained within it have safe filenames.
+        try:
+            with zipfile.ZipFile(filename, "r") as zfp:
+                # We need the no branch below to work around a bug in
+                # coverage.py where it's detecting a missed branch where there
+                # isn't one.
+                for zipname in zfp.namelist():  # pragma: no branch
+                    if not _safe_zipnames.match(zipname):
+                        return False
+        except zipfile.BadZipFile:
+            return False
+    elif filename.endswith(".msi"):
+        # The only valid filetype for a .msi is "bdist_msi"
+        if filetype != "bdist_msi":
+            return False
+
+        # Check the first 8 bytes of the MSI file. This was taken from the
+        # legacy implementation of PyPI which itself took it from the
+        # implementation of `file` I believe.
+        with open(filename, "rb") as fp:
+            if fp.read(8) != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
+                return False
+    elif filename.endswith(".zip") or filename.endswith(".egg"):
+        # Ensure that the .zip/.egg is a valid zip file, and that it has a
+        # PKG-INFO file.
+        try:
+            with zipfile.ZipFile(filename, "r") as zfp:
+                for zipname in zfp.namelist():
+                    parts = os.path.split(zipname)
+                    if len(parts) == 2 and parts[1] == "PKG-INFO":
+                        # We need the no branch below to work around a bug in
+                        # coverage.py where it's detecting a missed branch
+                        # where there isn't one.
+                        break  # pragma: no branch
+                else:
+                    return False
+        except zipfile.BadZipFile:
+            return False
+    elif filename.endswith(".whl"):
+        # Ensure that the .whl is a valid zip file, and that it has a WHEEL
+        # file.
+        try:
+            with zipfile.ZipFile(filename, "r") as zfp:
+                for zipname in zfp.namelist():
+                    parts = os.path.split(zipname)
+                    if len(parts) == 2 and parts[1] == "WHEEL":
+                        # We need the no branch below to work around a bug in
+                        # coverage.py where it's detecting a missed branch
+                        # where there isn't one.
+                        break  # pragma: no branch
+                else:
+                    return False
+        except zipfile.BadZipFile:
+            return False
+
+    # If we haven't yet decided it's not valid, then we'll assume it is and
+    # allow it.
+    return True
+
+
+@view_config(
+    route_name="legacy.api.pypi.file_upload",
+    decorator=[require_POST, csrf_exempt, uses_session],
+)
 def file_upload(request):
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
@@ -499,6 +574,25 @@ def file_upload(request):
         request.db.add(
             Role(user=request.user, project=project, role_name="Owner")
         )
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="create",
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="add Owner {}".format(request.user.username),
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
@@ -551,6 +645,18 @@ def file_upload(request):
             }
         )
         request.db.add(release)
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
@@ -590,6 +696,11 @@ def file_upload(request):
             )
         )
 
+    # Check the content type of what is being uploaded
+    if (not request.POST["content"].type
+            or request.POST["content"].type.startswith("image/")):
+        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+
     # Check to see if the file that was uploaded exists already or not.
     if request.db.query(
             request.db.query(File)
@@ -614,9 +725,11 @@ def file_upload(request):
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
 
     with tempfile.TemporaryDirectory() as tmpdir:
+        temporary_filename = os.path.join(tmpdir, filename)
+
         # Buffer the entire file onto disk, checking the hash of the file as we
         # go along.
-        with open(os.path.join(tmpdir, filename), "wb") as fp:
+        with open(temporary_filename, "wb") as fp:
             file_size = 0
             file_hash = hashlib.md5()
             for chunk in iter(
@@ -639,7 +752,12 @@ def file_upload(request):
                 "from the uploaded file."
             )
 
-        # TODO: Check the file to make sure it is a valid distribution file.
+        # Check the file to make sure it is a valid distribution file.
+        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "Invalid distribution file.",
+            )
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
@@ -677,9 +795,9 @@ def file_upload(request):
         else:
             has_signature = False
 
-        # TODO: We need some sort of trigger that will automatically add
-        #       filenames to Filename instead of relying on this code running
-        #       inside of our upload API.
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
         request.db.add(Filename(filename=filename))
 
         # Store the information about the file in the database.
@@ -694,6 +812,22 @@ def file_upload(request):
             md5_digest=form.md5_digest.data,
         )
         request.db.add(file_)
+
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="add {python_version} file {filename}".format(
+                    python_version=file_.python_version,
+                    filename=file_.filename,
+                ),
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for

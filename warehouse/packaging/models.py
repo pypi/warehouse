@@ -438,7 +438,11 @@ class JournalEntry(db.ModelBase):
     name = Column(Text)
     version = Column(Text)
     action = Column(Text)
-    submitted_date = Column(DateTime(timezone=False))
+    submitted_date = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+    )
     _submitted_by = Column(
         "submitted_by",
         CIText,
