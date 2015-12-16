@@ -13,6 +13,7 @@
 import io
 import os.path
 import tempfile
+import zipfile
 
 from unittest import mock
 
@@ -313,6 +314,122 @@ class TestMetadataForm:
         form = pypi.MetadataForm(MultiDict(data))
         with pytest.raises(ValidationError):
             form.full_validate()
+
+
+class TestFileValidation:
+
+    def test_defaults_to_true(self):
+        assert pypi._is_valid_dist_file("", "")
+
+    @pytest.mark.parametrize(
+        ("filename", "filetype"),
+        [
+            ("test.exe", "bdist_msi"),
+            ("test.msi", "bdist_wininst"),
+        ],
+    )
+    def test_bails_with_invalid_package_type(self, filename, filetype):
+        assert not pypi._is_valid_dist_file(filename, filetype)
+
+    @pytest.mark.parametrize(
+        ("filename", "filetype"),
+        [
+            ("test.exe", "bdist_wininst"),
+            ("test.zip", "sdist"),
+            ("test.egg", "bdist_egg"),
+            ("test.whl", "bdist_wheel"),
+        ],
+    )
+    def test_bails_with_invalid_zipfile(self, tmpdir, filename, filetype):
+        f = str(tmpdir.join(filename))
+
+        with open(f, "wb") as fp:
+            fp.write(b"this is not a valid zip file")
+
+        assert not pypi._is_valid_dist_file(f, filetype)
+
+    def test_wininst_unsafe_filename(self, tmpdir):
+        f = str(tmpdir.join("test.exe"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something/bar.py", b"the test file")
+
+        assert not pypi._is_valid_dist_file(f, "bdist_wininst")
+
+    def test_wininst_safe_filename(self, tmpdir):
+        f = str(tmpdir.join("test.exe"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("purelib/bar.py", b"the test file")
+
+        assert pypi._is_valid_dist_file(f, "bdist_wininst")
+
+    def test_msi_invalid_header(self, tmpdir):
+        f = str(tmpdir.join("test.msi"))
+
+        with open(f, "wb") as fp:
+            fp.write(b"this is not the correct header for an msi")
+
+        assert not pypi._is_valid_dist_file(f, "bdist_msi")
+
+    def test_msi_valid_header(self, tmpdir):
+        f = str(tmpdir.join("test.msi"))
+
+        with open(f, "wb") as fp:
+            fp.write(b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1")
+
+        assert pypi._is_valid_dist_file(f, "bdist_msi")
+
+    def test_zip_no_pkg_info(self, tmpdir):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+
+        assert not pypi._is_valid_dist_file(f, "sdist")
+
+    def test_zip_has_pkg_info(self, tmpdir):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("PKG-INFO", b"this is the package info")
+
+        assert pypi._is_valid_dist_file(f, "sdist")
+
+    def test_egg_no_pkg_info(self, tmpdir):
+        f = str(tmpdir.join("test.egg"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+
+        assert not pypi._is_valid_dist_file(f, "bdist_egg")
+
+    def test_egg_has_pkg_info(self, tmpdir):
+        f = str(tmpdir.join("test.egg"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("PKG-INFO", b"this is the package info")
+
+        assert pypi._is_valid_dist_file(f, "bdist_egg")
+
+    def test_wheel_no_wheel_file(self, tmpdir):
+        f = str(tmpdir.join("test.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+
+        assert not pypi._is_valid_dist_file(f, "bdist_wheel")
+
+    def test_wheel_has_wheel_file(self, tmpdir):
+        f = str(tmpdir.join("test.whl"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("something.txt", b"Just a placeholder file")
+            zfp.writestr("WHEEL", b"this is the package info")
+
+        assert pypi._is_valid_dist_file(f, "bdist_wheel")
 
 
 class TestFileUpload:
@@ -755,6 +872,37 @@ class TestFileUpload:
             "from the uploaded file."
         )
 
+    def test_upload_fails_with_invalid_file(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.zip".format(project.name, release.version)
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": "0cc175b9c0f1b6a831c399e269772661",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"a"),
+                type="application/zip",
+            ),
+        })
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            pypi.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == "400 Invalid distribution file."
+
     def test_upload_fails_with_too_large_file(self, pyramid_config,
                                               db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1068,6 +1216,8 @@ class TestFileUpload:
             lambda svc: storage_service
         )
 
+        monkeypatch.setattr(pypi, "_is_valid_dist_file", lambda *a, **kw: True)
+
         resp = pypi.file_upload(db_request)
 
         assert resp.status_code == 200
@@ -1095,7 +1245,8 @@ class TestFileUpload:
                      .filter(Filename.filename == filename).one()
 
     @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
-    def test_upload_fails_with_unsupported_wheel_plat(self, pyramid_config,
+    def test_upload_fails_with_unsupported_wheel_plat(self, monkeypatch,
+                                                      pyramid_config,
                                                       db_request, plat):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -1123,6 +1274,8 @@ class TestFileUpload:
                 type="application/tar",
             ),
         })
+
+        monkeypatch.setattr(pypi, "_is_valid_dist_file", lambda *a, **kw: True)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             pypi.file_upload(db_request)
