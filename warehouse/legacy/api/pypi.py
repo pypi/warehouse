@@ -38,6 +38,7 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry,
 )
+from warehouse.sessions import uses_session
 from warehouse.utils.http import require_POST
 
 
@@ -492,13 +493,10 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
-# TODO: Uncomment the below code once the upload view is safe to be used on
-#       warehouse.python.org. For now, we'll disable it so people can't use
-#       Warehouse to upload and get broken or not properly validated data.
-# @view_config(
-#     route_name="legacy.api.pypi.file_upload",
-#     decorator=[require_POST, csrf_exempt, uses_session],
-# )
+@view_config(
+    route_name="legacy.api.pypi.file_upload",
+    decorator=[require_POST, csrf_exempt, uses_session],
+)
 def file_upload(request):
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
