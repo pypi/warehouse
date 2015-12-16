@@ -30,6 +30,7 @@ from warehouse.legacy.api import pypi
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     File, Filename, Dependency, DependencyKind, Release, Project, Role,
+    JournalEntry,
 )
 
 from ....common.db.accounts import UserFactory
@@ -640,6 +641,8 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
+        db_request.user = user
+        db_request.client_addr = "10.10.10.40"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -719,6 +722,25 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+                         .order_by("submitted_date")
+                         .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            (
+                release.project.name,
+                release.version,
+                "add source file {}".format(filename),
+                user,
+                "10.10.10.40",
+            ),
+        ]
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
     def test_upload_fails_invlaid_content_type(self, tmpdir, monkeypatch,
@@ -1192,6 +1214,8 @@ class TestFileUpload:
             plat,
         )
 
+        db_request.user = user
+        db_request.client_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1243,6 +1267,25 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+                         .order_by("submitted_date")
+                         .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            (
+                release.project.name,
+                release.version,
+                "add cp34 file {}".format(filename),
+                user,
+                "10.10.10.30",
+            ),
+        ]
 
     @pytest.mark.parametrize("plat", ["linux_x86_64", "linux_x86_64.win32"])
     def test_upload_fails_with_unsupported_wheel_plat(self, monkeypatch,
@@ -1301,6 +1344,8 @@ class TestFileUpload:
 
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
+        db_request.user = user
+        db_request.client_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1358,6 +1403,32 @@ class TestFileUpload:
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
 
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+                         .order_by("submitted_date")
+                         .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+                "10.10.10.20",
+            ),
+            (
+                release.project.name,
+                release.version,
+                "add source file {}".format(filename),
+                user,
+                "10.10.10.20",
+            ),
+        ]
+
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -1381,6 +1452,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, content: None)
         db_request.find_service = lambda svc: storage_service
+        db_request.client_addr = "10.10.10.10"
 
         resp = pypi.file_upload(db_request)
 
@@ -1417,6 +1489,34 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename) \
                      .filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+                         .order_by("submitted_date")
+                         .all()
+        )
+        assert [
+            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
+            for j in journals
+        ] == [
+            ("example", None, "create", user, "10.10.10.10"),
+            (
+                "example",
+                None,
+                "add Owner {}".format(user.username),
+                user,
+                "10.10.10.10",
+            ),
+            ("example", "1.0", "new release", user, "10.10.10.10"),
+            (
+                "example",
+                "1.0",
+                "add source file example-1.0.tar.gz",
+                user,
+                "10.10.10.10",
+            ),
+        ]
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
         pyramid_config.testing_securitypolicy(userid=None)

@@ -36,6 +36,7 @@ from warehouse.csrf import csrf_exempt
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
+    JournalEntry,
 )
 from warehouse.utils.http import require_POST
 
@@ -575,6 +576,25 @@ def file_upload(request):
         request.db.add(
             Role(user=request.user, project=project, role_name="Owner")
         )
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="create",
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="add Owner {}".format(request.user.username),
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
     # Check that the user has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
@@ -627,6 +647,18 @@ def file_upload(request):
             }
         )
         request.db.add(release)
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
@@ -765,9 +797,9 @@ def file_upload(request):
         else:
             has_signature = False
 
-        # TODO: We need some sort of trigger that will automatically add
-        #       filenames to Filename instead of relying on this code running
-        #       inside of our upload API.
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
         request.db.add(Filename(filename=filename))
 
         # Store the information about the file in the database.
@@ -782,6 +814,22 @@ def file_upload(request):
             md5_digest=form.md5_digest.data,
         )
         request.db.add(file_)
+
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="add {python_version} file {filename}".format(
+                    python_version=file_.python_version,
+                    filename=file_.filename,
+                ),
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
 
         # TODO: We need a better answer about how to make this transactional so
         #       this won't take affect until after a commit has happened, for
