@@ -65,8 +65,10 @@
       <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
         <input id="mobile-search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
-        <input class="wh-button -dark -desktop" type="submit" {{ l20n("search") }} value="Search">
-        <input class="wh-button -dark -mobile fa" type="submit" {{ l20n("search") }} value="&#xf002;">
+        <button class="wh-button -dark" type="submit">
+          <i class="icon fa fa-search"></i>
+          <span class="text" {{ l20n("search") }}>Search</span>
+        </button>
       </form>
     </section>
     {% endblock mobile_search %}
@@ -108,9 +110,8 @@
         <p>Developed and maintained by the Python community, for the Python community.</p>
         <p>Copyright © 1990-2015, Python Software Foundation. <a href="#">Legal Statements</a></p>
       </div>
-
-      {% include "warehouse:templates/includes/sponsors.html" %}
     </footer>
+    {% include "warehouse:templates/includes/sponsors.html" %}
 
     <script src="{{ request.static_path('warehouse:static/dist/components/jquery/dist/jquery.js') }}"></script>
     <script src="{{ request.static_path('warehouse:static/dist/components/jquery-timeago/jquery.timeago.js') }}"></script>
