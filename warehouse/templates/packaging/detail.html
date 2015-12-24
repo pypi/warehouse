@@ -43,7 +43,10 @@
 
     <p class="pip-instructions">
       <span>pip install {{ release.project.normalized_name }}</span>
-      <a href="clicking-here-copies-text"><i class="fa fa-copy"></i></a>
+      <a href="clicking-here-copies-text">
+        <i class="fa fa-copy"></i>
+        <span class="sr-only">Copy PIP instructions/<span>
+      </a>
     </p>
 
     <p class="help-link"><a href="#" {{ l20n("howToInstall") }}>How do I install this?</a></p>
@@ -234,7 +237,13 @@
             <thead>
               <tr>
                 <th class="filename" {{ l20n("fileName") }}>File Name</th>
-                <th class="checksum"><span {{ l20n("md5Checksum") }}>MD5 Checksum</span> <a href="TODO"><i class="fa fa-question-circle"></i></a></th>
+                <th class="checksum">
+                  <span {{ l20n("md5Checksum") }}>MD5 Checksum</span>&nbsp;
+                  <a href="TODO">
+                    <i class="fa fa-question-circle"></i>
+                    <span class="sr-only">MD5 Checksum Help</span>
+                  </a>
+                </th>
                 <th class="type" {{ l20n("fileType") }}>File Type</th>
                 <th class="upload-date" {{ l20n("uploadDate") }}>Upload Date</th>
                 <th class="version" {{ l20n("version") }}>Version</th>
@@ -244,7 +253,13 @@
               {% for file in files %}
                 <tr>
                   <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>{% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}</td>
-                  <td>{{ file.md5_digest }}<a class="md5-link" href="clicking-here-copies-md5"><i class="fa fa-copy"></i></a></td>
+                  <td>
+                    {{ file.md5_digest }}
+                    <a class="md5-link" href="clicking-here-copies-md5">
+                      <i class="fa fa-copy"></i>
+                      <span class="sr-only">Copy MD5 Checksum</span>
+                    </a>
+                  </td>
                   <td>
                     {# TODO: This should ideally be part of an enum somewhere or
                        otherwise defined somewhere other than a big if else
@@ -277,7 +292,6 @@
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   </div>

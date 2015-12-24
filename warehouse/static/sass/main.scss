@@ -98,7 +98,19 @@
 
 
 // TRUMPS LAYER
+
+/*
+  Apply this class to anything you want to hide visually, but that you want
+  screen readers to be able to read.
+*/
+
 .sr-only {
   position: absolute;
-  @include hide-text;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
 }
