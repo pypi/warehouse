@@ -64,18 +64,21 @@
   }
 }
 
-// Toggle mobile / desktop button variations
+// Toggle icons / text on mobile devices
 
-.wh-button.-mobile {
+.wh-button .icon {
+  display: none;
   display: none;
 }
 
 @media only screen and (max-width: 450px){
-  .wh-button.-mobile  {
+  .wh-button .icon {
+    display: inline-block;
     display: inline-block;
   }
 
-  .wh-button.-desktop  {
+  .wh-button .text {
+    display: none;
     display: none;
   }
 }
