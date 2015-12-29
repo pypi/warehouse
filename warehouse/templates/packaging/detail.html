@@ -45,10 +45,9 @@
       <span>pip install {{ release.project.normalized_name }}</span>
       <a href="clicking-here-copies-text">
         <i class="fa fa-copy"></i>
-        <span class="sr-only">Copy PIP instructions/<span>
+        <span class="sr-only">Copy PIP instructions<span>
       </a>
     </p>
-
     <p class="help-link"><a href="#" {{ l20n("howToInstall") }}>How do I install this?</a></p>
   </div>
 </section>
@@ -128,7 +127,13 @@
         <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
         <div id="tab1" class="js-vertical-tab-content vertical-tab-content">
           {% if release.description %}
+          <div class="release-description">
             {{ release.description|readme(format="rst") }}
+          </div>
+          {% else %}
+          <div class="callout-block">
+            <p>The author of this package has not provided a project description.</p>
+          </div>
           {% endif %}
         </div>
 
