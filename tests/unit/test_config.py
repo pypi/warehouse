@@ -276,6 +276,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
         add_tween=pretend.call_recorder(lambda tween_factory, **kw: None),
         add_static_view=pretend.call_recorder(lambda name, path, **kw: None),
+        add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
         scan=pretend.call_recorder(lambda ignore: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -440,13 +441,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
     ]
     assert configurator_obj.add_static_view.calls == [
-        pretend.call(
-            name="static",
-            path="warehouse:static/dist/",
-            cache_max_age=1,
-            cachebust=cachebuster_obj,
-        ),
+        pretend.call(name="static", path="warehouse:static/dist/"),
         pretend.call(name="locales", path="warehouse:locales/"),
+    ]
+    assert configurator_obj.add_cache_buster.calls == [
+        pretend.call("warehouse:static/dist/", cachebuster_obj),
     ]
     assert cachebuster_cls.calls == [
         pretend.call("warehouse:static/dist/manifest.json", reload=False),

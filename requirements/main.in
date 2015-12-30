@@ -16,7 +16,7 @@ packaging>=15.2
 paginate>=0.5.2
 passlib>=1.6.4
 psycopg2
-pyramid>=1.6b2
+pyramid>=1.6b3
 pyramid_jinja2>=2.5
 pyramid_multiauth
 pyramid_rpc>=0.7
