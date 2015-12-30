@@ -21,11 +21,11 @@ import zope.interface
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
-from pyramid.static import ManifestCacheBuster
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
+from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -357,7 +357,11 @@ def configure(settings=None):
     )
 
     # Enable Warehouse to serve our static files
-    config.add_static_view(name="static", path="warehouse:static/dist/")
+    config.add_static_view(
+        "static",
+        "warehouse:static/dist/",
+        cache_max_age=10 * 365 * 24 * 60 * 60,  # 10 years
+    )
     config.add_cache_buster(
         "warehouse:static/dist/",
         ManifestCacheBuster(
@@ -367,7 +371,7 @@ def configure(settings=None):
     )
 
     # Enable Warehouse to serve our locale files
-    config.add_static_view(name="locales", path="warehouse:locales/")
+    config.add_static_view("locales", "warehouse:locales/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
