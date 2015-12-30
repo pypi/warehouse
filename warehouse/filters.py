@@ -90,3 +90,7 @@ def shorten_number(value):
 
 def tojson(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+
+def urlparse(value):
+    return urllib.parse.urlparse(value)

@@ -12,6 +12,8 @@
 
 import enum
 
+from collections import OrderedDict
+
 from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
@@ -315,6 +317,22 @@ class Release(db.ModelBase):
         uselist=False,
         viewonly=True,
     )
+
+    @property
+    def urls(self):
+        _urls = OrderedDict()
+
+        if self.home_page:
+            _urls["Homepage"] = self.home_page
+
+        for urlspec in self.project_urls:
+            name, url = urlspec.split(",", 1)
+            _urls[name] = url
+
+        if self.download_url and "Download" not in _urls:
+            _urls["Download"] = self.download_url
+
+        return _urls
 
     @property
     def has_meta(self):

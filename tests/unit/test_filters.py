@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import urllib.parse
+
 import jinja2
 import pretend
 import pytest
@@ -153,3 +155,9 @@ def test_shorten_number(inp, expected):
 )
 def test_tojson(inp, expected):
     assert filters.tojson(inp) == expected
+
+
+def test_urlparse():
+    inp = "https://google.com/foo/bar?a=b"
+    expected = urllib.parse.urlparse(inp)
+    assert filters.urlparse(inp) == expected
