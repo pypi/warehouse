@@ -358,16 +358,21 @@ def configure(settings=None):
     )
 
     # Enable Warehouse to serve our static files
+    prevent_http_cache = \
+        config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
         "static",
         "warehouse:static/dist/",
-        cache_max_age=10 * 365 * 24 * 60 * 60,  # 10 years
+        # Don't cache at all if prevent_http_cache is true, else we'll cache
+        # the files for 10 years.
+        cache_max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
     )
     config.add_cache_buster(
         "warehouse:static/dist/",
         ManifestCacheBuster(
             "warehouse:static/dist/manifest.json",
             reload=config.registry.settings["pyramid.reload_assets"],
+            strict=not prevent_http_cache,
         ),
     )
 

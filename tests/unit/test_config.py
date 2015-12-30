@@ -283,7 +283,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     monkeypatch.setattr(config, "Configurator", configurator_cls)
 
     cachebuster_obj = pretend.stub()
-    cachebuster_cls = pretend.call_recorder(lambda p, reload: cachebuster_obj)
+    cachebuster_cls = pretend.call_recorder(lambda p, **kw: cachebuster_obj)
     monkeypatch.setattr(config, "ManifestCacheBuster", cachebuster_cls)
 
     transaction_manager = pretend.stub()
@@ -452,7 +452,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call("warehouse:static/dist/", cachebuster_obj),
     ]
     assert cachebuster_cls.calls == [
-        pretend.call("warehouse:static/dist/manifest.json", reload=False),
+        pretend.call(
+            "warehouse:static/dist/manifest.json",
+            reload=False,
+            strict=True,
+        ),
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),

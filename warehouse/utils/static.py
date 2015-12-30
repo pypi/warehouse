@@ -16,10 +16,20 @@ from pyramid.static import ManifestCacheBuster as _ManifestCacheBuster
 
 class ManifestCacheBuster(_ManifestCacheBuster):
 
+    def __init__(self, *args, strict=True, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.strict = strict
+
     def __call__(self, request, subpath, kw):
         try:
             return self.manifest[subpath], kw
         except KeyError:
+            # If we're not in strict mode, then we'll allow missing files to
+            # just fall back to the un-cachebusted path.
+            if not self.strict:
+                return subpath, kw
+
             # We raise an error here even though the one from Pyramid does not.
             # This is done because we want to be strict that all static files
             # must be cache busted otherwise it is likely an error of some kind
