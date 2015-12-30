@@ -146,7 +146,14 @@ gulp.task("clean", [
 ]);
 
 gulp.task("watch", ["dist"], function() {
-  return gulp.watch(path.join(srcPaths.sass, "*.scss"), ["dist"]);
+  var globs = [
+    path.join(srcPaths.components, "**/*"),
+    path.join(srcPaths.images, "**/*"),
+    path.join(srcPaths.js, "**/*"),
+    path.join(srcPaths.sass, "**/*")
+  ];
+
+  return gulp.watch(globs, ["dist"]);
 });
 
 gulp.task("default", ["dist"]);
