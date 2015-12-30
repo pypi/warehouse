@@ -21,11 +21,11 @@ import zope.interface
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
-from pyramid.static import ManifestCacheBuster
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
+from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
