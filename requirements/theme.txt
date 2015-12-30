@@ -1,1 +1,1 @@
-pypi-theme==1.11
+pypi-theme==1.13
