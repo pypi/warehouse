@@ -24,7 +24,7 @@
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
 
   <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
-    <span class="version">{{ version }}</span> by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
+    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
   </p>
 
   <p class="description">{{ release.summary }}</p>
@@ -43,9 +43,11 @@
 
     <p class="pip-instructions">
       <span>pip install {{ release.project.normalized_name }}</span>
-      <a href="clicking-here-copies-text"><i class="fa fa-copy"></i></a>
+      <a href="clicking-here-copies-text">
+        <i class="fa fa-copy"></i>
+        <span class="sr-only">Copy PIP instructions<span>
+      </a>
     </p>
-
     <p class="help-link"><a href="#" {{ l20n("howToInstall") }}>How do I install this?</a></p>
   </div>
 </section>
@@ -83,7 +85,7 @@
         {% endif %}
       </nav>
       <p class="author">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Released <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_datetime() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_datetime() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
         <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>
@@ -125,7 +127,13 @@
         <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
         <div id="tab1" class="js-vertical-tab-content vertical-tab-content">
           {% if release.description %}
+          <div class="release-description">
             {{ release.description|readme(format="rst") }}
+          </div>
+          {% else %}
+          <div class="callout-block">
+            <p>The author of this package has not provided a project description.</p>
+          </div>
           {% endif %}
         </div>
 
@@ -234,7 +242,13 @@
             <thead>
               <tr>
                 <th class="filename" {{ l20n("fileName") }}>File Name</th>
-                <th class="checksum"><span {{ l20n("md5Checksum") }}>MD5 Checksum</span> <a href="TODO"><i class="fa fa-question-circle"></i></a></th>
+                <th class="checksum">
+                  <span {{ l20n("md5Checksum") }}>MD5 Checksum</span>&nbsp;
+                  <a href="TODO">
+                    <i class="fa fa-question-circle"></i>
+                    <span class="sr-only">MD5 Checksum Help</span>
+                  </a>
+                </th>
                 <th class="type" {{ l20n("fileType") }}>File Type</th>
                 <th class="upload-date" {{ l20n("uploadDate") }}>Upload Date</th>
                 <th class="version" {{ l20n("version") }}>Version</th>
@@ -244,7 +258,13 @@
               {% for file in files %}
                 <tr>
                   <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>{% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}</td>
-                  <td>{{ file.md5_digest }}<a class="md5-link" href="clicking-here-copies-md5"><i class="fa fa-copy"></i></a></td>
+                  <td>
+                    {{ file.md5_digest }}
+                    <a class="md5-link" href="clicking-here-copies-md5">
+                      <i class="fa fa-copy"></i>
+                      <span class="sr-only">Copy MD5 Checksum</span>
+                    </a>
+                  </td>
                   <td>
                     {# TODO: This should ideally be part of an enum somewhere or
                        otherwise defined somewhere other than a big if else
@@ -271,13 +291,18 @@
                     {% endif %}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
-                  <td>{% if file.python_version != "source" %}{{ file.python_version }}{% endif %}</td>
+                  <td>
+                    {% if file.python_version != "source" %}
+                      {{ file.python_version }}
+                    {% else %}
+                      &ndash;
+                    {% endif %}
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   </div>

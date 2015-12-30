@@ -1,0 +1,104 @@
+/*
+  Styles the main description panel for an individual package.
+  Needs to deal with anything a user could include in a project description file...
+*/
+
+.release-description {
+  margin-bottom: 40px;
+  line-height: 1.5;
+
+  // Remove top margin on first heading, even if it nested inside a div
+  > :first-child,
+  > div:first-child > :first-child {
+    margin-top: 0 !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 20px 0;
+  }
+
+  strong, b {
+    font-weight: 600;
+  }
+
+  em, i {
+    font-style: italic
+  }
+
+  pre,
+  code,
+  tt {
+    font-family: $code-font;
+    background-color: lighten($base-grey, 5);
+    border: 1px solid $border-color;
+    padding: 0 3px 1px 3px;
+    font-size: 85%;
+    color: lighten($text-color, 15);
+  }
+
+  pre {
+    display: block;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  ol, ul {
+    margin: 15px 0 15px 30px;
+
+    @media only screen and (max-width: 400px){
+      margin-left: 15px;
+    }
+
+    ul, ol {
+      margin: 0 0 0 30px;
+
+      @media only screen and (max-width: 400px){
+        margin-left: 15px;
+      }
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  li {
+    padding: 2px 0;
+  }
+
+  blockquote {
+    margin: 15px 0 15px 15px;
+    border-left: 3px solid $border-color;
+    font-style: italic;
+    padding-left: 15px;
+    color: lighten($text-color, 20);
+  }
+
+  dl {
+    margin: 15px 0 5px 0;
+
+    dt {
+      font-weight: $bold-font-weight;
+    }
+
+    dd {
+      margin: 0 0 10px 20px;
+    }
+  }
+
+  hr {
+    margin: 15px 0;
+    border: 1px solid $border-color;
+  }
+
+  // Add a margin at the bottom of commonly included status badges
+  // Only apply this style if followed by a p (which has no top margin)
+  a img + p {
+    margin-bottom: 15px;
+  }
+
+  // Except for when the status badges are already nested inside a paragraph
+  p a img {
+    margin-bottom: 0;
+  }
+}

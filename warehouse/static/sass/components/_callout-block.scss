@@ -1,0 +1,9 @@
+/*
+  A styled div used for highlighting important content on the site.
+*/
+
+.callout-block {
+  padding: 10px;
+  border: 1px solid $border-color;
+  border-left-color: $brand-color;
+}
