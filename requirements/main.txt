@@ -11,11 +11,11 @@ babel==2.1.1
 bcrypt==2.0.0
 billiard==3.3.0.22        # via celery
 bleach==1.4.2             # via readme
-boto3==1.2.2
-botocore==1.3.13          # via boto3
+boto3==1.2.3
+botocore==1.3.15          # via boto3
 celery==3.1.19
 certifi==2015.11.20.1
-cffi==1.3.1               # via bcrypt
+cffi==1.4.2               # via bcrypt
 click==6.2
 contextlib2==0.4.0        # via raven
 docutils==0.12            # via botocore, readme
@@ -26,7 +26,7 @@ html5lib==0.9999999
 itsdangerous==0.24
 jinja2==2.8
 jmespath==0.9.0           # via boto3, botocore
-kombu==3.0.30             # via celery
+kombu==3.0.32             # via celery
 mako==1.0.3               # via alembic
 markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.6
@@ -46,19 +46,19 @@ pyramid==1.6b2
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.5        # via alembic
 pytz==2015.7              # via babel, celery
-raven==5.9.0
+raven==5.9.2
 readme==0.6.0
 redis==2.10.5
 repoze.lru==0.6           # via pyramid
-requests==2.9.0
+requests==2.9.1
 rfc3986==0.3.1
 six==1.10.0               # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme
 sqlalchemy-citext==1.3.post0
-sqlalchemy==1.0.10
+sqlalchemy==1.0.11
 structlog==15.3.0
 transaction==1.4.4
 translationstring==1.3    # via pyramid
-urllib3==1.13             # via elasticsearch
+urllib3==1.14             # via elasticsearch
 venusian==1.0             # via pyramid, pyramid-rpc
 webob==1.5.1              # via pyramid
 wtforms==2.1
@@ -68,4 +68,4 @@ zope.sqlalchemy==0.7.6
 
 # The following packages are commented out because they are
 # considered to be unsafe in a requirements file:
-# setuptools==19.0
+# setuptools==19.2
