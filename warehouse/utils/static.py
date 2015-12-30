@@ -20,6 +20,11 @@ class ManifestCacheBuster(_ManifestCacheBuster):
         try:
             return self.manifest[subpath], kw
         except KeyError:
+            # We raise an error here even though the one from Pyramid does not.
+            # This is done because we want to be strict that all static files
+            # must be cache busted otherwise it is likely an error of some kind
+            # and should be remedied and without a loud error it's unlikely to
+            # be noticed.
             raise ValueError(
                 "{} is not able to be cache busted.".format(subpath)
             ) from None
