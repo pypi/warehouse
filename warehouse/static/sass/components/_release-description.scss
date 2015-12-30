@@ -7,6 +7,7 @@
   margin-bottom: 40px;
   line-height: 1.5;
 
+  // Remove top margin on first heading, even if it nested inside a div
   > :first-child,
   > div:first-child > :first-child {
     margin-top: 0 !important;
@@ -88,5 +89,16 @@
   hr {
     margin: 15px 0;
     border: 1px solid $border-color;
+  }
+
+  // Add a margin at the bottom of commonly included status badges
+  // Only apply this style if followed by a p (which has no top margin)
+  a img + p {
+    margin-bottom: 15px;
+  }
+
+  // Except for when the status badges are already nested inside a paragraph
+  p a img {
+    margin-bottom: 0;
   }
 }
