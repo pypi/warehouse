@@ -291,7 +291,13 @@
                     {% endif %}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
-                  <td>{% if file.python_version != "source" %}{{ file.python_version }}{% endif %}</td>
+                  <td>
+                    {% if file.python_version != "source" %}
+                      {{ file.python_version }}
+                    {% else %}
+                      &ndash;
+                    {% endif %}
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
