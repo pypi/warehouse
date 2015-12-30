@@ -14,6 +14,33 @@
 {% extends "base.html" %}
 
 
+{% macro url_icon(name, url) -%}
+
+{% set parsed = url|urlparse %}
+
+{% if parsed.netloc == "github.com" %}
+  {% set icon = "github" %}
+{% elif parsed.netloc == "bitbucket.org" %}
+  {% set icon = "bitbucket" %}
+{% elif parsed.netloc == "gratipay.com" or parsed.netloc == "gittip.com" %}
+  {% set icon = "gratipay" %}
+{% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
+  {% set icon = "reddit-alien" %}
+{% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
+  {% set icon = "slack" %}
+{% elif parsed.netloc == "twitter.com" %}
+  {% set icon = "twitter" %}
+{% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
+  {% set icon = "home" %}
+{% else %}
+  {% set icon = "external-link-square" %}
+{% endif %}
+
+<i class="fa fa-{{ icon }}"></i>
+
+{%- endmacro %}
+
+
 {% macro project_snippet(release) -%}
 
 {% set version = release.version %}
@@ -71,18 +98,12 @@
   <div class="site-container">
     <div class="package-links">
       <nav class="horizontal-menu">
-        {% if release.home_page %}
-        <a class="link" {{ l20n("projectHomepage") }} href="{{ release.home_page }}" rel="nofollow"><i class="fa fa-home"></i>Homepage</a>
-        {% endif %}
-
-        {# TODO: We need to actually pull these from project-urls and do some detection here #}
-        <a class="link" href="#" rel="nofollow"><i class="fa fa-github"></i>Source Code (TODO)</a>
-        <a class="link" href="#" rel="nofollow"><i class="fa fa-book"></i>Documentation (TODO)</a>
-        <a class="link" href="#" rel="nofollow"><i class="fa fa-slack"></i>Slack (TODO)</a>
-
-        {% if release.download_url %}
-        <a class="link" {{ l20n("projectDownloadURL") }} href="{{ release.download_url }}" rel="nofollow"><i class="fa fa-external-link-square"></i>Download</a>
-        {% endif %}
+        {% for name, url in release.urls.items() %}
+        <a class="link" href="{{ url }}" rel="nofollow">
+          {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
+          {{ url_icon(name, url) }}{{ name }}
+        </a>
+        {% endfor %}
       </nav>
       <p class="author">
         <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_datetime() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>

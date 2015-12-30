@@ -239,6 +239,7 @@ def configure(settings=None):
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("readme", "warehouse.filters:readme_renderer")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
+    filters.setdefault("urlparse", "warehouse.filters:urlparse")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

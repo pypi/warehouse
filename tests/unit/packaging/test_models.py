@@ -10,12 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 import pretend
 import pytest
 
 from pyramid.security import Allow
 
-from warehouse.packaging.models import ProjectFactory, File
+from warehouse.packaging.models import (
+    ProjectFactory, Dependency, DependencyKind, File,
+)
 
 from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory, ReleaseFactory as DBReleaseFactory,
@@ -106,6 +110,111 @@ class TestRelease:
     def test_has_meta_false(self, db_session):
         release = DBReleaseFactory.create()
         assert not release.has_meta
+
+    @pytest.mark.parametrize(
+        ("home_page", "download_url", "project_urls", "expected"),
+        [
+            (None, None, [], OrderedDict()),
+            (
+                "https://example.com/home/",
+                None,
+                [],
+                OrderedDict([("Homepage", "https://example.com/home/")]),
+            ),
+            (
+                None,
+                "https://example.com/download/",
+                [],
+                OrderedDict([("Download", "https://example.com/download/")]),
+            ),
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [],
+                OrderedDict([
+                    ("Homepage", "https://example.com/home/"),
+                    ("Download", "https://example.com/download/"),
+                ]),
+            ),
+            (
+                None,
+                None,
+                ["Source Code,https://example.com/source-code/"],
+                OrderedDict([
+                    ("Source Code", "https://example.com/source-code/"),
+                ]),
+            ),
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                ["Source Code,https://example.com/source-code/"],
+                OrderedDict([
+                    ("Homepage", "https://example.com/home/"),
+                    ("Source Code", "https://example.com/source-code/"),
+                    ("Download", "https://example.com/download/"),
+                ]),
+            ),
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "Homepage,https://example.com/home2/",
+                    "Source Code,https://example.com/source-code/",
+                ],
+                OrderedDict([
+                    ("Homepage", "https://example.com/home2/"),
+                    ("Source Code", "https://example.com/source-code/"),
+                    ("Download", "https://example.com/download/"),
+                ]),
+            ),
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "Source Code,https://example.com/source-code/",
+                    "Download,https://example.com/download2/",
+                ],
+                OrderedDict([
+                    ("Homepage", "https://example.com/home/"),
+                    ("Source Code", "https://example.com/source-code/"),
+                    ("Download", "https://example.com/download2/"),
+                ]),
+            ),
+            (
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "Homepage,https://example.com/home2/",
+                    "Source Code,https://example.com/source-code/",
+                    "Download,https://example.com/download2/",
+                ],
+                OrderedDict([
+                    ("Homepage", "https://example.com/home2/"),
+                    ("Source Code", "https://example.com/source-code/"),
+                    ("Download", "https://example.com/download2/"),
+                ]),
+            ),
+        ],
+    )
+    def test_urls(self, db_session, home_page, download_url, project_urls,
+                  expected):
+        release = DBReleaseFactory.create(
+            home_page=home_page,
+            download_url=download_url,
+        )
+
+        for urlspec in project_urls:
+            db_session.add(
+                Dependency(
+                    name=release.project.name,
+                    version=release.version,
+                    kind=DependencyKind.project_url.value,
+                    specifier=urlspec,
+                )
+            )
+
+        # TODO: It'd be nice to test for the actual ordering here.
+        assert dict(release.urls) == dict(expected)
 
 
 class TestFile:
