@@ -7,7 +7,7 @@
 alembic==0.8.4
 amqp==1.4.8               # via kombu
 anyjson==0.3.3            # via kombu
-babel==2.1.1
+babel==2.2.0
 bcrypt==2.0.0
 billiard==3.3.0.22        # via celery
 bleach==1.4.2             # via readme
