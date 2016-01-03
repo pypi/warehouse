@@ -7,7 +7,7 @@
 alembic==0.8.4
 amqp==1.4.8               # via kombu
 anyjson==0.3.3            # via kombu
-babel==2.1.1
+babel==2.2.0
 bcrypt==2.0.0
 billiard==3.3.0.22        # via celery
 bleach==1.4.2             # via readme
@@ -42,7 +42,7 @@ pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
 pyramid-services==0.3
 pyramid-tm==0.12.1
-pyramid==1.6b3
+pyramid==1.6
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.5        # via alembic
 pytz==2015.7              # via babel, celery
