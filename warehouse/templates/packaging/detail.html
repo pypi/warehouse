@@ -18,7 +18,9 @@
 
 {% set parsed = url|urlparse %}
 
-{% if parsed.netloc == "github.com" %}
+{% if name|lower == "download" %}
+   {% set icon = "cloud-download" %}
+{% elif parsed.netloc == "github.com" %}
   {% set icon = "github" %}
 {% elif parsed.netloc == "bitbucket.org" %}
   {% set icon = "bitbucket" %}
