@@ -731,21 +731,22 @@ def file_upload(request):
         # go along.
         with open(temporary_filename, "wb") as fp:
             file_size = 0
-            file_hash = hashlib.md5()
+            file_hashes = {"md5": hashlib.md5(), "sha256": hashlib.sha256()}
             for chunk in iter(
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
                     raise _exc_with_message(HTTPBadRequest, "File too large.")
                 fp.write(chunk)
-                file_hash.update(chunk)
+                for hasher in file_hashes.values():
+                    hasher.update(chunk)
 
         # Actually verify that the md5 hash of the file matches the expected
         # md5 hash. We probably don't actually need to use hmac.compare_digest
         # here since both the md5_digest and the file whose file_hash we've
         # computed comes from the remote user, however better safe than sorry.
         if not hmac.compare_digest(
-                form.md5_digest.data, file_hash.hexdigest()):
+                form.md5_digest.data, file_hashes["md5"].hexdigest()):
             raise _exc_with_message(
                 HTTPBadRequest,
                 "The MD5 digest supplied does not match a digest calculated "
@@ -809,7 +810,8 @@ def file_upload(request):
             comment_text=form.comment.data,
             size=file_size,
             has_signature=bool(has_signature),
-            md5_digest=form.md5_digest.data,
+            md5_digest=file_hashes["md5"].hexdigest().lower(),
+            sha256_digest=file_hashes["sha256"].hexdigest().lower(),
         )
         request.db.add(file_)
 
