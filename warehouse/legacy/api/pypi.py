@@ -342,8 +342,18 @@ class MetadataForm(forms.Form):
     comment = wtforms.StringField(validators=[wtforms.validators.Optional()])
     md5_digest = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.Optional(),
         ],
+    )
+    sha256_digest = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
+            wtforms.validators.Regexp(
+                r"^[A-F0-9]{64}$",
+                re.IGNORECASE,
+                message="Must be a valid, hex encoded, SHA256 message digest.",
+            ),
+        ]
     )
 
     # Legacy dependency information
@@ -416,6 +426,12 @@ class MetadataForm(forms.Form):
                 raise wtforms.validators.ValidationError(
                     "The only valid Python version for a sdist is 'source'."
                 )
+
+        # We *must* have at least one digest to verify against.
+        if not self.md5_digest.data and not self.sha256_digest.data:
+            raise wtforms.validators.ValidationError(
+                "Must include at least one message digest.",
+            )
 
 
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
@@ -741,15 +757,21 @@ def file_upload(request):
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
 
-        # Actually verify that the md5 hash of the file matches the expected
-        # md5 hash. We probably don't actually need to use hmac.compare_digest
-        # here since both the md5_digest and the file whose file_hash we've
-        # computed comes from the remote user, however better safe than sorry.
-        if not hmac.compare_digest(
-                form.md5_digest.data, file_hashes["md5"].hexdigest()):
+        # Actually verify the digests that we've gotten. We're going to use
+        # hmac.compare_digest even though we probably don't actually need to
+        # because it's better safe than sorry. In the case of multiple digests
+        # we expect them all to be given.
+        if not all([
+            hmac.compare_digest(
+                getattr(form, "{}_digest".format(digest_name)).data.lower(),
+                digest_value.hexdigest().lower(),
+            )
+            for digest_name, digest_value in file_hashes.items()
+            if getattr(form, "{}_digest".format(digest_name)).data
+        ]):
             raise _exc_with_message(
                 HTTPBadRequest,
-                "The MD5 digest supplied does not match a digest calculated "
+                "The digest supplied does not match a digest calculated "
                 "from the uploaded file."
             )
 
