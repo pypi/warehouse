@@ -349,6 +349,8 @@ class File(db.Model):
             onupdate="CASCADE",
         ),
 
+        CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
+
         Index("release_files_name_idx", "name"),
         Index("release_files_name_version_idx", "name", "version"),
         Index("release_files_packagetype_idx", "packagetype"),
@@ -369,6 +371,7 @@ class File(db.Model):
     size = Column(Integer)
     has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
+    sha256_digest = Column(CIText, unique=True)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
 
