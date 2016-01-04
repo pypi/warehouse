@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import io
 import os.path
 import tempfile
@@ -1053,7 +1054,15 @@ class TestFileUpload:
             ),
         })
 
-        db_request.db.add(File(release=release, filename=filename))
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                sha256_digest=hashlib.sha256(
+                    filename.encode("utf8")
+                ).hexdigest(),
+            ),
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             pypi.file_upload(db_request)

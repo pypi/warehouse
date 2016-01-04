@@ -52,6 +52,9 @@ class FileFactory(WarehouseFactory):
     md5_digest = factory.LazyAttribute(
         lambda o: hashlib.md5(o.filename.encode("utf8")).hexdigest()
     )
+    sha256_digest = factory.LazyAttribute(
+        lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
+    )
     upload_time = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2008, 1, 1)
     )
