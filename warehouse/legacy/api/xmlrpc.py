@@ -238,6 +238,10 @@ def release_urls(request, package_name, version):
             "python_version": f.python_version,
             "size": f.size,
             "md5_digest": f.md5_digest,
+            "digests": {
+                "md5": f.md5_digest,
+                "sha256": f.sha256_digest,
+            },
             "has_sig": f.has_signature,
             "upload_time": f.upload_time,
             "comment_text": f.comment_text,

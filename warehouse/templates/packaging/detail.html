@@ -266,10 +266,10 @@
               <tr>
                 <th class="filename" {{ l20n("fileName") }}>File Name</th>
                 <th class="checksum">
-                  <span {{ l20n("md5Checksum") }}>MD5 Checksum</span>&nbsp;
+                  <span {{ l20n("sha256Checksum") }}>SHA256 Checksum</span>&nbsp;
                   <a href="TODO">
                     <i class="fa fa-question-circle"></i>
-                    <span class="sr-only">MD5 Checksum Help</span>
+                    <span class="sr-only">SHA256 Checksum Help</span>
                   </a>
                 </th>
                 <th class="type" {{ l20n("fileType") }}>File Type</th>
@@ -282,10 +282,10 @@
                 <tr>
                   <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>{% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}</td>
                   <td>
-                    {{ file.md5_digest }}
-                    <a class="md5-link" href="clicking-here-copies-md5">
+                    {{ file.sha256_digest }}
+                    <a class="sha256-link" href="clicking-here-copies-sha256">
                       <i class="fa fa-copy"></i>
-                      <span class="sr-only">Copy MD5 Checksum</span>
+                      <span class="sr-only">Copy SHA256 Checksum</span>
                     </a>
                   </td>
                   <td>
