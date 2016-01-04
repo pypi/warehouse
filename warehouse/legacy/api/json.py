@@ -124,6 +124,10 @@ def json_release(release, request):
                 "has_sig": f.has_signature,
                 "comment_text": f.comment_text,
                 "md5_digest": f.md5_digest,
+                "digests": {
+                    "md5": f.md5_digest,
+                    "sha256": f.sha256_digest,
+                },
                 "size": f.size,
                 "downloads": f.downloads,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),

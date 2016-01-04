@@ -6,7 +6,7 @@
   <body>
     <h1>Links for {{ project.name }}</h1>
     {% for file in files -%}
-    <a href="{{ request.route_path('packaging.file', path=file.path) }}#md5={{ file.md5_digest }}">{{ file.filename }}</a>
+    <a href="{{ request.route_path('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}">{{ file.filename }}</a>
     {% endfor %}
   </body>
 </html>

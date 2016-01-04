@@ -185,6 +185,10 @@ class TestJSONRelease:
                         "filename": files[0].filename,
                         "has_sig": True,
                         "md5_digest": files[0].md5_digest,
+                        "digests": {
+                            "md5": files[0].md5_digest,
+                            "sha256": files[0].sha256_digest,
+                        },
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
@@ -201,6 +205,10 @@ class TestJSONRelease:
                         "filename": files[1].filename,
                         "has_sig": True,
                         "md5_digest": files[1].md5_digest,
+                        "digests": {
+                            "md5": files[1].md5_digest,
+                            "sha256": files[1].sha256_digest,
+                        },
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
@@ -219,6 +227,10 @@ class TestJSONRelease:
                     "filename": files[1].filename,
                     "has_sig": True,
                     "md5_digest": files[1].md5_digest,
+                    "digests": {
+                        "md5": files[1].md5_digest,
+                        "sha256": files[1].sha256_digest,
+                    },
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,

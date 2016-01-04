@@ -373,6 +373,10 @@ def test_release_urls(db_request):
             "python_version": file_.python_version,
             "size": file_.size,
             "md5_digest": file_.md5_digest,
+            "digests": {
+                "md5": file_.md5_digest,
+                "sha256": file_.sha256_digest,
+            },
             "has_sig": file_.has_signature,
             "upload_time": file_.upload_time,
             "comment_text": file_.comment_text,
