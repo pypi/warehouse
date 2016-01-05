@@ -10,7 +10,7 @@ anyjson==0.3.3            # via kombu
 babel==2.2.0
 bcrypt==2.0.0
 billiard==3.3.0.22        # via celery
-bleach==1.4.2             # via readme
+bleach==1.4.2             # via readme-renderer
 boto3==1.2.3
 botocore==1.3.15          # via boto3
 celery==3.1.19
@@ -18,9 +18,9 @@ certifi==2015.11.20.1
 cffi==1.4.2               # via bcrypt
 click==6.2
 contextlib2==0.4.0        # via raven
-docutils==0.12            # via botocore, readme
+docutils==0.12            # via botocore, readme-renderer
 elasticsearch-dsl==0.0.9
-elasticsearch==2.1.0
+elasticsearch==2.2.0
 hiredis==0.2.0
 html5lib==0.9999999
 itsdangerous==0.24
@@ -36,7 +36,7 @@ passlib==1.6.5
 pastedeploy==1.5.2        # via pyramid
 psycopg2==2.6.1
 pycparser==2.14           # via cffi
-pygments==2.0.2           # via readme
+pygments==2.0.2           # via readme-renderer
 pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
@@ -47,12 +47,12 @@ python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
 python-editor==0.5        # via alembic
 pytz==2015.7              # via babel, celery
 raven==5.9.2
-readme==0.6.0
+readme-renderer==0.7.0
 redis==2.10.5
 repoze.lru==0.6           # via pyramid
 requests==2.9.1
 rfc3986==0.3.1
-six==1.10.0               # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme
+six==1.10.0               # via bcrypt, bleach, elasticsearch-dsl, html5lib, python-dateutil, readme-renderer
 sqlalchemy-citext==1.3.post0
 sqlalchemy==1.0.11
 structlog==15.3.0

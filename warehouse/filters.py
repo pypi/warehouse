@@ -19,8 +19,9 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-import readme.rst
-import readme.txt
+
+import readme_renderer.rst
+import readme_renderer.txt
 
 from pyramid.threadlocal import get_current_request
 
@@ -38,7 +39,7 @@ def _camo_url(camo_url, camo_key, url):
 
 
 @jinja2.contextfilter
-def readme_renderer(ctx, value, *, format):
+def readme(ctx, value, *, format):
     request = ctx.get("request") or get_current_request()
 
     camo_url = request.registry.settings["camo.url"].format(request=request)
@@ -51,12 +52,12 @@ def readme_renderer(ctx, value, *, format):
 
     # Actually render the given value, this will not only render the value, but
     # also ensure that it's had any disallowed markup removed.
-    rendered = readme.rst.render(value)
+    rendered = readme_renderer.rst.render(value)
 
     # If the content was not rendered, we'll replace the newlines with breaks
     # so that it shows up nicer when rendered.
     if rendered is None:
-        rendered = readme.txt.render(value)
+        rendered = readme_renderer.txt.render(value)
 
     # Parse the rendered output and replace any inline images that don't point
     # to HTTPS with camouflaged images.
