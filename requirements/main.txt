@@ -20,7 +20,7 @@ click==6.2
 contextlib2==0.4.0        # via raven
 docutils==0.12            # via botocore, readme-renderer
 elasticsearch-dsl==0.0.9
-elasticsearch==2.1.0
+elasticsearch==2.2.0
 hiredis==0.2.0
 html5lib==0.9999999
 itsdangerous==0.24
