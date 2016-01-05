@@ -6,5 +6,5 @@
 #
 gevent==1.1rc3
 greenlet==0.4.9           # via gevent
-gunicorn==19.4.4
+gunicorn==19.4.5
 setproctitle==1.1.9
