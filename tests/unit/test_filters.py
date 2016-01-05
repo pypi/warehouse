@@ -15,7 +15,7 @@ import urllib.parse
 import jinja2
 import pretend
 import pytest
-import readme.rst
+import readme_renderer.rst
 
 from warehouse import filters
 
@@ -35,27 +35,10 @@ def test_camo_url():
 class TestReadmeRender:
 
     def test_can_render(self, monkeypatch):
-        monkeypatch.setattr(readme.rst, "render", lambda raw: "rendered")
-
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
-            ),
-        }
-
-        result = filters.readme_renderer(ctx, "raw thing", format="rst")
-
-        assert result == jinja2.Markup("rendered")
-
-    def test_cant_render(self, monkeypatch):
-        monkeypatch.setattr(readme.rst, "render", lambda raw: None)
         monkeypatch.setattr(
-            readme.txt, "render", lambda raw: "rendered<br>thing",
+            readme_renderer.rst,
+            "render",
+            lambda raw: "rendered",
         )
 
         ctx = {
@@ -69,13 +52,34 @@ class TestReadmeRender:
             ),
         }
 
-        result = filters.readme_renderer(ctx, "raw thing", format="rst")
+        result = filters.readme(ctx, "raw thing", format="rst")
+
+        assert result == jinja2.Markup("rendered")
+
+    def test_cant_render(self, monkeypatch):
+        monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: None)
+        monkeypatch.setattr(
+            readme_renderer.txt, "render", lambda raw: "rendered<br>thing",
+        )
+
+        ctx = {
+            "request": pretend.stub(
+                registry=pretend.stub(
+                    settings={
+                        "camo.url": "https://camo.example.net/",
+                        "camo.key": "fake key",
+                    },
+                ),
+            ),
+        }
+
+        result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup("rendered<br>thing")
 
     def test_renders_camo(self, monkeypatch):
         html = "<img src=http://example.com/image.jpg>"
-        monkeypatch.setattr(readme.rst, "render", lambda raw: html)
+        monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
         gen_camo_url = pretend.call_recorder(
             lambda curl, ckey, url: "https://camo.example.net/image.jpg"
@@ -93,7 +97,7 @@ class TestReadmeRender:
             ),
         }
 
-        result = filters.readme_renderer(ctx, "raw thing", format="rst")
+        result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup(
             "<img src=https://camo.example.net/image.jpg>"
@@ -108,7 +112,7 @@ class TestReadmeRender:
 
     def test_renders_camo_no_src(self, monkeypatch):
         html = "<img>"
-        monkeypatch.setattr(readme.rst, "render", lambda raw: html)
+        monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
         gen_camo_url = pretend.call_recorder(
             lambda curl, ckey, url: "https://camo.example.net/image.jpg"
@@ -126,7 +130,7 @@ class TestReadmeRender:
             ),
         }
 
-        result = filters.readme_renderer(ctx, "raw thing", format="rst")
+        result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup("<img>")
         assert gen_camo_url.calls == []
