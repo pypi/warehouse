@@ -80,7 +80,16 @@
     <p class="help-link"><a href="#" {{ l20n("howToInstall") }}>How do I install this?</a></p>
   </div>
 </section>
-
+{% if release.insecure %}
+<section class="horizontal-section -bad -medium">
+  <div class="site-container">
+    <p {{ l20n("versionInsecure") }}>
+            This version has been marked insecure by the package maintainers. You can read more
+            about the vulnerabilites <a href="{{ release.insecure_url }}">here</a>.
+    </p>
+  </div>
+</section>
+{% endif %}
 <section class="package-status">
   <div class="site-container">
     {% if release.version != all_releases[0].version %}
@@ -206,6 +215,9 @@
                     <span class="highlight-badge" {{ l20n("thisVersion") }}>This version</span>
                   {% else %}
                     <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                  {% endif %}
+                  {% if hrelease.insecure %}
+                    <span class="highlight-badge -bad" {{ l20n("insecure") }}>Insecure</span>
                   {% endif %}
                 </div>
 

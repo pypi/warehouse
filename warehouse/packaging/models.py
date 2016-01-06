@@ -234,6 +234,8 @@ class Release(db.ModelBase):
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
+    insecure = Column(Boolean)
+    insecure_url = Column(Text)
     _pypi_ordering = Column(Integer)
     _pypi_hidden = Column(Boolean)
     cheesecake_installability_id = Column(
