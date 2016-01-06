@@ -374,6 +374,7 @@ class File(db.Model):
     sha256_digest = Column(CIText, unique=True, nullable=False)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
+    _path = Column("path", Text, unique=True)
 
     @hybrid_property
     def path(self):
