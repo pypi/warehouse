@@ -244,14 +244,14 @@ class TestS3FileStorage:
 
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
-                lambda filename, key, extra_args: None,
+                lambda filename, key, ExtraArgs: None,
             ),
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
 
         assert bucket.upload_file.calls == [
-            pretend.call(filename, "foo/bar.txt", extra_args={}),
+            pretend.call(filename, "foo/bar.txt", ExtraArgs={}),
         ]
 
     def test_stores_two_files(self, tmpdir):
@@ -265,7 +265,7 @@ class TestS3FileStorage:
 
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
-                lambda filename, key, extra_args: None,
+                lambda filename, key, ExtraArgs: None,
             ),
         )
         storage = S3FileStorage(bucket)
@@ -273,8 +273,8 @@ class TestS3FileStorage:
         storage.store("foo/second.txt", filename2)
 
         assert bucket.upload_file.calls == [
-            pretend.call(filename1, "foo/first.txt", extra_args={}),
-            pretend.call(filename2, "foo/second.txt", extra_args={}),
+            pretend.call(filename1, "foo/first.txt", ExtraArgs={}),
+            pretend.call(filename2, "foo/second.txt", ExtraArgs={}),
         ]
 
     def test_stores_metadata(self, tmpdir):
@@ -284,7 +284,7 @@ class TestS3FileStorage:
 
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
-                lambda filename, key, extra_args: None,
+                lambda filename, key, ExtraArgs: None,
             ),
         )
         storage = S3FileStorage(bucket)
@@ -294,6 +294,6 @@ class TestS3FileStorage:
             pretend.call(
                 filename,
                 "foo/bar.txt",
-                extra_args={"Metadata": {"foo": "bar"}},
+                ExtraArgs={"Metadata": {"foo": "bar"}},
             ),
         ]
