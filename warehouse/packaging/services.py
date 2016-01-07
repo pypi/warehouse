@@ -105,7 +105,7 @@ class LocalFileStorage:
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
 
-    def store(self, path, file_path):
+    def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         with open(destination, "wb") as dest_fp:
@@ -134,5 +134,10 @@ class S3FileStorage:
                 raise
             raise FileNotFoundError("No such key: {!r}".format(path)) from None
 
-    def store(self, path, file_path):
-        self.bucket.upload_file(file_path, path)
+    def store(self, path, file_path, *, meta=None):
+        extra_args = {}
+
+        if meta is not None:
+            extra_args["Metadata"] = meta
+
+        self.bucket.upload_file(file_path, path, extra_args=extra_args)

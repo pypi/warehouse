@@ -734,7 +734,7 @@ class TestFileUpload:
             )
 
         @pretend.call_recorder
-        def storage_service_store(path, file_path):
+        def storage_service_store(path, file_path, *, meta):
             if file_path.endswith(".asc"):
                 expected = (
                     b"-----BEGIN PGP SIGNATURE-----\n"
@@ -764,6 +764,11 @@ class TestFileUpload:
                 filename,
             ),
             mock.ANY,
+            meta={
+                "project": project.normalized_name,
+                "version": release.version,
+                "package_type": "sdist",
+            },
         )
 
         if has_signature:
@@ -775,6 +780,11 @@ class TestFileUpload:
                     filename + ".asc",
                 ),
                 mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package_type": "sdist",
+                },
             )
 
         # Ensure that a File object has been created.
@@ -1337,7 +1347,7 @@ class TestFileUpload:
         })
 
         @pretend.call_recorder
-        def storage_service_store(path, file_path):
+        def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
                 assert fp.read() == b"A fake file."
 
@@ -1361,6 +1371,11 @@ class TestFileUpload:
                     filename,
                 ),
                 mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package_type": "bdist_wheel",
+                },
             ),
         ]
 
@@ -1475,7 +1490,7 @@ class TestFileUpload:
             ("provides", "testing"),
         ])
 
-        storage_service = pretend.stub(store=lambda path, content: None)
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
 
         resp = pypi.file_upload(db_request)
@@ -1556,7 +1571,7 @@ class TestFileUpload:
             ),
         })
 
-        storage_service = pretend.stub(store=lambda path, content: None)
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
         db_request.client_addr = "10.10.10.10"
 
