@@ -870,7 +870,7 @@ def file_upload(request):
             meta={
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
-                "package_type": file_.packagetype,
+                "package-type": file_.packagetype,
             },
         )
         if has_signature:
@@ -880,7 +880,7 @@ def file_upload(request):
                 meta={
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
-                    "package_type": file_.packagetype,
+                    "package-type": file_.packagetype,
                 },
             )
 
