@@ -768,6 +768,7 @@ class TestFileUpload:
                 "project": project.normalized_name,
                 "version": release.version,
                 "package-type": "sdist",
+                "python-version": "source",
             },
         )
 
@@ -784,6 +785,7 @@ class TestFileUpload:
                     "project": project.normalized_name,
                     "version": release.version,
                     "package-type": "sdist",
+                    "python-version": "source",
                 },
             )
 
@@ -1379,6 +1381,7 @@ class TestFileUpload:
                     "project": project.normalized_name,
                     "version": release.version,
                     "package-type": "bdist_wheel",
+                    "python-version": "cp34",
                 },
             ),
         ]
