@@ -1168,6 +1168,10 @@ class TestFileUpload:
                 sha256_digest=hashlib.sha256(
                     filename.encode("utf8")
                 ).hexdigest(),
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
             ),
         )
 

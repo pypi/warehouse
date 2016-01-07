@@ -368,32 +368,13 @@ class File(db.Model):
     )
     comment_text = Column(Text)
     filename = Column(Text, unique=True)
+    path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
     has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
-    _path = Column("path", Text, unique=True)
-
-    @hybrid_property
-    def path(self):
-        return "/".join([
-            self.python_version,
-            self.release.project.name[0],
-            self.release.project.name,
-            self.filename,
-        ])
-
-    @path.expression
-    def path(self):
-        return func.concat_ws(
-            sql.text("'/'"),
-            self.python_version,
-            func.substring(self.name, sql.text("1"), sql.text("1")),
-            self.name,
-            self.filename,
-        )
 
     @hybrid_property
     def pgp_path(self):
