@@ -834,7 +834,7 @@ def file_upload(request):
             has_signature=bool(has_signature),
             md5_digest=file_hashes["md5"].hexdigest().lower(),
             sha256_digest=file_hashes["sha256"].hexdigest().lower(),
-            _path="/".join([
+            path="/".join([
                 form.pyversion.data,
                 release.project.name[0],
                 release.project.name,
