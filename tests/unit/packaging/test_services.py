@@ -243,13 +243,15 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key: None),
+            upload_file=pretend.call_recorder(
+                lambda filename, key, extra_args: None,
+            ),
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
 
         assert bucket.upload_file.calls == [
-            pretend.call(filename, "foo/bar.txt"),
+            pretend.call(filename, "foo/bar.txt", extra_args={}),
         ]
 
     def test_stores_two_files(self, tmpdir):
@@ -262,13 +264,36 @@ class TestS3FileStorage:
             fp.write(b"Second Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key: None),
+            upload_file=pretend.call_recorder(
+                lambda filename, key, extra_args: None,
+            ),
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/first.txt", filename1)
         storage.store("foo/second.txt", filename2)
 
         assert bucket.upload_file.calls == [
-            pretend.call(filename1, "foo/first.txt"),
-            pretend.call(filename2, "foo/second.txt"),
+            pretend.call(filename1, "foo/first.txt", extra_args={}),
+            pretend.call(filename2, "foo/second.txt", extra_args={}),
+        ]
+
+    def test_stores_metadata(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        bucket = pretend.stub(
+            upload_file=pretend.call_recorder(
+                lambda filename, key, extra_args: None,
+            ),
+        )
+        storage = S3FileStorage(bucket)
+        storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
+
+        assert bucket.upload_file.calls == [
+            pretend.call(
+                filename,
+                "foo/bar.txt",
+                extra_args={"Metadata": {"foo": "bar"}},
+            ),
         ]

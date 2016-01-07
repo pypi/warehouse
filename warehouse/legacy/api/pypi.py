@@ -864,11 +864,24 @@ def file_upload(request):
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
         storage = request.find_service(IFileStorage)
-        storage.store(file_.path, os.path.join(tmpdir, filename))
+        storage.store(
+            file_.path,
+            os.path.join(tmpdir, filename),
+            meta={
+                "project": file_.release.project.normalized_name,
+                "version": file_.release.version,
+                "package_type": file_.packagetype,
+            },
+        )
         if has_signature:
             storage.store(
                 file_.pgp_path,
                 os.path.join(tmpdir, filename + ".asc"),
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package_type": file_.packagetype,
+                },
             )
 
     return Response()
