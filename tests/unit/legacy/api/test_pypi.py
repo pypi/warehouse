@@ -767,7 +767,7 @@ class TestFileUpload:
             meta={
                 "project": project.normalized_name,
                 "version": release.version,
-                "package_type": "sdist",
+                "package-type": "sdist",
             },
         )
 
@@ -783,7 +783,7 @@ class TestFileUpload:
                 meta={
                     "project": project.normalized_name,
                     "version": release.version,
-                    "package_type": "sdist",
+                    "package-type": "sdist",
                 },
             )
 
@@ -1374,7 +1374,7 @@ class TestFileUpload:
                 meta={
                     "project": project.normalized_name,
                     "version": release.version,
-                    "package_type": "bdist_wheel",
+                    "package-type": "bdist_wheel",
                 },
             ),
         ]
