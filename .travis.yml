@@ -1,5 +1,5 @@
 language: python
-python: 3.5.0
+python: 3.5.1
 
 dist: trusty
 sudo: false
