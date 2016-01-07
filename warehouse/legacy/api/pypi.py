@@ -871,6 +871,7 @@ def file_upload(request):
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
                 "package-type": file_.packagetype,
+                "python-version": file_.python_version,
             },
         )
         if has_signature:
@@ -881,6 +882,7 @@ def file_upload(request):
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
                     "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
                 },
             )
 
