@@ -140,4 +140,4 @@ class S3FileStorage:
         if meta is not None:
             extra_args["Metadata"] = meta
 
-        self.bucket.upload_file(file_path, path, extra_args=extra_args)
+        self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
