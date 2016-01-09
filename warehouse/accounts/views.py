@@ -174,7 +174,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 @view_config(
     route_name="accounts.mark-insecure",
     renderer="accounts/mark_insecure.html",
-    #decorator=[csrf_protect("accounts.mark-insecure"), uses_session],
+    decorator=[csrf_protect("accounts.mark-insecure"), uses_session],
 )
 def mark_insecure(request):
 
