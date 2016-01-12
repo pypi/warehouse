@@ -17,7 +17,7 @@ celery==3.1.19
 certifi==2015.11.20.1
 cffi==1.4.2               # via bcrypt
 click==6.2
-contextlib2==0.4.0        # via raven
+contextlib2==0.5.0        # via raven
 docutils==0.12            # via botocore, readme-renderer
 elasticsearch-dsl==0.0.9
 elasticsearch==2.2.0
