@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   // Toggle expanding and collapsing sections
-  $('.expander-trigger').click(function(){
+  $('.-js-expander-trigger').click(function(){
     $(this).toggleClass("expander-hidden");
   });
 
