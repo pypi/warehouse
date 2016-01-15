@@ -39,7 +39,7 @@ $(document).ready(function() {
   });
 
   // Launch filter popover on mobile
-  $('body').on('click', '.add-filter', function(e){
+  $('body').on('click', '.-js-add-filter', function(e){
     e.preventDefault();
     $('.dark-overlay').show();
     $('.panel-overlay').show();
