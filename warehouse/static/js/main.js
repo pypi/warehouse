@@ -45,7 +45,7 @@ $(document).ready(function() {
     $('.panel-overlay').show();
   });
 
-  $('body').on('click', '.close-panel', function(e){
+  $('body').on('click', '.-js-close-panel', function(e){
     e.preventDefault();
     $('.dark-overlay').hide();
     $('.panel-overlay').hide();
