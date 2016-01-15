@@ -147,7 +147,7 @@
 
       <div class="vertical-tab-content-container">
         {# Tab: Project Description #}
-        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
         <div id="tab1" class="js-vertical-tab-content vertical-tab-content">
           {% if release.description %}
           <div class="release-description">
@@ -161,7 +161,7 @@
         </div>
 
         {# Tab: Dependencies #}
-        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab2" {{ l20n("projectDependencies") }}>Dependencies</a>
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab2" {{ l20n("projectDependencies") }}>Dependencies</a>
         <div id="tab2" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("numberProjectDependencies", number="TODO") }}>Dependencies (TODO)</h2>
           <p {{ l20n("projectDependenciesInfo", name=release.project.name) }}>
@@ -187,7 +187,7 @@
         </div>
 
         {# Tab: Version History & Changelog #}
-        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab3" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab3" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
         <div id="tab3" class="js-vertical-tab-content vertical-tab-content">
           <div class="split-layout -table">
             <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
@@ -234,7 +234,7 @@
         </div>
 
         {# Tab: Statistics #}
-        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab4" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab4" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
         <div id="tab4" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("projectDownloadStats") }}>Download Statistics</h2>
           <div class="button-set">
@@ -256,7 +256,7 @@
         </div>
 
         {# Tab: Files #}
-        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab5" {{ l20n("projectFiles") }}>Files</a>
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab5" {{ l20n("projectFiles") }}>Files</a>
         <div id="tab5" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("projectFilesTitle") }}>Release Files</h2>
           <p>TODO: Brief introduction on what you do with files - including link to relevant help section.</p>
