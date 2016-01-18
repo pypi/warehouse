@@ -349,9 +349,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 ),
             ]
             if x is not None
-        ]
-        +
-        [
+        ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
             pretend.call("pyramid_tm"),
@@ -372,9 +370,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".redirects"),
             pretend.call(".routes"),
             pretend.call(".raven"),
-        ]
-        +
-        [
+        ] + [
             pretend.call(x) for x in [
                 configurator_settings.get("warehouse.theme"),
             ]

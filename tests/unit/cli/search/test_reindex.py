@@ -104,7 +104,10 @@ class TestReindex:
         monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
 
         docs = pretend.stub()
-        project_docs = lambda db: docs
+
+        def project_docs(db):
+            return docs
+
         monkeypatch.setattr(
             warehouse.cli.search.reindex,
             "_project_docs",
@@ -160,7 +163,10 @@ class TestReindex:
         monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
 
         docs = pretend.stub()
-        project_docs = lambda db: docs
+
+        def project_docs(db):
+            return docs
+
         monkeypatch.setattr(
             warehouse.cli.search.reindex,
             "_project_docs",
@@ -215,7 +221,10 @@ class TestReindex:
         monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
 
         docs = pretend.stub()
-        project_docs = lambda db: docs
+
+        def project_docs(db):
+            return docs
+
         monkeypatch.setattr(
             warehouse.cli.search.reindex,
             "_project_docs",

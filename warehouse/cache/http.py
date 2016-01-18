@@ -87,8 +87,8 @@ def conditional_http_tween_factory(handler, registry):
             # If we have a streaming response, but it's small enough, we'll
             # just go ahead and buffer it in memory so that we can generate a
             # ETag for it.
-            if (streaming and response.content_length is not None
-                    and response.content_length <= BUFFER_MAX):
+            if (streaming and response.content_length is not None and
+                    response.content_length <= BUFFER_MAX):
                 response.body
                 streaming = False
 
