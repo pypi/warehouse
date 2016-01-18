@@ -1,6 +1,6 @@
 
 aside.panel-overlay {
-  a.close-panel {
+  a.-js-close-panel {
     display: none;
   }
 
@@ -22,7 +22,7 @@ aside.panel-overlay {
       color: $white;
     }
 
-    a.close-panel {
+    a.-js-close-panel {
       display: inline-block;
       position: absolute;
       padding: 10px 15px;
