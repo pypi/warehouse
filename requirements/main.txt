@@ -36,7 +36,7 @@ passlib==1.6.5
 pastedeploy==1.5.2        # via pyramid
 psycopg2==2.6.1
 pycparser==2.14           # via cffi
-pygments==2.0.2           # via readme-renderer
+pygments==2.1             # via readme-renderer
 pyramid-jinja2==2.5
 pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
