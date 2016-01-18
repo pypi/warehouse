@@ -23,8 +23,8 @@ class ProxyFixer:
         # Determine if the request comes from a trusted proxy or not by looking
         # for a token in the request.
         request_token = environ.get("HTTP_WAREHOUSE_TOKEN")
-        if (request_token is not None
-                and hmac.compare_digest(self.token, request_token)):
+        if (request_token is not None and
+                hmac.compare_digest(self.token, request_token)):
             # Compute our values from the environment.
             proto = environ.get("HTTP_WAREHOUSE_PROTO", "")
             remote_addr = environ.get("HTTP_WAREHOUSE_IP", "")

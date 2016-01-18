@@ -412,8 +412,8 @@ class MetadataForm(forms.Form):
 
     def full_validate(self):
         # All non source releases *must* have a pyversion
-        if (self.filetype.data
-                and self.filetype.data != "sdist" and not self.pyversion.data):
+        if (self.filetype.data and
+                self.filetype.data != "sdist" and not self.pyversion.data):
             raise wtforms.validators.ValidationError(
                 "Python version is required for binary distribution uploads."
             )
@@ -713,8 +713,8 @@ def file_upload(request):
         )
 
     # Check the content type of what is being uploaded
-    if (not request.POST["content"].type
-            or request.POST["content"].type.startswith("image/")):
+    if (not request.POST["content"].type or
+            request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
     # Check to see if the file that was uploaded exists already or not.
