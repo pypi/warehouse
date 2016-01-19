@@ -138,7 +138,7 @@ sub vcl_fetch {
     # If we've gotten an error after the restarts we'll deliver the response
     # with a very short cache time.
     if (beresp.status == 500 || beresp.status == 503) {
-        # If this is a ESI request, then instead of returning the error we're
+        # If this is an ESI request, then instead of returning the error we're
         # going to return a blank page so that our top level page acts as if it
         # did not have ESI rather than inlining the error page.
         if (req.url ~ "^/_esi/") {

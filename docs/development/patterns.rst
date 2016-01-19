@@ -8,7 +8,7 @@ Patterns
 Returning vs Raising HTTP Exceptions
 ------------------------------------
 
-Pyramid allows the the various HTTP Exceptions to be either returned or raised,
+Pyramid allows the various HTTP Exceptions to be either returned or raised,
 and the difference between whether you return or raise them are subtle. The
 differences between returning and raising a response are:
 

@@ -35,7 +35,7 @@ r = redis.StrictRedis.from_url(REDIS_URL)
 
 
 with r.lock("fastly-config", timeout=60):
-    # Get the the VCL files that we're going to be uploading.
+    # Get the VCL files that we're going to be uploading.
     vcl_dir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "vcl")
     )
