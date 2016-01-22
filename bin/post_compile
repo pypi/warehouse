@@ -6,9 +6,6 @@ set -x
 # have access to our private repository.
 pip install -c requirements.txt -r requirements/theme.txt
 
-# Clean up after ourselves
-rm -rf node_modules .npm .cache .config .local
-
 # Remove items which are not important for Heroku deploys
 rm -rf dev docs requirements requirements.txt tests
 rm -rf .bowerrc .coveragerc .dockerignore .gitignore .travis.yml babel.cfg
@@ -16,4 +13,4 @@ rm -rf bower.json CONTRIBUTING.rst docker-compose.yml Dockerfile Gulpfile.js
 rm -rf package.json README.rst runtime.txt setup.cfg
 
 # We don't need Node installed at runtime, so we'll remove it
-rm -rf .heroku/node
+rm -rf .heroku/node node_modules
