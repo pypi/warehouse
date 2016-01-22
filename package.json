@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/pypa/warehouse.git"
   },
-  "devDependencies": {
+  "dependencies": {
     "bower": "",
     "del": "^2.1.0",
     "gulp": "^3.9.0",
