@@ -23,5 +23,3 @@ dev/example.sql
 warehouse/.commit
 warehouse/static/components
 warehouse/static/dist
-
-requirements.txt
