@@ -10,19 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from markupsafe import Markup
 
-def test_robots_txt(webtest):
-    resp = webtest.get("/robots.txt")
-    assert resp.status_code == 200
-    assert resp.content_type == "text/plain"
-    assert resp.body.decode(resp.charset) == (
-        "Sitemap: http://localhost/sitemap.xml\n\n"
-        "User-agent: *\n"
-        "Disallow: /simple/\n"
-        "Disallow: /packages/\n"
-        "Disallow: /_includes/\n"
-        "Disallow: /_esi/\n"
-        "Disallow: /pypi/*/json\n"
-        "Disallow: /pypi/*/*/json\n"
-        "Disallow: /pypi*?\n"
-    )
+
+def html_include(url):
+    return Markup('<div data-html-include="{}"></div>'.format(url))
