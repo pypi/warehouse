@@ -58,7 +58,7 @@
           </div>
           {% endblock %}
 
-          {{ esi_include(request.route_path("esi.current-user-indicator"), cookies=True) }}
+          {{ html_include(request.route_path("includes.current-user-indicator")) }}
         </div>
       </div>
     </header>

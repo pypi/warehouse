@@ -56,8 +56,8 @@ def test_routes():
             read_only=True,
         ),
         pretend.call(
-            "esi.current-user-indicator",
-            "/_esi/current-user-indicator/",
+            "includes.current-user-indicator",
+            "/_includes/current-user-indicator/",
             read_only=True,
         ),
         pretend.call(
