@@ -19,7 +19,7 @@ cffi==1.5.0               # via bcrypt
 click==6.2
 contextlib2==0.5.1        # via raven
 docutils==0.12            # via botocore, readme-renderer
-elasticsearch-dsl==0.0.9
+elasticsearch-dsl==0.0.9  # rq.filter: !=0.0.10
 elasticsearch==2.2.0
 hiredis==0.2.0
 html5lib==0.9999999
