@@ -38,7 +38,7 @@ psycopg2==2.6.1
 pycparser==2.14           # via cffi
 pygments==2.1             # via readme-renderer
 pyparsing==2.0.7          # via packaging
-pyramid-jinja2==2.6.1
+pyramid-jinja2==2.6.2
 pyramid-multiauth==0.5.0
 pyramid-rpc==0.7.2
 pyramid-services==0.3
