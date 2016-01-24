@@ -31,7 +31,10 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/main.css') }}">
 
     <script src="{{ request.static_path('warehouse:static/dist/components/modernizr.js') }}"></script>
-    <script defer src="{{ request.static_path('warehouse:static/dist/components/l20n/dist/compat/web/l20n.js') }}"></script>
+    {# TODO: We need a solution to https://github.com/pypa/warehouse/issues/833
+     #       before we can progress on this. Currently this breaks html_include
+     #}
+    {# <script defer src="{{ request.static_path('warehouse:static/dist/components/l20n/dist/compat/web/l20n.js') }}"></script> #}
   </head>
 
   <body>
