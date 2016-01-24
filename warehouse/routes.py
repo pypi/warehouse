@@ -29,15 +29,6 @@ def includeme(config):
         read_only=True,
     )
 
-    # ESI Routes
-    config.add_route(
-        "esi.project-stats",
-        "/_esi/project-stats/{name}/",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{name}",
-        read_only=True,
-    )
-
     # Search Routes
     config.add_route("search", "/search/", read_only=True)
 

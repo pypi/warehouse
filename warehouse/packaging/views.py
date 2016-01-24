@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Release, File, Role
 
 
@@ -103,32 +103,6 @@ def release_detail(release, request):
         "files": release.files.all(),
         "all_releases": all_releases,
         "maintainers": maintainers,
-    }
-
-
-@view_config(
-    route_name="esi.project-stats",
-    renderer="packaging/includes/project-stats.html",
-    decorator=[
-        origin_cache(
-            15 * 60,                         # 15 Minutes
-            stale_while_revalidate=30 * 60,  # 30 minutes
-            stale_if_error=30 * 60,          # 30 minutes
-        ),
-    ],
-)
-def project_stats(project, request):
-    if project.name != request.matchdict.get("name", project.name):
-        return HTTPMovedPermanently(
-            request.current_route_path(name=project.name),
-        )
-
-    stats_svc = request.find_service(IDownloadStatService)
-
-    return {
-        "daily": stats_svc.get_daily_stats(project.name),
-        "weekly": stats_svc.get_weekly_stats(project.name),
-        "monthly": stats_svc.get_monthly_stats(project.name),
     }
 
 

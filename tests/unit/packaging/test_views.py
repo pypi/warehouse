@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from webob import datetime_utils
 
 from warehouse.packaging import views
-from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
+from warehouse.packaging.interfaces import IFileStorage
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -136,50 +136,6 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
         }
-
-
-class TestProjectStats:
-
-    def test_normalizing_redirects(self, pyramid_request):
-        project = pretend.stub(name="Foo")
-        name = project.name.lower()
-
-        pyramid_request.matchdict = {"name": name}
-        pyramid_request.current_route_path = pretend.call_recorder(
-            lambda name: "/_esi/project-stats/the-redirect/"
-        )
-
-        resp = views.project_stats(project, pyramid_request)
-
-        assert isinstance(resp, HTTPMovedPermanently)
-        assert resp.headers["Location"] == "/_esi/project-stats/the-redirect/"
-        assert pyramid_request.current_route_path.calls == [
-            pretend.call(name=project.name),
-        ]
-
-    def test_project_stats(self, pyramid_request):
-        project = pretend.stub(name="Foo")
-
-        class DownloadService:
-            _stats = {"Foo": {"daily": 10, "weekly": 70, "monthly": 300}}
-
-            def get_daily_stats(self, name):
-                return self._stats[name]["daily"]
-
-            def get_weekly_stats(self, name):
-                return self._stats[name]["weekly"]
-
-            def get_monthly_stats(self, name):
-                return self._stats[name]["monthly"]
-
-        services = {IDownloadStatService: DownloadService()}
-
-        pyramid_request.matchdict = {"name": project.name}
-        pyramid_request.find_service = lambda iface: services[iface]
-
-        stats = views.project_stats(project, pyramid_request)
-
-        assert stats == {"daily": 10, "weekly": 70, "monthly": 300}
 
 
 class TestPackages:
