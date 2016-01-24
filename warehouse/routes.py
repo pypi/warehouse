@@ -22,17 +22,10 @@ def includeme(config):
         read_only=True,
     )
 
-    # ESI Routes
+    # HTML Snippets for including into other pages.
     config.add_route(
-        "esi.current-user-indicator",
-        "/_esi/current-user-indicator/",
-        read_only=True,
-    )
-    config.add_route(
-        "esi.project-stats",
-        "/_esi/project-stats/{name}/",
-        factory="warehouse.packaging.models:ProjectFactory",
-        traverse="/{name}",
+        "includes.current-user-indicator",
+        "/_includes/current-user-indicator/",
         read_only=True,
     )
 

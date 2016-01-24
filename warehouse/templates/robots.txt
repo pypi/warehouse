@@ -3,7 +3,7 @@ Sitemap: {{ request.route_url("index.sitemap.xml") }}
 User-agent: *
 Disallow: /simple/
 Disallow: /packages/
-Disallow: /_esi/
+Disallow: /_includes/
 Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?

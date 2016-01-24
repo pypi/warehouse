@@ -40,13 +40,3 @@ class IOriginCache(Interface):
         """
         Purge and responses associated with the specific keys.
         """
-
-    def esi_include(request, path, *, cookies=False):
-        """
-        Takes a current request object and a path and it returns a string that
-        can be embedded in order to trigger an Edge Side Include for that URL.
-
-        The cookies arugment is optional, and if provided should indicate
-        whether or not cookies should be passed along to the request when
-        including the content.
-        """

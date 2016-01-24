@@ -2,24 +2,6 @@
 sub vcl_recv {
 #FASTLY recv
 
-    # Disable ESI processing when doing a shield request.
-    if (req.http.Fastly-FF) {
-        set req.esi = false;
-    }
-
-    # If we're serving an ESI request, and the request in question has NOT
-    # opted into cookies, then we'll go ahead and strip any cookies from the
-    # request. In addition, we'll strip out any Authorization or Authentication
-    # headers.
-    if (req.url ~ "^/_esi/") {
-        unset req.http.Authenticate;
-        unset req.http.Authorization;
-
-        if (req.url !~ "esi-cookies=1") {
-            unset req.http.Cookie;
-        }
-    }
-
     # We want to Force SSL for the WebUI by redirecting to the HTTPS version of
     # the page, however for API calls we want to return an error code directing
     # people to instead use HTTPS.
@@ -90,19 +72,6 @@ sub vcl_recv {
 sub vcl_fetch {
 #FASTLY fetch
 
-    # Only enable ESI on responses that have opted into them.
-    if (beresp.http.Warehouse-ESI-Enable) {
-        # Conditional HTTP requests are not compatible with Varnish's
-        # implementation of ESI, in particularl the ETag and the Last-Modified
-        # won't be updated when the included content changes, causing Varnish
-        # to return a 304 Not Modified.
-        unset beresp.http.ETag;
-        unset beresp.http.Last-Modified;
-
-        # Enable ESI.
-        esi;
-    }
-
     # Trigger a "SSL is required" error if the backend has indicated to do so.
     if (beresp.http.X-Fastly-Error == "803") {
         error 803 "SSL is required";
@@ -138,13 +107,6 @@ sub vcl_fetch {
     # If we've gotten an error after the restarts we'll deliver the response
     # with a very short cache time.
     if (beresp.status == 500 || beresp.status == 503) {
-        # If this is an ESI request, then instead of returning the error we're
-        # going to return a blank page so that our top level page acts as if it
-        # did not have ESI rather than inlining the error page.
-        if (req.url ~ "^/_esi/") {
-            error 900 "ESI Error";
-        }
-
         set req.http.Fastly-Cachetype = "ERROR";
         set beresp.ttl = 1s;
         set beresp.grace = 5s;
@@ -170,28 +132,6 @@ sub vcl_fetch {
 sub vcl_deliver {
 #FASTLY deliver
 
-    # If the backend has indicated additional Vary headers to add once the
-    # ESI result has been processed, then we'll go ahead and either append them
-    # to our existing Vary header or we'll set the Vary header equal to it.
-    # However, we only want this logic to happen on the edge nodes, not on the
-    # shielding nodes.
-    if (resp.http.Warehouse-ESI-Vary && !req.http.Fastly-FF) {
-        if (resp.http.Vary) {
-            set resp.http.Vary = resp.http.Vary ", " resp.http.Warehouse-ESI-Vary;
-        } else {
-            set resp.http.Vary = resp.http.Warehouse-ESI-Vary;
-        }
-
-        unset resp.http.Warehouse-ESI-Vary;
-    }
-
-    # We no longer need the header that enables ESI, so we'll remove it from
-    # the output if we're not on a shielding node, otherwise we want to pass
-    # this header on to the edge nodes so that they can handle the ESI.
-    if (!req.http.Fastly-FF) {
-        unset resp.http.Warehouse-ESI-Enable;
-    }
-
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
     unset resp.http.Server;
@@ -210,11 +150,6 @@ sub vcl_error {
         set obj.http.Content-Type = "text/plain; charset=UTF-8";
         synthetic {"SSL is required."};
         return (deliver);
-    } else if (obj.status == 900) {
-        set obj.status = 500;
-        set obj.response = "500 ESI Error";
-        set obj.http.Content-Type = "text/html; charset=UTF-8";
-        synthetic {""};
-        return(deliver);
     }
+
 }

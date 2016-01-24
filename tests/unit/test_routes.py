@@ -56,15 +56,8 @@ def test_routes():
             read_only=True,
         ),
         pretend.call(
-            "esi.current-user-indicator",
-            "/_esi/current-user-indicator/",
-            read_only=True,
-        ),
-        pretend.call(
-            "esi.project-stats",
-            "/_esi/project-stats/{name}/",
-            factory="warehouse.packaging.models:ProjectFactory",
-            traverse="/{name}",
+            "includes.current-user-indicator",
+            "/_includes/current-user-indicator/",
             read_only=True,
         ),
         pretend.call("search", "/search/", read_only=True),

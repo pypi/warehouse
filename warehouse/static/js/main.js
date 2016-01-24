@@ -1,5 +1,10 @@
 $(document).ready(function() {
 
+  // Look for any data-html-include elements, and include the content for them
+  $('[data-html-include]').each(function() {
+    $(this).load($(this).data('html-include'));
+  });
+
   // Toggle expanding and collapsing sections
   $('.-js-expander-trigger').click(function(){
     $(this).toggleClass("expander-hidden");
@@ -63,9 +68,10 @@ $(document).ready(function() {
     positionWarning();
   });
 
-  document.l10n.ready.then(function() {
-    // Format all of the time.relative tags to display relative time.
-    $(".-js-relative-time").timeago();
-  });
+  // document.l10n.ready.then(function() {
+  //   // Format all of the time.relative tags to display relative time.
+  //   $(".-js-relative-time").timeago();
+  // });
+  $(".-js-relative-time").timeago();  // Add back to document.l10n.ready
 
 });

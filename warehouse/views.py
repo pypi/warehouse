@@ -177,7 +177,7 @@ def search(request):
 
 
 @view_config(
-    route_name="esi.current-user-indicator",
+    route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
     decorator=[uses_session],
 )

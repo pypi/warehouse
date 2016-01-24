@@ -15,7 +15,6 @@ import pretend
 import pytest
 import requests
 
-from unittest import mock
 from zope.interface.verify import verifyClass
 
 from warehouse.cache.origin import fastly
@@ -192,34 +191,3 @@ class TestFastlyCache:
             ),
         ]
         assert response.raise_for_status.calls == [pretend.call()]
-
-    @pytest.mark.parametrize(
-        ("path", "cookies", "expected"),
-        [
-            ("/_esi/foo/", True, "/_esi/foo/?esi-cookies=1"),
-            ("/_esi/foo/", False, "/_esi/foo/"),
-        ],
-    )
-    def test_esi_include(self, path, cookies, expected):
-        cacher = fastly.FastlyCache(
-            api_key="an api key",
-            service_id="the-service-id",
-        )
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-        )
-
-        assert cacher.esi_include(request, path, cookies=cookies) == \
-            '<esi:include src="{}" />'.format(expected)
-        assert request.add_response_callback.calls == [pretend.call(mock.ANY)]
-        cb_request, cb_response = pretend.stub(), pretend.stub(headers={})
-        cb = request.add_response_callback.calls[0].args[0]
-        cb(cb_request, cb_response)
-        if cookies:
-            assert cb_response.headers == {
-                "Warehouse-ESI-Vary": "Cookie",
-                "Warehouse-ESI-Enable": "1",
-            }
-        else:
-            assert cb_response.headers == {"Warehouse-ESI-Enable": "1"}
