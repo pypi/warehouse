@@ -13,76 +13,8 @@
 import pretend
 import pytest
 
-from unittest import mock
-
 from warehouse.cache import origin
 from warehouse.cache.origin.interfaces import IOriginCache
-
-
-class TestESIInclude:
-
-    def test_skips_when_prevents(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.prevent_esi": True},
-            ),
-        )
-        assert origin.esi_include({"request": request}, "/") == ""
-
-    @pytest.mark.parametrize("cookies", [True, False, None])
-    def test_calls_cacher(self, cookies):
-        cacher = pretend.stub(
-            esi_include=pretend.call_recorder(
-                lambda request, path, cookies: "<the esi tag />"
-            ),
-        )
-        request = pretend.stub(
-            registry=pretend.stub(settings={}),
-            find_service=pretend.call_recorder(lambda iface: cacher),
-        )
-        ctx = {"request": request}
-        assert origin.esi_include(ctx, "/", cookies=cookies) == \
-            "<the esi tag />"
-        assert request.find_service.calls == [pretend.call(IOriginCache)]
-        assert cacher.esi_include.calls == [
-            pretend.call(request, "/", cookies=cookies),
-        ]
-
-    @pytest.mark.parametrize("cookies", [True, False, None])
-    def test_dev_fallback(self, cookies):
-        @pretend.call_recorder
-        def find_service(iface):
-            raise ValueError
-
-        subresponse = pretend.stub(body=b"the response body", charset="utf8")
-        request = pretend.stub(
-            registry=pretend.stub(settings={}),
-            find_service=find_service,
-            invoke_subrequest=pretend.call_recorder(
-                lambda req, use_tweens: subresponse
-            ),
-            cookies={"FooBar": "Wat"},
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-        )
-        ctx = {"request": request}
-
-        assert origin.esi_include(ctx, "/", cookies=cookies) == \
-            "the response body"
-        assert request.find_service.calls == [pretend.call(IOriginCache)]
-        assert request.invoke_subrequest.calls == [
-            pretend.call(mock.ANY, use_tweens=True),
-        ]
-
-        if cookies:
-            subreq = request.invoke_subrequest.calls[0].args[0]
-            assert subreq.path == "/"
-            assert request.add_response_callback.calls == [
-                pretend.call(mock.ANY),
-            ]
-            cb_request, cb_response = pretend.stub(), pretend.stub(vary=[])
-            cb = request.add_response_callback.calls[0].args[0]
-            cb(cb_request, cb_response)
-            assert cb_response.vary == {"Cookie"}
 
 
 def test_store_purge_keys():

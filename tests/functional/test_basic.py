@@ -21,7 +21,6 @@ def test_robots_txt(webtest):
         "Disallow: /simple/\n"
         "Disallow: /packages/\n"
         "Disallow: /_includes/\n"
-        "Disallow: /_esi/\n"
         "Disallow: /pypi/*/json\n"
         "Disallow: /pypi/*/*/json\n"
         "Disallow: /pypi*?\n"

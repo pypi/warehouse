@@ -244,7 +244,6 @@ def configure(settings=None):
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
-    jglobals.setdefault("esi_include", "warehouse.cache.origin:esi_include")
     jglobals.setdefault("html_include", "warehouse.utils.html:html_include")
     jglobals.setdefault("now", "warehouse.utils:now")
 

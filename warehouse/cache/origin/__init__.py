@@ -13,37 +13,8 @@
 import collections
 import functools
 
-import jinja2
-
-from pyramid.request import Request
-from pyramid.threadlocal import get_current_request
-
 from warehouse import db
 from warehouse.cache.origin.interfaces import IOriginCache
-from warehouse.cache.http import add_vary_callback
-
-
-@jinja2.contextfunction
-def esi_include(ctx, path, cookies=False):
-    request = ctx.get("request") or get_current_request()
-
-    if request.registry.settings.get("warehouse.prevent_esi", False):
-        return ""
-
-    try:
-        cacher = request.find_service(IOriginCache)
-    except ValueError:
-        subreq = Request.blank(path)
-        subreq.accept_encoding = "identity"
-        if cookies:
-            subreq.cookies.update(request.cookies)
-            request.add_response_callback(add_vary_callback("Cookie"))
-        resp = request.invoke_subrequest(subreq, use_tweens=True)
-        include = resp.body.decode(resp.charset)
-    else:
-        include = cacher.esi_include(request, path, cookies=cookies)
-
-    return jinja2.Markup(include)
 
 
 @db.listens_for(db.Session, "after_flush")

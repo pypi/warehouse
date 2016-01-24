@@ -93,15 +93,3 @@ class FastlyCache:
             raise UnsuccessfulPurge(
                 "Could not successfully purge {!r}".format(key)
             )
-
-    def esi_include(self, request, path, *, cookies=False):
-        @request.add_response_callback
-        def _esi_vary(request, response):
-            if cookies:
-                response.headers["Warehouse-ESI-Vary"] = "Cookie"
-            response.headers["Warehouse-ESI-Enable"] = "1"
-
-        if cookies:
-            path += "?esi-cookies=1"
-
-        return '<esi:include src="{}" />'.format(path)
