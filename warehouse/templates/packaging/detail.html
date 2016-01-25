@@ -131,7 +131,7 @@
         <div class="sidebar-section maintainers">
           <h3 {{ l20n("projectMaintainers") }}>Maintainers</h3>
           {% for maintainer in maintainers %}
-          <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
           {% endfor %}
         </div>
 
@@ -198,37 +198,37 @@
 
           <section class="version-history-graphic">
             {% for hrelease in all_releases %}
-              {% set is_current = (hrelease.version == release.version) %}
-              <div class="history-section{% if loop.first %} latest{% elif loop.last %} oldest{% endif %}{% if is_current %} current{% endif %}">
-                <div class="version">
-                  {% if is_current %}
-                    <p>{{ hrelease.version }}</p>
-                    <span class="highlight-badge" {{ l20n("thisVersion") }}>This version</span>
-                  {% else %}
-                    <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
-                  {% endif %}
-                </div>
+            {% set is_current = (hrelease.version == release.version) %}
+            <div class="history-section{{ ' latest' if loop.first else ' oldest' if loop.last }}{{ ' current' if is_current }}">
+              <div class="version">
+                {% if is_current %}
+                <p>{{ hrelease.version }}</p>
+                <span class="highlight-badge" {{ l20n("thisVersion") }}>This version</span>
+                {% else %}
+                <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                {% endif %}
+              </div>
 
-                <div class="graphic">
-                  {% if loop.length > 1 %}
-                    <div class="line"></div>
-                  {% endif %}
-                  {% if is_current %}
-                    <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube-small.png') }}">
-                  {% else %}
-                    <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube-small.png') }}">
-                  {% endif %}
-                </div>
+              <div class="graphic">
+                {% if loop.length > 1 %}
+                <div class="line"></div>
+                {% endif %}
+                {% if is_current %}
+                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube-small.png') }}">
+                {% else %}
+                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube-small.png') }}">
+                {% endif %}
+              </div>
 
-                <div class="changelog">
-                  <div class="card">
-                    <p>TODO: Figure out how to actually get changelog content.
-                    <p>Changelog content for this version goes here.</p>
-                    <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    <p><a href="clicking-here-expands-changelog"><i class="fa fa-plus-square-o"></i> <span {{ l20n("showMore") }}>Show More</span></a></p>
-                  </div>
+              <div class="changelog">
+                <div class="card">
+                  <p>TODO: Figure out how to actually get changelog content.
+                  <p>Changelog content for this version goes here.</p>
+                  <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  <p><a href="clicking-here-expands-changelog"><i class="fa fa-plus-square-o"></i> <span {{ l20n("showMore") }}>Show More</span></a></p>
                 </div>
               </div>
+            </div>
             {% endfor %}
           </section>
         </div>
@@ -279,49 +279,49 @@
             </thead>
             <tbody>
               {% for file in files %}
-                <tr>
-                  <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>{% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}</td>
-                  <td>
-                    {{ file.sha256_digest }}
-                    <a class="sha256-link" href="clicking-here-copies-sha256">
-                      <i class="fa fa-copy"></i>
-                      <span class="sr-only">Copy SHA256 Checksum</span>
-                    </a>
-                  </td>
-                  <td>
-                    {# TODO: This should ideally be part of an enum somewhere or
-                       otherwise defined somewhere other than a big if else
-                       chain inside of a template
-                    #}
-                    {% if file.packagetype == "bdist_dmg" %}
-                      OSX Disk Image
-                    {% elif file.packagetype == "bdist_dumb" %}
-                      "Dumb" Binary
-                    {% elif file.packagetype == "bdist_egg" %}
-                      Egg
-                    {% elif file.packagetype == "bdist_msi" %}
-                      Windows MSI Installer
-                    {% elif file.packagetype == "bdist_rpm" %}
-                      RPM
-                    {% elif file.packagetype == "bdist_wheel" %}
-                      Wheel
-                    {% elif file.packagetype == "bdist_wininst" %}
-                      Windows Installer
-                    {% elif file.packagetype == "sdist" %}
-                      Source
-                    {% else %}
-                      {{ file.packagetype }}
-                    {% endif %}
-                  </td>
-                  <td>{{ file.upload_time|format_date() }}</td>
-                  <td>
-                    {% if file.python_version != "source" %}
-                      {{ file.python_version }}
-                    {% else %}
-                      &ndash;
-                    {% endif %}
-                  </td>
-                </tr>
+              <tr>
+                <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">{{ file.filename }}</a>{% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}</td>
+                <td>
+                  {{ file.sha256_digest }}
+                  <a class="sha256-link" href="clicking-here-copies-sha256">
+                    <i class="fa fa-copy"></i>
+                    <span class="sr-only">Copy SHA256 Checksum</span>
+                  </a>
+                </td>
+                <td>
+                  {# TODO: This should ideally be part of an enum somewhere or
+                     otherwise defined somewhere other than a big if else
+                     chain inside of a template
+                  #}
+                  {% if file.packagetype == "bdist_dmg" %}
+                    OSX Disk Image
+                  {% elif file.packagetype == "bdist_dumb" %}
+                    "Dumb" Binary
+                  {% elif file.packagetype == "bdist_egg" %}
+                    Egg
+                  {% elif file.packagetype == "bdist_msi" %}
+                    Windows MSI Installer
+                  {% elif file.packagetype == "bdist_rpm" %}
+                    RPM
+                  {% elif file.packagetype == "bdist_wheel" %}
+                    Wheel
+                  {% elif file.packagetype == "bdist_wininst" %}
+                    Windows Installer
+                  {% elif file.packagetype == "sdist" %}
+                    Source
+                  {% else %}
+                    {{ file.packagetype }}
+                  {% endif %}
+                </td>
+                <td>{{ file.upload_time|format_date() }}</td>
+                <td>
+                  {% if file.python_version != "source" %}
+                    {{ file.python_version }}
+                  {% else %}
+                    –
+                  {% endif %}
+                </td>
+              </tr>
               {% endfor %}
             </tbody>
           </table>

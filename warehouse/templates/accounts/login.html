@@ -11,16 +11,28 @@
     {% endif %}
 
     {% if form.errors.__all__ %}
-    <ul class="errors">{% for error in form.errors.__all__ %}<li>{{ error }}</li>{% endfor %}</ul>
+    <ul class="errors">
+      {% for error in form.errors.__all__ %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
     {% endif %}
 
     {% if form.username.errors %}
-    <ul class="errors">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    <ul class="errors">
+      {% for error in form.username.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
     {% endif %}
     {{ form.username(placeholder="Username") }}
 
     {% if form.password.errors %}
-    <ul class="errors">{% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    <ul class="errors">
+      {% for error in form.password.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
     {% endif %}
     {{ form.password(placeholder="Password") }}
 

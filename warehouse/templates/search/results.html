@@ -44,13 +44,13 @@
           <a class="-js-expander-trigger expander-hidden" {{ l20n("filterProjectsByDevStatus") }}>By Development Status</a>
           <div class="expander-content">
             <div class="checkbox-tree">
-              <label><input type="checkbox"/><span>1 - Planning</span></label>
-              <label><input type="checkbox"/><span>2 - Pre-Alpha</span></label>
-              <label><input type="checkbox"/><span>3 - Alpha</span></label>
-              <label><input type="checkbox"/><span>4 - Beta</span></label>
-              <label><input type="checkbox"/><span>5 - Production/Stable</span></label>
-              <label><input type="checkbox"/><span>6 - Mature</span></label>
-              <label><input type="checkbox"/><span>7 - Inactive</span></label>
+              <label><input type="checkbox"><span>1 - Planning</span></label>
+              <label><input type="checkbox"><span>2 - Pre-Alpha</span></label>
+              <label><input type="checkbox"><span>3 - Alpha</span></label>
+              <label><input type="checkbox"><span>4 - Beta</span></label>
+              <label><input type="checkbox"><span>5 - Production/Stable</span></label>
+              <label><input type="checkbox"><span>6 - Mature</span></label>
+              <label><input type="checkbox"><span>7 - Inactive</span></label>
             </div>
           </div>
         </div>
@@ -60,13 +60,13 @@
     <div class="main">
       <section class="split-layout -table">
         {% if term %}
-          <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
-            <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
-          </p>
+        <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
+          <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+        </p>
         {% else %}
-          <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
-            <strong>{{ page.item_count }}</strong> projects.
-          </p>
+        <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
+          <strong>{{ page.item_count }}</strong> projects.
+        </p>
         {% endif %}
         <p>
           <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>

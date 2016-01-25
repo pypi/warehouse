@@ -7,7 +7,7 @@
   <div class="site-container">
     <div class="author-details">
       <div class="profile-img">
-        <img src="{{ gravatar(user.email, size=110) }}" height="110" width="110" alt="{{ user.name|default(user.username, true) }}" />
+        <img src="{{ gravatar(user.email, size=110) }}" height="110" width="110" alt="{{ user.name|default(user.username, true) }}">
       </div>
       <div class="author-meta">
         <h1>{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
@@ -29,13 +29,13 @@
   <div class="site-container">
     <div class="package-list">
       {% for release in projects %}
-        <div class="package-snippet">
-          <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
-          <p class="meta">
-            <em {{ l20n("lastReleasedOn", when=release.created|format_date()) }}>Last released on {{ release.created|format_date() }}</em>
-          </p>
-          <p class="description">{{ release.summary }}</p>
-        </div>
+      <div class="package-snippet">
+        <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
+        <p class="meta">
+          <em {{ l20n("lastReleasedOn", when=release.created|format_date()) }}>Last released on {{ release.created|format_date() }}</em>
+        </p>
+        <p class="description">{{ release.summary }}</p>
+      </div>
       {% endfor %}
     </div>
   </div>
