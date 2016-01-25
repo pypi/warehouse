@@ -7,7 +7,7 @@
 alembic==0.8.4
 amqp==1.4.9               # via kombu
 anyjson==0.3.3            # via kombu
-babel==2.2.0
+Babel==2.2.0
 bcrypt==2.0.0
 billiard==3.3.0.22        # via celery
 bleach==1.4.2             # via readme-renderer
@@ -24,19 +24,19 @@ elasticsearch==2.2.0
 hiredis==0.2.0
 html5lib==0.9999999
 itsdangerous==0.24
-jinja2==2.8
+Jinja2==2.8
 jmespath==0.9.0           # via boto3, botocore
 kombu==3.0.33             # via celery
-mako==1.0.3               # via alembic
-markupsafe==0.23          # via jinja2, mako, pyramid-jinja2
+Mako==1.0.3
+MarkupSafe==0.23
 msgpack-python==0.4.7
 packaging==16.0
 paginate==0.5.2
 passlib==1.6.5
-pastedeploy==1.5.2        # via pyramid
+PasteDeploy==1.5.2
 psycopg2==2.6.1
 pycparser==2.14           # via cffi
-pygments==2.1             # via readme-renderer
+Pygments==2.1
 pyparsing==2.0.7          # via packaging
 pyramid-jinja2==2.6.2
 pyramid-multiauth==0.5.0
@@ -61,8 +61,8 @@ transaction==1.4.4
 translationstring==1.3    # via pyramid
 urllib3==1.14             # via elasticsearch
 venusian==1.0             # via pyramid, pyramid-rpc
-webob==1.5.1              # via pyramid
-wtforms==2.1
+WebOb==1.5.1
+WTForms==2.1
 zope.deprecation==4.1.2   # via pyramid, pyramid-jinja2
 zope.interface==4.1.3     # via pyramid, pyramid-services, transaction, zope.sqlalchemy
 zope.sqlalchemy==0.7.6
