@@ -6,3 +6,9 @@
   padding: 2px 7px;
   border-radius: 3px;
 }
+
+.highlight-badge.-bad {
+  background-color: $danger-color;
+  border: 1px solid darken($danger-color, 7);
+  color: $white;
+}

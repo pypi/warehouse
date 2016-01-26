@@ -79,7 +79,7 @@ def release_detail(release, request):
     all_releases = (
         request.db.query(Release)
                   .filter(Release.project == project)
-                  .with_entities(Release.version, Release.created)
+                  .with_entities(Release.version, Release.created, Release.insecure)
                   .order_by(Release._pypi_ordering.desc())
                   .all()
     )

@@ -16,6 +16,16 @@
   border-top: 1px solid darken($base-grey, 10);
 }
 
+.horizontal-section.-bad {
+  background-color: $danger-color;
+  color: $white;
+}
+
+.horizontal-section.-bad a{
+  color: $white;
+  text-decoration: underline;
+}
+
 .horizontal-section.-medium {
   padding: 40px 0;
 }

@@ -1,0 +1,58 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+
+
+
+{% block title %}Mark Insecure{% endblock %}
+
+{% block content %}
+<section>
+  <div class="site-container">
+    <div class="vertical-tabs-container">
+      <div class="vertical-tabs">
+        <div class="sidebar-section">
+          <h3 {{ l20n("projectNavigation") }}>Select Project</h3>
+            {% for project in projects %}
+            <a class="js-vertical-tab vertical-tab {% if loop.index == 1 %}is-active{% endif %}" rel="tab{{ loop.index }}">{{ project.name }}</a>
+            {% endfor %}
+        </div>
+      </div>
+      <div class="vertical-tab-content-container">
+      {% for project in projects %}
+        <a class="js-vertical-tab-accordion-heading vertical-tab-accordion-heading {% if loop.index == 1 %}is-active{% endif %}" rel="tab{{ loop.index }}" {{ l20n("projectDescription") }}>Project Description</a>
+        <div id="tab{{ loop.index }}" class="js-vertical-tab-content vertical-tab-content">
+          <h2 {{ l20n("selectVersion") }}>Select Version</h2>
+            <div class="button-set">
+              <a class="wh-button" href="#" data-l10n-id="allVersions">All versions</a>
+              <a class="wh-button -highlight" href="#" data-l10n-id="selectVersion">Select one or more</a>
+            </div>
+            <p>
+            {% for release in project.releases %}
+              <span class="selection-badge">{{ release }}</span>
+            {% endfor %}
+            </p>
+            <p>
+              <strong><label for="insecure-url">URL</label></strong><br/>
+              <input id="insecure-url" type="text" name="insecure-url" data-l10n-id="insecureURL" size="80" placeholder="URL (to a CVE or an explanation)">
+            </p>
+            <input type="submit" value="Submit">
+         </div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

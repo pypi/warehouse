@@ -1,0 +1,14 @@
+.selection-badge {
+    cursor: pointer;
+    margin-right: 2%;
+    width: 10%;
+    box-sizing: border-box;
+    border-radius: 3px;
+    display: inline-block;
+    font-size: 17.6px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    border: 2px solid darken($base-grey, 10);
+    color: lighten($text-color, 10);
+    padding: 0.4em;
+}
