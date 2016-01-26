@@ -12,7 +12,8 @@ var del = require("del"),
     revAll = require("gulp-rev-all"),
     sass = require("gulp-sass"),
     sassLint = require("gulp-sass-lint"),
-    uglify = require("gulp-uglify");
+    uglify = require("gulp-uglify"),
+    sourcemaps = require('gulp-sourcemaps');
 
 
 var srcPaths = {
@@ -73,8 +74,10 @@ gulp.task("dist:components", function(cb) {
 
 gulp.task("dist:css", function() {
   return gulp.src(path.join(srcPaths.sass, "*.scss"))
+             .pipe(sourcemaps.init())
              .pipe(sass({ includePaths: [srcPaths.sass] }))
              .pipe(minifyCSS({ keepBreaks: true }))
+             .pipe(sourcemaps.write(dstPaths.css))
              .pipe(gulp.dest(dstPaths.css));
 });
 
