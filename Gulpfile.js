@@ -105,7 +105,7 @@ gulp.task("dist:js", function() {
 
 gulp.task("dist:modernizr", function() {
   return gulp.src(path.join(dstPaths.js, "**", "*.js"))
-             .pipe(modernizr())
+             .pipe(modernizr({ options : ["setClasses"] }))
              .pipe(uglify({ preserveComments: "license" }))
              .pipe(gulp.dest(dstPaths.components));
 });
