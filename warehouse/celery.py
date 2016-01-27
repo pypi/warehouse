@@ -21,7 +21,6 @@ from celery.backends.redis import RedisBackend as _RedisBackend
 from celery.signals import celeryd_init
 from pyramid import scripting
 from pyramid.threadlocal import get_current_request
-from pyramid_tm import tm_tween_factory
 
 from warehouse.config import Environment, configure
 
@@ -48,20 +47,9 @@ class WarehouseTask(Task):
         pyramid_env = scripting.prepare(registry=registry)
 
         try:
-            underlying = super().__call__
-            if getattr(self, "pyramid", True):
-                def handler(request):
-                    return underlying(request, *args, **kwargs)
-            else:
-                def handler(request):
-                    return underlying(*args, **kwargs)
-
-            handler = tm_tween_factory(handler, pyramid_env["registry"])
-            result = handler(pyramid_env["request"])
+            return super().__call__(pyramid_env["request"], *args, **kwargs)
         finally:
             pyramid_env["closer"]()
-
-        return result
 
     def apply_async(self, *args, **kwargs):
         # The API design of Celery makes this threadlocal pretty impossible to
