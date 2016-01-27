@@ -1,6 +1,10 @@
 language: python
 python: 3.5.1
 
+env:
+  global:
+    - TRAVIS_NODE_VERSION=5.5.0
+
 dist: trusty
 sudo: false
 
@@ -16,6 +20,7 @@ cache:
     - node_modules/
 
 install:
+  - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
   - pip install -U pip setuptools wheel codecov
   - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/main.txt -r requirements/tests.txt
   - npm install
