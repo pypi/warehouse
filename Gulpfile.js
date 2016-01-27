@@ -97,7 +97,9 @@ gulp.task("dist:images", function() {
 
 gulp.task("dist:js", function() {
   return gulp.src(path.join(srcPaths.js, "**", "*"))
+             .pipe(sourcemaps.init())
              .pipe(uglify({ preserveComments: "license" }))
+             .pipe(sourcemaps.write("../maps"))
              .pipe(gulp.dest(dstPaths.js));
 });
 
