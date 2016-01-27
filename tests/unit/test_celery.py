@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest import mock
-
 import pretend
 import pytest
 
@@ -43,8 +41,7 @@ def test_tls_redis_backend():
 
 class TestWarehouseTask:
 
-    @pytest.mark.parametrize("uses_request", [True, False])
-    def test_call(self, monkeypatch, uses_request):
+    def test_call(self, monkeypatch):
         request = pretend.stub()
         registry = pretend.stub()
         result = pretend.stub()
@@ -57,34 +54,20 @@ class TestWarehouseTask:
         prepare = pretend.call_recorder(lambda *a, **kw: prepared)
         monkeypatch.setattr(scripting, "prepare", prepare)
 
-        tm_tween_factory = pretend.call_recorder(lambda h, r: h)
-        monkeypatch.setattr(celery, "tm_tween_factory", tm_tween_factory)
-
-        if uses_request:
-            @pretend.call_recorder
-            def runner(irequest):
-                assert irequest is request
-                return result
-        else:
-            @pretend.call_recorder
-            def runner():
-                return result
+        @pretend.call_recorder
+        def runner(irequest):
+            assert irequest is request
+            return result
 
         task = celery.WarehouseTask()
         task.app = Celery()
         task.app.pyramid_config = pretend.stub(registry=registry)
-        task.pyramid = uses_request
         task.run = runner
 
         assert task() is result
         assert prepare.calls == [pretend.call(registry=registry)]
-        assert tm_tween_factory.calls == [pretend.call(mock.ANY, registry)]
         assert prepared["closer"].calls == [pretend.call()]
-
-        if uses_request:
-            assert runner.calls == [pretend.call(request)]
-        else:
-            assert runner.calls == [pretend.call()]
+        assert runner.calls == [pretend.call(request)]
 
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
