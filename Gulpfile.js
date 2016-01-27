@@ -30,6 +30,7 @@ var dstPaths = {
   css: "warehouse/static/dist/css",
   images: "warehouse/static/dist/images",
   js: "warehouse/static/dist/js",
+  maps: "warehouse/static/dist/maps"
 }
 
 
@@ -77,7 +78,7 @@ gulp.task("dist:css", function() {
              .pipe(sourcemaps.init())
              .pipe(sass({ includePaths: [srcPaths.sass] }))
              .pipe(cssnano({ safe: true }))
-             .pipe(sourcemaps.write(dstPaths.css))
+             .pipe(sourcemaps.write("../maps"))
              .pipe(gulp.dest(dstPaths.css));
 });
 
