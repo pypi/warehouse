@@ -12,7 +12,7 @@
     "gulp-cssnano": "^2.1.0",
     "gulp-imagemin": "^2.4.0",
     "gulp-install": "^0.6.0",
-    "gulp-modernizr": "0.0.0",
+    "gulp-modernizr": "^1.0.0-alpha",
     "gulp-rename": "^1.2.2",
     "gulp-rev-all": "^0.8.22",
     "gulp-sass": "^2.1.0",
