@@ -1,11 +1,11 @@
-var del = require("del"),
+var cssnano = require("gulp-cssnano"),
+    del = require("del"),
     gulp = require("gulp"),
     gulpSequence = require("gulp-sequence"),
     imagemin = require("gulp-imagemin"),
     imageminOptipng = require("imagemin-optipng"),
     install = require("gulp-install"),
     mainBowerFiles = require("main-bower-files"),
-    minifyCSS = require("gulp-minify-css"),
     modernizr = require("gulp-modernizr"),
     path = require("path"),
     rename = require("gulp-rename"),
@@ -59,7 +59,7 @@ gulp.task("dist:components:js", function() {
 
 gulp.task("dist:components:css", function() {
   return gulp.src(path.join(dstPaths.components, "**", "*.css"))
-             .pipe(minifyCSS({ keepBreaks: true }))
+             .pipe(cssnano({ safe: true }))
              .pipe(gulp.dest(dstPaths.components));
 });
 
@@ -76,7 +76,7 @@ gulp.task("dist:css", function() {
   return gulp.src(path.join(srcPaths.sass, "*.scss"))
              .pipe(sourcemaps.init())
              .pipe(sass({ includePaths: [srcPaths.sass] }))
-             .pipe(minifyCSS({ keepBreaks: true }))
+             .pipe(cssnano({ safe: true }))
              .pipe(sourcemaps.write(dstPaths.css))
              .pipe(gulp.dest(dstPaths.css));
 });
