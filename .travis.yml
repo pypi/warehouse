@@ -26,6 +26,8 @@ install:
   - npm install
 
 script:
+  - node -v
+  - npm -v
   - gulp dist
   - bin/tests --dbfixtures-config tests/dbfixtures.travis.conf
 
