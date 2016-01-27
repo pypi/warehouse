@@ -21,7 +21,6 @@ app:
   build: .
   volumes:
     - .:/app/
-    - /app/node_modules/
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken

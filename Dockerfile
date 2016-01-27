@@ -13,7 +13,7 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install curl -y \
-    && curl -sL https://deb.nodesource.com/setup_4.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_5.x | bash - \
     && apt-get install git libpq5 libffi6 postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
@@ -34,7 +34,6 @@ RUN set -x \
     && apt-get update \
     && apt-get install gcc make libpq-dev libffi-dev --no-install-recommends -y \
     && rm -rf node_modules \
-    && npm install -g npm \
     && npm install -g bower node-gyp gulp-cli \
     && npm install \
     && pip install -U pip setuptools \

@@ -23,5 +23,8 @@
     "imagemin-optipng": "^4.3.0",
     "main-bower-files": "^2.9.0"
   },
+  "engines": {
+    "node": "5.5.0"
+  },
   "private": true
 }
