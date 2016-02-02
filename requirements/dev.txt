@@ -1,6 +1,6 @@
 pip-tools>=1.0
 
 # We need a newer version of pyramid_debugtoolbar than what is currently
-# available on PyPI, so we'll install this from Github. This can be switched
+# available on PyPI, so we'll install this from GitHub. This can be switched
 # back when Pylons/pyramid_debugtoolbar#212 is merged and released.
 https://github.com/dstufft/pyramid_debugtoolbar/archive/no-inline.zip#egg=pyramid_debugtoolbar
