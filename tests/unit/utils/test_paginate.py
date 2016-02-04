@@ -18,6 +18,18 @@ from webob.multidict import MultiDict
 from warehouse.utils import paginate
 
 
+class FakeSuggestion:
+
+    def __init__(self, options):
+        self.options = options
+
+
+class FakeSuggest:
+
+    def __init__(self, name_suggestion):
+        self.name_suggestion = name_suggestion
+
+
 class FakeResult:
 
     def __init__(self, data, total):
@@ -31,6 +43,18 @@ class FakeResult:
     def __iter__(self):
         for i in self.data:
             yield i
+
+
+class FakeSuggestResult(FakeResult):
+
+    def __init__(self, data, total, options):
+        super().__init__(data, total)
+        self.options = options
+
+    @property
+    def suggest(self):
+        suggestion = FakeSuggestion(options=self.options)
+        return FakeSuggest(name_suggestion=[suggestion])
 
 
 class FakeQuery:
@@ -49,6 +73,18 @@ class FakeQuery:
 
     def execute(self):
         return FakeResult(self.fake[self.range], len(self.fake))
+
+
+class FakeSuggestQuery(FakeQuery):
+
+    def __init__(self, fake, options):
+        super().__init__(fake)
+        self.options = options
+
+    def execute(self):
+        data = self.fake[self.range]
+        total = len(self.fake)
+        return FakeSuggestResult(data, total, self.options)
 
 
 class TestElasticsearchWrapper:
@@ -70,6 +106,21 @@ class TestElasticsearchWrapper:
 
         with pytest.raises(RuntimeError):
             len(wrapper)
+
+    def test_best_guess_suggestion(self):
+        fake_option = pretend.stub()
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[fake_option])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess == fake_option
+
+    def test_best_guess_suggestion_no_options(self):
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess is None
 
 
 def test_elasticsearch_page_has_wrapper(monkeypatch):

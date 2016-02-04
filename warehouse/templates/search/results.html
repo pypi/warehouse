@@ -32,6 +32,21 @@
 {%- endmacro %}
 
 
+{% macro suggestion_link(best_guess) -%}
+
+{% set text = best_guess.text %}
+{% set link = request.route_path('search', _query={'q': text}) %}
+{% set freq = best_guess.freq %}
+
+<span {{ l20n("suggestionWithTerm", term=term) }}>
+  Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
+  {% if freq > 1 %}
+  <span {{ l20n("suggestionWithFrequency", freq=freq) }}>({{ freq }} results)</span>
+  {% endif %}
+</span>
+{%- endmacro %}
+
+
 {% block content %}
 <section class="horizontal-section -medium">
   <div class="left-sidebar">
@@ -62,6 +77,9 @@
         {% if term %}
         <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
           <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+          {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+            {{ suggestion_link(page.collection.best_guess) }}
+          {% endif %}
         </p>
         {% else %}
         <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
@@ -95,9 +113,18 @@
 
       <section>
         <div class="package-list">
-          {% for item in page.items %}
-            {{ project_snippet(item) }}
-          {% endfor %}
+        {% for item in page.items %}
+          {{ project_snippet(item) }}
+        {% else %}
+          <div class="callout-block">
+            <p {{ l20n("noSearchResultsWithTerm", term=term) }}>
+              There were no packages matching '<em>{{term}}</em>'.
+              {% if page.collection.best_guess %}
+                {{ suggestion_link(page.collection.best_guess) }}
+              {% endif %}
+            </p>
+          </div>
+        {% endfor %}
         </div>
 
         {{ page.pager()|safe }}

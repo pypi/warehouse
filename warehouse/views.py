@@ -163,6 +163,10 @@ def search(request):
                 "maintainer_email", "home_page", "license", "summary",
                 "description", "keywords", "platform", "download_url",
             ],
+        ).suggest(
+            name="name_suggestion",
+            text=request.params["q"],
+            term={"field": "name"}
         )
     else:
         query = request.es.query()

@@ -100,7 +100,10 @@ class TestSearch:
         params = {"q": "foo bar"}
         if page is not None:
             params["page"] = page
-        query = pretend.stub()
+        suggest = pretend.stub()
+        query = pretend.stub(
+            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
+        )
         request = pretend.stub(
             es=pretend.stub(
                 query=pretend.call_recorder(lambda *a, **kw: query),
@@ -118,7 +121,7 @@ class TestSearch:
 
         assert search(request) == {"page": page_obj, "term": params.get("q")}
         assert page_cls.calls == [
-            pretend.call(query, url_maker=url_maker, page=page or 1),
+            pretend.call(suggest, url_maker=url_maker, page=page or 1),
         ]
         assert url_maker_factory.calls == [pretend.call(request)]
         assert request.es.query.calls == [
@@ -130,6 +133,13 @@ class TestSearch:
                     "maintainer_email", "home_page", "license", "summary",
                     "description", "keywords", "platform", "download_url",
                 ],
+            ),
+        ]
+        assert query.suggest.calls == [
+            pretend.call(
+                name="name_suggestion",
+                term={"field": "name"},
+                text="foo bar",
             ),
         ]
 
