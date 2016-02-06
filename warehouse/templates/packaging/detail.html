@@ -209,6 +209,8 @@
                 {% else %}
                 <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}
+
+                <p class="version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_datetime()}}</time></span>
               </div>
 
               <div class="graphic">
