@@ -170,6 +170,8 @@ Errors when executing ``make serve``
 * If ``make serve`` hangs after a new build, you should stop any
   running containers and repeat ``make serve``.
 
+* To run Warehouse behind a proxy set the appropriate proxy settings in the
+  ``Dockerfile``.
 
 Building Styles
 ===============

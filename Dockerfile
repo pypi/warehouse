@@ -2,6 +2,10 @@ FROM python:3.5.1-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/
+# Setup proxy configuration
+# ENV http_proxy "http://proxy.foo.com:1234"
+# ENV https_proxy "http://proxy.foo.com:1234"
+# ENV no_proxy "*.foo.com"
 
 # Setup the locales in the Dockerfile
 RUN set -x \
