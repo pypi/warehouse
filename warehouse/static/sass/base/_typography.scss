@@ -28,3 +28,12 @@ a {
     text-decoration: underline;
   }
 }
+
+code, kbd, pre, samp, tt {
+  font-family: $code-font;
+  background-color: lighten($base-grey, 5);
+  border: 1px solid $border-color;
+  padding: 0 2px 1px 2px;
+  font-size: 85%;
+  color: lighten($text-color, 15);
+}
