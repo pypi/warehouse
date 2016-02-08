@@ -18,11 +18,17 @@ class _ElasticsearchWrapper:
     def __init__(self, query):
         self.query = query
         self.results = None
+        self.best_guess = None
 
     def __getitem__(self, range):
         if self.results is not None:
             raise RuntimeError("Cannot reslice after having already sliced.")
         self.results = self.query[range].execute()
+
+        if hasattr(self.results, "suggest"):
+            suggestion = self.results.suggest.name_suggestion[0]
+            if suggestion.options:
+                self.best_guess = suggestion.options[0]
 
         return list(self.results)
 
