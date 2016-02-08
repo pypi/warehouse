@@ -41,7 +41,7 @@ pyparsing==2.1.0          # via packaging
 pyramid-jinja2==2.6.2
 pyramid-multiauth==0.6.0
 pyramid-rpc==0.7.2
-pyramid-services==0.3
+pyramid-services==0.4
 pyramid-tm==0.12.1
 pyramid==1.6.1
 python-dateutil==2.4.2    # via botocore, elasticsearch-dsl
