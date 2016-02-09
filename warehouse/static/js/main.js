@@ -68,6 +68,8 @@ $(document).ready(function() {
     positionWarning();
   });
 
+  $.timeago.settings.cutoff = 7 * 24 * 60 * 60 * 1000;  // One week
+
   // document.l10n.ready.then(function() {
   //   // Format all of the time.relative tags to display relative time.
   //   $(".-js-relative-time").timeago();
