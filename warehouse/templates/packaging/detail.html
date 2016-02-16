@@ -121,12 +121,12 @@
       <div class="vertical-tabs">
         <div class="sidebar-section">
           <h3 {{ l20n("projectNavigation") }}>Navigation</h3>
-            <a class="-js-vertical-tab vertical-tab is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
-            <a class="-js-vertical-tab vertical-tab" rel="tab2" {{ l20n("projectDependencies") }}>Dependencies</a>
-            <a class="-js-vertical-tab vertical-tab" rel="tab3" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
-            <a class="-js-vertical-tab vertical-tab" rel="tab4" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
+            <a class="-js-vertical-tab vertical-tab is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
+            <a class="-js-vertical-tab vertical-tab" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
+            <a class="-js-vertical-tab vertical-tab" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
+            <a class="-js-vertical-tab vertical-tab" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
             {% if files %}
-              <a class="-js-vertical-tab vertical-tab" rel="tab5" {{ l20n("projectDownloads") }}>Download Files</a>
+              <a class="-js-vertical-tab vertical-tab" href="#files" {{ l20n("projectDownloads") }}>Download Files</a>
             {% endif %}
         </div>
 
@@ -149,8 +149,8 @@
 
       <div class="vertical-tab-content-container">
         {# Tab: Project Description #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" rel="tab1" {{ l20n("projectDescription") }}>Project Description</a>
-        <div id="tab1" class="js-vertical-tab-content vertical-tab-content">
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
+        <div id="description" class="js-vertical-tab-content vertical-tab-content">
           {% if release.description %}
           <div class="release-description">
             {{ release.description|readme(format="rst") }}
@@ -163,8 +163,8 @@
         </div>
 
         {# Tab: Dependencies #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab2" {{ l20n("projectDependencies") }}>Dependencies</a>
-        <div id="tab2" class="js-vertical-tab-content vertical-tab-content">
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
+        <div id="dependencies" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("numberProjectDependencies", number="TODO") }}>Dependencies (TODO)</h2>
           <p {{ l20n("projectDependenciesInfo", name=release.project.name) }}>
             To run <em>{{ release.project.name }}</em>, you will need to have the following projects installed:
@@ -189,8 +189,8 @@
         </div>
 
         {# Tab: Version History & Changelog #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab3" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
-        <div id="tab3" class="js-vertical-tab-content vertical-tab-content">
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
+        <div id="history" class="js-vertical-tab-content vertical-tab-content">
           <div class="split-layout -table">
             <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
             <div>
@@ -238,8 +238,8 @@
         </div>
 
         {# Tab: Statistics #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab4" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
-        <div id="tab4" class="js-vertical-tab-content vertical-tab-content">
+        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
+        <div id="statistics" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("projectDownloadStats") }}>Download Statistics</h2>
           <div class="button-set">
             <a class="wh-button -highlight" href="#" {{ l20n("allVersions") }}>All versions</a>
@@ -261,8 +261,8 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" rel="tab5" {{ l20n("projectDownloads") }}>Download Files</a>
-          <div id="tab5" class="js-vertical-tab-content vertical-tab-content">
+          <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#files" {{ l20n("projectDownloads") }}>Download Files</a>
+          <div id="files" class="js-vertical-tab-content vertical-tab-content">
             <h2 {{ l20n("projectDownloadsTitle") }}>Download Files</h2>
             <p>TODO: Brief introduction on what you do with files - including link to relevant help section.</p>
 
