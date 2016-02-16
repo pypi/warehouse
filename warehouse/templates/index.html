@@ -21,7 +21,7 @@
 
 {% block brand %}
 <a class="brand-logo" href="{{ request.route_path('index') }}">
-  <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}">
+  <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
 </a>
 {% endblock %}
 
@@ -59,7 +59,7 @@
 <section class="horizontal-section">
   <div class="site-container about-pypi">
     <div class="large-logo">
-      <img class="pypi-logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-large.png') }}">
+      <img class="pypi-logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}">
     </div>
     <div class="about-text" {{ l20n("homepageAbout") }}>
       <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>

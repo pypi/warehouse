@@ -30,6 +30,8 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/components/font-awesome/css/font-awesome.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/main.css') }}">
 
+    <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
+
     <script src="{{ request.static_path('warehouse:static/dist/components/modernizr.js') }}"></script>
     {# TODO: We need a solution to https://github.com/pypa/warehouse/issues/833
      #       before we can progress on this. Currently this breaks html_include
@@ -47,7 +49,7 @@
           {% block brand %}
           <div class="split-layout">
             <a class="brand-logo" href="{{ request.route_path('index') }}">
-              <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.png') }}">
+              <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
             </a>
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">
@@ -81,7 +83,7 @@
 
     <footer class="footer" role="contentinfo">
       <div class="footer-logo">
-        <img {{ l20n("footerLogo") }} alt="White Cube" src="{{ request.static_path('warehouse:static/dist/images/white-cube.png') }}">
+        <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="Logo" class="-js-white-cube">
       </div>
 
       <div class="footer-links">
