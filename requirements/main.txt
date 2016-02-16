@@ -30,7 +30,7 @@ kombu==3.0.33             # via celery
 Mako==1.0.3
 MarkupSafe==0.23
 msgpack-python==0.4.7
-packaging==16.1
+packaging==16.2
 paginate==0.5.2
 passlib==1.6.5
 PasteDeploy==1.5.2
