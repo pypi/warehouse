@@ -39,7 +39,7 @@ pycparser==2.14           # via cffi
 Pygments==2.1.1           # via readme-renderer
 pyparsing==2.1.0          # via packaging
 pyramid-jinja2==2.6.2
-pyramid-multiauth==0.7.0
+pyramid-multiauth==0.8.0
 pyramid-rpc==0.7.2
 pyramid-services==0.4
 pyramid-tm==0.12.1
