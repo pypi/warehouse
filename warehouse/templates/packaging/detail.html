@@ -143,7 +143,9 @@
           {% if release.keywords %}
           <p class="tags"><i class="fa fa-tags"></i>
             {% for keyword in release.keywords | format_tags %}
-            <span class="package-keyword">{{ keyword }}</span>
+            <span class="package-keyword">
+              {{ keyword }}{% if not loop.last %},{% endif %}
+            </span>
             {% endfor %}
           </p>
           {% endif %}
