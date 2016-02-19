@@ -102,6 +102,8 @@ def format_tags(tags):
     # split tags
     if re.search(r',', tags):
         split_tags = re.split(r'\s*,\s*', tags)
+    elif re.search(r';', tags):
+        split_tags = re.split(r'\s*;\s*', tags)
     else:
         split_tags = re.split(r'\s+', tags)
 

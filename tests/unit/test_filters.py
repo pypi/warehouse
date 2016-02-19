@@ -175,6 +175,10 @@ def test_urlparse():
             ["python", "finance", "data", "code", "test automation"]
         ),
         (
+            "'python'; finance; \"data\";        code    ; test automation",
+            ["python", "finance", "data", "code", "test automation"]
+        ),
+        (
             "a \"b\" c   d  'e'",
             ["a", "b", "c", "d", "e"]
         ),
