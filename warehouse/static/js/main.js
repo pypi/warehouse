@@ -21,7 +21,7 @@ $(document).ready(function() {
 
   function getTab(selector) {
     tab = $(".js-vertical-tab-content" + selector);
-    return tab.length ? tab : null;
+    return (selector && tab.length) ? tab : null;
   }
 
   window.onhashchange = function() {
