@@ -1,0 +1,3 @@
+.package-keyword:not(:last-child):after {
+  content: ',';
+}

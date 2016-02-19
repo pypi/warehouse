@@ -141,7 +141,11 @@
         <div class="sidebar-section meta">
           <h3 {{ l20n("projectMeta") }}>Meta</h3>
           {% if release.keywords %}
-          <p class="tags"><i class="fa fa-tags"></i> {{ release.keywords }}</p>
+          <p class="tags"><i class="fa fa-tags"></i>
+            {% for keyword in release.keywords | format_tags %}
+            <span class='package-keyword'>{{ keyword }}</span>
+            {% endfor %}
+          </p>
           {% endif %}
         </div>
         {% endif %}

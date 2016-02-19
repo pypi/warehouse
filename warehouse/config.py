@@ -236,6 +236,7 @@ def configure(settings=None):
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
+    filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("readme", "warehouse.filters:readme")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
