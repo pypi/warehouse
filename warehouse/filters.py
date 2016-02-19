@@ -106,9 +106,9 @@ def format_tags(tags):
         split_tags = re.split(r'\s+', tags)
 
     # strip whitespace, quotes, double quotes
-    stripped_tags = [ re.sub(r'^["\'\s]+|["\'\s]+$','', t) for t in split_tags ]
+    stripped_tags = [re.sub(r'^["\'\s]+|["\'\s]+$', '', t) for t in split_tags]
 
     # remove any empty tags
-    formatted_tags = [ t for t in stripped_tags if t ]
+    formatted_tags = [t for t in stripped_tags if t]
 
     return formatted_tags
