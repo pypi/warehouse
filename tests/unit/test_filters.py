@@ -165,3 +165,28 @@ def test_urlparse():
     inp = "https://google.com/foo/bar?a=b"
     expected = urllib.parse.urlparse(inp)
     assert filters.urlparse(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            "'python', finance, \"data\",        code    , test automation",
+            ["python", "finance", "data", "code", "test automation"]
+        ),
+        (
+            "'python'; finance; \"data\";        code    ; test automation",
+            ["python", "finance", "data", "code", "test automation"]
+        ),
+        (
+            "a \"b\" c   d  'e'",
+            ["a", "b", "c", "d", "e"]
+        ),
+        (
+            "      '    '   \"  \"",
+            []
+        )
+    ]
+)
+def test_format_tags(inp, expected):
+    assert filters.format_tags(inp) == expected

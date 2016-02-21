@@ -13,6 +13,7 @@
 import binascii
 import hmac
 import json
+import re
 import urllib.parse
 
 import html5lib
@@ -95,3 +96,21 @@ def tojson(value):
 
 def urlparse(value):
     return urllib.parse.urlparse(value)
+
+
+def format_tags(tags):
+    # split tags
+    if re.search(r',', tags):
+        split_tags = re.split(r'\s*,\s*', tags)
+    elif re.search(r';', tags):
+        split_tags = re.split(r'\s*;\s*', tags)
+    else:
+        split_tags = re.split(r'\s+', tags)
+
+    # strip whitespace, quotes, double quotes
+    stripped_tags = [re.sub(r'^["\'\s]+|["\'\s]+$', '', t) for t in split_tags]
+
+    # remove any empty tags
+    formatted_tags = [t for t in stripped_tags if t]
+
+    return formatted_tags
