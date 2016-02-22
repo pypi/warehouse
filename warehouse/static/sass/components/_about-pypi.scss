@@ -9,8 +9,8 @@
     text-align: left;
 
     @media only screen and (max-width: 550px){
-       display: block;
-       width: 100%;
+      display: block;
+      width: 100%;
     }
 
     @media only screen and (max-width: 550px){
@@ -20,6 +20,7 @@
 
   .large-logo {
     text-align: right;
+    padding-right: 50px;
 
     @media only screen and (max-width: 550px){
       display: none;
@@ -31,7 +32,7 @@
       margin: -15px 50px 0 0;
 
       @media only screen and (max-width: 800px){
-         margin-right: 20px;
+        margin-right: 20px;
       }
     }
   }
