@@ -78,18 +78,4 @@ $(document).ready(function() {
   // });
   $(".-js-relative-time").timeago();  // Add back to document.l10n.ready
 
-  // Add focus to search bar.  Only do this above 750px, so we avoid
-  // prompting the keyboard on mobile (which can get in the way).
-
-  function focusSearch(){
-    var screenWidth = $(window).width();
-    if (screenWidth > 750) {
-      $('#search').focus();
-    }
-  }
-
-  focusSearch();
-
-
-
 });
