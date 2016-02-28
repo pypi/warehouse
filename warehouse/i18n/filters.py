@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import babel.dates
+import email.utils
 import jinja2
 
 from pyramid.threadlocal import get_current_request
@@ -28,3 +29,8 @@ def format_datetime(ctx, *args, **kwargs):
     request = ctx.get("request") or get_current_request()
     kwargs.setdefault("locale", request.locale)
     return babel.dates.format_datetime(*args, **kwargs)
+
+
+@jinja2.contextfilter
+def format_rfc822_datetime(ctx, dt, *args, **kwargs):
+    return email.utils.formatdate(dt.timestamp(), usegmt=True)

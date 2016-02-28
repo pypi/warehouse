@@ -60,6 +60,10 @@ def includeme(config):
     )
     config.add_route("packaging.file", "/packages/{path:.*}", read_only=True)
 
+    # RSS
+    config.add_route("rss.updates", "/rss/updates.xml", read_only=True)
+    config.add_route("rss.packages", "/rss/packages.xml", read_only=True)
+
     # Legacy URLs
     config.add_route("legacy.api.simple.index", "/simple/", read_only=True)
     config.add_route(
@@ -111,3 +115,7 @@ def includeme(config):
         "/pypi/{name}/{version}/",
         "/project/{name}/{version}/",
     )
+
+    # Legacy Action Redirects
+    config.add_pypi_action_redirect("rss", "/rss/updates.xml")
+    config.add_pypi_action_redirect("packages_rss", "/rss/packages.xml")

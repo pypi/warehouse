@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import babel.dates
+import email.utils
 import pretend
 
 from warehouse.i18n import filters
@@ -48,3 +49,17 @@ def test_format_datetime(monkeypatch):
 
     kwargs.update({"locale": request.locale})
     assert format_datetime.calls == [pretend.call(*args, **kwargs)]
+
+
+def test_format_rfc822_datetime(monkeypatch):
+    formatted = pretend.stub()
+    formatdate = pretend.call_recorder(lambda *a, **kw: formatted)
+    monkeypatch.setattr(email.utils, "formatdate", formatdate)
+
+    ctx = pretend.stub()
+    timestamp = pretend.stub()
+    args = [pretend.stub(timestamp=lambda: timestamp), pretend.stub()]
+    kwargs = {"foo": pretend.stub()}
+
+    assert filters.format_rfc822_datetime(ctx, *args, **kwargs) is formatted
+    assert formatdate.calls == [pretend.call(timestamp, usegmt=True)]

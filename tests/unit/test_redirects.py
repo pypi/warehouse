@@ -34,21 +34,28 @@ def test_add_redirect(monkeypatch):
     monkeypatch.setattr(redirects, "redirect_view_factory", rview_factory)
 
     config = pretend.stub(
-        add_route=pretend.call_recorder(lambda name, route: None),
+        add_route=pretend.call_recorder(lambda name, route, **kw: None),
         add_view=pretend.call_recorder(lambda view, route_name: None),
     )
 
     source = "/the/{thing}/"
     target = "/other/{thing}/"
     redirect = pretend.stub()
+    kwargs = {
+        'redirect': redirect,
+    }
 
-    redirects.add_redirect(config, source, target, redirect=redirect)
+    redirects.add_redirect(config, source, target, **kwargs)
 
     assert config.add_route.calls == [
-        pretend.call("warehouse.redirects." + source, source),
+        pretend.call(
+            "warehouse.redirects." + source + str(kwargs), source, **kwargs
+        ),
     ]
     assert config.add_view.calls == [
-        pretend.call(rview, route_name="warehouse.redirects." + source),
+        pretend.call(
+            rview, route_name="warehouse.redirects." + source + str(kwargs)
+        ),
     ]
     assert rview_factory.calls == [pretend.call(target, redirect=redirect)]
 

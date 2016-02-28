@@ -13,16 +13,16 @@
 from pyramid.httpexceptions import HTTPMovedPermanently
 
 
-def redirect_view_factory(target, redirect=HTTPMovedPermanently):
+def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
     def redirect_view(request):
         return redirect(target.format(_request=request, **request.matchdict))
     return redirect_view
 
 
 def add_redirect(config, source, target, **kw):
-    route_name = "warehouse.redirects." + source
+    route_name = "warehouse.redirects." + source + str(kw)
 
-    config.add_route(route_name, source)
+    config.add_route(route_name, source, **kw)
     config.add_view(redirect_view_factory(target, **kw), route_name=route_name)
 
 

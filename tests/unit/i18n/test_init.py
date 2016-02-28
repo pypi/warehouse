@@ -43,6 +43,8 @@ def test_includeme():
         "jinja2.filters": {
             "format_date": "warehouse.i18n.filters:format_date",
             "format_datetime": "warehouse.i18n.filters:format_datetime",
+            "format_rfc822_datetime":
+                "warehouse.i18n.filters:format_rfc822_datetime",
         },
         "jinja2.globals": {
             "l20n": "warehouse.i18n.l20n:l20n",

@@ -58,4 +58,9 @@ def test_includeme():
             action_routing.add_pypi_action_route,
             action_wrap=False,
         ),
+        pretend.call(
+            "add_pypi_action_redirect",
+            action_routing.add_pypi_action_redirect,
+            action_wrap=False,
+        ),
     ]
