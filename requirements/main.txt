@@ -30,7 +30,7 @@ kombu==3.0.33             # via celery
 Mako==1.0.3               # via alembic
 MarkupSafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.7
-packaging==16.4
+packaging==16.5
 paginate==0.5.2
 passlib==1.6.5
 PasteDeploy==1.5.2        # via pyramid
