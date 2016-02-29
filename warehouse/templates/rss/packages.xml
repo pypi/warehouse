@@ -1,0 +1,14 @@
+{% extends "base.xml" %}
+{% block title %}PyPI Newest Packages{% endblock %}
+{% block description %}Newest packages registered at the Python Package Index{% endblock %}
+{% block items %}
+  {% for project in newest_projects %}
+  <item>
+    <title>{{ project.normalized_name }} added to PyPI</title>
+    <link>{{ request.route_url('packaging.project', name=project.normalized_name) }}</link>
+    <guid>{{ request.route_url('packaging.project', name=project.normalized_name) }}</guid>
+    <description>{{ project.releases[0].summary }}</description>
+    <pubDate>{{ project.created|format_rfc822_datetime() }}</pubDate>
+  </item>
+  {% endfor %}
+{% endblock %}

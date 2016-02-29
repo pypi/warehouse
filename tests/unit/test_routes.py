@@ -40,6 +40,11 @@ def test_routes():
 
         @staticmethod
         @pretend.call_recorder
+        def add_pypi_action_redirect(action, target, **kwargs):
+            pass
+
+        @staticmethod
+        @pretend.call_recorder
         def add_xmlrpc_endpoint(endpoint, pattern, header, read_only=False):
             pass
 
@@ -85,6 +90,8 @@ def test_routes():
             read_only=True,
         ),
         pretend.call("packaging.file", "/packages/{path:.*}", read_only=True),
+        pretend.call("rss.updates", "/rss/updates.xml", read_only=True),
+        pretend.call("rss.packages", "/rss/packages.xml", read_only=True),
         pretend.call("legacy.api.simple.index", "/simple/", read_only=True),
         pretend.call(
             "legacy.api.simple.detail",
@@ -121,6 +128,11 @@ def test_routes():
         pretend.call("legacy.api.pypi.submit_pkg_info", "submit_pkg_info"),
         pretend.call("legacy.api.pypi.doc_upload", "doc_upload"),
         pretend.call("legacy.api.pypi.doap", "doap"),
+    ]
+
+    assert config.add_pypi_action_redirect.calls == [
+        pretend.call("rss", "/rss/updates.xml"),
+        pretend.call("packages_rss", "/rss/packages.xml"),
     ]
 
     assert config.add_xmlrpc_endpoint.calls == [
