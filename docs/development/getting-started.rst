@@ -173,6 +173,27 @@ Errors when executing ``make serve``
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   ``Dockerfile``.
 
+"no space left on device" when using ``docker-compose``
+-------------------------------------------------------
+
+``docker-compose`` may leave orphaned volumes during teardown. If you run
+into the message "no space left on device", try running the following command
+(assuming Docker >= 1.9):
+
+.. code-block:: console
+
+   docker volume rm $(docker volume ls -qf dangling=true)
+
+.. note:: This will delete orphaned volumes as well as directories that are not
+   volumes in /var/lib/docker/volumes
+
+If using ``docker-machine``, the command should be run from within the machine,
+not the host.
+
+(Solution found and further details available at
+https://github.com/chadoe/docker-cleanup-volumes)
+
+
 Building Styles
 ===============
 
