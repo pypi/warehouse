@@ -57,7 +57,7 @@
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">
               <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects">
+              <input id="search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects" value="{{ term }}">
               <input class="wh-button -dark" type="submit" {{ l20n("search") }} value="Search">
             </form>
           </div>
