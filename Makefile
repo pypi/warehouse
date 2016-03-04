@@ -40,6 +40,9 @@ build:
 serve: .state/docker-build
 	docker-compose up
 
+debug: .state/docker-build
+	docker-compose run --service-ports web
+
 tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
 
@@ -76,4 +79,4 @@ purge: clean
 	docker-compose rm --force
 
 
-.PHONY: default build serve initdb shell tests docs clean purge update-requirements
+.PHONY: default build serve initdb shell tests docs clean purge update-requirements debug
