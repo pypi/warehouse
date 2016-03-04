@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from elasticsearch_dsl import DocType, String, analyzer, MetaField
+from elasticsearch_dsl import DocType, String, analyzer, MetaField, Date
 
 from warehouse.search import doc_type
 
@@ -39,6 +39,7 @@ class Project(DocType):
     download_url = String(index="not_analyzed")
     keywords = String(analyzer="snowball")
     platform = String(index="not_analyzed")
+    created = Date()
 
     uploader_name = String()
     uploader_username = String()
@@ -63,6 +64,7 @@ class Project(DocType):
         obj["download_url"] = release.download_url
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
+        obj["created"] = release.created
 
         obj["uploader_name"] = release.uploader.name
         obj["uploader_username"] = release.uploader.username

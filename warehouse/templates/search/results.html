@@ -47,6 +47,10 @@
 {%- endmacro %}
 
 
+{% macro search_option(text, value, l20n_id) -%}
+<option {{ l20n(l20n_id) }} value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
+{%- endmacro %}
+
 {% block content %}
 <section class="horizontal-section -medium">
   <div class="left-sidebar">
@@ -86,13 +90,16 @@
           <strong>{{ page.item_count }}</strong> projects.
         </p>
         {% endif %}
-        <p>
-          <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
-          <select id="order">
-            <option {{ l20n("relevance") }}>Relevance</option>
-            <option {{ l20n("dateLastUpdated") }}>Date Last Updated</option>
-          </select>
-        </p>
+        <form action="{{ request.route_path('search') }}">
+          <p>
+            <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
+            <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
+            <select id="order" name="o">
+              {{ search_option("Relevance", "", "relevance") }}
+              {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
+            </select>
+          </p>
+        </form>
       </section>
 
       <div class="applied-filters">

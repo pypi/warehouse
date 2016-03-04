@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import pretend
 
 from warehouse.packaging import search
@@ -37,6 +38,7 @@ def test_build_search():
         download_url="https://example.com/foobar/downloads/",
         keywords="the, keywords, lol",
         platform="any platform",
+        created=datetime.datetime(1956, 1, 31),
         uploader=pretend.stub(
             username="some-username",
             name="the-users-name",
@@ -57,5 +59,6 @@ def test_build_search():
     assert obj["download_url"] == "https://example.com/foobar/downloads/"
     assert obj["keywords"] == "the, keywords, lol"
     assert obj["platform"] == "any platform"
+    assert obj["created"] == datetime.datetime(1956, 1, 31)
     assert obj["uploader_name"] == "the-users-name"
     assert obj["uploader_username"] == "some-username"

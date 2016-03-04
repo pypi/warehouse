@@ -119,7 +119,11 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        assert search(request) == {"page": page_obj, "term": params.get("q")}
+        assert search(request) == {
+            "page": page_obj,
+            "term": params.get("q"),
+            "order": params.get("o"),
+        }
         assert page_cls.calls == [
             pretend.call(suggest, url_maker=url_maker, page=page or 1),
         ]
@@ -144,6 +148,64 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
+    def test_with_an_ordering(self, monkeypatch, page):
+        params = {"q": "foo bar", "o": "-created"}
+        if page is not None:
+            params["page"] = page
+        sort = pretend.stub()
+        suggest = pretend.stub(
+            sort=pretend.call_recorder(lambda *a, **kw: sort),
+        )
+        query = pretend.stub(
+            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
+        )
+        request = pretend.stub(
+            es=pretend.stub(
+                query=pretend.call_recorder(lambda *a, **kw: query),
+            ),
+            params=params,
+        )
+
+        page_obj = pretend.stub()
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        assert search(request) == {
+            "page": page_obj,
+            "term": params.get("q"),
+            "order": params.get("o"),
+        }
+        assert page_cls.calls == [
+            pretend.call(sort, url_maker=url_maker, page=page or 1),
+        ]
+        assert url_maker_factory.calls == [pretend.call(request)]
+        assert request.es.query.calls == [
+            pretend.call(
+                "multi_match",
+                query="foo bar",
+                fields=[
+                    "name", "version", "author", "author_email", "maintainer",
+                    "maintainer_email", "home_page", "license", "summary",
+                    "description", "keywords", "platform", "download_url",
+                ],
+            ),
+        ]
+        assert query.suggest.calls == [
+            pretend.call(
+                name="name_suggestion",
+                term={"field": "name"},
+                text="foo bar",
+            ),
+        ]
+        assert suggest.sort.calls == [
+            pretend.call("-created")
+        ]
+
+    @pytest.mark.parametrize("page", [None, 1, 5])
     def test_without_a_query(self, monkeypatch, page):
         params = {}
         if page is not None:
@@ -162,7 +224,11 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        assert search(request) == {"page": page_obj, "term": params.get("q")}
+        assert search(request) == {
+            "page": page_obj,
+            "term": params.get("q"),
+            "order": params.get("o"),
+        }
         assert page_cls.calls == [
             pretend.call(query, url_maker=url_maker, page=page or 1),
         ]
