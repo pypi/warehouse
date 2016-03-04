@@ -17,6 +17,7 @@
 {% macro project_snippet(item) -%}
 
 {% set version = item.version[0] %}
+{% set created = item.created %}
 {% set uploader_username = item.uploader_username %}
 {% set uploader_name = item.uploader_name|default(uploader_username, true) %}
 
@@ -24,7 +25,7 @@
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
 
   <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
-    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
+    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a> on {{ created|format_date() }}
   </p>
 
   <p class="description">{{ item.summary }}</p>
