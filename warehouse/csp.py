@@ -11,8 +11,6 @@ def _serialize(policy):
 
 
 def content_security_policy_tween_factory(handler, registry):
-    policy = registry.settings.get("csp", {})
-    
     def content_security_policy_tween(request):
         resp = handler(request)
 

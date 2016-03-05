@@ -51,7 +51,7 @@ class TestCSPTween:
     def test_csp_policy_debug_disables(self):
         response = pretend.stub(headers={})
         handler = pretend.call_recorder(lambda request: response)
-        settings={
+        settings = {
             "csp": {
                 "default-src": ["*"],
                 "style-src": ["'self'", "example.net"],
@@ -74,6 +74,7 @@ class TestCSPTween:
 
     def test_csp_policy_inject(self):
         response = pretend.stub(headers={})
+
         def handler(request):
             request.find_service("csp")["default-src"].append("example.com")
             return response
@@ -105,6 +106,7 @@ class TestCSPTween:
         settings = collections.defaultdict(list)
         response = pretend.stub(headers={})
         registry = pretend.stub(settings=settings)
+
         def handler(request):
             request.find_service("csp")["default-src"].append("example.com")
             return response
@@ -126,7 +128,8 @@ class TestCSPTween:
 
 def test_includeme():
     config = pretend.stub(
-        register_service_factory=pretend.call_recorder(lambda fact, name: None),
+        register_service_factory=pretend.call_recorder(
+            lambda fact, name: None),
         add_settings=pretend.call_recorder(lambda settings: None),
         add_tween=pretend.call_recorder(lambda tween: None),
         registry=pretend.stub(
