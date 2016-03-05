@@ -23,50 +23,6 @@ from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class TestCSPTween:
-
-    def test_csp_policy(self):
-        response = pretend.stub(headers={})
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub(
-            settings={
-                "csp": {
-                    "default-src": ["*"],
-                    "style-src": ["'self'", "example.net"],
-                },
-            },
-        )
-
-        tween = config.content_security_policy_tween_factory(handler, registry)
-
-        request = pretend.stub(path="/project/foobar/")
-
-        assert tween(request) is response
-        assert response.headers == {
-            "Content-Security-Policy":
-                "default-src *; style-src 'self' example.net",
-        }
-
-    def test_csp_policy_debug_disables(self):
-        response = pretend.stub(headers={})
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub(
-            settings={
-                "csp": {
-                    "default-src": ["*"],
-                    "style-src": ["'self'", "example.net"],
-                },
-            },
-        )
-
-        tween = config.content_security_policy_tween_factory(handler, registry)
-
-        request = pretend.stub(path="/_debug_toolbar/foo/")
-
-        assert tween(request) is response
-        assert response.headers == {}
-
-
 class TestRequireHTTPSTween:
 
     def test_noops_when_disabled(self):
@@ -369,6 +325,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".csp"),
             pretend.call(".raven"),
         ] + [
             pretend.call(x) for x in [
@@ -395,24 +352,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             "tm.activate_hook": config.activate_hook,
             "tm.annotate_user": False,
         }),
-        pretend.call({
-            "csp": {
-                "connect-src": ["'self'"],
-                "default-src": ["'none'"],
-                "font-src": ["'self'", "fonts.gstatic.com"],
-                "frame-ancestors": ["'none'"],
-                "img-src": [
-                    "'self'",
-                    "http://camo.example.com/",
-                    "https://secure.gravatar.com",
-                ],
-                "referrer": ["origin-when-cross-origin"],
-                "reflected-xss": ["block"],
-                "report-uri": [None],
-                "script-src": ["'self'"],
-                "style-src": ["'self'", "fonts.googleapis.com"],
-            },
-        }),
     ]
     add_settings_dict = configurator_obj.add_settings.calls[1].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
@@ -424,7 +363,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(config.find_service_factory),
     ]
     assert configurator_obj.add_tween.calls == [
-        pretend.call("warehouse.config.content_security_policy_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call(
             "warehouse.utils.compression.compression_tween_factory",
