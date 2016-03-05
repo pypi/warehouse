@@ -22,8 +22,9 @@ def content_security_policy_tween_factory(handler, registry):
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
         # our restrictive CSP.
+        policy = _serialize(policy).format(request=request)
         if not request.path.startswith("/_debug_toolbar/") and policy:
-            resp.headers["Content-Security-Policy"] = _serialize(policy)
+            resp.headers["Content-Security-Policy"] = policy
 
         return resp
 
