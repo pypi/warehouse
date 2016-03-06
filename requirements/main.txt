@@ -9,7 +9,7 @@ amqp==1.4.9               # via kombu
 anyjson==0.3.3            # via kombu
 Babel==2.2.0
 bcrypt==2.0.0
-billiard==3.3.0.22        # via celery
+billiard==3.3.0.23        # via celery
 bleach==1.4.2             # via readme-renderer
 boto3==1.2.6
 botocore==1.4.1           # via boto3
