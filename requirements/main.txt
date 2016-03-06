@@ -9,11 +9,11 @@ amqp==1.4.9               # via kombu
 anyjson==0.3.3            # via kombu
 Babel==2.2.0
 bcrypt==2.0.0
-billiard==3.3.0.22        # via celery
+billiard==3.3.0.23        # via celery
 bleach==1.4.2             # via readme-renderer
 boto3==1.2.6
 botocore==1.4.1           # via boto3
-celery==3.1.20
+celery==3.1.21
 certifi==2016.2.28
 cffi==1.5.2               # via bcrypt
 click==6.3
@@ -26,7 +26,7 @@ html5lib==0.9999999
 itsdangerous==0.24
 Jinja2==2.8               # via pyramid-jinja2
 jmespath==0.9.0           # via boto3, botocore
-kombu==3.0.33             # via celery
+kombu==3.0.34             # via celery
 Mako==1.0.3               # via alembic
 MarkupSafe==0.23          # via jinja2, mako, pyramid-jinja2
 msgpack-python==0.4.7
