@@ -4,7 +4,7 @@
 #
 #    pip-compile deploy.in
 #
-gevent==1.1rc5
+gevent==1.1.0
 greenlet==0.4.9           # via gevent
 gunicorn==19.4.5
 setproctitle==1.1.9

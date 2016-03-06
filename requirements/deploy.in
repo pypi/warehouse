@@ -1,5 +1,5 @@
 -f https://github.com/benoitc/gunicorn/archive/master.zip#egg=gunicorn-19.4.dev
 
-gevent>=1.1a1
+gevent>=1.1
 gunicorn>=19.4.dev
 setproctitle
