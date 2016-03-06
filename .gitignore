@@ -23,3 +23,5 @@ dev/example.sql
 warehouse/.commit
 warehouse/static/components
 warehouse/static/dist
+
+tags
