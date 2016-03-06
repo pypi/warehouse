@@ -13,6 +13,7 @@
 import hashlib
 import io
 import os.path
+import re
 import tempfile
 import zipfile
 
@@ -1317,7 +1318,13 @@ class TestFileUpload:
 
     @pytest.mark.parametrize(
         "plat",
-        ["any", "win32", "win-amd64", "win_amd64", "win-ia64", "win_ia64"],
+        ["any", "win32", "win_amd64", "win_ia64",
+         "manylinux1_i686", "manylinux1_x86_64",
+         "macosx_10_6_intel", "macosx_10_13_x86_64",
+         # A real tag used by e.g. some numpy wheels
+         ("macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
+          "macosx_10_10_intel.macosx_10_10_x86_64"),
+         ],
     )
     def test_upload_succeeds_with_wheel(self, tmpdir, monkeypatch,
                                         pyramid_config, db_request, plat):
@@ -1454,7 +1461,9 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Binary wheel for an unsupported platform."
+        assert re.match("400 Binary wheel .* has an unsupported "
+                        "platform tag .*",
+                        resp.status)
 
     def test_upload_succeeds_creates_release(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)

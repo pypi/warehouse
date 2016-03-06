@@ -46,9 +46,30 @@ MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024           # 8K
 
 
-ALLOWED_PLATFORMS = {
-    "any", "win32", "win-amd64", "win_amd64", "win-ia64", "win_ia64",
+# Wheel platform checking
+# These platforms can be handled by a simple static list:
+_allowed_platforms = {
+    "any",
+    "win32", "win_amd64", "win_ia64",
+    "manylinux1_x86_64", "manylinux1_i686",
 }
+# macosx is a little more complicated:
+_macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_arches = {
+    "ppc", "ppc64",
+    "i386", "x86_64",
+    "intel", "fat", "fat32", "fat64", "universal",
+}
+
+
+# Actual checking code;
+def _valid_platform_tag(platform_tag):
+    if platform_tag in _allowed_platforms:
+        return True
+    m = _macosx_platform_re.match(platform_tag)
+    if m and m.group("arch") in _macosx_arches:
+        return True
+    return False
 
 
 _error_message_order = ["metadata_version", "name", "version"]
@@ -786,11 +807,14 @@ def file_upload(request):
         if filename.endswith(".whl"):
             wheel_info = _wheel_file_re.match(filename)
             plats = wheel_info.group("plat").split(".")
-            if set(plats) - ALLOWED_PLATFORMS:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Binary wheel for an unsupported platform.",
-                )
+            for plat in plats:
+                if not _valid_platform_tag(plat):
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Binary wheel '{filename}' has an unsupported "
+                        "platform tag '{plat}'."
+                        .format(filename=filename, plat=plat)
+                    )
 
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
