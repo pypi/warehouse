@@ -300,7 +300,11 @@ def configure(settings=None):
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 
+    # Register Content-Security-Policy service
     config.include(".csp")
+
+    # Register recaptcha service
+    config.include(".recaptcha")
 
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.

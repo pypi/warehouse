@@ -32,13 +32,15 @@ def content_security_policy_tween_factory(handler, registry):
 
 
 def csp_factory(_, request):
-    return copy.deepcopy(request.registry.settings.get("csp", {}))
+    return collections.defaultdict(
+        list, request.registry.settings.get("csp", {})
+    )
 
 
 def includeme(config):
     config.register_service_factory(csp_factory, name="csp")
     # Enable a Content Security Policy
-    config.add_settings({
+    config.add_settings(collections.defaultdict(list, {
         "csp": {
             "connect-src": ["'self'"],
             "default-src": ["'none'"],
@@ -55,5 +57,5 @@ def includeme(config):
             "script-src": ["'self'"],
             "style-src": ["'self'", "fonts.googleapis.com"],
         },
-    })
+    }))
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")

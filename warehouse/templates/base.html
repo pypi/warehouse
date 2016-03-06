@@ -40,6 +40,7 @@
      #       before we can progress on this. Currently this breaks html_include
      #}
     {# <script defer src="{{ request.static_path('warehouse:static/dist/components/l20n/dist/compat/web/l20n.js') }}"></script> #}
+    {% block top_script %}{% endblock %}
   </head>
 
   <body>

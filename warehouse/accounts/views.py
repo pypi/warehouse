@@ -16,7 +16,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts.forms import LoginForm
+from warehouse.accounts import forms
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
 from warehouse.csrf import csrf_protect
@@ -61,22 +61,22 @@ def profile(user, request):
     decorator=[csrf_protect("accounts.login"), uses_session],
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
-          _form_class=LoginForm):
+          _form_class=forms.LoginForm):
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
 
-    login_service = request.find_service(IUserService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
     redirect_to = request.POST.get(redirect_field_name,
                                    request.GET.get(redirect_field_name))
 
-    form = _form_class(request.POST, login_service=login_service)
+    form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
         # Get the user id for the given username.
         username = form.username.data
-        userid = login_service.find_userid(username)
+        userid = user_service.find_userid(username)
 
         # We have a session factory associated with this request, so in order
         # to protect against session fixation attacks we're going to make sure
@@ -169,3 +169,39 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         return HTTPSeeOther(redirect_to, headers=dict(headers))
 
     return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}
+
+
+@view_config(
+    route_name="accounts.register",
+    renderer="accounts/register.html",
+    decorator=[csrf_protect("accounts.register"), uses_session],
+)
+def register(request, _form_class=forms.RegistrationForm):
+    user_service = request.find_service(IUserService, context=None)
+    recaptcha_service = request.find_service(name="recaptcha")
+    recaptcha_service.add_to_csp_policy()
+
+    # the form contains an auto-generated field from recaptcha with
+    # hyphens in it. make it play nice with wtforms.
+    post_body = {
+        key.replace("-", "_"): value
+        for key, value in request.POST.items()
+    }
+
+    form = _form_class(
+        data=post_body, user_service=user_service,
+        recaptcha_service=recaptcha_service
+    )
+
+    if request.method == "POST" and form.validate():
+        user = user_service.create_user(
+            form.username.data, form.full_name.data, form.password.data,
+            form.email.data
+        )
+
+        headers = remember(request, user.id)
+
+        request.session.new_csrf_token()
+        return HTTPSeeOther("/", headers=dict(headers))
+
+    return {"form": form}
