@@ -17,6 +17,7 @@
 {% macro project_snippet(item) -%}
 
 {% set version = item.version[0] %}
+{% set created = item.created %}
 {% set uploader_username = item.uploader_username %}
 {% set uploader_name = item.uploader_name|default(uploader_username, true) %}
 
@@ -24,7 +25,7 @@
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
 
   <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
-    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
+    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a> on {{ created|format_date() }}
   </p>
 
   <p class="description">{{ item.summary }}</p>
@@ -46,6 +47,10 @@
 </span>
 {%- endmacro %}
 
+
+{% macro search_option(text, value, l20n_id) -%}
+<option {{ l20n(l20n_id) }} value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
+{%- endmacro %}
 
 {% block content %}
 <section class="horizontal-section -medium">
@@ -86,13 +91,16 @@
           <strong>{{ page.item_count }}</strong> projects.
         </p>
         {% endif %}
-        <p>
-          <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
-          <select id="order">
-            <option {{ l20n("relevance") }}>Relevance</option>
-            <option {{ l20n("dateLastUpdated") }}>Date Last Updated</option>
-          </select>
-        </p>
+        <form action="{{ request.route_path('search') }}">
+          <p>
+            <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
+            <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
+            <select id="order" name="o">
+              {{ search_option("Relevance", "", "relevance") }}
+              {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
+            </select>
+          </p>
+        </form>
       </section>
 
       <div class="applied-filters">

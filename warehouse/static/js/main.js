@@ -70,6 +70,11 @@ $(document).ready(function() {
     positionWarning();
   });
 
+  // Search ordering
+  $('#order').on("change", function(event) {
+    this.form.submit();
+  });
+
   $.timeago.settings.cutoff = 7 * 24 * 60 * 60 * 1000;  // One week
 
   // document.l10n.ready.then(function() {

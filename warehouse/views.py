@@ -171,13 +171,20 @@ def search(request):
     else:
         query = request.es.query()
 
+    if request.params.get("o"):
+        query = query.sort(request.params["o"])
+
     page = ElasticsearchPage(
         query,
         page=int(request.params.get("page", 1)),
         url_maker=paginate_url_factory(request),
     )
 
-    return {"page": page, "term": request.params.get("q")}
+    return {
+        "page": page,
+        "term": request.params.get("q"),
+        "order": request.params.get("o"),
+    }
 
 
 @view_config(
