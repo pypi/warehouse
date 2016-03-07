@@ -91,9 +91,10 @@ class DatabaseUserService:
 
     def create_user(self, username, name, password, email,
                     is_active=False, is_staff=False, is_superuser=False):
+
         user = User(username=username,
                     name=name,
-                    password=password,
+                    password=self.hasher.encrypt(password),
                     is_active=is_active,
                     is_staff=is_staff,
                     is_superuser=is_superuser)

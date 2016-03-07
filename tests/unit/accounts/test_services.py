@@ -138,6 +138,23 @@ class TestDatabaseUserService:
         assert user.emails[0].verified
         assert not user.emails[1].verified
 
+    def test_create_login_success(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = service.create_user(
+            "test_user", "test_name", "test_password", "test_email")
+
+        assert user.id is not None
+        # now make sure that we can log in as that user
+        assert service.check_password(user.id, "test_password")
+
+    def test_create_login_error(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = service.create_user(
+            "test_user", "test_name", "test_password", "test_email")
+
+        assert user.id is not None
+        assert not service.check_password(user.id, "bad_password")
+
 
 def test_database_login_factory(monkeypatch):
     service_obj = pretend.stub()
