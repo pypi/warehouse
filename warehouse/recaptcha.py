@@ -35,10 +35,7 @@ class Service:
     @property
     def enabled(self):
         settings = self.request.registry.settings.get("recaptcha", {})
-        return (
-            settings.get("site_key") is not None and
-            settings.get("secret_key") is not None
-        )
+        return settings.get("site_key") and settings.get("secret_key")
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
@@ -61,7 +58,7 @@ class Service:
             VERIFY_URL, urlencode(payload),
             headers={"Content-Type":
                 "application/x-www-form-urlencoded; charset=utf-8"},
-            verify=False,
+            verify="/etc/ssl/certs/",
         )
         try:
             data = resp.json()
