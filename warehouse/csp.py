@@ -1,5 +1,4 @@
 import collections
-import copy
 
 
 def _serialize(policy):

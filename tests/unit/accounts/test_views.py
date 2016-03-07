@@ -56,12 +56,12 @@ class TestLogin:
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_form(self, pyramid_request, next_url):
-        login_service = pretend.stub()
+        user_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: login_service
+            lambda iface, context: user_service
         )
         form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
@@ -76,20 +76,20 @@ class TestLogin:
             pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, login_service=login_service),
+            pretend.call(pyramid_request.POST, user_service=user_service),
         ]
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_post_invalid_returns_form(self, pyramid_request, next_url):
-        login_service = pretend.stub()
+        user_service = pretend.stub()
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: login_service
+            lambda iface, context: user_service
         )
         pyramid_request.method = "POST"
         if next_url is not None:
             pyramid_request.POST["next"] = next_url
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
@@ -101,7 +101,7 @@ class TestLogin:
             pretend.call(IUserService, context=None),
         ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, login_service=login_service),
+            pretend.call(pyramid_request.POST, user_service=user_service),
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
@@ -115,11 +115,11 @@ class TestLogin:
 
         new_session = {}
 
-        login_service = pretend.stub(
+        user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: login_service
+            lambda iface, context: user_service
         )
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
@@ -138,7 +138,7 @@ class TestLogin:
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 
@@ -148,11 +148,11 @@ class TestLogin:
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, login_service=login_service),
+            pretend.call(pyramid_request.POST, user_service=user_service),
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
-        assert login_service.find_userid.calls == [pretend.call("theuser")]
+        assert user_service.find_userid.calls == [pretend.call("theuser")]
 
         if with_user:
             assert new_session == {}
@@ -177,11 +177,11 @@ class TestLogin:
     )
     def test_post_validate_no_redirects(self, pyramid_request,
                                         expected_next_url, observed_next_url):
-        login_service = pretend.stub(
+        user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: login_service
+            lambda iface, context: user_service
         )
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
@@ -190,7 +190,7 @@ class TestLogin:
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(lambda d, login_service: form_obj)
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
 

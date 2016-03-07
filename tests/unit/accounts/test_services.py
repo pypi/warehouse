@@ -116,7 +116,6 @@ class TestDatabaseUserService:
         user_from_db = service.get_user(new_user.id)
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
-        assert user_from_db.password == user.password
         assert user_from_db.email == email
 
     def test_update_user(self, db_session):

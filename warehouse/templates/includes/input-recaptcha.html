@@ -1,5 +1,7 @@
 {% if request.find_service(name="recaptcha").enabled %}
-  {% block top_script %}<script src='https://www.google.com/recaptcha/api.js'></script>{% endblock %}
+  {% block top_script %}
+  <script src="www.google.com/recaptcha/api.js"></script>
+  {% endblock %}
 
   <div class="g-recaptcha" data-sitekey="{{ request.registry.settings["recaptcha"]["site_key"] }}"></div>
   {% if form.g_recaptcha_response.errors %}

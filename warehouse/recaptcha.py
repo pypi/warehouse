@@ -9,6 +9,7 @@ import requests
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
+# flake8: noqa
 class RecaptchaError(ValueError): pass
 class MissingInputSecretError(RecaptchaError): pass
 class InvalidInputSecretError(RecaptchaError): pass

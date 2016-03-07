@@ -59,6 +59,7 @@ class DatabaseUserService:
     @functools.lru_cache()
     def find_by_email(self, email):
         try:
+            # flake8: noqa
             user_id = (
                 self.db.query(Email.user_id)
                     .filter(Email.email == email)

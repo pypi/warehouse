@@ -12,7 +12,6 @@
 
 import pretend
 import pytest
-import responses
 import wtforms
 
 from warehouse.accounts import forms
@@ -105,7 +104,7 @@ class TestLoginForm:
 class TestRegistrationForm:
     def test_create(self):
         user_service = pretend.stub()
-        recaptcha_service = pretend.stub()
+        recaptcha_service = pretend.stub(enabled=True)
 
         form = forms.RegistrationForm(
             data={}, user_service=user_service,
@@ -120,9 +119,9 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
-        
+
         assert not form.validate()
         assert form.password_confirm.errors.pop() == "This field is required."
 
@@ -136,7 +135,7 @@ class TestRegistrationForm:
                 "password_confirm": "mismatch",
             },
             user_service=user_service,
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -152,7 +151,7 @@ class TestRegistrationForm:
                 "password_confirm": "password",
             },
             user_service=user_service,
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
 
         form.validate()
@@ -165,7 +164,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -177,7 +176,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_by_email=pretend.call_recorder(lambda _: None),
             ),
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -189,21 +188,38 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Email already exists."
+        assert form.email.errors.pop() == "Email exists."
+
+    def test_recaptcha_disabled(self):
+        form = forms.RegistrationForm(
+            data={"g_recpatcha_response": ""},
+            user_service=pretend.stub(),
+            recaptcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        # there shouldn't be any errors for the recaptcha field if it's
+        # disabled
+        assert not form.g_recaptcha_response.errors
 
     def test_recaptcha_required_error(self):
         form = forms.RegistrationForm(
             data={"g_recaptcha_response": ""},
             user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(),
+            recaptcha_service=pretend.stub(
+                enabled=True,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
         )
         assert not form.validate()
         assert form.g_recaptcha_response.errors.pop() \
-            == "This field is required."
+            == "Recaptcha error."
 
     def test_recaptcha_error(self):
         form = forms.RegistrationForm(
@@ -211,6 +227,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(),
             recaptcha_service=pretend.stub(
                 verify_response=pretend.raiser(recaptcha.RecaptchaError),
+                enabled=True,
             ),
         )
         assert not form.validate()

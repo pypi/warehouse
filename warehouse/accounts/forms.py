@@ -71,8 +71,8 @@ class RegistrationForm(CredentialsMixin, forms.Form):
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
-        if self.recaptcha_service.enabled and len(field.data) <= 0:
-            raise wtforms.validators.ValidationError("This field is required.")
+        if self.recaptcha_service.enabled and not field.data:
+            raise wtforms.validators.ValidationError("Recaptcha error.")
 
         try:
             self.recaptcha_service.verify_response(field.data)

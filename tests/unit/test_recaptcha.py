@@ -29,12 +29,12 @@ class TestVerifyResponse:
             body="something awful",
         )
         serv = recaptcha.Service(_REQUEST)
-        
+
         with pytest.raises(recaptcha.UnknownError) as err:
-            res = serv.verify_response("meaningless")
+            serv.verify_response("meaningless")
             assert str(err) == \
                 "Unexpected data in response body: something awful"
-    
+
     @responses.activate
     def test_missing_success_key_error(self):
         responses.add(
@@ -45,7 +45,7 @@ class TestVerifyResponse:
         serv = recaptcha.Service(_REQUEST)
 
         with pytest.raises(recaptcha.UnknownError) as err:
-            res = serv.verify_response("meaningless")
+            serv.verify_response("meaningless")
             assert str(err) == "Missing 'success' key in response: {}"
 
     @responses.activate
@@ -64,7 +64,7 @@ class TestVerifyResponse:
 
             serv = recaptcha.Service(_REQUEST)
             with pytest.raises(exc_tp):
-                res = serv.verify_response("meaningless")
+                serv.verify_response("meaningless")
 
             responses.reset()
 
@@ -83,7 +83,7 @@ class TestVerifyResponse:
 
         serv = recaptcha.Service(_REQUEST)
         with pytest.raises(recaptcha.UnknownError) as err:
-            res = serv.verify_response("meaningless")
+            serv.verify_response("meaningless")
             assert str(err) == "Unhandled error code: slartibartfast"
 
     @responses.activate
@@ -99,7 +99,7 @@ class TestVerifyResponse:
 
         serv = recaptcha.Service(_REQUEST)
         res = serv.verify_response("meaningless")
-        
+
         assert isinstance(res, recaptcha.ChallengeResponse)
         assert res.challenge_ts is None
         assert res.hostname == "hostname_value"
@@ -150,7 +150,7 @@ def test_includeme():
         add_settings=pretend.call_recorder(lambda settings: None),
     )
     recaptcha.includeme(config)
-    
+
     assert config.register_service_factory.calls == [
         pretend.call(recaptcha.service_factory, name="recaptcha"),
     ]
@@ -158,8 +158,8 @@ def test_includeme():
     assert config.add_settings.calls == [
         pretend.call({
             "recaptcha": {
-                "site_key": environ.get("RECAPTCHA_SITE_KEY", ""),
-                "secret_key": environ.get("RECAPTCHA_SECRET_KEY", ""),
+                "site_key": environ.get("RECAPTCHA_SITE_KEY"),
+                "secret_key": environ.get("RECAPTCHA_SECRET_KEY"),
             },
         }),
     ]
