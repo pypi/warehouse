@@ -245,3 +245,42 @@ class TestLogout:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
+
+
+class TestRegister:
+    def test_get(self, pyramid_request):
+        form_inst = pretend.stub()
+        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: pretend.stub(
+                enabled=False,
+                add_to_csp_policy=pretend.call_recorder(lambda: None),
+            )
+        )
+        result = views.register(pyramid_request, _form_class=form)
+        assert result["form"] is form_inst
+
+    def test_register_redirect(self, pyramid_request):
+        pyramid_request.method = "POST"
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: pretend.stub(
+                add_to_csp_policy=pretend.call_recorder(lambda: None),
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None),
+                create_user=pretend.call_recorder(
+                    lambda *args, **kwargs: pretend.stub(id=1),
+                ),
+            )
+        )
+        pyramid_request.POST.update({
+            "username": "username_value",
+            "password": "password_value",
+            "password_confirm": "password_value",
+            "email": "foo@bar.com",
+            "full_name": "full_name",
+        })
+
+        result = views.register(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)

@@ -1,3 +1,5 @@
+import collections
+import urllib.parse
 from os import environ
 
 import pytest
@@ -22,6 +24,32 @@ _REQUEST = pretend.stub(
 
 class TestVerifyResponse:
     @responses.activate
+    def test_verify_service_disabled(self):
+        responses.add(
+            responses.POST,
+            recaptcha.VERIFY_URL,
+            body="",
+        )
+        serv = recaptcha.Service(
+            pretend.stub(registry=pretend.stub(settings={}))
+        )
+        assert serv.verify_response('') is None
+        assert not responses.calls
+
+    @responses.activate
+    def test_remote_ip_payload(self):
+        responses.add(
+            responses.POST,
+            recaptcha.VERIFY_URL,
+            json={"success": True},
+        )
+        serv = recaptcha.Service(_REQUEST)
+        serv.verify_response("meaningless", remote_ip="ip")
+
+        payload = dict(urllib.parse.parse_qsl(responses.calls[0].request.body))
+        assert payload["remoteip"] == "ip"
+
+    @responses.activate
     def test_unexpected_data_error(self):
         responses.add(
             responses.POST,
@@ -30,23 +58,41 @@ class TestVerifyResponse:
         )
         serv = recaptcha.Service(_REQUEST)
 
-        with pytest.raises(recaptcha.UnknownError) as err:
+        with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
-            assert str(err) == \
-                "Unexpected data in response body: something awful"
+
+        expected = "Unexpected data in response body: something awful"
+        assert str(err.value) == expected
 
     @responses.activate
     def test_missing_success_key_error(self):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
-            json={},
+            json={"foo": "bar"},
         )
         serv = recaptcha.Service(_REQUEST)
 
-        with pytest.raises(recaptcha.UnknownError) as err:
+        with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
-            assert str(err) == "Missing 'success' key in response: {}"
+
+        expected = "Missing 'success' key in response: {'foo': 'bar'}"
+        assert str(err.value) == expected
+
+    @responses.activate
+    def test_missing_error_codes_key_error(self):
+        responses.add(
+            responses.POST,
+            recaptcha.VERIFY_URL,
+            json={"success": False},
+        )
+        serv = recaptcha.Service(_REQUEST)
+
+        with pytest.raises(recaptcha.UnexpectedError) as err:
+            serv.verify_response("meaningless")
+
+        expected = "Response missing 'error-codes' key: {'success': False}"
+        assert str(err.value) == expected
 
     @responses.activate
     def test_error_map_error(self):
@@ -82,9 +128,9 @@ class TestVerifyResponse:
         )
 
         serv = recaptcha.Service(_REQUEST)
-        with pytest.raises(recaptcha.UnknownError) as err:
+        with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
-            assert str(err) == "Unhandled error code: slartibartfast"
+            assert str(err) == "Unexpected error code: slartibartfast"
 
     @responses.activate
     def test_challenge_response_missing_timestamp_success(self):
@@ -123,7 +169,7 @@ class TestVerifyResponse:
         assert res.challenge_ts == 0
 
     @responses.activate
-    def test_challenge_response_successs(self):
+    def test_challenge_response_success(self):
         responses.add(
             responses.POST,
             recaptcha.VERIFY_URL,
@@ -140,6 +186,43 @@ class TestVerifyResponse:
         assert isinstance(res, recaptcha.ChallengeResponse)
         assert res.hostname == "hostname_value"
         assert res.challenge_ts == 0
+
+
+class TestCSPPolicy:
+    def test_add_to_csp_policy(self):
+        csp_settings = collections.defaultdict(list)
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings=_SETTINGS,
+            ),
+            find_service=pretend.call_recorder(
+                lambda name: csp_settings,
+            ),
+        )
+        serv = recaptcha.Service(request)
+        serv.add_to_csp_policy()
+        assert csp_settings == {
+            "script-src": [
+                "https://www.google.com/recaptcha/",
+                "https://www.gstatic.com/recaptcha/",
+            ],
+            "frame-src": ["https://www.google.com/recaptcha/",],
+            "style-src": ["'unsafe-inline'"],
+        }
+
+    def test_ignore_when_disabled(self):
+        settings = {}
+        request = pretend.stub(
+            registry=pretend.stub(settings=settings)
+        )
+        serv = recaptcha.Service(request)
+        serv.add_to_csp_policy()
+        assert settings == {}
+
+
+def test_service_factory():
+    serv = recaptcha.service_factory(None, _REQUEST)
+    assert serv.request is _REQUEST
 
 
 def test_includeme():

@@ -66,7 +66,7 @@ class RegistrationForm(CredentialsMixin, forms.Form):
                 "Username exists.")
 
     def validate_email(self, field):
-        if self.user_service.find_by_email(field.data) is not None:
+        if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError("Email exists.")
 
     def validate_g_recaptcha_response(self, field):

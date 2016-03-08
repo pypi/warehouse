@@ -117,7 +117,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"password_confirm": ""},
             user_service=pretend.stub(
-                find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -127,7 +127,7 @@ class TestRegistrationForm:
 
     def test_passwords_mismatch_error(self):
         user_service = pretend.stub(
-            find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
         )
         form = forms.RegistrationForm(
             data={
@@ -143,7 +143,7 @@ class TestRegistrationForm:
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
-            find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
         )
         form = forms.RegistrationForm(
             data={
@@ -162,7 +162,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": ""},
             user_service=pretend.stub(
-                find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -174,7 +174,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "bad"},
             user_service=pretend.stub(
-                find_by_email=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -186,7 +186,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
             user_service=pretend.stub(
-                find_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -233,3 +233,17 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.g_recaptcha_response.errors.pop() \
             == "Recaptcha error."
+
+    def test_username_exists(self):
+        form = forms.RegistrationForm(
+            data={"username": "foo"},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda name: 1),
+            ),
+            recaptcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        assert form.username.errors.pop() == "Username exists."

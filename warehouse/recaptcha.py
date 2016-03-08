@@ -15,7 +15,7 @@ class MissingInputSecretError(RecaptchaError): pass
 class InvalidInputSecretError(RecaptchaError): pass
 class MissingInputResponseError(RecaptchaError): pass
 class InvalidInputResponseError(RecaptchaError): pass
-class UnknownError(RecaptchaError): pass
+class UnexpectedError(RecaptchaError): pass
 
 ERROR_CODE_MAP = {
     "missing-input-secret": MissingInputSecretError,
@@ -36,7 +36,8 @@ class Service:
     @property
     def enabled(self):
         settings = self.request.registry.settings.get("recaptcha", {})
-        return settings.get("site_key") and settings.get("secret_key")
+        return len(settings.get("site_key", '')) > 0 and len(
+            settings.get("secret_key", "")) > 0
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
@@ -64,14 +65,15 @@ class Service:
         try:
             data = resp.json()
         except ValueError:
-            raise UnknownError(
-                "Unexpected data in response body: %s" % resp.content
+            raise UnexpectedError(
+                "Unexpected data in response body: %s" % str(
+                    resp.content, 'utf-8')
             )
 
         try:
             success = data["success"]
         except KeyError:
-            raise UnknownError(
+            raise UnexpectedError(
                 "Missing 'success' key in response: %s" % data
             )
 
@@ -79,14 +81,14 @@ class Service:
             try:
                 error_codes = data["error_codes"]
             except KeyError:
-                raise UnknownError(
+                raise UnexpectedError(
                     "Response missing 'error-codes' key: %s" % data
                 )
             try:
                 exc_tp = ERROR_CODE_MAP[error_codes[0]]
             except KeyError:
-                raise UnknownError(
-                    "Unhandled error code: %s" % error_codes[0]
+                raise UnexpectedError(
+                    "Unexpected error code: %s" % error_codes[0]
                 )
             raise exc_tp
 

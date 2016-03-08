@@ -137,6 +137,20 @@ class TestDatabaseUserService:
         assert user.emails[0].verified
         assert not user.emails[1].verified
 
+    def test_find_by_email(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = UserFactory.create()
+        EmailFactory.create(user=user, primary=True, verified=False)
+        
+        found_userid = service.find_userid_by_email(user.emails[0].email)
+        db_session.flush()
+
+        assert user.id == found_userid
+
+    def test_find_by_email_not_found(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        assert service.find_userid_by_email("something") is None
+
     def test_create_login_success(self, db_session):
         service = services.DatabaseUserService(db_session)
         user = service.create_user(
