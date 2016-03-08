@@ -260,6 +260,11 @@ class TestRegister:
         result = views.register(pyramid_request, _form_class=form)
         assert result["form"] is form_inst
 
+    def test_redirect_authenticated_user(self):
+        result = views.register(pretend.stub(authenticated_userid=1))
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+
     def test_register_redirect(self, pyramid_request):
         pyramid_request.method = "POST"
         pyramid_request.find_service = pretend.call_recorder(
@@ -284,3 +289,4 @@ class TestRegister:
 
         result = views.register(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"

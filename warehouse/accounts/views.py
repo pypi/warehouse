@@ -177,6 +177,9 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     decorator=[csrf_protect("accounts.register"), uses_session],
 )
 def register(request, _form_class=forms.RegistrationForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther("/")
+
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
     recaptcha_service.add_to_csp_policy()
