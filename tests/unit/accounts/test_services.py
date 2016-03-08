@@ -141,7 +141,7 @@ class TestDatabaseUserService:
         service = services.DatabaseUserService(db_session)
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True, verified=False)
-        
+
         found_userid = service.find_userid_by_email(user.emails[0].email)
         db_session.flush()
 

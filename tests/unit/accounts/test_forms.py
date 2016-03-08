@@ -117,7 +117,9 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"password_confirm": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(
+                    lambda _: pretend.stub()
+                ),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -127,7 +129,9 @@ class TestRegistrationForm:
 
     def test_passwords_mismatch_error(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+            find_userid_by_email=pretend.call_recorder(
+                lambda _: pretend.stub()
+            ),
         )
         form = forms.RegistrationForm(
             data={
@@ -143,7 +147,9 @@ class TestRegistrationForm:
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+            find_userid_by_email=pretend.call_recorder(
+                lambda _: pretend.stub()
+            ),
         )
         form = forms.RegistrationForm(
             data={
@@ -162,7 +168,9 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(
+                    lambda _: pretend.stub()
+                ),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )
@@ -186,7 +194,9 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub()),
+                find_userid_by_email=pretend.call_recorder(
+                    lambda _: pretend.stub()
+                ),
             ),
             recaptcha_service=pretend.stub(enabled=True),
         )

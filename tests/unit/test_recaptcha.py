@@ -206,7 +206,7 @@ class TestCSPPolicy:
                 "https://www.google.com/recaptcha/",
                 "https://www.gstatic.com/recaptcha/",
             ],
-            "frame-src": ["https://www.google.com/recaptcha/",],
+            "frame-src": ["https://www.google.com/recaptcha/"],
             "style-src": ["'unsafe-inline'"],
         }
 
