@@ -4,7 +4,7 @@
 #
 #    pip-compile main.in
 #
-alembic==0.8.4
+alembic==0.8.5
 amqp==1.4.9               # via kombu
 anyjson==0.3.3            # via kombu
 Babel==2.2.0
