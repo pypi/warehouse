@@ -18,6 +18,7 @@ import tempfile
 import zipfile
 
 import packaging.specifiers
+import packaging.requirements
 import packaging.version
 import pkg_resources
 import wtforms
@@ -152,18 +153,22 @@ def _validate_pep440_specifier(specifier):
 
 
 def _validate_legacy_non_dist_req(requirement):
-    name, specifier = _parse_legacy_requirement(requirement)
+    try:
+        req = packaging.requirements.Requirement(requirement.replace("_", ""))
+    except packaging.requirements.InvalidRequirement:
+        raise wtforms.validators.ValidationError(
+            "Invalid requirement: {!r}".format(requirement)
+        ) from None
 
-    if "_" in name:
-        name = name.replace("_", "")
+    if req.url is not None:
+        raise wtforms.validators.ValidationError(
+            "Cannot use direct dependency: {!r}".format(requirement)
+        )
 
-    if not name.isalnum() or name[0].isdigit():
+    if not req.name.isalnum() or req.name[0].isdigit():
         raise wtforms.validators.ValidationError(
             "Must be a valid Python identifier."
         )
-
-    if specifier is not None:
-        _validate_pep440_specifier(specifier)
 
 
 def _validate_legacy_non_dist_req_list(form, field):
@@ -172,15 +177,17 @@ def _validate_legacy_non_dist_req_list(form, field):
 
 
 def _validate_legacy_dist_req(requirement):
-    name, specifier = _parse_legacy_requirement(requirement)
-
-    if not _project_name_re.search(name):
+    try:
+        req = packaging.requirements.Requirement(requirement)
+    except packaging.requirements.InvalidRequirement:
         raise wtforms.validators.ValidationError(
-            "Must be a valid project name."
-        )
+            "Invalid requirement: {!r}.".format(requirement)
+        ) from None
 
-    if specifier is not None:
-        _validate_pep440_specifier(specifier)
+    if req.url is not None:
+        raise wtforms.validators.ValidationError(
+            "Cannot have direct dependency: {!r}".format(requirement)
+        )
 
 
 def _validate_legacy_dist_req_list(form, field):

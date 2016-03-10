@@ -87,24 +87,16 @@ class TestValidation:
             pypi._validate_pep440_specifier(specifier)
 
     @pytest.mark.parametrize(
-        ("requirement", "specifier"),
+        "requirement",
         [
-            ("foo (>=1.0)", ">=1.0"),
-            ("foo", None),
-            ("_foo", None),
-            ("foo2", None),
+            "foo (>=1.0)",
+            "foo",
+            "_foo",
+            "foo2",
         ],
     )
-    def test_validates_legacy_non_dist_req_valid(self, monkeypatch,
-                                                 requirement, specifier):
-        spec_validator = pretend.call_recorder(lambda spec: None)
-        monkeypatch.setattr(pypi, "_validate_pep440_specifier", spec_validator)
+    def test_validates_legacy_non_dist_req_valid(self, requirement):
         pypi._validate_legacy_non_dist_req(requirement)
-
-        if specifier is not None:
-            assert spec_validator.calls == [pretend.call(specifier)]
-        else:
-            assert spec_validator.calls == []
 
     @pytest.mark.parametrize(
         "requirement",
@@ -115,17 +107,12 @@ class TestValidation:
             "2foo",
             "☃ (>=1.0)",
             "☃",
+            "name @ https://github.com/pypa",
         ],
     )
-    def test_validates_legacy_non_dist_req_invalid(self, monkeypatch,
-                                                   requirement):
-        spec_validator = pretend.call_recorder(lambda spec: None)
-        monkeypatch.setattr(pypi, "_validate_pep440_specifier", spec_validator)
-
+    def test_validates_legacy_non_dist_req_invalid(self, requirement):
         with pytest.raises(ValidationError):
             pypi._validate_legacy_non_dist_req(requirement)
-
-        assert spec_validator.calls == []
 
     def test_validate_legacy_non_dist_req_list(self, monkeypatch):
         validator = pretend.call_recorder(lambda datum: None)
@@ -138,25 +125,17 @@ class TestValidation:
         assert validator.calls == [pretend.call(datum) for datum in data]
 
     @pytest.mark.parametrize(
-        ("requirement", "specifier"),
+        "requirement",
         [
-            ("foo (>=1.0)", ">=1.0"),
-            ("foo", None),
-            ("foo2", None),
-            ("foo-bar", None),
-            ("foo_bar", None),
+            "foo (>=1.0)",
+            "foo",
+            "foo2",
+            "foo-bar",
+            "foo_bar",
         ],
     )
-    def test_validate_legacy_dist_req_valid(self, monkeypatch, requirement,
-                                            specifier):
-        spec_validator = pretend.call_recorder(lambda spec: None)
-        monkeypatch.setattr(pypi, "_validate_pep440_specifier", spec_validator)
+    def test_validate_legacy_dist_req_valid(self, requirement):
         pypi._validate_legacy_dist_req(requirement)
-
-        if specifier is not None:
-            assert spec_validator.calls == [pretend.call(specifier)]
-        else:
-            assert spec_validator.calls == []
 
     @pytest.mark.parametrize(
         "requirement",
@@ -167,16 +146,12 @@ class TestValidation:
             "foo- (>=1.0)",
             "_foo",
             "_foo (>=1.0)",
+            "name @ https://github.com/pypa",
         ],
     )
-    def test_validate_legacy_dist_req_invalid(self, monkeypatch, requirement):
-        spec_validator = pretend.call_recorder(lambda spec: None)
-        monkeypatch.setattr(pypi, "_validate_pep440_specifier", spec_validator)
-
+    def test_validate_legacy_dist_req_invalid(self, requirement):
         with pytest.raises(ValidationError):
             pypi._validate_legacy_dist_req(requirement)
-
-        assert spec_validator.calls == []
 
     def test_validate_legacy_dist_req_list(self, monkeypatch):
         validator = pretend.call_recorder(lambda datum: None)
