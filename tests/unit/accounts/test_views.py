@@ -284,8 +284,8 @@ class TestRegister:
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
         pyramid_request.POST.update({
             "username": "username_value",
-            "password": "password_value",
-            "password_confirm": "password_value",
+            "password": "MyStr0ng!shP455w0rd",
+            "password_confirm": "MyStr0ng!shP455w0rd",
             "email": "foo@bar.com",
             "full_name": "full_name",
         })

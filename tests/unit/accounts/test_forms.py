@@ -153,8 +153,8 @@ class TestRegistrationForm:
         )
         form = forms.RegistrationForm(
             data={
-                "password": "password",
-                "password_confirm": "password",
+                "password": "MyStr0ng!shPassword",
+                "password_confirm": "MyStr0ng!shPassword",
             },
             user_service=user_service,
             recaptcha_service=pretend.stub(enabled=True),
@@ -257,3 +257,21 @@ class TestRegistrationForm:
         )
         assert not form.validate()
         assert form.username.errors.pop() == "Username exists."
+
+    def test_password_strength(self):
+        cases = (
+            ("foobar", False),
+            ("somethingalittlebetter9", False),
+            ("1aDeCent!1", True),
+        )
+        for pwd, valid in cases:
+            form = forms.RegistrationForm(
+                data={"password": pwd, "password_confirm": pwd},
+                user_service=pretend.stub(),
+                recaptcha_service=pretend.stub(
+                    enabled=False,
+                    verify_response=pretend.call_recorder(lambda _: None),
+                ),
+            )
+            form.validate()
+            assert (len(form.password.errors) == 0) == valid
