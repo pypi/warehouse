@@ -4,6 +4,7 @@ from os import environ
 
 import pytest
 import pretend
+import requests
 import responses
 
 from warehouse import recaptcha
@@ -16,6 +17,9 @@ _SETTINGS = {
     },
 }
 _REQUEST = pretend.stub(
+    # returning a real requests.Session object because responses is responsible
+    # for mocking that out
+    http=requests.Session(),
     registry=pretend.stub(
         settings=_SETTINGS,
     ),
@@ -189,19 +193,17 @@ class TestVerifyResponse:
 
 
 class TestCSPPolicy:
-    def test_add_to_csp_policy(self):
-        csp_settings = collections.defaultdict(list)
+    def test_csp_policy(self):
         request = pretend.stub(
-            registry=pretend.stub(
-                settings=_SETTINGS,
-            ),
-            find_service=pretend.call_recorder(
-                lambda name: csp_settings,
-            ),
+            registry=pretend.stub(settings={
+                "recaptcha": {
+                    "site_key": "foo",
+                    "secret_key": "bar",
+                },
+            })
         )
         serv = recaptcha.Service(request)
-        serv.add_to_csp_policy()
-        assert csp_settings == {
+        assert serv.csp_policy == {
             "script-src": [
                 "https://www.google.com/recaptcha/",
                 "https://www.gstatic.com/recaptcha/",
@@ -210,14 +212,13 @@ class TestCSPPolicy:
             "style-src": ["'unsafe-inline'"],
         }
 
-    def test_ignore_when_disabled(self):
+    def test_policy_when_disabled(self):
         settings = {}
         request = pretend.stub(
             registry=pretend.stub(settings=settings)
         )
         serv = recaptcha.Service(request)
-        serv.add_to_csp_policy()
-        assert settings == {}
+        assert serv.csp_policy == {}
 
 
 def test_service_factory():

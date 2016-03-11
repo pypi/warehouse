@@ -3,8 +3,6 @@ import http
 from os import environ
 from urllib.parse import urlencode
 
-import requests
-
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -34,9 +32,27 @@ class Service:
         self.request = request
 
     @property
+    def csp_policy(self):
+        if not self.enabled:
+            return {}
+
+        return {
+            "script-src": [
+                "https://www.google.com/recaptcha/",
+                "https://www.gstatic.com/recaptcha/",
+            ],
+            "frame-src": [
+                "https://www.google.com/recaptcha/",
+            ],
+            "style-src": [
+                "'unsafe-inline'",
+            ],
+        }
+
+    @property
     def enabled(self):
         settings = self.request.registry.settings.get("recaptcha", {})
-        return len(settings.get("site_key", '')) > 0 and len(
+        return len(settings.get("site_key", "")) > 0 and len(
             settings.get("secret_key", "")) > 0
 
     def verify_response(self, response, remote_ip=None):
@@ -53,14 +69,10 @@ class Service:
         if remote_ip is not None:
             payload["remoteip"] = remote_ip
 
-        # TODO: maybe add a session service? there doesn't seem to be anything
-        # calling out to external services atm though
-        # TODO: turn verify back on once the certs are fixed
-        resp = requests.post(
+        resp = self.request.http.post(
             VERIFY_URL, urlencode(payload),
             headers={"Content-Type":
                 "application/x-www-form-urlencoded; charset=utf-8"},
-            verify="/etc/ssl/certs/",
         )
         try:
             data = resp.json()
@@ -101,21 +113,6 @@ class Service:
             data.get("challenge_ts"), 
             data.get("hostname"),
         )
-
-    def add_to_csp_policy(self):
-        if not self.enabled:
-            # TODO: logging
-            return
-
-        csp_service = self.request.find_service(name="csp")
-        csp_service["script-src"].extend([
-            "https://www.google.com/recaptcha/",
-            "https://www.gstatic.com/recaptcha/",
-        ])
-        csp_service["frame-src"].append(
-            "https://www.google.com/recaptcha/",
-        )
-        csp_service["style-src"].append("'unsafe-inline'")
 
 
 def service_factory(handler, request):

@@ -1,4 +1,5 @@
 import collections
+import copy
 
 
 def _serialize(policy):
@@ -30,16 +31,26 @@ def content_security_policy_tween_factory(handler, registry):
     return content_security_policy_tween
 
 
+class CSPPolicy(collections.defaultdict):
+    def __init__(self, policy=None):
+        super().__init__(list, policy or {})
+
+    def merge(self, policy):
+        for key, attrs in policy.items():
+            self[key].extend(attrs)
+
+
 def csp_factory(_, request):
-    return collections.defaultdict(
-        list, request.registry.settings.get("csp", {})
-    )
+    try:
+        return CSPPolicy(copy.deepcopy(request.registry.settings["csp"]))
+    except KeyError:
+        return CSPPolicy({})
 
 
 def includeme(config):
     config.register_service_factory(csp_factory, name="csp")
     # Enable a Content Security Policy
-    config.add_settings(collections.defaultdict(list, {
+    config.add_settings({
         "csp": {
             "connect-src": ["'self'"],
             "default-src": ["'none'"],
@@ -56,5 +67,5 @@ def includeme(config):
             "script-src": ["'self'"],
             "style-src": ["'self'", "fonts.googleapis.com"],
         },
-    }))
+    })
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")

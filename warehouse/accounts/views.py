@@ -78,38 +78,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         username = form.username.data
         userid = user_service.find_userid(username)
 
-        # We have a session factory associated with this request, so in order
-        # to protect against session fixation attacks we're going to make sure
-        # that we create a new session (which for sessions with an identifier
-        # will cause it to get a new session identifier).
-
-        # We need to protect against session fixation attacks, so make sure
-        # that we create a new session (which will cause it to get a new
-        # session identifier).
-        if (request.unauthenticated_userid is not None and
-                request.unauthenticated_userid != userid):
-            # There is already a userid associated with this request and it is
-            # a different userid than the one we're trying to remember now. In
-            # this case we want to drop the existing session completely because
-            # we don't want to leak any data between authenticated userids.
-            request.session.invalidate()
-        else:
-            # We either do not have an associated userid with this request
-            # already, or the userid is the same one we're trying to remember
-            # now. In either case we want to keep all of the data but we want
-            # to make sure that we create a new session since we're crossing
-            # a privilege boundary.
-            data = dict(request.session.items())
-            request.session.invalidate()
-            request.session.update(data)
-
-        # Remember the userid using the authentication policy.
-        headers = remember(request, userid)
-
-        # Cycle the CSRF token since we've crossed an authentication boundary
-        # and we don't want to continue using the old one.
-        request.session.new_csrf_token()
-
         # If the user-originating redirection url is not safe, then redirect to
         # the index instead.
         if (not redirect_to or
@@ -118,7 +86,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
-        return HTTPSeeOther(redirect_to, headers=dict(headers))
+        return HTTPSeeOther(
+            redirect_to,
+            headers=dict(_login_user(request, userid)))
 
     return {
         "form": form,
@@ -182,7 +152,7 @@ def register(request, _form_class=forms.RegistrationForm):
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
-    recaptcha_service.add_to_csp_policy()
+    request.find_service(name="csp").merge(recaptcha_service.csp_policy)
 
     # the form contains an auto-generated field from recaptcha with
     # hyphens in it. make it play nice with wtforms.
@@ -202,9 +172,44 @@ def register(request, _form_class=forms.RegistrationForm):
             form.email.data
         )
 
-        headers = remember(request, user.id)
-
-        request.session.new_csrf_token()
-        return HTTPSeeOther("/", headers=dict(headers))
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, user.id)))
 
     return {"form": form}
+
+
+def _login_user(request, userid):
+        # We have a session factory associated with this request, so in order
+        # to protect against session fixation attacks we're going to make sure
+        # that we create a new session (which for sessions with an identifier
+        # will cause it to get a new session identifier).
+
+        # We need to protect against session fixation attacks, so make sure
+        # that we create a new session (which will cause it to get a new
+        # session identifier).
+        if (request.unauthenticated_userid is not None and
+                request.unauthenticated_userid != userid):
+            # There is already a userid associated with this request and it is
+            # a different userid than the one we're trying to remember now. In
+            # this case we want to drop the existing session completely because
+            # we don't want to leak any data between authenticated userids.
+            request.session.invalidate()
+        else:
+            # We either do not have an associated userid with this request
+            # already, or the userid is the same one we're trying to remember
+            # now. In either case we want to keep all of the data but we want
+            # to make sure that we create a new session since we're crossing
+            # a privilege boundary.
+            data = dict(request.session.items())
+            request.session.invalidate()
+            request.session.update(data)
+
+        # Remember the userid using the authentication policy.
+        headers = remember(request, userid)
+
+        # Cycle the CSRF token since we've crossed an authentication boundary
+        # and we don't want to continue using the old one.
+        request.session.new_csrf_token()
+
+        return headers

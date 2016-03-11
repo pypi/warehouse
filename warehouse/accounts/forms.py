@@ -73,7 +73,6 @@ class RegistrationForm(CredentialsMixin, forms.Form):
         # do required data validation here due to enabled flag being required
         if self.recaptcha_service.enabled and not field.data:
             raise wtforms.validators.ValidationError("Recaptcha error.")
-
         try:
             self.recaptcha_service.verify_response(field.data)
         except recaptcha.RecaptchaError:

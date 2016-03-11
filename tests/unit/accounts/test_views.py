@@ -254,7 +254,8 @@ class TestRegister:
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 enabled=False,
-                add_to_csp_policy=pretend.call_recorder(lambda: None),
+                csp_policy=pretend.stub(),
+                merge=lambda _: None,
             )
         )
         result = views.register(pyramid_request, _form_class=form)
@@ -269,7 +270,8 @@ class TestRegister:
         pyramid_request.method = "POST"
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
-                add_to_csp_policy=pretend.call_recorder(lambda: None),
+                csp_policy={},
+                merge=lambda _: {},
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
                 find_userid=pretend.call_recorder(lambda _: None),
@@ -279,6 +281,7 @@ class TestRegister:
                 ),
             )
         )
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
         pyramid_request.POST.update({
             "username": "username_value",
             "password": "password_value",

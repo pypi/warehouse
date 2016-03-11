@@ -152,6 +152,24 @@ class TestCSPTween:
         }
 
 
+class TestCSPPolicy:
+    def test_create(self):
+        policy = csp.CSPPolicy({"foo": ["bar"]})
+        assert isinstance(policy, collections.defaultdict)
+
+    def test_merge(self):
+        policy = csp.CSPPolicy({"foo": ["bar"]})
+        policy.merge({
+            "foo": ["baz"],
+            "something": ["else"],
+        })
+        assert policy == {
+            "foo": ["bar", "baz"],
+            "something": ["else"],
+        }
+
+
+
 def test_includeme():
     config = pretend.stub(
         register_service_factory=pretend.call_recorder(
@@ -195,3 +213,36 @@ def test_includeme():
             },
         })
     ]
+
+
+class TestFactory:
+    def test_copy(self):
+        settings = {
+            "csp": {
+                "foo": "bar",
+            },
+        }
+        request = pretend.stub(
+            registry = pretend.stub(
+                settings = settings
+            )
+        )
+        result = csp.csp_factory(None, request)
+        assert isinstance(result, csp.CSPPolicy)
+        assert result == settings["csp"]
+
+        # ensure changes to factory result don't propagate back to the
+        # settings
+        result["baz"] = "foo"
+        assert result == {"foo": "bar", "baz": "foo"}
+        assert settings == {"csp": {"foo": "bar"}}
+
+    def test_default(self):
+        request = pretend.stub(
+            registry = pretend.stub(
+                settings = {}
+            )
+        )
+        result = csp.csp_factory(None, request)
+        assert isinstance(result, csp.CSPPolicy)
+        assert result == {}

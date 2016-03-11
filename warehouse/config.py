@@ -300,12 +300,6 @@ def configure(settings=None):
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 
-    # Register Content-Security-Policy service
-    config.include(".csp")
-
-    # Register recaptcha service
-    config.include(".recaptcha")
-
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")
@@ -356,6 +350,19 @@ def configure(settings=None):
     # We want Raven to be the last things we add here so that it's the outer
     # most WSGI middleware.
     config.include(".raven")
+
+    # Register Content-Security-Policy service
+    config.include(".csp")
+
+    # Register recaptcha service
+    config.include(".recaptcha")
+
+    config.add_settings({
+        "http": {
+            "verify": "/etc/ssl/certs/",
+        },
+    })
+    config.include(".http")
 
     # Add our theme if one was configured
     if config.get_settings().get("warehouse.theme"):
