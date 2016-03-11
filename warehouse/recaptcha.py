@@ -40,6 +40,7 @@ class Service:
             "script-src": [
                 "https://www.google.com/recaptcha/",
                 "https://www.gstatic.com/recaptcha/",
+                "'unsafe-inline'",
             ],
             "frame-src": [
                 "https://www.google.com/recaptcha/",
@@ -57,7 +58,7 @@ class Service:
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
-            # TODO: logging
+            # TODO: debug logging
             return
 
         settings = self.request.registry.settings["recaptcha"]
