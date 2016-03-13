@@ -169,7 +169,6 @@ class TestCSPPolicy:
         }
 
 
-
 def test_includeme():
     config = pretend.stub(
         register_service_factory=pretend.call_recorder(
@@ -223,8 +222,8 @@ class TestFactory:
             },
         }
         request = pretend.stub(
-            registry = pretend.stub(
-                settings = settings
+            registry=pretend.stub(
+                settings=settings
             )
         )
         result = csp.csp_factory(None, request)
@@ -239,8 +238,8 @@ class TestFactory:
 
     def test_default(self):
         request = pretend.stub(
-            registry = pretend.stub(
-                settings = {}
+            registry=pretend.stub(
+                settings={}
             )
         )
         result = csp.csp_factory(None, request)

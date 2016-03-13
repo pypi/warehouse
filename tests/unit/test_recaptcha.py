@@ -1,4 +1,3 @@
-import collections
 import socket
 import urllib.parse
 from os import environ

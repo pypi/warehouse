@@ -11,6 +11,7 @@ _REQUEST = pretend.stub(
     )
 )
 
+
 class TestSession:
     def test_create(self):
         config = {
