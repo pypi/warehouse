@@ -71,10 +71,13 @@ class Service:
             payload["remoteip"] = remote_ip
 
         try:
+            # TODO: the timeout is hardcoded for now. it would be nice to do
+            # something a little more generalized in the future.
             resp = self.request.http.post(
                 VERIFY_URL, urlencode(payload),
                 headers={"Content-Type":
                     "application/x-www-form-urlencoded; charset=utf-8"},
+                timeout=10
             )
         except Exception as err:
             raise UnexpectedError(str(err))
