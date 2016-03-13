@@ -5,14 +5,20 @@ import pretend
 
 import warehouse.http
 
+_REQUEST = pretend.stub(
+    log=pretend.stub(
+        debug=pretend.call_recorder(lambda *args: None),
+    )
+)
 
 class TestSession:
     def test_create(self):
         config = {
             "verify": "foo",
         }
+
         factory = warehouse.http.ThreadLocalSessionFactory(config)
-        session_a, session_b = factory(None), factory(None)
+        session_a, session_b = factory(_REQUEST), factory(_REQUEST)
         assert session_a is session_b
         assert session_a.verify == session_b.verify == config["verify"]
 
@@ -23,7 +29,9 @@ class TestSession:
             # the actual session instance is stuck into the queue here as to
             # maintain a reference so it's not gc'd (which can result in id
             # reuse)
-            fifo.put((threading.get_ident(), factory(pretend.stub())))
+            fifo.put(
+                (threading.get_ident(), factory(_REQUEST))
+            )
 
         start = threading.Event()
 

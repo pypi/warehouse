@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import logging.config
+import threading
 import uuid
 
 import structlog
@@ -35,6 +36,7 @@ class StructlogFormatter(logging.Formatter):
                 "logger": record.name,
                 "level": record.levelname,
                 "event": record.msg,
+                "thread": threading.get_ident(),
             }
             record.msg = RENDERER(None, None, event_dict)
 

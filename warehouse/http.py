@@ -1,23 +1,31 @@
+import logging
 import threading
 import requests
 
 
-class ThreadLocalSessionFactory(threading.local):
+_local = threading.local()
+
+
+class ThreadLocalSessionFactory:
     def __init__(self, config=None):
         self.config = config
 
     def __call__(self, request):
         try:
-            return self.session
+            session = _local.session
+            request.log.debug("reusing existing session")
+            return session
         except AttributeError:
-            self.session = requests.Session()
+            request.log.debug("creating new session")
+            session = requests.Session()
 
             if self.config is not None:
                 for attr, val in self.config.items():
-                    assert hasattr(self.session, attr)
-                    setattr(self.session, attr, val)
+                    assert hasattr(session, attr)
+                    setattr(session, attr, val)
 
-            return self.session
+            _local.session = session
+            return session
 
 
 def includeme(config):

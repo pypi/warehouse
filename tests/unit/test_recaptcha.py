@@ -1,4 +1,5 @@
 import collections
+import socket
 import urllib.parse
 from os import environ
 
@@ -190,6 +191,14 @@ class TestVerifyResponse:
         assert isinstance(res, recaptcha.ChallengeResponse)
         assert res.hostname == "hostname_value"
         assert res.challenge_ts == 0
+
+    @responses.activate
+    def test_unexpected_error(self):
+        serv = recaptcha.Service(_REQUEST)
+        serv.request.http.post = pretend.raiser(socket.error)
+
+        with pytest.raises(recaptcha.UnexpectedError):
+            serv.verify_response("meaningless")
 
 
 class TestCSPPolicy:

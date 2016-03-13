@@ -70,11 +70,15 @@ class Service:
         if remote_ip is not None:
             payload["remoteip"] = remote_ip
 
-        resp = self.request.http.post(
-            VERIFY_URL, urlencode(payload),
-            headers={"Content-Type":
-                "application/x-www-form-urlencoded; charset=utf-8"},
-        )
+        try:
+            resp = self.request.http.post(
+                VERIFY_URL, urlencode(payload),
+                headers={"Content-Type":
+                    "application/x-www-form-urlencoded; charset=utf-8"},
+            )
+        except Exception as err:
+            raise UnexpectedError(str(err))
+
         try:
             data = resp.json()
         except ValueError:
