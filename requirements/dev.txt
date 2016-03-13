@@ -1,5 +1,4 @@
 pip-tools>=1.0
-responses>=0.5.1
 
 # We need a newer version of pyramid_debugtoolbar than what is currently
 # available on PyPI, so we'll install this from GitHub. This can be switched
