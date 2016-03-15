@@ -46,7 +46,7 @@ pyramid-tm==0.12.1
 pyramid==1.6.1
 python-dateutil==2.5.0    # via botocore, elasticsearch-dsl
 python-editor==0.5        # via alembic
-pytz==2015.7              # via babel, celery
+pytz==2016.1              # via babel, celery
 raven==5.11.1
 readme-renderer==0.7.0
 redis==2.10.5
