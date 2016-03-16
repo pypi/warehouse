@@ -11,7 +11,7 @@ Babel==2.2.0
 bcrypt==2.0.0
 billiard==3.3.0.23        # via celery
 bleach==1.4.2             # via readme-renderer
-boto3==1.2.6
+boto3==1.3.0
 botocore==1.4.3           # via boto3
 celery==3.1.23
 certifi==2016.2.28
