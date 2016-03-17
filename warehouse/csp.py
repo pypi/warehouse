@@ -31,8 +31,20 @@ def content_security_policy_tween_factory(handler, registry):
     return content_security_policy_tween
 
 
+class CSPPolicy(collections.defaultdict):
+    def __init__(self, policy=None):
+        super().__init__(list, policy or {})
+
+    def merge(self, policy):
+        for key, attrs in policy.items():
+            self[key].extend(attrs)
+
+
 def csp_factory(_, request):
-    return copy.deepcopy(request.registry.settings.get("csp", {}))
+    try:
+        return CSPPolicy(copy.deepcopy(request.registry.settings["csp"]))
+    except KeyError:
+        return CSPPolicy({})
 
 
 def includeme(config):

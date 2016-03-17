@@ -325,8 +325,10 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
-            pretend.call(".csp"),
             pretend.call(".raven"),
+            pretend.call(".csp"),
+            pretend.call(".recaptcha"),
+            pretend.call(".http"),
         ] + [
             pretend.call(x) for x in [
                 configurator_settings.get("warehouse.theme"),
@@ -351,6 +353,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             "tm.manager_hook": mock.ANY,
             "tm.activate_hook": config.activate_hook,
             "tm.annotate_user": False,
+        }),
+        pretend.call({
+            "http": {
+                "verify": "/etc/ssl/certs/",
+            },
         }),
     ]
     add_settings_dict = configurator_obj.add_settings.calls[1].args[0]

@@ -56,6 +56,20 @@ class DatabaseUserService:
 
         return user.id
 
+    @functools.lru_cache()
+    def find_userid_by_email(self, email):
+        try:
+            # flake8: noqa
+            user_id = (
+                self.db.query(Email.user_id)
+                    .filter(Email.email == email)
+                    .one()
+            )[0]
+        except NoResultFound:
+            return
+
+        return user_id
+
     def check_password(self, userid, password):
         user = self.get_user(userid)
         if user is None:
@@ -78,9 +92,10 @@ class DatabaseUserService:
 
     def create_user(self, username, name, password, email,
                     is_active=False, is_staff=False, is_superuser=False):
+
         user = User(username=username,
                     name=name,
-                    password=password,
+                    password=self.hasher.encrypt(password),
                     is_active=is_active,
                     is_staff=is_staff,
                     is_superuser=is_superuser)
@@ -89,6 +104,8 @@ class DatabaseUserService:
         email_object = Email(email=email, user=user,
                              primary=True, verified=False)
         self.db.add(email_object)
+        # flush the db now so user.id is available
+        self.db.flush()
         return user
 
     def update_user(self, user_id, **changes):
