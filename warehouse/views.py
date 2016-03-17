@@ -159,7 +159,7 @@ def search(request):
             "multi_match",
             query=request.params["q"],
             fields=[
-                "name", "version", "author", "author_email", "maintainer",
+                "name^2", "version", "author", "author_email", "maintainer",
                 "maintainer_email", "home_page", "license", "summary",
                 "description", "keywords", "platform", "download_url",
             ],

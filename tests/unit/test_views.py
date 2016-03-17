@@ -133,9 +133,10 @@ class TestSearch:
                 "multi_match",
                 query="foo bar",
                 fields=[
-                    "name", "version", "author", "author_email", "maintainer",
-                    "maintainer_email", "home_page", "license", "summary",
-                    "description", "keywords", "platform", "download_url",
+                    "name^2", "version", "author", "author_email",
+                    "maintainer", "maintainer_email", "home_page", "license",
+                    "summary", "description", "keywords", "platform",
+                    "download_url",
                 ],
             ),
         ]
@@ -188,9 +189,10 @@ class TestSearch:
                 "multi_match",
                 query="foo bar",
                 fields=[
-                    "name", "version", "author", "author_email", "maintainer",
-                    "maintainer_email", "home_page", "license", "summary",
-                    "description", "keywords", "platform", "download_url",
+                    "name^2", "version", "author", "author_email",
+                    "maintainer", "maintainer_email", "home_page", "license",
+                    "summary", "description", "keywords", "platform",
+                    "download_url",
                 ],
             ),
         ]
