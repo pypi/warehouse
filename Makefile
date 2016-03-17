@@ -38,10 +38,10 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
-	docker-compose up
+	RECAPTCHA_SITE_KEY=$(RECAPTCHA_SITE_KEY) RECAPTCHA_SECRET_KEY=$(RECAPTCHA_SECRET_KEY) docker-compose up
 
 debug: .state/docker-build
-	docker-compose run --service-ports web
+	RECAPTCHA_SITE_KEY=$(RECAPTCHA_SITE_KEY) RECAPTCHA_SECRET_KEY=$(RECAPTCHA_SECRET_KEY) docker-compose run --service-ports web
 
 tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)

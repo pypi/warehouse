@@ -13,6 +13,7 @@
 import json
 import logging
 import logging.config
+import threading
 import uuid
 
 from unittest import mock
@@ -49,6 +50,7 @@ class TestStructlogFormatter:
             "logger": "another.logger",
             "level": "INFO",
             "event": "the message",
+            "thread": threading.get_ident(),
         }
 
 

@@ -38,6 +38,8 @@ app:
     CAMO_KEY: "insecure camo key"
     DOCS_URL: "https://pythonhosted.org/{project}/"
     FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/"
+    RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY}"
+    RECAPTCHA_SECRET_KEY: "${RECAPTCHA_SECRET_KEY}"
 
 web:
   extends:

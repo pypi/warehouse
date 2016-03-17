@@ -75,6 +75,7 @@ def test_routes():
         ),
         pretend.call("accounts.login", "/account/login/"),
         pretend.call("accounts.logout", "/account/logout/"),
+        pretend.call("accounts.register", "/account/register/"),
         pretend.call(
             "packaging.project",
             "/project/{name}/",
