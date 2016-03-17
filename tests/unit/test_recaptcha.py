@@ -222,14 +222,6 @@ class TestCSPPolicy:
             "style-src": ["'unsafe-inline'"],
         }
 
-    def test_policy_when_disabled(self):
-        settings = {}
-        request = pretend.stub(
-            registry=pretend.stub(settings=settings)
-        )
-        serv = recaptcha.Service(request)
-        assert serv.csp_policy == {}
-
 
 def test_service_factory():
     serv = recaptcha.service_factory(None, _REQUEST)

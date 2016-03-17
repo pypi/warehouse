@@ -2,16 +2,15 @@ import threading
 import requests
 
 
-_local = threading.local()
-
 
 class ThreadLocalSessionFactory:
     def __init__(self, config=None):
         self.config = config
+        self._local = threading.local()
 
     def __call__(self, request):
         try:
-            session = _local.session
+            session = self._local.session
             request.log.debug("reusing existing session")
             return session
         except AttributeError:
@@ -23,7 +22,7 @@ class ThreadLocalSessionFactory:
                     assert hasattr(session, attr)
                     setattr(session, attr, val)
 
-            _local.session = session
+            self._local.session = session
             return session
 
 

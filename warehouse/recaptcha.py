@@ -33,9 +33,10 @@ class Service:
 
     @property
     def csp_policy(self):
-        if not self.enabled:
-            return {}
-
+        # the use of request.scheme should ever only be for dev. problem is
+        # that we use "//" in the script tags, so the request scheme is used.
+        # because the csp has to match the script src scheme, it also has to
+        # be dynamic.
         return {
             "script-src": [
                 "%s://www.google.com/recaptcha/" % self.request.scheme,
