@@ -202,7 +202,9 @@ class TestVerifyResponse:
 
 class TestCSPPolicy:
     def test_csp_policy(self):
+        scheme = 'https'
         request = pretend.stub(
+            scheme=scheme,
             registry=pretend.stub(settings={
                 "recaptcha": {
                     "site_key": "foo",
@@ -213,9 +215,8 @@ class TestCSPPolicy:
         serv = recaptcha.Service(request)
         assert serv.csp_policy == {
             "script-src": [
-                "https://www.google.com/recaptcha/",
-                "https://www.gstatic.com/recaptcha/",
-                "'unsafe-inline'",
+                "%s://www.google.com/recaptcha/" % scheme,
+                "%s://www.gstatic.com/recaptcha/" % scheme,
             ],
             "frame-src": ["https://www.google.com/recaptcha/"],
             "style-src": ["'unsafe-inline'"],

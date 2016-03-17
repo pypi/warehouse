@@ -42,7 +42,7 @@ commands you can use:
     $ # Run the various linters
     $ make lint
 
-.. note:: reCaptcha is featured in authentication and regisration pages. To
+.. note:: reCaptcha is featured in authentication and registration pages. To
           enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
           through to ``serve`` and ``debug`` targets.
 

@@ -1,5 +1,9 @@
 {% extends "base.html" %}
-{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_src, recaptcha_html with context %}
+{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_src, recaptcha_html, recaptcha_callback with context %}
+
+{% block topload %}
+ {{ recaptcha_callback() }}
+{% endblock %}
 
 {% block content %}
   <form method="POST" action="{{ request.current_route_path() }}">

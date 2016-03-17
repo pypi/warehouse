@@ -38,12 +38,11 @@ class Service:
 
         return {
             "script-src": [
-                "https://www.google.com/recaptcha/",
-                "https://www.gstatic.com/recaptcha/",
-                "'unsafe-inline'",
+                "%s://www.google.com/recaptcha/" % self.request.scheme,
+                "%s://www.gstatic.com/recaptcha/" % self.request.scheme,
             ],
             "frame-src": [
-                "https://www.google.com/recaptcha/",
+                "%s://www.google.com/recaptcha/" % self.request.scheme,
             ],
             "style-src": [
                 "'unsafe-inline'",

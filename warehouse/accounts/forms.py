@@ -99,8 +99,8 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     def validate_password(self, field):
         if not PWD_RE.match(field.data):
             raise wtforms.validators.ValidationError(
-                "Password must contain 1+ upper case letter, 1+ lower case "
-                "letter, 1+ number, 1+ special character and be at least "
+                "Password must contain an upper case letter, a lower case "
+                "letter, a number, a special character and be at least "
                 "%d characters in length" % PWD_MIN_LEN
             )
 

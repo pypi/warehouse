@@ -84,11 +84,10 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
                 not is_safe_url(url=redirect_to, host=request.host)):
             redirect_to = "/"
 
+        headers = _login_user(request, userid)
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
-        return HTTPSeeOther(
-            redirect_to,
-            headers=dict(_login_user(request, userid)))
+        return HTTPSeeOther(redirect_to, headers=dict(headers))
 
     return {
         "form": form,

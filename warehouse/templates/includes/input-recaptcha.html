@@ -1,29 +1,28 @@
+{% macro recaptcha_callback() -%}
+  <script src="{{ request.static_path('warehouse:static/dist/js/recaptcha.js') }}"></script>
+{%- endmacro %}
+
 {% macro recaptcha_html() -%}
   {% if request.find_service(name="recaptcha").enabled %}
-    <div id="recaptcha-container" class="g-recaptcha"></div>
-    {% if form.g_recaptcha_response.errors %}
-    <ul class="errors">
-      {% for error in form.g_recaptcha_response.errors %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+  <div id="recaptcha-container"></div>
+  {% if form.g_recaptcha_response.errors %}
+  <ul class="errors">
+    {% for error in form.g_recaptcha_response.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
   {% endif %}
 {%- endmacro %}
 
 {% macro recaptcha_src() -%}
   {% if request.find_service(name="recaptcha").enabled %}
-    <script type="text/javascript">
-      var config = new Object();
-      config.sitekey = "{{ request.registry.settings["recaptcha"]["site_key"] }}";
-
-      var onloadCallback = function() {
-        grecaptcha.render(
-            document.getElementById("recaptcha-container"),
-            config
-        );
-      };
+    <script
+      id="recaptcha-js"
+      src="//www.google.com/recaptcha/api.js?onload=renderCaptcha&render=explicit"
+      data-site-key="{{ request.registry.settings["recaptcha"]["site_key"] }}"
+      async
+      defer>
     </script>
-    <script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit" async defer></script>
   {% endif %}
 {%- endmacro %}
