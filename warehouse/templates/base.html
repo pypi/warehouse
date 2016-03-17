@@ -40,7 +40,6 @@
      #       before we can progress on this. Currently this breaks html_include
      #}
     {# <script defer src="{{ request.static_path('warehouse:static/dist/components/l20n/dist/compat/web/l20n.js') }}"></script> #}
-    {% block topload %}{% endblock %}
   </head>
 
   <body>
@@ -132,7 +131,8 @@
     <script src="{{ request.static_path('warehouse:static/dist/components/jquery-timeago/jquery.timeago.js') }}"></script>
     <script src="{{ request.static_path('warehouse:static/dist/js/plugins.js') }}"></script>
     <script src="{{ request.static_path('warehouse:static/dist/js/main.js') }}"></script>
-    {% block bottomload %}{% endblock %}
+    {% block extra_js %}
+    {% endblock %}
   </body>
 
 </html>

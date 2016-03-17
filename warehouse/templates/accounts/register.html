@@ -1,9 +1,6 @@
 {% extends "base.html" %}
-{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_src, recaptcha_html, recaptcha_callback with context %}
 
-{% block topload %}
- {{ recaptcha_callback() }}
-{% endblock %}
+{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
 
 {% block content %}
   <form method="POST" action="{{ request.current_route_path() }}">
@@ -38,11 +35,12 @@
     {% endif %}
     {{ form.email(placeholder="Email") }}
 
-    {{ recaptcha_html() }}
+    {{ recaptcha_html(request, form) }}
+
     <input type="submit" value="Register">
   </form>
 {% endblock %}
 
-{% block bottomload %}
-  {{ recaptcha_src() }}
+{% block extra_js %}
+  {{ recaptcha_src(request) }}
 {% endblock %}

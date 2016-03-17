@@ -1,3 +1,9 @@
+function renderCaptcha() {
+  var config = { sitekey: $("script#recaptcha-js").data("site-key") };
+  grecaptcha.render($("#recaptcha-container")[0], config);
+}
+
+
 $(document).ready(function() {
 
   // Look for any data-html-include elements, and include the content for them
