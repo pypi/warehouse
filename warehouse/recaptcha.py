@@ -52,18 +52,19 @@ class Service:
 
     @property
     def enabled(self):
-        settings = self.request.registry.settings.get("recaptcha", {})
-        return bool(settings.get("site_key") and settings.get("secret_key"))
+        settings = self.request.registry.settings
+        return bool(settings.get("recaptcha.site_key")
+                    and settings.get("recaptcha.secret_key"))
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
             return
 
-        settings = self.request.registry.settings["recaptcha"]
+        settings = self.request.registry.settings
 
         payload = {
-            "secret": settings["secret_key"],
+            "secret": settings["recaptcha.secret_key"],
             "response": response,
         }
         if remote_ip is not None:
@@ -131,11 +132,3 @@ def includeme(config):
     # interface. in a perfect world, this will never be offloaded to another
     # service. however, if it is, then we'll deal with the refactor then
     config.register_service_factory(service_factory, name="recaptcha")
-
-    # key-less recaptcha config will work on localhost, but not prod
-    config.add_settings({
-        "recaptcha": {
-            "site_key": environ.get("RECAPTCHA_SITE_KEY"),
-            "secret_key": environ.get("RECAPTCHA_SECRET_KEY"),
-        },
-    })
