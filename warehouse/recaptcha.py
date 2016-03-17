@@ -53,8 +53,7 @@ class Service:
     @property
     def enabled(self):
         settings = self.request.registry.settings.get("recaptcha", {})
-        return len(settings.get("site_key", "")) > 0 and len(
-            settings.get("secret_key", "")) > 0
+        return bool(settings.get("site_key") and settings.get("secret_key"))
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
@@ -118,7 +117,7 @@ class Service:
         # TODO: log if either field is empty.. it shouldn't cause a failure,
         # but it likely means that google has changed their response structure
         return ChallengeResponse(
-            data.get("challenge_ts"), 
+            data.get("challenge_ts"),
             data.get("hostname"),
         )
 

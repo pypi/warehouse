@@ -41,6 +41,25 @@ class TestVerifyResponse:
         assert not responses.calls
 
     @responses.activate
+    def test_verify_service_disabled_with_none(self):
+        responses.add(
+            responses.POST,
+            recaptcha.VERIFY_URL,
+            body="",
+        )
+        serv = recaptcha.Service(
+            pretend.stub(
+                registry=pretend.stub(
+                    settings={
+                        "recaptcha": {"site_key": None, "secret_key": None},
+                    },
+                ),
+            ),
+        )
+        assert serv.verify_response('') is None
+        assert not responses.calls
+
+    @responses.activate
     def test_remote_ip_payload(self):
         responses.add(
             responses.POST,
