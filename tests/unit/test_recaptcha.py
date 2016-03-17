@@ -1,6 +1,5 @@
 import socket
 import urllib.parse
-from os import environ
 
 import pytest
 import pretend
@@ -11,10 +10,8 @@ from warehouse import recaptcha
 
 
 _SETTINGS = {
-    "recaptcha": {
-        "site_key": "site_key_value",
-        "secret_key": "secret_key_value",
-    },
+    "recaptcha.site_key": "site_key_value",
+    "recaptcha.secret_key": "secret_key_value",
 }
 _REQUEST = pretend.stub(
     # returning a real requests.Session object because responses is responsible
@@ -51,7 +48,8 @@ class TestVerifyResponse:
             pretend.stub(
                 registry=pretend.stub(
                     settings={
-                        "recaptcha": {"site_key": None, "secret_key": None},
+                        "recaptcha.site_key": None,
+                        "recaptcha.secret_key": None,
                     },
                 ),
             ),
@@ -252,19 +250,9 @@ def test_includeme():
         register_service_factory=pretend.call_recorder(
             lambda fact, name: None
         ),
-        add_settings=pretend.call_recorder(lambda settings: None),
     )
     recaptcha.includeme(config)
 
     assert config.register_service_factory.calls == [
         pretend.call(recaptcha.service_factory, name="recaptcha"),
-    ]
-
-    assert config.add_settings.calls == [
-        pretend.call({
-            "recaptcha": {
-                "site_key": environ.get("RECAPTCHA_SITE_KEY"),
-                "secret_key": environ.get("RECAPTCHA_SECRET_KEY"),
-            },
-        }),
     ]
