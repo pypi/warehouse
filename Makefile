@@ -18,8 +18,8 @@ default:
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
 update-requirements: .state/env/pyvenv.cfg requirements/deploy.in requirements/main.in
-	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
-	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
+	.state/env/bin/pip-compile --no-annotate --no-header --upgrade requirements/deploy.in > requirements/deploy.txt
+	.state/env/bin/pip-compile --no-annotate --no-header --upgrade requirements/main.in > requirements/main.txt
 
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
