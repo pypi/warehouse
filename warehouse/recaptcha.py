@@ -55,11 +55,11 @@ class Service:
         # be dynamic.
         return {
             "script-src": [
-                "%s://www.google.com/recaptcha/" % self.request.scheme,
-                "%s://www.gstatic.com/recaptcha/" % self.request.scheme,
+                "{request.scheme}://www.google.com/recaptcha/",
+                "{request.scheme}://www.gstatic.com/recaptcha/",
             ],
             "frame-src": [
-                "%s://www.google.com/recaptcha/" % self.request.scheme,
+                "{request.scheme}://www.google.com/recaptcha/",
             ],
             "style-src": [
                 "'unsafe-inline'",
