@@ -1,19 +1,35 @@
 import collections
 import http
-from os import environ
+
 from urllib.parse import urlencode
 
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
-# flake8: noqa
-class RecaptchaError(ValueError): pass
-class MissingInputSecretError(RecaptchaError): pass
-class InvalidInputSecretError(RecaptchaError): pass
-class MissingInputResponseError(RecaptchaError): pass
-class InvalidInputResponseError(RecaptchaError): pass
-class UnexpectedError(RecaptchaError): pass
+class RecaptchaError(ValueError):
+    pass
+
+
+class MissingInputSecretError(RecaptchaError):
+    pass
+
+
+class InvalidInputSecretError(RecaptchaError):
+    pass
+
+
+class MissingInputResponseError(RecaptchaError):
+    pass
+
+
+class InvalidInputResponseError(RecaptchaError):
+    pass
+
+
+class UnexpectedError(RecaptchaError):
+    pass
+
 
 ERROR_CODE_MAP = {
     "missing-input-secret": MissingInputSecretError,
@@ -39,11 +55,11 @@ class Service:
         # be dynamic.
         return {
             "script-src": [
-                "%s://www.google.com/recaptcha/" % self.request.scheme,
-                "%s://www.gstatic.com/recaptcha/" % self.request.scheme,
+                "{request.scheme}://www.google.com/recaptcha/",
+                "{request.scheme}://www.gstatic.com/recaptcha/",
             ],
             "frame-src": [
-                "%s://www.google.com/recaptcha/" % self.request.scheme,
+                "{request.scheme}://www.google.com/recaptcha/",
             ],
             "style-src": [
                 "'unsafe-inline'",
@@ -53,8 +69,8 @@ class Service:
     @property
     def enabled(self):
         settings = self.request.registry.settings
-        return bool(settings.get("recaptcha.site_key")
-                    and settings.get("recaptcha.secret_key"))
+        return bool(settings.get("recaptcha.site_key") and
+                    settings.get("recaptcha.secret_key"))
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
@@ -76,7 +92,7 @@ class Service:
             resp = self.request.http.post(
                 VERIFY_URL, urlencode(payload),
                 headers={"Content-Type":
-                    "application/x-www-form-urlencoded; charset=utf-8"},
+                         "application/x-www-form-urlencoded; charset=utf-8"},
                 timeout=10
             )
         except Exception as err:
@@ -90,9 +106,7 @@ class Service:
                     resp.content, 'utf-8')
             )
 
-        try:
-            success = data["success"]
-        except KeyError:
+        if "success" not in data:
             raise UnexpectedError(
                 "Missing 'success' key in response: %s" % data
             )
