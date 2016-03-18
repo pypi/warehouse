@@ -21,7 +21,7 @@ var srcPaths = {
   images: "warehouse/static/images/",
   js: "warehouse/static/js/",
   sass: "warehouse/static/sass/"
-}
+};
 
 
 var dstPaths = {
@@ -31,21 +31,21 @@ var dstPaths = {
   images: "warehouse/static/dist/images",
   js: "warehouse/static/dist/js",
   maps: "warehouse/static/dist/maps"
-}
+};
 
 
 gulp.task("lint:sass", function() {
   return gulp.src(path.join(srcPaths.sass, "**", "*.s+(a|c)ss"))
              .pipe(sassLint())
              .pipe(sassLint.format())
-             .pipe(sassLint.failOnError())
+             .pipe(sassLint.failOnError());
 });
 
 gulp.task("lint", ["lint:sass"]);
 
 gulp.task("dist:components:install", function() {
   return gulp.src(["bower.json"]).pipe(install({ allowRoot: true }));
-})
+});
 
 gulp.task("dist:components:collect", function() {
   return gulp.src(mainBowerFiles(), { base: srcPaths.components })
@@ -130,14 +130,14 @@ gulp.task("dist", function(cb) {
 });
 
 gulp.task("clean:components", function() {
-  return del([dstPaths.components])
+  return del([dstPaths.components]);
 });
 
-gulp.task("clean:css", function() { return del([dstPaths.css]) });
+gulp.task("clean:css", function() { return del([dstPaths.css]); });
 
-gulp.task("clean:images", function() { return del([dstPaths.images]) });
+gulp.task("clean:images", function() { return del([dstPaths.images]); });
 
-gulp.task("clean:js", function() { return del([dstPaths.js]) });
+gulp.task("clean:js", function() { return del([dstPaths.js]); });
 
 gulp.task("clean:manifest", function() {
   return del([path.join(dstPaths.base, "manifest.json")]);
