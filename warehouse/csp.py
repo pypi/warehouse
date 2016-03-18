@@ -63,7 +63,6 @@ def includeme(config):
             ],
             "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
-            "report-uri": [config.registry.settings.get("csp.report_uri")],
             "script-src": ["'self'"],
             "style-src": ["'self'", "fonts.googleapis.com"],
         },
