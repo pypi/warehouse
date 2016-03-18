@@ -93,7 +93,6 @@ class RegistrationForm(CredentialsMixin, forms.Form):
         if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError("Email exists.")
 
-
     def validate_password(self, field):
         if not PWD_RE.match(field.data):
             raise wtforms.validators.ValidationError(

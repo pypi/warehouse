@@ -68,7 +68,7 @@ class TestLogin:
         form_obj = pretend.stub()
         form_class = pretend.call_recorder(
             lambda data=None, user_service=None,
-                recaptcha_service=None: form_obj
+            recaptcha_service=None: form_obj
         )
 
         if next_url is not None:
@@ -110,7 +110,7 @@ class TestLogin:
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
         form_class = pretend.call_recorder(
             lambda data=None, user_service=None,
-                recaptcha_service=None: form_obj
+            recaptcha_service=None: form_obj
         )
 
         result = views.login(pyramid_request, _form_class=form_class)
@@ -173,7 +173,7 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(
             lambda data=None, user_service=None,
-                recaptcha_service=None: form_obj
+            recaptcha_service=None: form_obj
         )
 
         result = views.login(pyramid_request, _form_class=form_class)
@@ -239,7 +239,7 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(
             lambda data=None, user_service=None,
-                recaptcha_service=None: form_obj
+            recaptcha_service=None: form_obj
         )
 
         result = views.login(pyramid_request, _form_class=form_class)
