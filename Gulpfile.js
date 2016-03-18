@@ -129,27 +129,7 @@ gulp.task("dist", function(cb) {
   )(cb);
 });
 
-gulp.task("clean:components", function() {
-  return del([dstPaths.components]);
-});
-
-gulp.task("clean:css", function() { return del([dstPaths.css]); });
-
-gulp.task("clean:images", function() { return del([dstPaths.images]); });
-
-gulp.task("clean:js", function() { return del([dstPaths.js]); });
-
-gulp.task("clean:manifest", function() {
-  return del([path.join(dstPaths.base, "manifest.json")]);
-});
-
-gulp.task("clean", [
-  "clean:components",
-  "clean:css",
-  "clean:images",
-  "clean:js",
-  "clean:manifest"
-]);
+gulp.task("clean", function() { return del([dstPaths.base]); });
 
 gulp.task("watch", ["dist"], function() {
   var globs = [
