@@ -142,7 +142,6 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "csp.report_uri", "CSP_REPORT_URI")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")

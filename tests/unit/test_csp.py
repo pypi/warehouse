@@ -175,12 +175,7 @@ def test_includeme():
             lambda fact, name: None),
         add_settings=pretend.call_recorder(lambda settings: None),
         add_tween=pretend.call_recorder(lambda tween: None),
-        registry=pretend.stub(
-            settings={
-                "camo.url": "camo.url.value",
-                "csp.report_uri": "csp.report_uri.value",
-            }
-        ),
+        registry=pretend.stub(settings={"camo.url": "camo.url.value"}),
     )
     csp.includeme(config)
 
@@ -206,7 +201,6 @@ def test_includeme():
                 ],
                 "referrer": ["origin-when-cross-origin"],
                 "reflected-xss": ["block"],
-                "report-uri": ["csp.report_uri.value"],
                 "script-src": ["'self'"],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
