@@ -17,10 +17,6 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
-update-requirements: .state/env/pyvenv.cfg requirements/deploy.in requirements/main.in
-	.state/env/bin/pip-compile --no-annotate --no-header --upgrade requirements/deploy.in > requirements/deploy.txt
-	.state/env/bin/pip-compile --no-annotate --no-header --upgrade requirements/main.in > requirements/main.txt
-
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
@@ -56,6 +52,14 @@ docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
+deps: .state/env/pyvenv.cfg
+	$(eval TMPDIR := $(shell mktemp -d))
+	.state/env/bin/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	.state/env/bin/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	diff -u $(TMPDIR)/deploy.txt requirements/deploy.txt
+	diff -u $(TMPDIR)/main.txt requirements/main.txt
+	rm -r $(TMPDIR)
+
 initdb:
 	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -k dev/example.sql.xz
@@ -79,4 +83,4 @@ purge: clean
 	docker-compose rm --force
 
 
-.PHONY: default build serve initdb shell tests docs clean purge update-requirements debug
+.PHONY: default build serve initdb shell tests docs deps clean purge update-requirements debug
