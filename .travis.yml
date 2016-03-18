@@ -41,6 +41,9 @@ matrix:
     - script: make docs BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Documentation
+    - script: make travis-deps BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Dependencies
 
 after_success: codecov
 

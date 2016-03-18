@@ -1,4 +1,6 @@
 BINDIR = $(PWD)/.state/env/bin
+PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
+BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 
 default:
 	@echo "Must call a specific subcommand"
@@ -16,10 +18,6 @@ default:
 	.state/env/bin/python -m pip install -r requirements/dev.txt
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
-
-update-requirements: .state/env/pyvenv.cfg requirements/deploy.in requirements/main.in
-	.state/env/bin/pip-compile requirements/deploy.in > requirements/deploy.txt
-	.state/env/bin/pip-compile requirements/main.in > requirements/main.txt
 
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
@@ -56,6 +54,20 @@ docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
+deps: .state/env/pyvenv.cfg
+	$(eval TMPDIR := $(shell mktemp -d))
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	diff -u $(TMPDIR)/deploy.txt requirements/deploy.txt
+	diff -u $(TMPDIR)/main.txt requirements/main.txt
+	rm -r $(TMPDIR)
+
+travis-deps:
+ifneq ($(PR), false)
+	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
+	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
+endif
+
 initdb:
 	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -k dev/example.sql.xz
@@ -79,4 +91,4 @@ purge: clean
 	docker-compose rm --force
 
 
-.PHONY: default build serve initdb shell tests docs clean purge update-requirements debug
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug
