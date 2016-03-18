@@ -1,4 +1,6 @@
 BINDIR = $(PWD)/.state/env/bin
+PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
+BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 
 default:
 	@echo "Must call a specific subcommand"
@@ -54,11 +56,17 @@ docs: .state/env/pyvenv.cfg
 
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
-	.state/env/bin/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	.state/env/bin/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
 	diff -u $(TMPDIR)/deploy.txt requirements/deploy.txt
 	diff -u $(TMPDIR)/main.txt requirements/main.txt
 	rm -r $(TMPDIR)
+
+travis-deps:
+ifneq ($(PR), false)
+	git fetch origin $(BRANCH):refs/remotes/origin/$(BRANCH)
+	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
+endif
 
 initdb:
 	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
@@ -83,4 +91,4 @@ purge: clean
 	docker-compose rm --force
 
 
-.PHONY: default build serve initdb shell tests docs deps clean purge update-requirements debug
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug
