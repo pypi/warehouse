@@ -4,6 +4,8 @@ python: 3.5.1
 env:
   global:
     - TRAVIS_NODE_VERSION=5.5.0
+  matrix:
+    - SUITE=Tests
 
 dist: trusty
 sudo: false
@@ -34,7 +36,11 @@ script:
 matrix:
   include:
     - script: make lint BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Lint
     - script: make docs BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Documentation
 
 after_success: codecov
 
