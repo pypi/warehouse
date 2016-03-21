@@ -31,7 +31,7 @@ $(document).ready(function() {
   }
 
   window.onhashchange = function() {
-    setTab(getTab(location.hash));
+    setTab(getTab(location.hash) || getTab(":first"));
   };
 
   // Set the tab if the hash is valid, otherwise show the first tab
