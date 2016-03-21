@@ -13,8 +13,8 @@ cffi==1.5.2
 click==6.3
 contextlib2==0.5.1
 docutils==0.12
-elasticsearch-dsl==2.0.0
-elasticsearch==2.3.0
+elasticsearch-dsl<2.0.0
+elasticsearch>=1.0.0,<2.0.0
 hiredis==0.2.0
 html5lib==0.9999999
 itsdangerous==0.24
