@@ -40,7 +40,7 @@ pyramid-tm==0.12.1
 pyramid==1.6.1
 python-dateutil==2.5.1
 python-editor==0.5
-pytz==2016.1
+pytz==2016.2
 raven==5.11.1
 readme-renderer==0.7.0
 redis==2.10.5
