@@ -137,6 +137,13 @@ sub vcl_deliver {
     unset resp.http.Server;
     unset resp.http.Via;
 
+    # Set standard security headers, we do this here in addition to in Warehouse
+    # so that we ensure that we always get the headers, regardless of backend.
+    set resp.http.X-Frame-Options = "deny";
+    set resp.http.X-XSS-Protection = "1; mode=block";
+    set resp.http.X-Content-Type-Options = "nosniff";
+    set resp.http.X-Permitted-Cross-Domain-Policies = "none";
+
     return(deliver);
 }
 
