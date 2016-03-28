@@ -12,11 +12,23 @@
 
 import datetime
 
+import pretend
+
 from warehouse.rss import views as rss
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 def test_rss_updates(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
+    db_request.session = pretend.stub()
+
     project1 = ProjectFactory.create()
     project2 = ProjectFactory.create()
 
@@ -34,6 +46,16 @@ def test_rss_updates(db_request):
 
 
 def test_rss_packages(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
+    db_request.session = pretend.stub()
+
     project1 = ProjectFactory.create()
     project1.created = datetime.date(2011, 1, 1)
     ReleaseFactory.create(project=project1)

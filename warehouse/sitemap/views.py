@@ -20,6 +20,7 @@ from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.packaging.models import Project
+from warehouse.xml import XML_CSP
 
 
 SITEMAP_MAXSIZE = 50000
@@ -43,6 +44,8 @@ Bucket = collections.namedtuple("Bucket", ["name", "modified"])
 )
 def sitemap_index(request):
     request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
 
     # We have > 50,000 URLs on PyPI and a single sitemap file can only support
     # a maximum of 50,000 URLs. We need to split our URLs up into multiple
@@ -98,6 +101,8 @@ def sitemap_index(request):
 )
 def sitemap_bucket(request):
     request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
 
     bucket = request.matchdict["bucket"]
 
