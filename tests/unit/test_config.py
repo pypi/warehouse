@@ -85,6 +85,26 @@ class TestRequireHTTPSTween:
         assert resp.body == b"SSL is required."
 
 
+class TestSecurityHeaderTween:
+
+    def test_adds_headers(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={})
+        registry = pretend.stub()
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = config.security_header_tween_factory(handler, registry)
+        resp = tween(request)
+
+        assert handler.calls == [pretend.call(request)]
+        assert resp.headers == {
+            "X-Frame-Options": "deny",
+            "X-XSS-Protection": "1; mode=block",
+            "X-Content-Type-Options": "nosniff",
+            "X-Permitted-Cross-Domain-Policies": "none",
+        }
+
+
 @pytest.mark.parametrize(
     ("path", "expected"),
     [
@@ -371,6 +391,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.require_https_tween_factory"),
+        pretend.call("warehouse.config.security_header_tween_factory"),
         pretend.call(
             "warehouse.utils.compression.compression_tween_factory",
             over=[

@@ -75,6 +75,21 @@ def require_https_tween_factory(handler, registry):
     return require_https_tween
 
 
+def security_header_tween_factory(handler, registry):
+
+    def security_header_tween(request):
+        resp = handler(request)
+        resp.headers.update({
+            "X-Frame-Options": "deny",
+            "X-XSS-Protection": "1; mode=block",
+            "X-Content-Type-Options": "nosniff",
+            "X-Permitted-Cross-Domain-Policies": "none",
+        })
+        return resp
+
+    return security_header_tween
+
+
 def activate_hook(request):
     if request.path.startswith(("/_debug_toolbar/", "/static/")):
         return False
@@ -304,6 +319,10 @@ def configure(settings=None):
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")
+
+    # Add all of the miscellaneous security headers that offer some level of
+    # protection against something.
+    config.add_tween("warehouse.config.security_header_tween_factory")
 
     # Enable compression of our HTTP responses
     config.add_tween(
