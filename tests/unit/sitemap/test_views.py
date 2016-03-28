@@ -19,6 +19,14 @@ from ...common.db.packaging import ProjectFactory
 
 
 def test_sitemap_index(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
     project = ProjectFactory.create(name="foobar")
     users = [
         UserFactory.create(username="a"),
@@ -42,6 +50,14 @@ def test_sitemap_index(db_request):
 
 
 def test_sitemap_bucket(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
     expected = ["/project/foobar/"]
     expected_iter = iter(expected)
     db_request.route_url = pretend.call_recorder(
@@ -59,6 +75,14 @@ def test_sitemap_bucket(db_request):
 
 
 def test_sitemap_bucket_too_many(monkeypatch, db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
     db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/")
     db_request.matchdict["bucket"] = "5"
 
