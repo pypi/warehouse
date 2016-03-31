@@ -2,6 +2,41 @@ BINDIR = $(PWD)/.state/env/bin
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 
+define DEPCHECKER
+import sys
+import collections
+
+from pip.req import parse_requirements
+
+Dependency = collections.namedtuple("Dependency", ["name", "specifier"])
+
+left, right = sys.argv[1:3]
+left_reqs = {
+	Dependency(name=d.name, specifier=d.specifier)
+	for d in parse_requirements(left, session=object())
+	if d.name != "setuptools"
+}
+right_reqs = {
+	Dependency(name=d.name, specifier=d.specifier)
+	for d in parse_requirements(right, session=object())
+	if d.name != "setuptools"
+}
+
+extra_in_left = left_reqs - right_reqs
+extra_in_right = right_reqs - left_reqs
+
+if extra_in_left:
+	for dep in sorted(extra_in_left, key=lambda x: x.name):
+		print("- {}{}".format(dep.name, dep.specifier))
+
+if extra_in_right:
+	for dep in sorted(extra_in_right, key=lambda x: x.name):
+		print("+ {}{}".format(dep.name, dep.specifier))
+
+if extra_in_left or extra_in_right:
+	sys.exit(1)
+endef
+
 default:
 	@echo "Must call a specific subcommand"
 	@exit 1
@@ -54,12 +89,13 @@ docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
+export DEPCHECKER
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	diff -u $(TMPDIR)/deploy.txt requirements/deploy.txt
-	diff -u $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
+	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
 	rm -r $(TMPDIR)
 
 travis-deps:
