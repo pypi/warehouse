@@ -118,8 +118,8 @@ python-dateutil==2.5.2 \
     --hash=sha256:063907ef47f6e187b8fe0728952e4effb587a34f2dc356888646f9b71fbb2e4b \
     --hash=sha256:8a3f2c1d5bea698ea76435dd22352a5c0d7b95a4ff759c0ff87f974432b3c7bf \
     --hash=sha256:5187ca69bb0a9de482cc5e1d247460b8b62a82fdaf455a13749087094b87754c
-python-editor==0.5 \
-    --hash=sha256:f65c033ede0758663b9ff6a29d702f0b09198ad7c4ef96c9d37ccdfbf7bbf6fa
+python-editor==1.0 \
+    --hash=sha256:4a2b6a945d06e347a8fafe2475f533d05887b193b2e162aff961f63642c8a60e
 pytz==2016.3 \
     --hash=sha256:2e4859a1c1b5c77bdc247013332ae1edbd5b3a7fb3737e33c5f26efcf5e150fb \
     --hash=sha256:69053f951079f5cbf9444cc9bf8af9a227841ca5fd9cb8ed4cecf1a1397adabb \
