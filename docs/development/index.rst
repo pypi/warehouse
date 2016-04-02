@@ -19,6 +19,7 @@ please check out `what to put in your bug report`_ for guidance.
 
     getting-started
     submitting-patches
+    frontend
     translations
     patterns
     database-migrations
