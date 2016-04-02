@@ -6,7 +6,6 @@ var cssnano = require("gulp-cssnano"),
     imageminOptipng = require("imagemin-optipng"),
     install = require("gulp-install"),
     mainBowerFiles = require("main-bower-files"),
-    modernizr = require("gulp-modernizr"),
     path = require("path"),
     rename = require("gulp-rename"),
     revAll = require("gulp-rev-all"),
@@ -103,12 +102,6 @@ gulp.task("dist:js", function() {
              .pipe(gulp.dest(dstPaths.js));
 });
 
-gulp.task("dist:modernizr", function() {
-  return gulp.src(path.join(dstPaths.js, "**", "*.js"))
-             .pipe(modernizr({ options : ["setClasses"] }))
-             .pipe(uglify({ preserveComments: "license" }))
-             .pipe(gulp.dest(dstPaths.components));
-});
 
 gulp.task("dist:manifest", function() {
   var revision = new revAll({ fileNameManifest: "manifest.json" });
@@ -124,7 +117,6 @@ gulp.task("dist", function(cb) {
   return gulpSequence(
     "clean",
     ["dist:components", "dist:css", "dist:images", "dist:js"],
-    "dist:modernizr",
     "dist:manifest"
   )(cb);
 });
