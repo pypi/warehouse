@@ -1,4 +1,4 @@
-gevent==1.1.0 \
+gevent==1.1.1 \
     --hash=sha256:04d4865352e8d2842e8e77cf6da8e03a9a60ea2ba7cbe44e3baacbdf33e4a80c \
     --hash=sha256:d7f874a8f02d216d5b64a3ac519f83c86d46f439400d9a26d1e0fdbb49c6cdbd \
     --hash=sha256:af93dd804d4f88951a6754c39593d853f2856084754a4aeea44a178c60ff5c93 \
