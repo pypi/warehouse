@@ -35,9 +35,8 @@ cffi==1.5.2 \
     --hash=sha256:9aee43865a42243555394d8090eaf97a0c9e0fc5ddc3344fce5a34b17f4b8c94 \
     --hash=sha256:96ca8beab869c2a0164b3ec9716dc85713a8e8b480e8d303520e6869dec27216 \
     --hash=sha256:da9bde99872e46f7bb5cff40a9b1cc08406765efafb583c704de108b6cb821dd
-click==6.4 \
-    --hash=sha256:a5369d2fcd77dc47f2e4cf9eb7161ef526661de3e5dca88e629d6ec8d7103821 \
-    --hash=sha256:6eb86ac0e44e60b3085e7b87797fe2adf745dbea38b78d7db1f17ec96ca016ed
+click==6.6 \
+    --hash=sha256:cc6a19da8ebff6e7074f731447ef7e112bd23adf3de5c597cf9989f2fd8defe9
 contextlib2==0.5.1 \
     --hash=sha256:227c79e126e8a8904a81d162750581ed3d49af2395a3100be7067b7296d33d45
 docutils==0.12 \
