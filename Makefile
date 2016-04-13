@@ -3,6 +3,13 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 
 SELENIUM_BROWSER := $(shell echo "$${SELENIUM_BROWSER:-phantomjs}")
+SELENIUM_VERSION := $(shell echo "$${SELENIUM_VERSION:-latest}")
+SELENIUM_PLATFORM := $(shell echo "$${SELENIUM_PLATFORM:-OS X 10.11}")
+SELENIUM_HOST := $(shell echo "$${SELENIUM_HOST:-localhost}")
+SELENIUM_PORT := $(shell echo "$${SELENIUM_PORT:-4445}")
+
+SAUCE_USER_NAME := $(shell echo "$${SAUCE_USER_NAME}")
+SAUCE_API_KEY := $(shell echo "$${SAUCE_API_KEY}")
 
 define DEPCHECKER
 import sys
@@ -82,6 +89,19 @@ tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" \
 								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
+								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
+
+saucelabs:
+	docker-compose run web env -i ENCODING="C.UTF-8" \
+								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  SELENIUM_BROWSER="$(SELENIUM_BROWSER)" \
+								  SELENIUM_VERSION="$(SELENIUM_VERSION)" \
+								  SELENIUM_PLATFORM="$(SELENIUM_PLATFORM)" \
+								  SELENIUM_HOST="$(SELENIUM_HOST)" \
+								  SELENIUM_PORT="$(SELENIUM_PORT)" \
+								  SAUCE_USER_NAME="$(SAUCE_USER_NAME)" \
+								  SAUCE_API_KEY="$(SAUCE_API_KEY)" \
+								  WAREHOUSE_ENABLE_SAUCECONNECT=true \
 								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg

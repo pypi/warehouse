@@ -23,16 +23,45 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+import bok_choy.browser
+
 from bok_choy.browser import browser as _browser
+from needle.driver import NeedleWebDriverMixin, NeedleOpera
 from pytest_dbfixtures.factories.postgresql import (
     init_postgresql_database, drop_postgresql_database,
 )
 from pytest_dbfixtures.utils import get_config
+from selenium.webdriver.edge.webdriver import WebDriver as MicrosoftEdge
 from sqlalchemy import event
 
 from warehouse.config import configure
 
 from .common.db import Session
+
+
+# Needle doesn't have a driver for Edge, so we'll have to create one now.
+class NeedleMicrosoftEdge(NeedleWebDriverMixin, MicrosoftEdge):
+    pass
+
+
+# bok_choy needs to be told about some of these other kinds of browsers that
+# it doesn't already know about.
+# TODO: Contribute this back upstream.
+bok_choy.browser.BROWSERS["MicrosoftEdge"] = NeedleMicrosoftEdge
+bok_choy.browser.BROWSERS["opera"] = NeedleOpera
+
+
+# We need to be able to pass the Sauce Labs tunnel identifier as a capability
+# so that Sauce Labs can associate it with our test run. However, bok_choy
+# doesn't expose a way of doing this, so we'll need to hack it in.
+# TODO: Contribute this back upstream.
+def __capabilities_dict(envs, tags):  # noqa
+    caps = __capabilities_dict._real_implementation(envs, tags)
+    if "SAUCELABS_TUNNEL" in os.environ:
+        caps.setdefault("tunnelIdentifier", os.environ["SAUCELABS_TUNNEL"])
+    return caps
+__capabilities_dict._real_implementation = bok_choy.browser._capabilities_dict
+bok_choy.browser._capabilities_dict = __capabilities_dict
 
 
 def pytest_collection_modifyitems(items):
@@ -222,14 +251,21 @@ def server_thread(app_config, webtest):
 
 
 @pytest.fixture
-def server_url(server_thread):
-    return "http://{}:{}/".format(*server_thread.httpd.server_address)
+def server_url(pytestconfig, server_thread):
+    hostname, port = server_thread.httpd.server_address
+    if pytestconfig.option.liveserver_host:
+        hostname = pytestconfig.option.liveserver_host
+
+    return "http://{}:{}/".format(hostname, port)
 
 
 @pytest.yield_fixture
 def browser():
     selenium = _browser()
-    selenium.maximize_window()
+
+    # Opera currently doesn't support maximize_window()
+    if selenium.desired_capabilities["browserName"] not in {"opera"}:
+        selenium.maximize_window()
 
     try:
         yield selenium
@@ -257,3 +293,7 @@ def pytest_runtest_makereport(item, call):
                     rep.sections.append(
                         ("Captured {} log".format(log_type), data)
                     )
+
+
+def pytest_addoption(parser):
+    parser.addoption("--liveserver-host", dest="liveserver_host")

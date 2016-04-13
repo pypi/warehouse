@@ -36,8 +36,11 @@ WORKDIR /app/
 # Install Warehouse
 RUN set -x \
     && apt-get update \
-    && apt-get install bzip2 gcc make libpq-dev libjpeg-dev libffi-dev --no-install-recommends -y \
+    && apt-get install inotify-tools wget bzip2 gcc make libpq-dev libjpeg-dev libffi-dev --no-install-recommends -y \
     && rm -rf node_modules \
+    && wget https://saucelabs.com/downloads/sc-4.3.14-linux.tar.gz -O /tmp/sc.tar.gz \
+    && tar zxvf /tmp/sc.tar.gz --strip 1 -C /usr/ \
+    && chmod 755 /usr/bin/sc \
     && npm install -g phantomjs-prebuilt gulp-cli \
     && npm install \
     && pip install -U pip setuptools \
