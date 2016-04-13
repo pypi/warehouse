@@ -10,7 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .index import IndexPage
+from .base import PageObject
 
 
-__all__ = ["IndexPage"]
+class IndexPage(PageObject):
+
+    path = "/"
+
+    def is_browser_on_page(self):
+        return self.browser.title == "Warehouse"

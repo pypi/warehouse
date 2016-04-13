@@ -10,6 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import html5lib
+
+from .pages import IndexPage
+
 
 def test_robots_txt(webtest):
     resp = webtest.get("/robots.txt")
@@ -25,3 +29,22 @@ def test_robots_txt(webtest):
         "Disallow: /pypi/*/*/json\n"
         "Disallow: /pypi*?\n"
     )
+
+
+class TestLoginIndicator:
+
+    def test_indicator_shows_not_logged_in(self, server_url, browser):
+        # Navigate to our index page
+        page = IndexPage(browser, base_url=server_url)
+        page.visit()
+
+        # Pull the HTML out and parse it using html5lib
+        html = page.q(css="html").html[0]
+        document = html5lib.parse(html, namespaceHTMLElements=False)
+
+        # Ensure that our links are what we expect
+        urls = [
+            a.get("href")
+            for a in document.findall(".//nav[@id='user-indicator']/a")
+        ]
+        assert urls == ["/account/login/", "/account/register/", "TODO"]
