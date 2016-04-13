@@ -2,6 +2,8 @@ BINDIR = $(PWD)/.state/env/bin
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 
+SELENIUM_BROWSER := $(shell echo "$${SELENIUM_BROWSER:-phantomjs}")
+
 define DEPCHECKER
 import sys
 import collections
@@ -77,7 +79,10 @@ debug: .state/docker-build
 	RECAPTCHA_SITE_KEY=$(RECAPTCHA_SITE_KEY) RECAPTCHA_SECRET_KEY=$(RECAPTCHA_SECRET_KEY) docker-compose run --service-ports web
 
 tests:
-	docker-compose run web env -i ENCODING="C.UTF-8" bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
+	docker-compose run web env -i ENCODING="C.UTF-8" \
+								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
+								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .

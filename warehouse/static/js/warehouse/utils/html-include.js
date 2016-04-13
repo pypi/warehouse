@@ -11,8 +11,12 @@
  * limitations under the License.
  */
 
- 
+
 export default () => {
+  // Each HTML include will generate a promise, which we'll later use to wait
+  // on once all the promises have been resolved.
+  let promises = [];
+
   // Fetch all of the elements with a data-html-include attribute and put them
   // into an array.
   let elements = Array.from(document.querySelectorAll("[data-html-include]"));
@@ -21,10 +25,14 @@ export default () => {
   // data-html-include attribute and replace it's content with that. This uses
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
-    fetch(element.getAttribute("data-html-include")).then((response) => {
-      return response.text();
-    }).then((content) => {
-      element.innerHTML = content;
-    });
+    let p = fetch(element.getAttribute("data-html-include"))
+            .then(response => { return response.text(); })
+            .then(content => { element.innerHTML = content; });
+    promises.push(p);
   });
+
+  // Once all of our HTML includes have fired, then we'll go ahead and record
+  // the fact that our HTML includes have happened. This allows us to
+  // introspect the state of our includes inside of our Selenium tests.
+  Promise.all(promises).then(() => { window._WarehouseHTMLIncluded = true; });
 };

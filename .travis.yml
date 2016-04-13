@@ -5,7 +5,7 @@ env:
   global:
     - TRAVIS_NODE_VERSION=5.5.0
   matrix:
-    - SUITE=Tests
+    - SUITE=Tests SELENIUM_BROWSER=phantomjs
 
 dist: trusty
 sudo: false

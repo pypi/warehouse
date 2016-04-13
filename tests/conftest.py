@@ -11,7 +11,10 @@
 # limitations under the License.
 
 import os.path
+import threading
 import xmlrpc.client
+
+from wsgiref.simple_server import make_server
 
 import alembic.command
 import click.testing
@@ -20,6 +23,7 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
+from bok_choy.browser import browser as _browser
 from pytest_dbfixtures.factories.postgresql import (
     init_postgresql_database, drop_postgresql_database,
 )
@@ -157,6 +161,10 @@ class _TestApp(_webtest.TestApp):
 
 @pytest.yield_fixture
 def webtest(app_config):
+    # TODO: Ensure that we have per test isolation of the database level
+    #       changes. This probably involves flushing the database or something
+    #       between test cases to wipe any commited changes.
+
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
 
@@ -164,3 +172,88 @@ def webtest(app_config):
         yield _TestApp(app_config.make_wsgi_app())
     finally:
         app_config.registry["sqlalchemy.engine"].dispose()
+
+
+class LiveServerThread(threading.Thread):
+
+    def __init__(self, app, *args, **kwargs):
+        self.app = app
+        self.is_ready = threading.Event()
+        self.error = None
+        super().__init__(*args, **kwargs)
+
+    def run(self):
+        try:
+            self.httpd = make_server("localhost", 0, self.app)
+            self.is_ready.set()
+            self.httpd.serve_forever()
+        except Exception as exc:
+            self.error = exc
+            self.is_ready.set()
+
+    def terminate(self):
+        if hasattr(self, "httpd"):
+            # Stop the WSGI server
+            self.httpd.shutdown()
+            self.httpd.server_close()
+
+
+@pytest.yield_fixture
+def server_thread(app_config, webtest):
+    # We need to allow unsafe-eval in our test suite, because otherwise we
+    # cannot execute some javascript in the context of our page inside of our
+    # selenium tests.
+    app_config.get_settings()["csp"]["script-src"].append("'unsafe-eval'")
+
+    # Spin up Warehouse in a thread
+    _server_thread = LiveServerThread(webtest.app)
+    _server_thread.daemon = True
+    _server_thread.start()
+    _server_thread.is_ready.wait()
+
+    try:
+        if _server_thread.error:
+            raise _server_thread.error
+
+        yield _server_thread
+    finally:
+        _server_thread.terminate()
+        _server_thread.join()
+
+
+@pytest.fixture
+def server_url(server_thread):
+    return "http://{}:{}/".format(*server_thread.httpd.server_address)
+
+
+@pytest.yield_fixture
+def browser():
+    selenium = _browser()
+    selenium.maximize_window()
+
+    try:
+        yield selenium
+    finally:
+        selenium.quit()
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    rep = outcome.get_result()
+
+    # we only look at actual failing test calls, not setup/teardown
+    if rep.when == "call" and rep.failed:
+        if "browser" in item.fixturenames:
+            browser = item.funcargs["browser"]
+            for log_type in (set(browser.log_types) - {"har"}):
+                data = "\n\n".join(
+                    filter(
+                        None,
+                        (l.get("message") for l in browser.get_log(log_type)))
+                )
+                if data:
+                    rep.sections.append(
+                        ("Captured {} log".format(log_type), data)
+                    )
