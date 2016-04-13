@@ -10,7 +10,6 @@ env:
     - secure: "IMdeE5r/XktX8cp18D4lS+0zPFrvM15R4kEVAPeuM+ef2EQ7vywf9sT0gL8WxPE6cfxBQ7oS7NpUaNTcKushKmI5gtAyjCczmzbXcPlHA71ho4ssqxoX+g61v34EUYiNPiKrEy/Wk0UX943ZpcWcahxpLJfKmcW3ZKUFHUQ6qcU="
     - secure: "S9p1nPqBRJ8M/pOzQ/y8m8ye+QDoQas32B2MN+8rOKM9lBb7TpmPnYyAeLrZtstSOQ/dJRUmRrSMeEa2pB8I8s8LUJrNOEyKX2G3QC7MMVzpMtfyJYr9TL3KtcppKE54vZovr6xCtciOlY8EJM2IxZZ25e9YZIt+JTxll0QggIo="
   matrix:
-    - SUITE=Tests SELENIUM_BROWSER=phantomjs
     # We don't exhaustively test every combination of Browser/Version/OS since
     # that would be a massive number of test cases. Instead we test our
     # supported browsers on one operating system. To choose which operating
@@ -67,12 +66,15 @@ matrix:
     - script: make lint BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Lint
+      addons: false
     - script: make docs BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Documentation
+      addons: false
     - script: make travis-deps BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Dependencies
+      addons: false
 
 after_success: codecov
 
