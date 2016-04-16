@@ -11,6 +11,10 @@ SELENIUM_PORT := $(shell echo "$${SELENIUM_PORT:-4445}")
 SAUCE_USER_NAME := $(shell echo "$${SAUCE_USER_NAME}")
 SAUCE_API_KEY := $(shell echo "$${SAUCE_API_KEY}")
 
+# Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
+export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
+export RECAPTCHA_SECRET_KEY := $(shell echo "$${RECAPTCHA_SECRET_KEY:-6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe}")
+
 define DEPCHECKER
 import sys
 import collections
@@ -80,10 +84,10 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
-	RECAPTCHA_SITE_KEY=$(RECAPTCHA_SITE_KEY) RECAPTCHA_SECRET_KEY=$(RECAPTCHA_SECRET_KEY) docker-compose up
+	docker-compose up
 
 debug: .state/docker-build
-	RECAPTCHA_SITE_KEY=$(RECAPTCHA_SITE_KEY) RECAPTCHA_SECRET_KEY=$(RECAPTCHA_SECRET_KEY) docker-compose run --service-ports web
+	docker-compose run --service-ports web
 
 tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" \
