@@ -18,7 +18,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install curl -y \
     && curl -sL https://deb.nodesource.com/setup_5.x | bash - \
-    && apt-get install git libpq5 libffi6 postgresql-client --no-install-recommends nodejs -y \
+    && apt-get install git libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -36,9 +36,12 @@ WORKDIR /app/
 # Install Warehouse
 RUN set -x \
     && apt-get update \
-    && apt-get install gcc make libpq-dev libffi-dev --no-install-recommends -y \
+    && apt-get install inotify-tools wget bzip2 gcc make libpq-dev libjpeg-dev libffi-dev --no-install-recommends -y \
     && rm -rf node_modules \
-    && npm install -g bower node-gyp gulp-cli \
+    && wget https://saucelabs.com/downloads/sc-4.3.14-linux.tar.gz -O /tmp/sc.tar.gz \
+    && tar zxvf /tmp/sc.tar.gz --strip 1 -C /usr/ \
+    && chmod 755 /usr/bin/sc \
+    && npm install -g phantomjs-prebuilt gulp-cli \
     && npm install \
     && pip install -U pip setuptools \
     && pip install -r requirements/dev.txt \
@@ -51,7 +54,7 @@ RUN set -x \
     # && pip install -c requirements/main.txt -r requirements/theme.txt \
     && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
     && rm -rf ~/.cache/ \
-    && apt-get purge gcc make libpq-dev libffi-dev -y \
+    && apt-get purge bzip2 gcc make libpq-dev libffi-dev -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

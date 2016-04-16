@@ -20,8 +20,16 @@ camo:
 app:
   build: .
   volumes:
-    - .:/app/
-    - /app/node_modules
+    # We specify all of these directories instead of just . because we want to
+    # avoid having ./node_modules from the host OS being shared with the docker
+    # container, and since there's no way to exclude a directory, the only way
+    # to make this work is to share multiple, smaller directories. These cover
+    # the important things that we want to share, but changes to requirements
+    # or any file not in these directories will require a rebuild.
+    - ./dev:/app/dev
+    - ./docs:/app/docs
+    - ./warehouse:/app/warehouse
+    - ./tests:/app/tests
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken

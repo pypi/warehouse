@@ -1,18 +1,16 @@
-function renderCaptcha() {
-  var config = { sitekey: $("script#recaptcha-js").data("site-key") };
-  grecaptcha.render($("#recaptcha-container")[0], config);
-}
+// Note: This file only exists temporarily. Once the rest of this code gets
+//       ported to using the ES6 syntax and is part of the warehouse package
+//       this will be removed. New code should go in
+//       warehouse/static/js/warehouse and not here.
+
+import $ from "jquery";
+import "timeago";
 
 
 $(document).ready(function() {
 
-  // Look for any data-html-include elements, and include the content for them
-  $('[data-html-include]').each(function() {
-    $(this).load($(this).data('html-include'));
-  });
-
   // Toggle expanding and collapsing sections
-  $('.-js-expander-trigger').click(function(){
+  $(".-js-expander-trigger").click(function(){
     $(this).toggleClass("expander-hidden");
   });
 
@@ -26,7 +24,7 @@ $(document).ready(function() {
   }
 
   function getTab(selector) {
-    tab = $(".js-vertical-tab-content" + selector);
+    var tab = $(".js-vertical-tab-content" + selector);
     return (selector && tab.length) ? tab : null;
   }
 
@@ -40,34 +38,34 @@ $(document).ready(function() {
   // If in tab mode
   $(".-js-vertical-tab").click(function(event) {
     event.preventDefault();
-    history.pushState(null, '', $(this).attr("href"));
+    history.pushState(null, "", $(this).attr("href"));
     setTab(getTab(location.hash));
   });
 
   // If in accordion mode
   $(".-js-vertical-tab-accordion-heading").click(function(event) {
     event.preventDefault();
-    history.pushState(null, '', $(this).attr("href"));
+    history.pushState(null, "", $(this).attr("href"));
     setTab(getTab(location.hash));
   });
 
   // Launch filter popover on mobile
-  $('body').on('click', '.-js-add-filter', function(e){
+  $("body").on("click", ".-js-add-filter", function(e){
     e.preventDefault();
-    $('.dark-overlay').show();
-    $('.panel-overlay').show();
+    $(".dark-overlay").show();
+    $(".panel-overlay").show();
   });
 
-  $('body').on('click', '.-js-close-panel', function(e){
+  $("body").on("click", ".-js-close-panel", function(e){
     e.preventDefault();
-    $('.dark-overlay').hide();
-    $('.panel-overlay').hide();
+    $(".dark-overlay").hide();
+    $(".panel-overlay").hide();
   });
 
   // Position Sticky bar
   function positionWarning(){
-    var height = $('.sticky-bar').outerHeight();
-    $('body:has(.sticky-bar)').css('paddingTop', height);
+    var height = $(".sticky-bar").outerHeight();
+    $("body:has(.sticky-bar)").css("paddingTop", height);
   }
 
   positionWarning();
@@ -77,7 +75,7 @@ $(document).ready(function() {
   });
 
   // Search ordering
-  $('#order').on("change", function(event) {
+  $("#order").on("change", function() {
     this.form.submit();
   });
 

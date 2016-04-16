@@ -1,13 +1,13 @@
-{% if request.user %}
-  <nav class="horizontal-menu -light -tall">
-    <a class="link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
-    <a class="link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
-    <a class="link" {{ l20n("help") }} href="TODO">Help</a>
-  </nav>
-{% else %}
-  <nav class="horizontal-menu -light -tall">
-    <a class="link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
-    <a class="link" {{ l20n("register") }} href="{{ request.route_path('accounts.register') }}">Register</a>
-    <a class="link" {{ l20n("help") }} href="TODO">Help</a>
-  </nav>
-{% endif %}
+<nav id="user-indicator" class="horizontal-menu -light -tall">
+
+  {% if request.user %}
+  <a class="link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
+  <a class="link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+  {% else %}
+  <a class="link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
+  <a class="link" {{ l20n("register") }} href="{{ request.route_path('accounts.register') }}">Register</a>
+  {% endif %}
+
+  <a class="link" {{ l20n("help") }} href="TODO">Help</a>
+
+</nav>
