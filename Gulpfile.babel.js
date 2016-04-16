@@ -11,7 +11,6 @@ import gulpWebpack  from "webpack-stream";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
 import named from "vinyl-named";
-import nodeSass from "node-sass";
 import path from "path";
 import sourcemaps from "gulp-sourcemaps";
 import * as uglify from "uglify-js";
@@ -57,11 +56,6 @@ let webpackConfig = {
     modules: [ path.resolve(staticPrefix, "js"), "node_modules" ],
   },
 };
-
-
-// We want to use the version of node-sass we depend on, instead of the version
-// that gulp-sass installs. This will ensure we get consistent behavior.
-gulpSass.compiler = nodeSass;
 
 
 gulp.task("dist:js", () => {
