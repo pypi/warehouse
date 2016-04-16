@@ -10,7 +10,6 @@
     "babel-preset-es2015-native-modules": "6.6.0",
     "babel-register": "6.7.2",
     "del": "2.2.0",
-    "eslint": "2.7.0",
     "exports-loader": "0.6.3",
     "font-awesome": "4.5.0",
     "gulp": "3.9.1",
@@ -33,6 +32,9 @@
     "webpack": "2.1.0-beta.4",
     "webpack-stream": "3.1.0",
     "whatwg-fetch": "0.11.0"
+  },
+  "devDependencies": {
+    "eslint": "2.7.0"
   },
   "eslintConfig": {
     "env": {
