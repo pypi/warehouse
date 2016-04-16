@@ -2,12 +2,6 @@ import $ from "jquery";
 import "timeago";
 
 
-export function renderCaptcha() {
-  var config = { sitekey: $("script#recaptcha-js").data("site-key") };
-  grecaptcha.render($("#recaptcha-container")[0], config);
-}
-
-
 $(document).ready(function() {
 
   // Toggle expanding and collapsing sections
