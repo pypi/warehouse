@@ -59,24 +59,20 @@ def test_store_purge_keys():
     }
 
 
-def test_execute_purge_success():
+def test_execute_purge_success(app_config):
     cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
     factory = pretend.call_recorder(lambda ctx, config: cacher)
-    config = pretend.stub(
-        find_service_factory=pretend.call_recorder(lambda i: factory),
-    )
+    app_config.register_service_factory(factory, IOriginCache)
+    app_config.commit()
     session = pretend.stub(
         info={
             "warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"},
         },
     )
 
-    origin.execute_purge(config, session)
+    origin.execute_purge(app_config, session)
 
-    assert config.find_service_factory.calls == [
-        pretend.call(origin.IOriginCache),
-    ]
-    assert factory.calls == [pretend.call(None, config)]
+    assert factory.calls == [pretend.call(None, app_config)]
     assert cacher.purge.calls == [pretend.call({"type_1", "type_2", "foobar"})]
     assert "warehouse.cache.origin.purges" not in session.info
 
