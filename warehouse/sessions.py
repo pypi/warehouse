@@ -18,28 +18,12 @@ import msgpack
 import msgpack.exceptions
 import redis
 
-from pyramid.config.views import DefaultViewMapper
-from pyramid.interfaces import ISession, ISessionFactory, IViewMapperFactory
+from pyramid import viewderivers
+from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
-
-
-def uses_session(view):
-    @functools.wraps(view)
-    def wrapped(context, request):
-        # Mark our request as allowing access to the sessions.
-        request._allow_session = True
-
-        # Actually execute our view.
-        return view(context, request)
-
-    # Wrap our already wrapped view with another wrapper which will ensure that
-    # there is a Vary: Cookie header applied.
-    wrapped = add_vary("Cookie")(wrapped)
-
-    return wrapped
 
 
 def _invalid_method(method):
@@ -72,7 +56,7 @@ class InvalidSession(dict):
 
     def _error_message(self):
         raise RuntimeError(
-            "Cannot use request.session in a view without @uses_session."
+            "Cannot use request.session in a view without uses_session=True."
         )
 
     def __getattr__(self, name):
@@ -296,25 +280,28 @@ class SessionFactory:
             )
 
 
-def session_mapper_factory(mapper):
-    class SessionMapper(mapper):
+def session_view(view, info):
+    if info.options.get("uses_session"):
+        # If we're using the session, then we'll just return the original view
+        # with a small wrapper around it to ensure that it has a Vary: Cookie
+        # header.
+        return add_vary("Cookie")(view)
+    else:
+        # If we're not using the session on this view, then we'll wrap the view
+        # with a wrapper that just ensures that the session cannot be used.
+        @functools.wraps(view)
+        def wrapped(context, request):
+            # This particular view hasn't been set to allow access to the
+            # session, so we'll just assign an InvalidSession to
+            # request.session
+            request.session = InvalidSession()
 
-        def __call__(self, view):
-            view = super().__call__(view)
+            # Invoke the real view
+            return view(context, request)
 
-            @functools.wraps(view)
-            def wrapped(context, request):
-                # Check if we're allowing access to the session for this
-                # request. If we're not allowing it, then we'll replace it with
-                # an InvalidSession() which won't allow using the session.
-                if not getattr(request, "_allow_session", False):
-                    request.session = InvalidSession()
+        return wrapped
 
-                # Actually invoke our underlying view.
-                return view(context, request)
-
-            return wrapped
-    return SessionMapper
+session_view.options = {"uses_session"}
 
 
 def includeme(config):
@@ -325,13 +312,8 @@ def includeme(config):
         ),
     )
 
-    # We need to commit what's happened so far so that we can get the current
-    # default ViewMapper
-    config.commit()
-
-    # Get the current default ViewMapper, and create a subclass of it that
-    # will wrap our view with our session removal decorator.
-    mapper = config.registry.queryUtility(IViewMapperFactory)
-    if mapper is None:
-        mapper = DefaultViewMapper
-    config.set_view_mapper(session_mapper_factory(mapper))
+    config.add_view_deriver(
+        session_view,
+        over="csrf_view",
+        under=viewderivers.INGRESS,
+    )

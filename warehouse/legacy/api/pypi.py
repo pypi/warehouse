@@ -39,7 +39,6 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry,
 )
-from warehouse.sessions import uses_session
 from warehouse.utils.http import require_POST
 
 
@@ -539,7 +538,8 @@ def _is_valid_dist_file(filename, filetype):
 
 @view_config(
     route_name="legacy.api.pypi.file_upload",
-    decorator=[require_POST, csrf_exempt, uses_session],
+    uses_session=True,
+    decorator=[require_POST, csrf_exempt],
 )
 def file_upload(request):
     # Before we do anything, if there isn't an authenticated user with this

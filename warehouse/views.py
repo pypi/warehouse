@@ -25,7 +25,6 @@ from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
-from warehouse.sessions import uses_session
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
@@ -190,7 +189,7 @@ def search(request):
 @view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
-    decorator=[uses_session],
+    uses_session=True,
 )
 def current_user_indicator(request):
     return {}
