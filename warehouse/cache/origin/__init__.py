@@ -41,7 +41,7 @@ def execute_purge(config, session):
     purges = session.info.pop("warehouse.cache.origin.purges", set())
 
     try:
-        cacher_factory = config.find_service_factory(IOriginCache)
+        cacher_factory = config.find_service_factory(IOriginCache).factory
     except ValueError:
         return
 
