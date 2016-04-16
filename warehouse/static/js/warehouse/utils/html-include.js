@@ -12,6 +12,14 @@
  */
 
 
+const fetchOptions = {
+  mode: "same-origin",
+  credentials: "same-origin",
+  cache: "default",
+  redirect: "follow",
+};
+
+
 export default () => {
   // Each HTML include will generate a promise, which we'll later use to wait
   // on once all the promises have been resolved.
@@ -25,7 +33,7 @@ export default () => {
   // data-html-include attribute and replace it's content with that. This uses
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
-    let p = fetch(element.getAttribute("data-html-include"))
+    let p = fetch(element.getAttribute("data-html-include"), fetchOptions)
             .then(response => { return response.text(); })
             .then(content => { element.innerHTML = content; });
     promises.push(p);
