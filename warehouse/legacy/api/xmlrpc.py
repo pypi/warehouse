@@ -21,7 +21,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
-from warehouse.csrf import csrf_exempt
 from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
@@ -35,7 +34,7 @@ pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
     route_name="pypi",
     context=Exception,
     renderer="xmlrpc",
-    decorator=[csrf_exempt],
+    require_csrf=False,
 )
 def exception_view(exc, request):
     return _exception_view(exc, request)

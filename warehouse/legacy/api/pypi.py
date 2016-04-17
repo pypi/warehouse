@@ -33,7 +33,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.classifiers.models import Classifier
-from warehouse.csrf import csrf_exempt
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
@@ -539,7 +538,8 @@ def _is_valid_dist_file(filename, filetype):
 @view_config(
     route_name="legacy.api.pypi.file_upload",
     uses_session=True,
-    decorator=[require_POST, csrf_exempt],
+    require_csrf=False,
+    decorator=[require_POST],
 )
 def file_upload(request):
     # Before we do anything, if there isn't an authenticated user with this
@@ -922,11 +922,13 @@ def file_upload(request):
 
 @view_config(
     route_name="legacy.api.pypi.submit",
-    decorator=[require_POST, csrf_exempt],
+    require_csrf=False,
+    decorator=[require_POST],
 )
 @view_config(
     route_name="legacy.api.pypi.submit_pkg_info",
-    decorator=[require_POST, csrf_exempt],
+    require_csrf=False,
+    decorator=[require_POST],
 )
 def submit(request):
     return _exc_with_message(
@@ -937,7 +939,8 @@ def submit(request):
 
 @view_config(
     route_name="legacy.api.pypi.doc_upload",
-    decorator=[require_POST, csrf_exempt],
+    require_csrf=False,
+    decorator=[require_POST],
 )
 def doc_upload(request):
     return _exc_with_message(

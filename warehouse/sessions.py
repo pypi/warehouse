@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import functools
-import hmac
 import time
 
 import msgpack
@@ -166,19 +165,6 @@ class Session(dict):
         if token is None:
             token = self.new_csrf_token()
         return token
-
-    def get_scoped_csrf_token(self, scope):
-        # Here we want to do
-        # HMAC_sha512(scope + unscoped_token, session_id). This will make it
-        # possible to have scope specific CSRF tokens which means that a single
-        # scope token being leaked cannot be used for other scopes.
-        unscoped = self.get_csrf_token().encode("utf8")
-        scope = scope.encode("utf8")
-        session_id = self.sid.encode("utf8")
-        return hmac.new(scope + unscoped, session_id, "sha512").hexdigest()
-
-    def has_csrf_token(self):
-        return self._csrf_token_key in self
 
 
 @implementer(ISessionFactory)

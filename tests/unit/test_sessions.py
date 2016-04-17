@@ -62,8 +62,6 @@ class TestInvalidSession:
 
             # Our custom methods.
             "should_save",
-            "get_scoped_csrf_token",
-            "has_csrf_token",
         ],
     )
     def test_methods_raise(self, method):
@@ -244,12 +242,12 @@ class TestSession:
         monkeypatch.setattr(crypto, "random_token", lambda: next(tokens))
         session = Session()
 
-        assert not session.has_csrf_token()
+        assert session._csrf_token_key not in session
         assert session.new_csrf_token() == "123456"
-        assert session.has_csrf_token()
+        assert session._csrf_token_key in session
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token() == "7890"
-        assert session.has_csrf_token()
+        assert session._csrf_token_key in session
         assert session.get_csrf_token() == "7890"
 
     def test_get_csrf_token_empty(self):
@@ -259,15 +257,6 @@ class TestSession:
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token.calls == [pretend.call()]
 
-    def test_scoped_csrf_token(self):
-        session = Session(session_id="my session id")
-        session.get_csrf_token = pretend.call_recorder(lambda: "123456")
-
-        assert session.get_scoped_csrf_token("myscope") == (
-            "cdcecc5069f543c8fa99c5ebf0fff014e63b7f618ad789e167b5148c4a81b2d0"
-            "02c321a48c611ab34ef6d7f539d5196fa80b05f161586ee8d0eee31808cf3b38"
-        )
-        assert session.get_csrf_token.calls == [pretend.call()]
 
 class TestSessionFactory:
 

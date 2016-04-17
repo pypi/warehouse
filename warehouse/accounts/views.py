@@ -19,7 +19,6 @@ from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
-from warehouse.csrf import csrf_protect
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -58,7 +57,7 @@ def profile(user, request):
     route_name="accounts.login",
     renderer="accounts/login.html",
     uses_session=True,
-    decorator=[csrf_protect("accounts.login")],
+    require_csrf=True,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
           _form_class=forms.LoginForm):
@@ -102,7 +101,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     route_name="accounts.logout",
     renderer="accounts/logout.html",
     uses_session=True,
-    decorator=[csrf_protect("accounts.logout")],
+    require_csrf=True,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
@@ -145,7 +144,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     route_name="accounts.register",
     renderer="accounts/register.html",
     uses_session=True,
-    decorator=[csrf_protect("accounts.register")],
+    require_csrf=True,
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:
