@@ -15,12 +15,30 @@ from paginate import Page
 
 class _ElasticsearchWrapper:
 
+    max_results = 10000
+
     def __init__(self, query):
         self.query = query
         self.results = None
         self.best_guess = None
 
     def __getitem__(self, range):
+        # If we're asking for a range that extends past our maximum results,
+        # then we need to clamp the start of our slice to our maximum results
+        # size, and make sure that the end of our slice >= to that to ensure a
+        # consistent slice.
+        if range.start > self.max_results:
+            range = slice(
+                self.max_results,
+                max(range.stop, self.max_results),
+                range.step,
+            )
+
+        # If we're being asked for a range that extends past our maximum result
+        # then we'll clamp it to the maximum result size and stop there.
+        if range.stop > self.max_results:
+            range = slice(range.start, self.max_results, range.step)
+
         if self.results is not None:
             raise RuntimeError("Cannot reslice after having already sliced.")
         self.results = self.query[range].execute()
@@ -35,7 +53,7 @@ class _ElasticsearchWrapper:
     def __len__(self):
         if self.results is None:
             raise RuntimeError("Cannot get length until a slice.")
-        return self.results.hits.total
+        return min(self.results.hits.total, self.max_results)
 
 
 def ElasticsearchPage(*args, **kwargs):  # noqa
