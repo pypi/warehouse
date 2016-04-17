@@ -94,6 +94,18 @@ class TestElasticsearchWrapper:
         assert wrapper[1:3] == [2, 3]
         assert len(wrapper) == 6
 
+    def test_slice_start_clamps_to_max(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))
+        wrapper.max_results = 5
+        assert wrapper[6:10] == []
+        assert len(wrapper) == 5
+
+    def test_slice_end_clamps_to_max(self):
+        wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))
+        wrapper.max_results = 5
+        assert wrapper[1:10] == [2, 3, 4, 5]
+        assert len(wrapper) == 5
+
     def test_second_slice_fails(self):
         wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))
         wrapper[1:3]

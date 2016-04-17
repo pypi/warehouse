@@ -15,6 +15,8 @@ import datetime
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPNotFound
+
 from warehouse import views
 from warehouse.views import (
     forbidden, index, httpexception_view, robotstxt, current_user_indicator,
@@ -111,7 +113,7 @@ class TestSearch:
             params=params,
         )
 
-        page_obj = pretend.stub()
+        page_obj = pretend.stub(page_count=(page or 1) + 10)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -167,7 +169,7 @@ class TestSearch:
             params=params,
         )
 
-        page_obj = pretend.stub()
+        page_obj = pretend.stub(page_count=(page or 1) + 10)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -218,7 +220,7 @@ class TestSearch:
             params=params,
         )
 
-        page_obj = pretend.stub()
+        page_obj = pretend.stub(page_count=(page or 1) + 10)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -233,5 +235,29 @@ class TestSearch:
         }
         assert page_cls.calls == [
             pretend.call(query, url_maker=url_maker, page=page or 1),
+        ]
+        assert url_maker_factory.calls == [pretend.call(request)]
+
+    def test_raises_404_with_pagenum_too_high(self, monkeypatch):
+        params = {"page": 15}
+        query = pretend.stub()
+        request = pretend.stub(
+            es=pretend.stub(query=lambda: query),
+            params=params,
+        )
+
+        page_obj = pretend.stub(page_count=10)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        with pytest.raises(HTTPNotFound):
+            search(request)
+
+        assert page_cls.calls == [
+            pretend.call(query, url_maker=url_maker, page=15 or 1),
         ]
         assert url_maker_factory.calls == [pretend.call(request)]

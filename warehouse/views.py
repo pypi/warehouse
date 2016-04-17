@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import (
-    HTTPException, HTTPSeeOther, HTTPMovedPermanently,
+    HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
 )
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
@@ -173,11 +173,15 @@ def search(request):
     if request.params.get("o"):
         query = query.sort(request.params["o"])
 
+    page_num = int(request.params.get("page", 1))
     page = ElasticsearchPage(
         query,
-        page=int(request.params.get("page", 1)),
+        page=page_num,
         url_maker=paginate_url_factory(request),
     )
+
+    if page_num > page.page_count:
+        raise HTTPNotFound
 
     return {
         "page": page,
