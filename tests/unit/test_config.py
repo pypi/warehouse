@@ -14,7 +14,6 @@ from unittest import mock
 
 import pretend
 import pytest
-import zope.interface
 
 from pyramid import renderers
 from pyramid.tweens import EXCVIEW
@@ -169,27 +168,6 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar,
     settings = {}
     config.maybe_set_compound(settings, base, name, envvar)
     assert settings == expected
-
-
-@pytest.mark.parametrize("factory", [None, pretend.stub()])
-def test_find_service_factory(monkeypatch, factory):
-    context_iface = pretend.stub()
-    provided_by = pretend.call_recorder(lambda context: context_iface)
-    monkeypatch.setattr(zope.interface, "providedBy", provided_by)
-
-    config_or_request = pretend.stub(
-        registry=pretend.stub(
-            adapters=pretend.stub(
-                lookup=pretend.call_recorder(lambda *a, **kw: factory),
-            ),
-        ),
-    )
-
-    if factory is None:
-        with pytest.raises(ValueError):
-            config.find_service_factory(config_or_request)
-    else:
-        assert config.find_service_factory(config_or_request) is factory
 
 
 @pytest.mark.parametrize(
@@ -383,12 +361,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     add_settings_dict = configurator_obj.add_settings.calls[1].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
-    assert configurator_obj.add_directive.calls == [
-        pretend.call("find_service_factory", config.find_service_factory),
-    ]
-    assert configurator_obj.add_request_method.calls == [
-        pretend.call(config.find_service_factory),
-    ]
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call("warehouse.config.security_header_tween_factory"),

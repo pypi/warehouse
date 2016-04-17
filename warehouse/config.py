@@ -14,9 +14,7 @@ import enum
 import os
 import shlex
 
-import pyramid_services
 import transaction
-import zope.interface
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
@@ -113,25 +111,6 @@ def maybe_set_compound(settings, base, name, envvar):
         settings[".".join([base, name])] = value[0]
         for key, value in kwargs.items():
             settings[".".join([base, key])] = value
-
-
-# Once mmerickel/pyramid_services#1 has a solution we can remove this code and
-# switch to using that instead of doing this ourself. This was taken from the
-# PR in mmerickel/pyramid_services#4.
-def find_service_factory(
-    config_or_request,
-    iface=zope.interface.Interface,
-    context=None,
-    name="",
-):
-    context_iface = zope.interface.providedBy(context)
-    svc_types = (pyramid_services.IServiceClassifier, context_iface)
-
-    adapters = config_or_request.registry.adapters
-    svc_factory = adapters.lookup(svc_types, iface, name=name)
-    if svc_factory is None:
-        raise ValueError("could not find registered service")
-    return svc_factory
 
 
 def configure(settings=None):
@@ -267,10 +246,6 @@ def configure(settings=None):
 
     # Register support for services
     config.include("pyramid_services")
-
-    # Register our find_service_factory methods
-    config.add_request_method(find_service_factory)
-    config.add_directive("find_service_factory", find_service_factory)
 
     # Register support for XMLRPC and override it's renderer to allow
     # specifying custom dumps arguments.
