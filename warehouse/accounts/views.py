@@ -19,9 +19,7 @@ from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.origin import origin_cache
-from warehouse.csrf import csrf_protect
 from warehouse.packaging.models import Project, Release
-from warehouse.sessions import uses_session
 from warehouse.utils.http import is_safe_url
 
 
@@ -58,7 +56,8 @@ def profile(user, request):
 @view_config(
     route_name="accounts.login",
     renderer="accounts/login.html",
-    decorator=[csrf_protect("accounts.login"), uses_session],
+    uses_session=True,
+    require_csrf=True,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
           _form_class=forms.LoginForm):
@@ -101,7 +100,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 @view_config(
     route_name="accounts.logout",
     renderer="accounts/logout.html",
-    decorator=[csrf_protect("accounts.logout"), uses_session],
+    uses_session=True,
+    require_csrf=True,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
@@ -143,7 +143,8 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 @view_config(
     route_name="accounts.register",
     renderer="accounts/register.html",
-    decorator=[csrf_protect("accounts.register"), uses_session],
+    uses_session=True,
+    require_csrf=True,
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:

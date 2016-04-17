@@ -12,44 +12,19 @@
 
 import time
 
-from unittest import mock
-
 import msgpack
 import redis
 import pretend
 import pytest
 
-from pyramid.config.views import DefaultViewMapper
-from pyramid.interfaces import IViewMapperFactory
+from pyramid import viewderivers
 
 import warehouse.sessions
 
 from warehouse.sessions import (
-    InvalidSession, Session, SessionFactory, uses_session, includeme,
-    session_mapper_factory,
+    InvalidSession, Session, SessionFactory, includeme, session_view,
 )
 from warehouse.utils import crypto
-
-
-def test_uses_session(monkeypatch):
-    vary_wrapper = pretend.call_recorder(lambda fn: fn)
-    add_vary = pretend.call_recorder(lambda *varies: vary_wrapper)
-    monkeypatch.setattr(warehouse.sessions, "add_vary", add_vary)
-
-    @pretend.call_recorder
-    def view(context, request):
-        pass
-
-    context = pretend.stub()
-    request = pretend.stub()
-
-    wrapped = uses_session(view)
-    wrapped(context, request)
-
-    assert view.calls == [pretend.call(context, request)]
-    assert request._allow_session
-    assert add_vary.calls == [pretend.call("Cookie")]
-    assert vary_wrapper.calls == [pretend.call(mock.ANY)]
 
 
 class TestInvalidSession:
@@ -87,8 +62,6 @@ class TestInvalidSession:
 
             # Our custom methods.
             "should_save",
-            "get_scoped_csrf_token",
-            "has_csrf_token",
         ],
     )
     def test_methods_raise(self, method):
@@ -269,12 +242,12 @@ class TestSession:
         monkeypatch.setattr(crypto, "random_token", lambda: next(tokens))
         session = Session()
 
-        assert not session.has_csrf_token()
+        assert session._csrf_token_key not in session
         assert session.new_csrf_token() == "123456"
-        assert session.has_csrf_token()
+        assert session._csrf_token_key in session
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token() == "7890"
-        assert session.has_csrf_token()
+        assert session._csrf_token_key in session
         assert session.get_csrf_token() == "7890"
 
     def test_get_csrf_token_empty(self):
@@ -283,16 +256,6 @@ class TestSession:
 
         assert session.get_csrf_token() == "123456"
         assert session.new_csrf_token.calls == [pretend.call()]
-
-    def test_scoped_csrf_token(self):
-        session = Session(session_id="my session id")
-        session.get_csrf_token = pretend.call_recorder(lambda: "123456")
-
-        assert session.get_scoped_csrf_token("myscope") == (
-            "cdcecc5069f543c8fa99c5ebf0fff014e63b7f618ad789e167b5148c4a81b2d0"
-            "02c321a48c611ab34ef6d7f539d5196fa80b05f161586ee8d0eee31808cf3b38"
-        )
-        assert session.get_csrf_token.calls == [pretend.call()]
 
 
 class TestSessionFactory:
@@ -573,57 +536,54 @@ class TestSessionFactory:
         ]
 
 
-class TestSessionMapperFactory:
+class TestSessionView:
 
-    def test_non_session_view(self, monkeypatch):
-        class FakeMapper:
-            def __call__(self, view):
-                return view
+    def test_has_options(self):
+        assert set(session_view.options) == {"uses_session"}
 
-        mapper = session_mapper_factory(FakeMapper)()
+    @pytest.mark.parametrize("uses_session", [False, None])
+    def test_invalid_session(self, uses_session):
+        context = pretend.stub()
+        request = pretend.stub(session=pretend.stub())
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def view(context, request):
+            assert isinstance(request.session, InvalidSession)
+            return response
+
+        info = pretend.stub(options={})
+        if uses_session is not None:
+            info.options["uses_session"] = uses_session
+        derived_view = session_view(view, info)
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    def test_valid_session(self, monkeypatch):
+        add_vary_cb = pretend.call_recorder(lambda fn: fn)
+        add_vary = pretend.call_recorder(lambda vary: add_vary_cb)
+        monkeypatch.setattr(warehouse.sessions, "add_vary", add_vary)
 
         context = pretend.stub()
         request = pretend.stub(session=Session())
-
-        session = request.session
-
-        @pretend.call_recorder
-        def view(context, request):
-            assert request.session is not session
-            assert isinstance(request.session, InvalidSession)
-
-        wrapped = mapper(view)
-        wrapped(context, request)
-
-        assert view.calls == [pretend.call(context, request)]
-        assert isinstance(request.session, InvalidSession)
-
-    def test_session_view(self, monkeypatch, pyramid_request):
-        class FakeMapper:
-            def __call__(self, view):
-                return view
-
-        mapper = session_mapper_factory(FakeMapper)()
-
-        context = pretend.stub()
-        request = pyramid_request
-        request._allow_session = True
-
-        session = request.session
+        response = pretend.stub()
 
         @pretend.call_recorder
         def view(context, request):
-            assert request.session is session
+            assert isinstance(request.session, Session)
+            return response
 
-        wrapped = mapper(view)
-        wrapped(context, request)
+        info = pretend.stub(options={"uses_session": True})
+        derived_view = session_view(view, info)
 
+        assert derived_view(context, request) is response
         assert view.calls == [pretend.call(context, request)]
-        assert request.session is session
+        assert add_vary.calls == [pretend.call("Cookie")]
+        assert add_vary_cb.calls == [pretend.call(view)]
 
 
-@pytest.mark.parametrize("mapper", [None, True])
-def test_includeme(monkeypatch, mapper):
+def test_includeme(monkeypatch):
     session_factory_obj = pretend.stub()
     session_factory_cls = pretend.call_recorder(
         lambda secret, url: session_factory_obj
@@ -634,29 +594,15 @@ def test_includeme(monkeypatch, mapper):
         session_factory_cls,
     )
 
-    if mapper:
-        class Mapper:
-            pass
-
-        mapper = Mapper
-
-    mapper_cls = pretend.stub()
-    session_mapper_factory = pretend.call_recorder(lambda m: mapper_cls)
-    monkeypatch.setattr(
-        warehouse.sessions, "session_mapper_factory", session_mapper_factory,
-    )
-
     config = pretend.stub(
-        commit=pretend.call_recorder(lambda: None),
         set_session_factory=pretend.call_recorder(lambda factory: None),
         registry=pretend.stub(
-            queryUtility=pretend.call_recorder(lambda iface: mapper),
             settings={
                 "sessions.secret": "my secret",
                 "sessions.url": "my url",
             },
         ),
-        set_view_mapper=pretend.call_recorder(lambda m: None)
+        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     includeme(config)
@@ -665,11 +611,10 @@ def test_includeme(monkeypatch, mapper):
         pretend.call(session_factory_obj),
     ]
     assert session_factory_cls.calls == [pretend.call("my secret", "my url")]
-    assert config.commit.calls == [pretend.call()]
-    assert config.registry.queryUtility.calls == [
-        pretend.call(IViewMapperFactory),
+    assert config.add_view_deriver.calls == [
+        pretend.call(
+            session_view,
+            over="csrf_view",
+            under=viewderivers.INGRESS,
+        ),
     ]
-    assert session_mapper_factory.calls == [
-        pretend.call(mapper if mapper is not None else DefaultViewMapper),
-    ]
-    assert config.set_view_mapper.calls == [pretend.call(mapper_cls)]

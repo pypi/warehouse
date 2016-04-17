@@ -23,18 +23,17 @@ from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
-from warehouse.csrf import csrf_exempt
 from warehouse.packaging.models import Project, Release, File
-from warehouse.sessions import uses_session
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
 
-@view_config(context=HTTPException, decorator=[csrf_exempt])
-@notfound_view_config(
-    append_slash=HTTPMovedPermanently,
-    decorator=[csrf_exempt],
-)
+# We need to ensure that our HTTPException views do not require CSRF because
+# they will be called in all different kinds of situations, not all of which
+# will have valid CSRF tokens. For instance, they will be called on POST
+# requests when the CSRF validator attempts to return a 400 response.
+@view_config(context=HTTPException, require_csrf=False)
+@notfound_view_config(append_slash=HTTPMovedPermanently, require_csrf=False)
 def httpexception_view(exc, request):
     return exc
 
@@ -190,7 +189,7 @@ def search(request):
 @view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
-    decorator=[uses_session],
+    uses_session=True,
 )
 def current_user_indicator(request):
     return {}
