@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
 )
@@ -23,6 +25,7 @@ from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
+from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import Project, Release, File
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
@@ -173,6 +176,9 @@ def search(request):
     if request.params.get("o"):
         query = query.sort(request.params["o"])
 
+    if request.params.getall("c"):
+        query = query.filter('terms', classifiers=request.params.getall("c"))
+
     page_num = int(request.params.get("page", 1))
     page = ElasticsearchPage(
         query,
@@ -183,10 +189,18 @@ def search(request):
     if page_num > page.page_count:
         raise HTTPNotFound
 
+    available_filters = collections.defaultdict(list)
+
+    for cls in request.db.query(Classifier).order_by(Classifier.classifier):
+        first, *_ = cls.classifier.split(' :: ')
+        available_filters[first].append(cls.classifier)
+
     return {
         "page": page,
-        "term": request.params.get("q"),
-        "order": request.params.get("o"),
+        "term": request.params.get("q", ''),
+        "order": request.params.get("o", ''),
+        "available_filters": sorted(available_filters.items()),
+        "applied_filters": request.params.getall("c"),
     }
 
 

@@ -40,6 +40,7 @@ class Project(DocType):
     keywords = String(analyzer="snowball")
     platform = String(index="not_analyzed")
     created = Date()
+    classifiers = String(index="not_analyzed", multi=True)
 
     uploader_name = String()
     uploader_username = String()
@@ -65,6 +66,7 @@ class Project(DocType):
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
         obj["created"] = release.created
+        obj["classifiers"] = [c.classifier for c in release._classifiers]
 
         obj["uploader_name"] = release.uploader.name
         obj["uploader_username"] = release.uploader.username
