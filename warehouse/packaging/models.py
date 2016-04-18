@@ -350,6 +350,7 @@ class File(db.Model):
         ),
 
         CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
+        CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
 
         Index("release_files_name_idx", "name"),
         Index("release_files_name_version_idx", "name", "version"),
@@ -373,6 +374,7 @@ class File(db.Model):
     has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True)
     sha256_digest = Column(CIText, unique=True, nullable=False)
+    blake2_256_digest = Column(CIText, unique=True, nullable=True)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
 

@@ -12,7 +12,6 @@
 
 import hashlib
 import io
-import os.path
 import re
 import tempfile
 import zipfile
@@ -733,12 +732,12 @@ class TestFileUpload:
         assert db_request.find_service.calls == [pretend.call(IFileStorage)]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
-            os.path.join(
-                "source",
-                project.name[0],
-                project.name,
+            "/".join([
+                "4e",
+                "6e",
+                "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
                 filename,
-            ),
+            ]),
             mock.ANY,
             meta={
                 "project": project.normalized_name,
@@ -750,12 +749,15 @@ class TestFileUpload:
 
         if has_signature:
             assert storage_service.store.calls[1] == pretend.call(
-                os.path.join(
-                    "source",
-                    project.name[0],
-                    project.name,
+                "/".join([
+                    "4e",
+                    "6e",
+                    (
+                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d"
+                        "45a5916e"
+                    ),
                     filename + ".asc",
-                ),
+                ]),
                 mock.ANY,
                 meta={
                     "project": project.normalized_name,
@@ -1352,12 +1354,15 @@ class TestFileUpload:
         assert db_request.find_service.calls == [pretend.call(IFileStorage)]
         assert storage_service.store.calls == [
             pretend.call(
-                os.path.join(
-                    "cp34",
-                    project.name[0],
-                    project.name,
+                "/".join([
+                    "4e",
+                    "6e",
+                    (
+                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d4"
+                        "5a5916e"
+                    ),
                     filename,
-                ),
+                ]),
                 mock.ANY,
                 meta={
                     "project": project.normalized_name,

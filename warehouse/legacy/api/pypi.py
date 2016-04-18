@@ -25,6 +25,7 @@ import wtforms
 import wtforms.validators
 from rfc3986 import uri_reference
 
+from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
@@ -43,6 +44,8 @@ from warehouse.utils.http import require_POST
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
 MAX_SIGSIZE = 8 * 1024           # 8K
+
+PATH_HASHER = "blake2_256"
 
 
 # Wheel platform checking
@@ -378,6 +381,16 @@ class MetadataForm(forms.Form):
                 r"^[A-F0-9]{64}$",
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, SHA256 message digest.",
+            ),
+        ]
+    )
+    blake2_256_digest = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
+            wtforms.validators.Regexp(
+                r"^[A-F0-9]{64}$",
+                re.IGNORECASE,
+                message="Must be a valid, hex encoded, blake2 message digest.",
             ),
         ]
     )
@@ -775,7 +788,11 @@ def file_upload(request):
         # go along.
         with open(temporary_filename, "wb") as fp:
             file_size = 0
-            file_hashes = {"md5": hashlib.md5(), "sha256": hashlib.sha256()}
+            file_hashes = {
+                "md5": hashlib.md5(),
+                "sha256": hashlib.sha256(),
+                "blake2_256": blake2b(digest_size=256 // 8),
+            }
             for chunk in iter(
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
@@ -785,6 +802,12 @@ def file_upload(request):
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
 
+        # Take our hash functions and compute the final hashes for them now.
+        file_hashes = {
+            k: h.hexdigest().lower()
+            for k, h in file_hashes.items()
+        }
+
         # Actually verify the digests that we've gotten. We're going to use
         # hmac.compare_digest even though we probably don't actually need to
         # because it's better safe than sorry. In the case of multiple digests
@@ -792,7 +815,7 @@ def file_upload(request):
         if not all([
             hmac.compare_digest(
                 getattr(form, "{}_digest".format(digest_name)).data.lower(),
-                digest_value.hexdigest().lower(),
+                digest_value,
             )
             for digest_name, digest_value in file_hashes.items()
             if getattr(form, "{}_digest".format(digest_name)).data
@@ -863,12 +886,17 @@ def file_upload(request):
             comment_text=form.comment.data,
             size=file_size,
             has_signature=bool(has_signature),
-            md5_digest=file_hashes["md5"].hexdigest().lower(),
-            sha256_digest=file_hashes["sha256"].hexdigest().lower(),
+            md5_digest=file_hashes["md5"],
+            sha256_digest=file_hashes["sha256"],
+            blake2_256_digest=file_hashes["blake2_256"],
+            # Figure out what our filepath is going to be, we're going to use a
+            # directory structure based on the hash of the file contents. This
+            # will ensure that the contents of the file cannot change without
+            # it also changing the path that the file is saved too.
             path="/".join([
-                form.pyversion.data,
-                release.project.name[0],
-                release.project.name,
+                file_hashes[PATH_HASHER][:2],
+                file_hashes[PATH_HASHER][2:4],
+                file_hashes[PATH_HASHER][4:],
                 filename,
             ]),
         )
