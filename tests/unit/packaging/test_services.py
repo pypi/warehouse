@@ -297,3 +297,23 @@ class TestS3FileStorage:
                 ExtraArgs={"Metadata": {"foo": "bar"}},
             ),
         ]
+
+    def test_hashed_path_with_prefix(self):
+        s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket, prefix="packages/")
+
+        file_object = storage.get("ab/file.txt")
+
+        assert file_object.read() == b"my contents"
+        assert bucket.Object.calls == [pretend.call("packages/ab/file.txt")]
+
+    def test_hashed_path_without_prefix(self):
+        s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        file_object = storage.get("ab/file.txt")
+
+        assert file_object.read() == b"my contents"
+        assert bucket.Object.calls == [pretend.call("ab/file.txt")]

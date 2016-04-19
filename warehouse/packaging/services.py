@@ -116,19 +116,35 @@ class LocalFileStorage:
 @implementer(IFileStorage)
 class S3FileStorage:
 
-    def __init__(self, bucket):
+    def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
+        self.prefix = prefix
 
     @classmethod
     def create_service(cls, context, request):
         session = request.find_service(name="aws.session")
         s3 = session.resource("s3")
         bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        return cls(bucket)
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
+
+    def _get_path(self, path):
+        # Legacy paths will have a first directory of something like 2.7, we
+        # want to just continue to support them for now.
+        if len(path.split("/")[0]) > 2:
+            return path
+
+        # If we have a prefix, then prepend it to our path. This will let us
+        # store items inside of a sub directory without exposing that to end
+        # users.
+        if self.prefix:
+            path = self.prefix + path
+
+        return path
 
     def get(self, path):
         try:
-            return self.bucket.Object(path).get()["Body"]
+            return self.bucket.Object(self._get_path(path)).get()["Body"]
         except botocore.exceptions.ClientError as exc:
             if exc.response["Error"]["Code"] != "NoSuchKey":
                 raise
@@ -136,8 +152,9 @@ class S3FileStorage:
 
     def store(self, path, file_path, *, meta=None):
         extra_args = {}
-
         if meta is not None:
             extra_args["Metadata"] = meta
+
+        path = self._get_path(path)
 
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)

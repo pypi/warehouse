@@ -85,6 +85,8 @@ PasteDeploy==1.5.2 \
     --hash=sha256:d5858f89a255e6294e63ed46b73613c56e3b9a2d82a42f1df4d06c8421a9e3cb
 psycopg2==2.6.1 \
     --hash=sha256:6acf9abbbe757ef75dc2ecd9d91ba749547941abaffbe69ff2086a9e37d4904c
+pyblake2==0.9.3 \
+    --hash=sha256:626448e1fe1cc01d2197118954bec9f158378577e12686d5b01979f7f0fa2212
 pycparser==2.14 \
     --hash=sha256:7959b4a74abdc27b312fed1c21e6caf9309ce0b29ea86b591fd2e99ecdf27f73
 Pygments==2.1.3 \
