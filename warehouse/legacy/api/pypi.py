@@ -39,7 +39,6 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry,
 )
-from warehouse.utils.http import require_POST
 
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -552,7 +551,7 @@ def _is_valid_dist_file(filename, filetype):
     route_name="legacy.api.pypi.file_upload",
     uses_session=True,
     require_csrf=False,
-    decorator=[require_POST],
+    require_methods=["POST"],
 )
 def file_upload(request):
     # Before we do anything, if there isn't an authenticated user with this
@@ -951,12 +950,12 @@ def file_upload(request):
 @view_config(
     route_name="legacy.api.pypi.submit",
     require_csrf=False,
-    decorator=[require_POST],
+    require_methods=["POST"],
 )
 @view_config(
     route_name="legacy.api.pypi.submit_pkg_info",
     require_csrf=False,
-    decorator=[require_POST],
+    require_methods=["POST"],
 )
 def submit(request):
     return _exc_with_message(
@@ -968,7 +967,7 @@ def submit(request):
 @view_config(
     route_name="legacy.api.pypi.doc_upload",
     require_csrf=False,
-    decorator=[require_POST],
+    require_methods=["POST"],
 )
 def doc_upload(request):
     return _exc_with_message(

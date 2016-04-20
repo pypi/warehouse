@@ -295,6 +295,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(VhmRootRemover),
     ]
     assert configurator_obj.include.calls == (
+        [pretend.call(".csrf")] +
         [
             pretend.call(x) for x in [
                 (
@@ -318,7 +319,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
-            pretend.call(".csrf"),
             pretend.call(".accounts"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),

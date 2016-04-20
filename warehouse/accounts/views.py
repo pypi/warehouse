@@ -58,6 +58,7 @@ def profile(user, request):
     renderer="accounts/login.html",
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
           _form_class=forms.LoginForm):
@@ -102,6 +103,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     renderer="accounts/logout.html",
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     # TODO: If already logged out just redirect to ?next=
@@ -145,6 +147,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     renderer="accounts/register.html",
     uses_session=True,
     require_csrf=True,
+    require_methods=False,
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:
