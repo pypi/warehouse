@@ -182,6 +182,12 @@ def configure(settings=None):
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
 
+    # Register our CSRF support. We do this here, immediately after we've
+    # created the Configurator instance so that we ensure to get our defaults
+    # set ASAP before anything else has a chance to set them and possibly call
+    # Configurator().commit()
+    config.include(".csrf")
+
     # Include anything needed by the development environment.
     if config.registry.settings["warehouse.env"] == Environment.development:
         config.include("pyramid_debugtoolbar")
@@ -275,9 +281,6 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
-
-    # Register our CSRF support
-    config.include(".csrf")
 
     # Register our authentication support.
     config.include(".accounts")

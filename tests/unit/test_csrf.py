@@ -13,93 +13,119 @@
 import pretend
 import pytest
 
-from pyramid.exceptions import BadCSRFToken
 from pyramid.httpexceptions import HTTPMethodNotAllowed
-from pyramid.viewderivers import INGRESS, secured_view
+from pyramid.viewderivers import INGRESS, csrf_view
 
 from warehouse import csrf
 
 
-class TestCSRFView:
+class TestRequireMethodView:
 
-    def test_defaults_to_method_not_allowed_unsafe(self):
+    def test_passes_through_on_falsey(self):
+        view = pretend.stub()
+        info = pretend.stub(options={"require_methods": False})
+
+        assert csrf.require_method_view(view, info) is view
+
+    @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS"])
+    def test_allows_safe_by_default(self, method):
+        response = pretend.stub()
+
+        @pretend.call_recorder
         def view(context, request):
-            assert False, "View should never be called"
+            return response
 
         info = pretend.stub(options={})
-        wrapped_view = csrf.csrf_view(view, info)
+        wrapped_view = csrf.require_method_view(view, info)
+
         context = pretend.stub()
-        request = pretend.stub(method="POST")
+        request = pretend.stub(method=method)
+
+        assert wrapped_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
+    def test_disallows_unsafe_by_default(self, method):
+        @pretend.call_recorder
+        def view(context, request):
+            pass
+
+        info = pretend.stub(options={})
+        wrapped_view = csrf.require_method_view(view, info)
+
+        context = pretend.stub()
+        request = pretend.stub(method=method)
 
         with pytest.raises(HTTPMethodNotAllowed):
             wrapped_view(context, request)
 
-    def test_defaults_to_allowing_safe_methods(self):
+        assert view.calls == []
+
+    def test_allows_passing_other_methods(self):
         response = pretend.stub()
 
+        @pretend.call_recorder
         def view(context, request):
             return response
 
-        info = pretend.stub(options={})
-        wrapped_view = csrf.csrf_view(view, info)
-        context = pretend.stub()
-        request = pretend.stub(method="GET")
+        info = pretend.stub(options={"require_methods": ["POST"]})
+        wrapped_view = csrf.require_method_view(view, info)
 
-        assert wrapped_view(context, request) is response
-
-    def test_requires_csrf_true_allows_safe(self):
-        response = pretend.stub()
-
-        def view(context, request):
-            return response
-
-        info = pretend.stub(options={"require_csrf": True})
-        wrapped_view = csrf.csrf_view(view, info)
-        context = pretend.stub()
-        request = pretend.stub(method="GET")
-
-        assert wrapped_view(context, request) is response
-
-    def test_requires_csrf_true_checks_csrf(self):
-        def view(context, request):
-            assert False, "View should never be called"
-
-        info = pretend.stub(options={"require_csrf": True})
-        wrapped_view = csrf.csrf_view(view, info)
-        context = pretend.stub()
-        request = pretend.stub(
-            method="POST",
-            scheme="http",
-            POST={},
-            headers={},
-            session=pretend.stub(get_csrf_token=lambda: "a csrf token"),
-        )
-
-        with pytest.raises(BadCSRFToken):
-            wrapped_view(context, request)
-
-    def test_requires_csrf_false_allows_any(self):
-        response = pretend.stub()
-
-        def view(context, request):
-            return response
-
-        info = pretend.stub(options={"require_csrf": False})
-        wrapped_view = csrf.csrf_view(view, info)
         context = pretend.stub()
         request = pretend.stub(method="POST")
 
         assert wrapped_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    def test_allows_exception_views_by_default(self):
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
+        info = pretend.stub(options={})
+        wrapped_view = csrf.require_method_view(view, info)
+
+        context = pretend.stub()
+        request = pretend.stub(method="POST", exception=pretend.stub())
+
+        assert wrapped_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    def test_explicit_controls_exception_views(self):
+        @pretend.call_recorder
+        def view(context, request):
+            pass
+
+        info = pretend.stub(options={"require_methods": ["POST"]})
+        wrapped_view = csrf.require_method_view(view, info)
+
+        context = pretend.stub()
+        request = pretend.stub(method="GET")
+
+        with pytest.raises(HTTPMethodNotAllowed):
+            wrapped_view(context, request)
+
+        assert view.calls == []
 
 
 def test_includeme():
     config = pretend.stub(
+        set_default_csrf_options=pretend.call_recorder(lambda **kw: None),
         add_view_deriver=pretend.call_recorder(lambda *args, **kw: None),
     )
 
     csrf.includeme(config)
 
+    assert config.set_default_csrf_options.calls == [
+        pretend.call(require_csrf=True),
+    ]
     assert config.add_view_deriver.calls == [
-        pretend.call(csrf.csrf_view, under=INGRESS, over="secured_view"),
-        pretend.call(secured_view, under="csrf_view"),
+        pretend.call(csrf_view, under=INGRESS, over="secured_view"),
+        pretend.call(
+            csrf.require_method_view,
+            under=INGRESS,
+            over="csrf_view",
+        ),
     ]

@@ -10,35 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import functools
 import unicodedata
 
 from urllib.parse import urlparse
-
-from pyramid.httpexceptions import HTTPMethodNotAllowed
-
-
-def require_http_method(*methods):
-    methods = set(methods)
-
-    def deco(fn):
-        @functools.wraps(fn)
-        def wrapped(context, request):
-            if request.method not in methods:
-                raise HTTPMethodNotAllowed(
-                    headers={"Allow": ", ".join(sorted(methods))},
-                )
-            return fn(context, request)
-        return wrapped
-
-    return deco
-
-
-require_POST = require_http_method("POST")
-
-require_GET = require_http_method("GET")
-
-require_safe = require_http_method("GET", "HEAD")
 
 
 # FROM https://github.com/django/django/blob/

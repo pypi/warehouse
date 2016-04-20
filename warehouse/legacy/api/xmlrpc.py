@@ -30,12 +30,7 @@ from warehouse.packaging.models import (
 pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
 
 
-@view_config(
-    route_name="pypi",
-    context=Exception,
-    renderer="xmlrpc",
-    require_csrf=False,
-)
+@view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
 

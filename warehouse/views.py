@@ -31,12 +31,8 @@ from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
 
-# We need to ensure that our HTTPException views do not require CSRF because
-# they will be called in all different kinds of situations, not all of which
-# will have valid CSRF tokens. For instance, they will be called on POST
-# requests when the CSRF validator attempts to return a 400 response.
-@view_config(context=HTTPException, require_csrf=False)
-@notfound_view_config(append_slash=HTTPMovedPermanently, require_csrf=False)
+@view_config(context=HTTPException)
+@notfound_view_config(append_slash=HTTPMovedPermanently)
 def httpexception_view(exc, request):
     return exc
 
