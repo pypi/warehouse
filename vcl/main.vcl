@@ -17,7 +17,7 @@ sub vcl_recv {
     #   * /account/logout/
     #   * /account/register/
     #   * /pypi
-    if (req.url !~ '^/(search/|account/(login|logout|register)/|pypi)') {
+    if (req.url !~ "^/(search/|account/(login|logout|register)/|pypi)") {
         set req.url = req.url.path;
     }
 
