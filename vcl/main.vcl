@@ -6,6 +6,11 @@ sub vcl_recv {
     # files in S3, and in general it's just not needed.
     set req.url = regsub(req.url, "#.*$", "");
 
+    # Sort all of our query parameters, this will ensure that the same query
+    # parameters in a different order will end up being represented as the same
+    # thing, reducing cache misses due to ordering differences.
+    set req.url = boltsort.sort(req.url);
+
 
 #FASTLY recv
 
