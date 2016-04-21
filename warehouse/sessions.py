@@ -277,13 +277,22 @@ def session_view(view, info):
         # with a wrapper that just ensures that the session cannot be used.
         @functools.wraps(view)
         def wrapped(context, request):
+            # Save the original session so that we can restore it once the
+            # inner views have been called.
+            original_session = request.session
+
             # This particular view hasn't been set to allow access to the
             # session, so we'll just assign an InvalidSession to
             # request.session
             request.session = InvalidSession()
 
-            # Invoke the real view
-            return view(context, request)
+            try:
+                # Invoke the real view
+                return view(context, request)
+            finally:
+                # Restore the original session so that things like
+                # pyramid_debugtoolbar can access it.
+                request.session = original_session
 
         return wrapped
 
