@@ -1,6 +1,14 @@
 
 sub vcl_recv {
+
+    # Some (Older) clients will send a hash fragment as part of the URL even
+    # though that is a local only modification. This breaks this badly for the
+    # files in S3, and in general it's just not needed.
+    set req.url = regsub(req.url, "#.*$", "");
+
+
 #FASTLY recv
+
 
     # We want to Force SSL for the WebUI by redirecting to the HTTPS version of
     # the page, however for API calls we want to return an error code directing
@@ -47,21 +55,49 @@ sub vcl_recv {
         error 750 "Redirect to Primary Domain";
     }
 
-    # Set a header to tell the backend if we're using https or http.
-    if (req.http.Fastly-SSL) {
-        set req.http.Warehouse-Proto = "https";
-    } else {
-        set req.http.Warehouse-Proto = "http";
+    # Requests to /packages/ get dispatched to Amazon instead of to our typical
+    # Origin. This requires a a bit of setup to make it work.
+    if (req.url ~ "^/packages/") {
+        # Setup our environment to better match what S3 expects/needs
+        set req.http.Host = req.http.AWS-Bucket-Name ".s3.amazonaws.com";
+        set req.http.Date = now;
+        set req.url = regsuball(req.url, "\+", urlencode("+"));
+
+        # Compute the Authorization header that S3 requires to be able to
+        # access the files stored there.
+        set req.http.Authorization = "AWS " req.http.AWS-Access-Key-ID ":" digest.hmac_sha1_base64(req.http.AWS-Secret-Access-Key, "GET" LF LF LF req.http.Date LF "/" req.http.AWS-Bucket-Name req.url.path);
+
+        # We don't want to send our Warehouse-Token to S3, so we'll go ahead
+        # and remove it.
+        unset req.http.Warehouse-Token;
     }
 
-    # Pass the client IP address back to the backend.
-    if (req.http.Fastly-Client-IP) {
-        set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
-    }
+    # We no longer need any of these variables, which would exist only to
+    # shuffle configuration from the Fastly UI into our VCL.
+    unset req.http.Primary-Domain;
+    unset req.http.AWS-Access-Key-ID;
+    unset req.http.AWS-Secret-Access-Key;
+    unset req.http.AWS-Bucket-Name;
 
-    # Pass the real host value back to the backend.
-    if (req.http.Host) {
-        set req.http.Warehouse-Host = req.http.Host;
+    # We have a number of items that we'll pass back to the origin, but only
+    # if we have a Warehouse-Token that will allow them to be accepted.
+    if (req.http.Warehouse-Token) {
+        # Set a header to tell the backend if we're using https or http.
+        if (req.http.Fastly-SSL) {
+            set req.http.Warehouse-Proto = "https";
+        } else {
+            set req.http.Warehouse-Proto = "http";
+        }
+
+        # Pass the client IP address back to the backend.
+        if (req.http.Fastly-Client-IP) {
+            set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
+        }
+
+        # Pass the real host value back to the backend.
+        if (req.http.Host) {
+            set req.http.Warehouse-Host = req.http.Host;
+        }
     }
 
     # Do not bother to attempt to run the caching mechanisms for methods that
@@ -144,6 +180,14 @@ sub vcl_deliver {
     # they are not generally useful.
     unset resp.http.Server;
     unset resp.http.Via;
+
+    # Unset a few headers set by Amazon that we don't really have a need/desire
+    # to send to clients.
+    unset resp.http.X-AMZ-Replication-Status;
+    unset resp.http.X-AMZ-Meta-Python-Version;
+    unset resp.http.X-AMZ-Meta-Version;
+    unset resp.http.X-AMZ-Meta-Package-Type;
+    unset resp.http.X-AMZ-Meta-Project;
 
     # Set our standard security headers, we do this in VCL rather than in
     # Warehouse itself so that we always get these headers, regardless of the
