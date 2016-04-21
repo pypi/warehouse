@@ -6,6 +6,21 @@ sub vcl_recv {
     # files in S3, and in general it's just not needed.
     set req.url = regsub(req.url, "#.*$", "");
 
+    # Most of the URLs in Warehouse do not support or require any sort of query
+    # parameter. If we strip these at the edge then we'll increase our cache
+    # efficiency when they won't otherwise change the output of the pages.
+    #
+    # This will match any URL except those that start with:
+    #
+    #   * /search/
+    #   * /account/login/
+    #   * /account/logout/
+    #   * /account/register/
+    #   * /pypi
+    if (req.url !~ '^/(search/|account/(login|logout|register)/|pypi)') {
+        set req.url = req.url.path;
+    }
+
     # Sort all of our query parameters, this will ensure that the same query
     # parameters in a different order will end up being represented as the same
     # thing, reducing cache misses due to ordering differences.
