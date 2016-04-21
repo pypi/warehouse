@@ -137,8 +137,10 @@ sub vcl_deliver {
     unset resp.http.Server;
     unset resp.http.Via;
 
-    # Set standard security headers, we do this here in addition to in Warehouse
-    # so that we ensure that we always get the headers, regardless of backend.
+    # Set our standard security headers, we do this in VCL rather than in
+    # Warehouse itself so that we always get these headers, regardless of the
+    # origin server being used.
+    set resp.http.Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload";
     set resp.http.X-Frame-Options = "deny";
     set resp.http.X-XSS-Protection = "1; mode=block";
     set resp.http.X-Content-Type-Options = "nosniff";
