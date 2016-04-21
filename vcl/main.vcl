@@ -39,6 +39,13 @@ sub vcl_recv {
         }
     }
 
+    # Canonicalize our domains by redirecting any domain that doesn't match our
+    # primary domain to our primary domain. We do this *after* the HTTPS check
+    # on purpose.
+    if (std.tolower(req.http.host) != std.tolower(req.http.Primary-Domain)) {
+        error 750 "https://" req.http.Primary-Domain req.url;
+    }
+
     # Set a header to tell the backend if we're using https or http.
     if (req.http.Fastly-SSL) {
         set req.http.Warehouse-Proto = "https";
@@ -159,6 +166,12 @@ sub vcl_error {
         set obj.http.Content-Type = "text/plain; charset=UTF-8";
         synthetic {"SSL is required."};
         return (deliver);
+    } else if (obj.status == 750) {
+        set obj.status = 301;
+        set obj.http.Location = obj.response;
+        set obj.http.Content-Type = "text/html; charset=UTF-8";
+        synthetic {"<html><head><title>301 Moved Permanently</title></head><body><center><h1>301 Moved Permanently</h1></center></body></html>"};
+        return(deliver);
     }
 
 }
