@@ -121,7 +121,7 @@ python-dateutil==2.5.3 \
     --hash=sha256:598499a75be2e5e18a66f12c00dd47a069de24794effeda4228bfc760f44f527
 python-editor==1.0 \
     --hash=sha256:4a2b6a945d06e347a8fafe2475f533d05887b193b2e162aff961f63642c8a60e
-pytz==2016.3 \
+pytz==2016.4 \
     --hash=sha256:2e4859a1c1b5c77bdc247013332ae1edbd5b3a7fb3737e33c5f26efcf5e150fb \
     --hash=sha256:69053f951079f5cbf9444cc9bf8af9a227841ca5fd9cb8ed4cecf1a1397adabb \
     --hash=sha256:c193dfa167ac32c8cb96f26cbcd92972591b22bda0bac3effdbdb04de6cc55d6 \
