@@ -120,6 +120,7 @@ def _create_engine(url):
         isolation_level=DEFAULT_ISOLATION,
         pool_size=35,
         max_overflow=65,
+        pool_timeout=20,
     )
     event.listen(engine, "reset", _reset)
     return engine
