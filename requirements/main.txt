@@ -5,7 +5,7 @@ amqp==1.4.9 \
     --hash=sha256:2dea4d16d073c902c3b89d9b96620fb6729ac0f7a923bbc777cb4ad827c0c61a
 anyjson==0.3.3 \
     --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
-Babel==2.3.3 \
+Babel==2.3.4 \
     --hash=sha256:33fe6090337ecc785bfa3c452a97e378676a19593f795258721090eb3de94e43 \
     --hash=sha256:12dff9afa9c6cd6e2a39960d3cd4b46b2b98768cdc6646833c66b20799c1c58e
 bcrypt==2.0.0 \
