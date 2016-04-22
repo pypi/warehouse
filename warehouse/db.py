@@ -29,7 +29,7 @@ from warehouse.utils.attrs import make_repr
 __all__ = ["includeme", "metadata", "ModelBase"]
 
 
-DEFAULT_ISOLATION = "SERIALIZABLE"
+DEFAULT_ISOLATION = "READ COMMITTED"
 
 
 # We'll add a basic predicate that won't do anything except allow marking a

@@ -13,24 +13,19 @@
 
 def includeme(config):
     # Basic global routes
-    config.add_route("index", "/", read_only=True)
-    config.add_route("robots.txt", "/robots.txt", read_only=True)
-    config.add_route("index.sitemap.xml", "/sitemap.xml", read_only=True)
-    config.add_route(
-        "bucket.sitemap.xml",
-        "/{bucket}.sitemap.xml",
-        read_only=True,
-    )
+    config.add_route("index", "/")
+    config.add_route("robots.txt", "/robots.txt")
+    config.add_route("index.sitemap.xml", "/sitemap.xml")
+    config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml")
 
     # HTML Snippets for including into other pages.
     config.add_route(
         "includes.current-user-indicator",
         "/_includes/current-user-indicator/",
-        read_only=True,
     )
 
     # Search Routes
-    config.add_route("search", "/search/", read_only=True)
+    config.add_route("search", "/search/")
 
     # Accounts
     config.add_route(
@@ -38,7 +33,6 @@ def includeme(config):
         "/user/{username}/",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
-        read_only=True,
     )
     config.add_route("accounts.login", "/account/login/")
     config.add_route("accounts.logout", "/account/logout/")
@@ -50,23 +44,21 @@ def includeme(config):
         "/project/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
-        read_only=True,
     )
     config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
-        read_only=True,
     )
-    config.add_route("packaging.file", "/packages/{path:.*}", read_only=True)
+    config.add_route("packaging.file", "/packages/{path:.*}")
 
     # RSS
-    config.add_route("rss.updates", "/rss/updates.xml", read_only=True)
-    config.add_route("rss.packages", "/rss/packages.xml", read_only=True)
+    config.add_route("rss.updates", "/rss/updates.xml")
+    config.add_route("rss.packages", "/rss/packages.xml")
 
     # Legacy URLs
-    config.add_route("legacy.api.simple.index", "/simple/", read_only=True)
+    config.add_route("legacy.api.simple.index", "/simple/")
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
@@ -104,7 +96,6 @@ def includeme(config):
         "pypi",
         pattern="/pypi",
         header="Content-Type:text/xml",
-        read_only=True,
     )
 
     # Legacy Documentation

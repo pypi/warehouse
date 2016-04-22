@@ -213,6 +213,11 @@ def test_readonly(predicates, expected):
     assert _readonly(request) == expected
 
 
+def test_readonly_predicate():
+    assert db.ReadOnlyPredicate(False, None)(pretend.stub(), pretend.stub())
+    assert db.ReadOnlyPredicate(True, None)(pretend.stub(), pretend.stub())
+
+
 def test_includeme(monkeypatch):
     class FakeRegistry(dict):
         settings = {"database.url": pretend.stub()}

@@ -52,26 +52,20 @@ def test_routes():
     includeme(config)
 
     assert config.add_route.calls == [
-        pretend.call('index', '/', read_only=True),
-        pretend.call("robots.txt", "/robots.txt", read_only=True),
-        pretend.call("index.sitemap.xml", "/sitemap.xml", read_only=True),
-        pretend.call(
-            "bucket.sitemap.xml",
-            "/{bucket}.sitemap.xml",
-            read_only=True,
-        ),
+        pretend.call('index', '/'),
+        pretend.call("robots.txt", "/robots.txt"),
+        pretend.call("index.sitemap.xml", "/sitemap.xml"),
+        pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml"),
         pretend.call(
             "includes.current-user-indicator",
             "/_includes/current-user-indicator/",
-            read_only=True,
         ),
-        pretend.call("search", "/search/", read_only=True),
+        pretend.call("search", "/search/"),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
-            read_only=True,
         ),
         pretend.call("accounts.login", "/account/login/"),
         pretend.call("accounts.logout", "/account/logout/"),
@@ -81,19 +75,17 @@ def test_routes():
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
-            read_only=True,
         ),
         pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
-            read_only=True,
         ),
-        pretend.call("packaging.file", "/packages/{path:.*}", read_only=True),
-        pretend.call("rss.updates", "/rss/updates.xml", read_only=True),
-        pretend.call("rss.packages", "/rss/packages.xml", read_only=True),
-        pretend.call("legacy.api.simple.index", "/simple/", read_only=True),
+        pretend.call("packaging.file", "/packages/{path:.*}"),
+        pretend.call("rss.updates", "/rss/updates.xml"),
+        pretend.call("rss.packages", "/rss/packages.xml"),
+        pretend.call("legacy.api.simple.index", "/simple/"),
         pretend.call(
             "legacy.api.simple.detail",
             "/simple/{name}/",
@@ -141,6 +133,5 @@ def test_routes():
             "pypi",
             pattern="/pypi",
             header="Content-Type:text/xml",
-            read_only=True,
         ),
     ]
