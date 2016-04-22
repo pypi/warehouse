@@ -141,13 +141,6 @@ class TestReindex:
         assert isinstance(result.exception, TestException)
         assert sess_cls.calls == [pretend.call(bind=db_engine)]
         assert sess_obj.execute.calls == [
-            pretend.call(
-                """ BEGIN TRANSACTION
-                ISOLATION LEVEL SERIALIZABLE
-                READ ONLY
-                DEFERRABLE
-            """
-            ),
             pretend.call("SET statement_timeout = '600s'"),
         ]
         assert sess_obj.rollback.calls == [pretend.call()]
@@ -195,13 +188,6 @@ class TestReindex:
         assert result.exit_code == 0
         assert sess_cls.calls == [pretend.call(bind=db_engine)]
         assert sess_obj.execute.calls == [
-            pretend.call(
-                """ BEGIN TRANSACTION
-                ISOLATION LEVEL SERIALIZABLE
-                READ ONLY
-                DEFERRABLE
-            """
-            ),
             pretend.call("SET statement_timeout = '600s'"),
         ]
         assert bulk.calls == [pretend.call(es_client, docs)]
@@ -255,13 +241,6 @@ class TestReindex:
         assert result.exit_code == 0
         assert sess_cls.calls == [pretend.call(bind=db_engine)]
         assert sess_obj.execute.calls == [
-            pretend.call(
-                """ BEGIN TRANSACTION
-                ISOLATION LEVEL SERIALIZABLE
-                READ ONLY
-                DEFERRABLE
-            """
-            ),
             pretend.call("SET statement_timeout = '600s'"),
         ]
         assert bulk.calls == [pretend.call(es_client, docs)]
