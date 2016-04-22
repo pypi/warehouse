@@ -126,7 +126,12 @@ def test_creates_engine(monkeypatch):
 
     assert _create_engine(url) is engine
     assert create_engine.calls == [
-        pretend.call(url, isolation_level=DEFAULT_ISOLATION),
+        pretend.call(
+            url,
+            isolation_level=DEFAULT_ISOLATION,
+            pool_size=35,
+            max_overflow=65,
+        ),
     ]
     assert listen.calls == [pretend.call(engine, "reset", _reset)]
 
