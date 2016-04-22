@@ -1,6 +1,14 @@
 
 sub vcl_recv {
 
+    # I'm not 100% sure on what this is exactly for, it was taken from the
+    # Fastly documentation, however, what I *believe* it does is just ensure
+    # that we don't serve a stale copy of the page from the shield node when
+    # an edge node is requesting content.
+    if (req.http.Fastly-FF) {
+        set req.max_stale_while_revalidate = 0s;
+    }
+
     # Some (Older) clients will send a hash fragment as part of the URL even
     # though that is a local only modification. This breaks this badly for the
     # files in S3, and in general it's just not needed.
@@ -134,7 +142,18 @@ sub vcl_recv {
 
 
 sub vcl_fetch {
+
+    # For any 5xx status code we want to see if a stale object exists for it,
+    # if so we'll go ahead and serve it.
+    if (beresp.status >= 500 && beresp.status < 600) {
+        if (stale.exists) {
+            return(deliver_stale);
+        }
+    }
+
+
 #FASTLY fetch
+
 
     # Trigger a "SSL is required" error if the backend has indicated to do so.
     if (beresp.http.X-Fastly-Error == "803") {
@@ -170,7 +189,7 @@ sub vcl_fetch {
 
     # If we've gotten an error after the restarts we'll deliver the response
     # with a very short cache time.
-    if (beresp.status == 500 || beresp.status == 503) {
+    if (http_status_matches(beresp.status, "500,502,503")) {
         set req.http.Fastly-Cachetype = "ERROR";
         set beresp.ttl = 1s;
         set beresp.grace = 5s;
@@ -193,7 +212,28 @@ sub vcl_fetch {
 }
 
 
+sub vcl_hit {
+#FASTLY hit
+
+    # If the object we have isn't cacheable, then just serve it directly
+    # without going through any of the caching mechanisms.
+    if (!obj.cacheable) {
+        return(pass);
+    }
+
+    return(deliver);
+}
+
+
 sub vcl_deliver {
+    # If this is an error and we have a stale response available, restart so
+    # that we can pick it up and serve it.
+    if (resp.status >= 500 && resp.status < 600) {
+        if (stale.exists) {
+            restart;
+        }
+    }
+
 #FASTLY deliver
 
     # Unset headers that we don't need/want to send on to the client because
@@ -224,6 +264,14 @@ sub vcl_deliver {
 
 sub vcl_error {
 #FASTLY error
+
+    # If we have a 5xx error and there is a stale object available, then we
+    # will deliver that stale object.
+    if (obj.status >= 500 && obj.status < 600) {
+        if (stale.exists) {
+            return(deliver_stale);
+        }
+    }
 
     if (obj.status == 803) {
         set obj.status = 403;
