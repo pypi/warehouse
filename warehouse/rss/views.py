@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, load_only
 
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
@@ -63,9 +63,10 @@ def rss_packages(request):
 
     newest_projects = (
         request.db.query(Project)
-                  .options(joinedload(Project.releases))
+                  .options(load_only("created", "normalized_name"))
+                  .options(joinedload(Project.releases, innerjoin=True)
+                           .load_only("summary"))
                   .order_by(Project.created.desc())
-                  .filter(Project.releases.any())
                   .limit(40)
                   .all()
     )

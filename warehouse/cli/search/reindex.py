@@ -73,13 +73,6 @@ def reindex(config, **kwargs):
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
     try:
-        db.execute(
-            """ BEGIN TRANSACTION
-                ISOLATION LEVEL SERIALIZABLE
-                READ ONLY
-                DEFERRABLE
-            """
-        )
         db.execute("SET statement_timeout = '600s'")
 
         bulk(client, _project_docs(db))
