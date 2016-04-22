@@ -115,7 +115,12 @@ def _reset(dbapi_connection, connection_record):
 
 
 def _create_engine(url):
-    engine = sqlalchemy.create_engine(url, isolation_level=DEFAULT_ISOLATION)
+    engine = sqlalchemy.create_engine(
+        url,
+        isolation_level=DEFAULT_ISOLATION,
+        pool_size=35,
+        max_overflow=65,
+    )
     event.listen(engine, "reset", _reset)
     return engine
 
