@@ -5,7 +5,7 @@ amqp==1.4.9 \
     --hash=sha256:2dea4d16d073c902c3b89d9b96620fb6729ac0f7a923bbc777cb4ad827c0c61a
 anyjson==0.3.3 \
     --hash=sha256:37812d863c9ad3e35c0734c42e0bf0320ce8c3bed82cd20ad54cb34d158157ba
-Babel==2.3.3 \
+Babel==2.3.4 \
     --hash=sha256:33fe6090337ecc785bfa3c452a97e378676a19593f795258721090eb3de94e43 \
     --hash=sha256:12dff9afa9c6cd6e2a39960d3cd4b46b2b98768cdc6646833c66b20799c1c58e
 bcrypt==2.0.0 \
@@ -17,10 +17,10 @@ billiard==3.3.0.23 \
 bleach==1.4.2 \
     --hash=sha256:58a2c153c0b5450695c34ce2eddc23fb3ee476b31a878e6a5c24c75fd1ed4d89 \
     --hash=sha256:56018a17d1488eb1a1e18e7cdddcaea24d3c7b3704172e356f6916c577f4fd9e
-boto3==1.3.0 \
+boto3==1.3.1 \
     --hash=sha256:62894bf5a0d8a2be7f6850e53122034ed147eee5cc59746df939ad13ebebcb41 \
     --hash=sha256:8f85b9261a5b4606d883248a59ef1a4e82fd783602dbec8deac4d2ad36a1b6f4
-botocore==1.4.12 \
+botocore==1.4.13 \
     --hash=sha256:c8551e71e683e36a61f4c4c9bde07a1598210d9b19588919b4ad6b63e47a799d \
     --hash=sha256:999721881b69857e6024f5138d63706427a2a092a89fefd71ea566ec9a8bad2b
 celery==3.1.23 \
@@ -121,7 +121,7 @@ python-dateutil==2.5.3 \
     --hash=sha256:598499a75be2e5e18a66f12c00dd47a069de24794effeda4228bfc760f44f527
 python-editor==1.0 \
     --hash=sha256:4a2b6a945d06e347a8fafe2475f533d05887b193b2e162aff961f63642c8a60e
-pytz==2016.3 \
+pytz==2016.4 \
     --hash=sha256:2e4859a1c1b5c77bdc247013332ae1edbd5b3a7fb3737e33c5f26efcf5e150fb \
     --hash=sha256:69053f951079f5cbf9444cc9bf8af9a227841ca5fd9cb8ed4cecf1a1397adabb \
     --hash=sha256:c193dfa167ac32c8cb96f26cbcd92972591b22bda0bac3effdbdb04de6cc55d6 \
