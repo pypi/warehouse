@@ -52,7 +52,7 @@ app:
 web:
   extends:
     service: app
-  command: gunicorn -b 0.0.0.0:8000 -n warehouse -k gevent --reload warehouse.wsgi
+  command: gunicorn -b 0.0.0.0:8000 -n warehouse -k eventlet --reload warehouse.wsgi
   environment:
     PORT: 8000
   ports:
