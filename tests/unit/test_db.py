@@ -131,6 +131,7 @@ def test_creates_engine(monkeypatch):
             isolation_level=DEFAULT_ISOLATION,
             pool_size=35,
             max_overflow=65,
+            pool_timeout=20,
         ),
     ]
     assert listen.calls == [pretend.call(engine, "reset", _reset)]
