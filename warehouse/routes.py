@@ -12,6 +12,9 @@
 
 
 def includeme(config):
+    # Simple Route for health checks.
+    config.add_route("health", "/_health/")
+
     # Basic global routes
     config.add_route("index", "/")
     config.add_route("robots.txt", "/robots.txt")
