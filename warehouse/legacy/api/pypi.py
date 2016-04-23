@@ -757,6 +757,19 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+    # Check that if it's a binary wheel, it's on a supported platform
+    if filename.endswith(".whl"):
+        wheel_info = _wheel_file_re.match(filename)
+        plats = wheel_info.group("plat").split(".")
+        for plat in plats:
+            if not _valid_platform_tag(plat):
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Binary wheel '{filename}' has an unsupported "
+                    "platform tag '{plat}'."
+                    .format(filename=filename, plat=plat)
+                )
+
     # Check to see if the file that was uploaded exists already or not.
     if request.db.query(
             request.db.query(File)
@@ -831,19 +844,6 @@ def file_upload(request):
                 HTTPBadRequest,
                 "Invalid distribution file.",
             )
-
-        # Check that if it's a binary wheel, it's on a supported platform
-        if filename.endswith(".whl"):
-            wheel_info = _wheel_file_re.match(filename)
-            plats = wheel_info.group("plat").split(".")
-            for plat in plats:
-                if not _valid_platform_tag(plat):
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        "Binary wheel '{filename}' has an unsupported "
-                        "platform tag '{plat}'."
-                        .format(filename=filename, plat=plat)
-                    )
 
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
