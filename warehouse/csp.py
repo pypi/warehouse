@@ -2,6 +2,10 @@ import collections
 import copy
 
 
+SELF = "'self'"
+NONE = "'none'"
+
+
 def _serialize(policy):
     return "; ".join([
         " ".join([k] + [v2 for v2 in v if v2 is not None])
@@ -52,19 +56,19 @@ def includeme(config):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
-            "connect-src": ["'self'"],
-            "default-src": ["'none'"],
-            "font-src": ["'self'", "fonts.gstatic.com"],
-            "frame-ancestors": ["'none'"],
+            "connect-src": [SELF],
+            "default-src": [NONE],
+            "font-src": [SELF, "fonts.gstatic.com"],
+            "frame-ancestors": [NONE],
             "img-src": [
-                "'self'",
+                SELF,
                 config.registry.settings["camo.url"],
                 "https://secure.gravatar.com",
             ],
             "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
-            "script-src": ["'self'"],
-            "style-src": ["'self'", "fonts.googleapis.com"],
+            "script-src": [SELF],
+            "style-src": [SELF, "fonts.googleapis.com"],
         },
     })
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")
