@@ -128,6 +128,12 @@ sub vcl_recv {
       return(pass);
     }
 
+    # We don't ever want to cache our health URL. Outside systems should be
+    # able to use it to reach past Fastly and get an end to end health check.
+    if (req.url == "/_health/") {
+        return(pass);
+    }
+
     # Finally, return the default lookup action.
     return(lookup);
 }

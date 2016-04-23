@@ -207,3 +207,14 @@ def search(request):
 )
 def current_user_indicator(request):
     return {}
+
+
+@view_config(route_name="health", renderer="string")
+def health(request):
+    # This will ensure that we can access the database and run queries against
+    # it without doing anything that will take a lock or block other queries.
+    request.db.execute("SELECT 1")
+
+    # Nothing will actually check this, but it's a little nicer to have
+    # something to return besides an empty body.
+    return "OK"

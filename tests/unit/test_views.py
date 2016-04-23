@@ -21,7 +21,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from warehouse import views
 from warehouse.views import (
     forbidden, index, httpexception_view, robotstxt, current_user_indicator,
-    search,
+    search, health
 )
 
 from ..common.db.accounts import UserFactory
@@ -340,3 +340,14 @@ class TestSearch:
             pretend.call(es_query, url_maker=url_maker, page=15 or 1),
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
+
+
+def test_health():
+    request = pretend.stub(
+        db=pretend.stub(
+            execute=pretend.call_recorder(lambda q: None),
+        ),
+    )
+
+    assert health(request) == "OK"
+    assert request.db.execute.calls == [pretend.call("SELECT 1")]

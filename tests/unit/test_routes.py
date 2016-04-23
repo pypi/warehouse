@@ -52,6 +52,7 @@ def test_routes():
     includeme(config)
 
     assert config.add_route.calls == [
+        pretend.call("health", "/_health/"),
         pretend.call('index', '/'),
         pretend.call("robots.txt", "/robots.txt"),
         pretend.call("index.sitemap.xml", "/sitemap.xml"),
