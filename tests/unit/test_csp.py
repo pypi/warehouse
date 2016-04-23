@@ -190,10 +190,14 @@ def test_includeme():
     assert config.add_settings.calls == [
         pretend.call({
             "csp": {
+                "base-uri": ["'self'"],
+                "block-all-mixed-content": [],
                 "connect-src": ["'self'"],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
+                "form-action": ["'self'"],
                 "frame-ancestors": ["'none'"],
+                "frame-src": ["'none'"],
                 "img-src": [
                     "'self'",
                     "camo.url.value",

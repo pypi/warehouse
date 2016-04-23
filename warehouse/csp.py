@@ -10,7 +10,6 @@ def _serialize(policy):
     return "; ".join([
         " ".join([k] + [v2 for v2 in v if v2 is not None])
         for k, v in sorted(policy.items())
-        if [v2 for v2 in v if v2 is not None]
     ])
 
 
@@ -56,10 +55,14 @@ def includeme(config):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
+            "base-uri": [SELF],
+            "block-all-mixed-content": [],
             "connect-src": [SELF],
             "default-src": [NONE],
             "font-src": [SELF, "fonts.gstatic.com"],
+            "form-action": [SELF],
             "frame-ancestors": [NONE],
+            "frame-src": [NONE],
             "img-src": [
                 SELF,
                 config.registry.settings["camo.url"],
