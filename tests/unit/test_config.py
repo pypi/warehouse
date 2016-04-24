@@ -212,6 +212,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_static_view=pretend.call_recorder(lambda *a, **kw: None),
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
         scan=pretend.call_recorder(lambda ignore: None),
+        commit=pretend.call_recorder(lambda: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
     monkeypatch.setattr(config, "Configurator", configurator_cls)
@@ -374,6 +375,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.scan.calls == [
         pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),
     ]
+    assert configurator_obj.commit.calls == [pretend.call()]
     assert configurator_obj.add_renderer.calls == [
         pretend.call("json", json_renderer_obj),
         pretend.call("xmlrpc", xmlrpc_renderer_obj),

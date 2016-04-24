@@ -350,4 +350,7 @@ def configure(settings=None):
     # Scan everything for configuration
     config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])
 
+    # Finally, commit all of our changes
+    config.commit()
+
     return config
