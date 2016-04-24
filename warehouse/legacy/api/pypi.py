@@ -12,9 +12,9 @@
 
 import hashlib
 import hmac
-import io
 import os.path
 import re
+import tempfile
 import zipfile
 
 import packaging.specifiers
@@ -475,7 +475,7 @@ class MetadataForm(forms.Form):
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
 
 
-def _is_valid_dist_file(filename, filedata, filetype):
+def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
@@ -489,7 +489,7 @@ def _is_valid_dist_file(filename, filedata, filetype):
         # Ensure that the .exe is a valid zip file, and that all of the files
         # contained within it have safe filenames.
         try:
-            with zipfile.ZipFile(io.BytesIO(filedata), "r") as zfp:
+            with zipfile.ZipFile(filename, "r") as zfp:
                 # We need the no branch below to work around a bug in
                 # coverage.py where it's detecting a missed branch where there
                 # isn't one.
@@ -506,13 +506,14 @@ def _is_valid_dist_file(filename, filedata, filetype):
         # Check the first 8 bytes of the MSI file. This was taken from the
         # legacy implementation of PyPI which itself took it from the
         # implementation of `file` I believe.
-        if filedata[:8] != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
-            return False
+        with open(filename, "rb") as fp:
+            if fp.read(8) != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
+                return False
     elif filename.endswith(".zip") or filename.endswith(".egg"):
         # Ensure that the .zip/.egg is a valid zip file, and that it has a
         # PKG-INFO file.
         try:
-            with zipfile.ZipFile(io.BytesIO(filedata), "r") as zfp:
+            with zipfile.ZipFile(filename, "r") as zfp:
                 for zipname in zfp.namelist():
                     parts = os.path.split(zipname)
                     if len(parts) == 2 and parts[1] == "PKG-INFO":
@@ -528,7 +529,7 @@ def _is_valid_dist_file(filename, filedata, filetype):
         # Ensure that the .whl is a valid zip file, and that it has a WHEEL
         # file.
         try:
-            with zipfile.ZipFile(io.BytesIO(filedata), "r") as zfp:
+            with zipfile.ZipFile(filename, "r") as zfp:
                 for zipname in zfp.namelist():
                     parts = os.path.split(zipname)
                     if len(parts) == 2 and parts[1] == "WHEEL":
@@ -756,19 +757,6 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Check that if it's a binary wheel, it's on a supported platform
-    if filename.endswith(".whl"):
-        wheel_info = _wheel_file_re.match(filename)
-        plats = wheel_info.group("plat").split(".")
-        for plat in plats:
-            if not _valid_platform_tag(plat):
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Binary wheel '{filename}' has an unsupported "
-                    "platform tag '{plat}'."
-                    .format(filename=filename, plat=plat)
-                )
-
     # Check to see if the file that was uploaded exists already or not.
     if request.db.query(
             request.db.query(File)
@@ -792,144 +780,151 @@ def file_upload(request):
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
 
-    # Copy our uploaded file into memory, getting the hashes as we go along.
-    # TODO: It would be nice not to copy this into memory, but boto3 seems to
-    #       go extremely slow when dealing with items on the disk.
-    file_content = io.BytesIO()
-    file_size = 0
-    file_hashes = {
-        "md5": hashlib.md5(),
-        "sha256": hashlib.sha256(),
-        "blake2_256": blake2b(digest_size=256 // 8),
-    }
-    for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
-        file_size += len(chunk)
-        if file_size > file_size_limit:
-            raise _exc_with_message(HTTPBadRequest, "File too large.")
-        file_content.write(chunk)
-        for hasher in file_hashes.values():
-            hasher.update(chunk)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temporary_filename = os.path.join(tmpdir, filename)
 
-    # Take our hash functions and compute the final hashes for them now.
-    file_hashes = {
-        k: h.hexdigest().lower()
-        for k, h in file_hashes.items()
-    }
+        # Buffer the entire file onto disk, checking the hash of the file as we
+        # go along.
+        with open(temporary_filename, "wb") as fp:
+            file_size = 0
+            file_hashes = {
+                "md5": hashlib.md5(),
+                "sha256": hashlib.sha256(),
+                "blake2_256": blake2b(digest_size=256 // 8),
+            }
+            for chunk in iter(
+                    lambda: request.POST["content"].file.read(8096), b""):
+                file_size += len(chunk)
+                if file_size > file_size_limit:
+                    raise _exc_with_message(HTTPBadRequest, "File too large.")
+                fp.write(chunk)
+                for hasher in file_hashes.values():
+                    hasher.update(chunk)
 
-    # Actually verify the digests that we've gotten. We're going to use
-    # hmac.compare_digest even though we probably don't actually need to
-    # because it's better safe than sorry. In the case of multiple digests
-    # we expect them all to be given.
-    if not all([
-        hmac.compare_digest(
-            getattr(form, "{}_digest".format(digest_name)).data.lower(),
-            digest_value,
-        )
-        for digest_name, digest_value in file_hashes.items()
-        if getattr(form, "{}_digest".format(digest_name)).data
-    ]):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "The digest supplied does not match a digest calculated "
-            "from the uploaded file."
-        )
+        # Take our hash functions and compute the final hashes for them now.
+        file_hashes = {
+            k: h.hexdigest().lower()
+            for k, h in file_hashes.items()
+        }
 
-    # Check the file to make sure it is a valid distribution file.
-    # TODO: Figure out if we actually care.
-    if not _is_valid_dist_file(
-            filename, file_content.getvalue(), form.filetype.data):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Invalid distribution file.",
-        )
-
-    # Also buffer the entire signature to memory.
-    if "gpg_signature" in request.POST:
-        has_signature = True
-        signature_content = io.BytesIO()
-        signature_size = 0
-        for chunk in iter(
-                lambda: request.POST["gpg_signature"].file.read(8096), b""):
-            signature_size += len(chunk)
-            if signature_size > MAX_SIGSIZE:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Signature too large.",
-                )
-            signature_content.write(chunk)
-
-        # Check whether signature is ASCII armored
-        if not (signature_content.getvalue()
-                .startswith(b"-----BEGIN PGP SIGNATURE-----")):
+        # Actually verify the digests that we've gotten. We're going to use
+        # hmac.compare_digest even though we probably don't actually need to
+        # because it's better safe than sorry. In the case of multiple digests
+        # we expect them all to be given.
+        if not all([
+            hmac.compare_digest(
+                getattr(form, "{}_digest".format(digest_name)).data.lower(),
+                digest_value,
+            )
+            for digest_name, digest_value in file_hashes.items()
+            if getattr(form, "{}_digest".format(digest_name)).data
+        ]):
             raise _exc_with_message(
                 HTTPBadRequest,
-                "PGP signature is not ASCII armored.",
+                "The digest supplied does not match a digest calculated "
+                "from the uploaded file."
             )
-    else:
-        has_signature = False
-        signature_content = None
 
-    # TODO: This should be handled by some sort of database trigger or a
-    #       SQLAlchemy hook or the like instead of doing it inline in this
-    #       view.
-    request.db.add(Filename(filename=filename))
+        # Check the file to make sure it is a valid distribution file.
+        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "Invalid distribution file.",
+            )
 
-    # Store the information about the file in the database.
-    file_ = File(
-        release=release,
-        filename=filename,
-        python_version=form.pyversion.data,
-        packagetype=form.filetype.data,
-        comment_text=form.comment.data,
-        size=file_size,
-        has_signature=bool(has_signature),
-        md5_digest=file_hashes["md5"],
-        sha256_digest=file_hashes["sha256"],
-        blake2_256_digest=file_hashes["blake2_256"],
-        # Figure out what our filepath is going to be, we're going to use a
-        # directory structure based on the hash of the file contents. This
-        # will ensure that the contents of the file cannot change without
-        # it also changing the path that the file is saved too.
-        path="/".join([
-            file_hashes[PATH_HASHER][:2],
-            file_hashes[PATH_HASHER][2:4],
-            file_hashes[PATH_HASHER][4:],
-            filename,
-        ]),
-    )
-    request.db.add(file_)
+        # Check that if it's a binary wheel, it's on a supported platform
+        if filename.endswith(".whl"):
+            wheel_info = _wheel_file_re.match(filename)
+            plats = wheel_info.group("plat").split(".")
+            for plat in plats:
+                if not _valid_platform_tag(plat):
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Binary wheel '{filename}' has an unsupported "
+                        "platform tag '{plat}'."
+                        .format(filename=filename, plat=plat)
+                    )
 
-    # TODO: This should be handled by some sort of database trigger or a
-    #       SQLAlchemy hook or the like instead of doing it inline in this
-    #       view.
-    request.db.add(
-        JournalEntry(
-            name=release.project.name,
-            version=release.version,
-            action="add {python_version} file {filename}".format(
-                python_version=file_.python_version,
-                filename=file_.filename,
+        # Also buffer the entire signature file to disk.
+        if "gpg_signature" in request.POST:
+            has_signature = True
+            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
+                signature_size = 0
+                for chunk in iter(
+                        lambda: request.POST["gpg_signature"].file.read(8096),
+                        b""):
+                    signature_size += len(chunk)
+                    if signature_size > MAX_SIGSIZE:
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            "Signature too large.",
+                        )
+                    fp.write(chunk)
+
+            # Check whether signature is ASCII armored
+            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
+                if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "PGP signature is not ASCII armored.",
+                    )
+        else:
+            has_signature = False
+
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(Filename(filename=filename))
+
+        # Store the information about the file in the database.
+        file_ = File(
+            release=release,
+            filename=filename,
+            python_version=form.pyversion.data,
+            packagetype=form.filetype.data,
+            comment_text=form.comment.data,
+            size=file_size,
+            has_signature=bool(has_signature),
+            md5_digest=file_hashes["md5"],
+            sha256_digest=file_hashes["sha256"],
+            blake2_256_digest=file_hashes["blake2_256"],
+            # Figure out what our filepath is going to be, we're going to use a
+            # directory structure based on the hash of the file contents. This
+            # will ensure that the contents of the file cannot change without
+            # it also changing the path that the file is saved too.
+            path="/".join([
+                file_hashes[PATH_HASHER][:2],
+                file_hashes[PATH_HASHER][2:4],
+                file_hashes[PATH_HASHER][4:],
+                filename,
+            ]),
+        )
+        request.db.add(file_)
+
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="add {python_version} file {filename}".format(
+                    python_version=file_.python_version,
+                    filename=file_.filename,
+                ),
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
             ),
-            submitted_by=request.user,
-            submitted_from=request.client_addr,
-        ),
-    )
+        )
 
-    storage = request.find_service(IFileStorage)
-    storage.store(
-        file_.path,
-        file_content.getvalue(),
-        meta={
-            "project": file_.release.project.normalized_name,
-            "version": file_.release.version,
-            "package-type": file_.packagetype,
-            "python-version": file_.python_version,
-        },
-    )
-    if has_signature:
+        # TODO: We need a better answer about how to make this transactional so
+        #       this won't take affect until after a commit has happened, for
+        #       now we'll just ignore it and save it before the transaction is
+        #       committed.
+        storage = request.find_service(IFileStorage)
         storage.store(
-            file_.pgp_path,
-            signature_content.getvalue(),
+            file_.path,
+            os.path.join(tmpdir, filename),
             meta={
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
@@ -937,6 +932,17 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
+        if has_signature:
+            storage.store(
+                file_.pgp_path,
+                os.path.join(tmpdir, filename + ".asc"),
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
+                },
+            )
 
     return Response()
 
