@@ -144,30 +144,18 @@ class TestLocalFileStorage:
             storage.get("file.txt")
 
     def test_stores_file(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
-
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
-        storage.store("foo/bar.txt", filename)
+        storage.store("foo/bar.txt", b"Test File!")
 
         with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
             assert fp.read() == b"Test File!"
 
     def test_stores_two_files(self, tmpdir):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
-
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
-        storage.store("foo/first.txt", filename1)
-        storage.store("foo/second.txt", filename2)
+        storage.store("foo/first.txt", b"First Test File!")
+        storage.store("foo/second.txt", b"Second Test File!")
 
         with open(os.path.join(storage_dir, "foo/first.txt"), "rb") as fp:
             assert fp.read() == b"First Test File!"
@@ -237,65 +225,43 @@ class TestS3FileStorage:
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get("file.txt")
 
-    def test_stores_file(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self):
+        obj = pretend.stub(put=pretend.call_recorder(lambda **k: None))
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda k: obj))
 
-        bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
-        )
         storage = S3FileStorage(bucket)
-        storage.store("foo/bar.txt", filename)
+        storage.store("foo/bar.txt", b"Test File!")
 
-        assert bucket.upload_file.calls == [
-            pretend.call(filename, "foo/bar.txt", ExtraArgs={}),
+        assert bucket.Object.calls == [pretend.call("foo/bar.txt")]
+        assert obj.put.calls == [pretend.call(Body=b"Test File!")]
+
+    def test_stores_two_files(self):
+        obj = pretend.stub(put=pretend.call_recorder(lambda **k: None))
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda k: obj))
+
+        storage = S3FileStorage(bucket)
+        storage.store("foo/first.txt", b"First Test File!")
+        storage.store("foo/second.txt", b"Second Test File!")
+
+        assert bucket.Object.calls == [
+            pretend.call("foo/first.txt"),
+            pretend.call("foo/second.txt"),
+        ]
+        assert obj.put.calls == [
+            pretend.call(Body=b"First Test File!"),
+            pretend.call(Body=b"Second Test File!"),
         ]
 
-    def test_stores_two_files(self, tmpdir):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
+    def test_stores_metadata(self):
+        obj = pretend.stub(put=pretend.call_recorder(lambda **k: None))
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda k: obj))
 
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
-
-        bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
-        )
         storage = S3FileStorage(bucket)
-        storage.store("foo/first.txt", filename1)
-        storage.store("foo/second.txt", filename2)
+        storage.store("foo/bar.txt", b"Test File!", meta={"foo": "bar"})
 
-        assert bucket.upload_file.calls == [
-            pretend.call(filename1, "foo/first.txt", ExtraArgs={}),
-            pretend.call(filename2, "foo/second.txt", ExtraArgs={}),
-        ]
-
-    def test_stores_metadata(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
-
-        bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
-        )
-        storage = S3FileStorage(bucket)
-        storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
-
-        assert bucket.upload_file.calls == [
-            pretend.call(
-                filename,
-                "foo/bar.txt",
-                ExtraArgs={"Metadata": {"foo": "bar"}},
-            ),
+        assert bucket.Object.calls == [pretend.call("foo/bar.txt")]
+        assert obj.put.calls == [
+            pretend.call(Body=b"Test File!", Metadata={"foo": "bar"}),
         ]
 
     def test_hashed_path_with_prefix(self):

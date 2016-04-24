@@ -45,9 +45,9 @@ class IFileStorage(Interface):
         at the given path.
         """
 
-    def store(path, file_path, *, meta=None):
+    def store(path, data, *, meta=None):
         """
-        Save the file located at file_path to the file storage at the location
+        Save the data passed in via data to the file storage at the location
         specified by path. An additional meta keyword argument may contain
         extra information that an implementation may or may not store.
         """
