@@ -54,13 +54,20 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
     )
-    config.add_route("packaging.file", "/packages/{path:.*}")
+    config.add_route(
+        "packaging.file",
+        "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
+    )
 
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml")
     config.add_route("rss.packages", "/rss/packages.xml")
 
     # Legacy URLs
+    config.add_route(
+        "legacy.file.redirect",
+        "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
+    )
     config.add_route("legacy.api.simple.index", "/simple/")
     config.add_route(
         "legacy.api.simple.detail",

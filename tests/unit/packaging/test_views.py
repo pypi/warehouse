@@ -158,9 +158,14 @@ class TestPackages:
             python_version="source",
         )
 
-        db_request.matchdict["path"] = "source/{}/{}/{}.asc".format(
-            project.name[0], project.name, file_.filename
-        )
+        path = "/".join([
+            file_.blake2_256_digest[:2],
+            file_.blake2_256_digest[2:4],
+            file_.blake2_256_digest[4:],
+            file_.filename + ".asc",
+        ])
+
+        db_request.matchdict["path"] = path
 
         resp = views.packages(db_request)
 
@@ -181,9 +186,12 @@ class TestPackages:
             python_version="source",
         )
 
-        path = "source/{}/{}/{}".format(
-            project.name[0], project.name, file_.filename
-        )
+        path = "/".join([
+            file_.blake2_256_digest[:2],
+            file_.blake2_256_digest[2:4],
+            file_.blake2_256_digest[4:],
+            file_.filename,
+        ])
 
         db_request.matchdict["path"] = path
         db_request.log = pretend.stub(
@@ -212,9 +220,12 @@ class TestPackages:
             size=27,
         )
 
-        path = "source/{}/{}/{}".format(
-            project.name[0], project.name, file_.filename
-        )
+        path = "/".join([
+            file_.blake2_256_digest[:2],
+            file_.blake2_256_digest[2:4],
+            file_.blake2_256_digest[4:],
+            file_.filename,
+        ])
 
         storage_service = pretend.stub(
             get=pretend.call_recorder(
@@ -255,9 +266,12 @@ class TestPackages:
             has_signature=True,
         )
 
-        path = "source/{}/{}/{}.asc".format(
-            project.name[0], project.name, file_.filename
-        )
+        path = "/".join([
+            file_.blake2_256_digest[:2],
+            file_.blake2_256_digest[2:4],
+            file_.blake2_256_digest[4:],
+            file_.filename + ".asc",
+        ])
 
         storage_service = pretend.stub(
             get=pretend.call_recorder(
