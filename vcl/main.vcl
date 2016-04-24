@@ -85,7 +85,7 @@ sub vcl_recv {
 
     # Requests to /packages/ get dispatched to Amazon instead of to our typical
     # Origin. This requires a a bit of setup to make it work.
-    if (req.url ~ "^/packages/") {
+    if (req.url ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
         # Setup our environment to better match what S3 expects/needs
         set req.http.Host = req.http.AWS-Bucket-Name ".s3.amazonaws.com";
         set req.http.Date = now;
