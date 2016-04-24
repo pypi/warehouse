@@ -228,9 +228,12 @@ class TestFile:
             python_version="source",
         )
 
-        expected = "source/{}/{}/{}".format(
-            project.name[0], project.name, rfile.filename,
-        )
+        expected = "/".join([
+            rfile.blake2_256_digest[:2],
+            rfile.blake2_256_digest[2:4],
+            rfile.blake2_256_digest[4:],
+            rfile.filename,
+        ])
 
         assert rfile.path == expected
         assert rfile.pgp_path == expected + ".asc"
@@ -244,9 +247,12 @@ class TestFile:
             python_version="source",
         )
 
-        expected = "source/{}/{}/{}".format(
-            project.name[0], project.name, rfile.filename,
-        )
+        expected = "/".join([
+            rfile.blake2_256_digest[:2],
+            rfile.blake2_256_digest[2:4],
+            rfile.blake2_256_digest[4:],
+            rfile.filename,
+        ])
 
         results = (
             db_session.query(File.path, File.pgp_path)
