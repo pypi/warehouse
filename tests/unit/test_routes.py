@@ -83,9 +83,16 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
         ),
-        pretend.call("packaging.file", "/packages/{path:.*}"),
+        pretend.call(
+            "packaging.file",
+            "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
+        ),
         pretend.call("rss.updates", "/rss/updates.xml"),
         pretend.call("rss.packages", "/rss/packages.xml"),
+        pretend.call(
+            "legacy.file.redirect",
+            "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
+        ),
         pretend.call("legacy.api.simple.index", "/simple/"),
         pretend.call(
             "legacy.api.simple.detail",
