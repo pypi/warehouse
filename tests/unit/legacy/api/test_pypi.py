@@ -313,7 +313,7 @@ class TestMetadataForm:
 class TestFileValidation:
 
     def test_defaults_to_true(self):
-        assert pypi._is_valid_dist_file("", "")
+        assert pypi._is_valid_dist_file("", b"", "")
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
@@ -323,7 +323,7 @@ class TestFileValidation:
         ],
     )
     def test_bails_with_invalid_package_type(self, filename, filetype):
-        assert not pypi._is_valid_dist_file(filename, filetype)
+        assert not pypi._is_valid_dist_file(filename, b"", filetype)
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
@@ -334,96 +334,81 @@ class TestFileValidation:
             ("test.whl", "bdist_wheel"),
         ],
     )
-    def test_bails_with_invalid_zipfile(self, tmpdir, filename, filetype):
-        f = str(tmpdir.join(filename))
+    def test_bails_with_invalid_zipfile(self, filename, filetype):
+        filedata = b"this is not a valid zip file"
+        assert not pypi._is_valid_dist_file(filename, filedata, filetype)
 
-        with open(f, "wb") as fp:
-            fp.write(b"this is not a valid zip file")
-
-        assert not pypi._is_valid_dist_file(f, filetype)
-
-    def test_wininst_unsafe_filename(self, tmpdir):
-        f = str(tmpdir.join("test.exe"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_wininst_unsafe_filename(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something/bar.py", b"the test file")
 
-        assert not pypi._is_valid_dist_file(f, "bdist_wininst")
+        assert not pypi._is_valid_dist_file(
+            "test.exe", d.getvalue(), "bdist_wininst")
 
-    def test_wininst_safe_filename(self, tmpdir):
-        f = str(tmpdir.join("test.exe"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_wininst_safe_filename(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("purelib/bar.py", b"the test file")
 
-        assert pypi._is_valid_dist_file(f, "bdist_wininst")
+        assert pypi._is_valid_dist_file(
+            "test.exe", d.getvalue(), "bdist_wininst")
 
-    def test_msi_invalid_header(self, tmpdir):
-        f = str(tmpdir.join("test.msi"))
+    def test_msi_invalid_header(self):
+        d = b"this is not the correct header for an msi"
+        assert not pypi._is_valid_dist_file("test.msi", d, "bdist_msi")
 
-        with open(f, "wb") as fp:
-            fp.write(b"this is not the correct header for an msi")
+    def test_msi_valid_header(self):
+        d = b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"
+        assert pypi._is_valid_dist_file("test.msi", d, "bdist_msi")
 
-        assert not pypi._is_valid_dist_file(f, "bdist_msi")
-
-    def test_msi_valid_header(self, tmpdir):
-        f = str(tmpdir.join("test.msi"))
-
-        with open(f, "wb") as fp:
-            fp.write(b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1")
-
-        assert pypi._is_valid_dist_file(f, "bdist_msi")
-
-    def test_zip_no_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_zip_no_pkg_info(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert not pypi._is_valid_dist_file(f, "sdist")
+        assert not pypi._is_valid_dist_file("test.zip", d.getvalue(), "sdist")
 
-    def test_zip_has_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.zip"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_zip_has_pkg_info(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("PKG-INFO", b"this is the package info")
 
-        assert pypi._is_valid_dist_file(f, "sdist")
+        assert pypi._is_valid_dist_file("test.zip", d.getvalue(), "sdist")
 
-    def test_egg_no_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.egg"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_egg_no_pkg_info(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert not pypi._is_valid_dist_file(f, "bdist_egg")
+        assert not pypi._is_valid_dist_file(
+            "test.egg", d.getvalue(), "bdist_egg")
 
-    def test_egg_has_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.egg"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_egg_has_pkg_info(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("PKG-INFO", b"this is the package info")
 
-        assert pypi._is_valid_dist_file(f, "bdist_egg")
+        assert pypi._is_valid_dist_file("test.egg", d.getvalue(), "bdist_egg")
 
-    def test_wheel_no_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test.whl"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_wheel_no_wheel_file(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert not pypi._is_valid_dist_file(f, "bdist_wheel")
+        assert not pypi._is_valid_dist_file(
+            "test.whl", d.getvalue(), "bdist_wheel")
 
-    def test_wheel_has_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test.whl"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
+    def test_wheel_has_wheel_file(self):
+        d = io.BytesIO()
+        with zipfile.ZipFile(d, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("WHEEL", b"this is the package info")
 
-        assert pypi._is_valid_dist_file(f, "bdist_wheel")
+        assert pypi._is_valid_dist_file(
+            "test.whl", d.getvalue(), "bdist_wheel")
 
 
 class TestFileUpload:
@@ -664,10 +649,8 @@ class TestFileUpload:
             ),
         ],
     )
-    def test_successful_upload(self, tmpdir, monkeypatch, pyramid_config,
-                               db_request, has_signature, digests):
-        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-
+    def test_successful_upload(self, pyramid_config, db_request, has_signature,
+                               digests):
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         project = ProjectFactory.create()
@@ -709,17 +692,14 @@ class TestFileUpload:
             )
 
         @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            if file_path.endswith(".asc"):
-                expected = (
+        def storage_service_store(path, data, *, meta):
+            if path.endswith(".asc"):
+                assert data == (
                     b"-----BEGIN PGP SIGNATURE-----\n"
                     b" This is a Fake Signature"
                 )
             else:
-                expected = b"A fake file."
-
-            with open(file_path, "rb") as fp:
-                assert fp.read() == expected
+                assert data == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
@@ -1303,10 +1283,8 @@ class TestFileUpload:
           "macosx_10_10_intel.macosx_10_10_x86_64"),
          ],
     )
-    def test_upload_succeeds_with_wheel(self, tmpdir, monkeypatch,
-                                        pyramid_config, db_request, plat):
-        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-
+    def test_upload_succeeds_with_wheel(self, monkeypatch, pyramid_config,
+                                        db_request, plat):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -1337,9 +1315,8 @@ class TestFileUpload:
         })
 
         @pretend.call_recorder
-        def storage_service_store(path, file_path, *, meta):
-            with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+        def storage_service_store(path, data, *, meta):
+            assert data == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
