@@ -1,3 +1,2 @@
-eventlet
 gunicorn>=19.4
 setproctitle
