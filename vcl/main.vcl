@@ -128,6 +128,11 @@ sub vcl_recv {
         }
     }
 
+    # On a POST, we want to skip the shielding and hit backends directly.
+    if (req.request == "POST") {
+        set req.backend = F_Heroku;
+    }
+
     # Do not bother to attempt to run the caching mechanisms for methods that
     # are not generally safe to cache.
     if (req.request != "HEAD" &&
