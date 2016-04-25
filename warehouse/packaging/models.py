@@ -372,9 +372,9 @@ class File(db.Model):
     path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
     has_signature = Column(Boolean)
-    md5_digest = Column(Text, unique=True)
+    md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
-    blake2_256_digest = Column(CIText, unique=True, nullable=True)
+    blake2_256_digest = Column(CIText, unique=True, nullable=False)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
 
