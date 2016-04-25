@@ -22,6 +22,7 @@ import pkg_resources
 import pretend
 import pytest
 
+from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
@@ -1145,8 +1146,13 @@ class TestFileUpload:
             File(
                 release=release,
                 filename=filename,
+                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
                 sha256_digest=hashlib.sha256(
                     filename.encode("utf8")
+                ).hexdigest(),
+                blake2_256_digest=blake2b(
+                    filename.encode("utf8"),
+                    digest_size=32,
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
                     name=project.name,
