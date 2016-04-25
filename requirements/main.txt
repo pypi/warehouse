@@ -75,8 +75,8 @@ msgpack-python==0.4.7 \
 packaging==16.7 \
     --hash=sha256:2e246cde53917a320c4edb549b6b6ed0c80e22be835047bad814687c7345011e \
     --hash=sha256:cbbbc487473b4d729cb0d86ea78ceeea22629cb1f31fd6cc717c5235616ed160
-paginate==0.5.3 \
-    --hash=sha256:117c11202e30640f9b9513c6d233f9ece4895d1a3308997f1e4af1a712985a07
+paginate==0.5.4 \
+    --hash=sha256:03efdfd4e98d39f94bcd0551679f4c808300a2e50d72663eef1676c0aed3a7a3
 passlib==1.6.5 \
     --hash=sha256:ad631a58dc8abeb0f48016c13f4b3b0f3a7b1045a8cb3c61dd15e2d95b45c472 \
     --hash=sha256:a83d34f53dc9b17aa42c9a35c3fbcc5120f3fcb07f7f8721ec45e6a27be347fc
@@ -140,7 +140,9 @@ requests==2.9.1 \
 rfc3986==0.3.1 \
     --hash=sha256:5336226c70e3d25de5592761f18829911f5c44157be5943bbb7e1ec05e1827ec \
     --hash=sha256:b94638db542896ccf89dc62785ec26dbcbd6a97d337f64e02615b164b974f2e5
-setuptools==20.9.0 \
+setuptools==20.10.1 \
+    --hash=sha256:eb9f5b1ce78b78db5e6054bca2357f7cfcd1bfadbdea4b0fd17fa8600083235d \
+    --hash=sha256:2a360c782e067f84840315bcdcb5ed6c7c841cdedf6444f3232ab4a8b3204ac1 \
     --hash=sha256:f8e38d3002085052bcc934053745152bac9979e6aa5649115794b34cde5fb180
 six==1.10.0 \
     --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
