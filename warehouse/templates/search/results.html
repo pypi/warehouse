@@ -72,7 +72,7 @@
               {% for classifier in classifiers %}
                 {% set sub_levels = classifier.split(' :: ') %}
                 {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
-                <input name="c" type="checkbox" id="{{ classifier }}" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
+                <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
                 <label for="{{ classifier }}">{{ sub_levels[-1] }}</label><br>
               {% endfor %}
               </div>
@@ -101,7 +101,7 @@
           <p>
             <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
             <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
-            <select id="order" name="o">
+            <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "", "relevance") }}
               {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
             </select>
