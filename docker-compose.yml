@@ -1,5 +1,5 @@
 db:
-  image: postgres:9.4
+  image: postgres:9.5
 
 redis:
   image: redis:latest
