@@ -21,10 +21,13 @@ import "babel-polyfill";
 // having to load all of jQuery, which will make things faster.
 import docReady from "warehouse/utils/doc-ready";
 
-// Setup our client side HTML including and trigger it to go off as soon as the
-// document is ready.
+// Import our utility functions
 import HTMLInclude from "warehouse/utils/html-include";
+import * as formUtils from "warehouse/utils/forms";
 
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
+
+// Handle the JS based automatic form submission.
+docReady(formUtils.submitTriggers);
