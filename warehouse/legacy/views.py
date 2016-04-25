@@ -10,11 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import File
 
@@ -22,7 +21,6 @@ from warehouse.packaging.models import File
 @view_config(
     route_name="legacy.file.redirect",
     decorator=[
-        cache_control(365 * 24 * 60 * 60),            # 1 year
         origin_cache(
             365 * 24 * 60 * 60,                       # 1 year
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
@@ -67,7 +65,7 @@ def file_redirect(request):
     # 404.
     if signature:
         if file_.has_signature:
-            return HTTPMovedPermanently(
+            return HTTPTemporaryRedirect(
                 request.route_path("packaging.file", path=file_.pgp_path)
             )
         else:
@@ -75,6 +73,6 @@ def file_redirect(request):
 
     # Finally if we've gotten here, then we want to just return a redirect to
     # the actual file.
-    return HTTPMovedPermanently(
+    return HTTPTemporaryRedirect(
         request.route_path("packaging.file", path=file_.path)
     )

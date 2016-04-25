@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPNotFound
 
 from warehouse.legacy.views import file_redirect
 
@@ -73,7 +73,7 @@ class TestFileRedirect:
 
         resp = file_redirect(db_request)
 
-        assert isinstance(resp, HTTPMovedPermanently)
+        assert isinstance(resp, HTTPTemporaryRedirect)
         assert resp.headers["Location"] == \
             "/packages/ab/ab/thisisahash/" + expected_filename
         assert route_path.calls == [
