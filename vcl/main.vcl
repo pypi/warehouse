@@ -154,6 +154,13 @@ sub vcl_recv {
 
 sub vcl_fetch {
 
+    # These are newer kinds of redirects which should be able to be cached by
+    # default, even though Fastly doesn't currently have them in their default
+    # list of cacheable status codes.
+    if (http_status_matches(beresp.status, "303,307,308")) {
+        set beresp.cacheable = true;
+    }
+
     # For any 5xx status code we want to see if a stale object exists for it,
     # if so we'll go ahead and serve it.
     if (beresp.status >= 500 && beresp.status < 600) {
