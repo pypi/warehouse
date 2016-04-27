@@ -42,9 +42,6 @@ class Project(DocType):
     created = Date()
     classifiers = String(index="not_analyzed", multi=True)
 
-    uploader_name = String()
-    uploader_username = String()
-
     class Meta:
         # disable the _all field to save some space
         all = MetaField(enabled=False)
@@ -67,8 +64,5 @@ class Project(DocType):
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = list(release.classifiers)
-
-        obj["uploader_name"] = release.uploader.name
-        obj["uploader_username"] = release.uploader.username
 
         return obj

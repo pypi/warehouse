@@ -39,8 +39,7 @@ def _project_docs(db):
                     .load_only("normalized_name", "name")
                     .joinedload(Project.releases)
                     .load_only("version")),
-                   joinedload(Release._classifiers).load_only("classifier"),
-                   joinedload(Release.uploader).load_only("name", "username"))
+                   joinedload(Release._classifiers).load_only("classifier"))
           .distinct(Release.name)
           .order_by(Release.name, Release._pypi_ordering.desc())
     )
