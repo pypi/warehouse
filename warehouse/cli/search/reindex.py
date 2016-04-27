@@ -82,7 +82,7 @@ def reindex(config, **kwargs):
     try:
         db.execute("SET statement_timeout = '600s'")
 
-        for _ in parallel_bulk(client, _project_docs(db), thread_count=24):
+        for _ in parallel_bulk(client, _project_docs(db)):
             pass
     except:
         new_index.delete()
