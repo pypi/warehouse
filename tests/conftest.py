@@ -174,6 +174,45 @@ def db_session(app_config):
         engine.dispose()
 
 
+class QueryRecorder:
+
+    def __init__(self):
+        self.queries = []
+        self.recording = False
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, type, value, traceback):
+        self.stop()
+
+    def record(self, conn, cursor, statement, *args):
+        if self.recording:
+            self.queries.append(statement)
+
+    def start(self):
+        self.recording = True
+
+    def stop(self):
+        self.recording = False
+
+    def clear(self):
+        self.queries = []
+
+
+@pytest.yield_fixture
+def query_recorder(app_config):
+    recorder = QueryRecorder()
+
+    engine = app_config.registry["sqlalchemy.engine"]
+    event.listen(engine, "before_cursor_execute", recorder.record)
+
+    try:
+        yield recorder
+    finally:
+        event.remove(engine, "before_cursor_execute", recorder.record)
+
+
 @pytest.fixture
 def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session

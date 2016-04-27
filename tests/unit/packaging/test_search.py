@@ -39,14 +39,7 @@ def test_build_search():
         keywords="the, keywords, lol",
         platform="any platform",
         created=datetime.datetime(1956, 1, 31),
-        _classifiers=[
-            pretend.stub(classifier='Alpha'),
-            pretend.stub(classifier='Beta'),
-        ],
-        uploader=pretend.stub(
-            username="some-username",
-            name="the-users-name",
-        ),
+        classifiers=["Alpha", "Beta"],
     )
     obj = search.Project.from_db(release)
 
@@ -65,5 +58,3 @@ def test_build_search():
     assert obj["platform"] == "any platform"
     assert obj["created"] == datetime.datetime(1956, 1, 31)
     assert obj["classifiers"] == ['Alpha', 'Beta']
-    assert obj["uploader_name"] == "the-users-name"
-    assert obj["uploader_username"] == "some-username"
