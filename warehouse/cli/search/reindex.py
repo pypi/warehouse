@@ -15,28 +15,36 @@ import os
 
 import click
 
-from elasticsearch.helpers import bulk
-from sqlalchemy.orm import lazyload, joinedload
+from elasticsearch.helpers import parallel_bulk
+from sqlalchemy.orm import lazyload, joinedload, load_only
 
 from warehouse.cli.search import search
 from warehouse.db import Session
 from warehouse.packaging.models import Release, Project
 from warehouse.packaging.search import Project as ProjectDocType
 from warehouse.search import get_index
+from warehouse.utils.db import windowed_query
 
 
 def _project_docs(db):
     releases = (
         db.query(Release)
-          .execution_options(stream_results=True)
+          .options(load_only(
+                   "summary", "description", "author",
+                   "author_email", "maintainer", "maintainer_email",
+                   "home_page", "download_url", "keywords", "platform",
+                   "created"))
           .options(lazyload("*"),
-                   joinedload(Release.project)
-                   .subqueryload(Project.releases)
-                   .load_only("version"))
+                   (joinedload(Release.project)
+                    .load_only("normalized_name", "name")
+                    .joinedload(Project.releases)
+                    .load_only("version")),
+                   joinedload(Release._classifiers).load_only("classifier"),
+                   joinedload(Release.uploader).load_only("name", "username"))
           .distinct(Release.name)
           .order_by(Release.name, Release._pypi_ordering.desc())
     )
-    for release in releases:
+    for release in windowed_query(releases, Release.name, 1000):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         yield p.to_dict(include_meta=True)
@@ -75,7 +83,8 @@ def reindex(config, **kwargs):
     try:
         db.execute("SET statement_timeout = '600s'")
 
-        bulk(client, _project_docs(db))
+        for _ in parallel_bulk(client, _project_docs(db), thread_count=24):
+            pass
     except:
         new_index.delete()
         raise

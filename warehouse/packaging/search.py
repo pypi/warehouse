@@ -66,7 +66,7 @@ class Project(DocType):
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
         obj["created"] = release.created
-        obj["classifiers"] = [c.classifier for c in release._classifiers]
+        obj["classifiers"] = list(release.classifiers)
 
         obj["uploader_name"] = release.uploader.name
         obj["uploader_username"] = release.uploader.username

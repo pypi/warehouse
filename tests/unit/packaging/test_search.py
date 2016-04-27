@@ -39,10 +39,7 @@ def test_build_search():
         keywords="the, keywords, lol",
         platform="any platform",
         created=datetime.datetime(1956, 1, 31),
-        _classifiers=[
-            pretend.stub(classifier='Alpha'),
-            pretend.stub(classifier='Beta'),
-        ],
+        classifiers=["Alpha", "Beta"],
         uploader=pretend.stub(
             username="some-username",
             name="the-users-name",

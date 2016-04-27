@@ -129,11 +129,14 @@ class TestReindex:
         class TestException(Exception):
             pass
 
-        def bulk(client, iterable):
+        def parallel_bulk(client, iterable, *, thread_count):
             assert client is es_client
             assert iterable is docs
+            assert isinstance(thread_count, int)
             raise TestException
-        monkeypatch.setattr(warehouse.cli.search.reindex, "bulk", bulk)
+
+        monkeypatch.setattr(
+            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
 
         result = cli.invoke(reindex, obj=config)
 
@@ -178,8 +181,11 @@ class TestReindex:
             },
         )
 
-        bulk = pretend.call_recorder(lambda client, iterable: None)
-        monkeypatch.setattr(warehouse.cli.search.reindex, "bulk", bulk)
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, thread_count: [None]
+        )
+        monkeypatch.setattr(
+            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
@@ -190,7 +196,9 @@ class TestReindex:
         assert sess_obj.execute.calls == [
             pretend.call("SET statement_timeout = '600s'"),
         ]
-        assert bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk .calls == [
+            pretend.call(es_client, docs, thread_count=24),
+        ]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
         assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
@@ -231,8 +239,11 @@ class TestReindex:
             },
         )
 
-        bulk = pretend.call_recorder(lambda client, iterable: None)
-        monkeypatch.setattr(warehouse.cli.search.reindex, "bulk", bulk)
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, thread_count: [None]
+        )
+        monkeypatch.setattr(
+            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
@@ -243,7 +254,9 @@ class TestReindex:
         assert sess_obj.execute.calls == [
             pretend.call("SET statement_timeout = '600s'"),
         ]
-        assert bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, thread_count=24),
+        ]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
         assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
