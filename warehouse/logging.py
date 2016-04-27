@@ -77,7 +77,8 @@ def includeme(config):
                 "class": "raven.handlers.logging.SentryHandler",
                 "level": "ERROR",
                 "dsn": config.registry.settings.get("sentry.dsn"),
-                "transport": config.registry.settings.get("sentry.transport")
+                "release": config.registry.settings.get("warehouse.commit"),
+                "transport": config.registry.settings.get("sentry.transport"),
             },
         },
         "root": {

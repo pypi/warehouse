@@ -117,6 +117,7 @@ def test_includeme(monkeypatch, settings, expected_level):
                 "sentry": {
                     "class": "raven.handlers.logging.SentryHandler",
                     "level": "ERROR",
+                    "release": None,
                     "dsn": None,
                     "transport": None,
                 },
