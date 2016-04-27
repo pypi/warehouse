@@ -27,7 +27,12 @@ from warehouse.packaging.models import (
 )
 
 
-pypi_xmlrpc = functools.partial(xmlrpc_method, endpoint="pypi")
+pypi_xmlrpc = functools.partial(
+    xmlrpc_method,
+    endpoint="pypi",
+    require_csrf=False,
+    require_methods=["POST"],
+)
 
 
 @view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
