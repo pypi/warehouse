@@ -1,0 +1,15 @@
+access-log:
+  path: /dev/stdout
+  format: "measure#h2o.service=%{duration}x request_id=%{x-request-id}i"
+
+http1-request-timeout: 3600
+
+hosts:
+  "*.herokuapp.com":
+    listen:
+      port: <%= ENV["PORT"] %>
+    paths:
+      "/":
+        proxy.reverse.url:  http://[unix:/tmp/h2o.socket]/
+        proxy.preserve-host: ON
+        proxy.timeout.keepalive: 0
