@@ -1,3 +1,4 @@
+import brotli from "gulp-brotli";
 import del from "del";
 import gulp from "gulp";
 import gulpBatch from "gulp-batch";
@@ -8,6 +9,7 @@ import gulpSequence  from "gulp-sequence";
 import gulpUglify from "gulp-uglify/minifier";
 import gulpWatch from "gulp-watch";
 import gulpWebpack  from "webpack-stream";
+import gzip from "gulp-gzip";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
 import named from "vinyl-named";
@@ -173,6 +175,57 @@ gulp.task("dist:manifest", () => {
 });
 
 
+gulp.task("dist:compress:gz", () => {
+  return gulp.src(path.join(distPath, "**", "*"))
+              .pipe(gzip({ gzipOptions: { level: 9, memLevel: 9 }}))
+              .pipe(gulp.dest(distPath));
+});
+
+
+gulp.task("dist:compress:br:generic", () => {
+  let paths = [
+    path.join(distPath, "fonts", "*.otf"),
+    path.join(distPath, "fonts", "*.woff"),
+    path.join(distPath, "fonts", "*.woff2"),
+    path.join(distPath, "fonts", "*.ttf"),
+    path.join(distPath, "fonts", "*.eot"),
+    path.join(distPath, "fonts", "*.svg"),
+
+    path.join(distPath, "images", "*.png"),
+    path.join(distPath, "images", "*.svg"),
+    path.join(distPath, "images", "*.ico"),
+  ];
+
+  return gulp.src(paths, { base: distPath })
+              .pipe(brotli.compress({ mode: 0, quality: 11 }))
+              .pipe(gulp.dest(distPath));
+});
+
+
+gulp.task("dist:compress:br:text", () => {
+  let paths = [
+    path.join(distPath, "css", "*.css"),
+    path.join(distPath, "css", "*.map"),
+    path.join(distPath, "js", "*.js"),
+    path.join(distPath, "js", "*.map"),
+    path.join(distPath, "manifest.json"),
+  ];
+
+  return gulp.src(paths, { base: distPath })
+              .pipe(brotli.compress({ mode: 1, quality: 11 }))
+              .pipe(gulp.dest(distPath));
+});
+
+
+gulp.task(
+  "dist:compress:br",
+  ["dist:compress:br:generic", "dist:compress:br:text"]
+);
+
+
+gulp.task("dist:compress", ["dist:compress:gz", "dist:compress:br"]);
+
+
 gulp.task("dist", (cb) => {
   return gulpSequence(
     // Ensure that we have a good clean base to start out with, by blowing away
@@ -187,7 +240,10 @@ gulp.task("dist", (cb) => {
     // This has to be on it's own, and it has to be one of the last things we do
     // because otherwise we won't catch all of the files in the revisioning
     // process.
-    "dist:manifest"
+    "dist:manifest",
+    // Finally, once we've done everything else, we'll compress everything that
+    // we've gotten.
+    "dist:compress"
   )(cb);
 });
 

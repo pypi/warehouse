@@ -13,3 +13,8 @@ hosts:
         proxy.reverse.url:  http://[unix:/tmp/h2o.socket]/
         proxy.preserve-host: ON
         proxy.timeout.keepalive: 0
+      "/static":
+        file.dir: /app/warehouse/static/dist
+        file.etag: ON
+        file.send-compressed: ON
+        expires: 10 year
