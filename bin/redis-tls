@@ -18,6 +18,3 @@ unset REDIS_PORT
 # TODO: Currently it's not possible to actually verify the TLS used by Heroku
 #       Redis, so we'll comment this out for a future enhancement.
 # REDIS_URL="$REDIS_URL?ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"
-
-# Finally, go ahead and execute the given command.
-exec "$@"
