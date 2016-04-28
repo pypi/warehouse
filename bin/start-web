@@ -7,8 +7,7 @@ set -eo pipefail
 source bin/redis-tls
 
 # Make sure that our Fastly configuration is deployed
-# bin/fastly-config
-echo $REDIS_URL
+bin/fastly-config
 
 # Setup a FIFO that we'll use to send around commands to shut everything downn.
 psmgr=/tmp/h2o-wait
