@@ -136,7 +136,7 @@ readme-renderer==0.7.0 \
     --hash=sha256:5399825a1ebef9311f365eed7050f8049e3489156e8761f26b3a55e4dc7b09ce
 repoze.lru==0.6 \
     --hash=sha256:0f7a323bf716d3cb6cb3910cd4fccbee0b3d3793322738566ecce163b01bbd31
-requests==2.9.1 \
+requests==2.10.0 \
     --hash=sha256:113fbba5531a9e34945b7d36b33a084e8ba5d0664b703c81a7c572d91919a5b8 \
     --hash=sha256:c577815dd00f1394203fc44eb979724b098f88264a9ef898ee45b8e5e9cf587f
 rfc3986==0.3.1 \
