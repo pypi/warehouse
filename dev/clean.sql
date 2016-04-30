@@ -3,7 +3,7 @@
 -- Set all of the email addresses to a random value so we don't leak people's
 -- email addresses.
 UPDATE accounts_email
-    SET email = encode(digest(gen_random_bytes(8), 'md5'), 'hex') || 'example.com';
+    SET email = encode(gen_random_bytes(16), 'hex') || '@example.com';
 
 
 -- Set all of our passwords to use the password 'password', hashed with bcrypt,
