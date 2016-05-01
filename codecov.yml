@@ -1,0 +1,9 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 100
+    patch: false
+    changes: false
+
+comment: off
