@@ -115,6 +115,8 @@ def configure(settings=None):
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
+    maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
+    maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
@@ -245,6 +247,9 @@ def configure(settings=None):
 
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")
+
+    # Register support for our domain predicates
+    config.include(".domain")
 
     # Register support for internationalization and localization
     config.include(".i18n")
