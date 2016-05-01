@@ -10,6 +10,11 @@
     .icon {
       font-size: $small-font-size;
     }
+
+    a {
+      color: $white;
+      text-decoration: underline;
+    }
 }
 
 .notification-bar.-warning {

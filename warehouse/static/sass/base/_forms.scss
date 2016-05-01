@@ -8,6 +8,7 @@ select {
   line-height: em(37px);
   border: 1px solid $border-color;
   color: $text-color;
+  vertical-align: center;
 }
 
 #{$all-text-inputs-focus},
@@ -22,4 +23,8 @@ select:active {
 
 select {
   padding: 7px 5px;
+}
+
+label {
+  vertical-align: center;
 }
