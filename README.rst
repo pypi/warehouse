@@ -16,7 +16,8 @@ Warehouse
      :alt: Requirements Status
 
 Warehouse is a next generation Python Package Repository designed to replace
-the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_.
+the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
+(whose source code `lives separately on BitBucket <https://bitbucket.org/pypa/pypi/>`_).
 
 You can find more information in the `documentation`_.
 
