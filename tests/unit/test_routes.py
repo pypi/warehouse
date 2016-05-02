@@ -16,16 +16,8 @@ import pytest
 from warehouse.routes import includeme
 
 
-@pytest.mark.parametrize(
-    ("warehouse", "forklift"),
-    [
-        (None, None),
-        ("pypi.io", None),
-        (None, "upload.pypi.io"),
-        ("pypi.io", "upload.pypi.io"),
-    ]
-)
-def test_routes(warehouse, forklift):
+@pytest.mark.parametrize("warehouse", [None, "pypi.io"])
+def test_routes(warehouse):
     docs_route_url = pretend.stub()
 
     class FakeConfig:
@@ -38,8 +30,6 @@ def test_routes(warehouse, forklift):
             settings = {}
             if warehouse:
                 settings["warehouse.domain"] = warehouse
-            if forklift:
-                settings["forklift.domain"] = forklift
             return settings
 
         @staticmethod
@@ -167,18 +157,18 @@ def test_routes(warehouse, forklift):
         pretend.call(
             "legacy.api.pypi.file_upload",
             "file_upload",
-            domain=forklift,
+            domain=warehouse,
         ),
-        pretend.call("legacy.api.pypi.submit", "submit", domain=forklift),
+        pretend.call("legacy.api.pypi.submit", "submit", domain=warehouse),
         pretend.call(
             "legacy.api.pypi.submit_pkg_info",
             "submit_pkg_info",
-            domain=forklift,
+            domain=warehouse,
         ),
         pretend.call(
             "legacy.api.pypi.doc_upload",
             "doc_upload",
-            domain=forklift,
+            domain=warehouse,
         ),
         pretend.call("legacy.api.pypi.doap", "doap", domain=warehouse),
     ]
