@@ -104,9 +104,7 @@ class TestProxyFixer:
         app = pretend.call_recorder(lambda e, s: response)
 
         environ = {
-            "HTTP_X_FORWARDED_PROTO": "http",
             "HTTP_X_FORWARDED_FOR": "1.2.3.4",
-            "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
         start_response = pretend.stub()
@@ -126,9 +124,9 @@ class TestProxyFixer:
         app = pretend.call_recorder(lambda e, s: response)
 
         environ = {
-            "HTTP_X_FORWARDED_PROTO": "https, http, https",
+            "HTTP_X_FORWARDED_PROTO": "http",
             "HTTP_X_FORWARDED_FOR": "2.2.3.4, 1.2.3.4, 5.5.5.5",
-            "HTTP_X_FORWARDED_HOST": "example.com, nope.example.com",
+            "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
         start_response = pretend.stub()
