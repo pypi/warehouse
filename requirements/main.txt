@@ -37,7 +37,7 @@ cffi==1.6.0 \
     --hash=sha256:3fab8481cd34d2eb6c0007ea744cc2de777140112453a015a65dac7f2c949850
 click==6.6 \
     --hash=sha256:cc6a19da8ebff6e7074f731447ef7e112bd23adf3de5c597cf9989f2fd8defe9
-contextlib2==0.5.1 \
+contextlib2==0.5.2 \
     --hash=sha256:227c79e126e8a8904a81d162750581ed3d49af2395a3100be7067b7296d33d45
 docutils==0.12 \
     --hash=sha256:dcebd4928112631626f4c4d0df59787c748404e66dda952110030ea883d3b8cd \
