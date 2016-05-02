@@ -124,7 +124,7 @@ sub vcl_recv {
 
         # Pass the real host value back to the backend.
         if (req.http.Host) {
-            set req.http.Warehouse-Host = req.http.Host;
+            set req.http.Warehouse-Host = req.http.host;
         }
     }
 
