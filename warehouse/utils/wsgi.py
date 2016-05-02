@@ -29,14 +29,22 @@ class ProxyFixer:
             proto = environ.get("HTTP_WAREHOUSE_PROTO", "")
             remote_addr = environ.get("HTTP_WAREHOUSE_IP", "")
             host = environ.get("HTTP_WAREHOUSE_HOST", "")
+        # If we're not getting headers from a trusted third party via the
+        # specialized Warehouse-* headers, then we'll fall back to looking at
+        # X-Fowarded-* headers, assuming that whatever we have in front of us
+        # will strip invalid ones.
+        else:
+            proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
+            remote_addr = environ.get("HTTP_X_FORWARDED_FOR", "")
+            host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
-            # Put the new header values into our environment.
-            if remote_addr:
-                environ["REMOTE_ADDR"] = remote_addr
-            if host:
-                environ["HTTP_HOST"] = host
-            if proto:
-                environ["wsgi.url_scheme"] = proto
+        # Put the new header values into our environment.
+        if remote_addr:
+            environ["REMOTE_ADDR"] = remote_addr
+        if host:
+            environ["HTTP_HOST"] = host
+        if proto:
+            environ["wsgi.url_scheme"] = proto
 
         # Remove any of the forwarded or warehouse headers from the environment
         for header in {
