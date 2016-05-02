@@ -41,18 +41,12 @@ class ProxyFixer:
         # X-Fowarded-* headers, assuming that whatever we have in front of us
         # will strip invalid ones.
         else:
-            proto = _forwarded_value(
-                environ.get("HTTP_X_FORWARDED_PROTO", ""),
-                self.num_proxies,
-            )
+            proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
             remote_addr = _forwarded_value(
                 environ.get("HTTP_X_FORWARDED_FOR", ""),
                 self.num_proxies,
             )
-            host = _forwarded_value(
-                environ.get("HTTP_X_FORWARDED_HOST", ""),
-                self.num_proxies,
-            )
+            host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
         # Put the new header values into our environment.
         if remote_addr:
