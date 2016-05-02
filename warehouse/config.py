@@ -114,6 +114,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES")
     maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
@@ -329,6 +330,7 @@ def configure(settings=None):
     config.add_wsgi_middleware(
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
+        num_proxies=config.registry.settings.get("warehouse.num_proxies", 1),
     )
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
