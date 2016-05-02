@@ -13,11 +13,18 @@
 import hmac
 
 
+def _forwarded_value(values, num_proxies):
+    values = [v.strip() for v in values.split(",")]
+    if len(values) >= num_proxies:
+        return values[-num_proxies]
+
+
 class ProxyFixer:
 
-    def __init__(self, app, token):
+    def __init__(self, app, token, num_proxies=1):
         self.app = app
         self.token = token
+        self.num_proxies = num_proxies
 
     def __call__(self, environ, start_response):
         # Determine if the request comes from a trusted proxy or not by looking
@@ -34,9 +41,18 @@ class ProxyFixer:
         # X-Fowarded-* headers, assuming that whatever we have in front of us
         # will strip invalid ones.
         else:
-            proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
-            remote_addr = environ.get("HTTP_X_FORWARDED_FOR", "")
-            host = environ.get("HTTP_X_FORWARDED_HOST", "")
+            proto = _forwarded_value(
+                environ.get("HTTP_X_FORWARDED_PROTO", ""),
+                self.num_proxies,
+            )
+            remote_addr = _forwarded_value(
+                environ.get("HTTP_X_FORWARDED_FOR", ""),
+                self.num_proxies,
+            )
+            host = _forwarded_value(
+                environ.get("HTTP_X_FORWARDED_HOST", ""),
+                self.num_proxies,
+            )
 
         # Put the new header values into our environment.
         if remote_addr:

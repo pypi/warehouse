@@ -99,6 +99,58 @@ class TestProxyFixer:
             ),
         ]
 
+    def test_skips_x_forwarded_when_not_enough(self):
+        response = pretend.stub()
+        app = pretend.call_recorder(lambda e, s: response)
+
+        environ = {
+            "HTTP_X_FORWARDED_PROTO": "http",
+            "HTTP_X_FORWARDED_FOR": "1.2.3.4",
+            "HTTP_X_FORWARDED_HOST": "example.com",
+            "HTTP_SOME_OTHER_HEADER": "woop",
+        }
+        start_response = pretend.stub()
+
+        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(
+            environ,
+            start_response,
+        )
+
+        assert resp is response
+        assert app.calls == [
+            pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response),
+        ]
+
+    def test_selects_right_x_forwarded_value(self):
+        response = pretend.stub()
+        app = pretend.call_recorder(lambda e, s: response)
+
+        environ = {
+            "HTTP_X_FORWARDED_PROTO": "https, http, https",
+            "HTTP_X_FORWARDED_FOR": "2.2.3.4, 1.2.3.4, 5.5.5.5",
+            "HTTP_X_FORWARDED_HOST": "example.com, nope.example.com",
+            "HTTP_SOME_OTHER_HEADER": "woop",
+        }
+        start_response = pretend.stub()
+
+        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(
+            environ,
+            start_response,
+        )
+
+        assert resp is response
+        assert app.calls == [
+            pretend.call(
+                {
+                    "HTTP_SOME_OTHER_HEADER": "woop",
+                    "REMOTE_ADDR": "1.2.3.4",
+                    "HTTP_HOST": "example.com",
+                    "wsgi.url_scheme": "http",
+                },
+                start_response,
+            ),
+        ]
+
 
 class TestVhmRootRemover:
 
