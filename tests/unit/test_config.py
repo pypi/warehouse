@@ -305,6 +305,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".forklift"),
             pretend.call(".raven"),
             pretend.call(".csp"),
             pretend.call(".recaptcha"),

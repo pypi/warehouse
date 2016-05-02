@@ -284,6 +284,9 @@ def configure(settings=None):
     # Register all our URL routes for Warehouse.
     config.include(".routes")
 
+    # Register forklift, at least until we split it out into it's own project.
+    config.include(".forklift")
+
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
     config.add_tween("warehouse.config.require_https_tween_factory")

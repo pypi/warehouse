@@ -16,7 +16,6 @@ def includeme(config):
     # these to segregate the Warehouse routes from the Forklift routes until
     # Forklift is properly split out into it's own project.
     warehouse = config.get_settings().get("warehouse.domain")
-    forklift = config.get_settings().get("forklift.domain")
 
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
@@ -120,22 +119,22 @@ def includeme(config):
     config.add_pypi_action_route(
         "legacy.api.pypi.file_upload",
         "file_upload",
-        domain=forklift,
+        domain=warehouse,
     )
     config.add_pypi_action_route(
         "legacy.api.pypi.submit",
         "submit",
-        domain=forklift,
+        domain=warehouse,
     )
     config.add_pypi_action_route(
         "legacy.api.pypi.submit_pkg_info",
         "submit_pkg_info",
-        domain=forklift,
+        domain=warehouse,
     )
     config.add_pypi_action_route(
         "legacy.api.pypi.doc_upload",
         "doc_upload",
-        domain=forklift,
+        domain=warehouse,
     )
     config.add_pypi_action_route(
         "legacy.api.pypi.doap",
