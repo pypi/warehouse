@@ -100,8 +100,8 @@
             <h3 {{ l20n("aboutPyPI") }}>About PyPI</h3>
           </li>
           <li><a href="TODO">Status: Operational</a></li>
-          <li><a {{ l20n("securityPolicy") }} href="TODO">Security Policy</a></li>
-          <li><a {{ l20n("ourSponsors") }} href="TODO">Our Sponsors</a></li>
+          <li><a {{ l20n("securityPolicy") }} href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a {{ l20n("ourSponsors") }} href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
 
         <ul>
@@ -118,7 +118,7 @@
 
       <div {{ l20n("developedByAndCopyright") }}>
         <p>Developed and maintained by the Python community, for the Python community.</p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="#">Legal Statements</a></p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('legal') }}">Legal Statements</a></p>
       </div>
     </footer>
 
