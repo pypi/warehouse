@@ -79,6 +79,11 @@ def activate_hook(request):
     return True
 
 
+def template_view(config, name, route, template):
+    config.add_route(name, route)
+    config.add_view(renderer=template, route_name=name)
+
+
 def maybe_set(settings, name, envvar, coercer=None, default=None):
     if envvar in os.environ:
         value = os.environ[envvar]
@@ -251,6 +256,9 @@ def configure(settings=None):
 
     # Register support for our domain predicates
     config.include(".domain")
+
+    # Register support for template views.
+    config.add_directive("add_template_view", template_view, action_wrap=False)
 
     # Register support for internationalization and localization
     config.include(".i18n")
