@@ -39,6 +39,11 @@ def test_routes(warehouse):
 
         @staticmethod
         @pretend.call_recorder
+        def add_template_view(*args, **kwargs):
+            pass
+
+        @staticmethod
+        @pretend.call_recorder
         def add_redirect(*args, **kwargs):
             pass
 
@@ -142,6 +147,17 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("legacy.docs", docs_route_url),
+    ]
+
+    assert config.add_template_view.calls == [
+        pretend.call("help", "/help/", "pages/help.html"),
+        pretend.call("security", "/security/", "pages/security.html"),
+        pretend.call("legal", "/legal/", "pages/legal.html"),
+        pretend.call(
+            "sponsors",
+            "/sponsors/",
+            "warehouse:templates/pages/sponsors.html",
+        ),
     ]
 
     assert config.add_redirect.calls == [

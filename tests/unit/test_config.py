@@ -97,6 +97,20 @@ def test_activate_hook(path, expected):
     assert config.activate_hook(request) == expected
 
 
+def test_template_view():
+    configobj = pretend.stub(
+        add_route=pretend.call_recorder(lambda *a, **kw: None),
+        add_view=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    config.template_view(configobj, "test", "/test/", "test.html")
+
+    assert configobj.add_route.calls == [pretend.call("test", "/test/")]
+    assert configobj.add_view.calls == [
+        pretend.call(renderer="test.html", route_name="test"),
+    ]
+
+
 @pytest.mark.parametrize(
     ("environ", "name", "envvar", "coercer", "default", "expected"),
     [
@@ -198,7 +212,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         include=pretend.call_recorder(lambda include: None),
-        add_directive=pretend.call_recorder(lambda name, fn: None),
+        add_directive=pretend.call_recorder(lambda name, fn, **k: None),
         add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
         add_renderer=pretend.call_recorder(lambda name, renderer: None),
         add_request_method=pretend.call_recorder(lambda fn: None),
@@ -372,6 +386,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             "warehouse:static/dist/manifest.json",
             reload=False,
             strict=True,
+        ),
+    ]
+    assert configurator_obj.add_directive.calls == [
+        pretend.call(
+            "add_template_view",
+            config.template_view,
+            action_wrap=False,
         ),
     ]
     assert configurator_obj.scan.calls == [
