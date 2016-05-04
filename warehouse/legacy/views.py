@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -65,7 +65,7 @@ def file_redirect(request):
     # 404.
     if signature:
         if file_.has_signature:
-            return HTTPTemporaryRedirect(
+            return HTTPFound(
                 request.route_path("packaging.file", path=file_.pgp_path)
             )
         else:
@@ -73,6 +73,4 @@ def file_redirect(request):
 
     # Finally if we've gotten here, then we want to just return a redirect to
     # the actual file.
-    return HTTPTemporaryRedirect(
-        request.route_path("packaging.file", path=file_.path)
-    )
+    return HTTPFound(request.route_path("packaging.file", path=file_.path))
