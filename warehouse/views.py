@@ -182,7 +182,7 @@ def search(request):
         url_maker=paginate_url_factory(request),
     )
 
-    if page_num > page.page_count:
+    if page.page_count and page_num > page.page_count:
         raise HTTPNotFound
 
     available_filters = collections.defaultdict(list)

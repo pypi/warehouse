@@ -44,9 +44,10 @@ class _ElasticsearchWrapper:
         self.results = self.query[range].execute()
 
         if hasattr(self.results, "suggest"):
-            suggestion = self.results.suggest.name_suggestion[0]
-            if suggestion.options:
-                self.best_guess = suggestion.options[0]
+            if self.results.suggest.name_suggestion:
+                suggestion = self.results.suggest.name_suggestion[0]
+                if suggestion.options:
+                    self.best_guess = suggestion.options[0]
 
         return list(self.results)
 
