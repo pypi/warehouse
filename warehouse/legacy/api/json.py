@@ -12,13 +12,12 @@
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.interfaces import IDownloadStatService
-from warehouse.packaging.models import File, Release, JournalEntry
+from warehouse.packaging.models import File, Release
 
 
 @view_config(
@@ -89,12 +88,7 @@ def json_release(release, request):
     ])
 
     # Get the latest serial number for this project.
-    serial = (
-        request.db.query(func.max(JournalEntry.id))
-                  .filter(JournalEntry.name == project.name)
-                  .scalar()
-    )
-    request.response.headers["X-PyPI-Last-Serial"] = str(serial or 0)
+    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
     # Get all of the releases and files for this project.
     release_files = (
