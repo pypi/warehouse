@@ -157,7 +157,7 @@ clean:
 
 purge: clean
 	rm -rf .state
-	docker-compose rm --force
+	docker-compose rm --force --all
 
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug
