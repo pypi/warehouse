@@ -75,11 +75,10 @@ sub vcl_recv {
         }
     }
 
-    # Canonicalize our domains by redirecting any domain that doesn't match our
-    # primary domain to our primary domain. We do this *after* the HTTPS check
-    # on purpose.
-    if (std.tolower(req.http.host) != std.tolower(req.http.Primary-Domain)) {
-        set req.http.Location = "https://" req.http.Primary-Domain req.url;
+    # Redirect www.pypi.io to pypi.io, this is purposely done *after* the HTTPS
+    # checks.
+    if (std.tolower(req.http.host) == "www.pypi.io") {
+        set req.http.Location = "https://pypi.io" req.url;
         error 750 "Redirect to Primary Domain";
     }
 
@@ -102,7 +101,6 @@ sub vcl_recv {
 
     # We no longer need any of these variables, which would exist only to
     # shuffle configuration from the Fastly UI into our VCL.
-    unset req.http.Primary-Domain;
     unset req.http.AWS-Access-Key-ID;
     unset req.http.AWS-Secret-Access-Key;
     unset req.http.AWS-Bucket-Name;
