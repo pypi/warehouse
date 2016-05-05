@@ -70,12 +70,7 @@ def simple_detail(project, request):
         )
 
     # Get the latest serial number for this project.
-    serial = (
-        request.db.query(func.max(JournalEntry.id))
-                  .filter(JournalEntry.name == project.name)
-                  .scalar()
-    )
-    request.response.headers["X-PyPI-Last-Serial"] = str(serial or 0)
+    request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
     # Get all of the files for this project.
     files = (

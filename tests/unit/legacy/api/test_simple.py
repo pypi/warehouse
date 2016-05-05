@@ -88,11 +88,15 @@ class TestSimpleDetail:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
-    def test_no_files_with_seiral(self, db_request):
+    def test_no_files_with_serial(self, db_request):
         project = ProjectFactory.create()
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+
+        # Make sure that we get any changes made since the JournalEntry was
+        # saved.
+        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
@@ -119,6 +123,10 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
+        # Make sure that we get any changes made since the JournalEntry was
+        # saved.
+        db_request.db.refresh(project)
+
         assert simple.simple_detail(project, db_request) == {
             "project": project,
             "files": files,
@@ -143,6 +151,10 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+
+        # Make sure that we get any changes made since the JournalEntry was
+        # saved.
+        db_request.db.refresh(project)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,

@@ -89,11 +89,7 @@ def list_packages(request):
 
 @pypi_xmlrpc(method="list_packages_with_serial")
 def list_packages_with_serial(request):
-    serials = (
-        request.db.query(JournalEntry.name, func.max(JournalEntry.id))
-                  .join(Project, JournalEntry.name == Project.name)
-                  .group_by(JournalEntry.name)
-    )
+    serials = request.db.query(Project.name, Project.last_serial).all()
     return dict((serial[0], serial[1]) for serial in serials)
 
 
