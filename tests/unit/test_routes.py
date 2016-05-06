@@ -23,14 +23,15 @@ def test_routes(warehouse):
     class FakeConfig:
 
         def __init__(self):
-            self.registry = pretend.stub(settings={"docs.url": docs_route_url})
-
-        @staticmethod
-        def get_settings():
-            settings = {}
+            self.registry = pretend.stub(settings={
+                "docs.url": docs_route_url,
+                "files.url": "https://files.example.com/packages/{path}",
+            })
             if warehouse:
-                settings["warehouse.domain"] = warehouse
-            return settings
+                self.registry.settings["warehouse.domain"] = warehouse
+
+        def get_settings(self):
+            return self.registry.settings
 
         @staticmethod
         @pretend.call_recorder
@@ -111,16 +112,10 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "packaging.file",
-            "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
-            domain=warehouse,
+            "https://files.example.com/packages/{path}",
         ),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
-        pretend.call(
-            "legacy.file.redirect",
-            "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
-            domain=warehouse,
-        ),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
@@ -165,6 +160,11 @@ def test_routes(warehouse):
         pretend.call(
             "/pypi/{name}/{version}/",
             "/project/{name}/{version}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "/packages/{path:.*}",
+            "https://files.example.com/packages/{path}",
             domain=warehouse,
         ),
     ]
