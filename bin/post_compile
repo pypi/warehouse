@@ -6,6 +6,10 @@ set -x
 # have access to our private repository.
 pip install -c requirements.txt -r requirements/theme.txt
 
+# Copy our files from pypi-theme into warehouse/static/dist
+PYPI_THEME=`python -c "import pypi_theme,os; print(os.path.join(os.path.dirname(pypi_theme.__file__), 'dist'))"`
+cp -t warehouse/static/dist -n -r $PYPI_THEME/*
+
 # Remove items which are not important for Heroku deploys
 rm -rf dev docs requirements requirements.txt tests
 rm -rf .bowerrc .coveragerc .dockerignore .gitignore .travis.yml babel.cfg
