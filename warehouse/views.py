@@ -157,9 +157,10 @@ def search(request):
             "multi_match",
             query=request.params["q"],
             fields=[
-                "name^2", "version", "author", "author_email", "maintainer",
-                "maintainer_email", "home_page", "license", "summary",
-                "description", "keywords", "platform", "download_url",
+                "author", "author_email", "description^5", "download_url",
+                "home_page", "keywords^5", "license", "maintainer",
+                "maintainer_email", "normalized_name^10", "platform",
+                "summary^5",
             ],
         ).suggest(
             name="name_suggestion",
