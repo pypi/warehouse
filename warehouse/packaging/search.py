@@ -21,12 +21,18 @@ EmailAnalyzer = analyzer(
     filter=["standard", "lowercase", "stop", "snowball"],
 )
 
+NameAnalyzer = analyzer(
+    "normalized_name",
+    tokenizer="lowercase",
+    filter=["standard", "lowercase", "word_delimiter"],
+)
+
 
 @doc_type
 class Project(DocType):
 
     name = String()
-    normalized_name = String(index="not_analyzed")
+    normalized_name = String(analyzer=NameAnalyzer, index_options="docs")
     version = String(index="not_analyzed", multi=True)
     summary = String(analyzer="snowball")
     description = String(analyzer="snowball")
