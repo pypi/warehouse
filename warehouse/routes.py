@@ -16,6 +16,7 @@ def includeme(config):
     # these to segregate the Warehouse routes from the Forklift routes until
     # Forklift is properly split out into it's own project.
     warehouse = config.get_settings().get("warehouse.domain")
+    files_url = config.get_settings()["files.url"]
 
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
@@ -83,22 +84,13 @@ def includeme(config):
         traverse="/{name}/{version}",
         domain=warehouse,
     )
-    config.add_route(
-        "packaging.file",
-        "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
-        domain=warehouse,
-    )
+    config.add_route("packaging.file", files_url)
 
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
 
     # Legacy URLs
-    config.add_route(
-        "legacy.file.redirect",
-        "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
-        domain=warehouse,
-    )
     config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
     config.add_route(
         "legacy.api.simple.detail",
@@ -172,6 +164,7 @@ def includeme(config):
         "/project/{name}/{version}/",
         domain=warehouse,
     )
+    config.add_redirect("/packages/{path:.*}", files_url, domain=warehouse)
 
     # Legacy Action Redirects
     config.add_pypi_action_redirect(
