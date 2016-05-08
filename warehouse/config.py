@@ -79,6 +79,11 @@ def activate_hook(request):
     return True
 
 
+def template_view(config, name, route, template):
+    config.add_route(name, route)
+    config.add_view(renderer=template, route_name=name)
+
+
 def maybe_set(settings, name, envvar, coercer=None, default=None):
     if envvar in os.environ:
         value = os.environ[envvar]
@@ -114,7 +119,10 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
+    maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
+    maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
@@ -246,6 +254,12 @@ def configure(settings=None):
     # Register support for our legacy action URLs
     config.include(".legacy.action_routing")
 
+    # Register support for our domain predicates
+    config.include(".domain")
+
+    # Register support for template views.
+    config.add_directive("add_template_view", template_view, action_wrap=False)
+
     # Register support for internationalization and localization
     config.include(".i18n")
 
@@ -278,6 +292,9 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Register forklift, at least until we split it out into it's own project.
+    config.include(".forklift")
 
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
@@ -321,6 +338,7 @@ def configure(settings=None):
     config.add_wsgi_middleware(
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
+        num_proxies=config.registry.settings.get("warehouse.num_proxies", 1),
     )
 
     # Protect against cache poisoning via the X-Vhm-Root headers.

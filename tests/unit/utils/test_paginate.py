@@ -47,14 +47,17 @@ class FakeResult:
 
 class FakeSuggestResult(FakeResult):
 
-    def __init__(self, data, total, options):
+    def __init__(self, data, total, options=None, suggestion=None):
         super().__init__(data, total)
         self.options = options
+        self.suggestion = suggestion
 
     @property
     def suggest(self):
-        suggestion = FakeSuggestion(options=self.options)
-        return FakeSuggest(name_suggestion=[suggestion])
+        if self.suggestion is None:
+            suggestion = FakeSuggestion(options=self.options)
+            return FakeSuggest(name_suggestion=[suggestion])
+        return FakeSuggest(name_suggestion=self.suggestion)
 
 
 class FakeQuery:
@@ -77,14 +80,15 @@ class FakeQuery:
 
 class FakeSuggestQuery(FakeQuery):
 
-    def __init__(self, fake, options):
+    def __init__(self, fake, options=None, suggestion=None):
         super().__init__(fake)
         self.options = options
+        self.suggestion = suggestion
 
     def execute(self):
         data = self.fake[self.range]
         total = len(self.fake)
-        return FakeSuggestResult(data, total, self.options)
+        return FakeSuggestResult(data, total, self.options, self.suggestion)
 
 
 class TestElasticsearchWrapper:
@@ -126,6 +130,13 @@ class TestElasticsearchWrapper:
         wrapper[1:3]
 
         assert wrapper.best_guess == fake_option
+
+    def test_best_guess_suggestion_no_suggestions(self):
+        query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], suggestion=[])
+        wrapper = paginate._ElasticsearchWrapper(query)
+        wrapper[1:3]
+
+        assert wrapper.best_guess is None
 
     def test_best_guess_suggestion_no_options(self):
         query = FakeSuggestQuery([1, 2, 3, 4, 5, 6], options=[])

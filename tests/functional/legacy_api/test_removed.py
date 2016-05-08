@@ -15,13 +15,13 @@ import pytest
 
 @pytest.mark.parametrize("action", ["submit", "submit_pkg_info"])
 def test_removed_upload_apis(webtest, action):
-    resp = webtest.post("/pypi?:action={}".format(action), status=410)
+    resp = webtest.post("/legacy/?:action={}".format(action), status=410)
     assert resp.status == \
         "410 This API is no longer supported, instead simply upload the file."
 
 
 def test_remove_doc_upload(webtest):
-    resp = webtest.post("/pypi?:action=doc_upload", status=410)
+    resp = webtest.post("/legacy/?:action=doc_upload", status=410)
     assert resp.status == (
         "410 Uploading documentation is no longer supported, we recommend "
         "using https://readthedocs.org/."

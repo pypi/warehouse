@@ -1,6 +1,7 @@
 BINDIR = $(PWD)/.state/env/bin
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
+DB := example
 
 SELENIUM_BROWSER := $(shell echo "$${SELENIUM_BROWSER:-phantomjs}")
 SELENIUM_VERSION := $(shell echo "$${SELENIUM_VERSION:-latest}")
@@ -138,10 +139,11 @@ ifneq ($(PR), false)
 endif
 
 initdb:
+	docker-compose run web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -k dev/example.sql.xz
-	docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/example.sql
-	rm dev/example.sql
+	xz -d -k dev/$(DB).sql.xz
+	docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
+	rm dev/$(DB).sql
 	docker-compose run web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
@@ -157,7 +159,7 @@ clean:
 
 purge: clean
 	rm -rf .state
-	docker-compose rm --force
+	docker-compose rm --force --all
 
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug

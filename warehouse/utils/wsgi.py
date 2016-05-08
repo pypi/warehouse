@@ -13,11 +13,18 @@
 import hmac
 
 
+def _forwarded_value(values, num_proxies):
+    values = [v.strip() for v in values.split(",")]
+    if len(values) >= num_proxies:
+        return values[-num_proxies]
+
+
 class ProxyFixer:
 
-    def __init__(self, app, token):
+    def __init__(self, app, token, num_proxies=1):
         self.app = app
         self.token = token
+        self.num_proxies = num_proxies
 
     def __call__(self, environ, start_response):
         # Determine if the request comes from a trusted proxy or not by looking
@@ -29,21 +36,41 @@ class ProxyFixer:
             proto = environ.get("HTTP_WAREHOUSE_PROTO", "")
             remote_addr = environ.get("HTTP_WAREHOUSE_IP", "")
             host = environ.get("HTTP_WAREHOUSE_HOST", "")
+        # If we're not getting headers from a trusted third party via the
+        # specialized Warehouse-* headers, then we'll fall back to looking at
+        # X-Fowarded-* headers, assuming that whatever we have in front of us
+        # will strip invalid ones.
+        else:
+            proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
+            remote_addr = _forwarded_value(
+                environ.get("HTTP_X_FORWARDED_FOR", ""),
+                self.num_proxies,
+            )
+            host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
-            # Put the new header values into our environment.
-            if remote_addr:
-                environ["REMOTE_ADDR"] = remote_addr
-            if host:
-                environ["HTTP_HOST"] = host
-            if proto:
-                environ["wsgi.url_scheme"] = proto
+            # If we have a X-Forwarded-Port and it disagreed with
+            # X-Forwarded-Proto then we're going to listen to X-Forwarded-Port
+            # instead. This is because h2o overwrites X-Forwarded-Proto but not
+            # X-Forwarded-Port
+            # TODO: Note, this can go away if/once h2o/h2o#883 is solved.
+            port = environ.get("HTTP_X_FORWARDED_PORT", "")
+            if port == "443":
+                proto = "https"
+
+        # Put the new header values into our environment.
+        if remote_addr:
+            environ["REMOTE_ADDR"] = remote_addr
+        if host:
+            environ["HTTP_HOST"] = host
+        if proto:
+            environ["wsgi.url_scheme"] = proto
 
         # Remove any of the forwarded or warehouse headers from the environment
         for header in {
                 "HTTP_X_FORWARDED_PROTO", "HTTP_X_FORWARDED_FOR",
-                "HTTP_X_FORWARDED_HOST", "HTTP_WAREHOUSE_TOKEN",
-                "HTTP_WAREHOUSE_PROTO", "HTTP_WAREHOUSE_IP",
-                "HTTP_WAREHOUSE_HOST"}:
+                "HTTP_X_FORWARDED_HOST", "HTTP_X_FORWARDED_PORT",
+                "HTTP_WAREHOUSE_TOKEN", "HTTP_WAREHOUSE_PROTO",
+                "HTTP_WAREHOUSE_IP", "HTTP_WAREHOUSE_HOST"}:
             if header in environ:
                 del environ[header]
 

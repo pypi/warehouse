@@ -12,23 +12,46 @@
 
 
 def includeme(config):
+    # We need to get the value of the Warehouse and Forklift domains, we'll use
+    # these to segregate the Warehouse routes from the Forklift routes until
+    # Forklift is properly split out into it's own project.
+    warehouse = config.get_settings().get("warehouse.domain")
+    files_url = config.get_settings()["files.url"]
+
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
 
     # Basic global routes
-    config.add_route("index", "/")
-    config.add_route("robots.txt", "/robots.txt")
-    config.add_route("index.sitemap.xml", "/sitemap.xml")
-    config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml")
+    config.add_route("index", "/", domain=warehouse)
+    config.add_route("robots.txt", "/robots.txt", domain=warehouse)
+    config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
+    config.add_route(
+        "bucket.sitemap.xml",
+        "/{bucket}.sitemap.xml",
+        domain=warehouse,
+    )
+
+    # Some static, template driven pages
+    config.add_template_view("help", "/help/", "pages/help.html")
+    config.add_template_view("security", "/security/", "pages/security.html")
+    config.add_template_view("legal", "/legal/", "pages/legal.html")
+    config.add_template_view(
+        "sponsors",
+        "/sponsors/",
+        # Use the full resource path here to make it able to be overridden by
+        # pypi-theme.
+        "warehouse:templates/pages/sponsors.html",
+    )
 
     # HTML Snippets for including into other pages.
     config.add_route(
         "includes.current-user-indicator",
         "/_includes/current-user-indicator/",
+        domain=warehouse,
     )
 
     # Search Routes
-    config.add_route("search", "/search/")
+    config.add_route("search", "/search/", domain=warehouse)
 
     # Accounts
     config.add_route(
@@ -36,10 +59,15 @@ def includeme(config):
         "/user/{username}/",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
+        domain=warehouse,
     )
-    config.add_route("accounts.login", "/account/login/")
-    config.add_route("accounts.logout", "/account/logout/")
-    config.add_route("accounts.register", "/account/register/")
+    config.add_route("accounts.login", "/account/login/", domain=warehouse)
+    config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
+    config.add_route(
+        "accounts.register",
+        "/account/register/",
+        domain=warehouse,
+    )
 
     # Packaging
     config.add_route(
@@ -47,34 +75,30 @@ def includeme(config):
         "/project/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        domain=warehouse,
     )
     config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
+        domain=warehouse,
     )
-    config.add_route(
-        "packaging.file",
-        "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
-    )
+    config.add_route("packaging.file", files_url)
 
     # RSS
-    config.add_route("rss.updates", "/rss/updates.xml")
-    config.add_route("rss.packages", "/rss/packages.xml")
+    config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
+    config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
 
     # Legacy URLs
-    config.add_route(
-        "legacy.file.redirect",
-        "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
-    )
-    config.add_route("legacy.api.simple.index", "/simple/")
+    config.add_route("legacy.api.simple.index", "/simple/", domain=warehouse)
     config.add_route(
         "legacy.api.simple.detail",
         "/simple/{name}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/",
         read_only=True,
+        domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.project",
@@ -82,6 +106,7 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
         read_only=True,
+        domain=warehouse,
     )
     config.add_route(
         "legacy.api.json.release",
@@ -89,35 +114,66 @@ def includeme(config):
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
         read_only=True,
+        domain=warehouse,
     )
 
     # Legacy Action URLs
-    config.add_pypi_action_route("legacy.api.pypi.file_upload", "file_upload")
-    config.add_pypi_action_route("legacy.api.pypi.submit", "submit")
+    # TODO: We should probably add Warehouse routes for these that just error
+    #       and direct people to use upload.pypi.io
+    config.add_pypi_action_route(
+        "legacy.api.pypi.file_upload",
+        "file_upload",
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        "legacy.api.pypi.submit",
+        "submit",
+        domain=warehouse,
+    )
     config.add_pypi_action_route(
         "legacy.api.pypi.submit_pkg_info",
         "submit_pkg_info",
+        domain=warehouse,
     )
-    config.add_pypi_action_route("legacy.api.pypi.doc_upload", "doc_upload")
-    config.add_pypi_action_route("legacy.api.pypi.doap", "doap")
+    config.add_pypi_action_route(
+        "legacy.api.pypi.doc_upload",
+        "doc_upload",
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        "legacy.api.pypi.doap",
+        "doap",
+        domain=warehouse,
+    )
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(
         "pypi",
         pattern="/pypi",
         header="Content-Type:text/xml",
+        domain=warehouse,
     )
 
     # Legacy Documentation
     config.add_route("legacy.docs", config.registry.settings["docs.url"])
 
     # Legacy Redirects
-    config.add_redirect("/pypi/{name}/", "/project/{name}/")
+    config.add_redirect("/pypi/{name}/", "/project/{name}/", domain=warehouse)
     config.add_redirect(
         "/pypi/{name}/{version}/",
         "/project/{name}/{version}/",
+        domain=warehouse,
     )
+    config.add_redirect("/packages/{path:.*}", files_url, domain=warehouse)
 
     # Legacy Action Redirects
-    config.add_pypi_action_redirect("rss", "/rss/updates.xml")
-    config.add_pypi_action_redirect("packages_rss", "/rss/packages.xml")
+    config.add_pypi_action_redirect(
+        "rss",
+        "/rss/updates.xml",
+        domain=warehouse,
+    )
+    config.add_pypi_action_redirect(
+        "packages_rss",
+        "/rss/packages.xml",
+        domain=warehouse,
+    )

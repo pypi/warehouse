@@ -11,21 +11,36 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.routes import includeme
 
 
-def test_routes():
+@pytest.mark.parametrize("warehouse", [None, "pypi.io"])
+def test_routes(warehouse):
     docs_route_url = pretend.stub()
 
     class FakeConfig:
 
         def __init__(self):
-            self.registry = pretend.stub(settings={"docs.url": docs_route_url})
+            self.registry = pretend.stub(settings={
+                "docs.url": docs_route_url,
+                "files.url": "https://files.example.com/packages/{path}",
+            })
+            if warehouse:
+                self.registry.settings["warehouse.domain"] = warehouse
+
+        def get_settings(self):
+            return self.registry.settings
 
         @staticmethod
         @pretend.call_recorder
         def add_route(*args, **kwargs):
+            pass
+
+        @staticmethod
+        @pretend.call_recorder
+        def add_template_view(*args, **kwargs):
             pass
 
         @staticmethod
@@ -45,7 +60,7 @@ def test_routes():
 
         @staticmethod
         @pretend.call_recorder
-        def add_xmlrpc_endpoint(endpoint, pattern, header, read_only=False):
+        def add_xmlrpc_endpoint(endpoint, pattern, header, domain=None):
             pass
 
     config = FakeConfig()
@@ -53,53 +68,62 @@ def test_routes():
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
-        pretend.call('index', '/'),
-        pretend.call("robots.txt", "/robots.txt"),
-        pretend.call("index.sitemap.xml", "/sitemap.xml"),
-        pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml"),
+        pretend.call('index', '/', domain=warehouse),
+        pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
+        pretend.call(
+            "bucket.sitemap.xml",
+            "/{bucket}.sitemap.xml",
+            domain=warehouse,
+        ),
         pretend.call(
             "includes.current-user-indicator",
             "/_includes/current-user-indicator/",
+            domain=warehouse,
         ),
-        pretend.call("search", "/search/"),
+        pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
+            domain=warehouse,
         ),
-        pretend.call("accounts.login", "/account/login/"),
-        pretend.call("accounts.logout", "/account/logout/"),
-        pretend.call("accounts.register", "/account/register/"),
+        pretend.call("accounts.login", "/account/login/", domain=warehouse),
+        pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
+        pretend.call(
+            "accounts.register",
+            "/account/register/",
+            domain=warehouse,
+        ),
         pretend.call(
             "packaging.project",
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            domain=warehouse,
         ),
         pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
+            domain=warehouse,
         ),
         pretend.call(
             "packaging.file",
-            "/packages/{path:[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/[^/]+}",
+            "https://files.example.com/packages/{path}",
         ),
-        pretend.call("rss.updates", "/rss/updates.xml"),
-        pretend.call("rss.packages", "/rss/packages.xml"),
-        pretend.call(
-            "legacy.file.redirect",
-            "/packages/{path:[^/]+/[^/]/[^/]+/[^/]+}",
-        ),
-        pretend.call("legacy.api.simple.index", "/simple/"),
+        pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
+        pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
+        pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
             "legacy.api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
             read_only=True,
+            domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.project",
@@ -107,6 +131,7 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
             read_only=True,
+            domain=warehouse,
         ),
         pretend.call(
             "legacy.api.json.release",
@@ -114,26 +139,59 @@ def test_routes():
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/{version}",
             read_only=True,
+            domain=warehouse,
         ),
         pretend.call("legacy.docs", docs_route_url),
     ]
 
+    assert config.add_template_view.calls == [
+        pretend.call("help", "/help/", "pages/help.html"),
+        pretend.call("security", "/security/", "pages/security.html"),
+        pretend.call("legal", "/legal/", "pages/legal.html"),
+        pretend.call(
+            "sponsors",
+            "/sponsors/",
+            "warehouse:templates/pages/sponsors.html",
+        ),
+    ]
+
     assert config.add_redirect.calls == [
-        pretend.call("/pypi/{name}/", "/project/{name}/"),
-        pretend.call("/pypi/{name}/{version}/", "/project/{name}/{version}/"),
+        pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
+        pretend.call(
+            "/pypi/{name}/{version}/",
+            "/project/{name}/{version}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "/packages/{path:.*}",
+            "https://files.example.com/packages/{path}",
+            domain=warehouse,
+        ),
     ]
 
     assert config.add_pypi_action_route.calls == [
-        pretend.call("legacy.api.pypi.file_upload", "file_upload"),
-        pretend.call("legacy.api.pypi.submit", "submit"),
-        pretend.call("legacy.api.pypi.submit_pkg_info", "submit_pkg_info"),
-        pretend.call("legacy.api.pypi.doc_upload", "doc_upload"),
-        pretend.call("legacy.api.pypi.doap", "doap"),
+        pretend.call(
+            "legacy.api.pypi.file_upload",
+            "file_upload",
+            domain=warehouse,
+        ),
+        pretend.call("legacy.api.pypi.submit", "submit", domain=warehouse),
+        pretend.call(
+            "legacy.api.pypi.submit_pkg_info",
+            "submit_pkg_info",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "legacy.api.pypi.doc_upload",
+            "doc_upload",
+            domain=warehouse,
+        ),
+        pretend.call("legacy.api.pypi.doap", "doap", domain=warehouse),
     ]
 
     assert config.add_pypi_action_redirect.calls == [
-        pretend.call("rss", "/rss/updates.xml"),
-        pretend.call("packages_rss", "/rss/packages.xml"),
+        pretend.call("rss", "/rss/updates.xml", domain=warehouse),
+        pretend.call("packages_rss", "/rss/packages.xml", domain=warehouse),
     ]
 
     assert config.add_xmlrpc_endpoint.calls == [
@@ -141,5 +199,6 @@ def test_routes():
             "pypi",
             pattern="/pypi",
             header="Content-Type:text/xml",
+            domain=warehouse,
         ),
     ]

@@ -75,17 +75,22 @@ sub vcl_recv {
         }
     }
 
-    # Canonicalize our domains by redirecting any domain that doesn't match our
-    # primary domain to our primary domain. We do this *after* the HTTPS check
-    # on purpose.
-    if (std.tolower(req.http.host) != std.tolower(req.http.Primary-Domain)) {
-        set req.http.Location = "https://" req.http.Primary-Domain req.url;
+    # Redirect www.pypi.io and warehouse.python.org to pypi.io, this is
+    # purposely done *after* the HTTPS checks.
+    if (std.tolower(req.http.host) ~ "^(www.pypi.io|warehouse.python.org)$") {
+        set req.http.Location = "https://pypi.io" req.url;
+        error 750 "Redirect to Primary Domain";
+    }
+    # Redirect warehouse-staging.python.org to test.pypi.io.
+    if (std.tolower(req.http.host) == "warehouse-staging.python.org") {
+        set req.http.Location = "https://test.pypi.io" req.url;
         error 750 "Redirect to Primary Domain";
     }
 
     # Requests to /packages/ get dispatched to Amazon instead of to our typical
     # Origin. This requires a a bit of setup to make it work.
-    if (req.url ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
+    if (req.http.host ~ "^(test-)?files.pythonhosted.org$"
+            && req.url ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
         # Setup our environment to better match what S3 expects/needs
         set req.http.Host = req.http.AWS-Bucket-Name ".s3.amazonaws.com";
         set req.http.Date = now;
@@ -102,7 +107,6 @@ sub vcl_recv {
 
     # We no longer need any of these variables, which would exist only to
     # shuffle configuration from the Fastly UI into our VCL.
-    unset req.http.Primary-Domain;
     unset req.http.AWS-Access-Key-ID;
     unset req.http.AWS-Secret-Access-Key;
     unset req.http.AWS-Bucket-Name;
@@ -124,7 +128,7 @@ sub vcl_recv {
 
         # Pass the real host value back to the backend.
         if (req.http.Host) {
-            set req.http.Warehouse-Host = req.http.Host;
+            set req.http.Warehouse-Host = req.http.host;
         }
     }
 

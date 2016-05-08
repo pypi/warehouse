@@ -290,7 +290,7 @@
               <tbody>
                 {% for file in files %}
                 <tr>
-                  <td><a href="{{ request.route_path('packaging.file', path=file.path) }}">
+                  <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="sha256-link" href="TODO: clicking-here-copies-sha256: {{ file.sha256_digest }}">
