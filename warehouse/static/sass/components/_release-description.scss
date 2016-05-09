@@ -10,7 +10,9 @@
   // Remove top margin on first heading, even if it nested inside a div
   > :first-child,
   > div:first-child > :first-child {
+    display: inline-block;
     margin-top: 0 !important;
+    margin-bottom: $spacing-unit / 2;
   }
 
   h1, h2, h3, h4, h5, h6 {
