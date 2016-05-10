@@ -153,6 +153,10 @@ class Project(SitemapMixin, db.ModelBase):
 
         return request.route_url("legacy.docs", project=self.name)
 
+    @property
+    def downloads(self):
+        return sum([release.downloads for release in self.releases])
+
 
 class DependencyKind(enum.IntEnum):
 
@@ -338,6 +342,10 @@ class Release(db.ModelBase):
     @property
     def has_meta(self):
         return any([self.keywords])
+
+    @property
+    def downloads(self):
+        return sum([file_.downloads for file_ in self.files])
 
 
 class File(db.Model):

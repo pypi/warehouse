@@ -27,6 +27,7 @@ def test_build_search():
                 pretend.stub(version="3.0"),
                 pretend.stub(version="4.0"),
             ],
+            downloads=9001,
         ),
         summary="This is my summary",
         description="This is my description",
