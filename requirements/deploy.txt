@@ -1,6 +1,6 @@
 gunicorn==19.4.5 \
     --hash=sha256:c57f1b005a4b90933303c8deed9bedeb509331aa6a0a990023a5796e52bd8988 \
     --hash=sha256:53b58044764ad79d732af18c580b1a54b724adf4d290ec19c4ca78ab22a1ee0d
-setproctitle==1.1.9 \
+setproctitle==1.1.10 \
     --hash=sha256:1c3414d18f9cacdab78b0ffd8e886d56ad45f22e55001a72aaa0b2aeb56a0ad7 \
     --hash=sha256:a1719f0b8cf13c7a6f0fb3d1b9f6a81f6b0c234966847ff34a4d52c4b38d54e4
