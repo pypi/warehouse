@@ -61,7 +61,7 @@ default:
 	python3.5 -m venv .state/env
 
 	# install/upgrade general requirements
-	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
+	.state/env/bin/python -m pip install --upgrade 'pip<8.1.2' setuptools wheel
 
 	# install various types of requirements
 	.state/env/bin/python -m pip install -r requirements/dev.txt
