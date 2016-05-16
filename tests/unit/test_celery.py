@@ -21,12 +21,27 @@ from warehouse.config import Environment
 
 
 def test_configure_celery(monkeypatch):
-    configure = pretend.call_recorder(lambda: None)
+    client = pretend.stub()
+    getitem = pretend.call_recorder(lambda *a: client)
+    registry = pretend.stub(__getitem__=getitem)
+    configure = pretend.call_recorder(lambda: pretend.stub(registry=registry))
+    register_logger_signal = pretend.call_recorder(lambda x: None)
+    register_signal = pretend.call_recorder(lambda x: None)
     monkeypatch.setattr(celery, "configure", configure)
+    monkeypatch.setattr(
+        celery, "register_logger_signal", register_logger_signal
+    )
+    monkeypatch.setattr(celery, "register_signal", register_signal)
 
     celery._configure_celery()
 
     assert configure.calls == [pretend.call()]
+    assert getitem.calls == [
+        pretend.call('raven.client'),
+        pretend.call('raven.client'),
+    ]
+    assert register_logger_signal.calls == [pretend.call(client)]
+    assert register_signal.calls == [pretend.call(client)]
 
 
 def test_tls_redis_backend():
