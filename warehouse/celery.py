@@ -21,13 +21,16 @@ from celery.backends.redis import RedisBackend as _RedisBackend
 from celery.signals import celeryd_init
 from pyramid import scripting
 from pyramid.threadlocal import get_current_request
+from raven.contrib.celery import register_signal, register_logger_signal
 
 from warehouse.config import Environment, configure
 
 
 @celeryd_init.connect
 def _configure_celery(*args, **kwargs):
-    configure()
+    config = configure()
+    register_logger_signal(config.registry["raven.client"])
+    register_signal(config.registry["raven.client"])
 
 
 class TLSRedisBackend(_RedisBackend):
