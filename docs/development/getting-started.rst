@@ -15,9 +15,9 @@ Quickstart for Developers with Docker experience
 
     $ git clone git@github.com:pypa/warehouse.git
     $ cd warehouse
-    $ docker start
     $ make serve
     $ make initdb
+    $ docker start
 
 View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
 ``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
