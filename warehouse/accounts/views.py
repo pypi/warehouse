@@ -46,7 +46,7 @@ def profile(user, request):
                   .join(Project)
                   .distinct(Project.name)
                   .filter(Project.users.contains(user))
-                  .order_by(Project.name)
+                  .order_by(Project.name, Release._pypi_ordering.desc())
                   .all()
     )
 
