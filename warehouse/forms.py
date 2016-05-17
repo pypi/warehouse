@@ -11,7 +11,23 @@
 # limitations under the License.
 
 from wtforms import Form as BaseForm
-from wtforms.validators import StopValidation
+from wtforms.validators import StopValidation, ValidationError
+
+from warehouse.utils.http import is_valid_uri
+
+
+class URIValidator:
+
+    def __init__(self, require_scheme={"http", "https"},
+                 require_authority=True):
+        self.require_scheme = require_scheme
+        self.require_authority = require_authority
+
+    def __call__(self, form, field):
+        if not is_valid_uri(field.data,
+                            require_authority=self.require_authority,
+                            require_scheme=self.require_scheme):
+            raise ValidationError("Invalid URI")
 
 
 class Form(BaseForm):

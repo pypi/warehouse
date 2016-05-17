@@ -101,10 +101,12 @@
     <div class="package-links">
       <nav class="horizontal-menu">
         {% for name, url in release.urls.items() %}
+        {% if is_valid_uri(url) %}
         <a class="link" href="{{ url }}" rel="nofollow">
           {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
           {{ url_icon(name, url) }}{{ name }}
         </a>
+        {% endif %}
         {% endfor %}
       </nav>
       <p class="author">

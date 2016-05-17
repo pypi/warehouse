@@ -13,7 +13,40 @@
 import pretend
 import pytest
 
-from warehouse.forms import Form, DBForm, StopValidation
+from wtforms.validators import StopValidation, ValidationError
+
+from warehouse.forms import Form, DBForm, URIValidator
+
+
+class TestURIValidator:
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "https://example.com/",
+            "http://example.com/",
+            "https://sub.example.com/path?query#thing",
+        ],
+    )
+    def test_valid(self, uri):
+        URIValidator()(pretend.stub(), pretend.stub(data=uri))
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "javascript:alert(0)",
+            "UNKNOWN",
+            "ftp://example.com/",
+        ],
+    )
+    def test_invalid(self, uri):
+        validator = URIValidator()
+        with pytest.raises(ValidationError):
+            validator(pretend.stub(), pretend.stub(data=uri))
+
+    def test_plain_schemes(self):
+        validator = URIValidator(require_scheme=True)
+        validator(pretend.stub(), pretend.stub(data="ftp://example.com/"))
 
 
 def _raiser(exc):

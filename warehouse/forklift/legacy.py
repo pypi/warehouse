@@ -333,13 +333,13 @@ class MetadataForm(forms.Form):
     home_page = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.URL(),
+            forms.URIValidator(),
         ],
     )
     download_url = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.URL(),
+            forms.URIValidator(),
         ],
     )
 
