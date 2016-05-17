@@ -14,6 +14,8 @@ import unicodedata
 
 from urllib.parse import urlparse
 
+from rfc3986 import uri_reference
+
 
 # FROM https://github.com/django/django/blob/
 # 011a54315e46acdf288003566b8570440f5ac985/django/utils/http.py
@@ -48,3 +50,18 @@ def is_safe_url(url, host=None):
         return False
     return ((not url_info.netloc or url_info.netloc == host) and
             (not url_info.scheme or url_info.scheme in {'http', 'https'}))
+
+
+def is_valid_uri(uri, require_scheme={"http", "https"},
+                 require_authority=True):
+    uri = uri_reference(uri).normalize()
+
+    if not uri.is_valid(require_scheme=require_scheme,
+                        require_authority=require_authority):
+        return False
+
+    if require_scheme and not isinstance(require_scheme, bool):
+        if uri.scheme not in require_scheme:
+            return False
+
+    return True

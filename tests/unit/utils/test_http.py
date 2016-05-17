@@ -12,7 +12,7 @@
 
 import pytest
 
-from warehouse.utils.http import is_safe_url
+from warehouse.utils.http import is_safe_url, is_valid_uri
 
 
 # (MOSTLY) FROM https://github.com/django/django/blob/
@@ -64,3 +64,31 @@ class TestIsSafeUrl:
     )
     def test_accepts_good_url(self, url):
         assert is_safe_url(url, host="testserver")
+
+
+class TestIsValidURI:
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "https://example.com/",
+            "http://example.com/",
+            "https://sub.example.com/path?query#thing",
+        ],
+    )
+    def test_valid(self, uri):
+        assert is_valid_uri(uri)
+
+    @pytest.mark.parametrize(
+        "uri",
+        [
+            "javascript:alert(0)",
+            "UNKNOWN",
+            "ftp://example.com/",
+        ],
+    )
+    def test_invalid(self, uri):
+        assert not is_valid_uri(uri)
+
+    def test_plain_schemes(self):
+        assert is_valid_uri("ftp://example.com/", require_scheme=True)
