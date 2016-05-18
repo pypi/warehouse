@@ -43,8 +43,6 @@
 @import "generic/boxsizing";
 
 // BASE LAYER
-@import "base/page";
-@import "base/headings";
 @import "base/typography";
 @import "base/images-figures";
 @import "base/lists";
@@ -53,7 +51,7 @@
 
 // LAYOUT LAYER
 @import "layout/half-column";
-@import "layout/site-container";
+@import "layout/containers";
 @import "layout/sticky-bar";
 @import "layout/split-layout";
 @import "layout/banner-block";
@@ -69,6 +67,7 @@
 @import "components/callout-block";
 @import "components/card-style";
 @import "components/checkbox-tree";
+@import "components/common-question";
 @import "components/dark-overlay";
 @import "components/download-graph";
 @import "components/downloads-table";
