@@ -182,7 +182,7 @@
             {% endfor %}
           </div>
 
-          <h2 {{ l20n("numberProjectReverseDependencies", number="TODO") }}>Reverse Dependencies (TODO)</h2>
+          <h2 class="no-top-padding" {{ l20n("numberProjectReverseDependencies", number="TODO") }}>Reverse Dependencies (TODO)</h2>
           <p {{ l20n("projectReverseDependenciesInfo", name=release.project.name) }}>
             The following projects rely on <em>{{ release.project.name }}</em>:
           </p>

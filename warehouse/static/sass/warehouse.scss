@@ -100,6 +100,11 @@
 
 // TRUMPS LAYER
 
+/* Remove top padding on selected typography elements*/
+.no-top-padding {
+  padding-top: 0;
+}
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read.
