@@ -26,10 +26,12 @@ app:
     # to make this work is to share multiple, smaller directories. These cover
     # the important things that we want to share, but changes to requirements
     # or any file not in these directories will require a rebuild.
-    - ./dev:/app/dev
-    - ./docs:/app/docs
-    - ./warehouse:/app/warehouse
-    - ./tests:/app/tests
+    # The :z option fixes permission issues with SELinux by setting a
+    # permissive security context.
+    - ./dev:/app/dev:z
+    - ./docs:/app/docs:z
+    - ./warehouse:/app/warehouse:z
+    - ./tests:/app/tests:z
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken
