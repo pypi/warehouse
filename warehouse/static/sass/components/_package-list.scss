@@ -20,13 +20,13 @@
   }
 
   .title {
-    margin-bottom: 0;
+    padding-bottom: 0;
     word-wrap: break-word;
   }
 
   .meta {
     font-size: 16px;
-    margin: 1px 0 2px;
+    padding: 1px 0 2px;
 
     .version {
       font-weight: $bold-font-weight;

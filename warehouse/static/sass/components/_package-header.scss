@@ -2,13 +2,13 @@
   @extend .site-container;
 
   h1 {
-    margin-bottom: 0;
+    padding: 0;
   }
 
   .description {
     font-size: 1.2rem;
     font-style: italic;
-    margin-top: 10px;
+    padding: 10px 0;
   }
 
   .license {
@@ -22,7 +22,8 @@
 
   .pip-instructions {
     @include clearfix;
-    margin: 20px 0 15px 0;
+    margin: 10px 0 15px;
+    padding-bottom: 0;
 
     span {
       font-family: $code-font;
