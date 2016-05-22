@@ -167,9 +167,9 @@ urllib3==1.15.1 \
     --hash=sha256:d0a1dc60433f7e9b90b4f085f1d45753174b4594558b29eda0009abe0b82da4c
 venusian==1.0 \
     --hash=sha256:1720cff2ca9c369c840c1d685a7c7a21da1afa687bfe62edd93cae4bf429ca5a
-WebOb==1.6.0 \
-    --hash=sha256:69356a75980172f3e76717f6899b6c75d95ccdc7a2cb6a3b8bd6a7de3fc72401 \
-    --hash=sha256:63d262d8f61b516321f786879c9277fa2209f7f57eb47b537eeecfea383d55b7
+WebOb==1.6.1 \
+    --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583b5f20c3eced \
+    --hash=sha256:e804c583bd0fb947bd7c03d296942b38b985cf1da4fd82bf879994d29edb21fe
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
 zope.deprecation==4.1.2 \
