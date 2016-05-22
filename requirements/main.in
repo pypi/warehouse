@@ -17,7 +17,7 @@ paginate>=0.5.2
 passlib>=1.6.4
 psycopg2
 pyblake2
-pyramid>=1.7a1
+pyramid>=1.7
 pyramid_jinja2>=2.5
 pyramid_multiauth
 pyramid_rpc>=0.7
