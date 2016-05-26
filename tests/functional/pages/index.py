@@ -18,4 +18,5 @@ class IndexPage(PageObject):
     path = "/"
 
     def is_browser_on_page(self):
-        return self.browser.title == "Warehouse"
+        return self.browser.title == \
+            "PyPI - the Python Package Index · Warehouse"
