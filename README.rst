@@ -2,7 +2,7 @@ Warehouse
 =========
 
 .. image:: https://readthedocs.org/projects/warehouse/badge/?version=latest
-    :target: https://warehouse.readthedocs.org/
+    :target: https://warehouse.readthedocs.io/
     :alt: Latest Docs
 
 .. image:: https://travis-ci.org/pypa/warehouse.svg?branch=master
@@ -57,7 +57,7 @@ You can also join ``#pypa`` or ``#pypa-dev`` on Freenode to ask questions or
 get involved.
 
 
-.. _`documentation`: https://warehouse.readthedocs.org/
+.. _`documentation`: https://warehouse.readthedocs.io/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
 
 
