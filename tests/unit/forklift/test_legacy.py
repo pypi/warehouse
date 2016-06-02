@@ -1691,7 +1691,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert tm.addAfterCommitHook.calls == [
             pretend.call(
-                requests.post,
+                legacy._legacy_purge,
                 args=["https://example.com/pypi"],
                 kws={"data": {":action": "purge", "project": "example"}},
             ),
@@ -1709,6 +1709,19 @@ class TestFileUpload:
         assert resp.status == (
             "403 Invalid or non-existent authentication information."
         )
+
+
+@pytest.mark.parametrize("status", [True, False])
+def test_legacy_purge(monkeypatch, status):
+    post = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(requests, "post", post)
+
+    legacy._legacy_purge(status, 1, 2, three=4)
+
+    if status:
+        assert post.calls == [pretend.call(1, 2, three=4)]
+    else:
+        assert post.calls == []
 
 
 def test_submit(pyramid_request):

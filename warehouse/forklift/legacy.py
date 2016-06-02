@@ -951,12 +951,17 @@ def file_upload(request):
         old_domain = request.registry.settings.get("warehouse.legacy_domain")
         if old_domain:
             request.tm.get().addAfterCommitHook(
-                requests.post,
+                _legacy_purge,
                 args=["https://{}/pypi".format(old_domain)],
                 kws={"data": {":action": "purge", "project": project.name}},
             )
 
     return Response()
+
+
+def _legacy_purge(status, *args, **kwargs):
+    if status:
+        requests.post(*args, **kwargs)
 
 
 @view_config(
