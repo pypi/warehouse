@@ -21,6 +21,7 @@ from unittest import mock
 import pkg_resources
 import pretend
 import pytest
+import requests
 
 from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
@@ -1649,6 +1650,50 @@ class TestFileUpload:
                 "add source file example-1.0.tar.gz",
                 user,
                 "10.10.10.10",
+            ),
+        ]
+
+    def test_upload_purges_legacy(self, pyramid_config, db_request,
+                                  monkeypatch):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "example",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+        db_request.client_addr = "10.10.10.10"
+
+        tm = pretend.stub(
+            addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.tm = pretend.stub(get=lambda: tm)
+
+        db_request.registry.settings["warehouse.legacy_domain"] = "example.com"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert tm.addAfterCommitHook.calls == [
+            pretend.call(
+                requests.post,
+                args=["https://example.com/pypi"],
+                kws={"data": {":action": "purge", "project": "example"}},
             ),
         ]
 

@@ -21,6 +21,7 @@ import packaging.specifiers
 import packaging.requirements
 import packaging.version
 import pkg_resources
+import requests
 import wtforms
 import wtforms.validators
 from rfc3986 import uri_reference
@@ -942,6 +943,17 @@ def file_upload(request):
                     "package-type": file_.packagetype,
                     "python-version": file_.python_version,
                 },
+            )
+
+        # TODO: Once we no longer have the legacy code base running PyPI we can
+        #       go ahead and delete this tiny bit of shim code, since it only
+        #       exists to purge stuff on legacy PyPI when uploaded to Warehouse
+        old_domain = request.registry.settings.get("warehouse.legacy_domain")
+        if old_domain:
+            request.tm.get().addAfterCommitHook(
+                requests.post,
+                args=["https://{}/pypi".format(old_domain)],
+                kws={"data": {":action": "purge", "project": project.name}},
             )
 
     return Response()
