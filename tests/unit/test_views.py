@@ -100,16 +100,16 @@ def test_esi_current_user_indicator():
 
 class TestSearch:
 
-    def _gather_should_queries(self, q):
-        should = []
+    def _gather_es_queries(self, q):
+        queries = []
         for field in SEARCH_FIELDS:
             kw = {"query": q}
             if field in SEARCH_BOOSTS:
                 kw["boost"] = SEARCH_BOOSTS[field]
-            should.append(Q("match", **{field: kw}))
+            queries.append(Q("match", **{field: kw}))
         if len(q) > 1:
-            should.append(Q("prefix", normalized_name=q))
-        return should
+            queries.append(Q("prefix", normalized_name=q))
+        return queries
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(self, monkeypatch, db_request, page):
@@ -150,9 +150,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                minimum_should_match=1,
-                should=self._gather_should_queries(params["q"])
+                "dis_max",
+                queries=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -202,9 +201,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                minimum_should_match=1,
-                should=self._gather_should_queries(params["q"])
+                "dis_max",
+                queries=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -254,9 +252,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                minimum_should_match=1,
-                should=self._gather_should_queries(params["q"])
+                "dis_max",
+                queries=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -321,9 +318,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                minimum_should_match=1,
-                should=self._gather_should_queries(params["q"])
+                "dis_max",
+                queries=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [

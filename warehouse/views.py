@@ -181,7 +181,7 @@ def search(request):
         if len(q) > 1:
             should.append(Q('prefix', normalized_name=q))
 
-        query = request.es.query("bool", should=should, minimum_should_match=1)
+        query = request.es.query("dis_max", queries=should)
         query = query.suggest("name_suggestion", q, term={"field": "name"})
     else:
         query = request.es.query()
