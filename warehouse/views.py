@@ -18,6 +18,7 @@ from pyramid.httpexceptions import (
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
+from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 
@@ -29,6 +30,19 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import Project, Release, File
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
+
+
+SEARCH_FIELDS = [
+    "author", "author_email", "description", "download_url", "home_page",
+    "keywords", "license", "maintainer", "maintainer_email", "normalized_name",
+    "platform", "summary",
+]
+SEARCH_BOOSTS = {
+    "normalized_name": 10,
+    "description": 5,
+    "keywords": 5,
+    "summary": 5,
+}
 
 
 @view_config(context=HTTPException)
@@ -152,21 +166,23 @@ def index(request):
     ],
 )
 def search(request):
-    if request.params.get("q"):
-        query = request.es.query(
-            "multi_match",
-            query=request.params["q"],
-            fields=[
-                "author", "author_email", "description^5", "download_url",
-                "home_page", "keywords^5", "license", "maintainer",
-                "maintainer_email", "normalized_name^10", "platform",
-                "summary^5",
-            ],
-        ).suggest(
-            name="name_suggestion",
-            text=request.params["q"],
-            term={"field": "name"}
-        )
+
+    q = request.params.get("q", '')
+
+    if q:
+        should = []
+        for field in SEARCH_FIELDS:
+            kw = {"query": q}
+            if field in SEARCH_BOOSTS:
+                kw["boost"] = SEARCH_BOOSTS[field]
+            should.append(Q("match", **{field: kw}))
+
+        # Add a prefix query if ``q`` is longer than one character.
+        if len(q) > 1:
+            should.append(Q('prefix', normalized_name=q))
+
+        query = request.es.query("dis_max", queries=should)
+        query = query.suggest("name_suggestion", q, term={"field": "name"})
     else:
         query = request.es.query()
 
@@ -174,7 +190,7 @@ def search(request):
         query = query.sort(request.params["o"])
 
     if request.params.getall("c"):
-        query = query.filter('terms', classifiers=request.params.getall("c"))
+        query = query.filter("terms", classifiers=request.params.getall("c"))
 
     page_num = int(request.params.get("page", 1))
     page = ElasticsearchPage(
@@ -194,7 +210,7 @@ def search(request):
 
     return {
         "page": page,
-        "term": request.params.get("q", ''),
+        "term": q,
         "order": request.params.get("o", ''),
         "available_filters": sorted(available_filters.items()),
         "applied_filters": request.params.getall("c"),
