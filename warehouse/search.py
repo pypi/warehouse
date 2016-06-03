@@ -29,7 +29,7 @@ def doc_type(cls):
     return cls
 
 
-def get_index(name, doc_types, *, using, shards=1, replicas=1):
+def get_index(name, doc_types, *, using, shards=1, replicas=0):
     index = Index(name, using=using)
     for doc_type in doc_types:
         index.doc_type(doc_type)
@@ -46,7 +46,7 @@ def es(request):
         doc_types,
         using=client,
         shards=request.registry.get("elasticsearch.shards", 1),
-        replicas=request.registry.get("elasticsearch.replicas", 1),
+        replicas=request.registry.get("elasticsearch.replicas", 0),
     )
     return index.search()
 
@@ -62,5 +62,5 @@ def includeme(config):
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
     config.registry["elasticsearch.replicas"] = \
-        int(qs.get("replicas", ["1"])[0])
+        int(qs.get("replicas", ["0"])[0])
     config.add_request_method(es, name="es", reify=True)
