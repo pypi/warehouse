@@ -73,7 +73,7 @@ def reindex(config, **kwargs):
         doc_types,
         using=client,
         shards=config.registry.get("elasticsearch.shards", 1),
-        replicas=config.registry.get("elasticsearch.replicas", 1),
+        replicas=config.registry.get("elasticsearch.replicas", 0),
     )
     new_index.create()
 
