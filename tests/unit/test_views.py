@@ -14,14 +14,15 @@ import datetime
 
 import pretend
 import pytest
+from elasticsearch_dsl import Q
 from webob.multidict import MultiDict
 
 from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse import views
 from warehouse.views import (
-    forbidden, index, httpexception_view, robotstxt, current_user_indicator,
-    search, health
+    SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
+    httpexception_view, index, robotstxt, search
 )
 
 from ..common.db.accounts import UserFactory
@@ -99,6 +100,17 @@ def test_esi_current_user_indicator():
 
 class TestSearch:
 
+    def _gather_should_queries(self, q):
+        should = []
+        for field in SEARCH_FIELDS:
+            kw = {"query": q}
+            if field in SEARCH_BOOSTS:
+                kw["boost"] = SEARCH_BOOSTS[field]
+            should.append(Q("match", **{field: kw}))
+        if len(q) > 1:
+            should.append(Q("prefix", normalized_name=q))
+        return should
+
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(self, monkeypatch, db_request, page):
         params = MultiDict({"q": "foo bar"})
@@ -138,21 +150,68 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "multi_match",
-                query="foo bar",
-                fields=[
-                    "author", "author_email", "description^5", "download_url",
-                    "home_page", "keywords^5", "license", "maintainer",
-                    "maintainer_email", "normalized_name^10", "platform",
-                    "summary^5",
-                ],
-            ),
+                "bool",
+                minimum_should_match=1,
+                should=self._gather_should_queries(params["q"])
+            )
         ]
         assert es_query.suggest.calls == [
             pretend.call(
-                name="name_suggestion",
+                "name_suggestion",
+                params["q"],
                 term={"field": "name"},
-                text="foo bar",
+            ),
+        ]
+
+    @pytest.mark.parametrize("page", [None, 1, 5])
+    def test_with_a_single_char_query(self, monkeypatch, db_request, page):
+        params = MultiDict({"q": "a"})
+        if page is not None:
+            params["page"] = page
+        db_request.params = params
+
+        sort = pretend.stub()
+        suggest = pretend.stub(
+            sort=pretend.call_recorder(lambda *a, **kw: sort),
+        )
+        es_query = pretend.stub(
+            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
+        )
+        db_request.es = pretend.stub(
+            query=pretend.call_recorder(lambda *a, **kw: es_query)
+        )
+
+        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        assert search(db_request) == {
+            "page": page_obj,
+            "term": params.get("q", ''),
+            "order": params.get("o", ''),
+            "applied_filters": [],
+            "available_filters": [],
+        }
+        assert page_cls.calls == [
+            pretend.call(suggest, url_maker=url_maker, page=page or 1),
+        ]
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert db_request.es.query.calls == [
+            pretend.call(
+                "bool",
+                minimum_should_match=1,
+                should=self._gather_should_queries(params["q"])
+            )
+        ]
+        assert es_query.suggest.calls == [
+            pretend.call(
+                "name_suggestion",
+                params["q"],
+                term={"field": "name"},
             ),
         ]
 
@@ -195,21 +254,16 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "multi_match",
-                query="foo bar",
-                fields=[
-                    "author", "author_email", "description^5", "download_url",
-                    "home_page", "keywords^5", "license", "maintainer",
-                    "maintainer_email", "normalized_name^10", "platform",
-                    "summary^5",
-                ],
-            ),
+                "bool",
+                minimum_should_match=1,
+                should=self._gather_should_queries(params["q"])
+            )
         ]
         assert es_query.suggest.calls == [
             pretend.call(
-                name="name_suggestion",
+                "name_suggestion",
+                params["q"],
                 term={"field": "name"},
-                text="foo bar",
             ),
         ]
         assert suggest.sort.calls == [
@@ -267,21 +321,16 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "multi_match",
-                query="foo bar",
-                fields=[
-                    "author", "author_email", "description^5", "download_url",
-                    "home_page", "keywords^5", "license", "maintainer",
-                    "maintainer_email", "normalized_name^10", "platform",
-                    "summary^5",
-                ],
-            ),
+                "bool",
+                minimum_should_match=1,
+                should=self._gather_should_queries(params["q"])
+            )
         ]
         assert es_query.suggest.calls == [
             pretend.call(
-                name="name_suggestion",
+                "name_suggestion",
+                params["q"],
                 term={"field": "name"},
-                text="foo bar",
             ),
         ]
         assert es_query.filter.calls == [
