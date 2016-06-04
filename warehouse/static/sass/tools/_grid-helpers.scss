@@ -3,3 +3,35 @@
   @include margin(null auto);
   @include clearfix;
 }
+
+@mixin site-container {
+  @include container-width($site-container);
+  padding: 0 20px;
+
+  @media screen and (max-width: 400px) {
+    padding: 0 15px;
+  }
+}
+
+@mixin split-layout {
+  @include clearfix;
+
+  > :first-child {
+    float: left;
+  }
+
+  > :last-child {
+    float: right;
+  }
+}
+
+@mixin split-table-layout {
+  display: table;
+  width: 100%;
+
+  > * {
+    float: none;
+    display: table-cell;
+    vertical-align: middle;
+  }
+}

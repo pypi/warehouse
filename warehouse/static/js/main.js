@@ -9,9 +9,9 @@ import "timeago";
 
 $(document).ready(function() {
 
-  // Toggle expanding and collapsing sections
-  $(".-js-expander-trigger").click(function(){
-    $(this).toggleClass("expander-hidden");
+  // Toggle accordion
+  $(".-js-accordion-trigger").click(function(){
+    $(this).closest('.accordion').toggleClass("accordion--closed");
   });
 
   function setTab(tab) {

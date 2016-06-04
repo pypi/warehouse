@@ -219,7 +219,7 @@
           <div class="split-layout -table">
             <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
             <div>
-              <a class="wh-button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
+              <a class="button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
             </div>
           </div>
 
@@ -266,9 +266,9 @@
         <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
         <div id="statistics" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("projectDownloadStats") }}>Download Statistics</h2>
-          <div class="button-set">
-            <a class="wh-button -highlight" href="#" {{ l20n("allVersions") }}>All versions</a>
-            <a class="wh-button" href="#" {{ l20n("thisVersionOnly", version=release.version) }}>This version only ({{ release.version }})</a>
+          <div class="button-group">
+            <a class="button-group__button button button--highlight" href="#" {{ l20n("allVersions") }}>All versions</a>
+            <a class="button-group__button button" href="#" {{ l20n("thisVersionOnly", version=release.version) }}>This version only ({{ release.version }})</a>
           </div>
 
           <div class="download-graph">

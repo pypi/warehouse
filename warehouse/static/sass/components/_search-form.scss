@@ -9,7 +9,7 @@
   @include clearfix;
 
   .search,
-  .wh-button{
+  .button{
     display: inline;
     float: left;
   }
@@ -41,7 +41,7 @@
       margin-right: 1%;
     }
 
-    .wh-button {
+    .button {
       width: 20%;
       padding: 0;
     }

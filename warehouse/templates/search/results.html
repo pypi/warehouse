@@ -63,9 +63,9 @@
         <input type="hidden" name="o" value="{{ order }}">
 
         {% for top_level, classifiers in available_filters %}
-          <div class="expander">
-            <a class="-js-expander-trigger {{'expander-hidden' if not loop.first }}" {{ l20n("filterProjectsBy{}".format(top_level.replace(' ', ''))) }}>By {{ top_level }}</a>
-            <div class="expander-content">
+          <div class="accordion {{'accordion--closed' if not loop.first }}">
+            <a class="accordion__link -js-accordion-trigger" {{ l20n("filterProjectsBy{}".format(top_level.replace(' ', ''))) }}>By {{ top_level }}</a>
+            <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
                 {% set sub_levels = classifier.split(' :: ') %}
@@ -108,17 +108,18 @@
 
       <div class="applied-filters">
       {% if applied_filters %}
-      {% for filter in applied_filters %}
+        {% for filter in applied_filters %}
         <div class="filter">
           <input type="hidden" name="c" value="{{ filter }}">
           <i class="fa fa-filter"></i>
           <span>{{ filter }}</span>
           <a href="#"><i class="fa fa-close"></i></a>
         </div>
-      {% endfor %}
+        {% endfor %}
       {% endif %}
-
-        <a class="-js-add-filter wh-button -small" {{ l20n("addFilter") }} href="#">Add Filter</a>
+        <span class="applied-filters__add-button">
+          <a class="-js-add-filter button button--small" {{ l20n("addFilter") }} href="#">Add Filter</a>
+        </span>
       </div>
 
       <section>

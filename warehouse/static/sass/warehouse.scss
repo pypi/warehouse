@@ -49,21 +49,22 @@
 @import "base/tables";
 @import "base/forms";
 
-// LAYOUT LAYER
-@import "layout/half-column";
-@import "layout/containers";
-@import "layout/sticky-bar";
-@import "layout/split-layout";
-@import "layout/banner-block";
-@import "layout/left-sidebar";
+// LAYOUT HELPERS LAYER
+@import "layout-helpers/half-column";
+@import "layout-helpers/containers";
+@import "layout-helpers/sticky-bar";
+@import "layout-helpers/split-layout";
+@import "layout-helpers/banner-block";
+@import "layout-helpers/left-sidebar";
 
 // REUSABLE COMPONENTS LAYER
-@import "components/about-pypi"; // Move me
-@import "components/accordion-menu";
+@import "components/about-pypi";
+@import "components/accordion";
 @import "components/applied-filters";
 @import "components/author-profile"; // Move this?
 @import "components/brand-logo";
-@import "components/button-set";
+@import "components/button";
+@import "components/button-group";
 @import "components/callout-block";
 @import "components/card-style";
 @import "components/checkbox-tree";
@@ -96,10 +97,9 @@
 @import "components/statistics-bar";
 @import "components/tooltip";
 @import "components/vertical-tabs";
-@import "components/wh-buttons";
 
 
-// TRUMPS LAYER
+// TRUMPS LAYER - OVERWRITES EVERYTHING ELSE
 
 /* Remove top padding on selected typography elements*/
 .no-top-padding {

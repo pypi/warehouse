@@ -1,0 +1,16 @@
+// LAYOUT - SPLIT LAYOUT
+
+// Float one child left, the other right.
+.split-layout {
+  @include split-layout;
+}
+
+
+// Or do the same, but this time using a table layout...
+.split-layout.-table {
+  @include split-table-layout;
+
+  > :last-child {
+    text-align: right;
+  }
+}

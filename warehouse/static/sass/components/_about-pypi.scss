@@ -1,11 +1,24 @@
+/*
+  Logo and description found on the homepage:
+
+  <div class="about-pypi">
+    <div class="about-pypi__logo">
+      // logo here
+    </div>
+    <div class="about-pypi__text">
+      // content here
+    </div>
+  </div>
+*/
+
 .about-pypi {
-  @extend .split-layout.-table;
+  @include split-table-layout;
+  @include site-container;
   max-width: 1000px;
   margin: 0 auto;
 
-  .large-logo,
-  .about-text {
-    float: none;
+  &__logo,
+  &__text {
     text-align: left;
 
     @media only screen and (max-width: 550px){
@@ -18,8 +31,8 @@
     }
   }
 
-  .large-logo {
-    text-align: right;
+  &__logo {
+    padding-top: 10px;
     padding-right: 50px;
 
     @media only screen and (max-width: 550px){

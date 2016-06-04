@@ -1,10 +1,5 @@
 .site-container {
-  @include container-width($site-container);
-  padding: 0 20px;
-
-  @media screen and (max-width: 400px) {
-    padding: 0 15px;
-  }
+  @include site-container;
 }
 
 .narrow-container { // Use for single column content pages
