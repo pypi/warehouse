@@ -1,6 +1,18 @@
 /*
   A table whose column widths are set by its content - in this case, a
   package's download data.
+
+  <table class="downloads-table">
+    <thead>
+      <th class="downloads-table__filename">File Name</th>
+      <th class="downloads-table__version">Version</th>
+      <th class="downloads-table__file-type">File Type</th>
+      <th class="downloads-table__upload-date">Upload Date</th>
+    </thead>
+    <tbody>
+      // table cells here
+    </tbody>
+  </table>
 */
 
 .downloads-table {
@@ -14,13 +26,13 @@
     width: 65%;
   }
 
+  &__version {
+    width: 9%;
+  }
+
   &__type,
   &__upload-date {
     width: 13%;
-  }
-
-  &__version {
-    width: 9%;
   }
 
   &__sha256-link {

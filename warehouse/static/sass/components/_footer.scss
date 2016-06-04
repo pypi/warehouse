@@ -1,12 +1,29 @@
-/**
- * Site footer
- */
+/*
+  Footer:
+
+  <div class="footer">
+    <div class="footer__icon">
+      // footer icon image goes here
+    </div>
+    <div class="footer__menus"> // menu wrapper
+      <ul class="footer__menu"> // 3 of these!
+        <li><h3>Menu Title</h3></li>
+        <li><a>Menu Link</a></li>
+      </ul>
+    </div>
+
+    <hr class="footer__divider">
+
+    <div class="footer__text">
+      // copyright, disclaimers,etc.
+    </div>
+  </div>
+*/
 
 .footer {
   $base-spacing: 1.5em !default;
   $action-color: #477DCA !default;
-  $footer-link-color: transparentize($white, 0.3);
-  $footer-disclaimer-color: transparentize($white, 0.3);
+  $footer-faded-color: transparentize($white, 0.3);
 
   background-color: lighten($brand-color, 2);
   color: $white;
@@ -17,12 +34,12 @@
     padding-top: 40px 0;
   }
 
-  .footer-logo {
+  &__logo {
     margin-bottom: 2em;
     text-align: center;
   }
 
-  .footer-links {
+  &__menus {
     @include display(flex);
     @include justify-content(center);
     @include flex-wrap(wrap);
@@ -33,7 +50,7 @@
     }
   }
 
-  ul {
+  &__menu {
     @include flex-basis(13em);
     @include flex-shrink(0);
     margin: 0 15px 40px 15px;
@@ -45,7 +62,7 @@
       text-align: center;
 
       a {
-        color: $footer-link-color;
+        color: $footer-faded-color;
         text-decoration: none;
 
         &:focus,
@@ -62,14 +79,14 @@
     }
   }
 
-  hr {
-    border: 1px solid transparentize($footer-disclaimer-color, 0.3);
+  &__divider {
+    border: 1px solid transparentize($footer-faded-color, 0.3);
     margin: 0 auto $base-spacing;
     width: 12em;
   }
 
-  p {
-    color: $footer-disclaimer-color;
+  &__text {
+    color: $footer-faded-color;
     font-size: 0.9em;
     line-height: 1.5em;
     margin: auto;

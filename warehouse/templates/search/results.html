@@ -51,7 +51,7 @@
 {%- endmacro %}
 
 {% block content %}
-<section class="horizontal-section -medium">
+<section class="horizontal-section horizontal-section--medium">
   <div class="left-sidebar">
     <div class="sidebar">
       <div class="dark-overlay"></div>
@@ -109,11 +109,15 @@
       <div class="applied-filters">
       {% if applied_filters %}
         {% for filter in applied_filters %}
-        <div class="filter">
+        <div class="filter-badge">
           <input type="hidden" name="c" value="{{ filter }}">
-          <i class="fa fa-filter"></i>
-          <span>{{ filter }}</span>
-          <a href="#"><i class="fa fa-close"></i></a>
+          <span class="filter-badge__icon">
+            <i class="fa fa-filter"></i>
+          </span>
+          <span class="filter-badge__description">{{ filter }}</span>
+          <a class="filter-badge__remove-button" href="#">
+            <i class="fa fa-close"></i>
+          </a>
         </div>
         {% endfor %}
       {% endif %}

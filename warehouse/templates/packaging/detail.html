@@ -95,13 +95,13 @@
   </div>
 </section>
 
-<section class="horizontal-section -grey -thin">
+<section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">
       <nav class="horizontal-menu">
         {% for name, url in release.urls.items() %}
         {% if is_valid_uri(url) %}
-        <a class="link" href="{{ url }}" rel="nofollow">
+        <a class="horizontal-menu__link horizontal-menu__link--with-icon" href="{{ url }}" rel="nofollow">
           {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
           {{ url_icon(name, url) }}{{ name }}
         </a>
@@ -230,7 +230,7 @@
               <div class="version">
                 {% if is_current %}
                 <p>{{ hrelease.version }}</p>
-                <span class="highlight-badge" {{ l20n("thisVersion") }}>This version</span>
+                <span class="badge" {{ l20n("thisVersion") }}>This version</span>
                 {% else %}
                 <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}

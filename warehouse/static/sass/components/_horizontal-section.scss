@@ -1,3 +1,14 @@
+/*
+  A full width horizontal section that acts as a background container and
+  adds vertical rhythm to the page.
+
+  Modifiers:
+    - Grey: Makes the background color grey. Adds two grey borders as separators.
+    - Medium: Reduces the standard padding
+    - Thin: Dramatically reduces the standard padding
+    - Statistics: Specific to the statistics bar on the homepage.
+*/
+
 .horizontal-section {
   padding: 70px 0;
 
@@ -8,24 +19,24 @@
   @media only screen and (max-width: 400px){
     padding: 40px 0;
   }
-}
 
-.horizontal-section.-grey {
-  background-color: $base-grey;
-  border-bottom: 1px solid darken($base-grey, 10);
-  border-top: 1px solid darken($base-grey, 10);
-}
+  &--grey {
+    background-color: $base-grey;
+    border-bottom: 1px solid darken($base-grey, 10);
+    border-top: 1px solid darken($base-grey, 10);
+  }
 
-.horizontal-section.-medium {
-  padding: 40px 0;
-}
+  &--medium {
+    padding: 40px 0;
+  }
 
-.horizontal-section.-thin {
-  padding: 10px 0;
-}
+  &--thin {
+    padding: 10px 0;
+  }
 
-@media only screen and (max-width: 400px){
-  .horizontal-section.-statistics {
-    display: none;
+  &--statistics {
+    @media only screen and (max-width: 400px){
+      display: none;
+    }
   }
 }

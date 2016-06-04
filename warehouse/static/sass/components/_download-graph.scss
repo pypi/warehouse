@@ -2,6 +2,15 @@
   A container for displaying download statistics.
   Contians individual horizontal statistics at the top (__overview)
   and an area for a dynamic graph.
+
+  <div class="download-graph">
+    <div class="download-graph__overview">
+      <p><strong>Data Label:</strong>Data</p>
+    </div>
+    <div class="download-graph__graph">
+      // Interactive graph goes here
+    </div>
+  </div>
 */
 
 .download-graph {
