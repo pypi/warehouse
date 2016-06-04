@@ -1,8 +1,0 @@
-.col-6 {
-  @include span-columns(6);
-
-  @media only screen and (max-width: 800px){
-    float: none;
-    width: 100%;
-  }
-}

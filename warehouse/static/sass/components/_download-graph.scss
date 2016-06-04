@@ -1,5 +1,5 @@
 .download-graph {
-  @extend .card-style;
+  @include card;
   width: 100%;
   height: 450px;
   margin-bottom: 10px;

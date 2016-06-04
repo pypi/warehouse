@@ -47,8 +47,8 @@
         <div class="split-layout">
           {% block brand %}
           <div class="split-layout">
-            <a class="brand-logo" href="{{ request.route_path('index') }}">
-              <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+            <a class="site-header__logo" href="{{ request.route_path('index') }}">
+              <img {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
             </a>
 
             <form class="search-form -primary" action="{{ request.route_path('search') }}">

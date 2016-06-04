@@ -1,5 +1,5 @@
 .left-sidebar {
-  @extend .site-container;
+  @include site-container;
 
   .sidebar {
     float: left;

@@ -29,7 +29,8 @@
 // TOOLS LAYER
 @import "tools/bourbon/bourbon"; // Also imports bourbon's default settings
 @import "tools/neat/neat"; // Also imports neat's default settings
-@import "tools/grid-helpers";
+@import "tools/design-utilities";
+@import "tools/layout-utilities";
 
 // SETTINGS LAYER
 @import "settings/colours";
@@ -50,23 +51,21 @@
 @import "base/forms";
 
 // LAYOUT HELPERS LAYER
+@import "layout-helpers/banner";
 @import "layout-helpers/half-column";
 @import "layout-helpers/containers";
 @import "layout-helpers/sticky-bar";
 @import "layout-helpers/split-layout";
-@import "layout-helpers/banner-block";
 @import "layout-helpers/left-sidebar";
 
 // REUSABLE COMPONENTS LAYER
 @import "components/about-pypi";
 @import "components/accordion";
 @import "components/applied-filters";
-@import "components/author-profile"; // Move this?
-@import "components/brand-logo";
+@import "components/author-profile"; // Make block
 @import "components/button";
 @import "components/button-group";
 @import "components/callout-block";
-@import "components/card-style";
 @import "components/checkbox-tree";
 @import "components/common-question";
 @import "components/dark-overlay";
@@ -108,9 +107,8 @@
 
 /*
   Apply this class to anything you want to hide visually, but that you want
-  screen readers to be able to read.
+  screen readers to be able to read. Great for extra labels, etc.
 */
-
 .sr-only {
   position: absolute;
   width: 1px;

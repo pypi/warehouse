@@ -4,7 +4,7 @@
 }
 
 .package-snippet {
-  @extend .card-style;
+  @include card;
   padding: 15px 20px 15px 75px;
   margin: 10px 0 20px;
   // Use png fallback

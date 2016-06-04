@@ -6,12 +6,12 @@
     float: none;
     width: 100%;
   }
-}
 
-.half-column:first-child {
-  margin-right: $spacing-unit;
+  &:first-child {
+    margin-right: $spacing-unit;
 
-  @media only screen and (max-width: 800px){
-    margin-bottom: $spacing-unit;
+    @media only screen and (max-width: 800px){
+      margin-bottom: $spacing-unit;
+    }    
   }
 }
