@@ -13,7 +13,6 @@
 -#}
 {% extends "base.html" %}
 
-
 {% macro url_icon(name, url) -%}
 
 {% set parsed = url|urlparse %}
@@ -71,8 +70,8 @@
     <p class="description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
 
     <p class="pip-instructions">
-      <span>pip install {{ release.project.normalized_name }}</span>
-      <a href="clicking-here-copies-text">
+      <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
+      <a href="#" class="copy-pip-command" data-clipboard-target="#pip-command">
         <i class="fa fa-copy"></i>
         <span class="sr-only">Copy PIP instructions<span>
       </a>
