@@ -56,6 +56,21 @@ def profile(user, request):
 
 
 @view_config(
+    route_name="accounts.edit",
+    renderer="accounts/edit.html",
+    uses_session=True,
+)
+def edit_profile(request, _form_class=forms.EditProfileForm):
+    if not request.user:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(request.POST, user_service=user_service)
+
+    return {"user": request.user, "form": form}
+
+
+@view_config(
     route_name="accounts.login",
     renderer="accounts/login.html",
     uses_session=True,

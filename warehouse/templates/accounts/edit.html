@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} | Edit profile {% endblock %}
+
+{% block content %}
+  <form method="POST" action="{{ request.current_route_path() }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+    <p>{{user.username}}</p>
+
+    <!-- Username -->
+    {% if form.username.errors %}
+    <ul class="errors">
+      {% for error in form.username.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {{ form.username(placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false", value="{{ user.username }}", disabled="true") }}
+
+    <br>
+
+    <!-- Password -->
+    {% if form.password.errors %}
+    <ul class="errors">
+      {% for error in form.password.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {{ form.password(placeholder="New Password") }}
+
+    <br>
+
+    <!-- Confirm password -->
+    {% if form.password_confirm.errors %}
+    <ul class="errors">
+      {% for error in form.password_confirm.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {{ form.password_confirm(placeholder="Confirm password") }}
+
+    <!-- Full name -->
+    {% if form.full_name.errors %}
+    <ul class="errors">
+      {% for error in form.full_name.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {{ form.full_name(placeholder="Full name", value="{{ user.name|default(user.username, true) }}") }}
+
+    <br>
+
+    <!-- Email -->
+    {% if form.email.errors %}
+    <ul class="errors">
+      {% for error in form.email.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {{ form.email(placeholder="Email", value="{{ user.email }}") }}
+
+    <br>
+
+    <input type="submit" value="Submit">
+  </form>
+{% endblock %}
