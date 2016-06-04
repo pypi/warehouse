@@ -2,6 +2,10 @@
   A full width horizontal section that acts as a background container and
   adds vertical rhythm to the page.
 
+  This block should not be used inside another container.
+
+  <section class="horizontal-section"></section>
+
   Modifiers:
     - Grey: Makes the background color grey. Adds two grey borders as separators.
     - Medium: Reduces the standard padding

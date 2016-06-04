@@ -64,8 +64,8 @@ $(document).ready(function() {
 
   // Position Sticky bar
   function positionWarning(){
-    var height = $(".sticky-bar").outerHeight();
-    $("body:has(.sticky-bar)").css("paddingTop", height);
+    var height = $(".js-stick-to-top").outerHeight();
+    $("body:has(.js-stick-to-top)").css("paddingTop", height);
   }
 
   positionWarning();
