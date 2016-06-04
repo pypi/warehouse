@@ -37,7 +37,6 @@ docReady(() => {
   let clipboard = new Clipboard(".copy-pip-command");
   clipboard.on('success', (e) => {
     e.trigger.setAttribute('aria-label', 'Copied!');
-    e.trigger.setAttribute('aria-label', 'Copy to clipboard');
     e.clearSelection();
   });
 });
