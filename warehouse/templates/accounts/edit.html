@@ -6,8 +6,6 @@
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-    <p>{{user.username}}</p>
-
     <!-- Username -->
     {% if form.username.errors %}
     <ul class="errors">
@@ -41,6 +39,8 @@
     </ul>
     {% endif %}
     {{ form.password_confirm(placeholder="Confirm password") }}
+
+    <br>
 
     <!-- Full name -->
     {% if form.full_name.errors %}
