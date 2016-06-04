@@ -39,9 +39,9 @@
 @import "settings/grid";
 
 // RESETS LAYER
-@import "generic/normalize";
-@import "generic/reset";
-@import "generic/boxsizing";
+@import "resets/normalize";
+@import "resets/reset";
+@import "resets/boxsizing";
 
 // BASE LAYER
 @import "base/typography";
