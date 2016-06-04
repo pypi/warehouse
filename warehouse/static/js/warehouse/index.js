@@ -34,5 +34,5 @@ docReady(formUtils.submitTriggers);
 
 // Copy handler for the pip command on package detail page
 docReady(() => {
-    new Clipboard(".copy-pip-command");
+  new Clipboard(".copy-pip-command");
 });
