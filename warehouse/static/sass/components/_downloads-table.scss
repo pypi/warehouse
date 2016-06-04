@@ -1,3 +1,8 @@
+/*
+  A table whose column widths are set by its content - in this case, a
+  package's download data.
+*/
+
 .downloads-table {
   box-sizing: border-box;
   table-layout: fixed;
@@ -5,17 +10,21 @@
   margin-top: 15px;
   margin-bottom: 10px;
 
-  .filename {
+  &__filename {
     width: 65%;
   }
 
-  .type,
-  .upload-date {
+  &__type,
+  &__upload-date {
     width: 13%;
   }
 
-  .version {
+  &__version {
     width: 9%;
+  }
+
+  &__sha256-link {
+    margin-left: 5px;
   }
 
   @media only screen and (max-width: 1150px){
@@ -40,9 +49,5 @@
     td:nth-child(4) {
       display: none;
     }
-  }
-
-  .sha256-link {
-    margin-left: 5px;
   }
 }

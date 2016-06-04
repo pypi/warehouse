@@ -272,15 +272,15 @@
           </div>
 
           <div class="download-graph">
-            <div class="download-overview">
-              <p><strong>TODO:</strong> All of these numbers</p>
+            <div class="download-graph__overview">
+              <!--TODO -->
               <p><strong>Today:</strong> 34</p>
               <p><strong>This Week:</strong> 54</p>
               <p><strong>This Month: </strong> 5,434</p>
               <p><strong>This Year: </strong> 46,339</p>
               <p><strong>All Time:</strong> 2,342,323</p>
             </div>
-            <p>TODO: Bar chart here showing downloads over time</p>
+            <div class="download-graph__graph">TODO: Bar chart here showing downloads over time</div>
           </div>
         </div>
 
@@ -294,16 +294,16 @@
             <table class="downloads-table">
               <thead>
                 <tr>
-                  <th class="filename" {{ l20n("fileName") }}>
+                  <th class="downloads-table__filename" {{ l20n("fileName") }}>
                     File Name &amp Checksum
                     <a href="TODO">
                       <i class="fa fa-question-circle"></i>
                       <span class="sr-only">SHA256 Checksum Help</span>
                     </a>
                   </th>
-                  <th class="version" {{ l20n("version") }}>Version</th>
-                  <th class="type" {{ l20n("fileType") }}>File Type</th>
-                  <th class="upload-date" {{ l20n("uploadDate") }}>Upload Date</th>
+                  <th class="downloads-table__version" {{ l20n("version") }}>Version</th>
+                  <th class="downloads-table__type" {{ l20n("fileType") }}>File Type</th>
+                  <th class="downloads-table__upload-date" {{ l20n("uploadDate") }}>Upload Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -312,7 +312,7 @@
                   <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="-js-copy-sha256-link sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                    <a class="-js-copy-sha256-link downloads-table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256

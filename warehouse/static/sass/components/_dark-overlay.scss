@@ -1,3 +1,8 @@
+/*
+ A full screen size overlay that obscures the background.
+ Use for laying under overlay divs (modals, etc.)
+*/
+
 .dark-overlay {
   display: none;
   background-color: transparentize(#000, .4);

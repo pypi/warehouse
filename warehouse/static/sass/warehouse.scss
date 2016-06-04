@@ -62,11 +62,11 @@
 @import "components/about-pypi";
 @import "components/accordion";
 @import "components/applied-filters";
-@import "components/author-profile"; // Make block
+@import "components/author-profile"; // refactor
 @import "components/button";
 @import "components/button-group";
 @import "components/callout-block";
-@import "components/checkbox-tree";
+@import "components/checkbox-tree"; // refactor
 @import "components/common-question";
 @import "components/dark-overlay";
 @import "components/download-graph";
@@ -100,7 +100,7 @@
 
 // TRUMPS LAYER - OVERWRITES EVERYTHING ELSE
 
-/* Remove top padding on selected typography elements*/
+/* Remove top padding on selected typography elements */
 .no-top-padding {
   padding-top: 0;
 }
@@ -116,6 +116,6 @@
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }

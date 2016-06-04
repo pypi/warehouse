@@ -3,7 +3,7 @@
 }
 
 .narrow-container { // Use for single column content pages
-  @include container-width($narrow-container);
+  @include centered-container($narrow-container);
   padding: 0 20px;
 
   @media screen and (max-width: 400px) {

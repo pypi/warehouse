@@ -1,11 +1,11 @@
-@mixin container-width($width) {
+@mixin centered-container($width) {
   max-width: $width;
   @include margin(null auto);
   @include clearfix;
 }
 
 @mixin site-container {
-  @include container-width($site-container);
+  @include centered-container($site-container);
   padding: 0 20px;
 
   @media screen and (max-width: 400px) {
