@@ -34,5 +34,9 @@ docReady(formUtils.submitTriggers);
 
 // Copy handler for the pip command on package detail page
 docReady(() => {
-  new Clipboard(".copy-pip-command");
+  let clipboard = new Clipboard(".-js-copy-pip-command");
+  clipboard.on("success", (e) => {
+    e.trigger.setAttribute("aria-label", "Copied!");
+    e.clearSelection();
+  });
 });
