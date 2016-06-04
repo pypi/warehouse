@@ -56,6 +56,9 @@ let webpackConfig = {
   },
   resolve: {
     modules: [ path.resolve(staticPrefix, "js"), "node_modules" ],
+    alias: {
+      "clipboard": "clipboard/dist/clipboard",
+    },
   },
 };
 
