@@ -17,6 +17,18 @@
   overflow: hidden;
 }
 
+.wh-button:focus,
+#{$all-buttons-focus},
+.wh-button:hover,
+#{$all-buttons-hover},
+.wh-button:active,
+#{$all-buttons-active} {
+  border-color: $brand-color;
+  color: darken($brand-color, 10);
+  text-decoration: none;
+  z-index: 2;
+}
+
 .wh-button.-large {
   font-size: $button-font-size * 1.2;
 }
@@ -25,18 +37,6 @@
   font-size: $small-font-size;
   height: em(40px);
   line-height: em(36px);
-}
-
-.wh-button:focus,
-#{$all-buttons-focus},
-.wh-button:hover,
-#{$all-buttons-hover},
-.wh-button:active,
-#{$all-buttons-active}  {
-  border-color: $brand-color;
-  color: darken($brand-color, 10);
-  text-decoration: none;
-  z-index: 2;
 }
 
 .wh-button.-dark {
@@ -59,8 +59,23 @@
 
   &:hover {
     background-color: darken($brand-color, 2);
-    text-decoration-colozr: rgba(255,255,255, .2);
+    text-decoration-color: rgba(255,255,255, .2);
     color: $white;
+  }
+}
+
+.wh-button[disabled] {
+  cursor: not-allowed;
+  background-color: darken($background-color, 5%);
+  border: 2px solid darken($background-color, 5%);
+  color: darken($background-color, 12%);
+  text-decoration: line-through;
+
+  &:hover,
+  &:active {
+    background-color: darken($background-color, 5%);
+    border: 2px solid darken($background-color, 5%);
+    color: darken($background-color, 12%);
   }
 }
 
