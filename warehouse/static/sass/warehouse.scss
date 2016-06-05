@@ -25,7 +25,6 @@
   Imports are organised into the seven layers defined below:
 */
 
-
 // TOOLS LAYER
 @import "tools/bourbon/bourbon"; // Also imports bourbon's default settings
 @import "tools/neat/neat"; // Also imports neat's default settings
@@ -84,19 +83,20 @@
 @import "components/mobile-search-bar";
 @import "components/notification-bar";
 @import "components/package-header";
-@import "components/package-links";
+@import "components/package-links"; // refactor
 @import "components/package-list";
+@import "components/package-snippet";
 @import "components/package-status";
-@import "components/panel-overlay";
+@import "components/panel-overlay"; // refactor
 @import "components/release-description";
 @import "components/search-form";
 @import "components/sidebar-section";
 @import "components/site-header"; // refactor
-@import "components/sponsor-footer";
+@import "components/sponsors";
+@import "components/status-badge";
 @import "components/statistics-bar";
 @import "components/tooltip";
 @import "components/vertical-tabs";
-
 
 // TRUMPS LAYER - OVERWRITES EVERYTHING ELSE
 

@@ -1,26 +1,57 @@
+/*
+  The  main header of a package detail page. Contains key package information
+  including name, description, license, etc.
+
+  This block assumes it is placed inside a dark container.
+
+  <div class="package-header">
+    <p class="package-header__license"></p>
+    <h1 class="package-header__name"></h1>
+    <p class="package-header__description"></p>
+    <p class="package-header__pip-instructions">
+      <span>// pip instructions</span>
+      <a><i></i></a> // copy icon
+    </p>
+    <p class="package-header__help-link">// Help link</p>
+  </div>
+*/
+
 .package-header {
   @extend .site-container;
 
-  h1 {
+  a {
+    color: $white;
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+
+    &:hover {
+      text-decoration-color: $white;
+    }
+  }
+
+  &__license {
+    padding-top: 15px;
+    float: right;
+    font-style: italic;
+
+    @media only screen and (max-width: 800px){
+      padding-top: 0;
+      float: none;
+    }
+  }
+
+  &__name {
     padding: 0;
   }
 
-  .description {
+  &__description {
     font-size: 1.2rem;
     font-style: italic;
     padding: 10px 0;
   }
 
-  .license {
-    float: right;
 
-    @media only screen and (max-width: 800px){
-       float: none;
-       margin-bottom: 10px;
-    }
-  }
-
-  .pip-instructions {
+  &__pip-instructions {
     @include clearfix;
     margin: 10px 0 15px;
     padding-bottom: 0;
@@ -47,14 +78,19 @@
     }
 
     a {
+      color: $white;
       line-height: 30px;
       float: left;
       cursor: pointer;
       padding: 10px 15px;
-      background-color: rgba(0,0,0,.15);
-      border-right: 1px dotted rgba(255,255,255, 0.4);
-      border-top: 1px dotted rgba(255,255,255, 0.4);
-      border-bottom: 1px dotted rgba(255,255,255, 0.4);
+      background-color: rgba(0, 0, 0, 0.15);
+      border-right: 1px dotted rgba(255, 255, 255, 0.4);
+      border-top: 1px dotted rgba(255, 255, 255, 0.4);
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.4);
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.2);
+      }
 
       @media only screen and (max-width: 800px){
          line-height: 25px;
@@ -67,13 +103,7 @@
     }
   }
 
-  a {
-    color: $white;
-    text-decoration: underline;
-    text-decoration-color: rgba(255,255,255, 0.4);
-  }
-
-  p.help-link {
+  &__help-link {
     display: block;
     margin-bottom: 5px;
   }

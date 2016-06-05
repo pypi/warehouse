@@ -1,0 +1,90 @@
+/*
+  The sponsor footer.
+
+  <div class="sponsors">
+    <p class="sponsors__title">
+      // Title
+    </p>
+
+    <a class="sponsors__sponsor">
+      <img class="sponsors__image">
+      <span class="sponsors__name"></span>
+      <span class="sponsors__service"></span>
+    </a>
+  </div>
+*/
+
+.sponsors {
+  text-align: center;
+  border-top: 1px solid darken($brand-color, 2);
+  background-color: $brand-color;
+  padding: 15px;
+
+  &__title {
+    display: none;
+    font-style: italic;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    color: transparentize($white, 0.2);
+    border-bottom: 1px solid transparentize($white, 0.8);
+
+    @media only screen and (max-width: 600px){
+      display: block;
+    }
+  }
+
+  &__sponsor {
+    display: inline-block;
+    text-align: center;
+    padding: 15px 13px 10px 13px;
+    opacity: 0.6;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+      opacity: 1;
+    }
+
+    @media only screen and (max-width: 800px){
+      padding: 7px 10px;
+    }
+
+    @media only screen and (max-width: 600px){
+      padding: 5px 7px;
+    }
+  }
+
+  &__image {
+    max-height: 45px;
+
+    @media only screen and (max-width: 800px){
+      display: none;
+    }
+  }
+
+  &__name,
+  &__service {
+    max-width: 100px;
+    display: block;
+    font-size: 13px;
+    color: $white;
+  }
+
+  &__name {
+    font-weight: 600;
+    margin-top: 10px;
+
+    @media only screen and (max-width: 600px){
+      margin: 0;
+      font-weight: normal;
+    }
+  }
+
+  &__service {
+    font-style: italic;
+
+    @media only screen and (max-width: 600px){
+      display: none;
+    }
+  }
+}

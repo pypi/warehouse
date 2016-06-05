@@ -30,11 +30,11 @@
     <div class="package-list">
       {% for release in projects %}
       <div class="package-snippet">
-        <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
-        <p class="meta">
+        <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
+        <p class="package-snippet__meta">
           <em {{ l20n("lastReleasedOn", when=release.created|format_date()) }}>Last released on {{ release.created|format_date() }}</em>
         </p>
-        <p class="description">{{ release.summary }}</p>
+        <p class="package-snippet__description">{{ release.summary }}</p>
       </div>
       {% endfor %}
     </div>
