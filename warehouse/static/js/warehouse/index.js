@@ -44,7 +44,7 @@ docReady(() => {
   // mouseout events. Change the "aria-label" to "original-label" attribute
   // value.
   let setOriginalLabel = (element) => {
-    element.setAttribute("aria-label", element.getAttribute("original-label"));
+    element.setAttribute("aria-label", element.dataset.originalLabel);
   };
   let tooltippedElems = Array.from(document.querySelectorAll(".tooltipped"));
   tooltippedElems.forEach((element) => {
