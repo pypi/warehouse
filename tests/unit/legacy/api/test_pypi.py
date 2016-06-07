@@ -72,13 +72,16 @@ def test_forbidden_legacy():
 
 
 def test_list_classifiers(pyramid_request):
-    request = pretend.stub(
+    pyramid_request = pretend.stub(
         db=pretend.stub(
-            query=pretend.call_recorder(lambda q: None),
+            query=pretend.stub(
+                order_by=pretend.stub(
+                    all=lambda: 'abc'
+                )
+            ),
         ),
     )
     resp = pypi.list_classifiers(pyramid_request)
 
     assert resp.status_code == 200
-    # assert request.db.execute.calls == [pretend.call("SELECT 1")]
     # assert resp.status == "410 DOAP is no longer supported."
