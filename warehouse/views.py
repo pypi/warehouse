@@ -14,6 +14,7 @@ import collections
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
+    HTTPBadRequest,
 )
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
@@ -192,7 +193,11 @@ def search(request):
     if request.params.getall("c"):
         query = query.filter("terms", classifiers=request.params.getall("c"))
 
-    page_num = int(request.params.get("page", 1))
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.")
+
     page = ElasticsearchPage(
         query,
         page=page_num,
