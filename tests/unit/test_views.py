@@ -17,7 +17,9 @@ import pytest
 from elasticsearch_dsl import Q
 from webob.multidict import MultiDict
 
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPNotFound, HTTPBadRequest,
+)
 
 from warehouse import views
 from warehouse.views import (
