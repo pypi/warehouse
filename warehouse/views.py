@@ -196,7 +196,7 @@ def search(request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
-        raise HTTPBadRequest
+        raise HTTPBadRequest("'page' must be an integer.")
 
     page = ElasticsearchPage(
         query,
