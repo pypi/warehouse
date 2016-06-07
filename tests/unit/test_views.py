@@ -408,6 +408,7 @@ class TestSearch:
 
         assert page_cls.calls == []
 
+
 def test_health():
     request = pretend.stub(
         db=pretend.stub(
