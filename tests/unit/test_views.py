@@ -406,11 +406,7 @@ class TestSearch:
         with pytest.raises(HTTPBadRequest):
             search(db_request)
 
-        assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=15 or 1),
-        ]
-        assert url_maker_factory.calls == [pretend.call(db_request)]
-
+        assert page_cls.calls == []
 
 def test_health():
     request = pretend.stub(
