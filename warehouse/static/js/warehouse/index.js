@@ -39,4 +39,22 @@ docReady(() => {
     e.trigger.setAttribute("aria-label", "Copied!");
     e.clearSelection();
   });
+
+  // Get all elements with class "tooltipped" and bind to focousout and
+  // mouseout events. Change the "aria-label" to "original-label" attribute
+  // value.
+  let setOriginalLabel = (element) => {
+    element.setAttribute("aria-label", element.dataset.originalLabel);
+  };
+  let tooltippedElems = Array.from(document.querySelectorAll(".tooltipped"));
+  tooltippedElems.forEach((element) => {
+    element.addEventListener("focousout",
+      setOriginalLabel.bind(undefined, element),
+      false
+    );
+    element.addEventListener("mouseout",
+      setOriginalLabel.bind(undefined, element),
+      false
+    );
+  });
 });
