@@ -17,6 +17,8 @@ from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.legacy.api import pypi
 
+from ....common.db.classifiers import ClassifierFactory
+
 
 def test_exc_with_message():
     exc = pypi._exc_with_message(HTTPBadRequest, "My Test Message.")
@@ -67,3 +69,14 @@ def test_forbidden_legacy():
     exc, request = pretend.stub(), pretend.stub()
     resp = pypi.forbidden_legacy(exc, request)
     assert resp is exc
+
+
+def test_list_classifiers(db_request):
+    ClassifierFactory.create(classifier="foo :: bar")
+    ClassifierFactory.create(classifier="foo :: baz")
+    ClassifierFactory.create(classifier="fiz :: buz")
+
+    resp = pypi.list_classifiers(db_request)
+
+    assert resp.status_code == 200
+    assert resp.text == "fiz :: buz\nfoo :: bar\nfoo :: baz"
