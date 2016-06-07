@@ -192,7 +192,11 @@ def search(request):
     if request.params.getall("c"):
         query = query.filter("terms", classifiers=request.params.getall("c"))
 
-    page_num = int(request.params.get("page", 1))
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+
     page = ElasticsearchPage(
         query,
         page=page_num,
