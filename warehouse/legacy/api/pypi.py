@@ -72,3 +72,8 @@ def forbidden_legacy(exc, request):
     # the default forbidden handler we have which does redirects to the login
     # view, which we do not want on this API.
     return exc
+
+
+@view_config(route_name="legacy.api.pypi.list_classifiers")
+def list_classifiers(request):
+    return _exc_with_message(HTTPGone, "This works.")
