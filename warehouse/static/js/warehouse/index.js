@@ -39,12 +39,8 @@ docReady(() => {
     e.clearSelection();
   };
 
-  let clipboard = new Clipboard(".-js-copy-pip-command");
-  clipboard.on("success", setCopiedTooltip);
-
-  clipboard = new Clipboard(".-js-copy-sha256-link");
-  clipboard.on("success", setCopiedTooltip);
-
+  new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
+  new Clipboard(".-js-copy-sha256-link").on("success", setCopiedTooltip);
 
   // Get all elements with class "tooltipped" and bind to focousout and
   // mouseout events. Change the "aria-label" to "original-label" attribute
