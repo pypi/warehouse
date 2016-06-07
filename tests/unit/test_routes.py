@@ -187,6 +187,11 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("legacy.api.pypi.doap", "doap", domain=warehouse),
+        pretend.call(
+            "legacy.api.pypi.list_classifiers",
+            "list_classifiers",
+            domain=warehouse,
+        ),
     ]
 
     assert config.add_pypi_action_redirect.calls == [

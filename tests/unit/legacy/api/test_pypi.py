@@ -17,6 +17,8 @@ from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.legacy.api import pypi
 
+from ....common.db.classifiers import ClassifierFactory
+
 
 def test_exc_with_message():
     exc = pypi._exc_with_message(HTTPBadRequest, "My Test Message.")
@@ -69,8 +71,14 @@ def test_forbidden_legacy():
     assert resp is exc
 
 
-def test_doap(pyramid_request):
+def test_list_classifiers(pyramid_request):
+    request = pretend.stub(
+        db=pretend.stub(
+            query=pretend.call_recorder(lambda q: None),
+        ),
+    )
     resp = pypi.list_classifiers(pyramid_request)
 
     assert resp.status_code == 200
+    # assert request.db.execute.calls == [pretend.call("SELECT 1")]
     # assert resp.status == "410 DOAP is no longer supported."
