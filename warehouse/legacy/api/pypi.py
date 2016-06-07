@@ -11,7 +11,10 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import HTTPGone
+from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
+
+from warehouse.classifiers.models import Classifier
 
 
 def _exc_with_message(exc, message):
@@ -76,4 +79,13 @@ def forbidden_legacy(exc, request):
 
 @view_config(route_name="legacy.api.pypi.list_classifiers")
 def list_classifiers(request):
-    return _exc_with_message(HTTPGone, "This works.")
+    classifiers = (
+        request.db.query(Classifier.classifier)
+                  .order_by(Classifier.classifier)
+                  .all()
+    )
+
+    return Response(
+        text='\n'.join(c[0] for c in classifiers),
+        content_type='text/plain; charset=utf-8'
+    )

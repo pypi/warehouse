@@ -67,3 +67,10 @@ def test_forbidden_legacy():
     exc, request = pretend.stub(), pretend.stub()
     resp = pypi.forbidden_legacy(exc, request)
     assert resp is exc
+
+
+def test_doap(pyramid_request):
+    resp = pypi.list_classifiers(pyramid_request)
+
+    assert resp.status_code == 200
+    # assert resp.status == "410 DOAP is no longer supported."
