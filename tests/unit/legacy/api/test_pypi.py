@@ -71,17 +71,12 @@ def test_forbidden_legacy():
     assert resp is exc
 
 
-def test_list_classifiers(pyramid_request):
-    pyramid_request = pretend.stub(
-        db=pretend.stub(
-            query=pretend.stub(
-                order_by=pretend.stub(
-                    all=lambda: 'abc'
-                )
-            ),
-        ),
-    )
-    resp = pypi.list_classifiers(pyramid_request)
+def test_list_classifiers(db_request):
+    classifier1 = ClassifierFactory.create(classifier="foo :: bar")
+    classifier2 = ClassifierFactory.create(classifier="foo :: baz")
+    classifier3 = ClassifierFactory.create(classifier="fiz :: buz")
+
+    resp = pypi.list_classifiers(db_request)
 
     assert resp.status_code == 200
-    # assert resp.status == "410 DOAP is no longer supported."
+    assert resp.text == "fiz :: buz\nfoo :: bar\nfoo :: baz"
