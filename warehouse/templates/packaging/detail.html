@@ -294,7 +294,7 @@
                   <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="sha256-link" href="TODO: clicking-here-copies-sha256: {{ file.sha256_digest }}">
+                    <a class="-js-copy-sha256-link sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256
