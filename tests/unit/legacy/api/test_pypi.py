@@ -72,9 +72,9 @@ def test_forbidden_legacy():
 
 
 def test_list_classifiers(db_request):
-    classifier1 = ClassifierFactory.create(classifier="foo :: bar")
-    classifier2 = ClassifierFactory.create(classifier="foo :: baz")
-    classifier3 = ClassifierFactory.create(classifier="fiz :: buz")
+    ClassifierFactory.create(classifier="foo :: bar")
+    ClassifierFactory.create(classifier="foo :: baz")
+    ClassifierFactory.create(classifier="fiz :: buz")
 
     resp = pypi.list_classifiers(db_request)
 

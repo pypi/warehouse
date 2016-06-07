@@ -81,8 +81,8 @@ def forbidden_legacy(exc, request):
 def list_classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
-                  .order_by(Classifier.classifier)
-                  .all()
+               .order_by(Classifier.classifier)
+               .all()
     )
 
     return Response(
