@@ -14,6 +14,7 @@ import collections
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
+    HTTPBadRequest,
 )
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
@@ -195,7 +196,7 @@ def search(request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
-        raise HTTPNotFound
+        raise HTTPBadRequest
 
     page = ElasticsearchPage(
         query,
