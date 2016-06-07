@@ -386,6 +386,29 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
 
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+        params = MultiDict({"page": "abc"})
+        db_request.params = params
+
+        es_query = pretend.stub()
+        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        page_obj = pretend.stub(page_count=10)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        with pytest.raises(HTTPBadRequest):
+            search(db_request)
+
+        assert page_cls.calls == [
+            pretend.call(es_query, url_maker=url_maker, page=15 or 1),
+        ]
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+
 
 def test_health():
     request = pretend.stub(
