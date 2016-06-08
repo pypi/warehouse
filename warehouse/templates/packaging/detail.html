@@ -131,6 +131,21 @@
             {% endif %}
         </div>
 
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3 {{l20n("projectClassifiers") }}>Classifiers</h3>
+          <ul>
+            {% for classifier in release.classifiers %}
+            <li>
+              <a href="{{ request.route_path('search', _query={'c': classifier}) }}">
+                {{ classifier }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
         <div class="sidebar-section maintainers">
           <h3 {{ l20n("projectMaintainers") }}>Maintainers</h3>
           {% for maintainer in maintainers %}
