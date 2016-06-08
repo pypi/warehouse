@@ -57,6 +57,7 @@ def reindex(config, **kwargs):
     """
     client = config.registry["elasticsearch.client"]
     db = Session(bind=config.registry["sqlalchemy.engine"])
+    num_replicas = config.registry.get("elasticsearch.replicas", 0)
 
     # We use a randomly named index so that we can do a zero downtime reindex.
     # Essentially we'll use a randomly named index which we will use until all
@@ -68,14 +69,21 @@ def reindex(config, **kwargs):
     random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
     new_index_name = "{}-{}".format(index_base, random_token)
     doc_types = config.registry.get("search.doc_types", set())
+
+    # Create the new index with zero replicas then update it with index
+    # refreshes disabled while we are bulk indexing.
     new_index = get_index(
         new_index_name,
         doc_types,
         using=client,
         shards=config.registry.get("elasticsearch.shards", 1),
-        replicas=config.registry.get("elasticsearch.replicas", 0),
+        replicas=0,
     )
     new_index.create()
+    client.indices.put_settings(
+        index=new_index_name,
+        body={"index": {"refresh_interval": "-1"}}
+    )
 
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
@@ -85,14 +93,26 @@ def reindex(config, **kwargs):
         for _ in parallel_bulk(client, _project_docs(db)):
             pass
     except:
-        new_index.delete()
+        client.indices.delete(index=new_index_name)
         raise
     finally:
         db.rollback()
         db.close()
 
-    # Now that we've finished indexing all of our data, we'll point the alias
-    # at our new randomly named index and delete the old index.
+    # Now that we've finished indexing all of our data we can optimize it and
+    # update the replicas and refresh intervals.
+    client.indices.forcemerge(index=new_index_name)
+    client.indices.put_settings(
+        index=new_index_name,
+        body={
+            "index": {
+                "number_of_replicas": num_replicas,
+                "refresh_interval": "5s",
+            }
+        }
+    )
+
+    # Point the alias at our new randomly named index and delete the old index.
     if client.indices.exists_alias(name=index_base):
         to_delete = set()
         actions = []
