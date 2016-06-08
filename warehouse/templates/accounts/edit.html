@@ -3,6 +3,8 @@
 {% block title %}{{ user.username }} | Edit profile {% endblock %}
 
 {% block content %}
+  <p>{{user.username}}</p>
+  <p>{{user.name}}</p>
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 

@@ -89,6 +89,13 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "accounts.profile.edit",
+            "/user/{username}/edit",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}/edit",
+            domain=warehouse,
+        ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call(

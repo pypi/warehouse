@@ -62,7 +62,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "accounts.edit",
+        "accounts.profile.edit",
         "/user/{username}/edit",
         domain=warehouse,
     )
