@@ -66,7 +66,6 @@ def edit_profile(request, _form_class=forms.EditProfileForm):
 
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
-    # form.populate_obj(request.user)
 
     return {"user": request.user, "form": form}
 
