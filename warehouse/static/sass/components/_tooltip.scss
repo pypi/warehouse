@@ -10,6 +10,7 @@ $tooltip-duration: 0.1s !default;
 
 .tooltipped {
   position: relative;
+  cursor: pointer;
 }
 
 // This is the tooltip bubble
