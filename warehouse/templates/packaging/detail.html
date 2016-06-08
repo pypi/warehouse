@@ -131,21 +131,6 @@
             {% endif %}
         </div>
 
-        {% if release.classifiers %}
-        <div class="sidebar-section classifiers">
-          <h3 {{l20n("projectClassifiers") }}>Classifiers</h3>
-          <ul>
-            {% for classifier in release.classifiers %}
-            <li>
-              <a href="{{ request.route_path('search', _query={'c': classifier}) }}">
-                {{ classifier }}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
-
         <div class="sidebar-section maintainers">
           <h3 {{ l20n("projectMaintainers") }}>Maintainers</h3>
           {% for maintainer in maintainers %}
@@ -165,6 +150,24 @@
             {% endfor %}
           </p>
           {% endif %}
+        </div>
+        {% endif %}
+
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3 {{l20n("projectClassifiers") }}>Classifiers</h3>
+          <dl>
+            {% for classifier_head, classifier_tail in release.structured_classifiers.items() %}
+              <dt>{{ classifier_head }}</dt>
+              {% for classifier in classifier_tail %}
+                <dd>
+                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+                    {{ classifier }}
+                  </a>
+                </dd>
+              {% endfor %}
+            {% endfor %}
+          </dl>
         </div>
         {% endif %}
       </div>

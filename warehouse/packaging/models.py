@@ -12,7 +12,10 @@
 
 import enum
 
-from collections import OrderedDict
+from collections import (
+    OrderedDict,
+    defaultdict,
+)
 
 from citext import CIText
 from pyramid.security import Allow
@@ -264,6 +267,15 @@ class Release(db.ModelBase):
         order_by=Classifier.classifier,
     )
     classifiers = association_proxy("_classifiers", "classifier")
+
+    @property
+    def structured_classifiers(self):
+        structured = defaultdict(list)
+        for classifier in self.classifiers:
+            key, *value = classifier.split(' :: ', 1)
+            if value:
+                structured[key].append(value[0])
+        return structured
 
     files = orm.relationship(
         "File",
