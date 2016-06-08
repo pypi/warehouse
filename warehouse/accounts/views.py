@@ -20,6 +20,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
@@ -59,6 +60,7 @@ def profile(user, request):
     route_name="accounts.profile.edit",
     renderer="accounts/edit.html",
     uses_session=True,
+    require_methods=False,
 )
 def edit_profile(request, _form_class=forms.EditProfileForm):
     if not request.user:
@@ -66,6 +68,20 @@ def edit_profile(request, _form_class=forms.EditProfileForm):
 
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        userid = user_service.find_userid(username)
+
+        if not form.password.data:
+            user_service.update_user(userid, full_name=form.full_name.data)
+        else:
+            user_service.update_user(
+                userid,
+                full_name=form.full_name.data, password=form.password.data
+            )
+
+        return HTTPSeeOther(request.route_path("accounts.profile"))
 
     return {"user": request.user, "form": form}
 

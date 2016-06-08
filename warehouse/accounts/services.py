@@ -110,6 +110,7 @@ class DatabaseUserService:
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
         for attr, value in changes.items():
+            print('%s----%s', attr, value)
             setattr(user, attr, value)
         return user
 

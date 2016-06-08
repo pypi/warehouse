@@ -119,10 +119,18 @@ class LoginForm(CredentialsMixin, forms.Form):
                 raise wtforms.validators.ValidationError("Invalid password.")
 
 
-class EditProfileForm(CredentialsMixin, forms.Form):
-    password_confirm = wtforms.PasswordField(
+class EditProfileForm(forms.Form):
+    username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
+            wtforms.validators.Length(max=50),
+        ],
+    )
+
+    password = wtforms.PasswordField()
+
+    password_confirm = wtforms.PasswordField(
+        validators=[
             wtforms.validators.EqualTo(
                 "password", "Passwords must match."
             ),
@@ -138,15 +146,16 @@ class EditProfileForm(CredentialsMixin, forms.Form):
         ],
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_service = user_service
 
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError("Email exists.")
 
     def validate_password(self, field):
-        if not PWD_RE.match(field.data):
+        if field.data and not PWD_RE.match(field.data):
             raise wtforms.validators.ValidationError(
                 "Password must contain an upper case letter, a lower case "
                 "letter, a number, a special character and be at least "
