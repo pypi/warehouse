@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
+
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
@@ -19,6 +21,12 @@
     {% endif %}
 
     {% include "warehouse:templates/includes/input-credentials.html" %}
+
+    {{ recaptcha_html(request, form) }}
     <input type="submit" value="Login">
   </form>
+{% endblock %}
+
+{% block extra_js %}
+  {{ recaptcha_src(request) }}
 {% endblock %}

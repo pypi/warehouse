@@ -57,11 +57,19 @@ class TestLogin:
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_form(self, pyramid_request, next_url):
         user_service = pretend.stub()
+        recaptcha_service = pretend.stub(
+            merge=pretend.call_recorder(lambda _: None),
+            csp_policy={},
+        )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface=None, context=None, name=None:
+                user_service if name is None else recaptcha_service
         )
         form_obj = pretend.stub()
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(
+            lambda data=None, user_service=None,
+            recaptcha_service=None: form_obj
+        )
 
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
@@ -74,22 +82,36 @@ class TestLogin:
         }
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(name="recaptcha"),
+            pretend.call(name="csp"),
         ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service),
+            pretend.call(
+                data=pyramid_request.POST,
+                user_service=user_service,
+                recaptcha_service=recaptcha_service
+            ),
         ]
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_post_invalid_returns_form(self, pyramid_request, next_url):
         user_service = pretend.stub()
+        recaptcha_service = pretend.stub(
+            merge=pretend.call_recorder(lambda _: None),
+            csp_policy={},
+        )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface=None, context=None, name=None:
+                user_service if name is None else recaptcha_service
         )
         pyramid_request.method = "POST"
         if next_url is not None:
             pyramid_request.POST["next"] = next_url
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(
+            lambda data=None, user_service=None,
+            recaptcha_service=None: form_obj
+        )
 
         result = views.login(pyramid_request, _form_class=form_class)
 
@@ -99,9 +121,15 @@ class TestLogin:
         }
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(name="recaptcha"),
+            pretend.call(name="csp"),
         ]
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service),
+            pretend.call(
+                data=pyramid_request.POST,
+                user_service=user_service,
+                recaptcha_service=recaptcha_service
+            ),
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
@@ -118,8 +146,13 @@ class TestLogin:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
         )
+        recaptcha_service = pretend.stub(
+            merge=pretend.call_recorder(lambda _: None),
+            csp_policy={},
+        )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface=None, context=None, name=None:
+                user_service if name is None else recaptcha_service
         )
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
@@ -138,7 +171,10 @@ class TestLogin:
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(
+            lambda data=None, user_service=None,
+            recaptcha_service=None: form_obj
+        )
 
         result = views.login(pyramid_request, _form_class=form_class)
 
@@ -148,7 +184,11 @@ class TestLogin:
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
-            pretend.call(pyramid_request.POST, user_service=user_service),
+            pretend.call(
+                data=pyramid_request.POST,
+                user_service=user_service,
+                recaptcha_service=recaptcha_service,
+            ),
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
@@ -163,6 +203,8 @@ class TestLogin:
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(name="recaptcha"),
+            pretend.call(name="csp"),
         ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
 
@@ -180,8 +222,13 @@ class TestLogin:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
         )
+        recaptcha_service = pretend.stub(
+            merge=pretend.call_recorder(lambda _: None),
+            csp_policy={},
+        )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: user_service
+            lambda iface=None, context=None, name=None:
+                user_service if name is None else recaptcha_service
         )
         pyramid_request.method = "POST"
         pyramid_request.POST["next"] = expected_next_url
@@ -190,7 +237,10 @@ class TestLogin:
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
         )
-        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        form_class = pretend.call_recorder(
+            lambda data=None, user_service=None,
+            recaptcha_service=None: form_obj
+        )
 
         result = views.login(pyramid_request, _form_class=form_class)
 

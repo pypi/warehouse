@@ -67,11 +67,23 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     #       permission to view something.
 
     user_service = request.find_service(IUserService, context=None)
+    recaptcha_service = request.find_service(name="recaptcha")
+    request.find_service(name="csp").merge(recaptcha_service.csp_policy)
 
     redirect_to = request.POST.get(redirect_field_name,
                                    request.GET.get(redirect_field_name))
 
-    form = _form_class(request.POST, user_service=user_service)
+    # the form contains an auto-generated field from recaptcha with
+    # hyphens in it. make it play nice with wtforms.
+    post_body = {
+        key.replace("-", "_"): value
+        for key, value in request.POST.items()
+    }
+
+    form = _form_class(
+        data=post_body, user_service=user_service,
+        recaptcha_service=recaptcha_service
+    )
 
     if request.method == "POST" and form.validate():
         # Get the user id for the given username.
