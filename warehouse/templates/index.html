@@ -37,20 +37,20 @@
 
     <form class="search-form -large -fullwidth" action="{{ request.route_path('search') }}">
       <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search large-input" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects" autofocus>
+      <input id="search" class="search large-input" type="text" name="q" {{ l20n("search") }} placeholder="Search Packages" autofocus>
       <button class="wh-button -large -dark" type="submit">
         <i class="icon fa fa-search"></i>
         <span class="text" {{ l20n("search") }}>Search</span>
       </button>
     </form>
 
-    <p class="browse" {{ l20n("orBrowse") }}>Or <a href="{{ request.route_path('search') }}">browse projects</a>.</p>
+    <p class="browse" {{ l20n("orBrowse") }}>Or <a href="{{ request.route_path('search') }}">browse packages</a>.</p>
   </div>
 </section>
 
 <section class="horizontal-section -grey -thin -statistics">
   <div class="statistics-bar">
-    <p class="statistic" {{ l20n("numberOfProjects", number=num_projects) }}>{{ num_projects }} Projects</p>
+    <p class="statistic" {{ l20n("numberOfProjects", number=num_projects) }}>{{ num_projects }} Packages</p>
     <p class="statistic" {{ l20n("numberOfReleases", number=num_releases) }}>{{ num_releases }} Releases</p>
     <p class="statistic" {{ l20n("numberOfFiles", number=num_files) }}>{{ num_files }} Files</p>
     <p class="statistic" {{ l20n("numberOfUsers", number=num_users) }}>{{ num_users }} Users</p>
@@ -74,8 +74,8 @@
   <div class="site-container">
     <div class="half-column">
       <div class="heading-wsubtitle">
-        <h2 class="heading" {{ l20n("topProjectsTitle") }}>Top Projects</h2>
-        <p class="subtitle" {{ l20n("topProjectsSubTitle") }}>Top projects as downloaded by the community</p>
+        <h2 class="heading" {{ l20n("topProjectsTitle") }}>Top Packages</h2>
+        <p class="subtitle" {{ l20n("topProjectsSubTitle") }}>Top packages as downloaded by the community</p>
       </div>
       <div class="package-list">
         {% for release in top_projects %}
@@ -87,7 +87,7 @@
     <div class="half-column">
       <div class="heading-wsubtitle">
         <h2 class="heading" {{ l20n("newReleasesTitle") }}>New Releases</h2>
-        <p class="subtitle" {{ l20n("newReleasesSubTitle") }}>Hot off the press: the newest projects to be released to PyPI</p>
+        <p class="subtitle" {{ l20n("newReleasesSubTitle") }}>Hot off the press: the newest packages to be released to PyPI</p>
       </div>
       <div class="package-list">
         {% for release in latest_releases %}
