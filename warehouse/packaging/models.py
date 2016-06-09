@@ -13,6 +13,7 @@
 import enum
 
 from collections import OrderedDict
+from datetime import datetime
 
 from citext import CIText
 from pyramid.security import Allow
@@ -155,7 +156,9 @@ class Project(SitemapMixin, db.ModelBase):
 
     @property
     def downloads(self):
-        return sum([release.downloads for release in self.releases])
+        release, *_ = self.releases
+        delta = (datetime.now() - release.created).days or 1
+        return release.downloads / delta
 
 
 class DependencyKind(enum.IntEnum):

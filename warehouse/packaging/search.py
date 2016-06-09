@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from elasticsearch_dsl import (
-    DocType, String, analyzer, MetaField, Date, Integer
+    DocType, String, analyzer, MetaField, Date, Float
 )
 
 from warehouse.search import doc_type
@@ -49,7 +49,7 @@ class Project(DocType):
     platform = String(index="not_analyzed")
     created = Date()
     classifiers = String(index="not_analyzed", multi=True)
-    downloads = Integer()
+    downloads = Float()
 
     class Meta:
         # disable the _all field to save some space
