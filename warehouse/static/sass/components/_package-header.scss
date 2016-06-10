@@ -17,7 +17,7 @@
 */
 
 .package-header {
-  @extend .site-container;
+  @include site-container;
 
   a {
     color: $white;
@@ -49,7 +49,6 @@
     font-style: italic;
     padding: 10px 0;
   }
-
 
   &__pip-instructions {
     @include clearfix;

@@ -1,7 +1,23 @@
-.homepage-hero {
+/*
+  Layout for warehouse's homepage banner:
+
+  <div class="homepage-banner">
+    <h1 class="homepage-banner__title">
+      // Title here
+    </h1>
+
+    // Search here
+
+    <p class="homepage-banner__browse">
+      <a> // Browse link here </a>
+    </p>
+  </div>
+*/
+
+.homepage-banner {
   text-align: center;
 
-  .title {
+  &__title {
     max-width: 810px;
     margin: 0 auto;
     padding: 0 20px 40px 20px;
@@ -11,7 +27,7 @@
     }
   }
 
-  .browse {
+  &__browse {
     font-size: 1.2rem;
     margin: 30px 0 10px 0;
 

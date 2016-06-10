@@ -51,11 +51,11 @@
 
 // LAYOUT HELPERS LAYER
 @import "layout-helpers/banner";
-@import "layout-helpers/half-column";
+@import "layout-helpers/columns"; // rafactor
 @import "layout-helpers/containers";
 @import "layout-helpers/stick-to-top";
 @import "layout-helpers/split-layout";
-@import "layout-helpers/left-sidebar";
+@import "layout-helpers/left-sidebar"; // refactor
 
 // REUSABLE COMPONENTS LAYER
 @import "components/about-pypi";
@@ -63,10 +63,10 @@
 @import "components/applied-filters";
 @import "components/author-profile"; // refactor
 @import "components/badge";
-@import "components/button";
+@import "components/button"; // refactor disabled to be a class
 @import "components/button-group";
 @import "components/callout-block";
-@import "components/checkbox-tree"; // refactor
+@import "components/checkbox-tree";
 @import "components/common-question";
 @import "components/dark-overlay";
 @import "components/download-graph";
@@ -75,7 +75,7 @@
 @import "components/footer";
 @import "components/heading-wsubtitle";
 @import "components/history-timeline"; // rafactor
-@import "components/homepage-hero"; //refactor
+@import "components/homepage-banner";
 @import "components/horizontal-menu";
 @import "components/horizontal-section";
 @import "components/large-input";
@@ -91,12 +91,16 @@
 @import "components/release-description";
 @import "components/search-form";
 @import "components/sidebar-section";
-@import "components/site-header"; // refactor
+@import "components/site-header";
 @import "components/sponsors";
 @import "components/status-badge";
 @import "components/statistics-bar";
+<<<<<<< d2a0f31d3da487c86518a50ec5a938fcdbc4b430
 @import "components/tooltip";
 @import "components/vertical-tabs";
+=======
+@import "components/vertical-tabs"; // refactor
+>>>>>>> Continue BEM/SCSS refactor
 
 // TRUMPS LAYER - OVERWRITES EVERYTHING ELSE
 

@@ -30,8 +30,8 @@
 
 {% block content %}
 <section class="banner">
-  <div class="homepage-hero">
-    <h1 class="title" {{ l20n("homepageIntroduction") }}>Find, install and publish Python packages with the Python Package Index</h1>
+  <div class="homepage-banner">
+    <h1 class="homepage-banner__title" {{ l20n("homepageIntroduction") }}>Find, install and publish Python packages with the Python Package Index</h1>
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
       <label for="search" class="sr-only">Search PyPI</label>
@@ -44,16 +44,16 @@
       </button>
     </form>
 
-    <p class="browse" {{ l20n("orBrowse") }}>Or <a href="{{ request.route_path('search') }}">browse projects</a>.</p>
+    <p class="homepage-banner__browse" {{ l20n("orBrowse") }}>Or <a href="{{ request.route_path('search') }}">browse projects</a>.</p>
   </div>
 </section>
 
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistic" {{ l20n("numberOfProjects", number=num_projects) }}>{{ num_projects }} Projects</p>
-    <p class="statistic" {{ l20n("numberOfReleases", number=num_releases) }}>{{ num_releases }} Releases</p>
-    <p class="statistic" {{ l20n("numberOfFiles", number=num_files) }}>{{ num_files }} Files</p>
-    <p class="statistic" {{ l20n("numberOfUsers", number=num_users) }}>{{ num_users }} Users</p>
+    <p class="statistics-bar__statistic" {{ l20n("numberOfProjects", number=num_projects) }}>{{ num_projects }} Projects</p>
+    <p class="statistics-bar__statistic" {{ l20n("numberOfReleases", number=num_releases) }}>{{ num_releases }} Releases</p>
+    <p class="statistics-bar__statistic" {{ l20n("numberOfFiles", number=num_files) }}>{{ num_files }} Files</p>
+    <p class="statistics-bar__statistic" {{ l20n("numberOfUsers", number=num_users) }}>{{ num_users }} Users</p>
   </div>
 </section>
 
@@ -72,7 +72,7 @@
 
 <section class="horizontal-section horizontal-section--grey">
   <div class="site-container">
-    <div class="half-column">
+    <div class="col-half">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading" {{ l20n("topProjectsTitle") }}>Top Projects</h2>
         <p class="heading-wsubtitle__subtitle" {{ l20n("topProjectsSubTitle") }}>Top projects as downloaded by the community</p>
@@ -84,7 +84,7 @@
       </div>
       <a class="button" {{ l20n("showMore") }} href="TODO">Show More</a>
     </div>
-    <div class="half-column">
+    <div class="col-half">
       <div class="heading-wsubtitle">
         <h2 class="heading" {{ l20n("newReleasesTitle") }}>New Releases</h2>
         <p class="subtitle" {{ l20n("newReleasesSubTitle") }}>Hot off the press: the newest projects to be released to PyPI</p>

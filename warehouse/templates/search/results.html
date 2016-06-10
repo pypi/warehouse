@@ -66,10 +66,12 @@
             <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
-                {% set sub_levels = classifier.split(' :: ') %}
-                {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
-                <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
-                <label for="{{ classifier }}">{{ sub_levels[-1] }}</label><br>
+                <div class="checkbox-tree__item">
+                  {% set sub_levels = classifier.split(' :: ') %}
+                  {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
+                  <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
+                  <label class="checkbox-tree__label" for="{{ classifier }}">{{ sub_levels[-1] }}</label>
+                </div>
               {% endfor %}
               </div>
             </div>

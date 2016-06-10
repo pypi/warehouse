@@ -1,7 +1,13 @@
+/*
+  Main container for the site
+*/
 .site-container {
   @include site-container;
 }
 
+/*
+  Narrow container for text only pages
+*/
 .narrow-container { // Use for single column content pages
   @include centered-container($narrow-container);
   padding: 0 20px;

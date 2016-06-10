@@ -1,7 +1,17 @@
+/*
+  Horizontal bar that displays statistics on the homepage.
+
+  <div class="statistics-bar">
+    <p class="statistics-bar__statistic">
+      // Statistic
+    </p>
+  </div>
+*/
+
 .statistics-bar {
   text-align: center;
 
-  > .statistic {
+  &__statistic {
     color: darken($brand-color, 15);
     font-size: 20px;
     display: inline-block;
