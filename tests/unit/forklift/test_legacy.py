@@ -315,6 +315,10 @@ class TestMetadataForm:
         with pytest.raises(ValidationError):
             form.full_validate()
 
+    def test_requires_python(self):
+        form = legacy.MetadataForm(MultiDict({"requires_python": ">= 3.5"}))
+        form.requires_python.validate(form)
+
 
 class TestFileValidation:
 
