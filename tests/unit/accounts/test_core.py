@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
+import freezegun
 import pretend
 
 from warehouse import accounts
@@ -63,17 +66,25 @@ class TestLogin:
             check_password=pretend.call_recorder(
                 lambda userid, password: True
             ),
+            update_user=pretend.call_recorder(lambda userid, last_login: None),
         )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface, context: service),
         )
 
-        assert accounts._login("myuser", "mypass", request) is principals
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now):
+            assert accounts._login("myuser", "mypass", request) is principals
+
         assert request.find_service.calls == [
             pretend.call(IUserService, context=None),
         ]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
+        assert service.update_user.calls == [
+            pretend.call(userid, last_login=now),
+        ]
         assert authenticate.calls == [pretend.call(userid, request)]
 
 
