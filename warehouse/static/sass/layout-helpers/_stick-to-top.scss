@@ -9,5 +9,5 @@
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 5;
+  z-index: index($z-index-scale, 'sticky-top');
 }

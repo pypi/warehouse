@@ -43,7 +43,7 @@
     border-color: $brand-color;
     color: darken($brand-color, 10);
     text-decoration: none;
-    z-index: 2;
+    z-index: index($z-index-scale, 'active-button');
   }
 
   &--large {
@@ -72,7 +72,7 @@
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
-    z-index: 1;
+    z-index: index($z-index-scale, 'button');
 
     &:hover {
       background-color: darken($brand-color, 2);

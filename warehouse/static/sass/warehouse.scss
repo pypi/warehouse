@@ -36,6 +36,7 @@
 @import "settings/fonts";
 @import "settings/neat";
 @import "settings/grid";
+@import "settings/z-index";
 
 // RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/normalize";
@@ -61,7 +62,7 @@
 @import "components/about-pypi";
 @import "components/accordion";
 @import "components/applied-filters";
-@import "components/author-profile"; // refactor
+@import "components/author-profile";
 @import "components/badge";
 @import "components/button";
 @import "components/button-group";
@@ -96,12 +97,8 @@
 @import "components/sponsors";
 @import "components/status-badge";
 @import "components/statistics-bar";
-<<<<<<< d2a0f31d3da487c86518a50ec5a938fcdbc4b430
 @import "components/tooltip";
 @import "components/vertical-tabs";
-=======
-@import "components/vertical-tabs"; // refactor
->>>>>>> Continue BEM/SCSS refactor
 
 // TRUMPS LAYER: Overwrites everything else
 
