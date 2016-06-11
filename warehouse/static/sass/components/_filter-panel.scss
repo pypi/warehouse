@@ -1,6 +1,21 @@
+/*
+  Panel for filtering search results.
+  On smaller resolutions, this panel is:
+    - hidden by default
+    - styled with a blue background and white content
+    - shown over other content after being launched by a button
 
-aside.panel-overlay {
-  a.-js-close-panel {
+  <div class="filter-panel">
+    <a class="filter-panel__close">
+      // close button
+    </a>
+    // Panel content here
+  </div>
+*/
+
+.filter-panel {
+
+  &__close {
     display: none;
   }
 
@@ -22,7 +37,7 @@ aside.panel-overlay {
       color: $white;
     }
 
-    a.-js-close-panel {
+    &__close {
       display: inline-block;
       position: absolute;
       padding: 10px 15px;

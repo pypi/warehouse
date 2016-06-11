@@ -81,7 +81,8 @@
     }
   }
 
-  &[disabled] {
+  &[disabled],
+  &--disabled {
     cursor: not-allowed;
     background-color: darken($background-color, 5%);
     border: 2px solid darken($background-color, 5%);

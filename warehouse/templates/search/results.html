@@ -50,11 +50,11 @@
 
 {% block content %}
 <section class="horizontal-section horizontal-section--medium">
-  <div class="left-sidebar">
-    <div class="sidebar">
-      <div class="dark-overlay"></div>
-      <aside class="panel-overlay">
-        <a class="-js-close-panel"><i class="fa fa-close"></i></a>
+  <div class="left-layout">
+    <div class="left-layout__sidebar">
+      <div class="dark-overlay -js-dark-overlay"></div>
+      <aside class="filter-panel -js-filter-panel">
+        <a class="filter-panel__close -js-close-panel"><i class="fa fa-close"></i></a>
         <h2 class="no-top-padding" {{ l20n("filterProjects") }}>Filter Projects</h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
@@ -81,9 +81,9 @@
       </aside>
     </div>
 
-    <div class="main">
+    <div class="left-layout__main">
       <form action="{{ request.route_path('search') }}">
-      <section class="split-layout -table">
+      <section class="split-layout split-layout--table">
         {% if term %}
         <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
           <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.

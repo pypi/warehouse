@@ -96,7 +96,7 @@
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">
-      <nav class="horizontal-menu">
+      <nav class="horizontal-menu package-links__horizontal-menu">
         {% for name, url in release.urls.items() %}
         {% if is_valid_uri(url) %}
         <a class="horizontal-menu__link horizontal-menu__link--with-icon" href="{{ url }}" rel="nofollow">
@@ -106,9 +106,9 @@
         {% endif %}
         {% endfor %}
       </nav>
-      <p class="author">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
-        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
+      <p class="package-links__author">
+        <span class="package-links__author-info" {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}" class="package-links__author-avatar"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>
   </div>
@@ -214,41 +214,41 @@
         {# Tab: Version History & Changelog #}
         <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
         <div id="history" class="js-vertical-tab-content vertical-tab-content">
-          <div class="split-layout -table">
+          <div class="split-layout split-layout--table">
             <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
             <div>
               <a class="button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
             </div>
           </div>
 
-          <section class="version-history-graphic">
+          <section class="history-timeline">
             {% for hrelease in all_releases %}
             {% set is_current = (hrelease.version == release.version) %}
-            <div class="history-section{{ ' latest' if loop.first else ' oldest' if loop.last }}{{ ' current' if is_current }}">
-              <div class="version">
+            <div class="history-section{{ ' history-section--latest' if loop.first else ' history-section--oldest' if loop.last }}{{ ' history-section--current' if is_current }}">
+              <div class="history-section__meta">
                 {% if is_current %}
-                <p>{{ hrelease.version }}</p>
+                <p class="history-section__version">{{ hrelease.version }}</p>
                 <span class="badge" {{ l20n("thisVersion") }}>This version</span>
                 {% else %}
-                <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                <p class="history-section__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}
 
-                <p class="version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
+                <p class="history-section__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
               </div>
 
-              <div class="graphic">
+              <div class="history-section__graphic">
                 {% if loop.length > 1 %}
-                <div class="line"></div>
+                <div class="history-section__line"></div>
                 {% endif %}
                 {% if is_current %}
-                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
+                <img class="history-section__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
                 {% else %}
-                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
+                <img class="history-section__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
                 {% endif %}
               </div>
 
-              <div class="changelog">
-                <div class="card">
+              <div class="history-section__changelog">
+                <div class="card history-section__card">
                   <p>TODO: Figure out how to actually get changelog content.
                   <p>Changelog content for this version goes here.</p>
                   <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>

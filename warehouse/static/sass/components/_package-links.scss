@@ -1,3 +1,18 @@
+/*
+  A horizontal bar on the package detail page that includes the main links
+  for each page, as well as author information.
+
+  <div class="package-links">
+    <nav class="horizontal-menu package-links__horizontal-menu">
+      // package links
+    </nav>
+    <p class="package-links__author">
+      <span class="package-links__author-info"></span>
+      <a><img class="package-links__author-avatar"></a>
+    </p>
+  </div>
+*/
+
 .package-links {
   display: table;
   width: 100%;
@@ -6,7 +21,7 @@
      display: block;
   }
 
-  .horizontal-menu {
+  &__horizontal-menu {
     list-style-type: none;
     display: table-cell;
     margin: 0;
@@ -16,7 +31,7 @@
     }
   }
 
-  .author {
+  &__author {
     text-align: right;
     display: table-cell;
     font-size: 16px;
@@ -26,19 +41,19 @@
       display: block;
       text-align: left;
     }
+  }
 
-    span {
-      display: inline-block;
-      padding: 10px 0;
-      line-height: 20px;
-    }
+  &__author-info {
+    display: inline-block;
+    padding: 10px 0;
+    line-height: 20px;
+  }
 
-    img {
-      margin-left: 10px;
+  &__author-avatar {
+    margin-left: 10px;
 
-      @media only screen and (max-width: 1200px){
-         display: none;
-      }
+    @media only screen and (max-width: 1200px){
+       display: none;
     }
   }
 }

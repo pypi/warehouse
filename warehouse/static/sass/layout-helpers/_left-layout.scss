@@ -1,0 +1,34 @@
+/*
+  A layout with a left sidebar and main section.
+
+  <div class="left-layout">
+    <div class="left-layout__sidebar"></div>
+    <div class="left-layout__main"></div>
+  </div>
+*/
+
+.left-layout {
+  @include site-container;
+
+  &__sidebar {
+    float: left;
+    @include calc(width, "25% - " $spacing-unit / 2);
+    margin-right: $spacing-unit;
+
+    @media only screen and (max-width: 1000px){
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  &__main {
+    float: left;
+    @include calc(width, "75% - " $spacing-unit / 2);
+    margin-right: 0;
+
+    @media only screen and (max-width: 1000px){
+      width: 100%;
+      margin: 0;
+    }
+  }
+}

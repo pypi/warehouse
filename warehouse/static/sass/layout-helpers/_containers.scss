@@ -1,12 +1,14 @@
 /*
-  Main container for the site
+  Main container for the site:
+  <div class="site-container"></div>
 */
 .site-container {
   @include site-container;
 }
 
 /*
-  Narrow container for text only pages
+  Narrow container for text only pages:
+  <div class="narrow-container"></div>
 */
 .narrow-container { // Use for single column content pages
   @include centered-container($narrow-container);

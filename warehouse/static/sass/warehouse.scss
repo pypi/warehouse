@@ -25,45 +25,45 @@
   Imports are organised into the seven layers defined below:
 */
 
-// TOOLS LAYER
+// TOOLS LAYER: libraries and mixins
 @import "tools/bourbon/bourbon"; // Also imports bourbon's default settings
 @import "tools/neat/neat"; // Also imports neat's default settings
 @import "tools/design-utilities";
 @import "tools/layout-utilities";
 
-// SETTINGS LAYER
+// SETTINGS LAYER: settings we use throughout the codebase
 @import "settings/colours";
 @import "settings/fonts";
 @import "settings/neat";
 @import "settings/grid";
 
-// RESETS LAYER
+// RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/normalize";
 @import "resets/reset";
 @import "resets/boxsizing";
 
-// BASE LAYER
+// BASE LAYER: adds styles to anything without a class
 @import "base/typography";
 @import "base/images-figures";
 @import "base/lists";
 @import "base/tables";
 @import "base/forms";
 
-// LAYOUT HELPERS LAYER
+// LAYOUT HELPERS LAYER: reusable layout helpers
 @import "layout-helpers/banner";
-@import "layout-helpers/columns"; // rafactor
+@import "layout-helpers/columns";
 @import "layout-helpers/containers";
-@import "layout-helpers/stick-to-top";
+@import "layout-helpers/left-layout";
 @import "layout-helpers/split-layout";
-@import "layout-helpers/left-sidebar"; // refactor
+@import "layout-helpers/stick-to-top";
 
-// REUSABLE COMPONENTS LAYER
+// COMPONENTS LAYER: some warehouse specific, some generic/reusable
 @import "components/about-pypi";
 @import "components/accordion";
 @import "components/applied-filters";
 @import "components/author-profile"; // refactor
 @import "components/badge";
-@import "components/button"; // refactor disabled to be a class
+@import "components/button";
 @import "components/button-group";
 @import "components/callout-block";
 @import "components/checkbox-tree";
@@ -72,9 +72,11 @@
 @import "components/download-graph";
 @import "components/downloads-table";
 @import "components/filter-badge";
+@import "components/filter-panel";
 @import "components/footer";
 @import "components/heading-wsubtitle";
-@import "components/history-timeline"; // rafactor
+@import "components/history-section";
+@import "components/history-timeline";
 @import "components/homepage-banner";
 @import "components/horizontal-menu";
 @import "components/horizontal-section";
@@ -83,11 +85,10 @@
 @import "components/mobile-search-bar";
 @import "components/notification-bar";
 @import "components/package-header";
-@import "components/package-links"; // refactor
+@import "components/package-links";
 @import "components/package-list";
 @import "components/package-snippet";
 @import "components/package-status";
-@import "components/panel-overlay"; // refactor
 @import "components/release-description";
 @import "components/search-form";
 @import "components/sidebar-section";
@@ -102,9 +103,9 @@
 @import "components/vertical-tabs"; // refactor
 >>>>>>> Continue BEM/SCSS refactor
 
-// TRUMPS LAYER - OVERWRITES EVERYTHING ELSE
+// TRUMPS LAYER: Overwrites everything else
 
-/* Remove top padding on selected typography elements */
+// Remove top padding on selected typography elements
 .no-top-padding {
   padding-top: 0;
 }

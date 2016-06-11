@@ -52,14 +52,14 @@ $(document).ready(function() {
   // Launch filter popover on mobile
   $("body").on("click", ".-js-add-filter", function(e){
     e.preventDefault();
-    $(".dark-overlay").show();
-    $(".panel-overlay").show();
+    $(".-js-dark-overlay").show();
+    $(".-js-filter-panel").show();
   });
 
   $("body").on("click", ".-js-close-panel", function(e){
     e.preventDefault();
-    $(".dark-overlay").hide();
-    $(".panel-overlay").hide();
+    $(".-js-dark-overlay").hide();
+    $(".-js-filter-panel").hide();
   });
 
   // Position Sticky bar
