@@ -99,7 +99,6 @@ class DatabaseUserService:
                     is_active=is_active,
                     is_staff=is_staff,
                     is_superuser=is_superuser)
-        user.last_login = datetime.datetime.now()
         self.db.add(user)
         email_object = Email(email=email, user=user,
                              primary=True, verified=False)
