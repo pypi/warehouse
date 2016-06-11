@@ -109,7 +109,7 @@
         {% endfor %}
       </nav>
       <p class="author">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
         <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>
