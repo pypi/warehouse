@@ -153,6 +153,10 @@ def _validate_pep440_specifier(specifier):
         ) from None
 
 
+def _validate_pep440_specifier_field(form, field):
+    return _validate_pep440_specifier(field.data)
+
+
 def _validate_legacy_non_dist_req(requirement):
     try:
         req = packaging.requirements.Requirement(requirement.replace("_", ""))
@@ -348,7 +352,7 @@ class MetadataForm(forms.Form):
     requires_python = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
-            _validate_pep440_specifier,
+            _validate_pep440_specifier_field,
         ],
     )
 
