@@ -16,15 +16,15 @@ $(document).ready(function() {
 
   function setTab(tab) {
     if (tab) {
-      $(".js-vertical-tab-content").hide();
+      $(".-js-vertical-tab-content").hide();
       tab.show();
-      $(".is-active").removeClass("is-active");
-      $("a[href^='#"+tab[0].id+"']").addClass("is-active");
+      $(".vertical-tabs__tab--is-active").removeClass("vertical-tabs__tab--is-active");
+      $("a[href^='#"+tab[0].id+"']").addClass("vertical-tabs__tab--is-active");
     }
   }
 
   function getTab(selector) {
-    var tab = $(".js-vertical-tab-content" + selector);
+    var tab = $(".-js-vertical-tab-content" + selector);
     return (selector && tab.length) ? tab : null;
   }
 
@@ -43,7 +43,7 @@ $(document).ready(function() {
   });
 
   // If in accordion mode
-  $(".-js-vertical-tab-accordion-heading").click(function(event) {
+  $(".-js-vertical-tab-mobile-heading").click(function(event) {
     event.preventDefault();
     history.pushState(null, "", $(this).attr("href"));
     setTab(getTab(location.hash));
