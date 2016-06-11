@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections.abc
 import datetime
 import functools
 
@@ -42,6 +43,9 @@ def exception_view(exc, request):
 
 @pypi_xmlrpc(method="search")
 def search(request, spec, operator="and"):
+    if not isinstance(spec, collections.abc.Mapping):
+        raise TypeError("Invalid spec, must be a mapping/dictionary.")
+
     if operator not in {"and", "or"}:
         raise ValueError("Invalid operator, must be one of 'and' or 'or'.")
 

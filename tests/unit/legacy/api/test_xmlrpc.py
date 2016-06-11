@@ -34,6 +34,10 @@ class TestSearch:
         with pytest.raises(ValueError):
             xmlrpc.search(pretend.stub(), {}, "lol nope")
 
+    def test_fails_if_spec_not_mapping(self):
+        with pytest.raises(TypeError):
+            xmlrpc.search(pretend.stub(), "a string")
+
     def test_default_search_operator(self):
         class FakeQuery:
             def __init__(self, type, must):
