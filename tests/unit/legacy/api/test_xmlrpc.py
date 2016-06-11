@@ -31,12 +31,18 @@ from ....common.db.packaging import (
 class TestSearch:
 
     def test_fails_with_invalid_operator(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pretend.stub(), {}, "lol nope")
 
+        assert exc.value.faultString == \
+            "ValueError: Invalid operator, must be one of 'and' or 'or'."
+
     def test_fails_if_spec_not_mapping(self):
-        with pytest.raises(TypeError):
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pretend.stub(), "a string")
+
+        assert exc.value.faultString == \
+            "TypeError: Invalid spec, must be a mapping/dictionary."
 
     def test_default_search_operator(self):
         class FakeQuery:
