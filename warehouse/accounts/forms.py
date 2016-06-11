@@ -117,3 +117,13 @@ class LoginForm(CredentialsMixin, forms.Form):
         if userid is not None:
             if not self.user_service.check_password(userid, field.data):
                 raise wtforms.validators.ValidationError("Invalid password.")
+
+
+class ResetPasswordForm(LoginForm, forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+
+        # Instead of again defining username field, we are using LoginForm
+        # to get the username field and poping password field
+        self._fields.pop('password')

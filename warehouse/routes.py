@@ -68,6 +68,11 @@ def includeme(config):
         "/account/register/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.reset-password",
+        "/account/reset-password/",
+        domain=warehouse,
+    )
 
     # Packaging
     config.add_route(

@@ -186,6 +186,30 @@ def register(request, _form_class=forms.RegistrationForm):
     return {"form": form}
 
 
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=forms.ResetPasswordForm):
+
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        # Get the user id for the given username.
+        username = form.username.data
+        userid = user_service.find_userid(username)
+
+        # TODO Send email
+        # TODO Adding proper hashing technique for generating OTK
+        return {'success': True}
+
+    return {"form": form}
+
+
 def _login_user(request, userid):
         # We have a session factory associated with this request, so in order
         # to protect against session fixation attacks we're going to make sure
