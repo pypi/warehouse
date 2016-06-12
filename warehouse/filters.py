@@ -119,8 +119,20 @@ def format_tags(tags):
 
 def format_classifiers(classifiers):
     structured = collections.defaultdict(list)
+
+    # Split up our classifiers into our data structure
     for classifier in classifiers:
         key, *value = classifier.split(" :: ", 1)
         if value:
             structured[key].append(value[0])
+
+    # Go thorugh and ensure that all of the lists in our classifiers are in
+    # sorted order.
+    structured = {k: sorted(v) for k, v in structured.items()}
+
+    # Now, we'll ensure that our keys themselves are in sorted order, using an
+    # OrderedDict to preserve this ordering when we pass this data back up to
+    # our caller.
+    structured = collections.OrderedDict(sorted(structured.items()))
+
     return structured

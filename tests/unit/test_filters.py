@@ -197,9 +197,13 @@ def test_format_tags(inp, expected):
     [
         (
             ["Foo :: Bar :: Baz", "Foo :: Bar :: Qux", "Vleep"],
-            {"Foo": ["Bar :: Baz", "Bar :: Qux"]},
+            [("Foo", ["Bar :: Baz", "Bar :: Qux"])],
+        ),
+        (
+            ["Vleep :: Foo", "Foo :: Bar :: Qux", "Foo :: Bar :: Baz"],
+            [("Foo", ["Bar :: Baz", "Bar :: Qux"]), ("Vleep", ["Foo"])],
         ),
     ],
 )
 def test_format_classifiers(inp, expected):
-    assert filters.format_classifiers(inp) == expected
+    assert list(filters.format_classifiers(inp).items()) == expected
