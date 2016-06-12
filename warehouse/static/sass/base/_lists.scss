@@ -6,6 +6,15 @@ ul {
 }
 
 ul, ol {
-    margin-left: $spacing-unit;
-    margin-bottom: $spacing-unit / 2;
+  margin-left: $spacing-unit;
+  margin-bottom: $spacing-unit / 2;
+}
+
+dt {
+  font-weight: bold;
+  margin-top: $spacing-unit / 2;
+}
+
+dd {
+  padding-left: 1em;
 }
