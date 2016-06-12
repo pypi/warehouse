@@ -190,3 +190,16 @@ def test_urlparse():
 )
 def test_format_tags(inp, expected):
     assert filters.format_tags(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            ["Foo :: Bar :: Baz", "Foo :: Bar :: Qux", "Vleep"],
+            {"Foo": ["Bar :: Baz", "Bar :: Qux"]},
+        ),
+    ],
+)
+def test_format_classifiers(inp, expected):
+    assert filters.format_classifiers(inp) == expected
