@@ -25,9 +25,6 @@ from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory, ReleaseFactory as DBReleaseFactory,
     FileFactory as DBFileFactory, RoleFactory as DBRoleFactory,
 )
-from ...common.db.classifiers import (
-    ClassifierFactory as DBClassifierFactory,
-)
 
 
 class TestProjectFactory:
@@ -218,26 +215,6 @@ class TestRelease:
 
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
-
-    def test_structured_classifiers(self, db_session):
-        release = DBReleaseFactory.create()
-        DBClassifierFactory.create(
-            classifier='Foo :: Bar :: Baz',
-            project_releases=[release],
-        )
-        DBClassifierFactory.create(
-            classifier='Foo :: Bar :: Qux',
-            project_releases=[release],
-        )
-        DBClassifierFactory.create(
-            classifier='Vleep',
-            project_releases=[release],
-        )
-        expected = {
-            'Foo': ['Bar :: Baz', 'Bar :: Qux'],
-        }
-
-        assert release.structured_classifiers == expected
 
 
 class TestFile:
