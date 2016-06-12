@@ -69,6 +69,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "accounts.recover-password",
+        "/account/recover-password/",
+        domain=warehouse,
+    )
+    config.add_route(
         "accounts.reset-password",
         "/account/reset-password/",
         domain=warehouse,

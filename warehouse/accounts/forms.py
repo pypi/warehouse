@@ -119,7 +119,7 @@ class LoginForm(CredentialsMixin, forms.Form):
                 raise wtforms.validators.ValidationError("Invalid password.")
 
 
-class ResetPasswordForm(LoginForm, forms.Form):
+class RecoverPasswordForm(LoginForm):
 
     def __init__(self, *args, **kwargs):
         super(ResetPasswordForm, self).__init__(*args, **kwargs)
@@ -127,3 +127,30 @@ class ResetPasswordForm(LoginForm, forms.Form):
         # Instead of again defining username field, we are using LoginForm
         # to get the username field and poping password field
         self._fields.pop('password')
+
+
+class ResetPasswordForm(CredentialsMixin, forms.Form):
+
+    password_confirm = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.EqualTo(
+                "password", "Passwords must match."
+            ),
+        ],
+    )
+
+    def __init__(self, *args, user_name, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+
+        self.username = user_name
+        # Instead of again defining username field, we are using LoginForm
+        # to get the username field and poping password field
+        self._fields.pop('username')
+
+    def validate_password(self, field):
+        userid = self.user_service.find_userid(self.username)
+        if userid is not None:
+            if self.user_service.check_password(userid, field.data):
+                raise wtforms.validators.ValidationError(
+                    "Password shouldn't match with previous one.")

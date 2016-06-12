@@ -187,13 +187,13 @@ def register(request, _form_class=forms.RegistrationForm):
 
 
 @view_config(
-    route_name="accounts.reset-password",
-    renderer="accounts/reset-password.html",
+    route_name="accounts.recover-password",
+    renderer="accounts/recover-password.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
 )
-def reset_password(request, _form_class=forms.ResetPasswordForm):
+def recover_password(request, _form_class=forms.RecoverPasswordForm):
 
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
@@ -208,6 +208,43 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
         return {'success': True}
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=forms.ResetPasswordForm):
+
+    user_service = request.find_service(IUserService, context=None)
+
+    # TODO Write a utility to manage OTK and get user_name from OTK
+    # Note: Below statement is temporary and will be replaced with proper
+    # functionality.
+    user_name = getattr(request, request.method).get('otk')
+
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        user_name=user_name
+    )
+
+    if request.method == "POST" and form.validate():
+        # Get the user id for the given username.
+        username = ''
+        userid = user_service.find_userid(username)
+
+        # TODO Send email
+        # TODO Adding proper hashing technique for generating OTK
+        return {'success': True}
+
+    # TODO Validate OTK.
+    # TODO Send error message if the OTK is not a valid one.
+
+    return {"form": form, 'user_name': user_name}
 
 
 def _login_user(request, userid):
