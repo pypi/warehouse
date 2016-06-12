@@ -66,7 +66,6 @@
     <p class="package-header__license" {{ l20n("projectLicense", license="TODO") }}>License: <a href="TODO">TODO</a></p>
     <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
-
     <p class="package-header__pip-instructions">
       <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
       <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
