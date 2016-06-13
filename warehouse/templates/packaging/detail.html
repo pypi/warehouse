@@ -122,7 +122,7 @@
       <div class="vertical-tabs">
         <div class="sidebar-section">
           <h3 {{ l20n("projectNavigation") }}>Navigation</h3>
-            <a class="-js-vertical-tab vertical-tab is-active" href="#description" {{ l20n("projectDescription") }}>Package Description</a>
+            <a class="-js-vertical-tab vertical-tab is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
             <a class="-js-vertical-tab vertical-tab" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
             <a class="-js-vertical-tab vertical-tab" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
             <a class="-js-vertical-tab vertical-tab" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
@@ -192,7 +192,7 @@
         <div id="dependencies" class="js-vertical-tab-content vertical-tab-content">
           <h2 {{ l20n("numberProjectDependencies", number="TODO") }}>Dependencies (TODO)</h2>
           <p {{ l20n("projectDependenciesInfo", name=release.project.name) }}>
-            To run <em>{{ release.project.name }}</em>, you will need to have the following packages installed:
+            To run <em>{{ release.project.name }}</em>, you will need to have the following projects installed:
           </p>
 
           <div class="package-list">
@@ -203,7 +203,7 @@
 
           <h2 class="no-top-padding" {{ l20n("numberProjectReverseDependencies", number="TODO") }}>Reverse Dependencies (TODO)</h2>
           <p {{ l20n("projectReverseDependenciesInfo", name=release.project.name) }}>
-            The following packages rely on <em>{{ release.project.name }}</em>:
+            The following projects rely on <em>{{ release.project.name }}</em>:
           </p>
 
           <div class="package-list">
