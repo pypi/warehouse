@@ -145,6 +145,11 @@ def includeme(config):
         "doap",
         domain=warehouse,
     )
+    config.add_pypi_action_route(
+        "legacy.api.pypi.list_classifiers",
+        "list_classifiers",
+        domain=warehouse,
+    )
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(

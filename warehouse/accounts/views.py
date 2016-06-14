@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from pyramid.security import remember, forget
 from pyramid.view import view_config
@@ -84,7 +86,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
                 not is_safe_url(url=redirect_to, host=request.host)):
             redirect_to = "/"
 
+        # Actually perform the login routine for our user.
         headers = _login_user(request, userid)
+
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
         return HTTPSeeOther(redirect_to, headers=dict(headers))
@@ -214,5 +218,10 @@ def _login_user(request, userid):
         # Cycle the CSRF token since we've crossed an authentication boundary
         # and we don't want to continue using the old one.
         request.session.new_csrf_token()
+
+        # Whenever we log in the user, we want to update their user so that it
+        # records when the last login was.
+        user_service = request.find_service(IUserService, context=None)
+        user_service.update_user(userid, last_login=datetime.datetime.utcnow())
 
         return headers

@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
+import freezegun
 import pretend
 import pytest
 
@@ -117,6 +120,7 @@ class TestLogin:
 
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.find_service = pretend.call_recorder(
             lambda iface, context: user_service
@@ -140,7 +144,10 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
-        result = views.login(pyramid_request, _form_class=form_class)
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now):
+            result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
 
@@ -153,6 +160,9 @@ class TestLogin:
         assert form_obj.validate.calls == [pretend.call()]
 
         assert user_service.find_userid.calls == [pretend.call("theuser")]
+        assert user_service.update_user.calls == [
+            pretend.call(1, last_login=now),
+        ]
 
         if with_user:
             assert new_session == {}
@@ -162,6 +172,7 @@ class TestLogin:
         assert remember.calls == [pretend.call(pyramid_request, 1)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
             pretend.call(IUserService, context=None),
         ]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
@@ -179,6 +190,7 @@ class TestLogin:
                                         expected_next_url, observed_next_url):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
+            update_user=lambda *a, **k: None,
         )
         pyramid_request.find_service = pretend.call_recorder(
             lambda iface, context: user_service
@@ -279,6 +291,7 @@ class TestRegister:
                 create_user=pretend.call_recorder(
                     lambda *args, **kwargs: pretend.stub(id=1),
                 ),
+                update_user=lambda *args, **kwargs: None,
             )
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")

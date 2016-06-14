@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
@@ -27,6 +29,10 @@ def _login(username, password, request):
     userid = login_service.find_userid(username)
     if userid is not None:
         if login_service.check_password(userid, password):
+            login_service.update_user(
+                userid,
+                last_login=datetime.datetime.utcnow(),
+            )
             return _authenticate(userid, request)
 
 

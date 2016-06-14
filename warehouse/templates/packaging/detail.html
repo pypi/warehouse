@@ -109,7 +109,7 @@
         {% endfor %}
       </nav>
       <p class="author">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
+        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
         <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
       </p>
     </div>
@@ -150,6 +150,24 @@
             {% endfor %}
           </p>
           {% endif %}
+        </div>
+        {% endif %}
+
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3 {{l20n("projectClassifiers") }}>Classifiers</h3>
+          <dl>
+            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+            <dt>{{ classifier_head }}</dt>
+            {% for classifier in classifier_tail %}
+            <dd>
+            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+              {{ classifier }}
+            </a>
+            </dd>
+            {% endfor %}
+            {% endfor %}
+          </dl>
         </div>
         {% endif %}
       </div>
@@ -294,7 +312,7 @@
                   <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="sha256-link" href="TODO: clicking-here-copies-sha256: {{ file.sha256_digest }}">
+                    <a class="-js-copy-sha256-link sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256

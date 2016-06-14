@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections.abc
 import datetime
 import functools
+import xmlrpc.server
 
 from elasticsearch_dsl import Q
 from pyramid.view import view_config
@@ -35,6 +37,19 @@ pypi_xmlrpc = functools.partial(
 )
 
 
+class XMLRPCWrappedError(xmlrpc.server.Fault):
+
+    def __init__(self, exc):
+        self.faultCode = -32500
+        self.wrapped_exception = exc
+
+    @property
+    def faultString(self):  # noqa
+        return "{exc.__class__.__name__}: {exc}".format(
+            exc=self.wrapped_exception,
+        )
+
+
 @view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
@@ -42,8 +57,15 @@ def exception_view(exc, request):
 
 @pypi_xmlrpc(method="search")
 def search(request, spec, operator="and"):
+    if not isinstance(spec, collections.abc.Mapping):
+        raise XMLRPCWrappedError(
+            TypeError("Invalid spec, must be a mapping/dictionary.")
+        )
+
     if operator not in {"and", "or"}:
-        raise ValueError("Invalid operator, must be one of 'and' or 'or'.")
+        raise XMLRPCWrappedError(
+            ValueError("Invalid operator, must be one of 'and' or 'or'.")
+        )
 
     # Remove any invalid spec fields
     spec = {
