@@ -19,7 +19,7 @@ Example usage::
     'python_version': 'source',
     'size': 876455,
     'upload_time': <DateTime '20060427T06:22:35' at 912fecc>,
-    'url': 'https://pypi.python.org/packages/source/r/roundup/roundup-1.1.2.tar.gz'},
+    'url': 'https://pypi.python.org/projects/source/r/roundup/roundup-1.1.2.tar.gz'},
    {'comment_text': '',
     'downloads': 2067,
     'filename': 'roundup-1.1.2.win32.exe',
@@ -29,7 +29,7 @@ Example usage::
     'python_version': 'any',
     'size': 614270,
     'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
-    'url': 'https://pypi.python.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
+    'url': 'https://pypi.python.org/projects/any/r/roundup/roundup-1.1.2.win32.exe'}]
 
 Changes to Legacy API
 ---------------------
@@ -45,7 +45,7 @@ Package Querying
 ----------------
 
 ``list_packages()``
-  Retrieve a list of the package names registered with the package index.
+  Retrieve a list of the project names registered with the package index.
   Returns a list of name strings.
 
 ``package_releases(package_name, show_hidden=False)``
@@ -138,8 +138,8 @@ Package Querying
 
   Arguments for different fields are combined using either "and" (the default)
   or "or". Example: search({'name': 'foo', 'description': 'bar'}, 'or'). The
-  results are returned as a list of dicts {'name': package name, 'version':
-  package release version, 'summary': package release summary}
+  results are returned as a list of dicts {'name': project name, 'version':
+  project release version, 'summary': project release summary}
 
 ``browse(classifiers)``
   Retrieve a list of `[name, version]` of all releases classified with all of
@@ -147,16 +147,16 @@ Package Querying
   strings.
 
 ``top_packages([number])``
-  Retrieve the sorted list of packages ranked by number of downloads.
+  Retrieve the sorted list of projects ranked by number of downloads.
   Optionally limit the list to the `number` given.
 
 ``updated_releases(since)``
-  Retrieve a list of package releases made since the given timestamp. The
+  Retrieve a list of project releases made since the given timestamp. The
   releases will be listed in descending release date.
 
 ``changed_packages(since)``
-  Retrieve a list of package names where those packages have been changed
-  since the given timestamp. The packages will be listed in descending date
+  Retrieve a list of project names where those projects have been changed
+  since the given timestamp. The projects will be listed in descending date
   of most recent change.
 
 
@@ -177,6 +177,6 @@ Mirroring Support
   event identified by the given `since_serial` All timestamps are UTC
   values. The argument is a UTC integer seconds since the epoch.
 
-``list_packages_with_serial()``
-  Retrieve a dictionary mapping package names to the last serial for each
-  package.
+``list_projects_with_serial()``
+  Retrieve a dictionary mapping project names to the last serial for each
+  project.

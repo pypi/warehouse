@@ -48,7 +48,7 @@
 {% set uploader_username = release.uploader.username %}
 {% set uploader_name = release.uploader.name|default(uploader_username, true) %}
 
-<div class="package-snippet">
+<div class="project-snippet">
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
 
   <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
@@ -64,7 +64,7 @@
 
 {% block content %}
 <section class="banner-block ">
-  <div class="package-header">
+  <div class="project-header">
     <p class="license" {{ l20n("projectLicense", license="TODO") }}>License: <a href="TODO">TODO</a></p>
     <h1>{{ release.project.name }} {{ release.version }}</h1>
     <p class="description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
@@ -80,7 +80,7 @@
   </div>
 </section>
 
-<section class="package-status">
+<section class="project-status">
   <div class="site-container">
     {% if release.version != all_releases[0].version %}
     <a class="status-badge -bad" {{ l20n("newerVersionAvailable", version=all_releases[0].version) }} href="{{ request.route_path('packaging.release', name=release.project.name, version=all_releases[0].version) }}">Newer version available ({{ all_releases[0].version }})</a>
@@ -97,7 +97,7 @@
 
 <section class="horizontal-section -grey -thin">
   <div class="site-container">
-    <div class="package-links">
+    <div class="project-links">
       <nav class="horizontal-menu">
         {% for name, url in release.urls.items() %}
         {% if is_valid_uri(url) %}
@@ -144,7 +144,7 @@
           {% if release.keywords %}
           <p class="tags"><i class="fa fa-tags"></i>
             {% for keyword in release.keywords | format_tags %}
-            <span class="package-keyword">
+            <span class="project-keyword">
               {{ keyword }}{% if not loop.last %},{% endif %}
             </span>
             {% endfor %}
@@ -164,7 +164,7 @@
           </div>
           {% else %}
           <div class="callout-block">
-            <p>The author of this package has not provided a project description.</p>
+            <p>The author of this project has not provided a project description.</p>
           </div>
           {% endif %}
         </div>
@@ -177,7 +177,7 @@
             To run <em>{{ release.project.name }}</em>, you will need to have the following projects installed:
           </p>
 
-          <div class="package-list">
+          <div class="project-list">
             {% for _ in [1, 2] %}
               {{ project_snippet(release) }}
             {% endfor %}
@@ -188,7 +188,7 @@
             The following projects rely on <em>{{ release.project.name }}</em>:
           </p>
 
-          <div class="package-list">
+          <div class="project-list">
             {% for _ in [1, 2, 3] %}
               {{ project_snippet(release) }}
             {% endfor %}

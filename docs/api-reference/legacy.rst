@@ -56,20 +56,20 @@ Simple Project API
     ============ =============================================================
       rel name                               value
     ============ =============================================================
-    internal     Packages hosted by this repository, *MUST* be a direct package
-                 link.
-    homepage     The homepage of the project, *MAY* be a direct package link
-                 and *MAY* be fetched and processed for more direct package
+    internal     Projects hosted by this repository, *MUST* be a direct
+                 project link.
+    homepage     The homepage of the project, *MAY* be a direct project link
+                 and *MAY* be fetched and processed for more direct project
                  links.
-    download     The download url for the project, *MAY* be a direct package
+    download     The download url for the project, *MAY* be a direct project
                  link and *MAY* be fetched and processed for more direct
-                 package links.
+                 project links.
     ext-homepage The homepage of the project, *MUST* not be fetched to look
-                 for more packages, *MAY* be a direct link.
+                 for more projects, *MAY* be a direct link.
     ext-download The download url for the project, **MUST** not be fetched to
-                 look for more packages but *MAY* be a direct package link.
+                 look for more projects but *MAY* be a direct project link.
     external     An externally hosted url, *MUST* not be fetched to look for
-                 more packages but *MAY* be a direct package link.
+                 more projects but *MAY* be a direct project link.
     ============ =============================================================
 
     The links may optionally include a hash using the url fragment. This
