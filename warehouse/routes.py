@@ -169,7 +169,7 @@ def includeme(config):
         "/project/{name}/{version}/",
         domain=warehouse,
     )
-    config.add_redirect("/packages/{path:.*}", files_url, domain=warehouse)
+    config.add_redirect("/projects/{path:.*}", files_url, domain=warehouse)
 
     # Legacy Action Redirects
     config.add_pypi_action_redirect(

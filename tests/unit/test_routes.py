@@ -25,7 +25,7 @@ def test_routes(warehouse):
         def __init__(self):
             self.registry = pretend.stub(settings={
                 "docs.url": docs_route_url,
-                "files.url": "https://files.example.com/packages/{path}",
+                "files.url": "https://files.example.com/projects/{path}",
             })
             if warehouse:
                 self.registry.settings["warehouse.domain"] = warehouse
@@ -112,7 +112,7 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "packaging.file",
-            "https://files.example.com/packages/{path}",
+            "https://files.example.com/projects/{path}",
         ),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
@@ -163,8 +163,8 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "/packages/{path:.*}",
-            "https://files.example.com/packages/{path}",
+            "/projects/{path:.*}",
+            "https://files.example.com/projects/{path}",
             domain=warehouse,
         ),
     ]

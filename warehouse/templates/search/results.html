@@ -19,7 +19,7 @@
 
 {% set version = item.version[0] %}
 
-<div class="package-snippet">
+<div class="project-snippet">
   <h3 class="title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
 
   <p class="meta" {{ l20n("packageSnippetMeta", version=version) }}>
@@ -98,7 +98,7 @@
         {% endif %}
           <p>
             <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
-            <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
+            <label for="order" {{ l20n("orderPackagesBy") }}>Order projects by &nbsp;</label>
             <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "", "relevance") }}
               {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
@@ -122,13 +122,13 @@
       </div>
 
       <section>
-        <div class="package-list">
+        <div class="project-list">
         {% for item in page.items %}
           {{ project_snippet(item) }}
         {% else %}
           <div class="callout-block">
             <p {{ l20n("noSearchResultsWithTerm", term=term) }}>
-              There were no packages matching '<em>{{term}}</em>'.
+              There were no projects matching '<em>{{term}}</em>'.
               {% if page.collection.best_guess %}
                 {{ suggestion_link(page.collection.best_guess) }}
               {% endif %}
