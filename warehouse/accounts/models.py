@@ -55,6 +55,11 @@ class User(SitemapMixin, db.ModelBase):
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
+    password_date = Column(
+        DateTime,
+        nullable=True,
+        server_default=sql.func.now(),
+    )
     is_active = Column(Boolean, nullable=False)
     is_staff = Column(Boolean, nullable=False)
     is_superuser = Column(Boolean, nullable=False)
