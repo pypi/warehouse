@@ -20,10 +20,14 @@ Quickstart for Developers with Docker experience
     $ make initdb
 
 View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
-``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
+``http://docker_machine_ip_address:80/`` (for Mac OS X and Windows).
 
-.. note:: Replace ``docker start`` with ``boot2docker up`` if you are using
-          Windows or Mac OS X.
+.. note:: Replace ``docker start`` with ``docker-machine start default`` if you
+          are using Windows or Mac OS X. If you get an error message saying that no
+          ``default`` docker machine  does not exists, you might need to create one with
+          ``docker-machine create --driver virtualbox default`` as explain the
+          docker-machine `getting started <https://docs.docker.com/machine/get-started/>`_
+          document.
 
 
 Detailed Installation Instructions
@@ -58,6 +62,11 @@ Installing Docker
 ~~~~~~~~~~~~~~~~~
 
 * Install `Docker <https://docs.docker.com/installation/#installation>`_
+
+.. warning::
+
+    Boot2docker has now been replaced by docker-machine. Further instructions
+    may be out of date.
 
 On Mac OS X or Windows, the installation instructions will guide you to
 install `boot2docker`:
