@@ -15,7 +15,7 @@
     @include calc(width, "25% - " $spacing-unit / 2);
     margin-right: $spacing-unit;
 
-    @media only screen and (max-width: 1000px){
+    @media only screen and (max-width: $desktop){
       width: 100%;
       margin: 0;
     }
@@ -26,7 +26,7 @@
     @include calc(width, "75% - " $spacing-unit / 2);
     margin-right: 0;
 
-    @media only screen and (max-width: 1000px){
+    @media only screen and (max-width: $desktop){
       width: 100%;
       margin: 0;
     }

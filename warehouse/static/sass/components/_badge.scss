@@ -5,9 +5,8 @@
   <span class="badge">Contributor</div>
 */
 
-
 .badge {
-  font-size: $base-font-size * .75;
+  font-size: $small-font-size;
   text-transform: uppercase;
   color: darken($highlight-color, 50);
   background-color: $highlight-color;

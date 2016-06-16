@@ -17,7 +17,7 @@
   display: table;
   width: 100%;
 
-  @media only screen and (max-width: 1200px){
+  @media only screen and (max-width: $large-desktop){
      display: block;
   }
 
@@ -26,7 +26,7 @@
     display: table-cell;
     margin: 0;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
        display: block;
     }
   }
@@ -34,10 +34,10 @@
   &__author {
     text-align: right;
     display: table-cell;
-    font-size: 16px;
+    font-size: $base-font-size * 0.9;
     font-style: italic;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
       display: block;
       text-align: left;
     }
@@ -52,7 +52,7 @@
   &__author-avatar {
     margin-left: 10px;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
        display: none;
     }
   }

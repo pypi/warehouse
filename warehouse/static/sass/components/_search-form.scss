@@ -28,14 +28,14 @@
   &--primary {
     margin: 25px 0 0 40px;
 
-    @media screen and (max-width: 750px) {
+    @media screen and (max-width: $tablet) {
       display: none;
     }
 
     .search-form__search {
       width: 400px;
 
-      @media screen and (max-width: 900px) {
+      @media screen and (max-width: $desktop) {
         width: 250px;
       }
     }

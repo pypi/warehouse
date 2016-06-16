@@ -84,26 +84,28 @@
     <div class="left-layout__main">
       <form action="{{ request.route_path('search') }}">
       <section class="split-layout split-layout--table">
+        <div>
         {% if term %}
-        <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
-          <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
-          {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
-            {{ suggestion_link(page.collection.best_guess) }}
-          {% endif %}
-        </p>
+          <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
+            <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+            {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+              {{ suggestion_link(page.collection.best_guess) }}
+            {% endif %}
+          </p>
         {% else %}
         <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
           <strong>{{ page.item_count }}</strong> projects.
         </p>
         {% endif %}
-          <p>
+        </div>
+          <div>
             <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
             <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
             <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "", "relevance") }}
               {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
             </select>
-          </p>
+          </div>
       </section>
 
       <div class="applied-filters">

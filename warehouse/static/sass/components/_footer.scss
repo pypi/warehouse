@@ -21,8 +21,6 @@
 */
 
 .footer {
-  $base-spacing: $spacing-unit;
-  $action-color: #477dca;
   $footer-faded-color: transparentize($white, 0.3);
 
   background-color: lighten($brand-color, 2);
@@ -30,12 +28,12 @@
   padding: 60px 0;
   width: 100%;
 
-  @media only screen and (max-width: 400px){
+  @media only screen and (max-width: $mobile){
     padding-top: 40px 0;
   }
 
   &__logo {
-    margin-bottom: $spacing-unit * 2;
+    margin-bottom: $spacing-unit;
     text-align: center;
   }
 
@@ -43,9 +41,9 @@
     @include display(flex);
     @include justify-content(center);
     @include flex-wrap(wrap);
-    margin-bottom: $base-spacing;
+    margin-bottom: $spacing-unit;
 
-    @media only screen and (max-width: 400px){
+    @media only screen and (max-width: $mobile){
       margin-bottom: 10px;
     }
   }
@@ -53,7 +51,7 @@
   &__menu {
     @include flex-basis(220px);
     @include flex-shrink(0);
-    margin: 0 15px 40px 15px;
+    margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
     padding: 0;
 
     li {
@@ -80,7 +78,7 @@
 
   &__divider {
     border: 1px solid transparentize($footer-faded-color, 0.3);
-    margin: 0 auto $base-spacing;
+    margin: 0 auto $spacing-unit;
     width: 200px;
   }
 

@@ -19,7 +19,7 @@
     display: none;
   }
 
-  @media only screen and (max-width: 1000px){
+  @media only screen and (max-width: $desktop){
     display: none;
     margin: 0;
     padding: 25px;
@@ -40,7 +40,7 @@
     &__close {
       display: inline-block;
       position: absolute;
-      padding: 10px 15px;
+      padding: 10px ($spacing-unit / 2);
       top: 0;
       right: 0;
       cursor: pointer;

@@ -18,8 +18,7 @@
 .filter-badge {
   text-transform: uppercase;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 19px;
+  font-size: $small-font-size;
   border-radius: 2px;
   background-color: $brand-color;
   color: $white;
@@ -43,7 +42,7 @@
   &__remove-button {
     display: table-cell;
     color: $white;
-    border-left: 1px solid rgba(255,255,255, .2);
+    border-left: 1px solid transparentize($white, 0.8);
     padding: 6px;
 
     &:hover {

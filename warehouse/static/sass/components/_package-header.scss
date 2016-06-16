@@ -22,7 +22,7 @@
   a {
     color: $white;
     text-decoration: underline;
-    text-decoration-color: rgba(255, 255, 255, 0.4);
+    text-decoration-color: $transparent-white;
 
     &:hover {
       text-decoration-color: $white;
@@ -30,11 +30,11 @@
   }
 
   &__license {
-    padding-top: 15px;
+    padding-top: $spacing-unit / 2;
     float: right;
     font-style: italic;
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
       padding-top: 0;
       float: none;
     }
@@ -52,7 +52,7 @@
 
   &__pip-instructions {
     @include clearfix;
-    margin: 10px 0 15px;
+    margin: 10px 0 ($spacing-unit / 2);
     padding-bottom: 0;
 
     span {
@@ -60,17 +60,17 @@
       font-weight: 500;
       font-size: 22px;
       float: left;
-      background-color: rgba(0,0,0,.15);
+      background-color: transparentize($black, 0.85);
       padding: 10px;
-      border: 1px dotted rgba(255,255,255, 0.4);
-      line-height: 30px;
+      border: 1px dotted $transparent-white;
+      line-height: $spacing-unit;
 
-      @media only screen and (max-width: 800px){
+      @media only screen and (max-width: $tablet){
          font-size: 20px;
          line-height: 25px;
       }
 
-      @media only screen and (max-width: 400px){
+      @media only screen and (max-width: $mobile){
          font-size: 18px;
          line-height: 22px;
       }
@@ -78,32 +78,27 @@
 
     a {
       color: $white;
-      line-height: 30px;
+      line-height: $spacing-unit;
       float: left;
       cursor: pointer;
-      padding: 10px 15px;
-      background-color: rgba(0, 0, 0, 0.15);
-      border-right: 1px dotted rgba(255, 255, 255, 0.4);
-      border-top: 1px dotted rgba(255, 255, 255, 0.4);
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.4);
+      padding: 10px ($spacing-unit / 2);
+      background-color: transparentize($black, 0.85);
+      border-right: 1px dotted $transparent-white;
+      border-top: 1px dotted $transparent-white;
+      border-bottom: 1px dotted $transparent-white;
 
       &:hover {
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: transparentize($black, 0.8);
       }
 
-      @media only screen and (max-width: 800px){
+      @media only screen and (max-width: $tablet){
          line-height: 25px;
          padding: 10px;
       }
 
-      @media only screen and (max-width: 400px){
+      @media only screen and (max-width: $mobile){
          display: none;
       }
     }
-  }
-
-  &__help-link {
-    display: block;
-    margin-bottom: 5px;
   }
 }

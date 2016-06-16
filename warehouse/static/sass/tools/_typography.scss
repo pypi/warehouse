@@ -5,11 +5,11 @@
 
   // All the other headings resize relative to the body...
   // But for h1s we want a little more control.
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: $tablet) {
     font-size: 2.2rem;
   }
 
-  @media screen and (max-width: 400px) {
+  @media screen and (max-width: $mobile) {
     font-size: 1.8rem;
   }
 }

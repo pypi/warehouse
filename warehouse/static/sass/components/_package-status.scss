@@ -7,6 +7,6 @@
 */
 
 .package-status {
-  padding: 15px 0 5px 0;
+  padding: ($spacing-unit / 2) 0 5px 0;
   background-color: darken($base-grey, 10);
 }

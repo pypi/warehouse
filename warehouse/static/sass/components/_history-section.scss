@@ -27,11 +27,11 @@
   border-left: 1px solid $background-color;
   padding: 0 20px;
 
-  @media only screen and (max-width: 800px){
+  @media only screen and (max-width: $tablet){
     padding: 0 10px;
   }
 
-  @media only screen and (max-width: 550px){
+  @media only screen and (max-width: $small-tablet){
     display: block;
     padding: 10px 10px 0 10px;
     margin: 10px 0;
@@ -43,18 +43,18 @@
     vertical-align: middle;
     font-size: 18px;
     text-align: right;
-    font-weight: 600;
+    font-weight: $bold-font-weight;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
       width: 20%;
     }
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
       width: 30%;
       text-align: center;
     }
 
-    @media only screen and (max-width: 550px){
+    @media only screen and (max-width: $small-tablet){
       display: block;
       width: 100%;
     }
@@ -77,11 +77,11 @@
     vertical-align: middle;
     position: relative;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
       width: 15%;
     }
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
       display: none;
     }
   }
@@ -107,15 +107,15 @@
     width: 75%;
     display: table-cell;
 
-    @media only screen and (max-width: 1200px){
+    @media only screen and (max-width: $large-desktop){
       width: 65%;
     }
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
       width: 70%;
     }
 
-    @media only screen and (max-width: 550px){
+    @media only screen and (max-width: $small-tablet){
       display: block;
       width: 100%;
     }
@@ -125,12 +125,12 @@
     background-color: #f5f5f5;
     border: 1px solid darken(#ececec, 5);
     background-color: $white;
-    box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.05);
-    padding: 15px;
+    box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
+    padding: ($spacing-unit / 2);
     margin: 20px 0;
-    font-size: 15px;
+    font-size: ($spacing-unit / 2);
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
       margin: 10px 0;
     }
   }
@@ -145,7 +145,7 @@
 
     .history-section__card {
       background-color: $white;
-      box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.05);
+      box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
     }
   }
 

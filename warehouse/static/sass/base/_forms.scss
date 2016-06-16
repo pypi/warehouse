@@ -1,6 +1,4 @@
-/**
-  Generic form styles
-*/
+// FORMS
 
 #{$all-text-inputs},
 select {
@@ -8,11 +6,11 @@ select {
   border-radius: 2px;
   background-color: $white;
   padding: 0 8px;
-  height: 37px;
+  height: 40px;
   line-height: 37px;
   border: 1px solid $border-color;
   color: $text-color;
-  vertical-align: center;
+  vertical-align: middle;
 }
 
 #{$all-text-inputs-focus},
@@ -25,10 +23,6 @@ select:active {
   border-color: $brand-color-soft;
 }
 
-select {
-  padding: 7px 5px;
-}
-
 label {
-  vertical-align: center;
+  vertical-align: middle;
 }

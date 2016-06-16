@@ -19,7 +19,7 @@
     margin: 0;
     box-sizing: border-box;
 
-    @media only screen and (max-width: 800px){
+    @media only screen and (max-width: $tablet){
        font-size: 18px;
     }
   }

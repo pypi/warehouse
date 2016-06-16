@@ -14,7 +14,7 @@
 
 .package-snippet {
   @include card;
-  padding: 15px 20px 15px 75px;
+  padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 10px 0 20px;
   // Use png fallback
   background: $white url('../images/white-cube.png') no-repeat 0 50%;
@@ -22,8 +22,8 @@
   background-image: url('../images/white-cube.svg'), linear-gradient(transparent, transparent);
   background-position: 20px;
 
-  @media screen and (max-width: 400px) {
-    margin: 5px 0 15px;
+  @media screen and (max-width: $mobile) {
+    margin: 5px 0 ($spacing-unit / 2);
     padding: 10px;
     background-image: none;
   }

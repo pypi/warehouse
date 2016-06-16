@@ -14,14 +14,14 @@
   margin-top: 10px;
   @include clearfix;
 
-  @media only screen and (max-width: 700px){
+  @media only screen and (max-width: $tablet){
     margin-top: 20px;
   }
 
   &__add-button {
     display: none;
 
-    @media only screen and (max-width: 1000px){
+    @media only screen and (max-width: $desktop){
       display: inline-block;
       float: left;
     }

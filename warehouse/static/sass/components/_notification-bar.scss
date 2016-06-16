@@ -24,7 +24,7 @@
   text-align: center;
   background-color: darken($brand-color, 10);
   color: $white;
-  padding: 15px;
+  padding: ($spacing-unit / 2);
 
   &__icon {
     font-size: $small-font-size;

@@ -13,7 +13,7 @@
 .sidebar-section {
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 2px solid #ececec;
+  border-bottom: 2px solid $border-color;
 
   .sidebar-section__title {
     font-size: 18px;
@@ -36,7 +36,7 @@
         margin-right: 0;
       }
 
-      @media only screen and (max-width: 1000px){
+      @media only screen and (max-width: $desktop){
         max-width: 40px;
       }
     }

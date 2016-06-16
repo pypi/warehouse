@@ -16,11 +16,11 @@
 .horizontal-section {
   padding: 70px 0;
 
-  @media only screen and (max-width: 800px){
+  @media only screen and (max-width: $tablet){
     padding: 50px 0;
   }
 
-  @media only screen and (max-width: 400px){
+  @media only screen and (max-width: $mobile){
     padding: 40px 0;
   }
 
@@ -39,7 +39,7 @@
   }
 
   &--statistics {
-    @media only screen and (max-width: 400px){
+    @media only screen and (max-width: $mobile){
       display: none;
     }
   }

@@ -17,36 +17,32 @@
   max-width: 1000px;
   margin: 0 auto;
 
-  &__logo,
-  &__text {
-    text-align: left;
-
-    @media only screen and (max-width: 550px){
-      display: block;
-      width: 100%;
-    }
-
-    @media only screen and (max-width: 550px){
-      margin-bottom: -10px;
-    }
-  }
-
   &__logo {
     padding-top: 10px;
     padding-right: 50px;
 
-    @media only screen and (max-width: 550px){
-      display: none;
+    @media only screen and (max-width: $small-tablet){
+      padding: 0;
     }
 
     img {
       width: 220px;
       max-width: 100%;
-      margin: -15px 50px 0 0;
+      margin: -($spacing-unit / 2) 50px 0 0;
 
-      @media only screen and (max-width: 800px){
-        margin-right: 20px;
+      @media only screen and (max-width: $small-tablet){
+        display: none;
       }
+    }
+  }
+
+  &__text {
+    text-align: left;
+
+    @media only screen and (max-width: $small-tablet){
+      display: block;
+      width: 100%;
+      margin-bottom: -10px;
     }
   }
 }

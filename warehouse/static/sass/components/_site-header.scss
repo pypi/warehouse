@@ -11,11 +11,11 @@
   border-bottom: 1px solid darken($brand-color, 2);
 
   &__logo{
-    padding: 15px 0;
+    padding: ($spacing-unit / 2) 0;
     max-width: 65px;
     float: left;
 
-    @media screen and (max-width: 400px) {
+    @media screen and (max-width: $mobile) {
       max-width: 50px;
     }
   }

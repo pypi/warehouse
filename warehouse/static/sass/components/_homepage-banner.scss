@@ -22,19 +22,23 @@
     margin: 0 auto;
     padding: 0 20px 40px 20px;
 
-    @media only screen and (max-width: 400px){
-       padding: 0 10px 30px 10px;
+    @media only screen and (max-width: $mobile){
+       padding: 0 10px $spacing-unit 10px;
     }
   }
 
   &__browse {
     font-size: 1.2rem;
-    margin: 30px 0 10px 0;
+    margin: $spacing-unit 0 10px 0;
 
     a {
       color: $white;
       text-decoration: underline;
-      text-decoration-color: rgba(255,255,255, 0.4);
+      text-decoration-color: $transparent-white;
+
+      &:hover {
+        text-decoration-color: $white;
+      }
     }
   }
 }

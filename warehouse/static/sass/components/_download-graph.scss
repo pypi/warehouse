@@ -33,7 +33,7 @@
       margin: 0;
       font-size: 16px;
 
-      @media only screen and (max-width: 950px){
+      @media only screen and (max-width: $desktop){
         display: block;
         text-align: left;
         width: 50%;
@@ -41,7 +41,7 @@
         border-bottom: 1px dotted $base-grey;
       }
 
-      @media only screen and (max-width: 450px){
+      @media only screen and (max-width: $mobile){
         width: 100%;
         float: none;
       }

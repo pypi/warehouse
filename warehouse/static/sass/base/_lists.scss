@@ -1,6 +1,4 @@
-/**
-  Lists
-*/
+// LISTS
 
 ul {
   list-style-type: circle;
@@ -11,11 +9,17 @@ ul, ol {
   margin-bottom: $spacing-unit / 2;
 }
 
-dt {
-  font-weight: bold;
-  margin-top: $spacing-unit / 2;
-}
+dl {
+  dt {
+    font-weight: $bold-font-weight;
+    margin-top: $spacing-unit / 2;
 
-dd {
-  padding-left: $spacing-unit;
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  dd {
+    padding-left: $spacing-unit;
+  }
 }

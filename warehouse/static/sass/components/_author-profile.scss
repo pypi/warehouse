@@ -18,7 +18,7 @@
 .author-profile {
   padding-right: $spacing-unit;
 
-  @media only screen and (max-width: 1000px){
+  @media only screen and (max-width: $desktop){
     padding: 0 0 ($spacing-unit * 2) 0;
   }
 
@@ -31,7 +31,7 @@
   }
 
   &__joined {
-    font-weight: bold;
+    font-weight: $bold-font-weight;
   }
 
   &__bio {

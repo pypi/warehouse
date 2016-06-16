@@ -7,7 +7,7 @@
 */
 
 .callout-block {
-  padding: 10px 10px 10px 15px;
+  padding: 10px 10px 10px ($spacing-unit / 2);
   border: 1px solid $border-color;
   border-left-color: transparent;
   margin-top: $spacing-unit;

@@ -3,7 +3,7 @@
 html {
   font-size: 100%;
 
-  @media screen and (max-width: 800px) {
+  @media screen and (max-width: $tablet) {
     font-size: 95%;
   }
 }
@@ -99,9 +99,7 @@ a {
 
 // VERTICAL RHYTHM
 
-/**
- * Set `padding-bottom` to maintain vertical rhythm
- */
+// Set `padding-bottom` to maintain vertical rhythm
 h1, h2, h3, h4, h5, h6,
 p, blockquote, pre,
 ul, ol, dl, figure,
