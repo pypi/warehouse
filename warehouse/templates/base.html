@@ -53,13 +53,8 @@
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
               <label for="search" class="sr-only">Search PyPI</label>
-<<<<<<< 987b739e87af5d503f7b54b93ab50b82adf4388a
-              <input id="search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects" value="{{ term }}">
-              <input class="button button--dark" type="submit" {{ l20n("search") }} value="Search">
-=======
-              <input id="search" class="search-form__search" type="text" name="q" {{ l20n("search") }} placeholder="Search Packages" value="{{ term }}">
+              <input id="search" class="search-form__search" type="text" name="q" {{ l20n("search") }} placeholder="Search Projects" value="{{ term }}">
               <input class="search-form__button button button--dark" type="submit" {{ l20n("search") }} value="Search">
->>>>>>> Continue BEM refactor
             </form>
           </div>
           {% endblock %}
