@@ -26,10 +26,10 @@
   font-weight: $bold-font-weight;
   cursor: pointer;
   text-decoration: none;
-  padding: 0 em(15px);
+  padding: 0 15px;
   color: lighten($text-color, 10);
-  height: em(41px);
-  line-height: em(35px);
+  height: 41px;
+  line-height: 35px;
   border: 2px solid darken($base-grey, 10);
   border-radius: 3px;
   display: inline-block;
@@ -52,8 +52,8 @@
 
   &--small {
     font-size: $small-font-size;
-    height: em(40px);
-    line-height: em(36px);
+    height: 40px;
+    line-height: 36px;
   }
 
   &--dark {

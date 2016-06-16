@@ -21,8 +21,8 @@
 */
 
 .footer {
-  $base-spacing: 1.5em !default;
-  $action-color: #477DCA !default;
+  $base-spacing: $spacing-unit;
+  $action-color: #477dca;
   $footer-faded-color: transparentize($white, 0.3);
 
   background-color: lighten($brand-color, 2);
@@ -35,7 +35,7 @@
   }
 
   &__logo {
-    margin-bottom: 2em;
+    margin-bottom: $spacing-unit * 2;
     text-align: center;
   }
 
@@ -51,13 +51,13 @@
   }
 
   &__menu {
-    @include flex-basis(13em);
+    @include flex-basis(220px);
     @include flex-shrink(0);
     margin: 0 15px 40px 15px;
     padding: 0;
 
     li {
-      line-height: 1.5em;
+      padding: 2px 0;
       list-style: none;
       text-align: center;
 
@@ -73,8 +73,7 @@
 
       h3 {
         color: $white;
-        font-size: 1em;
-        margin-bottom: 0.4em;
+        margin-bottom: 5px;
       }
     }
   }
@@ -82,20 +81,19 @@
   &__divider {
     border: 1px solid transparentize($footer-faded-color, 0.3);
     margin: 0 auto $base-spacing;
-    width: 12em;
+    width: 200px;
   }
 
   &__text {
     color: $footer-faded-color;
-    font-size: 0.9em;
-    line-height: 1.5em;
+    font-size: $base-font-size * 0.9;
     margin: auto;
-    max-width: 40em;
+    max-width: 600px;
     text-align: center;
     padding: 0 20px;
 
     a {
-      color: transparentize($white, .5);
+      color: transparentize($white, 0.5);
       text-decoration: underline;
     }
   }

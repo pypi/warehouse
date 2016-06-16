@@ -1,6 +1,7 @@
 /**
- * Lists
- */
+  Lists
+*/
+
 ul {
   list-style-type: circle;
 }
@@ -16,5 +17,5 @@ dt {
 }
 
 dd {
-  padding-left: 1em;
+  padding-left: $spacing-unit;
 }

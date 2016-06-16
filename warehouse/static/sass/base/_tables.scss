@@ -30,7 +30,7 @@ table {
 
   tbody {
     tr {
-      background-color: darken($background-color, .75);
+      background-color: darken($background-color, 0.75);
     }
     tr:nth-child(even) {
       background-color: darken($background-color, 2);
