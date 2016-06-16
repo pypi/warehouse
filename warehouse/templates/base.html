@@ -89,19 +89,25 @@
 
       <div class="footer__menus">
         <ul class="footer__menu">
-          <li><h3 {{ l20n("getHelp") }}>Get Help</h3></li>
+          <li>
+            <h3 {{ l20n("getHelp") }}>Get Help</h3>
+          </li>
           <li><a {{ l20n("installingPackages") }} href="//packaging.python.org/en/latest/installing/">Installing Packages</a></li>
           <li><a {{ l20n("uploadingPackages") }} href="//packaging.python.org/en/latest/distributing/">Uploading Packages</a></li>
           <li><a {{ l20n("userGuide") }} href="//packaging.python.org/">User Guide</a></li>
         </ul>
         <ul class="footer__menu">
-          <li><h3 {{ l20n("aboutPyPI") }}>About PyPI</h3></li>
+          <li>
+            <h3 {{ l20n("aboutPyPI") }}>About PyPI</h3>
+          </li>
           <li><a href="TODO">Status: Operational</a></li>
           <li><a {{ l20n("securityPolicy") }} href="{{ request.route_path('security') }}">Security Policy</a></li>
           <li><a {{ l20n("ourSponsors") }} href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
         <ul class="footer__menu">
-          <li><h3 {{ l20n("contributingToPyPI") }}>Contributing to PyPI</h3></li>
+          <li>
+            <h3 {{ l20n("contributingToPyPI") }}>Contributing to PyPI</h3>
+          </li>
           <li><a {{ l20n("bugsFeedback") }} href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
           <li><a {{ l20n("contributeOnGitHub") }} href="//github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a {{ l20n("devCredits") }} href="//github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
