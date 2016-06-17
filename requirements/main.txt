@@ -1,6 +1,6 @@
 alembic==0.8.6 \
     --hash=sha256:53403da066ef90cbc5a3f801f3dd39bbbfbc41b0a84eb8c1c806243b7e2c6466
-amqp==1.4.9 \
+amqp==2.0.2 \
     --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908 \
     --hash=sha256:2dea4d16d073c902c3b89d9b96620fb6729ac0f7a923bbc777cb4ad827c0c61a
 anyjson==0.3.3 \
@@ -19,7 +19,7 @@ bleach==1.4.3 \
 boto3==1.3.1 \
     --hash=sha256:6e4d33f2935580278af84b8d63760306d9586a5144780e4ba37737a1f2bdc56f \
     --hash=sha256:c28cd73020cd88b5b9c008b998973be9e4ae4eb25dc19adf80eef0a50130c7f5
-botocore==1.4.27 \
+botocore==1.4.28 \
     --hash=sha256:0a74b7fa9b71d4ed37a0132cc8e3704a51dcfdd907df4b418fbabb706c19dff4 \
     --hash=sha256:1d18565c45ab1eeb7e5e237c7aa1ce81b6376fa63e5a9d948c5bcdfb5fe27d75
 celery==3.1.23 \
@@ -94,7 +94,7 @@ pycparser==2.14 \
 Pygments==2.1.3 \
     --hash=sha256:485602129949b14247e8b124d28af4654dffbd076537c4a9c44a538a2c1755b7 \
     --hash=sha256:88e4c8a91b2af5962bfa5ea2447ec6dd357018e86e94c7d14bd8cacbc5b55d81
-pyparsing==2.1.4 \
+pyparsing==2.1.5 \
     --hash=sha256:7ede41fb90c285a5159372e7de61d2f2451060cb38fa804a4ab53e3bcb2e61b6 \
     --hash=sha256:a9234dea79b50d49b92a994132cd1c84e873f3936db94977a66f0a4159b1797c \
     --hash=sha256:28bc70dbe824360d1b11862c2c8aab63d6713f2b259282ef0eb0f081db35bc8a \
@@ -121,7 +121,7 @@ python-dateutil==2.5.3 \
     --hash=sha256:1408fdb07c6a1fa9997567ce3fcee6a337b39a503d80699e0f213de4aa4b32ed \
     --hash=sha256:9d94861f04ce14f9a3d835206067c889b8f1244f1415035dadcf9c10066adf04 \
     --hash=sha256:598499a75be2e5e18a66f12c00dd47a069de24794effeda4228bfc760f44f527
-python-editor==1.0 \
+python-editor==1.0.1 \
     --hash=sha256:4a2b6a945d06e347a8fafe2475f533d05887b193b2e162aff961f63642c8a60e
 pytz==2016.4 \
     --hash=sha256:be2ff04e94a2b5454ddcfbebb81ee8e46162734d4c2fcc90c422d16ab51f810b \
@@ -161,7 +161,7 @@ transaction==1.6.1 \
 translationstring==1.3 \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d
-urllib3==1.15.1 \
+urllib3==1.16 \
     --hash=sha256:105b33577a379c1c881821d43b97d1a870f37a8f4904151f56ddeb95b38830ca \
     --hash=sha256:d0a1dc60433f7e9b90b4f085f1d45753174b4594558b29eda0009abe0b82da4c
 venusian==1.0 \
