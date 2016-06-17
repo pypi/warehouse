@@ -26,20 +26,33 @@
     <div class="narrow-container">
       <h2>Common Questions</h2>
 
-      <h3 id="installing" class="common-question">What is a package and how do I install one?</h3>
 
-      <p>A <em>package</em> in the context of PyPI is a bundle of software to be installed.</p>
-      <p>Packages on PyPI are developed and shared by other members of the Python community so that you can use them in your own projects.</p>
+      <h3 id="packages" class="common-question">What's a package, project, or release?</h3>
+
+      <p>We use a number of terms to describe software available on PyPI, like <em>project</em>, <em>release</em>, <em>file</em>, and <em>package</em>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
+
+      <p>A <em>project</em> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
+
+      <p>A <em>release</em> on PyPI is a specific version of a project. For example, the <a href="//pypi.io/project/requests/">requests</a> project has many releases, like <em>requests 2.10</em> and <em>requests 1.2.1</em>. A release consists of one or more <em>files</em>.</p>
+
+      <p>A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="//pypi.io/project/wheel/#files">wheel</a>.</p>
+
+
+      <h3 id="installing" class="common-question">How do I install a package from PyPI?</h3>
+
       <p>To learn how to install packages, visit the <a href="//packaging.python.org/en/latest/installing/">installation tutorial</a> on the <a href="//packaging.python.org/">Python Packaging User Guide</a>.</p>
+
 
       <h3 id="publishing" class="common-question">How do I package and publish my code for PyPI?</h3>
 
       <p>For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="//packaging.python.org/en/latest/distributing/">packaging tutorial</a> on the <a href="//packaging.python.org">Python Packaging User Guide</a>.</p>
 
+
       <h3 id="accessibility" class="common-question">I am having trouble using the PyPI website, can you help me?</h3>
 
       <p>We take accessibility very seriously and want to make the website easy to use for everyone.</p>
       <p>If you are experiencing an accessibility problem, please <a href="//goo.gl/forms/NwuPXZvrModOKhcl1">report it to us</a>, so we can try to fix the problem, for you and others.</p>
+
 
       <h3 id="feedback" class="common-question">Where can I report a bug or provide feedback?</h3>
 
@@ -61,6 +74,7 @@
       </ul>
 
       {{ code_of_conduct() }}
+
 
       <h3 id="contributing" class="common-question">How can I help?</h3>
 
