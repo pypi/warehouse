@@ -11,7 +11,7 @@ $(document).ready(function() {
 
   // Toggle accordion
   $(".-js-accordion-trigger").click(function(){
-    $(this).closest('.accordion').toggleClass("accordion--closed");
+    $(this).closest(".accordion").toggleClass("accordion--closed");
   });
 
   function setTab(tab) {
