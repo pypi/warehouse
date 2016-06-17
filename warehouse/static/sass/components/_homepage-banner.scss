@@ -1,0 +1,44 @@
+/*
+  Layout for warehouse's homepage banner:
+
+  <div class="homepage-banner">
+    <h1 class="homepage-banner__title">
+      // Title here
+    </h1>
+
+    // Search here
+
+    <p class="homepage-banner__browse">
+      <a> // Browse link here </a>
+    </p>
+  </div>
+*/
+
+.homepage-banner {
+  text-align: center;
+
+  &__title {
+    max-width: 810px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+
+    @media only screen and (max-width: $mobile){
+       padding: 0 10px $spacing-unit 10px;
+    }
+  }
+
+  &__browse {
+    font-size: 1.2rem;
+    margin: $spacing-unit 0 10px 0;
+
+    a {
+      color: $white;
+      text-decoration: underline;
+      text-decoration-color: $transparent-white;
+
+      &:hover {
+        text-decoration-color: $white;
+      }
+    }
+  }
+}

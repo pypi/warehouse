@@ -1,0 +1,38 @@
+@mixin centered-container($width) {
+  max-width: $width;
+  @include margin(null auto);
+  @include clearfix;
+}
+
+@mixin site-container {
+  @include centered-container($site-container);
+  padding: 0 20px;
+
+  @media screen and (max-width: $mobile) {
+    padding: 0 15px;
+  }
+}
+
+@mixin split-layout {
+  @include clearfix;
+
+  > :first-child {
+    float: left;
+  }
+
+  > :last-child {
+    float: right;
+  }
+}
+
+@mixin split-table-layout {
+  display: table;
+  width: 100%;
+
+  > :first-child,
+  > :last-child {
+    float: none;
+    display: table-cell;
+    vertical-align: middle;
+  }
+}

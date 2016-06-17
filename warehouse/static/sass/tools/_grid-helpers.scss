@@ -1,5 +1,0 @@
-@mixin container-width($width) {
-  max-width: $width;
-  @include margin(null auto);
-  @include clearfix;
-}

@@ -1,0 +1,53 @@
+/*
+  Menu that opens and closes:
+
+  <div class="accordion">
+    <a class="accordion__link -js-expander-trigger">Trigger</a>
+    <div class="accordion__content">
+      // Content to show and hide here
+    </div>
+  </div>
+*/
+
+.accordion {
+  margin-top: 10px;
+
+  &__link {
+    padding: 5px;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    &:before {
+      font-family: 'FontAwesome';
+      content: "\f139";
+      margin-right: $spacing-unit / 2;
+    }
+  }
+
+  &__content {
+    padding: 10px 0;
+
+    a {
+      display: block;
+      margin-right: 10px;
+    }
+  }
+
+  &--closed {
+    .accordion__content {
+      display: none;
+    }
+
+    .accordion__link {
+      &:before {
+        font-family: 'FontAwesome';
+        content: "\f13a";
+      }
+    }
+  }
+}

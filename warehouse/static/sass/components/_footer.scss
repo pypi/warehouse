@@ -1,51 +1,66 @@
-/**
- * Site footer
- */
+/*
+  Footer:
+
+  <div class="footer">
+    <div class="footer__icon">
+      // footer icon image goes here
+    </div>
+    <div class="footer__menus"> // menu wrapper
+      <ul class="footer__menu"> // 3 of these!
+        <li><h3>Menu Title</h3></li>
+        <li><a>Menu Link</a></li>
+      </ul>
+    </div>
+
+    <hr class="footer__divider">
+
+    <div class="footer__text">
+      // copyright, disclaimers,etc.
+    </div>
+  </div>
+*/
 
 .footer {
-  $base-spacing: 1.5em !default;
-  $action-color: #477DCA !default;
-  $footer-link-color: transparentize($white, 0.3);
-  $footer-disclaimer-color: transparentize($white, 0.3);
+  $footer-faded-color: transparentize($white, 0.3);
 
   background-color: lighten($brand-color, 2);
   color: $white;
   padding: 60px 0;
   width: 100%;
 
-  @media only screen and (max-width: 400px){
+  @media only screen and (max-width: $mobile){
     padding-top: 40px 0;
   }
 
-  .footer-logo {
-    margin-bottom: 2em;
+  &__logo {
+    margin-bottom: $spacing-unit;
     text-align: center;
   }
 
-  .footer-links {
+  &__menus {
     @include display(flex);
     @include justify-content(center);
     @include flex-wrap(wrap);
-    margin-bottom: $base-spacing;
+    margin-bottom: $spacing-unit;
 
-    @media only screen and (max-width: 400px){
+    @media only screen and (max-width: $mobile){
       margin-bottom: 10px;
     }
   }
 
-  ul {
-    @include flex-basis(13em);
+  &__menu {
+    @include flex-basis(220px);
     @include flex-shrink(0);
-    margin: 0 15px 40px 15px;
+    margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
     padding: 0;
 
     li {
-      line-height: 1.5em;
+      padding: 2px 0;
       list-style: none;
       text-align: center;
 
       a {
-        color: $footer-link-color;
+        color: $footer-faded-color;
         text-decoration: none;
 
         &:focus,
@@ -56,29 +71,27 @@
 
       h3 {
         color: $white;
-        font-size: 1em;
-        margin-bottom: 0.4em;
+        margin-bottom: 5px;
       }
     }
   }
 
-  hr {
-    border: 1px solid transparentize($footer-disclaimer-color, 0.3);
-    margin: 0 auto $base-spacing;
-    width: 12em;
+  &__divider {
+    border: 1px solid transparentize($footer-faded-color, 0.3);
+    margin: 0 auto $spacing-unit;
+    width: 200px;
   }
 
-  p {
-    color: $footer-disclaimer-color;
-    font-size: 0.9em;
-    line-height: 1.5em;
+  &__text {
+    color: $footer-faded-color;
+    font-size: $base-font-size * 0.9;
     margin: auto;
-    max-width: 40em;
+    max-width: 600px;
     text-align: center;
     padding: 0 20px;
 
     a {
-      color: transparentize($white, .5);
+      color: transparentize($white, 0.5);
       text-decoration: underline;
     }
   }

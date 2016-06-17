@@ -1,24 +1,45 @@
+/*
+  A table whose column widths are set by its content - in this case, a
+  package's download data.
+
+  <table class="downloads-table">
+    <thead>
+      <th class="downloads-table__filename">File Name</th>
+      <th class="downloads-table__version">Version</th>
+      <th class="downloads-table__file-type">File Type</th>
+      <th class="downloads-table__upload-date">Upload Date</th>
+    </thead>
+    <tbody>
+      // table cells here
+    </tbody>
+  </table>
+*/
+
 .downloads-table {
   box-sizing: border-box;
   table-layout: fixed;
   word-wrap: break-word;
-  margin-top: 15px;
+  margin-top: ($spacing-unit / 2);
   margin-bottom: 10px;
 
-  .filename {
+  &__filename {
     width: 65%;
   }
 
-  .type,
-  .upload-date {
-    width: 13%;
-  }
-
-  .version {
+  &__version {
     width: 9%;
   }
 
-  @media only screen and (max-width: 1150px){
+  &__type,
+  &__upload-date {
+    width: 13%;
+  }
+
+  &__sha256-link {
+    margin-left: 5px;
+  }
+
+  @media only screen and (max-width: $large-desktop){
     // Hide 'file type' column
     th:nth-child(3),
     td:nth-child(3) {
@@ -26,7 +47,7 @@
     }
   }
 
-  @media only screen and (max-width: 1000px){
+  @media only screen and (max-width: $desktop){
     // Hide 'version' column
     th:nth-child(5),
     td:nth-child(5) {
@@ -34,15 +55,30 @@
     }
   }
 
-  @media only screen and (max-width: 800px){
+  @media only screen and (max-width: $tablet){
     // Hide 'upload date' column
     th:nth-child(4),
     td:nth-child(4) {
       display: none;
     }
+
+    // Hide 'upload date' column
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 20%;
+    }
+
+    th:first,
+    td:first {
+      width: 80%;
+    }
   }
 
-  .sha256-link {
-    margin-left: 5px;
+  @media only screen and (max-width: $mobile){
+    // Hide 'upload date' column
+    th:nth-child(2),
+    td:nth-child(2) {
+      display: none;
+    }
   }
 }

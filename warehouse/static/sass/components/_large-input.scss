@@ -1,5 +1,11 @@
+/*
+  A large input. Aligns with a button with a large modifier.
+
+  <input class="large-input">
+*/
+
 input.large-input {
-    font-size: $input-font-size * 1.2;
-    height: em(37px);
-    line-height: em(39px);
+  font-size: $input-font-size * 1.2;
+  height: 50px;
+  line-height: 50px;
 }

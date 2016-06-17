@@ -1,10 +1,14 @@
 /*
   Styles the main description panel for an individual package.
-  Needs to deal with anything a user could include in a project description file...
+  Needs to deal with anything a user could include in a project description file.
+
+  <div class="release-description">
+    // Anything goes!
+  </div>
 */
 
 .release-description {
-  margin-bottom: 40px;
+  margin-bottom: $spacing-unit;
   line-height: 1.5;
 
   // Remove top margin on first heading, even if it nested inside a div
@@ -12,15 +16,14 @@
   > div:first-child > :first-child {
     display: inline-block;
     margin-top: 0 !important;
-    margin-bottom: $spacing-unit / 2;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    margin: 20px 0;
+    margin: $spacing-unit 0 0;
   }
 
   strong, b {
-    font-weight: 600;
+    font-weight: $bold-font-weight;
   }
 
   em, i {
@@ -29,22 +32,22 @@
 
   pre {
     display: block;
-    padding: 15px;
-    margin-bottom: 15px;
+    padding: $spacing-unit / 2;
+    margin-bottom: $spacing-unit / 2;
   }
 
   ol, ul {
-    margin: 15px 0 15px 30px;
+    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) $spacing-unit;
 
-    @media only screen and (max-width: 400px){
-      margin-left: 15px;
+    @media only screen and (max-width: $mobile){
+      margin-left: $spacing-unit / 2;
     }
 
     ul, ol {
-      margin: 0 0 0 30px;
+      margin: 0 0 0 $spacing-unit;
 
-      @media only screen and (max-width: 400px){
-        margin-left: 15px;
+      @media only screen and (max-width: $mobile){
+        margin-left: $spacing-unit / 2;
       }
     }
   }
@@ -58,40 +61,33 @@
   }
 
   blockquote {
-    margin: 15px 0 15px 15px;
+    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) ($spacing-unit / 2);
     border-left: 3px solid $light-grey;
     font-style: italic;
-    padding-left: 15px;
+    padding-left: ($spacing-unit / 2);
     color: lighten($text-color, 20);
   }
 
   dl {
-    margin: 15px 0 5px 0;
+    margin: ($spacing-unit / 2) 0 5px 0;
 
     dt {
       font-weight: $bold-font-weight;
     }
 
     dd {
-      margin: 0 0 10px 20px;
+      margin: 0 0 5px ($spacing-unit / 2);
     }
   }
 
   hr {
-    margin: 15px 0;
+    margin: ($spacing-unit / 2) 0;
     border: 1px solid $light-grey;
   }
 
   // Add a margin at the bottom of commonly included status badges
-  // Only apply this style if followed by a p (which has no top margin)
-  a img + p {
-    margin-bottom: 15px;
-  }
-
-  // Except for when the status badges are already nested inside a paragraph
-  div p a img,
-  p a img {
-    margin-bottom: 0;
+  > a  {
+    margin-bottom: $spacing-unit / 2;
   }
 }
 

@@ -1,0 +1,15 @@
+/*
+  A badge for highlighting important information.
+  Use for small strings, or numbers.
+
+  <span class="badge">Contributor</div>
+*/
+
+.badge {
+  font-size: $small-font-size;
+  text-transform: uppercase;
+  color: darken($highlight-color, 50);
+  background-color: $highlight-color;
+  padding: 2px 7px;
+  border-radius: 3px;
+}

@@ -1,32 +1,44 @@
+/*
+  A sidebar section. Currently used on the package detail page.
+
+  <div class="sidebar-section">
+    <h3 class="sidebar-section__title">Title</h3>
+    // Content here
+  </div>
+
+  Modifiers:
+    - Maintainers: Custom layout for maintainers section on package detail page.
+*/
+
 .sidebar-section {
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 2px solid #ececec;
+  border-bottom: 2px solid $border-color;
 
-  h3 {
+  .sidebar-section__title {
     font-size: 18px;
   }
-}
 
-.sidebar-section.status {
-  padding-bottom: 10px;
-}
+  &:last-of-type {
+    margin-bottom: 0;
+    border: 0;
+  }
 
-.sidebar-section.maintainers {
-  @include clearfix;
+  &--maintainers {
+    @include clearfix;
 
-  img {
-    margin: 0 5px 5px 0;
-    display: inline;
-    float: left;
+    img {
+      margin: 0 5px 5px 0;
+      display: inline;
+      float: left;
 
-    @media only screen and (max-width: 1000px){
-      max-width: 40px;
+      &:last-of-type {
+        margin-right: 0;
+      }
+
+      @media only screen and (max-width: $desktop){
+        max-width: 40px;
+      }
     }
   }
-}
-
-.sidebar-section.meta {
-  padding-bottom: 0;
-  border: 0;
 }

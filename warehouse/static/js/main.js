@@ -9,22 +9,22 @@ import "timeago";
 
 $(document).ready(function() {
 
-  // Toggle expanding and collapsing sections
-  $(".-js-expander-trigger").click(function(){
-    $(this).toggleClass("expander-hidden");
+  // Toggle accordion
+  $(".-js-accordion-trigger").click(function(){
+    $(this).closest(".accordion").toggleClass("accordion--closed");
   });
 
   function setTab(tab) {
     if (tab) {
-      $(".js-vertical-tab-content").hide();
+      $(".-js-vertical-tab-content").hide();
       tab.show();
-      $(".is-active").removeClass("is-active");
-      $("a[href^='#"+tab[0].id+"']").addClass("is-active");
+      $(".vertical-tabs__tab--is-active").removeClass("vertical-tabs__tab--is-active");
+      $("a[href^='#"+tab[0].id+"']").addClass("vertical-tabs__tab--is-active");
     }
   }
 
   function getTab(selector) {
-    var tab = $(".js-vertical-tab-content" + selector);
+    var tab = $(".-js-vertical-tab-content" + selector);
     return (selector && tab.length) ? tab : null;
   }
 
@@ -43,7 +43,7 @@ $(document).ready(function() {
   });
 
   // If in accordion mode
-  $(".-js-vertical-tab-accordion-heading").click(function(event) {
+  $(".-js-vertical-tab-mobile-heading").click(function(event) {
     event.preventDefault();
     history.pushState(null, "", $(this).attr("href"));
     setTab(getTab(location.hash));
@@ -52,20 +52,20 @@ $(document).ready(function() {
   // Launch filter popover on mobile
   $("body").on("click", ".-js-add-filter", function(e){
     e.preventDefault();
-    $(".dark-overlay").show();
-    $(".panel-overlay").show();
+    $(".-js-dark-overlay").show();
+    $(".-js-filter-panel").show();
   });
 
   $("body").on("click", ".-js-close-panel", function(e){
     e.preventDefault();
-    $(".dark-overlay").hide();
-    $(".panel-overlay").hide();
+    $(".-js-dark-overlay").hide();
+    $(".-js-filter-panel").hide();
   });
 
   // Position Sticky bar
   function positionWarning(){
-    var height = $(".sticky-bar").outerHeight();
-    $("body:has(.sticky-bar)").css("paddingTop", height);
+    var height = $(".js-stick-to-top").outerHeight();
+    $("body:has(.js-stick-to-top)").css("paddingTop", height);
   }
 
   positionWarning();

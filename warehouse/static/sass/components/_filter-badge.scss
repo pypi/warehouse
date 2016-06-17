@@ -1,8 +1,24 @@
-.filter {
+/*
+  A badge that indicates that a filter has been applied to search results.
+  Includes the description of the filter, and a button to remove the filter.
+
+  <div class="filter-badge">
+    <span class="filter-badge__icon">
+      // filter icon here
+    </span>
+    <span class="filter-badge__description">
+      // filter description here
+    </span>
+    <a class="filter-badge__remove-button">
+      // close icon here
+    </a>
+  </div>
+*/
+
+.filter-badge {
   text-transform: uppercase;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 19px;
+  font-size: $small-font-size;
   border-radius: 2px;
   background-color: $brand-color;
   color: $white;
@@ -10,23 +26,28 @@
   float: left;
   margin: 0 5px 10px 0;
 
-  .fa-filter {
+  &__icon {
     display: table-cell;
     padding: 6px 0 6px 6px;
-    color: darken($brand-color, 7);
+    color: darken($brand-color, 10%);
     vertical-align: middle;
   }
 
-  span {
+  &__description {
     display: table-cell;
     padding: 6px;
     vertical-align: middle;
   }
 
-  a {
+  &__remove-button {
     display: table-cell;
     color: $white;
-    border-left: 1px solid rgba(255,255,255, .2);
+    border-left: 1px solid transparentize($white, 0.8);
     padding: 6px;
+
+    &:hover {
+      color: $white;
+      background-color: darken($brand-color, 5%);
+    }
   }
 }

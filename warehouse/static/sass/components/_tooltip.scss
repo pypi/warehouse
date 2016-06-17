@@ -3,8 +3,8 @@
 // Copyright (c) 2016 GitHub Inc.
 
 $tooltip-max-width: 250px !default;
-$tooltip-background-color: rgba(0, 0, 0, 0.8) !default;
-$tooltip-text-color: #fff !default;
+$tooltip-background-color: transparentize($black, 0.3) !default;
+$tooltip-text-color: $white !default;
 $tooltip-delay: 0.4s !default;
 $tooltip-duration: 0.1s !default;
 
@@ -32,7 +32,7 @@ $tooltip-duration: 0.1s !default;
   pointer-events: none;
   content: attr(aria-label);
   background: $tooltip-background-color;
-  border-radius: 3px;
+  border-radius: 2px;
   opacity: 0;
 }
 
@@ -118,12 +118,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -15px;
+    margin-left: -($spacing-unit / 2);
   }
 }
 
 .tooltipped-sw::after {
-  margin-right: -15px;
+  margin-right: -($spacing-unit / 2);
 }
 
 // Tooltips above the object
@@ -149,12 +149,12 @@ $tooltip-duration: 0.1s !default;
   &::after {
     right: auto;
     left: 50%;
-    margin-left: -15px;
+    margin-left: -($spacing-unit / 2);
   }
 }
 
 .tooltipped-nw::after {
-  margin-right: -15px;
+  margin-right: -($spacing-unit / 2);
 }
 
 // Move the tooltip body to the center of the object.

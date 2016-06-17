@@ -1,15 +1,27 @@
+/*
+  A container for filters that are applied to a search result.
+  Contains a button to toggle the filter menu on mobile:
+
+  <div class="applied-filters">
+    // Filters go here (see filter-badge for details)
+    <span class="applied-filters__add-button">
+      // Button to toggle sidebar goes here
+    </div>
+  </div>
+*/
+
 .applied-filters {
   margin-top: 10px;
   @include clearfix;
 
-  @media only screen and (max-width: 700px){
+  @media only screen and (max-width: $tablet){
     margin-top: 20px;
   }
 
-  a.-js-add-filter {
+  &__add-button {
     display: none;
 
-    @media only screen and (max-width: 1000px){
+    @media only screen and (max-width: $desktop){
       display: inline-block;
       float: left;
     }

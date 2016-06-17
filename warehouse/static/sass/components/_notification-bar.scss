@@ -1,26 +1,49 @@
-.notification-bar {
-    @extend .h3;
-    border-bottom: 2px solid $white;
-    border-top: 2px solid $white;
-    text-align: center;
-    background-color: darken($brand-color, 10);
-    color: $white;
-    padding: 15px;
+/*
+  A dark, full width horizontal div that contains a short notification.
+  Use for single lines only, as all content will be styled as a h3.
 
-    .icon {
-      font-size: $small-font-size;
-    }
+  Can be nested inside the .sticky-to-top helper to stick to the top of the page.
+
+  <div class="notification-bar">
+    <span class="notification-bar__icon">
+      // icon here
+    </span>
+    <span class="notification-bar__message">
+      // A one line notification goes here.
+    </span>
+  </div>
+
+  Modifiers:
+    - Warning: Applies a red background
+    - Success: Applies a green background
+*/
+
+.notification-bar {
+  border-bottom: 2px solid $white;
+  border-top: 2px solid $white;
+  text-align: center;
+  background-color: darken($brand-color, 10);
+  color: $white;
+  padding: ($spacing-unit / 2);
+
+  &__icon {
+    font-size: $small-font-size;
+  }
+
+  &__message {
+    @include h3;
 
     a {
       color: $white;
       text-decoration: underline;
     }
-}
+  }
 
-.notification-bar.-warning {
-  background-color: $danger-color;
-}
+  &--warning {
+    background-color: $danger-color;
+  }
 
-.notification-bar.-success {
-  background-color: $success-color;
+  &--success {
+    background-color: $success-color;
+  }
 }

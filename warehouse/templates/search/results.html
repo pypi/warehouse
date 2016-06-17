@@ -20,13 +20,11 @@
 {% set version = item.version[0] %}
 
 <div class="package-snippet">
-  <h3 class="title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
-
-  <p class="meta" {{ l20n("packageSnippetMeta", version=version) }}>
-    <span class="version">{{ version }}</span>
+  <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
+  <p class="package-snippet__meta" {{ l20n("packageSnippetMeta", version=version) }}>
+    <span class="package-snippet__version">{{ version }}</span>
   </p>
-
-  <p class="description">{{ item.summary }}</p>
+  <p class="package-snippet__description">{{ item.summary }}</p>
 </div>
 {%- endmacro %}
 
@@ -51,27 +49,29 @@
 {%- endmacro %}
 
 {% block content %}
-<section class="horizontal-section -medium">
-  <div class="left-sidebar">
-    <div class="sidebar">
-      <div class="dark-overlay"></div>
-      <aside class="panel-overlay">
-        <a class="-js-close-panel"><i class="fa fa-close"></i></a>
+<section class="horizontal-section horizontal-section--medium">
+  <div class="left-layout">
+    <div class="left-layout__sidebar">
+      <div class="dark-overlay -js-dark-overlay"></div>
+      <aside class="filter-panel -js-filter-panel">
+        <a class="filter-panel__close -js-close-panel"><i class="fa fa-close"></i></a>
         <h2 class="no-top-padding" {{ l20n("filterProjects") }}>Filter Projects</h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
         <input type="hidden" name="o" value="{{ order }}">
 
         {% for top_level, classifiers in available_filters %}
-          <div class="expander">
-            <a class="-js-expander-trigger {{'expander-hidden' if not loop.first }}" {{ l20n("filterProjectsBy{}".format(top_level.replace(' ', ''))) }}>By {{ top_level }}</a>
-            <div class="expander-content">
+          <div class="accordion {{'accordion--closed' if not loop.first }}">
+            <a class="accordion__link -js-accordion-trigger" {{ l20n("filterProjectsBy{}".format(top_level.replace(' ', ''))) }}>By {{ top_level }}</a>
+            <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
-                {% set sub_levels = classifier.split(' :: ') %}
-                {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
-                <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
-                <label for="{{ classifier }}">{{ sub_levels[-1] }}</label><br>
+                <div class="checkbox-tree__item">
+                  {% set sub_levels = classifier.split(' :: ') %}
+                  {{ ("&nbsp;&nbsp;&nbsp;&nbsp;"*(sub_levels|length))|safe }}
+                  <input name="c" type="checkbox" id="{{ classifier }}" class="-js-form-submit-trigger checkbox-tree__checkbox" value="{{ classifier }}" {{ 'checked' if classifier in applied_filters else '' }}>
+                  <label class="checkbox-tree__label" for="{{ classifier }}">{{ sub_levels[-1] }}</label>
+                </div>
               {% endfor %}
               </div>
             </div>
@@ -81,44 +81,51 @@
       </aside>
     </div>
 
-    <div class="main">
+    <div class="left-layout__main">
       <form action="{{ request.route_path('search') }}">
-      <section class="split-layout -table">
+      <section class="split-layout split-layout--table">
+        <div>
         {% if term %}
-        <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
-          <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
-          {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
-            {{ suggestion_link(page.collection.best_guess) }}
-          {% endif %}
-        </p>
+          <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
+            <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+            {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+              {{ suggestion_link(page.collection.best_guess) }}
+            {% endif %}
+          </p>
         {% else %}
         <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
           <strong>{{ page.item_count }}</strong> projects.
         </p>
         {% endif %}
-          <p>
+        </div>
+          <div>
             <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
             <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
             <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "", "relevance") }}
               {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
             </select>
-          </p>
+          </div>
       </section>
 
       <div class="applied-filters">
       {% if applied_filters %}
-      {% for filter in applied_filters %}
-        <div class="filter">
+        {% for filter in applied_filters %}
+        <div class="filter-badge">
           <input type="hidden" name="c" value="{{ filter }}">
-          <i class="fa fa-filter"></i>
-          <span>{{ filter }}</span>
-          <a href="#"><i class="fa fa-close"></i></a>
+          <span class="filter-badge__icon">
+            <i class="fa fa-filter"></i>
+          </span>
+          <span class="filter-badge__description">{{ filter }}</span>
+          <a class="filter-badge__remove-button" href="#">
+            <i class="fa fa-close"></i>
+          </a>
         </div>
-      {% endfor %}
+        {% endfor %}
       {% endif %}
-
-        <a class="-js-add-filter wh-button -small" {{ l20n("addFilter") }} href="#">Add Filter</a>
+        <span class="applied-filters__add-button">
+          <a class="-js-add-filter button button--small" {{ l20n("addFilter") }} href="#">Add Filter</a>
+        </span>
       </div>
 
       <section>

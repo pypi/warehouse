@@ -1,14 +1,16 @@
+// FORMS
+
 #{$all-text-inputs},
 select {
   font-size: $input-font-size;
   border-radius: 2px;
   background-color: $white;
-  padding: 0 em(8px);
-  height: em(37px);
-  line-height: em(37px);
+  padding: 0 8px;
+  height: 40px;
+  line-height: 37px;
   border: 1px solid $border-color;
   color: $text-color;
-  vertical-align: center;
+  vertical-align: middle;
 }
 
 #{$all-text-inputs-focus},
@@ -17,14 +19,10 @@ select {
 select:focus,
 select:hover,
 select:active {
-  box-shadow: inset 0px 0px 0px 2px $brand-color-soft;
+  box-shadow: inset 0 0 0 2px $brand-color-soft;
   border-color: $brand-color-soft;
 }
 
-select {
-  padding: 7px 5px;
-}
-
 label {
-  vertical-align: center;
+  vertical-align: middle;
 }

@@ -1,0 +1,49 @@
+/*
+  Panel for filtering search results.
+  On smaller resolutions, this panel is:
+    - hidden by default
+    - styled with a blue background and white content
+    - shown over other content after being launched by a button
+
+  <div class="filter-panel">
+    <a class="filter-panel__close">
+      // close button
+    </a>
+    // Panel content here
+  </div>
+*/
+
+.filter-panel {
+
+  &__close {
+    display: none;
+  }
+
+  @media only screen and (max-width: $desktop){
+    display: none;
+    margin: 0;
+    padding: 25px;
+    overflow: scroll;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: $brand-color;
+    width: 280px;
+    max-width: 100%;
+    z-index: index($z-index-scale, 'filter-panel');
+
+    h2, label, a, {
+      color: $white;
+    }
+
+    &__close {
+      display: inline-block;
+      position: absolute;
+      padding: 10px ($spacing-unit / 2);
+      top: 0;
+      right: 0;
+      cursor: pointer;
+    }
+  }
+}

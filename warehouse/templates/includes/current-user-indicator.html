@@ -1,13 +1,12 @@
-<nav id="user-indicator" class="horizontal-menu -light -tall">
+<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
 
   {% if request.user %}
-  <a class="link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
-  <a class="link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
+  <a class="horizontal-menu__link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
   {% else %}
-  <a class="link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
-  <a class="link" {{ l20n("register") }} href="{{ request.route_path('accounts.register') }}">Register</a>
+  <a class="horizontal-menu__link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
+  <a class="horizontal-menu__link" {{ l20n("register") }} href="{{ request.route_path('accounts.register') }}">Register</a>
   {% endif %}
 
-  <a class="link" {{ l20n("help") }} href="{{ request.route_path('help') }}">Help</a>
-
+  <a class="horizontal-menu__link" {{ l20n("help") }} href="{{ request.route_path('help') }}">Help</a>
 </nav>
