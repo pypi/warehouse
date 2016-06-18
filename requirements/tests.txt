@@ -1,4 +1,4 @@
--f git+https://github.com/dstufft/bok-choy.git@py3#egg=bok_choy-0.6.0.dev0
+-f git+https://github.com/edx/bok-choy.git#egg=bok_choy-0.6.0.dev0
 
 bok_choy==0.6.0.dev0
 coverage
