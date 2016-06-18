@@ -127,6 +127,13 @@ Running the Warehouse Container and Services
 After building the Docker container, you'll need to create a Postgres database
 and run all of the data migrations.
 
+First start the Docker services that make up the Warehouse application.  In
+one terminal run the command:
+
+.. code-block:: console
+
+    $ make serve
+
 Next, you will:
 
 * create a new Postgres database,
@@ -134,7 +141,7 @@ Next, you will:
 * run migrations, and
 * load some example data from `Test PyPI <https://testpypi.python.org/>`_
 
-Run:
+In a second terminal, separate from the make serve command above, run:
 
 .. code-block:: console
 
