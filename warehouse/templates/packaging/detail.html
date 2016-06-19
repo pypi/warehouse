@@ -63,7 +63,7 @@
 {% block content %}
 <section class="banner">
   <div class="package-header">
-    <p class="package-header__license" {{ l20n("projectLicense", license="TODO") }}>License: <a href="TODO">TODO</a></p>
+    <p class="package-header__license" {{ l20n("projectLicense", license=release.license) }}>License: {{ release.license }}</p>
     <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
     <p class="package-header__pip-instructions">
