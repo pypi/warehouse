@@ -17,6 +17,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from warehouse.packaging import views
 
 from ...common.db.accounts import UserFactory
+from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
@@ -131,4 +132,40 @@ class TestReleaseDetail:
                 (r.version, r.created) for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
+            "license": None
         }
+
+    def test_license_from_classifier(self, db_request):
+        """A license label is added when a license classifier exists."""
+        classifier = ClassifierFactory.create(
+            classifier="License :: OSI Approved :: BSD License")
+        release = ReleaseFactory.create(_classifiers=[classifier])
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == "BSD License"
+
+    def test_license_with_no_classifier(self, db_request):
+        """With no classifier, a license is used from metadata."""
+        release = ReleaseFactory.create(license="MIT License")
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == "MIT License"
+
+    def test_multiline_license(self, db_request):
+        """When license metadata is longer than one line, the first is used."""
+        release = ReleaseFactory.create(
+            license="Multiline License\nhow terrible")
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == "Multiline License"
+
+    def test_no_license(self, db_request):
+        """With no license classifier or metadata, no license is in context."""
+        release = ReleaseFactory.create()
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] is None

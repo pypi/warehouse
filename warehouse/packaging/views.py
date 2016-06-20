@@ -94,10 +94,23 @@ def release_detail(release, request):
         )
     ]
 
+    # Get the license from the classifiers or metadata, preferring classifiers.
+    license = None
+    if release.license:
+        # Make a best effort when the entire license text is given
+        # by using the first line only.
+        license = release.license.split('\n')[0]
+    for classifier in release.classifiers:
+        # The last portion of the classifier will have the license name.
+        if classifier.startswith("License"):
+            license = classifier.split(" :: ")[-1]
+            break
+
     return {
         "project": project,
         "release": release,
         "files": release.files.all(),
         "all_releases": all_releases,
         "maintainers": maintainers,
+        "license": license,
     }
