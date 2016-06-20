@@ -17,7 +17,7 @@ Warehouse
 
 Warehouse is a next generation Python Package Repository designed to replace
 the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
-(whose source code `lives separately on BitBucket <https://bitbucket.org/pypa/pypi/>`_).
+(whose source code `lives on Github <https://github.com/pypa/pypi-legacy/>`_).
 
 You can find more information in the `documentation`_.
 
