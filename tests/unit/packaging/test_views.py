@@ -137,9 +137,13 @@ class TestReleaseDetail:
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
+        other_classifier = ClassifierFactory.create(
+            classifier="Some :: Random :: Classifier")
         classifier = ClassifierFactory.create(
             classifier="License :: OSI Approved :: BSD License")
-        release = ReleaseFactory.create(_classifiers=[classifier])
+        release = ReleaseFactory.create(
+            _classifiers=[other_classifier, classifier],
+            license="Will not be used")
 
         result = views.release_detail(release, db_request)
 
