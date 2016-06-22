@@ -83,8 +83,6 @@ def edit_profile(request, _form_class=forms.EditProfileForm):
                 full_name=form.full_name.data, password=form.password.data
             )
 
-        user_service.db.commit()
-        user_service.db.flush()
         return HTTPSeeOther(request.route_path("accounts.profile"))
 
     return {"user": request.user, "form": form}
