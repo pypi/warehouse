@@ -157,6 +157,7 @@
             <dt>{{ classifier_head }}</dt>
             {% for classifier in classifier_tail %}
             <dd>
+            <i class="fa fa-circle"></i>
             <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
               {{ classifier }}
             </a>
