@@ -1,13 +1,13 @@
 /*
-  Styles the main description panel for an individual package.
+  Styles the main description panel for an individual project.
   Needs to deal with anything a user could include in a project description file.
 
-  <div class="release-description">
+  <div class="project-description">
     // Anything goes!
   </div>
 */
 
-.release-description {
+.project-description {
   margin-bottom: $spacing-unit;
   line-height: 1.5;
 
@@ -111,7 +111,7 @@ $mid-grey:      #606060;
 $dark-grey:     #303030;
 $black:         #000;
 
-.release-description {
+.project-description {
   .c { color: $light-grey; } /* Comment */
   .err { color: $dark-red; } /* Error */
   .k { color: $green; font-weight: bold; } /* Keyword */
