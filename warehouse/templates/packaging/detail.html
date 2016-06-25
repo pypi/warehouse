@@ -173,7 +173,7 @@
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
         <div id="description" class="-js-vertical-tab-content vertical-tabs__content">
           {% if release.description %}
-          <div class="release-description">
+          <div class="project-description">
             {{ release.description|readme(format="rst") }}
           </div>
           {% else %}
@@ -219,34 +219,34 @@
             </div>
           </div>
 
-          <section class="history-timeline">
+          <section class="release-timeline">
             {% for hrelease in all_releases %}
             {% set is_current = (hrelease.version == release.version) %}
-            <div class="history-section{{ ' history-section--latest' if loop.first else ' history-section--oldest' if loop.last }}{{ ' history-section--current' if is_current }}">
-              <div class="history-section__meta">
+            <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
+              <div class="release__meta">
                 {% if is_current %}
-                <p class="history-section__version">{{ hrelease.version }}</p>
+                <p class="release__version">{{ hrelease.version }}</p>
                 <span class="badge" {{ l20n("thisVersion") }}>This version</span>
                 {% else %}
-                <p class="history-section__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}
 
-                <p class="history-section__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
+                <p class="release__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
               </div>
 
-              <div class="history-section__graphic">
+              <div class="release__graphic">
                 {% if loop.length > 1 %}
-                <div class="history-section__line"></div>
+                <div class="release__line"></div>
                 {% endif %}
                 {% if is_current %}
-                <img class="history-section__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
+                <img class="release__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
                 {% else %}
-                <img class="history-section__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
+                <img class="release__node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
                 {% endif %}
               </div>
 
-              <div class="history-section__changelog">
-                <div class="card history-section__card">
+              <div class="release__changelog">
+                <div class="card release__card">
                   <p>TODO: Figure out how to actually get changelog content.
                   <p>Changelog content for this version goes here.</p>
                   <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>

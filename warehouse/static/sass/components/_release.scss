@@ -1,26 +1,26 @@
 /*
   Individual release information represented as a card with meta data
 
-  <div class="history-section">
-    <div class="history-section__meta">
+  <div class="release">
+    <div class="release__meta">
       // Aligned to the left
-      <p class="history-section__version"></p>
+      <p class="release__version"></p>
       // Optional badge here
-      <p class="history-section__version-date"></p>
+      <p class="release__version-date"></p>
     </div>
-    <div class="history-section__graphic"> // Node graphic with connecting line
-      <div class="history-section__line"></div>
-      <img class="history-section__node">
+    <div class="release__graphic"> // Node graphic with connecting line
+      <div class="release__line"></div>
+      <img class="release__node">
     </div>
-    <div class="history-section__changelog">
-      <div class="history-section__card">
+    <div class="release__changelog">
+      <div class="release__card">
         // Changelog here
       </div>
     </div>
   </div>
 */
 
-.history-section {
+.release {
   @include clearfix;
   display: table;
   width: 100%;
@@ -139,11 +139,11 @@
     background-color: darken($background-color, 1);
     border: 1px dotted #ccc;
 
-    .history-section__node {
+    .release__node {
       background-color: darken($background-color, 1);
     }
 
-    .history-section__card {
+    .release__card {
       background-color: $white;
       box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
     }
@@ -151,13 +151,13 @@
 
   &--latest,
   &--oldest {
-    .history-section__line {
+    .release__line {
       height: 50%;
     }
   }
 
   &--oldest {
-    .history-section__line {
+    .release__line {
       bottom: auto;
       top: 0;
     }
