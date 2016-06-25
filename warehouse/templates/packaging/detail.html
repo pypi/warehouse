@@ -120,7 +120,7 @@
           <h3 class="sidebar-section__title" {{ l20n("projectNavigation") }}>Navigation</h3>
             <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
             <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
+            <a class="-js-vertical-tab vertical-tabs__tab" href="#history" {{ l20n("releaseHistory") }}>Release History</a>
             <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
             {% if files %}
               <a class="-js-vertical-tab vertical-tabs__tab" href="#files" {{ l20n("projectDownloads") }}>Download Files</a>
@@ -209,11 +209,11 @@
           </div>
         </div>
 
-        {# Tab: Version History & Changelog #}
-        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
+        {# Tab: Release History #}
+        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history" {{ l20n("releaseHistory") }}>Release History</a>
         <div id="history" class="-js-vertical-tab-content vertical-tabs__content">
           <div class="split-layout split-layout--table">
-            <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
+            <h2 {{ l20n("releaseHistory") }}>Release History</h2>
             <div>
               <a class="button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
             </div>
