@@ -38,7 +38,7 @@ HTML Code Style
 Warehouse follows the
 `Google HTML style guide <https://google.github.io/styleguide/htmlcssguide.xml>`_,
 which is enforced via linting with
-`HTML Linter <https://github.com/deezer/html-linter>`.
+`HTML Linter <https://github.com/deezer/html-linter>`_.
 
 One exception is that we allow both dashes and underscores in our class names,
 as we follow the
