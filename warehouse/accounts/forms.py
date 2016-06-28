@@ -144,8 +144,7 @@ class ResetPasswordForm(CredentialsMixin, forms.Form):
         super(ResetPasswordForm, self).__init__(*args, **kwargs)
 
         self.username = user_name
-        # Instead of again defining username field, we are using LoginForm
-        # to get the username field and poping password field
+        # Pop username field that comes from CredentialsMixIn.
         self._fields.pop('username')
 
     def validate_password(self, field):
