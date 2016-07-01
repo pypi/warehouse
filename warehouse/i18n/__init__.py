@@ -35,7 +35,3 @@ def includeme(config):
         "format_rfc822_datetime",
         "warehouse.i18n.filters:format_rfc822_datetime",
     )
-
-    # Register our utility functions with Jinja2
-    jglobals = config.get_settings().setdefault("jinja2.globals", {})
-    jglobals.setdefault("l20n", "warehouse.i18n.l20n:l20n")

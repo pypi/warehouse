@@ -2,11 +2,11 @@
 
   {% if request.user %}
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
-  <a class="horizontal-menu__link" {{ l20n("signout") }} href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
   {% else %}
-  <a class="horizontal-menu__link" {{ l20n("signin") }} href="{{ request.route_path('accounts.login') }}">Sign In</a>
-  <a class="horizontal-menu__link" {{ l20n("register") }} href="{{ request.route_path('accounts.register') }}">Register</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Sign In</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
   {% endif %}
 
-  <a class="horizontal-menu__link" {{ l20n("help") }} href="{{ request.route_path('help') }}">Help</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('help') }}">Help</a>
 </nav>
