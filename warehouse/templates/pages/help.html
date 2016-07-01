@@ -13,6 +13,12 @@
 -#}
 {% extends "base.html" %}
 
+{% macro code_of_conduct() %}
+  <div class="callout-block">
+    <p><strong>Please note:</strong> All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="//pypa.io/en/latest/code-of-conduct/">PyPA Code of Conduct</a>.</p>
+  </div>
+{% endmacro %}
+
 {% block title %}Help{% endblock %}
 
 {% block content %}
@@ -20,46 +26,63 @@
     <div class="narrow-container">
       <h2>Common Questions</h2>
 
-      <h3 id="installing" class="common-question">What is a package and how do I install one?</h3>
 
-      <p>A 'package' in the context of PyPI is a bundle of software to be installed.</p>
-      <p>Packages on PyPI are developed and shared by other members of the Python community so that you can use them in your own projects.</p>
-      <p>To learn how to install packages, visit the <a href="//packaging.python.org/en/latest/installing/">installation tutorial</a> on the <a href="//packaging.python.org/">Python Packaging User Guide</a>.</p>
+      <h3 id="packages" class="common-question">What's a package, project, or release?</h3>
+
+      <p>We use a number of terms to describe software available on PyPI, like <em>project</em>, <em>release</em>, <em>file</em>, and <em>package</em>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
+
+      <p>A <em>project</em> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
+
+      <p>A <em>release</em> on PyPI is a specific version of a project. For example, the <a href="//pypi.io/project/requests/">requests</a> project has many releases, like <em>requests 2.10</em> and <em>requests 1.2.1</em>. A release consists of one or more <em>files</em>.</p>
+
+      <p>A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="//pypi.io/project/wheel/#files">wheel</a>.</p>
+
+
+      <h3 id="installing" class="common-question">How do I install a file (package) from PyPI?</h3>
+
+      <p>To learn how to install a file from PyPI, visit the <a href="//packaging.python.org/en/latest/installing/">installation tutorial</a> on the <a href="//packaging.python.org/">Python Packaging User Guide</a>.</p>
+
 
       <h3 id="publishing" class="common-question">How do I package and publish my code for PyPI?</h3>
 
       <p>For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="//packaging.python.org/en/latest/distributing/">packaging tutorial</a> on the <a href="//packaging.python.org">Python Packaging User Guide</a>.</p>
+
 
       <h3 id="accessibility" class="common-question">I am having trouble using the PyPI website, can you help me?</h3>
 
       <p>We take accessibility very seriously and want to make the website easy to use for everyone.</p>
       <p>If you are experiencing an accessibility problem, please <a href="//goo.gl/forms/NwuPXZvrModOKhcl1">report it to us</a>, so we can try to fix the problem, for you and others.</p>
 
-      <h3 id="feedback" class="common-question">Where can I provide feedback?</h3>
 
-      <p>We welcome <em>constructive</em> feedback. If you would like to suggest an improvement, please use our <a href="//goo.gl/forms/IaPbMVAKnYDP2xV92">feedback form</a>. Common feedback will be transferred to our issue tracker to be addressed by the development team.</p>
+      <h3 id="feedback" class="common-question">Where can I report a bug or provide feedback?</h3>
 
-      <p>If you are experiencing a <strong>bug</strong>, please log an issue directly on our <a href="//github.com/pypa/warehouse/issues">issue tracker</a>.</p>
+      <p>We welcome <em>constructive</em> feedback and bug reports.
 
-      <p>Please provide as much detail as you can. For example:</p>
+      <p><strong>If you would like to suggest an improvement</strong>, then please use our <a href="//goo.gl/forms/IaPbMVAKnYDP2xV92">feedback form</a>. Common feedback will be transferred to our issue tracker to be addressed by the development team.</p>
+
+      <p><strong>If you would like to report a bug</strong>, then please log an issue directly on our <a href="//github.com/pypa/warehouse/issues">issue tracker</a>.</p>
+
+      <p>If you report a bug, please provide as much detail as you can. For example:</p>
 
       <ul>
         <li>Your operating system</li>
         <li>Your browser and browser version</li>
-        <li>Reproducability (does it always happen, or just sometimes after certain actions)</li>
-        <li>Steps to reproduce</li>
-        <li>Suggested fix (if you have one)</li>
+        <li>Whether you can reproduce the bug (does it always happen, or just sometimes after certain actions)</li>
+        <li>Steps to reproduce (if applicable)</li>
+        <li>Warning or error messages (if applicable)</li>
+        <li>What you expected to happen or your suggested fix (if you have one)</li>
       </ul>
+
+      {{ code_of_conduct() }}
+
 
       <h3 id="contributing" class="common-question">How can I help?</h3>
 
-      <p>We have a huge amount of work to do to continue to maintain and improve PyPI (aka the Warehouse project), and would love to see some new faces working on the project.</p>
+      <p>We have a huge amount of work to do to continue to maintain and improve PyPI (also known as the Warehouse project), and would love to see some new faces working on the project.</p>
       <p>You <strong>do not</strong> need to be an experienced open-source developer to make a contribution - in fact, we'd love to help you make your first open source pull request!</p>
       <p>If you have skills in Python, HTML, SCSS, or JavaScript, then please take a look at the <a href="//github.com/pypa/warehouse/issues">issue tracker</a>. If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.</p>
 
-      <div class="callout-block">
-        <p><strong>Please note:</strong> All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="//pypa.io/en/latest/code-of-conduct/">PyPA Code of Conduct</a>.</p>
-      </div>
+      {{ code_of_conduct() }}
     </div>
   </section>
 
@@ -75,6 +98,8 @@
         <li><a href="//python.org/">Python.org</a> (main Python website)</li>
         <li><a href="//python.org/community/">Python community page</a> (lists IRC channels, mailing lists, etc.)</li>
       </ul>
+
+      <h2>Contact</h2>
 
       <p>The <a href="//pypa.io">Python Packaging Authority (PyPA)</a> is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer, please use #pypa on IRC (freenode), or <a href="//mail.python.org/mailman/listinfo/distutils-sig">join the distutils-sig mailing list</a>.</p>
     </div>
