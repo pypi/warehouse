@@ -12,7 +12,6 @@
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -40,7 +39,6 @@ def project_detail(project, request):
     try:
         release = (
             request.db.query(Release)
-                      .options(joinedload(Release.uploader))
                       .filter(Release.project == project)
                       .order_by(Release._pypi_ordering.desc())
                       .limit(1)

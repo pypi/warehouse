@@ -117,16 +117,14 @@ def index(request):
     )
     top_projects = (
         request.db.query(release_a)
-               .options(joinedload(release_a.project),
-                        joinedload(release_a.uploader))
+               .options(joinedload(release_a.project))
                .order_by(func.array_idx(project_names, release_a.name))
                .all()
     )
 
     latest_releases = (
         request.db.query(Release)
-                  .options(joinedload(Release.project),
-                           joinedload(Release.uploader))
+                  .options(joinedload(Release.project))
                   .order_by(Release.created.desc())
                   .limit(5)
                   .all()

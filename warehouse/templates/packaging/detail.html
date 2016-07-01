@@ -43,15 +43,10 @@
 
 
 {% macro project_snippet(release) -%}
-
-{% set version = release.version %}
-{% set uploader_username = release.uploader.username %}
-{% set uploader_name = release.uploader.name|default(uploader_username, true) %}
-
 <div class="package-snippet">
   <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
-  <p class="package-snippet__meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
-    <span class="package-snippet__version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
+  <p class="package-snippet__meta" {{ l20n("packageSnippetMeta", version=release.version) }}>
+    <span class="package-snippet__version">{{ release.version }}</span>
   </p>
   <p class="package-snippet__description">{{ release.summary }}</p>
 </div>
@@ -106,10 +101,6 @@
         {% endif %}
         {% endfor %}
       </nav>
-      <p class="package-links__author">
-        <span class="package-links__author-info" {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
-        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}" class="package-links__author-avatar"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
-      </p>
     </div>
   </div>
 </section>
