@@ -50,13 +50,6 @@ All code changes must be accompanied by unit tests with 100% code coverage (as
 measured by `coverage.py`_).
 
 
-Translations
-------------
-
-All user facing content must be marked for translation. More details about the
-Warehouse translation mechanism can be found in :doc:`translations`.
-
-
 Documentation
 -------------
 
