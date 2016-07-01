@@ -14,6 +14,8 @@
 
 /* global ga */
 
+import * as cookie from "cookie";
+
 
 export default () => {
   // Here we want to ensure that our ga function exists in the global scope,
@@ -33,6 +35,14 @@ export default () => {
     // Create the google tracker, ensuring that we tell Google to Anonymize our
     // user's IP addresses.
     ga("create", element.dataset.GaId, "auto", { anonymizeIp: true });
+
+    // Determine if we have a user ID associated with this person, if so we'll
+    // go ahead and tell Google it to enable better tracking of individual
+    // users.
+    let cookies = cookie.parse(document.cookie);
+    if (cookies.user_id__insecure) {
+      ga("set", "userId", cookies.user_id__insecure);
+    }
 
     // Finally, we'll send an event to mark our page view.
     ga("send", "pageview");
