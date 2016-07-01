@@ -23,6 +23,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Boolean, Date, DateTime, Integer, LargeBinary, String, Text,
 )
+from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
 
@@ -34,12 +35,8 @@ accounts_gpgkey = Table(
     Column("id", Integer(), primary_key=True, nullable=False),
     Column(
         "user_id",
-        Integer(),
-        ForeignKey(
-            "accounts_user.id",
-            deferrable=True,
-            initially="DEFERRED",
-        ),
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     ),
     Column("key_id", CIText(), nullable=False),

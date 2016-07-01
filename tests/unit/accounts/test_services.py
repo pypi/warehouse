@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import uuid
+
 import pretend
 
 from zope.interface.verify import verifyClass
@@ -60,7 +62,7 @@ class TestDatabaseUserService:
 
     def test_check_password_nonexistant_user(self, db_session):
         service = services.DatabaseUserService(db_session)
-        assert not service.check_password(1, None)
+        assert not service.check_password(uuid.uuid4(), None)
 
     def test_check_password_invalid(self, db_session):
         user = UserFactory.create()

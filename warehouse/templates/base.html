@@ -127,11 +127,18 @@
 
     {% include "warehouse:templates/includes/sponsors.html" %}
 
-    <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}"></script>
+    <script async
+            {% if request.registry.settings.get("ga.tracking_id") -%}
+            data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
+            {% endif -%}
+            src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
+    </script>
     <script async src="{{ request.static_path('warehouse:static/dist/js/main.js') }}"></script>
 
     {% block extra_js %}
     {% endblock %}
+
+    <script async src="//www.google-analytics.com/analytics.js"></script>
   </body>
 
 </html>
