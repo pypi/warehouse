@@ -16,6 +16,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, String,
 )
 from sqlalchemy import orm, select, sql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -38,7 +39,7 @@ class UserFactory:
             raise KeyError from None
 
 
-class User(SitemapMixin, db.ModelBase):
+class User(SitemapMixin, db.Model):
 
     __tablename__ = "accounts_user"
     __table_args__ = (
@@ -51,7 +52,6 @@ class User(SitemapMixin, db.ModelBase):
 
     __repr__ = make_repr("username")
 
-    id = Column(Integer, primary_key=True, nullable=False)
     username = Column(CIText, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
@@ -104,12 +104,8 @@ class Email(db.ModelBase):
 
     id = Column(Integer, primary_key=True, nullable=False)
     user_id = Column(
-        Integer,
-        ForeignKey(
-            "accounts_user.id",
-            deferrable=True,
-            initially="DEFERRED",
-        ),
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
     )
     email = Column(String(length=254), nullable=False)
