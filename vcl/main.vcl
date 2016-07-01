@@ -173,6 +173,18 @@ sub vcl_fetch {
         }
     }
 
+    # When delivering a 304 response, we don't always have access to all the
+    # headers in the resp because a 304 response is supposed to remove most of
+    # the headers. So we'll instead stash these headers on the request so that
+    # we can log this data from there instead of from the response.
+    if (beresp.http.x-amz-meta-project
+            || beresp.http.x-amz-meta-version
+            || beresp.http.x-amz-meta-package-type) {
+        set req.http.Fastly-amz-meta-project = beresp.http.x-amz-meta-project;
+        set req.http.Fastly-amz-meta-version = beresp.http.x-amz-meta-version;
+        set req.http.Fastly-amz-meta-package-type = beresp.http.x-amz-meta-package-type;
+    }
+
 
 #FASTLY fetch
 
@@ -279,6 +291,28 @@ sub vcl_deliver {
     set resp.http.X-XSS-Protection = "1; mode=block";
     set resp.http.X-Content-Type-Options = "nosniff";
     set resp.http.X-Permitted-Cross-Domain-Policies = "none";
+
+    # Unstash our information about what project/version/package-type a
+    # particular file download was for.
+    if (req.http.Fastly-amz-meta-project
+            || req.http.Fastly-amz-meta-version
+            || req.http.Fastly-amz-meta-package-type) {
+        set resp.http.x-amz-meta-project = req.http.Fastly-amz-meta-project;
+        set resp.http.x-amz-meta-version = req.http.Fastly-amz-meta-version;
+        set resp.http.x-amz-meta-package-type = req.http.Fastly-amz-meta-package-type;
+    }
+
+    # If we're not executing a shielding request, and the URL is one of our file
+    # URLs, and it's a GET request, and the response is either a 200 or a 304
+    # then we want to log an event stating that a download has taken place.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/"
+            && req.request == "GET"
+            && http_status_matches(resp.status, "200,304")) {
+        log {"syslog "} req.service_id {" linehaul :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
+        log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
+    }
 
     return(deliver);
 }
