@@ -46,7 +46,4 @@ def test_includeme():
             "format_rfc822_datetime":
                 "warehouse.i18n.filters:format_rfc822_datetime",
         },
-        "jinja2.globals": {
-            "l20n": "warehouse.i18n.l20n:l20n",
-        },
     }
