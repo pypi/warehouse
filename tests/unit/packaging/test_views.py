@@ -173,3 +173,15 @@ class TestReleaseDetail:
         result = views.release_detail(release, db_request)
 
         assert result["license"] is None
+
+    def test_multiple_licenses_from_classifiers(self, db_request):
+        """A license label is added when multiple license classifiers exist."""
+        license_1 = ClassifierFactory.create(
+            classifier="License :: OSI Approved :: BSD License")
+        license_2 = ClassifierFactory.create(
+            classifier="License :: OSI Approved :: MIT License")
+        release = ReleaseFactory.create(_classifiers=[license_1, license_2])
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == "BSD License, MIT License"

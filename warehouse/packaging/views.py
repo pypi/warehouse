@@ -98,11 +98,10 @@ def release_detail(release, request):
         # Make a best effort when the entire license text is given
         # by using the first line only.
         license = release.license.split('\n')[0]
-    for classifier in release.classifiers:
-        # The last portion of the classifier will have the license name.
-        if classifier.startswith("License"):
-            license = classifier.split(" :: ")[-1]
-            break
+    license_classifiers = [c.split(" :: ")[-1] for c in release.classifiers
+                           if c.startswith("License")]
+    if license_classifiers:
+        license = ', '.join(license_classifiers)
 
     return {
         "project": project,
