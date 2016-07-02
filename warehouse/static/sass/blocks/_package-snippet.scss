@@ -41,6 +41,9 @@
   &__version {
     font-weight: $bold-font-weight;
     float: right;
+    &::before {
+      content: "v";
+    }
   }
 
   &__description {
