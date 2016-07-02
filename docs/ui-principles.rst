@@ -25,7 +25,7 @@ the site easier to use for everybody. At a minimum:
 
 - Ensure contrast is high, particularly on text. This can be checked:
    - On Chrome by installing `Accessibility Developer Tools
-     <https://chrome.google.com/webstore/detail/accessibility-developer-t/fpkknkljclfencbdbgkenhalefipecmb>`_
+     <http://bit.ly/1ikZ68B>`_
    - On Firefox by installing the `WCAG Contrast Checker
      <https://addons.mozilla.org/en-us/firefox/addon/wcag-contrast-checker/>`_
 - Write `semantic HTML <https://en.wikipedia.org/wiki/Semantic_HTML>`_
