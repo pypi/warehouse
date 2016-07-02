@@ -40,6 +40,11 @@ Warehouse follows the
 which is enforced via linting with
 `HTML Linter <https://github.com/deezer/html-linter>`_.
 
+Exceptions:
+
+- Protocols can be included in links - with ``https`` preferred.
+- All HTML tags should be closed.
+
 One exception is that we allow both dashes and underscores in our class names,
 as we follow the
 `Nicholas Gallagher variation <http://nicolasgallagher.com/about-html-semantics-front-end-architecture/>`_
