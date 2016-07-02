@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import freezegun
 import pretend
@@ -118,8 +119,9 @@ class TestLogin:
 
         new_session = {}
 
+        user_id = uuid.uuid4()
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
+            find_userid=pretend.call_recorder(lambda username: user_id),
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.find_service = pretend.call_recorder(
@@ -134,7 +136,7 @@ class TestLogin:
         )
 
         pyramid_request.set_property(
-            lambda r: 1234 if with_user else None,
+            lambda r: str(uuid.uuid4()) if with_user else None,
             name="unauthenticated_userid",
         )
 
@@ -161,7 +163,7 @@ class TestLogin:
 
         assert user_service.find_userid.calls == [pretend.call("theuser")]
         assert user_service.update_user.calls == [
-            pretend.call(1, last_login=now),
+            pretend.call(user_id, last_login=now),
         ]
 
         if with_user:
@@ -169,7 +171,7 @@ class TestLogin:
         else:
             assert new_session == {"a": "b", "foo": "bar"}
 
-        assert remember.calls == [pretend.call(pyramid_request, 1)]
+        assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
