@@ -60,7 +60,6 @@
 {% block content %}
 <section class="banner">
   <div class="package-header">
-    <p class="package-header__license">License: <a href="TODO">TODO</a></p>
     <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
     <p class="package-header__pip-instructions">
@@ -70,6 +69,9 @@
         <span class="sr-only">Copy PIP instructions<span>
       </a>
     </p>
+    {% if license %}
+    <p class="package-header__license">License: {{ license }}</p>
+    {% endif %}
   </div>
 </section>
 
