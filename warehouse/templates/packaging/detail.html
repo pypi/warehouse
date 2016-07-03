@@ -114,7 +114,9 @@
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
             <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
+            {# Note: Commented out Dependencies tab.
             <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a>
+            #}
             <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
             <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a>
             {% if files %}
@@ -178,7 +180,9 @@
           {% endif %}
         </div>
 
+
         {# Tab: Dependencies #}
+        {# Note: Commented out Dependencies tab.
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#dependencies">Dependencies</a>
         <div id="dependencies" class="-js-vertical-tab-content vertical-tabs__content">
           <h2>Dependencies (TODO)</h2>
@@ -203,6 +207,8 @@
             {% endfor %}
           </div>
         </div>
+
+        #}
 
         {# Tab: Release History #}
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>
