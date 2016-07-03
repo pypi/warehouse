@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import babel.dates
+import babel.numbers
 import email.utils
 import jinja2
 
@@ -34,3 +35,11 @@ def format_datetime(ctx, *args, **kwargs):
 @jinja2.contextfilter
 def format_rfc822_datetime(ctx, dt, *args, **kwargs):
     return email.utils.formatdate(dt.timestamp(), usegmt=True)
+
+
+@jinja2.contextfilter
+def format_number(ctx, number, locale=None):
+    request = ctx.get("request") or get_current_request()
+    if locale is None:
+        locale = request.locale
+    return babel.numbers.format_number(number, locale=locale)

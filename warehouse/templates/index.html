@@ -45,10 +45,10 @@
 
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{{ num_projects }} Projects</p>
-    <p class="statistics-bar__statistic">{{ num_releases }} Releases</p>
-    <p class="statistics-bar__statistic">{{ num_files }} Files</p>
-    <p class="statistics-bar__statistic">{{ num_users }} Users</p>
+    <p class="statistics-bar__statistic">{{ num_projects|format_number }} Projects</p>
+    <p class="statistics-bar__statistic">{{ num_releases|format_number }} Releases</p>
+    <p class="statistics-bar__statistic">{{ num_files|format_number }} Files</p>
+    <p class="statistics-bar__statistic">{{ num_users|format_number }} Users</p>
   </div>
 </section>
 
