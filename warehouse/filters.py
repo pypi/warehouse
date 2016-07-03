@@ -140,5 +140,5 @@ def format_classifiers(classifiers):
 
 
 def filter_valid_uris(items):
-    """ Filter out a list so that it only contains valid urls """
+    """Filter out a list so that it only contains valid URLs."""
     return [i for i in items if is_valid_uri(i)]
