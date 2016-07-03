@@ -143,4 +143,4 @@ def format_classifiers(classifiers):
 def contains_valid_uris(items):
     """Returns boolean representing whether the input list contains any valid
     URIs"""
-    return any([is_valid_uri(i) for i in items])
+    return any(is_valid_uri(i) for i in items)
