@@ -90,7 +90,7 @@
   </div>
 </section>
 
-{% if release.urls.values()|filter_valid_uris|length > 0 %}
+{% if release.urls.values() | contains_valid_uris %}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">

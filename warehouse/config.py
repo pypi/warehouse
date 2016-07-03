@@ -218,8 +218,8 @@ def configure(settings=None):
     filters.setdefault("readme", "warehouse.filters:readme")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
-    filters.setdefault("filter_valid_uris",
-                       "warehouse.filters:filter_valid_uris")
+    filters.setdefault("contains_valid_uris",
+                       "warehouse.filters:contains_valid_uris")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

@@ -139,6 +139,7 @@ def format_classifiers(classifiers):
     return structured
 
 
-def filter_valid_uris(items):
-    """Filter out a list so that it only contains valid URLs."""
-    return [i for i in items if is_valid_uri(i)]
+def contains_valid_uris(items):
+    """Returns boolean representing whether the input list contains any valid
+    URIs"""
+    return any([is_valid_uri(i) for i in items])
