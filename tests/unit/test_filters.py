@@ -217,7 +217,8 @@ def test_format_classifiers(inp, expected):
             False
         ),
         (
-            ["https://github.com/example/test", "https://pypi.io/"]
+            ["https://github.com/example/test", "https://pypi.io/"],
+            True
         )
     ]
 )
