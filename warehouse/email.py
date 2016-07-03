@@ -17,21 +17,17 @@ from warehouse import celery
 
 
 @celery.task(bind=True, ignore_result=True, acks_late=True)
-def send_email_task(task, request, body, recipients, subject, countdown,
-                    max_retries):
-    try:
-        mailer = get_mailer(request)
+def send_email(task, request, body, recipients, subject):
 
-        message = Message(
-            body=body,
-            recipients=recipients,
-            sender=request.registry.settings['mail.sender'],
-            subject=subject
-        )
+    mailer = get_mailer(request)
+    message = Message(
+        body=body,
+        recipients=recipients,
+        sender=request.registry.settings['mail.sender'],
+        subject=subject
+    )
+    try:
         mailer.send_immediately(message)
     except Exception as exc:
-        task.retry(countdown=countdown, max_retries=max_retries, exc=exc)
+        task.retry(exc=exc)
 
-
-def send_mail(body, recipients, subject, countdown=1, max_retries=3): 
-    send_email_task.delay(body, recipients, subject, countdown, max_retries)
