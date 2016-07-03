@@ -219,6 +219,10 @@ def test_format_classifiers(inp, expected):
         (
             ["https://github.com/example/test", "https://pypi.io/"],
             True
+        ),
+        (
+            ["abcdef", "https://github.com/example/test"],
+            True
         )
     ]
 )
