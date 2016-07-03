@@ -224,9 +224,9 @@ def search(request):
 
     def filter_key(item):
         try:
-            return SEARCH_FILTER_ORDER.index(item)
+            return 0, SEARCH_FILTER_ORDER.index(item[0]), item[0]
         except ValueError:
-            return 100
+            return 1, 0, item[0]
 
     return {
         "page": page,
