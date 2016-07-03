@@ -61,7 +61,7 @@
         <input type="hidden" name="o" value="{{ order }}">
 
         {% for top_level, classifiers in available_filters %}
-          <div class="accordion {{'accordion--closed' if not loop.first }}">
+          <div class="accordion accordion--closed">
             <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
             <div class="accordion__content">
               <div class="checkbox-tree">
