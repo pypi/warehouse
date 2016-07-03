@@ -207,3 +207,19 @@ def test_format_tags(inp, expected):
 )
 def test_format_classifiers(inp, expected):
     assert list(filters.format_classifiers(inp).items()) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            ["abcdef", "ghijkl"],
+            False
+        ),
+        (
+            ["https://github.com/example/test", "https://pypi.io/"]
+        )
+    ]
+)
+def test_contains_valid_uris(inp, expected):
+    assert filters.contains_valid_uris(inp) == expected
