@@ -203,7 +203,7 @@ def search(request):
     )
 
     if page.page_count and page_num > page.page_count:
-        raise HTTPNotFound
+        return HTTPNotFound()
 
     available_filters = collections.defaultdict(list)
 
