@@ -26,6 +26,7 @@ import Analytics from "warehouse/utils/analytics";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
+import PositionWarning from "warehouse/utils/position-warning";
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
@@ -63,4 +64,16 @@ docReady(() => {
       false
     );
   });
+});
+
+// Position sticky bar
+docReady(PositionWarning);
+
+docReady(() => {
+  let resizeTimer;
+  const onResize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(PositionWarning, 200);
+  };
+  window.addEventListener("resize", onResize, false);
 });
