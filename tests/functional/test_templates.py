@@ -39,6 +39,7 @@ def test_templates_for_empty_titles():
         "readme": "warehouse.filters:readme",
         "shorten_number": "warehouse.filters:shorten_number",
         "urlparse": "warehouse.filters:urlparse",
+        "contains_valid_uris": "warehouse.filters:contains_valid_uris"
     })
 
     for dir_, _, files in os.walk(dir_name):
