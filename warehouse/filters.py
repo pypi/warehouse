@@ -29,6 +29,7 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.utils.http import is_valid_uri
 
+
 def _camo_url(camo_url, camo_key, url):
     camo_key = camo_key.encode("utf8")
     url = url.encode("utf8")
