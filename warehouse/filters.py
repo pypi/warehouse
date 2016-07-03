@@ -27,6 +27,7 @@ import readme_renderer.txt
 
 from pyramid.threadlocal import get_current_request
 
+from warehouse.utils.http import is_valid_uri
 
 def _camo_url(camo_url, camo_key, url):
     camo_key = camo_key.encode("utf8")
@@ -136,3 +137,8 @@ def format_classifiers(classifiers):
     structured = collections.OrderedDict(sorted(structured.items()))
 
     return structured
+
+
+def filter_valid_uris(items):
+    """ Filter out a list so that it only contains valid urls """
+    return [i for i in items if is_valid_uri(i)]

@@ -90,6 +90,7 @@
   </div>
 </section>
 
+{% if release.urls.values()|filter_valid_uris|length > 0 %}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">
@@ -106,6 +107,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 <section>
   <div class="site-container">
