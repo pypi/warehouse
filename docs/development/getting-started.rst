@@ -263,6 +263,12 @@ To run all tests, all you have to do is:
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
 
+If you want to run a specific test, you can use the ``T`` variable:
+
+.. code-block:: console
+
+    $ T=tests/unit/i18n/test_filters.py make tests
+
 
 Building documentation
 ======================
