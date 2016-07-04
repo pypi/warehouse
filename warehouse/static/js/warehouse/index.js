@@ -22,12 +22,16 @@ import "babel-polyfill";
 import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
+import Analytics from "warehouse/utils/analytics";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
+
+// Trigger our analytics code.
+docReady(Analytics);
 
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);

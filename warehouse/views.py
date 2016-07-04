@@ -44,6 +44,17 @@ SEARCH_BOOSTS = {
     "keywords": 5,
     "summary": 5,
 }
+SEARCH_FILTER_ORDER = (
+    "Programming Language",
+    "License",
+    "Framework",
+    "Topic",
+    "Intended Audience",
+    "Environment",
+    "Operating System",
+    "Natural Language",
+    "Development Status",
+)
 
 
 @view_config(context=HTTPException)
@@ -117,16 +128,14 @@ def index(request):
     )
     top_projects = (
         request.db.query(release_a)
-               .options(joinedload(release_a.project),
-                        joinedload(release_a.uploader))
+               .options(joinedload(release_a.project))
                .order_by(func.array_idx(project_names, release_a.name))
                .all()
     )
 
     latest_releases = (
         request.db.query(Release)
-                  .options(joinedload(Release.project),
-                           joinedload(Release.uploader))
+                  .options(joinedload(Release.project))
                   .order_by(Release.created.desc())
                   .limit(5)
                   .all()
@@ -205,7 +214,7 @@ def search(request):
     )
 
     if page.page_count and page_num > page.page_count:
-        raise HTTPNotFound
+        return HTTPNotFound()
 
     available_filters = collections.defaultdict(list)
 
@@ -213,11 +222,17 @@ def search(request):
         first, *_ = cls.classifier.split(' :: ')
         available_filters[first].append(cls.classifier)
 
+    def filter_key(item):
+        try:
+            return 0, SEARCH_FILTER_ORDER.index(item[0]), item[0]
+        except ValueError:
+            return 1, 0, item[0]
+
     return {
         "page": page,
         "term": q,
         "order": request.params.get("o", ''),
-        "available_filters": sorted(available_filters.items()),
+        "available_filters": sorted(available_filters.items(), key=filter_key),
         "applied_filters": request.params.getall("c"),
     }
 

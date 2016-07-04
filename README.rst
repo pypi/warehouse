@@ -1,23 +1,9 @@
 Warehouse
 =========
 
-.. image:: https://readthedocs.org/projects/warehouse/badge/?version=latest
-    :target: https://warehouse.readthedocs.io/
-    :alt: Latest Docs
-
-.. image:: https://travis-ci.org/pypa/warehouse.svg?branch=master
-    :target: https://travis-ci.org/pypa/warehouse
-
-.. image:: http://codecov.io/github/pypa/warehouse/coverage.svg?branch=master
-    :target: http://codecov.io/github/pypa/warehouse?branch=master
-
-.. image:: https://requires.io/github/pypa/warehouse/requirements.svg?branch=master
-     :target: https://requires.io/github/pypa/warehouse/requirements/?branch=master
-     :alt: Requirements Status
-
 Warehouse is a next generation Python Package Repository designed to replace
 the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
-(whose source code `lives separately on BitBucket <https://bitbucket.org/pypa/pypi/>`_).
+(whose source code `lives on Github <https://github.com/pypa/pypi-legacy/>`_).
 
 You can find more information in the `documentation`_.
 

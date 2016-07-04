@@ -70,7 +70,7 @@ def includeme(config):
             ],
             "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
-            "script-src": [SELF],
+            "script-src": [SELF, "www.google-analytics.com"],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
     })

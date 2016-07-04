@@ -147,6 +147,7 @@ def configure(settings=None):
     maybe_set(settings, "mail.username", "MAIL_USERNAME")
     maybe_set(settings, "mail.password", "MAIL_PASSWORD")
     maybe_set(settings, "mail.sender", "MAIL_SENDER")
+    maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
@@ -232,6 +233,10 @@ def configure(settings=None):
     filters.setdefault("readme", "warehouse.filters:readme")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
+    filters.setdefault(
+        "contains_valid_uris",
+        "warehouse.filters:contains_valid_uris"
+    )
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
