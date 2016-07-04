@@ -23,7 +23,7 @@ def send_email(task, request, body, recipients, subject):
     message = Message(
         body=body,
         recipients=recipients,
-        sender=request.registry.settings['mail.sender'],
+        sender=request.registry.settings.get('mail.sender'),
         subject=subject
     )
     try:

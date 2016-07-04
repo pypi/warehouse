@@ -19,6 +19,7 @@ psycopg2
 pyblake2
 pyramid>=1.7
 pyramid_jinja2>=2.5
+pyramid_mailer>=0.14.1
 pyramid_multiauth
 pyramid_rpc>=0.7
 pyramid_services
