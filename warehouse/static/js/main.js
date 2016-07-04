@@ -62,18 +62,6 @@ $(document).ready(function() {
     $(".-js-filter-panel").hide();
   });
 
-  // Position Sticky bar
-  function positionWarning(){
-    var height = $(".js-stick-to-top").outerHeight();
-    $("body:has(.js-stick-to-top)").css("paddingTop", height);
-  }
-
-  positionWarning();
-
-  $(window).resize(function(){
-    positionWarning();
-  });
-
   $.timeago.settings.cutoff = 7 * 24 * 60 * 60 * 1000;  // One week
 
   // document.l10n.ready.then(function() {
