@@ -13,12 +13,8 @@
 import celery.exceptions
 import pretend
 import pytest
-import requests
 
-from unittest import mock
 from pyramid_mailer.interfaces import IMailer
-from pyramid_mailer.message import Message
-from zope.interface.verify import verifyClass
 
 from warehouse import email
 
@@ -31,7 +27,7 @@ class TestSendEmail:
             send_immediately=pretend.call_recorder(lambda i: None)
         )
         request = pretend.stub(
-            registry = pretend.stub(
+            registry=pretend.stub(
                 settings=pretend.stub(
                     get=pretend.call_recorder(lambda k: 'SENDER'),
                 ),
@@ -45,7 +41,7 @@ class TestSendEmail:
 
         assert len(mailer.send_immediately.calls) == 1
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
-        assert request.registry.settings.get.calls  == [pretend.call("mail.sender")]
+        assert request.registry.settings.get.calls == [pretend.call("mail.sender")]
 
     def test_send_email_failure(self):
         exc = Exception()
@@ -64,7 +60,7 @@ class TestSendEmail:
 
         mailer, task = Mailer(), Task()
         request = pretend.stub(
-            registry = pretend.stub(
+            registry=pretend.stub(
                 settings=pretend.stub(
                     get=pretend.call_recorder(lambda k: 'SENDER'),
                 ),
@@ -79,6 +75,6 @@ class TestSendEmail:
 
         assert len(mailer.send_immediately.calls) == 1
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
-        assert request.registry.settings.get.calls  == [
+        assert request.registry.settings.get.calls == [
             pretend.call("mail.sender")]
-        assert task.retry.calls  == [pretend.call(exc=exc)]
+        assert task.retry.calls == [pretend.call(exc=exc)]

@@ -30,4 +30,3 @@ def send_email(task, request, body, recipients, subject):
         mailer.send_immediately(message)
     except Exception as exc:
         task.retry(exc=exc)
-
