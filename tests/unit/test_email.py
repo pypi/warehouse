@@ -14,6 +14,7 @@ import celery.exceptions
 import pretend
 import pytest
 
+from pyramid_mailer.message import Message
 from pyramid_mailer.interfaces import IMailer
 
 from warehouse import email
@@ -21,7 +22,14 @@ from warehouse import email
 
 class TestSendEmail:
 
-    def test_send_email_success(self):
+    def test_send_email_success(self, monkeypatch):
+        message_obj = Message()
+
+        def mock_message(*args, **kwargs):
+            return message_obj
+
+        monkeypatch.setattr(email, "Message", mock_message)
+
         task = pretend.stub()
         mailer = pretend.stub(
             send_immediately=pretend.call_recorder(lambda i: None)
@@ -39,13 +47,14 @@ class TestSendEmail:
             task, request, "body", ["recipients"], "subject"
         )
 
-        assert len(mailer.send_immediately.calls) == 1
+        assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
         assert request.registry.settings.get.calls == [
             pretend.call("mail.sender")]
 
-    def test_send_email_failure(self):
+    def test_send_email_failure(self, monkeypatch):
         exc = Exception()
+        message_obj = Message()
 
         class Mailer:
             @staticmethod
@@ -58,6 +67,11 @@ class TestSendEmail:
             @pretend.call_recorder
             def retry(exc):
                 raise celery.exceptions.Retry
+
+        def mock_message(*args, **kwargs):
+            return message_obj
+
+        monkeypatch.setattr(email, "Message", mock_message)
 
         mailer, task = Mailer(), Task()
         request = pretend.stub(
@@ -74,7 +88,7 @@ class TestSendEmail:
                 task, request, "body", ["recipients"], "subject"
             )
 
-        assert len(mailer.send_immediately.calls) == 1
+        assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
         assert request.registry.settings.get.calls == [
             pretend.call("mail.sender")]
