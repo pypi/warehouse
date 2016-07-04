@@ -45,5 +45,6 @@ def test_includeme():
             "format_datetime": "warehouse.i18n.filters:format_datetime",
             "format_rfc822_datetime":
                 "warehouse.i18n.filters:format_rfc822_datetime",
+            "format_number": "warehouse.i18n.filters:format_number",
         },
     }
