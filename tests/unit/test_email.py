@@ -41,7 +41,8 @@ class TestSendEmail:
 
         assert len(mailer.send_immediately.calls) == 1
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
-        assert request.registry.settings.get.calls == [pretend.call("mail.sender")]
+        assert request.registry.settings.get.calls == [
+            pretend.call("mail.sender")]
 
     def test_send_email_failure(self):
         exc = Exception()
