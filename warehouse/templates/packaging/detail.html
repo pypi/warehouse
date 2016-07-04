@@ -62,6 +62,7 @@
   <div class="package-header">
     <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
+    {% if files %}
     <p class="package-header__pip-instructions">
       <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
       <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
@@ -69,6 +70,7 @@
         <span class="sr-only">Copy PIP instructions<span>
       </a>
     </p>
+    {% endif %}
     {% if license %}
     <p class="package-header__license">License: {{ license }}</p>
     {% endif %}
