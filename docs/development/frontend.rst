@@ -6,7 +6,7 @@ CSS handled by SCSS. It uses gulp to process these files and prepare them for
 serving.
 
 All of the static files are located in ``warehouse/static/`` and external
-libraries are found in ``bower.json``.
+libraries are found in ``package.json``.
 
 
 Building
