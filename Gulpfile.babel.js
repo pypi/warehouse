@@ -180,7 +180,10 @@ gulp.task("dist:manifest", () => {
 
 gulp.task("dist:compress:gz", () => {
   return gulp.src(path.join(distPath, "**", "*"))
-              .pipe(gzip({ gzipOptions: { level: 9, memLevel: 9 }}))
+              .pipe(gzip({
+                skipGrowingFiles: true,
+                gzipOptions: { level: 9, memLevel: 9 },
+              }))
               .pipe(gulp.dest(distPath));
 });
 
