@@ -98,7 +98,9 @@
           <li>
             <h3>About PyPI</h3>
           </li>
-          <li><a href="TODO">Status: Operational</a></li>
+          {% if request.registry.settings.get("statuspage.url") %}
+          <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
+          {% endif %}
           <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
