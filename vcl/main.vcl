@@ -14,6 +14,26 @@ sub vcl_recv {
     # files in S3, and in general it's just not needed.
     set req.url = regsub(req.url, "#.*$", "");
 
+    # Fastly does some normalization of the Accept-Encoding header so that it
+    # reduces the number of cached copies (when served with the common,
+    # Vary: Accept-Encoding) that are cached for any one URL. This makes a lot
+    # of sense, except for the fact that we want to enable brotli compression
+    # for our static files. Thus we need to work around the normalized encoding
+    # in a way that still minimizes cached copies, but which will allow our
+    # static files to be served using brotli.
+    if (req.url ~ "^/static/" && req.http.Fastly-Orig-Accept-Encoding) {
+        if (req.http.User-Agent ~ "MSIE 6") {
+            # For that 0.3% of stubborn users out there
+            unset req.http.Accept-Encoding;
+        } elsif (req.http.Fastly-Orig-Accept-Encoding ~ "br") {
+            set req.http.Accept-Encoding = "br";
+        } elsif (req.http.Fastly-Orig-Accept-Encoding ~ "gzip") {
+            set req.http.Accept-Encoding = "gzip";
+        } else {
+            unset req.http.Accept-Encoding;
+        }
+    }
+
     # Most of the URLs in Warehouse do not support or require any sort of query
     # parameter. If we strip these at the edge then we'll increase our cache
     # efficiency when they won't otherwise change the output of the pages.
