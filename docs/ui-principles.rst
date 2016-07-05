@@ -41,8 +41,8 @@ the site easier to use for everybody. At a minimum:
 - Ensure that keyboard users can easily navigate each page. It is particularly
   important that the ``outline`` is not removed from links.
 - Consider color blind users: if using color to convey meaning (e.g. red for an
-  error) always use an additional indicator (e.g. an appropriate icon) to convey
-  the same meaning.
+  error) always use an additional indicator (e.g. an appropriate icon) to
+  convey the same meaning.
 
 
 3. Provide Help
@@ -71,9 +71,9 @@ of your text <http://www.webpagefx.com/tools/read-able/>`_.
 Be consistent, particularly when it comes to domain specific words. Use this
 glossary as a guide:
 
-=============== ================================================================
+=============== ===============================================================
  Term           Definition
-=============== ================================================================
+=============== ===============================================================
  Project        A collection of releases and files, and information about them.
                 Projects on Warehouse are made and shared by members of the
                 Python community so others can use them.
@@ -94,4 +94,4 @@ glossary as a guide:
                 This information could be a name of a person, an organization,
                 or something else altogether. This information is not linked
                 to a user on Warehouse.
-=============== ================================================================
+=============== ===============================================================
