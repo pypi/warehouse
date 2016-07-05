@@ -365,7 +365,7 @@ class TestSearch:
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
 
-    def test_raises_404_with_pagenum_too_high(self, monkeypatch, db_request):
+    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request):
         params = MultiDict({"page": 15})
         db_request.params = params
 
@@ -380,8 +380,8 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        with pytest.raises(HTTPNotFound):
-            search(db_request)
+        resp = search(db_request)
+        assert isinstance(resp, HTTPNotFound)
 
         assert page_cls.calls == [
             pretend.call(es_query, url_maker=url_maker, page=15 or 1),

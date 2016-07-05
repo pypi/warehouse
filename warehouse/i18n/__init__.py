@@ -35,3 +35,7 @@ def includeme(config):
         "format_rfc822_datetime",
         "warehouse.i18n.filters:format_rfc822_datetime",
     )
+    filters.setdefault(
+        "format_number",
+        "warehouse.i18n.filters:format_number",
+    )

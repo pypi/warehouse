@@ -45,10 +45,10 @@
 
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{{ num_projects }} Projects</p>
-    <p class="statistics-bar__statistic">{{ num_releases }} Releases</p>
-    <p class="statistics-bar__statistic">{{ num_files }} Files</p>
-    <p class="statistics-bar__statistic">{{ num_users }} Users</p>
+    <p class="statistics-bar__statistic">{{ num_projects|format_number }} Projects</p>
+    <p class="statistics-bar__statistic">{{ num_releases|format_number }} Releases</p>
+    <p class="statistics-bar__statistic">{{ num_files|format_number }} Files</p>
+    <p class="statistics-bar__statistic">{{ num_users|format_number }} Users</p>
   </div>
 </section>
 
@@ -59,8 +59,14 @@
     </div>
     <div class="about-pypi__text">
       <p class="lede-paragraph">The Python Package Index (PyPI) is a repository of software for the Python programming language.</p>
-      <p>PyPI helps you find and install third-party software developed and shared by other members of the Python community. <a href="TODO">Learn about installing packages</a>.</p>
-      <p>Package authors use PyPI to distribute their software.  <a href="TODO">Learn how to package your Python code for PyPI</a>.</p>
+      <p>
+        PyPI helps you find and install third-party software developed and shared by other members of the Python community.
+        <a href="https://packaging.python.org/installing/">Learn about installing packages</a>.
+      </p>
+      <p>
+        Package authors use PyPI to distribute their software.
+        <a href="https://packaging.python.org/distributing/">Learn how to package your Python code for PyPI</a>.
+      </p>
     </div>
   </div>
 </section>
@@ -77,7 +83,9 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
+      {#
       <a class="button" href="TODO">Show More</a>
+      #}
     </div>
     <div class="col-half">
       <div class="heading-wsubtitle">
@@ -89,7 +97,9 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
+      {#
       <a class="button" href="TODO">Show More</a>
+      #}
     </div>
   </div>
 </section>

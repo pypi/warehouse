@@ -16,7 +16,7 @@ Code
 ----
 
 When in doubt, refer to :pep:`8` for Python code. You can check if your code
-meets our automated requirements by running ``tox -e pep8`` against it.
+meets our automated requirements by running ``make lint`` against it.
 
 `Write comments as complete sentences.`_
 
@@ -55,7 +55,7 @@ Documentation
 
 Important information should be documented with prose in the ``docs`` section.
 To ensure it builds and passes `doc8`_ style checks you can run
-``tox -e docs``.
+``make docs`` and ``make lint`` respectively.
 
 .. _`Write comments as complete sentences.`: http://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists

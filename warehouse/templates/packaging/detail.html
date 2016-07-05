@@ -60,9 +60,9 @@
 {% block content %}
 <section class="banner">
   <div class="package-header">
-    <p class="package-header__license">License: <a href="TODO">TODO</a></p>
     <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
+    {% if files %}
     <p class="package-header__pip-instructions">
       <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
       <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
@@ -70,6 +70,10 @@
         <span class="sr-only">Copy PIP instructions<span>
       </a>
     </p>
+    {% endif %}
+    {% if license %}
+    <p class="package-header__license">License: {{ license }}</p>
+    {% endif %}
   </div>
 </section>
 
@@ -88,6 +92,7 @@
   </div>
 </section>
 
+{% if release.urls.values() | contains_valid_uris %}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">
@@ -104,6 +109,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 <section>
   <div class="site-container">
@@ -112,7 +118,7 @@
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
             <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
             <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
             <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a>
             {% if files %}
@@ -177,6 +183,7 @@
         </div>
 
         {# Tab: Dependencies #}
+        {# Note: Commented out dependencies tab
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#dependencies">Dependencies</a>
         <div id="dependencies" class="-js-vertical-tab-content vertical-tabs__content">
           <h2>Dependencies (TODO)</h2>
@@ -201,6 +208,7 @@
             {% endfor %}
           </div>
         </div>
+        #}
 
         {# Tab: Release History #}
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>

@@ -30,14 +30,7 @@
   }
 
   &__license {
-    padding-top: $spacing-unit / 2;
-    float: right;
     font-style: italic;
-
-    @media only screen and (max-width: $tablet){
-      padding-top: 0;
-      float: none;
-    }
   }
 
   &__name {
@@ -52,7 +45,7 @@
 
   &__pip-instructions {
     @include clearfix;
-    margin: 10px 0 ($spacing-unit / 2);
+    margin: 10px 0 15px;
     padding-bottom: 0;
 
     span {

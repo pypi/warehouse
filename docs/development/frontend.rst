@@ -6,7 +6,7 @@ CSS handled by SCSS. It uses gulp to process these files and prepare them for
 serving.
 
 All of the static files are located in ``warehouse/static/`` and external
-libraries are found in ``bower.json``.
+libraries are found in ``package.json``.
 
 
 Building
@@ -39,6 +39,11 @@ Warehouse follows the
 `Google HTML style guide <https://google.github.io/styleguide/htmlcssguide.xml>`_,
 which is enforced via linting with
 `HTML Linter <https://github.com/deezer/html-linter>`_.
+
+Exceptions:
+
+- Protocols can be included in links - with ``https`` preferred.
+- All HTML tags should be closed.
 
 One exception is that we allow both dashes and underscores in our class names,
 as we follow the

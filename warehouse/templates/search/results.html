@@ -61,7 +61,7 @@
         <input type="hidden" name="o" value="{{ order }}">
 
         {% for top_level, classifiers in available_filters %}
-          <div class="accordion {{'accordion--closed' if not loop.first }}">
+          <div class="accordion accordion--closed">
             <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
             <div class="accordion__content">
               <div class="checkbox-tree">
@@ -87,20 +87,20 @@
         <div>
         {% if term %}
           <p>
-            <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+            <strong>{{ page.item_count|format_number }}</strong> projects match '<em>{{ term }}</em>'.
             {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
               {{ suggestion_link(page.collection.best_guess) }}
             {% endif %}
           </p>
         {% else %}
         <p>
-          <strong>{{ page.item_count }}</strong> projects.
+          <strong>{{ page.item_count|format_number }}</strong> projects.
         </p>
         {% endif %}
         </div>
           <div>
             <input id="search" type="hidden" name="q" value="{{ term }}">
-            <label for="order">Order packages by &nbsp;</label>
+            <label for="order">Order by &nbsp;</label>
             <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "") }}
               {{ search_option("Date Last Updated", "-created") }}
@@ -135,7 +135,7 @@
         {% else %}
           <div class="callout-block">
             <p>
-              There were no packages matching '<em>{{term}}</em>'.
+              There were no results for '<em>{{term}}</em>'.
               {% if page.collection.best_guess %}
                 {{ suggestion_link(page.collection.best_guess) }}
               {% endif %}
