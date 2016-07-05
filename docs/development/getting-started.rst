@@ -15,7 +15,6 @@ Quickstart for Developers with Docker experience
 
     $ git clone git@github.com:pypa/warehouse.git
     $ cd warehouse
-    $ docker start
     $ make serve
     $ make initdb
 
