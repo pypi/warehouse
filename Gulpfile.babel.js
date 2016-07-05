@@ -200,7 +200,7 @@ gulp.task("dist:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({ mode: 0, quality: 11 }))
+              .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
               .pipe(gulp.dest(distPath));
 });
 
@@ -215,7 +215,7 @@ gulp.task("dist:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({ mode: 1, quality: 11 }))
+              .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
               .pipe(gulp.dest(distPath));
 });
 
