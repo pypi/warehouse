@@ -57,7 +57,13 @@ def includeme(config):
         "csp": {
             "base-uri": [SELF],
             "block-all-mixed-content": [],
-            "connect-src": [SELF, config.registry.settings["statuspage.url"]],
+            "connect-src": [
+                item for item in [
+                    SELF,
+                    config.registry.settings.get("statuspage.url"),
+                ]
+                if item
+            ],
             "default-src": [NONE],
             "font-src": [SELF, "fonts.gstatic.com"],
             "form-action": [SELF],
