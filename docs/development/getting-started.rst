@@ -253,12 +253,6 @@ To run all tests, all you have to do is:
 .. code-block:: console
 
     $ make tests
-    ...
-      py34: commands succeeded
-      docs: commands succeeded
-      pep8: commands succeeded
-      packaging: commands succeeded
-      congratulations :)
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
@@ -281,9 +275,6 @@ Use `make` to build the documentation. For example:
 .. code-block:: console
 
     $ make docs
-    ...
-    docs: commands succeeded
-    congratulations :)
 
 The HTML documentation index can now be found at
 ``docs/_build/html/index.html``.
