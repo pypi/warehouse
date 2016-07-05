@@ -9,6 +9,7 @@ Contents:
    development/index
    application
    api-reference/index
+   ui-principles
    security
 
 Warehouse is a new code base that implements a Python package repository.
