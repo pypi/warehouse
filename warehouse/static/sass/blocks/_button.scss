@@ -74,7 +74,7 @@
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
-    z-index: index($z-index-scale, 'button');
+    z-index: index($z-index-scale, 'highlight-button');
 
     &:hover {
       background-color: darken($brand-color, 2);
