@@ -45,7 +45,7 @@
 
   &__pip-instructions {
     @include clearfix;
-    margin: 10px 0 15px;
+    margin: 10px 0 ($spacing-unit / 2);
     padding-bottom: 0;
 
     span {
