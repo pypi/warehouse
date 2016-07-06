@@ -24,7 +24,7 @@ def test_templates_for_empty_titles():
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
-        extensions=[],
+        extensions=["jinja2.ext.i18n"],
         cache_size=0,
     )
 

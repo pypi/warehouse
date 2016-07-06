@@ -178,7 +178,15 @@
         {% else %}
           <div class="callout-block">
             <p>
-              There were no results for '<em>{{term}}</em>'.
+              {% if term %}
+                There were no results for '<em>{{ term }}</em>'.
+              {% elif applied_filters %}
+                {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
+                  There were no results for '<em>{{ filters }}</em>' filter.
+                {% pluralize %}
+                  There were no results for '<em>{{ filters }}</em>' filters.
+                {% endtrans %}
+              {% endif %}
               {% if page.collection.best_guess %}
                 {{ suggestion_link(page.collection.best_guess) }}
               {% endif %}
