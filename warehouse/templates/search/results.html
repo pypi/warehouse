@@ -103,8 +103,9 @@
         <input id="search" type="hidden" name="q" value="{{ term }}">
         <input type="hidden" name="o" value="{{ order }}">
 
+        {% set applied_filters_str = applied_filters|join(' ') %}
         {% for top_level, classifiers in available_filters %}
-          <div class="accordion accordion--closed">
+          <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
             <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
             <div class="accordion__content">
               <div class="checkbox-tree">
