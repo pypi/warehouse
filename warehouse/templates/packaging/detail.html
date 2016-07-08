@@ -134,13 +134,6 @@
             {% endif %}
         </div>
 
-        <div class="sidebar-section sidebar-section--maintainers">
-          <h3 class="sidebar-section__title">Maintainers</h3>
-          {% for maintainer in maintainers %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=100) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
-          {% endfor %}
-        </div>
-
         {% if release.has_meta %}
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Meta</h3>
@@ -165,6 +158,13 @@
           {% endif %}
         </div>
         {% endif %}
+
+        <div class="sidebar-section sidebar-section--maintainers">
+          <h3 class="sidebar-section__title">Maintainers</h3>
+          {% for maintainer in maintainers %}
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
+          {% endfor %}
+        </div>
 
         {% if release.classifiers %}
         <div class="sidebar-section classifiers">
