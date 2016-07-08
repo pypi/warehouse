@@ -107,6 +107,20 @@ class TestRelease:
         release = DBReleaseFactory.create(keywords="foo, bar")
         assert release.has_meta
 
+    def test_has_meta_true_with_author(self, db_session):
+        release = DBReleaseFactory.create(author="Batman")
+        assert release.has_meta
+
+        release = DBReleaseFactory.create(author_email="wayne@gotham.ny")
+        assert release.has_meta
+
+    def test_has_meta_true_with_maintainer(self, db_session):
+        release = DBReleaseFactory.create(maintainer="Spiderman")
+        assert release.has_meta
+
+        release = DBReleaseFactory.create(maintainer_email="peter@parker.mrvl")
+        assert release.has_meta
+
     def test_has_meta_false(self, db_session):
         release = DBReleaseFactory.create()
         assert not release.has_meta
