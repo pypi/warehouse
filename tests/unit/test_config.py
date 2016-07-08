@@ -247,6 +247,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": None,
         "site.name": "Warehouse",
+        "mail.ssl": True
     }
 
     if environment == config.Environment.development:
@@ -302,6 +303,15 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
+        ] + [
+            pretend.call(x) for x in [
+                (
+                    "pyramid_mailer.debug"
+                    if environment == config.Environment.development
+                    else "pyramid_mailer"
+                ),
+            ]
+        ] + [
             pretend.call("pyramid_tm"),
             pretend.call("pyramid_services"),
             pretend.call("pyramid_rpc.xmlrpc"),
