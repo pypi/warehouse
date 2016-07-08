@@ -28,6 +28,13 @@ import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
 import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
+import timeAgo from "warehouse/utils/timeago";
+
+// timestamps for project histories set for 1 minute intervals
+docReady(() => {
+  var timeElements = document.querySelectorAll("time");
+  if (timeElements.length > 0) setInterval(timeAgo, 1000 * 60, timeElements);
+});
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
