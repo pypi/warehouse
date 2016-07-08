@@ -30,6 +30,7 @@ import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
+import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 
 // timestamps for project histories set for 1 minute intervals
 docReady(() => {
@@ -44,6 +45,9 @@ docReady(()=> {
   const styleProps = getComputedStyle(mobileBtn, null);
   if (headingBtn) projectTabs(styleProps.getPropertyValue("display") === "block");
 });
+
+// toggle search panel behavior
+docReady(searchFilterToggle);
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
