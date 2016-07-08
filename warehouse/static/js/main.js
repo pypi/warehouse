@@ -13,41 +13,6 @@ $(document).ready(function() {
     $(this).closest(".accordion").toggleClass("accordion--closed");
   });
 
-  function setTab(tab) {
-    if (tab) {
-      $(".-js-vertical-tab-content").hide();
-      tab.show();
-      $(".vertical-tabs__tab--is-active").removeClass("vertical-tabs__tab--is-active");
-      $("a[href^='#"+tab[0].id+"']").addClass("vertical-tabs__tab--is-active");
-    }
-  }
-
-  function getTab(selector) {
-    var tab = $(".-js-vertical-tab-content" + selector);
-    return (selector && tab.length) ? tab : null;
-  }
-
-  window.onhashchange = function() {
-    setTab(getTab(location.hash) || getTab(":first"));
-  };
-
-  // Set the tab if the hash is valid, otherwise show the first tab
-  setTab(getTab(location.hash) || getTab(":first"));
-
-  // If in tab mode
-  $(".-js-vertical-tab").click(function(event) {
-    event.preventDefault();
-    history.pushState(null, "", $(this).attr("href"));
-    setTab(getTab(location.hash));
-  });
-
-  // If in accordion mode
-  $(".-js-vertical-tab-mobile-heading").click(function(event) {
-    event.preventDefault();
-    history.pushState(null, "", $(this).attr("href"));
-    setTab(getTab(location.hash));
-  });
-
   // Launch filter popover on mobile
   $("body").on("click", ".-js-add-filter", function(e){
     e.preventDefault();
