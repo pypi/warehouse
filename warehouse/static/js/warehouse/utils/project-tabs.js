@@ -5,7 +5,7 @@ export default (inMobileState) => {
   const toggleTab = (clickedBtn, event) => {
     if (event) {
       event.preventDefault();
-      history.pushState(null, "", clickedBtn.href);
+      history.pushState(null, "", clickedBtn.getAttribute("href"));
     }
     let id = clickedBtn.getAttribute("href").replace("#", "");
     // toggle display setting for the content related to the button
