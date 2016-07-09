@@ -3,4 +3,3 @@
 //       this will be removed. New code should go in
 //       warehouse/static/js/warehouse and not here.
 
-

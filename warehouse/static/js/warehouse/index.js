@@ -47,7 +47,9 @@ docReady(()=> {
 });
 
 // toggle search panel behavior
-docReady(searchFilterToggle);
+docReady(() => {
+  if (document.querySelector(".-js-add-filter")) searchFilterToggle();
+});
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
