@@ -43,104 +43,99 @@
 
 
 {% macro project_snippet(release) -%}
-
-{% set version = release.version %}
-{% set uploader_username = release.uploader.username %}
-{% set uploader_name = release.uploader.name|default(uploader_username, true) %}
-
 <div class="package-snippet">
-  <h3 class="title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
-
-  <p class="meta" {{ l20n("packageSnippetMeta", version=version, user=uploader_name) }}>
-    <span class="version">{{ version }}</span> uploaded by <a href="{{ request.route_path('accounts.profile', username=uploader_username) }}">{{ uploader_name }}</a>
+  <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
+  <p class="package-snippet__meta">
+    <span class="package-snippet__version">{{ release.version }}</span>
   </p>
-
-  <p class="description">{{ release.summary }}</p>
+  <p class="package-snippet__description">{{ release.summary }}</p>
 </div>
 {%- endmacro %}
 
 
 {% block title %}{{ release.project.name }}{% endblock %}
 
-{% block content %}
-<section class="banner-block ">
-  <div class="package-header">
-    <p class="license" {{ l20n("projectLicense", license="TODO") }}>License: <a href="TODO">TODO</a></p>
-    <h1>{{ release.project.name }} {{ release.version }}</h1>
-    <p class="description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
+{% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
-    <p class="pip-instructions">
+{% block content %}
+<section class="banner">
+  <div class="package-header">
+    <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
+    <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
+    {% if files %}
+    <p class="package-header__pip-instructions">
       <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
       <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
         <i class="fa fa-copy"></i>
         <span class="sr-only">Copy PIP instructions<span>
       </a>
     </p>
-    <p class="help-link"><a href="#" {{ l20n("howToInstall") }}>How do I install this?</a></p>
+    {% endif %}
+    {% if license %}
+    <p class="package-header__license">License: {{ license }}</p>
+    {% endif %}
   </div>
 </section>
 
 <section class="package-status">
   <div class="site-container">
     {% if release.version != all_releases[0].version %}
-    <a class="status-badge -bad" {{ l20n("newerVersionAvailable", version=all_releases[0].version) }} href="{{ request.route_path('packaging.release', name=release.project.name, version=all_releases[0].version) }}">Newer version available ({{ all_releases[0].version }})</a>
+    <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.release', name=release.project.name, version=all_releases[0].version) }}">Newer version available ({{ all_releases[0].version }})</a>
     {% else %}
-    <a class="status-badge -good" {{ l20n("latestVersion") }} href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">Latest Version</a>
+    <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">Latest Version</a>
     {% endif %}
 
     {# TODO: We need to actually make these do something. #}
-    <a class="status-badge -unknown" {{ l20n("depStatusUnknown") }} href="#">Dependencies status unknown</a>
-    <a class="status-badge -unknown" {{ l20n("testStatusUnknown") }} href="#">Test status unknown</a>
-    <a class="status-badge -unknown" {{ l20n("testCoverageUnknown") }} href="#">Test coverage unknown</a>
+    <a class="status-badge status-badge--unknown" href="#">Dependencies status unknown</a>
+    <a class="status-badge status-badge--unknown" href="#">Test status unknown</a>
+    <a class="status-badge status-badge--unknown" href="#">Test coverage unknown</a>
   </div>
 </section>
 
-<section class="horizontal-section -grey -thin">
+{% if release.urls.values() | contains_valid_uris %}
+<section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="package-links">
-      <nav class="horizontal-menu">
+      <nav class="horizontal-menu package-links__horizontal-menu">
         {% for name, url in release.urls.items() %}
         {% if is_valid_uri(url) %}
-        <a class="link" href="{{ url }}" rel="nofollow">
+        <a class="horizontal-menu__link horizontal-menu__link--with-icon" href="{{ url }}" rel="nofollow">
           {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
           {{ url_icon(name, url) }}{{ name }}
         </a>
         {% endif %}
         {% endfor %}
       </nav>
-      <p class="author">
-        <span {{ l20n("releasedAgoBy", when=release.created|format_date(), by=release.uploader.name|default(release.uploader.username, true)) }}>Uploaded <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">{{ release.created|format_date() }}</time> by <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}">{{ release.uploader.name|default(release.uploader.username, true) }}</a></span>
-        <a href="{{ request.route_path('accounts.profile', username=release.uploader.username) }}"><img src="{{ gravatar(release.uploader.email, size=40) }}" class="avatar" height="40" width="40" alt="{{ release.uploader.name|default(release.uploader.username, true) }}"></a>
-      </p>
     </div>
   </div>
 </section>
+{% endif %}
 
 <section>
   <div class="site-container">
-    <div class="vertical-tabs-container">
-      <div class="vertical-tabs">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 {{ l20n("projectNavigation") }}>Navigation</h3>
-            <a class="-js-vertical-tab vertical-tab is-active" href="#description" {{ l20n("projectDescription") }}>Package Description</a>
-            <a class="-js-vertical-tab vertical-tab" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
-            <a class="-js-vertical-tab vertical-tab" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
-            <a class="-js-vertical-tab vertical-tab" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
+          <h3 class="sidebar-section__title">Navigation</h3>
+            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
+            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
+            <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a>
             {% if files %}
-              <a class="-js-vertical-tab vertical-tab" href="#files" {{ l20n("projectDownloads") }}>Download Files</a>
+              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
             {% endif %}
         </div>
 
-        <div class="sidebar-section maintainers">
-          <h3 {{ l20n("projectMaintainers") }}>Maintainers</h3>
+        <div class="sidebar-section sidebar-section--maintainers">
+          <h3 class="sidebar-section__title">Maintainers</h3>
           {% for maintainer in maintainers %}
             <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
           {% endfor %}
         </div>
 
         {% if release.has_meta %}
-        <div class="sidebar-section meta">
-          <h3 {{ l20n("projectMeta") }}>Meta</h3>
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Meta</h3>
           {% if release.keywords %}
           <p class="tags"><i class="fa fa-tags"></i>
             {% for keyword in release.keywords | format_tags %}
@@ -152,14 +147,32 @@
           {% endif %}
         </div>
         {% endif %}
+
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3>Classifiers</h3>
+          <dl>
+            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+            <dt>{{ classifier_head }}</dt>
+            {% for classifier in classifier_tail %}
+            <dd>
+            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+              {{ classifier }}
+            </a>
+            </dd>
+            {% endfor %}
+            {% endfor %}
+          </dl>
+        </div>
+        {% endif %}
       </div>
 
-      <div class="vertical-tab-content-container">
+      <div class="vertical-tabs__panel">
         {# Tab: Project Description #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading is-active" href="#description" {{ l20n("projectDescription") }}>Project Description</a>
-        <div id="description" class="js-vertical-tab-content vertical-tab-content">
+        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description">Project Description</a>
+        <div id="description" class="-js-vertical-tab-content vertical-tabs__content">
           {% if release.description %}
-          <div class="release-description">
+          <div class="project-description">
             {{ release.description|readme(format="rst") }}
           </div>
           {% else %}
@@ -170,11 +183,12 @@
         </div>
 
         {# Tab: Dependencies #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#dependencies" {{ l20n("projectDependencies") }}>Dependencies</a>
-        <div id="dependencies" class="js-vertical-tab-content vertical-tab-content">
-          <h2 {{ l20n("numberProjectDependencies", number="TODO") }}>Dependencies (TODO)</h2>
-          <p {{ l20n("projectDependenciesInfo", name=release.project.name) }}>
-            To run <em>{{ release.project.name }}</em>, you will need to have the following packages installed:
+        {# Note: Commented out dependencies tab
+        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#dependencies">Dependencies</a>
+        <div id="dependencies" class="-js-vertical-tab-content vertical-tabs__content">
+          <h2>Dependencies (TODO)</h2>
+          <p>
+            To run <em>{{ release.project.name }}</em>, you will need to have the following projects installed:
           </p>
 
           <div class="package-list">
@@ -183,9 +197,9 @@
             {% endfor %}
           </div>
 
-          <h2 class="no-top-padding" {{ l20n("numberProjectReverseDependencies", number="TODO") }}>Reverse Dependencies (TODO)</h2>
-          <p {{ l20n("projectReverseDependenciesInfo", name=release.project.name) }}>
-            The following packages rely on <em>{{ release.project.name }}</em>:
+          <h2 class="no-top-padding">Reverse Dependencies (TODO)</h2>
+          <p>
+            The following projects rely on <em>{{ release.project.name }}</em>:
           </p>
 
           <div class="package-list">
@@ -194,49 +208,50 @@
             {% endfor %}
           </div>
         </div>
+        #}
 
-        {# Tab: Version History & Changelog #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#history" {{ l20n("projectHistory") }}>Version History &amp; Changelog</a>
-        <div id="history" class="js-vertical-tab-content vertical-tab-content">
-          <div class="split-layout -table">
-            <h2 {{ l20n("projectHistory") }}>Version History &amp; Changelog</h2>
+        {# Tab: Release History #}
+        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>
+        <div id="history" class="-js-vertical-tab-content vertical-tabs__content">
+          <div class="split-layout split-layout--table">
+            <h2>Release History</h2>
             <div>
-              <a class="wh-button -js-toggle" {{ l20n("expandAll") }} href="#">Expand All</a>
+              <a class="button -js-toggle" href="#">Expand All</a>
             </div>
           </div>
 
-          <section class="version-history-graphic">
+          <section class="release-timeline">
             {% for hrelease in all_releases %}
             {% set is_current = (hrelease.version == release.version) %}
-            <div class="history-section{{ ' latest' if loop.first else ' oldest' if loop.last }}{{ ' current' if is_current }}">
-              <div class="version">
+            <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
+              <div class="release__meta">
                 {% if is_current %}
-                <p>{{ hrelease.version }}</p>
-                <span class="highlight-badge" {{ l20n("thisVersion") }}>This version</span>
+                <p class="release__version">{{ hrelease.version }}</p>
+                <span class="badge">This version</span>
                 {% else %}
-                <p><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}
 
-                <p class="version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
+                <p class="release__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
               </div>
 
-              <div class="graphic">
+              <div class="release__graphic">
                 {% if loop.length > 1 %}
-                <div class="line"></div>
+                <div class="release__line"></div>
                 {% endif %}
                 {% if is_current %}
-                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
+                <img class="release__node" alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
                 {% else %}
-                <img class="history-node" {{ l20n("historyNode") }} alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
+                <img class="release__node" alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
                 {% endif %}
               </div>
 
-              <div class="changelog">
-                <div class="card">
+              <div class="release__changelog">
+                <div class="card release__card">
                   <p>TODO: Figure out how to actually get changelog content.
                   <p>Changelog content for this version goes here.</p>
                   <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <p><a href="clicking-here-expands-changelog"><i class="fa fa-plus-square-o"></i> <span {{ l20n("showMore") }}>Show More</span></a></p>
+                  <p><a href="clicking-here-expands-changelog"><i class="fa fa-plus-square-o"></i> <span>Show More</span></a></p>
                 </div>
               </div>
             </div>
@@ -245,47 +260,47 @@
         </div>
 
         {# Tab: Statistics #}
-        <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#statistics" {{ l20n("projectDownloadStats") }}>Download Statistics</a>
-        <div id="statistics" class="js-vertical-tab-content vertical-tab-content">
-          <h2 {{ l20n("projectDownloadStats") }}>Download Statistics</h2>
-          <div class="button-set">
-            <a class="wh-button -highlight" href="#" {{ l20n("allVersions") }}>All versions</a>
-            <a class="wh-button" href="#" {{ l20n("thisVersionOnly", version=release.version) }}>This version only ({{ release.version }})</a>
+        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#statistics">Download Statistics</a>
+        <div id="statistics" class="-js-vertical-tab-content vertical-tabs__content">
+          <h2>Download Statistics</h2>
+          <div class="button-group">
+            <a class="button-group__button button button--highlight" href="#">All versions</a>
+            <a class="button-group__button button" href="#">This version only ({{ release.version }})</a>
           </div>
 
           <div class="download-graph">
-            <div class="download-overview">
-              <p><strong>TODO:</strong> All of these numbers</p>
+            <div class="download-graph__overview">
+              <!--TODO -->
               <p><strong>Today:</strong> 34</p>
               <p><strong>This Week:</strong> 54</p>
               <p><strong>This Month: </strong> 5,434</p>
               <p><strong>This Year: </strong> 46,339</p>
               <p><strong>All Time:</strong> 2,342,323</p>
             </div>
-            <p>TODO: Bar chart here showing downloads over time</p>
+            <div class="download-graph__graph">TODO: Bar chart here showing downloads over time</div>
           </div>
         </div>
 
         {% if files %}
           {# Tab: Downloads #}
-          <a class="-js-vertical-tab-accordion-heading vertical-tab-accordion-heading" href="#files" {{ l20n("projectDownloads") }}>Download Files</a>
-          <div id="files" class="js-vertical-tab-content vertical-tab-content">
-            <h2 {{ l20n("projectDownloadsTitle") }}>Download Files</h2>
+          <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#files">Download Files</a>
+          <div id="files" class="-js-vertical-tab-content vertical-tabs__content">
+            <h2>Download Files</h2>
             <p>TODO: Brief introduction on what you do with files - including link to relevant help section.</p>
 
             <table class="downloads-table">
               <thead>
                 <tr>
-                  <th class="filename" {{ l20n("fileName") }}>
-                    File Name &amp Checksum
-                    <a href="TODO">
+                  <th class="downloads-table__filename">
+                    File Name &amp; Checksum
+                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode">
                       <i class="fa fa-question-circle"></i>
                       <span class="sr-only">SHA256 Checksum Help</span>
                     </a>
                   </th>
-                  <th class="version" {{ l20n("version") }}>Version</th>
-                  <th class="type" {{ l20n("fileType") }}>File Type</th>
-                  <th class="upload-date" {{ l20n("uploadDate") }}>Upload Date</th>
+                  <th class="downloads-table__version">Version</th>
+                  <th class="downloads-table__type">File Type</th>
+                  <th class="downloads-table__upload-date">Upload Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -294,7 +309,7 @@
                   <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="-js-copy-sha256-link sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                    <a class="-js-copy-sha256-link downloads-table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256

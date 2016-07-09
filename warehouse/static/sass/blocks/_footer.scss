@@ -1,0 +1,98 @@
+/*
+  Footer:
+
+  <div class="footer">
+    <div class="footer__icon">
+      // footer icon image goes here
+    </div>
+    <div class="footer__menus"> // menu wrapper
+      <ul class="footer__menu"> // 3 of these!
+        <li><h3>Menu Title</h3></li>
+        <li><a>Menu Link</a></li>
+      </ul>
+    </div>
+
+    <hr class="footer__divider">
+
+    <div class="footer__text">
+      // copyright, disclaimers,etc.
+    </div>
+  </div>
+*/
+
+.footer {
+  $footer-faded-color: transparentize($white, 0.3);
+
+  background-color: lighten($brand-color, 2);
+  color: $white;
+  padding: 60px 0;
+  width: 100%;
+
+  @media only screen and (max-width: $mobile){
+    padding-top: 40px 0;
+  }
+
+  &__logo {
+    margin-bottom: $spacing-unit;
+    text-align: center;
+  }
+
+  &__menus {
+    @include display(flex);
+    @include justify-content(center);
+    @include flex-wrap(wrap);
+    margin-bottom: $spacing-unit;
+
+    @media only screen and (max-width: $mobile){
+      margin-bottom: 10px;
+    }
+  }
+
+  &__menu {
+    @include flex-basis(220px);
+    @include flex-shrink(0);
+    margin: 0 ($spacing-unit / 2) 40px ($spacing-unit / 2);
+    padding: 0;
+
+    li {
+      padding: 2px 0;
+      list-style: none;
+      text-align: center;
+
+      a {
+        color: $footer-faded-color;
+        text-decoration: none;
+
+        &:focus,
+        &:hover {
+          color: transparentize($white, 0);
+        }
+      }
+
+      h3 {
+        color: $white;
+        margin-bottom: 5px;
+      }
+    }
+  }
+
+  &__divider {
+    border: 1px solid transparentize($footer-faded-color, 0.3);
+    margin: 0 auto $spacing-unit;
+    width: 200px;
+  }
+
+  &__text {
+    color: $footer-faded-color;
+    font-size: $base-font-size * 0.9;
+    margin: auto;
+    max-width: 600px;
+    text-align: center;
+    padding: 0 20px;
+
+    a {
+      color: transparentize($white, 0.5);
+      text-decoration: underline;
+    }
+  }
+}

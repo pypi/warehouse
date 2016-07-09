@@ -1,0 +1,62 @@
+/*
+  A horizontal search form, with an input on the left and a button on the right.
+
+  <div class="search-form">
+    <input class="search-form__search">
+    <input type="submit" class="search-form__button">
+  </div>
+
+  Modifiers:
+    - Primary: Used on the primary site navigation
+    - Large: large centered search bar
+    - Fullwidth: Full width (used on mobile displays)
+*/
+
+.search-form {
+  @include clearfix;
+
+  &__search,
+  &__button{
+    display: inline;
+    float: left;
+  }
+
+  &__search {
+    margin-right: 5px;
+  }
+
+  &--primary {
+    margin: 25px 0 0 40px;
+
+    @media screen and (max-width: $tablet) {
+      display: none;
+    }
+
+    .search-form__search {
+      width: 400px;
+
+      @media screen and (max-width: $desktop) {
+        width: 250px;
+      }
+    }
+  }
+
+  &--large {
+    padding: 0 20px;
+    width: 650px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  &--fullwidth {
+    .search-form__search {
+      width: 79%;
+      margin-right: 1%;
+    }
+
+    .search-form__button {
+      width: 20%;
+      padding: 0;
+    }
+  }
+}

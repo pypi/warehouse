@@ -1,0 +1,27 @@
+/*
+  A block for highligting important information:
+
+  <div class="callput-block">
+    // Any important message here.
+  </div>
+*/
+
+.callout-block {
+  padding: 10px 10px 10px ($spacing-unit / 2);
+  border: 1px solid $border-color;
+  border-left-color: transparent;
+  margin-top: $spacing-unit;
+  position: relative;
+  z-index: index($z-index-scale, 'callout-block');
+
+  &:before {
+    content: '';
+    width: 5px;
+    background-color: $brand-color;
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    height: calc(100% + 2px);
+    z-index: index($z-index-scale, 'callout-block-border');
+  }
+}

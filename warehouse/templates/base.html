@@ -25,17 +25,15 @@
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
     <link rel="alternate" type="application/rss+xml" title="RSS: 40 latest updates" href="{{ request.route_path('rss.updates') }}">
     <link rel="alternate" type="application/rss+xml" title="RSS: 40 newest packages" href="{{ request.route_path('rss.packages') }}">
-
-    {# TODO: We need a solution to https://github.com/pypa/warehouse/issues/833
-     #       before we can progress on this. Currently this breaks html_include
-     #}
-    {# <script defer src="{{ request.static_path('warehouse:static/dist/components/l20n/dist/compat/web/l20n.js') }}"></script> #}
+    {% if self.canonical_url() %}
+    <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
+    {% endif %}
   </head>
 
   <body>
@@ -47,14 +45,14 @@
         <div class="split-layout">
           {% block brand %}
           <div class="split-layout">
-            <a class="brand-logo" href="{{ request.route_path('index') }}">
-              <img class="logo" {{ l20n("logo") }} alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+            <a class="site-header__logo" href="{{ request.route_path('index') }}">
+              <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
             </a>
 
-            <form class="search-form -primary" action="{{ request.route_path('search') }}">
+            <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
               <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Packages" value="{{ term }}">
-              <input class="wh-button -dark" type="submit" {{ l20n("search") }} value="Search">
+              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+              <input class="search-form__button button button--dark" type="submit" value="Search">
             </form>
           </div>
           {% endblock %}
@@ -66,12 +64,14 @@
 
     {% block mobile_search %}
     <section class="mobile-search">
-      <form class="search-form -fullwidth" action="{{ request.route_path('search') }}">
+      <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
         <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search" type="text" name="q" {{ l20n("search") }} placeholder="Search Packages">
-        <button class="wh-button -dark" type="submit">
-          <i class="icon fa fa-search"></i>
-          <span class="text" {{ l20n("search") }}>Search</span>
+        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
+        <button class="search-form__button button button--dark" type="submit">
+          <span class="button__icon">
+            <i class="fa fa-search"></i>
+          </span>
+          <span class="button__text">Search</span>
         </button>
       </form>
     </section>
@@ -81,42 +81,42 @@
     {% endblock content %}
 
     <footer class="footer" role="contentinfo">
-      <div class="footer-logo">
+      <div class="footer__logo">
         <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}" alt="Logo" class="-js-white-cube">
       </div>
 
-      <div class="footer-links">
-        <ul>
+      <div class="footer__menus">
+        <ul class="footer__menu">
           <li>
-            <h3 {{ l20n("getHelp") }}>Get Help</h3>
+            <h3>Get Help</h3>
           </li>
-          <li><a {{ l20n("installingPackages") }} href="//packaging.python.org/en/latest/installing/">Installing Packages</a></li>
-          <li><a {{ l20n("uploadingPackages") }} href="//packaging.python.org/en/latest/distributing/">Uploading Packages</a></li>
-          <li><a {{ l20n("userGuide") }} href="//packaging.python.org/">User Guide</a></li>
+          <li><a href="https://packaging.python.org/installing/">Installing Packages</a></li>
+          <li><a href="https://packaging.python.org/distributing/">Uploading Packages</a></li>
+          <li><a href="https://packaging.python.org/">User Guide</a></li>
         </ul>
-
-        <ul>
+        <ul class="footer__menu">
           <li>
-            <h3 {{ l20n("aboutPyPI") }}>About PyPI</h3>
+            <h3>About PyPI</h3>
           </li>
-          <li><a href="TODO">Status: Operational</a></li>
-          <li><a {{ l20n("securityPolicy") }} href="{{ request.route_path('security') }}">Security Policy</a></li>
-          <li><a {{ l20n("ourSponsors") }} href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
+          {% if request.registry.settings.get("statuspage.url") %}
+          <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
+          {% endif %}
+          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
-
-        <ul>
+        <ul class="footer__menu">
           <li>
-            <h3 {{ l20n("contributingToPyPI") }}>Contributing to PyPI</h3>
+            <h3>Contributing to PyPI</h3>
           </li>
-          <li><a {{ l20n("bugsFeedback") }} href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
-          <li><a {{ l20n("contributeOnGitHub") }} href="//github.com/pypa/warehouse">Contribute on GitHub</a></li>
-          <li><a {{ l20n("devCredits") }} href="//github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
+          <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
+          <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
+          <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
         </ul>
       </div>
 
-      <hr>
+      <hr class="footer__divider">
 
-      <div {{ l20n("developedByAndCopyright") }}>
+      <div class="footer__text">
         <p>Developed and maintained by the Python community, for the Python community.</p>
         <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('legal') }}">Legal Statements</a></p>
       </div>
@@ -124,11 +124,18 @@
 
     {% include "warehouse:templates/includes/sponsors.html" %}
 
-    <script async src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}"></script>
+    <script async
+            {% if request.registry.settings.get("ga.tracking_id") -%}
+            data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
+            {% endif -%}
+            src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
+    </script>
     <script async src="{{ request.static_path('warehouse:static/dist/js/main.js') }}"></script>
 
     {% block extra_js %}
     {% endblock %}
+
+    <script async src="//www.google-analytics.com/analytics.js"></script>
   </body>
 
 </html>

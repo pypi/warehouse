@@ -142,8 +142,17 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
+    maybe_set(settings, "mail.host", "MAL_HOST")
+    maybe_set(settings, "mail.port", "MAIL_PORT")
+    maybe_set(settings, "mail.username", "MAIL_USERNAME")
+    maybe_set(settings, "mail.password", "MAIL_PASSWORD")
+    maybe_set(settings, "mail.sender", "MAIL_SENDER")
+    maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
+    maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
+
+    settings.setdefault("mail.ssl", True)
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -192,6 +201,14 @@ def configure(settings=None):
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
 
+    # Including pyramid_mailer for sending emails through SMTP.
+    # Lower environments (< prod) shouldn't send the actual email's, so we are
+    # adding pyramid_mailer.debug to route the email's to disk.
+    if config.registry.settings["warehouse.env"] == Environment.production:
+        config.include("pyramid_mailer")
+    else:
+        config.include("pyramid_mailer.debug")
+
     # We want to use newstyle gettext
     config.add_settings({"jinja2.newstyle": True})
 
@@ -208,11 +225,19 @@ def configure(settings=None):
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
+    filters.setdefault(
+        "format_classifiers",
+        "warehouse.filters:format_classifiers",
+    )
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("readme", "warehouse.filters:readme")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
+    filters.setdefault(
+        "contains_valid_uris",
+        "warehouse.filters:contains_valid_uris"
+    )
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

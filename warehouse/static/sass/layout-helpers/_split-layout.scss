@@ -1,0 +1,23 @@
+/*
+  A layout where the first child is split to the left, the second to the right.
+
+  <div class="split-layout">
+    <p>I will go to the left</p>
+    <p>I will go to the right</p>
+  </div>
+
+  Modifiers:
+    - table: will use a table layout and align contents in the middle vertically
+*/
+
+.split-layout {
+  @include split-layout;
+
+  > :last-child {
+    text-align: right;
+  }
+
+  &--table {
+    @include split-table-layout;
+  }
+}

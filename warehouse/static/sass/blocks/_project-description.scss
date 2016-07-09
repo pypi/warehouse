@@ -1,0 +1,174 @@
+/*
+  Styles the main description panel for an individual project.
+  Needs to deal with anything a user could include in a project description file.
+
+  <div class="project-description">
+    // Anything goes!
+  </div>
+*/
+
+.project-description {
+  margin-bottom: $spacing-unit;
+  line-height: 1.5;
+
+  // Remove top margin on first heading, even if it nested inside a div
+  > :first-child,
+  > div:first-child > :first-child {
+    display: inline-block;
+    margin-top: 0 !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: $spacing-unit 0 0;
+  }
+
+  strong, b {
+    font-weight: $bold-font-weight;
+  }
+
+  em, i {
+    font-style: italic
+  }
+
+  pre {
+    display: block;
+    padding: $spacing-unit / 2;
+    margin-bottom: $spacing-unit / 2;
+  }
+
+  ol, ul {
+    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) $spacing-unit;
+
+    @media only screen and (max-width: $mobile){
+      margin-left: $spacing-unit / 2;
+    }
+
+    ul, ol {
+      margin: 0 0 0 $spacing-unit;
+
+      @media only screen and (max-width: $mobile){
+        margin-left: $spacing-unit / 2;
+      }
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  li {
+    padding: 2px 0;
+  }
+
+  blockquote {
+    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) ($spacing-unit / 2);
+    border-left: 3px solid $light-grey;
+    font-style: italic;
+    padding-left: ($spacing-unit / 2);
+    color: lighten($text-color, 20);
+  }
+
+  dl {
+    margin: ($spacing-unit / 2) 0 5px 0;
+
+    dt {
+      font-weight: $bold-font-weight;
+    }
+
+    dd {
+      margin: 0 0 5px ($spacing-unit / 2);
+    }
+  }
+
+  hr {
+    margin: ($spacing-unit / 2) 0;
+    border: 1px solid $light-grey;
+  }
+
+  // Add a margin at the bottom of commonly included status badges
+  > a  {
+    margin-bottom: $spacing-unit / 2;
+  }
+}
+
+
+// PYGMENTS THEME
+
+$blue:          $brand-color;
+$light-blue:    lighten($brand-color, 10);
+$dark-blue:     darken($brand-color, 10);
+$darkest-blue:  darken($brand-color, 20);
+$green:         $success-color;
+$light-green:   lighten($success-color, 10);
+$red:           $danger-color;
+$dark-red:      darken($danger-color, 20);
+$purple:        #bb0066;
+$orange:        #dd7700;
+$brown:         #aa6600;
+
+$light-grey:    $light-grey;
+$mid-grey:      #606060;
+$dark-grey:     #303030;
+$black:         #000;
+
+.project-description {
+  .c { color: $light-grey; } /* Comment */
+  .err { color: $dark-red; } /* Error */
+  .k { color: $green; font-weight: bold; } /* Keyword */
+  .cm { color: $light-grey; } /* Comment.Multiline */
+  .cp { color: $dark-red; font-weight: bold; } /* Comment.Preproc */
+  .c1 { color: $light-grey; } /* Comment.Single */
+  .cs { color: $dark-red; font-weight: bold; } /* Comment.Special */
+  .gd { color: $black; } /* Generic.Deleted */
+  .ge { font-style: italic; } /* Generic.Emph */
+  .gr { color: $dark-red; } /* Generic.Error */
+  .gh { color: $dark-grey; } /* Generic.Heading */
+  .gi { color: $black; } /* Generic.Inserted */
+  .go { color: $light-grey; } /* Generic.Output */
+  .gp { color: $mid-grey; } /* Generic.Prompt */
+  .gs { font-weight: bold; } /* Generic.Strong */
+  .gu { color: $mid-grey; } /* Generic.Subheading */
+  .gt { color: $dark-red; } /* Generic.Traceback */
+  .kc { color: $green; font-weight: bold; } /* Keyword.Constant */
+  .kd { color: $green; font-weight: bold; } /* Keyword.Declaration */
+  .kn { color: $green; font-weight: bold; } /* Keyword.Namespace */
+  .kp { color: $green; } /* Keyword.Pseudo */
+  .kr { color: $green; font-weight: bold; } /* Keyword.Reserved */
+  .kt { color: $light-grey; font-weight: bold; } /* Keyword.Type */
+  .m { color: $blue; font-weight: bold; } /* Literal.Number */
+  .s { color: $red; } /* Literal.String */
+  .na { color: $light-blue; } /* Name.Attribute */
+  .nb { color: $darkest-blue; } /* Name.Builtin */
+  .nc { color: $purple; font-weight: bold; } /* Name.Class */
+  .no { color: $darkest-blue; font-weight: bold; } /* Name.Constant */
+  .nd { color: $mid-grey; } /* Name.Decorator */
+  .ne { color: $purple; font-weight: bold; } /* Name.Exception */
+  .nf { color: $blue; font-weight: bold; } /* Name.Function */
+  .nl { color: $light-blue; font-style: italic; } /* Name.Label */
+  .nn { color: $purple; font-weight: bold; } /* Name.Namespace */
+  .py { color: $light-blue; font-weight: bold; } /* Name.Property */
+  .nt { color: $purple; font-weight: bold; } /* Name.Tag */
+  .nv { color: $light-blue; } /* Name.Variable */
+  .ow { color: $green; } /* Operator.Word */
+  .w { color: $light-grey; } /* Text.Whitespace */
+  .mf { color: $blue; font-weight: bold; } /* Literal.Number.Float */
+  .mh { color: $blue; font-weight: bold; } /* Literal.Number.Hex */
+  .mi { color: $blue; font-weight: bold; } /* Literal.Number.Integer */
+  .mo { color: $blue; font-weight: bold; } /* Literal.Number.Oct */
+  .sb { color: $red; } /* Literal.String.Backtick */
+  .sc { color: $red; } /* Literal.String.Char */
+  .sd { color: $red; } /* Literal.String.Doc */
+  .s2 { color: $red; } /* Literal.String.Double */
+  .se { color: $dark-blue; } /* Literal.String.Escape */
+  .sh { color: $red; } /* Literal.String.Heredoc */
+  .si { color: $dark-blue; } /* Literal.String.Interpol */
+  .sx { color: $light-green; } /* Literal.String.Other */
+  .sr { color: $green; } /* Literal.String.Regex */
+  .s1 { color: $red; } /* Literal.String.Single */
+  .ss { color: $brown; } /* Literal.String.Symbol */
+  .bp { color: $darkest-blue; } /* Name.Builtin.Pseudo */
+  .vc { color: $light-blue; } /* Name.Variable.Class */
+  .vg { color: $orange; } /* Name.Variable.Global */
+  .vi { color: $dark-blue; } /* Name.Variable.Instance */
+  .il { color: $blue; font-weight: bold; } /* Literal.Number.Integer.Long */
+}

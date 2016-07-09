@@ -50,6 +50,7 @@ app:
     FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/ url=http://files.example.com/packages/{path}"
     RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY}"
     RECAPTCHA_SECRET_KEY: "${RECAPTCHA_SECRET_KEY}"
+    STATUSPAGE_URL: https://2p66nmmycsj3.statuspage.io
 
 web:
   extends:

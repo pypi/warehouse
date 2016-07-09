@@ -1,11 +1,25 @@
-/**
- * Lists
- */
+// LISTS
+
 ul {
   list-style-type: circle;
 }
 
 ul, ol {
-    margin-left: $spacing-unit;
-    margin-bottom: $spacing-unit / 2;
+  margin-left: $spacing-unit;
+  margin-bottom: $spacing-unit / 2;
+}
+
+dl {
+  dt {
+    font-weight: $bold-font-weight;
+    margin-top: $spacing-unit / 2;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  dd {
+    padding-left: $spacing-unit;
+  }
 }

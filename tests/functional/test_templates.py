@@ -24,7 +24,7 @@ def test_templates_for_empty_titles():
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
-        extensions=[],
+        extensions=["jinja2.ext.i18n"],
         cache_size=0,
     )
 
@@ -33,11 +33,14 @@ def test_templates_for_empty_titles():
         "format_datetime": "warehouse.i18n.filters:format_datetime",
         "format_rfc822_datetime":
             "warehouse.i18n.filters:format_rfc822_datetime",
+        "format_number": "warehouse.i18n.filters:format_number",
+        "format_classifiers": "warehouse.filters:format_classifiers",
         "format_tags": "warehouse.filters:format_tags",
         "json": "warehouse.filters:tojson",
         "readme": "warehouse.filters:readme",
         "shorten_number": "warehouse.filters:shorten_number",
         "urlparse": "warehouse.filters:urlparse",
+        "contains_valid_uris": "warehouse.filters:contains_valid_uris"
     })
 
     for dir_, _, files in os.walk(dir_name):

@@ -1,0 +1,37 @@
+/*
+  A button group.  The seclected button can be specified by adding a
+  --dark or --primary modifier to the button.
+
+  <div class="button-group">
+    <a class="button-group__button">First Button</a>
+    <a class="button-group__button">Second Button</a>
+  </div>
+*/
+
+.button-group {
+  display: block;
+  margin: 0 0 25px;
+
+  &::after {
+    clear: both;
+    content: "";
+    display: table;
+  }
+
+  &__button {
+    float: left;
+    border-radius: 0;
+  }
+
+  .button-group__button + .button-group__button {
+    margin-left: -2px;
+  }
+
+  &__button:first-child {
+    border-radius: 3px 0 0 3px;
+  }
+
+  &__button:last-child {
+    border-radius: 0 3px 3px 0;
+  }
+}

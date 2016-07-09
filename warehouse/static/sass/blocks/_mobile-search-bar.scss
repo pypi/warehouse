@@ -1,0 +1,15 @@
+/*
+  Container for mobile search bar.
+
+  <div class="mobile-search"></div>
+*/
+
+.mobile-search {
+  display: none;
+  padding: 10px;
+  background-color: darken($brand-color, 5);
+
+  @media screen and (max-width: $tablet) {
+    display: block;
+  }
+}

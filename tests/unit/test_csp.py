@@ -175,7 +175,10 @@ def test_includeme():
             lambda fact, name: None),
         add_settings=pretend.call_recorder(lambda settings: None),
         add_tween=pretend.call_recorder(lambda tween: None),
-        registry=pretend.stub(settings={"camo.url": "camo.url.value"}),
+        registry=pretend.stub(settings={
+            "camo.url": "camo.url.value",
+            "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        }),
     )
     csp.includeme(config)
 
@@ -192,7 +195,10 @@ def test_includeme():
             "csp": {
                 "base-uri": ["'self'"],
                 "block-all-mixed-content": [],
-                "connect-src": ["'self'"],
+                "connect-src": [
+                    "'self'",
+                    "https://2p66nmmycsj3.statuspage.io",
+                ],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
                 "form-action": ["'self'"],
@@ -205,7 +211,7 @@ def test_includeme():
                 ],
                 "referrer": ["origin-when-cross-origin"],
                 "reflected-xss": ["block"],
-                "script-src": ["'self'"],
+                "script-src": ["'self'", "www.google-analytics.com"],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })

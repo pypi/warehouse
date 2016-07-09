@@ -1,0 +1,40 @@
+/*
+  A block of author information, found on the author profile sidebar.
+
+  <div class="author-profile">
+    // Avatar here (no class required)
+    <h1 class="author-profile__name">
+      // Username
+    </h1>
+    <p class="author-profile__joined">
+      // Joined Date
+    </p>
+    <div class="bio">
+      // Author bio
+    </div>
+  </div>
+*/
+
+.author-profile {
+  padding-right: $spacing-unit;
+
+  @media only screen and (max-width: $desktop){
+    padding: 0 0 ($spacing-unit * 2) 0;
+  }
+
+  h1.author-profile__name {
+    padding: 10px 0;
+    border-top: 2px solid $border-color;
+    border-bottom: 2px solid $border-color;
+    margin: 20px 0;
+    word-break: break-all;
+  }
+
+  &__joined {
+    font-weight: $bold-font-weight;
+  }
+
+  &__bio {
+    font-style: italic;
+  }
+}

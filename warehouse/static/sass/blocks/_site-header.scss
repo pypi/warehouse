@@ -1,0 +1,22 @@
+/*
+  The site header.
+
+  <header class="site-header">
+    <a class="site-header__logo"></a>
+  </header>
+*/
+
+.site-header {
+  background-color: lighten($brand-color, 2);
+  border-bottom: 1px solid darken($brand-color, 2);
+
+  &__logo{
+    padding: ($spacing-unit / 2) 0;
+    max-width: 65px;
+    float: left;
+
+    @media screen and (max-width: $mobile) {
+      max-width: 50px;
+    }
+  }
+}

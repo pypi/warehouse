@@ -1,0 +1,97 @@
+/*
+  The  main header of a package detail page. Contains key package information
+  including name, description, license, etc.
+
+  This block assumes it is placed inside a dark container.
+
+  <div class="package-header">
+    <p class="package-header__license"></p>
+    <h1 class="package-header__name"></h1>
+    <p class="package-header__description"></p>
+    <p class="package-header__pip-instructions">
+      <span>// pip instructions</span>
+      <a><i></i></a> // copy icon
+    </p>
+    <p class="package-header__help-link">// Help link</p>
+  </div>
+*/
+
+.package-header {
+  @include site-container;
+
+  a {
+    color: $white;
+    text-decoration: underline;
+    text-decoration-color: $transparent-white;
+
+    &:hover {
+      text-decoration-color: $white;
+    }
+  }
+
+  &__license {
+    font-style: italic;
+  }
+
+  &__name {
+    padding: 0;
+  }
+
+  &__description {
+    font-size: 1.2rem;
+    font-style: italic;
+    padding: 10px 0;
+  }
+
+  &__pip-instructions {
+    @include clearfix;
+    margin: 10px 0 20px;
+    padding-bottom: 0;
+
+    span {
+      font-family: $code-font;
+      font-weight: 500;
+      font-size: 22px;
+      float: left;
+      background-color: transparentize($black, 0.85);
+      padding: 10px;
+      border: 1px dotted $transparent-white;
+      line-height: $spacing-unit;
+
+      @media only screen and (max-width: $tablet){
+         font-size: 20px;
+         line-height: 25px;
+      }
+
+      @media only screen and (max-width: $mobile){
+         font-size: 18px;
+         line-height: 22px;
+      }
+    }
+
+    a {
+      color: $white;
+      line-height: $spacing-unit;
+      float: left;
+      cursor: pointer;
+      padding: 10px ($spacing-unit / 2);
+      background-color: transparentize($black, 0.85);
+      border-right: 1px dotted $transparent-white;
+      border-top: 1px dotted $transparent-white;
+      border-bottom: 1px dotted $transparent-white;
+
+      &:hover {
+        background-color: transparentize($black, 0.8);
+      }
+
+      @media only screen and (max-width: $tablet){
+         line-height: 25px;
+         padding: 10px;
+      }
+
+      @media only screen and (max-width: $mobile){
+         display: none;
+      }
+    }
+  }
+}

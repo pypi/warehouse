@@ -15,15 +15,18 @@ Quickstart for Developers with Docker experience
 
     $ git clone git@github.com:pypa/warehouse.git
     $ cd warehouse
-    $ docker start
     $ make serve
     $ make initdb
 
 View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
-``http://boot2docker_ip_address:80/`` (for Mac OS X and Windows).
+``http://docker_machine_ip_address:80/`` (for Mac OS X and Windows).
 
-.. note:: Replace ``docker start`` with ``boot2docker up`` if you are using
-          Windows or Mac OS X.
+.. note:: Replace ``docker start`` with ``docker-machine start default`` if you
+          are using Windows or Mac OS X. If you get an error message saying that no
+          ``default`` docker machine  does not exists, you might need to create one with
+          ``docker-machine create --driver virtualbox default`` as explain the
+          docker-machine `getting started <https://docs.docker.com/machine/get-started/>`_
+          document.
 
 
 Detailed Installation Instructions
@@ -58,6 +61,11 @@ Installing Docker
 ~~~~~~~~~~~~~~~~~
 
 * Install `Docker <https://docs.docker.com/installation/#installation>`_
+
+.. warning::
+
+    Boot2docker has now been replaced by docker-machine. Further instructions
+    may be out of date.
 
 On Mac OS X or Windows, the installation instructions will guide you to
 install `boot2docker`:
@@ -118,6 +126,13 @@ Running the Warehouse Container and Services
 After building the Docker container, you'll need to create a Postgres database
 and run all of the data migrations.
 
+First start the Docker services that make up the Warehouse application.  In
+one terminal run the command:
+
+.. code-block:: console
+
+    $ make serve
+
 Next, you will:
 
 * create a new Postgres database,
@@ -125,7 +140,7 @@ Next, you will:
 * run migrations, and
 * load some example data from `Test PyPI <https://testpypi.python.org/>`_
 
-Run:
+In a second terminal, separate from the make serve command above, run:
 
 .. code-block:: console
 
@@ -237,15 +252,15 @@ To run all tests, all you have to do is:
 .. code-block:: console
 
     $ make tests
-    ...
-      py34: commands succeeded
-      docs: commands succeeded
-      pep8: commands succeeded
-      packaging: commands succeeded
-      congratulations :)
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
+
+If you want to run a specific test, you can use the ``T`` variable:
+
+.. code-block:: console
+
+    $ T=tests/unit/i18n/test_filters.py make tests
 
 
 Building documentation
@@ -259,9 +274,6 @@ Use `make` to build the documentation. For example:
 .. code-block:: console
 
     $ make docs
-    ...
-    docs: commands succeeded
-    congratulations :)
 
 The HTML documentation index can now be found at
 ``docs/_build/html/index.html``.

@@ -1,0 +1,49 @@
+/*
+  A menu where the links stack horizontally.
+
+  <nav class="horizontal-menu">
+    <a class="horizontal-menu__link">A horizontal link</a>
+  </nav>
+
+  Modifiers:
+    - Tall: Adds extra padding to the menu items
+    - Light: Makes the links white. Use on a dark background.
+*/
+
+.horizontal-menu {
+  &__link {
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 10px;
+
+    &--with-icon {
+      .fa {
+        margin-right: 3px;
+      }
+    }
+  }
+
+  &--light {
+    > .horizontal-menu__link {
+      color: $white;
+
+      &:hover {
+        text-decoration-color: $transparent-white;
+      }
+    }
+  }
+
+  &--tall {
+    > .horizontal-menu__link {
+      padding: 32px ($spacing-unit / 2);
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      @media only screen and (max-width: $mobile){
+        padding: 25px 10px;
+      }
+    }
+  }
+}

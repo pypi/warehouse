@@ -1,0 +1,26 @@
+/*
+  Horizontal bar that displays statistics on the homepage.
+
+  <div class="statistics-bar">
+    <p class="statistics-bar__statistic">
+      // Statistic
+    </p>
+  </div>
+*/
+
+.statistics-bar {
+  text-align: center;
+
+  &__statistic {
+    color: darken($brand-color, 15);
+    font-size: 20px;
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0;
+    box-sizing: border-box;
+
+    @media only screen and (max-width: $tablet){
+       font-size: 18px;
+    }
+  }
+}

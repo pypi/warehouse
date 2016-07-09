@@ -1,0 +1,15 @@
+/*
+  Dynamically adds a blue question mark icon to the element it is applied to.
+  Use on headings, e.g.
+
+  <h1 class="common-question">There will be a question mark icon on my left</h1>
+*/
+
+.common-question {
+  &:before {
+    font-family: 'FontAwesome';
+    content: "\f059";
+    margin-right: 5px;
+    color: $brand-color;
+  }
+}

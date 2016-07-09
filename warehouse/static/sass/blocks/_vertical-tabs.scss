@@ -1,0 +1,82 @@
+/*
+  Set of tabs with associated content that display vertically on large resolutions
+  and change to an accordion on smaller resolutions.
+
+  <div class="vertical-tabs"> // container
+    <div class="vertical-tabs__tabs">
+      <a class="vetical-tabs__tab">
+        // Tab
+      </a>
+    </div>
+
+    <div class="vertical-tabs__panel">
+      <a class="vertical-tabs__tab vertical-tabs__tab--mobile">
+        // Duplicate Tab to show on smaller screens
+      </a>
+      <div class="vertical-tabs__content">
+        // Tab content
+      </div>
+    </div>
+  </div>
+*/
+
+.vertical-tabs {
+  @include clearfix;
+  overflow: hidden;
+  margin: $spacing-unit 0;
+
+  &__tabs {
+    @include span-columns(3);
+
+    @media only screen and (max-width: $tablet){
+      display: none;
+    }
+  }
+
+  &__tab {
+    display: block;
+    padding: $spacing-unit / 2;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none;
+      color: darken($brand-color, 10)
+    }
+
+    &--mobile {
+      display: none;
+
+      @media only screen and (max-width: $tablet){
+        display: block;
+        border-top: 1px solid $border-color;
+
+        &:last-of-type {
+          border-bottom: 1px solid $border-color;
+        }
+      }
+    }
+
+    &--is-active,
+    &--is-active:hover {
+      background: $brand-color;
+      color: $white;
+      border-color: transparent;
+    }
+  }
+
+  &__panel {
+    @include span-columns(9);
+
+    @media only screen and (max-width: $tablet){
+      width: 100%;
+    }
+  }
+
+  &__content {
+    padding-left: $spacing-unit;
+
+    @media only screen and (max-width: $tablet){
+      padding: $spacing-unit ($spacing-unit / 2);
+    }
+  }
+}

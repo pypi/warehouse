@@ -1,5 +1,7 @@
+// TABLE
+
 table {
-  @extend .card-style;
+  @include card;
   @include border-width(1px null);
   border-collapse: collapse;
   border-spacing: 0;
@@ -30,7 +32,7 @@ table {
 
   tbody {
     tr {
-      background-color: darken($background-color, .75);
+      background-color: darken($background-color, 0.75);
     }
     tr:nth-child(even) {
       background-color: darken($background-color, 2);

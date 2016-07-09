@@ -57,7 +57,13 @@ def includeme(config):
         "csp": {
             "base-uri": [SELF],
             "block-all-mixed-content": [],
-            "connect-src": [SELF],
+            "connect-src": [
+                item for item in [
+                    SELF,
+                    config.registry.settings.get("statuspage.url"),
+                ]
+                if item
+            ],
             "default-src": [NONE],
             "font-src": [SELF, "fonts.gstatic.com"],
             "form-action": [SELF],
@@ -70,7 +76,7 @@ def includeme(config):
             ],
             "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
-            "script-src": [SELF],
+            "script-src": [SELF, "www.google-analytics.com"],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
     })

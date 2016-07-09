@@ -1,0 +1,19 @@
+/*
+  A heading with a subtitle nested directly underneith:
+
+  <div class="heading-wsubtitle">
+    <h2 class="heading-wsubtitle__heading">Heading</h2>
+    <p class="heading-wsubtitle__subtitle">Subtitle</p>
+  </div>
+*/
+
+.heading-wsubtitle {
+  &__heading {
+    padding-bottom: 5px;
+  }
+
+  &__subtitle {
+    font-style: italic;
+    margin-bottom :10px;
+  }
+}

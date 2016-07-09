@@ -1,0 +1,11 @@
+/*
+  A lede paragaph.  Use to highlight important sections in the text.
+
+  <p class="lede-paragraph">I will be larger than my counterparts</p>
+*/
+
+.lede-paragraph {
+  font-weight: $bold-font-weight;
+  font-size: 1.2rem;
+  color: lighten($text-color, 10);
+}

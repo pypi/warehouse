@@ -1,0 +1,12 @@
+/*
+  Z-INDEX SCALE
+
+  Add each new z-index item to this list, from lowest to highest.
+
+  You can then set your z-index by getting the index of this list:
+  z-index: index($z-index-scale, key);
+
+  See: https://www.smashingmagazine.com/2014/06/sassy-z-index-management-for-complex-layouts/
+*/
+
+$z-index-scale: 'history-line', 'history-node', 'callout-block', 'callout-block-border', 'button', 'active-button', 'highlight-button', 'sticky-top', 'dark-overlay', 'filter-panel';
