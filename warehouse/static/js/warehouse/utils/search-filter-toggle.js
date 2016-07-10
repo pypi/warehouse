@@ -15,8 +15,8 @@ export default () => {
   };
 
   const toggleAccordion = (event) => {
-    var el = event.currentTarget.parentElement;
-    el.className = el.className === "accordion" ? "accordion accordion--closed" : "accordion";
+    var element = event.currentTarget.parentElement;
+    element.classList.toggle("accordion--closed");
   };
 
   for (var trigger of document.querySelectorAll(".-js-accordion-trigger")) {
