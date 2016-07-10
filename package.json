@@ -29,7 +29,6 @@
     "gulp-watch": "4.3.5",
     "imports-loader": "0.6.5",
     "jquery": "2.2.2",
-    "timeago": "1.5.2",
     "uglify-js": "2.6.2",
     "vinyl-named": "1.1.0",
     "webpack": "2.1.0-beta.4",

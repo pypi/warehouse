@@ -1,5 +1,5 @@
 const enumerateTime = (timestampString) => {
-  var now = new Date(),
+  let now = new Date(),
     timestamp = new Date(timestampString),
     timeDifference = now - timestamp,
     time = {};

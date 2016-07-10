@@ -4,7 +4,6 @@
 //       warehouse/static/js/warehouse and not here.
 
 import $ from "jquery";
-import "timeago";
 
 
 $(document).ready(function() {
