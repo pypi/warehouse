@@ -122,7 +122,7 @@ class LoginForm(CredentialsMixin, forms.Form):
 class RecoverPasswordForm(LoginForm):
 
     def __init__(self, *args, **kwargs):
-        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+        super(RecoverPasswordForm, self).__init__(*args, **kwargs)
 
         # Instead of again defining username field, we are using LoginForm
         # to get the username field and poping password field

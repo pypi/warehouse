@@ -12,13 +12,17 @@
 
 import datetime
 import functools
+import redis
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService
+)
 from warehouse.accounts.models import Email, User
+from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
 
 
 @implementer(IUserService)
@@ -55,6 +59,19 @@ class DatabaseUserService:
             return
 
         return user.id
+
+    @functools.lru_cache()
+    def find_user_email(self, username):
+        try:
+            user = (
+                self.db.query(User)
+                    .filter(User.username == username)
+                    .one()
+            )
+        except NoResultFound:
+            return
+
+        return user.email
 
     @functools.lru_cache()
     def find_userid_by_email(self, email):
@@ -118,6 +135,54 @@ class DatabaseUserService:
         for email in user.emails:
             if email.email == email_address:
                 email.verified = True
+
+
+@implementer(IPasswordRecoveryService)
+class PasswordRecoveryService:
+
+    max_age = 6 * 60 * 60  # 6 hours
+
+    def __init__(self, url, secret):
+        self.redis = redis.StrictRedis.from_url(url)
+        self.secret = secret
+
+    def _redis_key(self, user_name):
+        return "warehouse/pwd-recovery/username/{}".format(user_name)
+
+    def decode_otk(self, otk):
+        serializer = URLSafeTimedSerializer(
+            self.secret,
+            salt="password-recovery"
+        )
+        try:
+            # otk is valid for 6 hours.
+            user = serializer.loads(otk, max_age=self.max_age)
+        except BadData:
+            return
+        return user
+
+    def delete_recovery_key(self, user_name):
+        self.redis.delete(self._redis_key(user_name))
+
+    def generate_otk(self, data):
+        serializer = URLSafeTimedSerializer(
+            self.secret,
+            salt="password-recovery"
+        )
+        return serializer.dumps(data)
+
+    def get_recovery_key(self, user_name):
+        key = self.redis.get(self._redis_key(user_name))
+        if key:
+            key = key.decode('utf-8')
+        return key
+
+    def save_recovery_key(self, user_name, recovery_key):
+        self.redis.setex(
+            self._redis_key(user_name),
+            self.max_age,
+            recovery_key
+        )
 
 
 def database_login_factory(context, request):

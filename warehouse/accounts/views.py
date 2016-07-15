@@ -20,11 +20,26 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService
+)
 from warehouse.cache.origin import origin_cache
+from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
+
+PASSWORD_RECOVERY_MESSAGE = """
+    Someone, perhaps you, has requested that the password be changed for your
+    username, "%(name)s". If you wish to proceed with the change, please follow
+    the link below:
+
+      %(url)s/account/reset-password/?otk=%(otk)s
+
+    This will present a form in which you may set your new password.
+"""
+
+PASSWORD_RECOVERY_EMAIL_SUBJECT = "PyPI password change request"
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -221,16 +236,61 @@ def register(request, _form_class=forms.RegistrationForm):
 )
 def recover_password(request, _form_class=forms.RecoverPasswordForm):
 
+    # Purpose of this view is to take a valid user-name and send a email
+    # along with the password reset link.
+
+    # Password recovery rocess:
+    #   Step-1:
+    #      Ask for user-name with a GET request.
+    #
+    #   Step-2:
+    #      On submit user-name with a POST request, we'll verify whether the
+    #      given user-name is a valid one or not, so here two cases.
+    #
+    #      if user-name is not valid:
+    #         show error "Invalid user"
+    #
+    #      else:
+    #         we'll check for any valid otk already exist in the cache for the
+    #         given user-name, here two cases again.
+    #
+    #         Case-1: otk exist in cache.
+    #            If the otk is already exist in the cache means, it is still
+    #            a valid one and not used yet. So instead of generating a new
+    #            otk, we'll send the existing otk for resetting password.
+    #
+    #         Case-2: otk doesn't exist in cache.
+    #            If there is no otk exist in cache, for obvious reasons we've
+    #            to generate a new otk and send it to user and store the otk
+    #            in cache for validating reset password request.
+
     user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
-        # Get the user id for the given username.
-        username = form.username.data
-        userid = user_service.find_userid(username)
+        # Get the user email for the given user name.
+        user_name = form.username.data
+        user_email = user_service.find_user_email(user_name)
 
-        # TODO Send email
-        # TODO Adding proper hashing technique for generating OTK
+        # Check for the existing otk in cache (redis)
+        otk = password_recovery_service.get_recovery_key(user_name)
+        if not otk:
+            # Generate a new otk.
+            otk = password_recovery_service.generate_otk(user_name)
+            # Save otk in cache (redis).
+            password_recovery_service.save_recovery_key(user_name, otk)
+
+        info = dict(
+            otk=otk, name=user_name, url=request.application_url
+        )
+        send_email.delay(
+            PASSWORD_RECOVERY_MESSAGE % info,
+            [user_email],
+            PASSWORD_RECOVERY_EMAIL_SUBJECT
+        )
         return {'success': True}
 
     return {"form": form}
@@ -245,12 +305,44 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
 )
 def reset_password(request, _form_class=forms.ResetPasswordForm):
 
-    user_service = request.find_service(IUserService, context=None)
+    # Porpose of this view is to reset the password by using the link
+    # given to the user in recovery phase.
 
-    # TODO Write a utility to manage OTK and get user_name from OTK
-    # Note: Below statement is temporary and will be replaced with proper
-    # functionality.
-    user_name = getattr(request, request.method).get('otk')
+    # Password reset process:
+    #    Step-1:
+    #       User tries to GET the password reset fom with the given link, We'll
+    #       check for validity of the otk before rendering reset password page,
+    #       so here two cases.
+    #
+    #       if otk is valid:
+    #          Render the password reset page.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+    #
+    #    Step-2:
+    #       After submitting the new password with a POST request, we'll verify
+    #       the validity of the otk embedded inside the form, again two cases.
+    #
+    #       if otk is valid:
+    #          Reset the password and flush the otk from cache.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+
+    user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
+
+    # otk should be avaiable with both GET and POST.
+    otk = getattr(request, request.method).get('otk')
+
+    # We'll verify the validity of otk even before rendering reset password
+    # page, so that we can stop unauthorized requests not to access reset
+    # password page.
+    user_name = password_recovery_service.decode_otk(otk)
+    cached_otk = password_recovery_service.get_recovery_key(user_name)
+    if not user_name or otk != cached_otk:
+        return {'success': False}
 
     form = _form_class(
         request.POST,
@@ -259,18 +351,15 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
     )
 
     if request.method == "POST" and form.validate():
-        # Get the user id for the given username.
-        username = ''
-        userid = user_service.find_userid(username)
+        userid = user_service.find_userid(user_name)
+        # Update password.
+        user_service.update_user(userid, password=form.password.data)
+        # Delete cached recover key
+        password_recovery_service.delete_recovery_key(user_name)
 
-        # TODO Send email
-        # TODO Adding proper hashing technique for generating OTK
         return {'success': True}
 
-    # TODO Validate OTK.
-    # TODO Send error message if the OTK is not a valid one.
-
-    return {"form": form, 'user_name': user_name}
+    return {"form": form, 'otk': otk}
 
 
 def _login_user(request, userid):

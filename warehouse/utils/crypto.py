@@ -15,11 +15,16 @@ import hashlib
 import os
 
 from itsdangerous import (
-    BadSignature, Signer as _Signer, TimestampSigner as _TimestampSigner,
+    BadData, BadSignature, Signer as _Signer,
+    TimestampSigner as _TimestampSigner,
+    URLSafeTimedSerializer as _URLSafeTimedSerializer
 )
 
 
-__all__ = ["BadSignature", "Signer", "TimestampSigner", "random_token"]
+__all__ = [
+    "BadData", "BadSignature", "Signer", "TimestampSigner",
+    "URLSafeTimedSerializer", "random_token"
+]
 
 
 def random_token():
@@ -37,3 +42,8 @@ class TimestampSigner(_TimestampSigner):
 
     default_digest_method = hashlib.sha512
     default_key_derivation = "hmac"
+
+
+class URLSafeTimedSerializer(_URLSafeTimedSerializer):
+
+    default_signer = TimestampSigner
