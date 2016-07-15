@@ -200,6 +200,8 @@ urllib3==1.16 \
     --hash=sha256:63d479478ddfc83bbc11577dc16d47835c5179ac13e550118ca143b62c4bf9ab
 venusian==1.0 \
     --hash=sha256:1720cff2ca9c369c840c1d685a7c7a21da1afa687bfe62edd93cae4bf429ca5a
+webencodings==0.5 \
+    --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
 WebOb==1.6.1 \
     --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583b5f20c3eced \
     --hash=sha256:e804c583bd0fb947bd7c03d296942b38b985cf1da4fd82bf879994d29edb21fe
