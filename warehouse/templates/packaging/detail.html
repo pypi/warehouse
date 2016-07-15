@@ -120,7 +120,7 @@
             <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
             {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
             <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a> #}
             {% if files %}
               <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
             {% endif %}
@@ -260,6 +260,7 @@
         </div>
 
         {# Tab: Statistics #}
+        {# Note: Commented out statistics tab
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#statistics">Download Statistics</a>
         <div id="statistics" class="-js-vertical-tab-content vertical-tabs__content">
           <h2>Download Statistics</h2>
@@ -280,6 +281,7 @@
             <div class="download-graph__graph">TODO: Bar chart here showing downloads over time</div>
           </div>
         </div>
+        #}
 
         {% if files %}
           {# Tab: Downloads #}
