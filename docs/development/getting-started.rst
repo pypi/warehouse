@@ -18,15 +18,7 @@ Quickstart for Developers with Docker experience
     $ make serve
     $ make initdb
 
-View Warehouse in the browser at ``http://localhost:80/`` (Linux) or
-``http://docker_machine_ip_address:80/`` (for Mac OS X and Windows).
-
-.. note:: Replace ``docker start`` with ``docker-machine start default`` if you
-          are using Windows or Mac OS X. If you get an error message saying that no
-          ``default`` docker machine  does not exists, you might need to create one with
-          ``docker-machine create --driver virtualbox default`` as explain the
-          docker-machine `getting started <https://docs.docker.com/machine/get-started/>`_
-          document.
+View Warehouse in the browser at ``http://localhost:80/``.
 
 
 Detailed Installation Instructions
@@ -62,32 +54,17 @@ Installing Docker
 
 * Install `Docker <https://docs.docker.com/installation/#installation>`_
 
-.. warning::
+* Install either `Docker for Mac`_ or `Docker for Windows`_ if you're on OS X
+  or Windows respectively.
 
-    Boot2docker has now been replaced by docker-machine. Further instructions
-    may be out of date.
-
-On Mac OS X or Windows, the installation instructions will guide you to
-install `boot2docker`:
-
-  * Install `boot2docker` as directed in the operating system specific
-    installation instructions.
-
-  * Run ``boot2docker init``
-
-  * Run ``boot2docker start``
-
-  * To set the environment variables in your shell, run:
-    ``$eval "$(boot2docker shellinit)"``
+.. _Docker for Mac: https://docs.docker.com/docker-for-mac/
+.. _Docker for Windows: https://docs.docker.com/docker-for-windows/
 
 
 Verifying Docker Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Check that Docker is installed: ``docker -v``
-
-* On Mac OS X and Windows: Verify that `boot2docker` is installed
-  ``boot2docker -v``
+Check that Docker is installed: ``docker -v``
 
 
 Install Docker Compose
@@ -95,6 +72,10 @@ Install Docker Compose
 
 Install Docker Compose using the Docker provided
 `installation instructions <https://docs.docker.com/compose/install/>`_.
+
+.. note::
+   Docker Compose will be installed by `Docker for Mac`_ and
+   `Docker for Windows`_ automatically.
 
 
 Verifying Docker Compose Installation
@@ -153,9 +134,7 @@ highly likely on Mac OS X and Windows.
 Viewing Warehouse in a browser
 ------------------------------
 
-Web container is listening on port 80. If you're using boot2docker run
-`boot2docker ip` to figure out the ip where the web container is listening. On
-Linux it's accessible at ``http://localhost/``.
+Web container is listening on port 80. It's accessible at ``http://localhost:80/``.
 
 
 What did we just do and what is happening behind the scenes?
@@ -201,9 +180,6 @@ into the message "no space left on device", try running the following command
 
 .. note:: This will delete orphaned volumes as well as directories that are not
    volumes in /var/lib/docker/volumes
-
-If using ``docker-machine``, the command should be run from within the machine,
-not the host.
 
 (Solution found and further details available at
 https://github.com/chadoe/docker-cleanup-volumes)
