@@ -32,7 +32,7 @@ import timeAgo from "warehouse/utils/timeago";
 
 // timestamps for project histories set for 1 minute intervals
 docReady(() => {
-  var timeElements = document.querySelectorAll("time");
+  const timeElements = document.querySelectorAll("time");
   if (timeElements.length > 0) setInterval(timeAgo, 1000 * 60);
 });
 
