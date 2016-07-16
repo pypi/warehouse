@@ -1,5 +1,5 @@
 const enumerateTime = (timestampString) => {
-  let now = new Date(),
+  const now = new Date(),
     timestamp = new Date(timestampString),
     timeDifference = now - timestamp,
     time = {};
@@ -12,7 +12,7 @@ const enumerateTime = (timestampString) => {
 };
 
 const convertToReadableText = (time) => {
-  var { numDays, numMinutes, numHours } = time;
+  let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
     return numDays == 1 ? "Yesterday." : `About ${numDays} days ago.`;
@@ -30,10 +30,10 @@ const convertToReadableText = (time) => {
 };
 
 export default () => {
-  var timeElements = document.querySelectorAll("time");
-  for (var timeElement of timeElements) {
-    var datetime = timeElement.getAttribute("datetime");
-    var time = enumerateTime(datetime);
+  const timeElements = document.querySelectorAll("time");
+  for (const timeElement of timeElements) {
+    const datetime = timeElement.getAttribute("datetime");
+    const time = enumerateTime(datetime);
     if (time.isBeforeCutoff) timeElement.innerText = convertToReadableText(time);
   }
 };
