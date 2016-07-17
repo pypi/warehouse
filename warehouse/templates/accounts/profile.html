@@ -7,7 +7,7 @@
   <div class="left-layout">
     <div class="left-layout__sidebar">
       <div class="author-profile">
-        <img src="{{ gravatar(user.email, size=110) }}" height="100" width="100" alt="{{ user.name|default(user.username, true) }}">
+        <img src="{{ gravatar(user.email, size=400) }}" height="200" width="200" alt="{{ user.name|default(user.username, true) }}">
         <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
         {% if user.date_joined %}
           <p class="author-profile__joined">
