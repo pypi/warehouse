@@ -238,6 +238,10 @@ def configure(settings=None):
         "contains_valid_uris",
         "warehouse.filters:contains_valid_uris"
     )
+    filters.setdefault(
+        "format_package_type",
+        "warehouse.filters:format_package_type"
+    )
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

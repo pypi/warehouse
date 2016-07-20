@@ -12,6 +12,7 @@
 
 import binascii
 import collections
+import enum
 import hmac
 import json
 import re
@@ -28,6 +29,24 @@ import readme_renderer.txt
 from pyramid.threadlocal import get_current_request
 
 from warehouse.utils.http import is_valid_uri
+
+
+class PackageType(enum.Enum):
+    bdist_dmg = "OSX Disk Image"
+    bdist_dumb = "Dumb Binary"
+    bdist_egg = "Egg"
+    bdist_msi = "Windows MSI Installer"
+    bdist_rpm = "RPM"
+    bdist_wheel = "Wheel"
+    bdist_wininst = "Windows Installer"
+    sdist = "Source"
+
+
+def format_package_type(value):
+    try:
+        return PackageType[value].value
+    except KeyError:
+        return value
 
 
 def _camo_url(camo_url, camo_key, url):

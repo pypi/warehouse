@@ -325,29 +325,7 @@
                     {% endif %}
                   </td>
                   <td>
-                    {# TODO: This should ideally be part of an enum somewhere or
-                       otherwise defined somewhere other than a big if else
-                       chain inside of a template
-                    #}
-                    {% if file.packagetype == "bdist_dmg" %}
-                      OSX Disk Image
-                    {% elif file.packagetype == "bdist_dumb" %}
-                      "Dumb" Binary
-                    {% elif file.packagetype == "bdist_egg" %}
-                      Egg
-                    {% elif file.packagetype == "bdist_msi" %}
-                      Windows MSI Installer
-                    {% elif file.packagetype == "bdist_rpm" %}
-                      RPM
-                    {% elif file.packagetype == "bdist_wheel" %}
-                      Wheel
-                    {% elif file.packagetype == "bdist_wininst" %}
-                      Windows Installer
-                    {% elif file.packagetype == "sdist" %}
-                      Source
-                    {% else %}
-                      {{ file.packagetype }}
-                    {% endif %}
+                    {{ file.packagetype|format_package_type }}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
                 </tr>
