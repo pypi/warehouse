@@ -228,3 +228,21 @@ def test_format_classifiers(inp, expected):
 )
 def test_contains_valid_uris(inp, expected):
     assert filters.contains_valid_uris(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("bdist_dmg", "OSX Disk Image"),
+        ("bdist_dumb", "Dumb Binary"),
+        ("bdist_egg", "Egg"),
+        ("bdist_msi", "Windows MSI Installer"),
+        ("bdist_rpm", "RPM"),
+        ("bdist_wheel", "Wheel"),
+        ("bdist_wininst", "Windows Installer"),
+        ("sdist", "Source"),
+        ("invalid", "invalid"),
+    ],
+)
+def test_format_package_type(inp, expected):
+    assert filters.format_package_type(inp) == expected
