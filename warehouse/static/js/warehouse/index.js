@@ -41,9 +41,11 @@ docReady(() => {
 // project detail tabs
 docReady(()=> {
   const headingBtn = document.querySelector(".-js-vertical-tab-content");
-  const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
-  const styleProps = getComputedStyle(mobileBtn, null);
-  if (headingBtn) projectTabs(styleProps.getPropertyValue("display") === "block");
+  if (headingBtn) {
+    const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
+    const styleProps = getComputedStyle(mobileBtn, null);
+    projectTabs(styleProps.getPropertyValue("display") === "block");
+  }
 });
 
 // toggle search panel behavior
