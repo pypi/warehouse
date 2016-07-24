@@ -66,7 +66,6 @@ let webpackConfig = {
 gulp.task("dist:js", () => {
   let files = [
     path.join(staticPrefix, "js", "warehouse", "index.js"),
-    path.join(staticPrefix, "js", "main.js"),
   ];
 
   return gulp.src(files)
