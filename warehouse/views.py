@@ -22,13 +22,16 @@ from pyramid.view import (
 from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.classifiers.models import Classifier
-from warehouse.packaging.models import Project, Release, File
+from warehouse.packaging.models import (
+    Project, Release, File, release_classifiers,
+)
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
@@ -218,7 +221,17 @@ def search(request):
 
     available_filters = collections.defaultdict(list)
 
-    for cls in request.db.query(Classifier).order_by(Classifier.classifier):
+    classifiers_q = (
+        request.db.query(Classifier)
+        .with_entities(Classifier.classifier)
+        .filter(
+            exists([release_classifiers.c.trove_id])
+            .where(release_classifiers.c.trove_id == Classifier.id)
+        )
+        .order_by(Classifier.classifier)
+    )
+
+    for cls in classifiers_q:
         first, *_ = cls.classifier.split(' :: ')
         available_filters[first].append(cls.classifier)
 
