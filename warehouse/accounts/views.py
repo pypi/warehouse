@@ -31,10 +31,10 @@ from warehouse.utils.http import is_safe_url
 
 PASSWORD_RECOVERY_MESSAGE = """
     Someone, perhaps you, has requested that the password be changed for your
-    username, "%(name)s". If you wish to proceed with the change, please follow
+    username, "{name}". If you wish to proceed with the change, please follow
     the link below:
 
-      %(url)s/account/reset-password/?otk=%(otk)s
+      {url}/account/reset-password/?otk={otk}
 
     This will present a form in which you may set your new password.
 """
@@ -283,11 +283,12 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
             # Save otk in cache (redis).
             password_recovery_service.save_recovery_key(user_name, otk)
 
-        info = dict(
-            otk=otk, name=user_name, url=request.application_url
-        )
         send_email.delay(
-            PASSWORD_RECOVERY_MESSAGE % info,
+            PASSWORD_RECOVERY_MESSAGE.format(
+                name=user_name,
+                otk=otk,
+                url=request.application_url
+            ),
             [user_email],
             PASSWORD_RECOVERY_EMAIL_SUBJECT
         )

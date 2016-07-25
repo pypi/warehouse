@@ -124,7 +124,7 @@ class RecoverPasswordForm(LoginForm):
     def __init__(self, *args, **kwargs):
         super(RecoverPasswordForm, self).__init__(*args, **kwargs)
 
-        # Instead of again defining username field, we are using LoginForm
+        # Instead of defining username field again, we are using LoginForm
         # to get the username field and poping password field
         self._fields.pop('password')
 

@@ -28,6 +28,8 @@ from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
 @implementer(IUserService)
 class DatabaseUserService:
 
+    password_field = "password"
+
     def __init__(self, session):
         self.db = session
         self.hasher = CryptContext(
@@ -127,6 +129,9 @@ class DatabaseUserService:
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
         for attr, value in changes.items():
+            # If it is password, then it should be encrypted.
+            if attr == self.password_field:
+                value = self.hasher.encrypt(value)
             setattr(user, attr, value)
         return user
 
@@ -140,7 +145,8 @@ class DatabaseUserService:
 @implementer(IPasswordRecoveryService)
 class PasswordRecoveryService:
 
-    max_age = 6 * 60 * 60  # 6 hours
+    max_age = 21600  # 21600 seconds == 6 * 60 * 60 == 6 hours
+    salt = "password-recovery"
 
     def __init__(self, url, secret):
         self.redis = redis.StrictRedis.from_url(url)
@@ -152,7 +158,7 @@ class PasswordRecoveryService:
     def decode_otk(self, otk):
         serializer = URLSafeTimedSerializer(
             self.secret,
-            salt="password-recovery"
+            salt=self.salt
         )
         try:
             # otk is valid for 6 hours.
@@ -167,7 +173,7 @@ class PasswordRecoveryService:
     def generate_otk(self, data):
         serializer = URLSafeTimedSerializer(
             self.secret,
-            salt="password-recovery"
+            salt=self.salt
         )
         return serializer.dumps(data)
 

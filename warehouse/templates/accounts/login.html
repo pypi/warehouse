@@ -19,6 +19,7 @@
     {% endif %}
 
     {% include "warehouse:templates/includes/input-credentials.html" %}
+    <a href="{{request.route_url('accounts.recover-password')}}">Forgot Password?</a>
     <input type="submit" value="Login">
   </form>
 {% endblock %}

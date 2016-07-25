@@ -64,6 +64,7 @@ class IPasswordRecoveryService(Interface):
         """
         Delete the cached recovery key.
         """
+
     def generate_otk(secret, data):
         """
         Generate new otk with gven data.
@@ -76,5 +77,5 @@ class IPasswordRecoveryService(Interface):
 
     def save_recovery_key(user_name, recovery_key):
         """
-        Return the recovery key to cache.
+        Save the recovery key to cache.
         """

@@ -67,8 +67,8 @@ def includeme(config):
     # Register password recovery service
     config.register_service(
         PasswordRecoveryService(
-            config.registry.settings.get("password_recovery.url"),
-            config.registry.settings.get("password_recovery.secret")
+            config.registry.settings["password_recovery.url"],
+            config.registry.settings["password_recovery.secret"]
         ),
         IPasswordRecoveryService,
     )
