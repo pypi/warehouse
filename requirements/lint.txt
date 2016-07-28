@@ -1,5 +1,4 @@
 doc8
-# See: https://gitlab.com/pycqa/flake8/issues/186
-flake8<3
+flake8
 html-linter
 pep8-naming
