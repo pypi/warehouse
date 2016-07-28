@@ -17,34 +17,30 @@ let submitForm = (element) => {
 
 const removeFilter = (value, event) => {
   event.preventDefault();
-  var element = document.querySelector(`#classifiers input[value="${value}"]`);
-  element.checked = false;
-  submitForm(element);
+  const element = document.querySelector(`#classifiers input[value="${value}"]`);
+  if (element) {
+    element.checked = false;
+    submitForm(element);
+  }
 };
 
 
 export function submitTriggers() {
   // Get all of the elements on the page with a -js-form-submit-trigger class
   // associated with them.
-  let elements = Array.from(
-    document.querySelectorAll(".-js-form-submit-trigger")
-  );
+  let elements = document.querySelectorAll(".-js-form-submit-trigger");
 
   // Add an on change event handler to each element that will trigger the
   // containing for to submit whenever it is called.
 
-  elements.forEach((element) => {
-    element.addEventListener(
-      "change",
-      submitForm.bind(undefined, element),
-      false
-    );
-  });
+  for (const element of elements) {
+    element.addEventListener("change", submitForm.bind(null, element), false);
+  }
 
-  let filters = document.querySelectorAll(".filter-badge");
+  const filters = document.querySelectorAll(".filter-badge");
 
-  for (var filter of filters) {
-    var [input, button] = [filter.firstElementChild, filter.lastElementChild];
+  for (const filter of filters) {
+    const [input, button] = [filter.firstElementChild, filter.lastElementChild];
 
     button.addEventListener(
       "click",
