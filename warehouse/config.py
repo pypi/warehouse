@@ -24,7 +24,7 @@ from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse import __commit__
 from warehouse.utils.static import ManifestCacheBuster
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
 class Environment(enum.Enum):
@@ -374,6 +374,10 @@ def configure(settings=None):
 
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
+
+    # Fix our host header when getting sent upload.pypi.io as a HOST.
+    # TODO: Remove this, this is at the wrong layer.
+    config.add_wsgi_middleware(HostRewrite)
 
     # We want Raven to be the last things we add here so that it's the outer
     # most WSGI middleware.
