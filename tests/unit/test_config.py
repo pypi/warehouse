@@ -19,7 +19,7 @@ from pyramid import renderers
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
 class TestRequireHTTPSTween:
@@ -289,6 +289,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
+        pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
         [pretend.call(".csrf")] +
