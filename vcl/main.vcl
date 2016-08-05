@@ -95,7 +95,7 @@ sub vcl_recv {
         }
     }
 
-    # Redirect pypi.io, www.pypi.io, and warehouse.python.org to pypi.io, this
+    # Redirect pypi.io, www.pypi.io, and warehouse.python.org to pypi.org, this
     # is purposely done *after* the HTTPS checks.
     if (std.tolower(req.http.host) ~ "^(www.pypi.org|(www.)?pypi.io|warehouse.python.org)$") {
         set req.http.Location = "https://pypi.org" req.url;
