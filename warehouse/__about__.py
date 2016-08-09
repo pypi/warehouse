@@ -26,7 +26,7 @@ except NameError:
 
 __title__ = "warehouse"
 __summary__ = "Next Generation Python Package Repository"
-__uri__ = "https://pypi.io/"
+__uri__ = "https://pypi.org/"
 
 __version__ = "15.0.dev0"
 

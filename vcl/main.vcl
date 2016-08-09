@@ -95,15 +95,15 @@ sub vcl_recv {
         }
     }
 
-    # Redirect www.pypi.io and warehouse.python.org to pypi.io, this is
-    # purposely done *after* the HTTPS checks.
-    if (std.tolower(req.http.host) ~ "^(www.pypi.io|warehouse.python.org)$") {
-        set req.http.Location = "https://pypi.io" req.url;
+    # Redirect pypi.io, www.pypi.io, and warehouse.python.org to pypi.org, this
+    # is purposely done *after* the HTTPS checks.
+    if (std.tolower(req.http.host) ~ "^(www.pypi.org|(www.)?pypi.io|warehouse.python.org)$") {
+        set req.http.Location = "https://pypi.org" req.url;
         error 750 "Redirect to Primary Domain";
     }
     # Redirect warehouse-staging.python.org to test.pypi.io.
-    if (std.tolower(req.http.host) == "warehouse-staging.python.org") {
-        set req.http.Location = "https://test.pypi.io" req.url;
+    if (std.tolower(req.http.host) ~ "^(test.pypi.io|warehouse-staging.python.org)$") {
+        set req.http.Location = "https://test.pypi.org" req.url;
         error 750 "Redirect to Primary Domain";
     }
 

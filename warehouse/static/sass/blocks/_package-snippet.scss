@@ -46,5 +46,8 @@
     clear: both;
     font-size: 1rem;
     font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

@@ -34,6 +34,20 @@
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
+
+    {# All of our Javascript should be loaded using the async attribute so it's
+     # fine to have it in the header. This will allow the browser to start
+     # downloading it ASAP while still not blocking the parser.
+     #}
+    <script async
+            {% if request.registry.settings.get("ga.tracking_id") -%}
+            data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
+            {% endif -%}
+            src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
+    </script>
+    {% block extra_js %}
+    {% endblock %}
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
   </head>
 
   <body>
@@ -118,24 +132,11 @@
 
       <div class="footer__text">
         <p>Developed and maintained by the Python community, for the Python community.</p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('legal') }}">Legal Statements</a></p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="https://www.python.org/about/legal/">Legal Statements</a></p>
       </div>
     </footer>
 
     {% include "warehouse:templates/includes/sponsors.html" %}
-
-    <script async
-            {% if request.registry.settings.get("ga.tracking_id") -%}
-            data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
-            {% endif -%}
-            src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
-    </script>
-    <script async src="{{ request.static_path('warehouse:static/dist/js/main.js') }}"></script>
-
-    {% block extra_js %}
-    {% endblock %}
-
-    <script async src="//www.google-analytics.com/analytics.js"></script>
   </body>
 
 </html>

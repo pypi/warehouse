@@ -120,7 +120,7 @@
             <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
             {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
             <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a> #}
             {% if files %}
               <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
             {% endif %}
@@ -129,7 +129,7 @@
         <div class="sidebar-section sidebar-section--maintainers">
           <h3 class="sidebar-section__title">Maintainers</h3>
           {% for maintainer in maintainers %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=100) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
           {% endfor %}
         </div>
 
@@ -260,6 +260,7 @@
         </div>
 
         {# Tab: Statistics #}
+        {# Note: Commented out statistics tab
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#statistics">Download Statistics</a>
         <div id="statistics" class="-js-vertical-tab-content vertical-tabs__content">
           <h2>Download Statistics</h2>
@@ -280,6 +281,7 @@
             <div class="download-graph__graph">TODO: Bar chart here showing downloads over time</div>
           </div>
         </div>
+        #}
 
         {% if files %}
           {# Tab: Downloads #}
@@ -323,29 +325,7 @@
                     {% endif %}
                   </td>
                   <td>
-                    {# TODO: This should ideally be part of an enum somewhere or
-                       otherwise defined somewhere other than a big if else
-                       chain inside of a template
-                    #}
-                    {% if file.packagetype == "bdist_dmg" %}
-                      OSX Disk Image
-                    {% elif file.packagetype == "bdist_dumb" %}
-                      "Dumb" Binary
-                    {% elif file.packagetype == "bdist_egg" %}
-                      Egg
-                    {% elif file.packagetype == "bdist_msi" %}
-                      Windows MSI Installer
-                    {% elif file.packagetype == "bdist_rpm" %}
-                      RPM
-                    {% elif file.packagetype == "bdist_wheel" %}
-                      Wheel
-                    {% elif file.packagetype == "bdist_wininst" %}
-                      Windows Installer
-                    {% elif file.packagetype == "sdist" %}
-                      Source
-                    {% else %}
-                      {{ file.packagetype }}
-                    {% endif %}
+                    {{ file.packagetype|format_package_type }}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
                 </tr>
