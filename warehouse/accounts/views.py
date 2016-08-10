@@ -23,11 +23,15 @@ from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     IPasswordRecoveryService, IUserService
 )
+from warehouse.accounts.services import InvalidPasswordResetToken
+
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
+
+DEFAULT_REDIRECT = "/"
 
 PASSWORD_RECOVERY_MESSAGE = """
     Someone, perhaps you, has requested that the password be changed for your
@@ -103,30 +107,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # the index instead.
         if (not redirect_to or
                 not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = "/"
+            redirect_to = DEFAULT_REDIRECT
 
-        # Actually perform the login routine for our user.
-        headers = _login_user(request, userid)
-
-        # Now that we're logged in we'll want to redirect the user to either
-        # where they were trying to go originally, or to the default view.
-        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-
-        # We'll use this cookie so that client side javascript can Determine
-        # the actual user ID (not username, user ID). This is *not* a security
-        # sensitive context and it *MUST* not be used where security matters.
-        #
-        # We'll also hash this value just to avoid leaking the actual User IDs
-        # here, even though it really shouldn't matter.
-        resp.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            blake2b(
-                str(userid).encode("ascii"),
-                person=b"warehouse.userid",
-            ).hexdigest().lower(),
-        )
-
-        return resp
+        return _login_response(request, userid, redirect_to)
 
     return {
         "form": form,
@@ -196,7 +179,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:
-        return HTTPSeeOther("/")
+        return HTTPSeeOther(DEFAULT_REDIRECT)
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
@@ -251,18 +234,7 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
     #         show error "Invalid user"
     #
     #      else:
-    #         we'll check for any valid otk already exist in the cache for the
-    #         given user-name, here two cases again.
-    #
-    #         Case-1: otk exist in cache.
-    #            If the otk is already exist in the cache means, it is still
-    #            a valid one and not used yet. So instead of generating a new
-    #            otk, we'll send the existing otk for resetting password.
-    #
-    #         Case-2: otk doesn't exist in cache.
-    #            If there is no otk exist in cache, for obvious reasons we've
-    #            to generate a new otk and send it to user and store the otk
-    #            in cache for validating reset password request.
+    #          Generate a new OTK and send it to user via email.
 
     user_service = request.find_service(IUserService, context=None)
     password_recovery_service = request.find_service(
@@ -272,24 +244,19 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
 
     if request.method == "POST" and form.validate():
         # Get the user email for the given user name.
-        user_name = form.username.data
-        user_email = user_service.find_user_email(user_name)
+        username = form.username.data
+        user = user_service.get_user_by_username(username)
 
-        # Check for the existing otk in cache (redis)
-        otk = password_recovery_service.get_recovery_key(user_name)
-        if not otk:
-            # Generate a new otk.
-            otk = password_recovery_service.generate_otk(user_name)
-            # Save otk in cache (redis).
-            password_recovery_service.save_recovery_key(user_name, otk)
+        # Generate a new OTK.
+        otk = password_recovery_service.generate_otk(user)
 
         send_email.delay(
             PASSWORD_RECOVERY_MESSAGE.format(
-                name=user_name,
+                name=username,
                 otk=otk,
                 url=request.application_url
             ),
-            [user_email],
+            [user.email],
             PASSWORD_RECOVERY_EMAIL_SUBJECT
         )
         return {'success': True}
@@ -311,9 +278,9 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
 
     # Password reset process:
     #    Step-1:
-    #       User tries to GET the password reset fom with the given link, We'll
-    #       check for validity of the otk before rendering reset password page,
-    #       so here two cases.
+    #       User tries to GET the password reset form with the given link,
+    #       We'll check for validity of the otk before rendering reset password
+    #       page, so here two cases.
     #
     #       if otk is valid:
     #          Render the password reset page.
@@ -325,7 +292,8 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
     #       the validity of the otk embedded inside the form, again two cases.
     #
     #       if otk is valid:
-    #          Reset the password and flush the otk from cache.
+    #          - Reset the password.
+    #          - Perform login just after reset and redirect to default view.
     #       else:
     #          Render the error page "Invalid password reset token"
 
@@ -340,27 +308,51 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
     # We'll verify the validity of otk even before rendering reset password
     # page, so that we can stop unauthorized requests not to access reset
     # password page.
-    user_name = password_recovery_service.decode_otk(otk)
-    cached_otk = password_recovery_service.get_recovery_key(user_name)
-    if not user_name or otk != cached_otk:
+
+    try:
+        userid = password_recovery_service.validate_otk(otk)
+    except InvalidPasswordResetToken:
         return {'success': False}
 
     form = _form_class(
         request.POST,
         user_service=user_service,
-        user_name=user_name
+        userid=userid
     )
 
     if request.method == "POST" and form.validate():
-        userid = user_service.find_userid(user_name)
         # Update password.
         user_service.update_user(userid, password=form.password.data)
-        # Delete cached recover key
-        password_recovery_service.delete_recovery_key(user_name)
 
-        return {'success': True}
+        # Perform login just after reset password and redirect to default view.
+        return _login_response(request, userid)
 
     return {"form": form, 'otk': otk}
+
+
+def _login_response(request, userid, redirect_to=DEFAULT_REDIRECT):
+    # Actually perform the login routine for our user.
+    headers = _login_user(request, userid)
+
+    # Now that we're logged in we'll want to redirect the user to either
+    # where they were trying to go originally, or to the default view.
+    resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+
+    # We'll use this cookie so that client side javascript can Determine
+    # the actual user ID (not username, user ID). This is *not* a security
+    # sensitive context and it *MUST* not be used where security matters.
+    #
+    # We'll also hash this value just to avoid leaking the actual User IDs
+    # here, even though it really shouldn't matter.
+    resp.set_cookie(
+        USER_ID_INSECURE_COOKIE,
+        blake2b(
+            str(userid).encode("ascii"),
+            person=b"warehouse.userid",
+        ).hexdigest().lower(),
+    )
+
+    return resp
 
 
 def _login_user(request, userid):

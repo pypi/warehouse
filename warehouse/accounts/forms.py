@@ -140,16 +140,15 @@ class ResetPasswordForm(CredentialsMixin, forms.Form):
         ],
     )
 
-    def __init__(self, *args, user_name, **kwargs):
+    def __init__(self, *args, userid, **kwargs):
         super(ResetPasswordForm, self).__init__(*args, **kwargs)
 
-        self.username = user_name
+        self.userid = userid
         # Pop username field that comes from CredentialsMixIn.
         self._fields.pop('username')
 
     def validate_password(self, field):
-        userid = self.user_service.find_userid(self.username)
-        if userid is not None:
-            if self.user_service.check_password(userid, field.data):
+        if self.userid is not None:
+            if self.user_service.check_password(self.userid, field.data):
                 raise wtforms.validators.ValidationError(
                     "Password shouldn't match with previous one.")

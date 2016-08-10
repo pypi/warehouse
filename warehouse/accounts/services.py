@@ -12,9 +12,12 @@
 
 import datetime
 import functools
+import hmac
 import redis
+import uuid
 
 from passlib.context import CryptContext
+from pyblake2 import blake2b
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
@@ -23,6 +26,10 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, User
 from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
+
+
+class InvalidPasswordResetToken(Exception):
+    pass
 
 
 @implementer(IUserService)
@@ -50,6 +57,18 @@ class DatabaseUserService:
         return self.db.query(User).get(userid)
 
     @functools.lru_cache()
+    def get_user_by_username(self, username):
+        try:
+            user = (
+                self.db.query(User)
+                    .filter(User.username == username)
+                    .one()
+            )
+        except NoResultFound:
+            return
+        return user
+
+    @functools.lru_cache()
     def find_userid(self, username):
         try:
             user = (
@@ -61,19 +80,6 @@ class DatabaseUserService:
             return
 
         return user.id
-
-    @functools.lru_cache()
-    def find_user_email(self, username):
-        try:
-            user = (
-                self.db.query(User)
-                    .filter(User.username == username)
-                    .one()
-            )
-        except NoResultFound:
-            return
-
-        return user.email
 
     @functools.lru_cache()
     def find_userid_by_email(self, email):
@@ -148,48 +154,69 @@ class PasswordRecoveryService:
     max_age = 21600  # 21600 seconds == 6 * 60 * 60 == 6 hours
     salt = "password-recovery"
 
-    def __init__(self, url, secret):
-        self.redis = redis.StrictRedis.from_url(url)
-        self.secret = secret
+    def __init__(self, secret, user_service):
+        self.signer = URLSafeTimedSerializer(secret, self.salt)
+        self.user_service = user_service
 
-    def _redis_key(self, user_name):
-        return "warehouse/pwd-recovery/username/{}".format(user_name)
+    def _generate_hash(self, user):
+        # We'll be using three attributes to generate hash.
+        #
+        # 1. user.id:
+        #     Certainly this is not going to help to invalidate the OTK, but it
+        #     makes hash unique even though last_login and password_date are
+        #     same for different users.
+        #
+        # 2. user.last_login:
+        #     After getting recovery key to reset the password, In less than
+        #     six hours it's possible that user might login with their existing
+        #     passwords. In that case last_login time gets updated to new one
+        #     and it makes the OTK invalid to use. (It doesn't make any sense to
+        #     keep OTK valid even after user able to login with existing password)
+        #
+        # 3. user.password_date:
+        #     Once User.password is updated, it make sure that
+        #     User.password_date also gets updated, So that it's easy to
+        #     invalidate the hash.
 
-    def decode_otk(self, otk):
-        serializer = URLSafeTimedSerializer(
-            self.secret,
-            salt=self.salt
-        )
+        hash_key = blake2b(
+            "|".join(
+                map(str, [user.id, user.last_login, user.password_date])
+            ).encode("utf8")
+        ).hexdigest()
+
+        return hash_key
+
+    def generate_otk(self, user):
+        return self.signer.dumps({
+            "user.id": str(user.id),
+            "user.hash": self._generate_hash(user),
+        })
+
+    def validate_otk(self, otk):
         try:
-            # otk is valid for 6 hours.
-            user = serializer.loads(otk, max_age=self.max_age)
+            data = self.signer.loads(otk, max_age=self.max_age)
         except BadData:
-            return
-        return user
+            raise InvalidPasswordResetToken
 
-    def delete_recovery_key(self, user_name):
-        self.redis.delete(self._redis_key(user_name))
+        # Check whether the user.id is valid or not.
+        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
+        if user is None:
+            raise InvalidPasswordResetToken
 
-    def generate_otk(self, data):
-        serializer = URLSafeTimedSerializer(
-            self.secret,
-            salt=self.salt
-        )
-        return serializer.dumps(data)
+        user_hash = self._generate_hash(user)
+        # Compare user.hash values.
+        if not hmac.compare_digest(data.get("user.hash"), user_hash):
+            raise InvalidPasswordResetToken
 
-    def get_recovery_key(self, user_name):
-        key = self.redis.get(self._redis_key(user_name))
-        if key:
-            key = key.decode('utf-8')
-        return key
-
-    def save_recovery_key(self, user_name, recovery_key):
-        self.redis.setex(
-            self._redis_key(user_name),
-            self.max_age,
-            recovery_key
-        )
+        return user.id
 
 
 def database_login_factory(context, request):
     return DatabaseUserService(request.db)
+
+
+def password_recovery_factory(context, request):
+    return PasswordRecoveryService(
+        request.registry.settings["password_recovery.secret"],
+        request.find_service(IUserService, context=context)
+    )

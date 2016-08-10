@@ -19,7 +19,7 @@ from warehouse.accounts.interfaces import (
     IPasswordRecoveryService, IUserService
 )
 from warehouse.accounts.services import (
-    database_login_factory, PasswordRecoveryService
+    database_login_factory, password_recovery_factory
 )
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
@@ -65,12 +65,9 @@ def includeme(config):
     config.register_service_factory(database_login_factory, IUserService)
 
     # Register password recovery service
-    config.register_service(
-        PasswordRecoveryService(
-            config.registry.settings["password_recovery.url"],
-            config.registry.settings["password_recovery.secret"]
-        ),
-        IPasswordRecoveryService,
+    config.register_service_factory(
+        password_recovery_factory,
+        IPasswordRecoveryService
     )
 
     # Register our authentication and authorization policies
