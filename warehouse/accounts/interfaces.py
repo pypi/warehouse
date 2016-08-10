@@ -55,27 +55,12 @@ class IUserService(Interface):
 
 class IPasswordRecoveryService(Interface):
 
-    def decode_otk(secret, otk):
-        """
-        Decode the given otk.
-        """
-
-    def delete_recovery_key(user_name):
-        """
-        Delete the cached recovery key.
-        """
-
-    def generate_otk(secret, data):
+    def generate_otk(user):
         """
         Generate new otk with gven data.
         """
 
-    def get_recovery_key(user_name):
+    def validate_otk(otk):
         """
-        Return the cashed recovery key.
-        """
-
-    def save_recovery_key(user_name, recovery_key):
-        """
-        Save the recovery key to cache.
+        Check for validity of the otk.
         """

@@ -243,8 +243,8 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
-        # Get the user email for the given user name.
         username = form.username.data
+        # Get the user object by using username.
         user = user_service.get_user_by_username(username)
 
         # Generate a new OTK.
