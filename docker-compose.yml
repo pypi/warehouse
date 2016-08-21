@@ -1,7 +1,8 @@
 db:
   image: postgres:9.5
   ports:
-      - "5432:5432"
+    # 5432 may already in use by another PostgreSQL on host
+    - "5433:5432"
 
 redis:
   image: redis:latest
