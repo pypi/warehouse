@@ -1,0 +1,23 @@
+{% macro legacy_pypi_message(action) -%}
+  {% set current_title = "Sign in" if action == "login" else "Register" %}
+  {% set current_page = "logged in" if action == "login" else "register" %}
+  <section class="horizontal-section">
+    <div class="narrow-container">
+      <h2>{{ current_title }}</h2>
+      <p>
+        We're currently working on making the {{ current_page }} pages on PyPI better.
+        If you'd like to see this happen sooner, please consider
+        <a href="https://warehouse.readthedocs.io/development/getting-started/">contributing to Warehouse</a>,
+        or <a href="https://donate.pypi.io/">making a donation</a> (or asking
+        your company to make a donation) towards the ongoing development of the Warehouse project.
+      </p>
+      <p>
+        {% if action == "login" %}
+        <a class="button button--large button--dark" href="https://pypi.python.org/pypi?%3Aaction=login_form">Login at pypi.python.org</a>
+        {% elif action == "register" %}
+        <a class="button button--large button--dark" href="https://pypi.python.org/pypi?%3Aaction=register_form">Register at pypi.python.org</a>
+        {% endif %}
+      </p>
+    </div>
+  </section>
+{%- endmacro %}

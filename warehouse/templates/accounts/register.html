@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 
+{% import "accounts/macros.html" as macros %}
+
 {% block title %}Register{% endblock %}
 
 {%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
 
 {% block content %}
+  {{ macros.legacy_pypi_message("register") }}
+  {#
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
@@ -41,6 +45,7 @@
 
     <input type="submit" value="Register">
   </form>
+  #}
 {% endblock %}
 
 {% block extra_js %}
