@@ -1,6 +1,6 @@
 alembic==0.8.7 \
     --hash=sha256:7fb8a456d6c47fe24b87e02acb405b2094545f9b574beb80105a64fe9b335a45
-amqp==1.4.9 \
+amqp==2.0.3 \
     --hash=sha256:e0ed0ce6b8ffe5690a2e856c7908dc557e0e605283d6885dd1361d79f2928908 \
     --hash=sha256:2dea4d16d073c902c3b89d9b96620fb6729ac0f7a923bbc777cb4ad827c0c61a
 anyjson==0.3.3 \
@@ -16,7 +16,7 @@ bcrypt==3.1.0 \
     --hash=sha256:26bad7f8010ccb029990f1103fb3686cdde098408de4855a2a286b07b96aef83 \
     --hash=sha256:e54820d8b9eff357d1003f5b8d4b949a632b76b89610d8a933783fd476033ebe \
     --hash=sha256:63b67f6be04035c351f4db9ba0c1317c4a8acac6c647cc02755f342171bdc234
-billiard==3.3.0.23 \
+billiard==3.5.0.0 \
     --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b
 bleach==1.4.3 \
     --hash=sha256:1293061adb5a9eebb7b260516e691785ac08cc1646c8976aeda7db9dbb1c6f4b
@@ -60,7 +60,7 @@ hiredis==0.2.0 \
 redis==2.10.5 \
     --hash=sha256:97156b37d7cda4e7d8658be1148c983984e1a975090ba458cc7e244025191dbd \
     --hash=sha256:5dfbae6acfc54edf0a7a415b99e0b21c0a3c27a7f787b292eea727b1facc5533
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
