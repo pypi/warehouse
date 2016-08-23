@@ -64,7 +64,8 @@ def profile(user, request):
     renderer="accounts/login.html",
     uses_session=True,
     require_csrf=True,
-    require_methods=False,
+    # TODO: This should be set to False once login page is completed.
+    require_methods=["GET"],
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
           _form_class=forms.LoginForm):
@@ -177,7 +178,8 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     renderer="accounts/register.html",
     uses_session=True,
     require_csrf=True,
-    require_methods=False,
+    # TODO: This should be set to False once register page is completed.
+    require_methods=["GET"],
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:
