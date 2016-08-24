@@ -401,6 +401,27 @@ class TestFileValidation:
 
         assert legacy._is_valid_dist_file(f, "sdist")
 
+    def test_zipfile_supported_compression(self, tmpdir):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
+
+        assert legacy._is_valid_dist_file(f, "")
+
+    @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
+    def test_zipfile_unsupported_compression(self, tmpdir, method):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("1.txt", b"1", zipfile.ZIP_STORED)
+            zfp.writestr("2.txt", b"2", zipfile.ZIP_DEFLATED)
+            zfp.writestr("3.txt", b"3", method)
+
+        assert not legacy._is_valid_dist_file(f, "")
+
     def test_egg_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.egg"))
 

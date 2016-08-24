@@ -486,6 +486,15 @@ def _is_valid_dist_file(filename, filetype):
     a valid distribution file.
     """
 
+    # If our file is a zipfile, then ensure that it's members are only
+    # compressed with supported compression methods.
+    if zipfile.is_zipfile(filename):
+        with zipfile.ZipFile(filename) as zfp:
+            for zinfo in zfp.infolist():
+                if zinfo.compress_type not in {zipfile.ZIP_STORED,
+                                               zipfile.ZIP_DEFLATED}:
+                    return False
+
     if filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
         if filetype != "bdist_wininst":
