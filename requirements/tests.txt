@@ -3,7 +3,7 @@ coverage
 factory_boy
 freezegun
 pretend
-pytest
+pytest>=3.0.0
 pytest-dbfixtures>=0.9.0
 responses>=0.5.1
 webtest
