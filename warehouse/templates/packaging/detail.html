@@ -55,6 +55,8 @@
 
 {% block title %}{{ release.project.name }}{% endblock %}
 
+{% block description %}{{ release.summary }}{% endblock %}
+
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}
