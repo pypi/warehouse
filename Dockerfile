@@ -59,6 +59,9 @@ RUN set -x \
 # Copy the directory into the container
 COPY . /app/
 
+# Set our work directory to our app directory
+WORKDIR /app/
+
 # Uncomment the below line and add the appropriate private index for the
 # pypi-theme package.
 # ENV PIP_EXTRA_INDEX_URL ...
