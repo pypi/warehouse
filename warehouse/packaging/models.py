@@ -337,7 +337,7 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords])
+        return any([self.keywords, self.requires_python])
 
 
 class File(db.Model):
