@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+    <Description>Search PyPI</Description>
+    <Image height="16" width="16" type="image/icon">{{ request.static_url('warehouse:static/dist/images/favicon.ico') }}</Image>
+    <InputEncoding>UTF-8</InputEncoding>
+    <OutputEncoding>UTF-8</OutputEncoding>
+    <ShortName>PyPI</ShortName>
+    <Url type="text/html" method="GET" template="{{ request.route_url('search') }}?q={searchTerms}"/>
+</OpenSearchDescription>

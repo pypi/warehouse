@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 
+{% import "accounts/macros.html" as macros %}
+
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
-  <form method="POST" action="{{ request.current_route_path() }}">
+  {{ macros.legacy_pypi_message("login_form") }}
+  <form method="POST" action="{{ request.current_route_path() }}" class="hidden">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
     {% if redirect.data %}

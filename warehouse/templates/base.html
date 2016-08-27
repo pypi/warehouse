@@ -22,6 +22,7 @@
     <meta name="availableLanguages" content="en">
 
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
@@ -34,6 +35,15 @@
     {% if self.canonical_url() %}
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
+
+    <meta property="og:url" content="{{ request.current_route_url() }}">
+    <meta property="og:site_name" content="PyPI">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/logo-large.svg') }}">
+    <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
+    <meta property="og:description" content="{{ self.description() }}">
+
+    <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
 
     {# All of our Javascript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start

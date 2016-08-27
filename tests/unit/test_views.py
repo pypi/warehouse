@@ -24,7 +24,7 @@ from pyramid.httpexceptions import (
 from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
-    httpexception_view, index, robotstxt, search
+    httpexception_view, index, robotstxt, opensearchxml, search
 )
 
 from ..common.db.accounts import UserFactory
@@ -67,6 +67,11 @@ class TestForbiddenView:
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
+
+
+def test_opensearchxml(pyramid_request):
+    assert opensearchxml(pyramid_request) == {}
+    assert pyramid_request.response.content_type == "text/xml"
 
 
 class TestIndex:

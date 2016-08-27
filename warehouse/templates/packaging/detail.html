@@ -55,6 +55,8 @@
 
 {% block title %}{{ release.project.name }}{% endblock %}
 
+{% block description %}{{ release.summary }}{% endblock %}
+
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
 {% block content %}
@@ -64,7 +66,13 @@
     <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
     {% if files %}
     <p class="package-header__pip-instructions">
-      <span id="pip-command">pip install {{ release.project.normalized_name }}</span>
+      <span id="pip-command">
+      {% if request.matched_route.name == "packaging.release" %}
+        pip install {{ release.project.normalized_name }}=={{ release.version }}
+      {% else %}
+        pip install {{ release.project.normalized_name }}
+      {% endif %}
+      </span>
       <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
         <i class="fa fa-copy"></i>
         <span class="sr-only">Copy PIP instructions<span>

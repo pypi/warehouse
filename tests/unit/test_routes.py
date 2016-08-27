@@ -70,6 +70,7 @@ def test_routes(warehouse):
         pretend.call("health", "/_health/"),
         pretend.call('index', '/', domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call(
             "bucket.sitemap.xml",

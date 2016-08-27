@@ -1,11 +1,14 @@
 {% extends "base.html" %}
 
+{% import "accounts/macros.html" as macros %}
+
 {% block title %}Register{% endblock %}
 
 {%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
 
 {% block content %}
-  <form method="POST" action="{{ request.current_route_path() }}">
+  {{ macros.legacy_pypi_message("register_form") }}
+  <form method="POST" action="{{ request.current_route_path() }}" class="hidden">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
     {% include "warehouse:templates/includes/input-credentials.html" %}

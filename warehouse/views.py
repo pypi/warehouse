@@ -101,6 +101,23 @@ def robotstxt(request):
 
 
 @view_config(
+    route_name="opensearch.xml",
+    renderer="opensearch.xml",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),         # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,                    # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,     # 1 day
+        )
+    ]
+)
+def opensearchxml(request):
+    request.response.content_type = "text/xml"
+    return {}
+
+
+@view_config(
     route_name="index",
     renderer="index.html",
     decorator=[
