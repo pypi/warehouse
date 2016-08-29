@@ -98,6 +98,16 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "accounts.recover-password",
+            "/account/recover-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.reset-password",
+            "/account/reset-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.project",
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",

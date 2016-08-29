@@ -31,8 +31,6 @@ from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
 
-DEFAULT_REDIRECT = "/"
-
 PASSWORD_RECOVERY_MESSAGE = """
     Someone, perhaps you, has requested that the password be changed for your
     username, "{name}". If you wish to proceed with the change, please follow
@@ -107,9 +105,30 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # the index instead.
         if (not redirect_to or
                 not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = DEFAULT_REDIRECT
+            redirect_to = "/"
 
-        return _login_response(request, userid, redirect_to)
+        # Actually perform the login routine for our user.
+        headers = _login_user(request, userid)
+
+        # Now that we're logged in we'll want to redirect the user to either
+        # where they were trying to go originally, or to the default view.
+        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+
+        # We'll use this cookie so that client side javascript can Determine
+        # the actual user ID (not username, user ID). This is *not* a security
+        # sensitive context and it *MUST* not be used where security matters.
+        #
+        # We'll also hash this value just to avoid leaking the actual User IDs
+        # here, even though it really shouldn't matter.
+        resp.set_cookie(
+            USER_ID_INSECURE_COOKIE,
+            blake2b(
+                str(userid).encode("ascii"),
+                person=b"warehouse.userid",
+            ).hexdigest().lower(),
+        )
+
+        return resp
 
     return {
         "form": form,
@@ -179,7 +198,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=forms.RegistrationForm):
     if request.authenticated_userid is not None:
-        return HTTPSeeOther(DEFAULT_REDIRECT)
+        return HTTPSeeOther("/")
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
@@ -325,34 +344,11 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
         user_service.update_user(userid, password=form.password.data)
 
         # Perform login just after reset password and redirect to default view.
-        return _login_response(request, userid)
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, userid)))
 
     return {"form": form, 'otk': otk}
-
-
-def _login_response(request, userid, redirect_to=DEFAULT_REDIRECT):
-    # Actually perform the login routine for our user.
-    headers = _login_user(request, userid)
-
-    # Now that we're logged in we'll want to redirect the user to either
-    # where they were trying to go originally, or to the default view.
-    resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-
-    # We'll use this cookie so that client side javascript can Determine
-    # the actual user ID (not username, user ID). This is *not* a security
-    # sensitive context and it *MUST* not be used where security matters.
-    #
-    # We'll also hash this value just to avoid leaking the actual User IDs
-    # here, even though it really shouldn't matter.
-    resp.set_cookie(
-        USER_ID_INSECURE_COOKIE,
-        blake2b(
-            str(userid).encode("ascii"),
-            person=b"warehouse.userid",
-        ).hexdigest().lower(),
-    )
-
-    return resp
 
 
 def _login_user(request, userid):
