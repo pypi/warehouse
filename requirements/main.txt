@@ -171,7 +171,7 @@ pytz==2016.6.1 \
     --hash=sha256:b5aff44126cf828537581e534cc94299b223b945a2bb3b5434d37bf8c7f3a10c \
     --hash=sha256:6f57732f0f8849817e9853eb9d50d85d1ebb1404f702dbc44ee627c642a486ca \
     --hash=sha256:51ad716f6081f2126deb436349924e069dfcd0cbd9e0cabdacb0b3a72a3b82e7
-raven==5.25.0 \
+raven==5.26.0 \
     --hash=sha256:aa1e103e43ad72defa57940e5507e14e2d97c705b5b6ea05a76fa4fc0f85e203 \
     --hash=sha256:0eeaefe0ca72405f934c0abb86d78f6e622d631f55b20c6c67bb293adb059af5
 readme-renderer==0.7.0 \
