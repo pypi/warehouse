@@ -29,7 +29,7 @@ botocore==1.4.50 \
 celery==3.1.23 \
     --hash=sha256:eaf5dee3becbc35c7754a2d4482d53bdf72ea3f85dd258525259983262081474 \
     --hash=sha256:1a359c815837f9dbf193a7dbc6addafa34612c077ff70c66e3b16e14eebd2418
-certifi==2016.8.8 \
+certifi==2016.8.31 \
     --hash=sha256:04f0e6677e6a5a64ba83ade859bcdda254c1ccf58545eb72bc2067f51a01873c \
     --hash=sha256:99864ed602d8a9d212e339b15ffa438895002eda7b7db20dca5309dac9605ae9
 cffi==1.7.0 \
