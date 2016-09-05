@@ -223,7 +223,7 @@ WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
 zope.deprecation==4.1.2 \
     --hash=sha256:fed622b51ffc600c13cc5a5b6916b8514c115f34f7ea2730409f30c061eb0b78
-zope.interface==4.3.1 \
+zope.interface==4.3.2 \
     --hash=sha256:e75c5ffbe6883db1d8d74f1634ea8e8edc7c0dee78d56ffc3c4de25fcfe28eac \
     --hash=sha256:16c606e6ba58060284ae8cc6929ffda0ababd438cbf010c6bddd66787b20a60f \
     --hash=sha256:231bf61303db85702fe2e4438d5639be5def5c6db29c8b72041d65a802661090 \
