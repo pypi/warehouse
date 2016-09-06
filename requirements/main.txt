@@ -209,7 +209,7 @@ transaction==1.6.1 \
 translationstring==1.3 \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d
-urllib3==1.16 \
+urllib3==1.17 \
     --hash=sha256:8a46ee9b6b4487ba994e97f9e5eab48513c9b3ebdddc630ee9a899e041147695 \
     --hash=sha256:63d479478ddfc83bbc11577dc16d47835c5179ac13e550118ca143b62c4bf9ab
 venusian==1.0 \
