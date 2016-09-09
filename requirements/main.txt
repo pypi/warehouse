@@ -190,7 +190,7 @@ rfc3986==0.4.1 \
 s3transfer==0.1.3 \
     --hash=sha256:b12e53bb27007eefde2295c682531e5fde7218667cd8b6685dcec23d62296e4f \
     --hash=sha256:779d0cd9aa30fa65c6e8da8dc203d165ef7aa6cab0b7faa502b850e6cb9236dc
-setuptools==26.1.1 \
+setuptools==27.0.0 \
     --hash=sha256:9d7e503229e75fd0361d59dcefba232d06b95f20153d4e27c6e77917aec375e6 \
     --hash=sha256:45b502d7f396ac7b60df1f1d5bd01f928a6bd5979725fa2c653dd93feb6cd686 \
     --hash=sha256:84382e9b6c6c30e88553c9f8acdbb78362d1aa7f5d18c35f2c0e2c86a50ee405
