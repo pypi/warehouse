@@ -121,7 +121,7 @@ pycparser==2.14 \
 Pygments==2.1.3 \
     --hash=sha256:485602129949b14247e8b124d28af4654dffbd076537c4a9c44a538a2c1755b7 \
     --hash=sha256:88e4c8a91b2af5962bfa5ea2447ec6dd357018e86e94c7d14bd8cacbc5b55d81
-pyparsing==2.1.8 \
+pyparsing==2.1.9 \
     --hash=sha256:2f0f5ceb14eccd5aef809d6382e87df22ca1da583c79f6db01675ce7d7f49c18 \
     --hash=sha256:03a4869b9f3493807ee1f1cb405e6d576a1a2ca4d81a982677c0c1ad6177c56b \
     --hash=sha256:ab09aee814c0241ff0c503cff30018219fe1fc14501d89f406f4664a0ec9fbcd \
