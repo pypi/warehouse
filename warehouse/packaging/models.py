@@ -342,7 +342,9 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords])
+        return any([self.keywords,
+                    self.author, self.author_email,
+                    self.maintainer, self.maintainer_email])
 
 
 class File(db.Model):
