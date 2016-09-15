@@ -53,7 +53,9 @@ def upgrade():
         """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
             RETURNS TRIGGER AS $$
             BEGIN
-                IF OLD.requires_python IS DISTINCT FROM NEW.requires_python
+                IF (TG_OP = 'INSERT'
+                        OR
+                    OLD.requires_python IS DISTINCT FROM NEW.requires_python)
                 THEN
                 UPDATE
                     release_files
