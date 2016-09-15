@@ -12,17 +12,17 @@
 """
 Add a requires_python column to release_files; pursuant to enabling PEP 503.
 
-Revision ID: 82ef0549aa30
-Revises: 80300e35c445
-Create Date: 2016-09-15 03:31:44.307358
+Revision ID: be4cf6b58557
+Revises: 3d2b8a42219a
+Create Date: 2016-09-15 04:12:53.430363
 """
 
 from alembic import op
 import sqlalchemy as sa
 
 
-revision = '82ef0549aa30'
-down_revision = '80300e35c445'
+revision = 'be4cf6b58557'
+down_revision = '3d2b8a42219a'
 
 
 def upgrade():
