@@ -12,34 +12,41 @@
 """
 Add a requires_python column to release_files; pursuant to enabling PEP 503.
 
-Revision ID: 80300e35c445
-Revises: 8c8be2c0e69e
-Create Date: 2016-08-25 00:18:42.382362
+Revision ID: 82ef0549aa30
+Revises: 80300e35c445
+Create Date: 2016-09-15 03:31:44.307358
 """
 
 from alembic import op
 import sqlalchemy as sa
 
 
-revision = '80300e35c445'
-down_revision = '8c8be2c0e69e'
+revision = '82ef0549aa30'
+down_revision = '80300e35c445'
+
 
 def upgrade():
-    # Add column to represent the requires_python value in the release_files table.
-    op.add_column("release_files", sa.Column("requires_python", sa.Text(), nullable=True))
+    """
+    Add column `requires_python` in the `release_files` table.
+    """
+    op.add_column("release_files",
+                  sa.Column("requires_python",
+                            sa.Text(),
+                            nullable=True)
+                  )
 
-    # Populate the column with content from release.requires_python.    
+    # Populate the column with content from release.requires_python.
     op.execute(
         """ UPDATE release_files
             SET requires_python = releases.requires_python
-            FROM releases 
-            WHERE 
+            FROM releases
+            WHERE
                 release_files.name=releases.name
                 AND release_files.version=releases.version;
         """
     )
 
-    # Setup a trigger function to ensure that requires_python value on 
+    # Setup a trigger function to ensure that requires_python value on
     # releases is always canonical. Avoids infinite regress by checking
     # that the value is distinct from what it was before.
     op.execute(
@@ -50,10 +57,10 @@ def upgrade():
                 THEN
                 UPDATE
                     release_files
-                SET 
+                SET
                     requires_python = releases.requires_python
                 FROM releases
-                WHERE 
+                WHERE
                     release_files.name=releases.name
                     AND release_files.version=releases.version
                     AND release_files.name = NEW.name
@@ -65,29 +72,33 @@ def upgrade():
         """
     )
 
-    # Establish a trigger such that on INSERT/UPDATE on releases we update 
-    # release_files with the appropriate requires_python values. 
+    # Establish a trigger such that on INSERT/UPDATE on releases we update
+    # release_files with the appropriate requires_python values.
     op.execute(
         """ CREATE TRIGGER releases_requires_python
-            AFTER INSERT OR UPDATE ON releases 
-            FOR EACH ROW EXECUTE PROCEDURE update_release_files_requires_python();
+            AFTER INSERT OR UPDATE ON releases
+            FOR EACH ROW
+                EXECUTE PROCEDURE update_release_files_requires_python();
         """
     )
 
-    # Establish a trigger such that on INSERT/UPDATE on release_files 
-    # if someone changes the requires_python value, it is regenerated from 
-    # releases. 
+    # Establish a trigger such that on INSERT/UPDATE on release_files
+    # if someone changes the requires_python value, it is regenerated from
+    # releases.
     op.execute(
         """ CREATE TRIGGER release_files_requires_python
             AFTER INSERT OR UPDATE ON release_files
-            FOR EACH ROW EXECUTE PROCEDURE update_release_files_requires_python();
+            FOR EACH ROW
+                EXECUTE PROCEDURE update_release_files_requires_python();
         """
     )
 
+
 def downgrade():
+    """
+    Drop triggers that synchronize `release_files` and `releases`.
+    """
     op.execute("DROP TRIGGER release_files_requires_python ON release_files")
     op.execute("DROP TRIGGER releases_requires_python ON releases")
     op.execute("DROP FUNCTION update_release_files_requires_python()")
-    op.drop_column("release_files","requires_python")
-
-   
+    op.drop_column("release_files", "requires_python")
