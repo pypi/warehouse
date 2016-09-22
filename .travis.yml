@@ -3,7 +3,7 @@ python: 3.5.2
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=5.5.0
+    - TRAVIS_NODE_VERSION=6.6.0
     - LIVESERVER_HOST=warehouse.local
     - CXX=g++-4.8
     - secure: "fj97g3yXU6cJPFGpK2Vrd0f9Vms7zCO2oiyT1SUCs5NQMq1WXZfFuYYMSZ3luwzAcRZ/LZtuuoW+CL+5VyCz/qSTv4YOm5Ao2DscEXcemeJPt98abtKcCIRtFVgJ7N7SnO9d4ndmRk6G18CmbcsLINLXe0N27ocwR7bY0m31Wes="

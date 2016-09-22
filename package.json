@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": "5.5.0"
+    "node": "6.6.0"
   },
   "dependencies": {
     "babel-core": "6.7.4",
