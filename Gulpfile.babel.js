@@ -34,7 +34,7 @@ let webpackConfig = {
         test: /\.js$/,
         exclude: /node_modules/,
         loaders: [
-          { loader: "babel", query: { presets: ["es2015-native-modules"] } },
+          { loader: "babel", query: { presets: ["es2015"] } },
         ],
       },
     ],
@@ -145,7 +145,9 @@ gulp.task("dist:font-awesome",
 
 gulp.task("dist:images", () => {
   return gulp.src(path.join(staticPrefix, "images", "**", "*"))
-              .pipe(gulpImage())
+              .pipe(gulpImage({
+                "svgo": false,  // SVGO is currently broken.
+              }))
               .pipe(gulp.dest(path.join(distPath, "images")));
 });
 
@@ -264,7 +266,6 @@ gulp.task("watch", ["dist"], () => {
 
   gulpWatch(
     watchPaths,
-    { usePolling: true },
     gulpBatch((_, done) => { gulp.start("dist", done); })
   );
 });
