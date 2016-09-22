@@ -136,12 +136,6 @@ Viewing Warehouse in a browser
 
 Web container is listening on port 80. It's accessible at ``http://localhost:80/``.
 
-.. note::
-
-    On Mac OS and Windows, the warehouse application might be accessible at
-    ``https://<docker-ip>:80/` you can get information about the docker
-    container with ``docker-machine env``
-
 
 What did we just do and what is happening behind the scenes?
 ------------------------------------------------------------
