@@ -1,0 +1,112 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+
+{% block title %}Deprecate{% endblock %}
+
+{% block content %}
+  <section class="horizontal-section horizontal-section--medium">
+    <div class="site-container">
+
+    {% if deprecated_releases %}
+      <h2>Deprecated releases</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Release</th>
+          <th>Deprecated at</th>
+          <th>Reason</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for release in deprecated_releases %}
+        <tr>
+          <td>{{ release.version }}</td>
+          <td>{{ release.deprecated_at }}</td>
+          <td>{{ release.deprecated_reason }}</td>
+          <td><a href="{{ release.deprecated_url }}" rel="nofollow">{{ release.deprecated_url }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+
+      <h2>Deprecate a release</h2>
+      <p>
+        Todo: Short explanation what it means to deprecate a release. Why it's useful, and so on..
+      </p>
+      <form method="POST" action="{{ request.current_route_path() }}" >
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+
+    <div>
+    {% if form.errors.__all__ %}
+    <ul class="errors">
+      {% for error in form.errors.__all__ %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    </div>
+
+    <div>
+      <div>
+        <label for="reasons">Reason</label>
+      </div>
+      {% if form.reason.errors %}
+      <ul class="errors">
+        {% for error in form.reason.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {{ form.reason() }}
+      <p>Todo: Help text describing what EOL and insecure mean.</p>
+    </div>
+
+    <div>
+      <div>
+        <label for="releases">Release</label>
+      </div>
+      {% if form.release.errors %}
+      <ul class="errors">
+        {% for error in form.release.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {{ form.release() }}
+    </div>
+
+    <div>
+      <div>
+        <label for="url">URL</label>
+      </div>
+      {% if form.url.errors %}
+      <ul class="errors">
+        {% for error in form.url.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {{ form.url() }}
+        <p>Todo: Help text what to fill in here</p>
+      </div>
+    <input type="submit" value="Deprecate">
+  </form>
+  </div>
+  </section>
+{% endblock %}

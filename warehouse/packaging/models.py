@@ -324,6 +324,20 @@ class Release(db.ModelBase):
         viewonly=True,
     )
 
+    deprecated_at = Column(
+        DateTime(timezone=False),
+        nullable=True,
+    )
+    DEPRECATED_REASONS = (
+        ("eol", "End of Life"),
+        ("insecure", "Insecure"),
+    )
+    deprecated_reason = Column(
+        Enum(*[r for r, _ in DEPRECATED_REASONS], name="deprecated_type"),
+        nullable=True,
+    )
+    deprecated_url = Column(Text, nullable=True)
+
     @property
     def urls(self):
         _urls = OrderedDict()

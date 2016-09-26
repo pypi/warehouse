@@ -10,13 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from datetime import datetime
+from pyramid.httpexceptions import (
+    HTTPFound, HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther, HTTPForbidden
+)
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.accounts import REDIRECT_FIELD_NAME
+
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Release, Role
+from warehouse.packaging.forms import DeprecationForm
 
 
 @view_config(
@@ -74,7 +80,8 @@ def release_detail(release, request):
     all_releases = (
         request.db.query(Release)
                   .filter(Release.project == project)
-                  .with_entities(Release.version, Release.created)
+                  .with_entities(Release.version, Release.created,
+                                 Release.deprecated_reason)
                   .order_by(Release._pypi_ordering.desc())
                   .all()
     )
@@ -110,4 +117,62 @@ def release_detail(release, request):
         "all_releases": all_releases,
         "maintainers": maintainers,
         "license": license,
+    }
+
+
+@view_config(
+    route_name="packaging.deprecate",
+    renderer="packaging/deprecate.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def deprecate(project, request, _form_class=DeprecationForm):
+
+    # if the user is not logged in, return a redirect to the login page with
+    # the REDIRECT_URL pointing as parameter that points back to this view.
+    if request.authenticated_userid is None:
+        url = request.route_url(
+            "accounts.login",
+            _query={REDIRECT_FIELD_NAME: request.path_qs},
+        )
+        return HTTPSeeOther(url)
+
+    # check that the currently logged in user belongs to the project. If this
+    # isn't the case, return early with a 403
+    project_userids = [str(p.id) for p in project.users]
+    if request.authenticated_userid not in project_userids:
+        return HTTPForbidden()
+
+    deprecated_releases = [
+        r for r in project.releases if r.deprecated_at is not None
+    ]
+    # instantiate and populate the form data with all available releases
+    # that have not yet been deprecated
+    form = _form_class(data=request.POST)
+    form.release.choices = [
+        (r.version, r.version) for r in project.releases
+        if r not in deprecated_releases
+    ]
+
+    if request.method == "POST" and form.validate():
+        # update the release
+        release = next(
+            filter(lambda r: r.version == form.release.data, project.releases)
+        )
+        release.deprecated_at = datetime.now()
+        release.deprecated_reason = form.reason.data
+        release.deprecated_url = form.url.data
+
+        # redirect to back to this view. This saves us some code because we
+        # don't have to re-populate the form and the context for the updated
+        # release
+        return HTTPFound(
+            request.route_url("packaging.deprecate", name=project.name)
+        )
+
+    return {
+        "project": project,
+        "deprecated_releases": deprecated_releases,
+        "form": form
     }

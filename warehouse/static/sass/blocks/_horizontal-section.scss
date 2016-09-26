@@ -30,6 +30,21 @@
     border-top: 1px solid darken($base-grey, 10);
   }
 
+  &--bad {
+    background-color: $danger-color;
+    color: $white;
+  }
+
+  &--highlight {
+    color: darken($highlight-color, 50);
+    background-color: $highlight-color;
+  }
+
+  &--bad a{
+    color: $white;
+    text-decoration: underline;
+  }
+
   &--medium {
     padding: 40px 0;
   }

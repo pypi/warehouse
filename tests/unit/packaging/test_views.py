@@ -12,7 +12,10 @@
 
 import pretend
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently, HTTPNotFound, HTTPSeeOther, HTTPForbidden,
+    HTTPFound
+)
 
 from warehouse.packaging import views
 
@@ -129,7 +132,7 @@ class TestReleaseDetail:
             "release": releases[1],
             "files": [files[1]],
             "all_releases": [
-                (r.version, r.created) for r in reversed(releases)
+                (r.version, r.created, None) for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None
@@ -185,3 +188,84 @@ class TestReleaseDetail:
         result = views.release_detail(release, db_request)
 
         assert result["license"] == "BSD License, MIT License"
+
+    def test_release_insecure(self, db_request):
+        release = ReleaseFactory.create(deprecated_reason="insecure")
+
+        result = views.release_detail(release, db_request)
+
+        assert result["release"].deprecated_reason == "insecure"
+
+    def test_release_eol(self, db_request):
+        release = ReleaseFactory.create(deprecated_reason="eol")
+
+        result = views.release_detail(release, db_request)
+
+        assert result["release"].deprecated_reason == "eol"
+
+
+class TestDeprecate:
+
+    def test_user_not_authenticated(self, db_request):
+        project = ProjectFactory.create()
+        # stub the route_url call ¯\_(ツ)_/¯
+        # https://github.com/Pylons/pyramid/issues/1202
+        db_request.route_url = pretend.call_recorder(
+            lambda *args, **kw: "/accounts/login/"
+        )
+
+        resp = views.deprecate(project, db_request)
+
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == "/accounts/login/"
+
+    def test_user_is_not_maintainer(self, db_request):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        db_request.set_property(
+            lambda r: str(user.id),
+            name="authenticated_userid",
+        )
+
+        resp = views.deprecate(project, db_request)
+
+        assert isinstance(resp, HTTPForbidden)
+
+    def test_authenticated_get(self, db_request):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        project.users.append(user)
+        db_request.set_property(
+            lambda r: str(user.id),
+            name="authenticated_userid",
+        )
+
+        resp = views.deprecate(project, db_request)
+
+        assert "deprecated_releases" in resp
+        assert "form" in resp
+        assert "project" in resp
+        assert resp["deprecated_releases"] == []
+
+    def test_valid_authenticated_post(self, db_request):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        project.users.append(user)
+        db_request.set_property(
+            lambda r: str(user.id),
+            name="authenticated_userid",
+        )
+        ReleaseFactory.create(project=project, version="0.1")
+        db_request.POST = {"release": "0.1", "reason": "insecure"}
+        db_request.method = "POST"
+        # stub the route_url call ¯\_(ツ)_/¯
+        # https://github.com/Pylons/pyramid/issues/1202
+        db_request.route_url = pretend.call_recorder(
+            lambda *args, **kw: "/project/name/deprecate/"
+        )
+
+        resp = views.deprecate(project, db_request)
+
+        assert isinstance(resp, HTTPFound)
+        assert resp.headers["Location"] == "/project/name/deprecate/"
+        assert project.releases[0].deprecated_reason == "insecure"

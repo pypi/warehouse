@@ -85,6 +85,26 @@
   </div>
 </section>
 
+{% if release.deprecated_reason == "insecure" %}
+<section class="horizontal-section horizontal-section--bad horizontal-section--thin">
+  <div class="site-container">
+    This release is insecure and should'nt be used.
+    {% if release.deprecated_url %}
+    <a href="{{ release.deprecated_url }}">Read more about the vulnerabilities</a>.
+    {% endif %}
+  </div>
+</section>
+{% elif release.deprecated_reason == "eol" %}
+<section class="horizontal-section horizontal-section--highlight horizontal-section--thin">
+  <div class="site-container">
+    This release is deprecated, please consider upgrading.
+    {% if release.deprecated_url %}
+    <a href="{{ release.deprecated_url }}">Read more here</a>.
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
 <section class="package-status">
   <div class="site-container">
     {% if release.version != all_releases[0].version %}
@@ -249,7 +269,11 @@
                 {% else %}
                 <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% endif %}
-
+                {% if hrelease.deprecated_reason == "insecure" %}
+                  <span class="badge -bad">Insecure</span>
+                {% elif hrelease.deprecated_reason == "eol" %}
+                  <span class="badge">EOL</span>
+                {% endif %}
                 <p class="release__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
               </div>
 

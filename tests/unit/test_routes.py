@@ -105,6 +105,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "packaging.deprecate",
+            "/project/{name}/deprecate/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",

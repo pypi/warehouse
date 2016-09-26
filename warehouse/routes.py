@@ -78,6 +78,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "packaging.deprecate",
+        "/project/{name}/deprecate/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse
+    )
+    config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
