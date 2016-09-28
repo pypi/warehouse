@@ -121,10 +121,12 @@ lint: .state/env/pyvenv.cfg
 
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
 
-
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
+
+licenses: .state/env/pyvenv.cfg
+	bin/licenses
 
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
