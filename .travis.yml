@@ -93,6 +93,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
+    - script: make licenses BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Licenses
 
 after_success: codecov
 
