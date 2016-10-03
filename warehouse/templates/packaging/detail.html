@@ -134,16 +134,19 @@
             {% endif %}
         </div>
 
-        <div class="sidebar-section sidebar-section--maintainers">
-          <h3 class="sidebar-section__title">Maintainers</h3>
-          {% for maintainer in maintainers %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=100) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
-          {% endfor %}
-        </div>
-
         {% if release.has_meta %}
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Meta</h3>
+          {% if release.author_email %}
+            <p>Author: <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+          {% elif release.author %}
+            <p>Author: {{ release.author }}</p>
+          {% endif %}
+          {% if release.maintainer_email %}
+            <p>Maintainer: <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+          {% elif release.maintainer %}
+            <p>Maintainer: {{ release.maintainer }}</p>
+          {% endif %}
           {% if release.keywords %}
           <p class="tags"><i class="fa fa-tags"></i>
             {% for keyword in release.keywords | format_tags %}
@@ -155,6 +158,13 @@
           {% endif %}
         </div>
         {% endif %}
+
+        <div class="sidebar-section sidebar-section--maintainers">
+          <h3 class="sidebar-section__title">Maintainers</h3>
+          {% for maintainer in maintainers %}
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
+          {% endfor %}
+        </div>
 
         {% if release.classifiers %}
         <div class="sidebar-section classifiers">

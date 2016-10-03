@@ -35,6 +35,7 @@ app:
     - ./docs:/app/docs:z
     - ./warehouse:/app/warehouse:z
     - ./tests:/app/tests:z
+    - ./htmlcov:/app/htmlcov:z
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken

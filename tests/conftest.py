@@ -110,6 +110,7 @@ def database(request):
     pg_port = config.postgresql.port
     pg_user = config.postgresql.user
     pg_db = config.postgresql.db
+    pg_version = config.postgresql.version
 
     # Create our Database.
     init_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
@@ -117,7 +118,9 @@ def database(request):
     # Ensure our database gets deleted.
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
+        drop_postgresql_database(
+            psycopg2, pg_user, pg_host, pg_port, pg_db, pg_version
+        )
 
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 

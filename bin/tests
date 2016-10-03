@@ -36,3 +36,4 @@ fi
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
 python -m coverage report -m
+python -m coverage html

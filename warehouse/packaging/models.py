@@ -99,6 +99,11 @@ class Project(SitemapMixin, db.ModelBase):
     has_docs = Column(Boolean)
     upload_limit = Column(Integer, nullable=True)
     last_serial = Column(Integer, nullable=False, server_default=sql.text("0"))
+    allow_legacy_files = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+    )
 
     users = orm.relationship(
         User,
@@ -337,7 +342,9 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords])
+        return any([self.keywords,
+                    self.author, self.author_email,
+                    self.maintainer, self.maintainer_email])
 
 
 class File(db.Model):

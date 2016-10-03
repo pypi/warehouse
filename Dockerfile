@@ -17,7 +17,7 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install curl -y \
-    && curl -sL https://deb.nodesource.com/setup_5.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install git libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
