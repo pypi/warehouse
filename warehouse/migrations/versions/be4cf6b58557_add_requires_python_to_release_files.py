@@ -46,17 +46,12 @@ def upgrade():
         """
     )
 
-    # Setup a trigger function to ensure that requires_python value on
-    # releases is always canonical. Avoids infinite regress by checking
-    # that the value is distinct from what it was before.
+    # Setup a trigger function to ensure that requires_python value on 
+    # releases is always canonical. 
     op.execute(
         """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
             RETURNS TRIGGER AS $$
             BEGIN
-                IF (TG_OP = 'INSERT'
-                        OR
-                    OLD.requires_python IS DISTINCT FROM NEW.requires_python)
-                THEN
                 UPDATE
                     release_files
                 SET
@@ -78,29 +73,16 @@ def upgrade():
     # release_files with the appropriate requires_python values.
     op.execute(
         """ CREATE TRIGGER releases_requires_python
-            AFTER INSERT OR UPDATE ON releases
-            FOR EACH ROW
-                EXECUTE PROCEDURE update_release_files_requires_python();
-        """
-    )
-
-    # Establish a trigger such that on INSERT/UPDATE on release_files
-    # if someone changes the requires_python value, it is regenerated from
-    # releases.
-    op.execute(
-        """ CREATE TRIGGER release_files_requires_python
-            AFTER INSERT OR UPDATE ON release_files
-            FOR EACH ROW
-                EXECUTE PROCEDURE update_release_files_requires_python();
+            AFTER INSERT OR UPDATE OF requires_python ON releases 
+            FOR EACH ROW EXECUTE PROCEDURE update_release_files_requires_python();
         """
     )
 
 
 def downgrade():
     """
-    Drop triggers that synchronize `release_files` and `releases`.
+    Drop trigger and function that synchronize `releases`.
     """
-    op.execute("DROP TRIGGER release_files_requires_python ON release_files")
     op.execute("DROP TRIGGER releases_requires_python ON releases")
     op.execute("DROP FUNCTION update_release_files_requires_python()")
     op.drop_column("release_files", "requires_python")
