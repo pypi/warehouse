@@ -46,8 +46,8 @@ def upgrade():
         """
     )
 
-    # Setup a trigger function to ensure that requires_python value on 
-    # releases is always canonical. 
+    # Setup a trigger function to ensure that requires_python value on
+    # releases is always canonical.
     op.execute(
         """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
             RETURNS TRIGGER AS $$
@@ -72,8 +72,9 @@ def upgrade():
     # release_files with the appropriate requires_python values.
     op.execute(
         """ CREATE TRIGGER releases_requires_python
-            AFTER INSERT OR UPDATE OF requires_python ON releases 
-            FOR EACH ROW EXECUTE PROCEDURE update_release_files_requires_python();
+            AFTER INSERT OR UPDATE OF requires_python ON releases
+            FOR EACH ROW 
+                EXECUTE PROCEDURE update_release_files_requires_python();
         """
     )
 
