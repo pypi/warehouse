@@ -73,7 +73,7 @@ def upgrade():
     op.execute(
         """ CREATE TRIGGER releases_requires_python
             AFTER INSERT OR UPDATE OF requires_python ON releases
-            FOR EACH ROW 
+            FOR EACH ROW
                 EXECUTE PROCEDURE update_release_files_requires_python();
         """
     )
