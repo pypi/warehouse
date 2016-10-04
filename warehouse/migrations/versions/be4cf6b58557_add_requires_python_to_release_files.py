@@ -62,7 +62,6 @@ def upgrade():
                     AND release_files.version=releases.version
                     AND release_files.name = NEW.name
                     AND releases.version = NEW.version;
-                END IF;
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
