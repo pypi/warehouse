@@ -22,6 +22,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
+from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
