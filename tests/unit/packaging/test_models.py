@@ -233,6 +233,20 @@ class TestRelease:
 
 class TestFile:
 
+    def test_requires_python(self, db_session):
+        """ Attempt to write a File by setting requires_python directly,
+            which should fail to validate (it should only be set in Release).
+        """
+        with pytest.raises(RuntimeError):
+            project = DBProjectFactory.create()
+            release = DBReleaseFactory.create(project=project)
+            DBFileFactory.create(
+                release=release,
+                filename="{}-{}.tar.gz".format(project.name, release.version),
+                python_version="source",
+                requires_python="1.0"
+            )
+
     def test_compute_paths(self, db_session):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
