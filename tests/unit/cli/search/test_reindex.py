@@ -84,6 +84,12 @@ class FakeESIndices:
                 else:
                     raise ValueError("Unknown action: {!r}.".format(action))
 
+    def put_settings(self, index, body):
+        pass
+
+    def forcemerge(self, index):
+        pass
+
 
 class FakeESClient:
 
