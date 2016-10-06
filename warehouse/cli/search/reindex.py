@@ -57,7 +57,8 @@ def reindex(config, **kwargs):
     """
     client = config.registry["elasticsearch.client"]
     db = Session(bind=config.registry["sqlalchemy.engine"])
-    num_replicas = config.registry.get("elasticsearch.replicas", 0)
+    number_of_replicas = config.registry.get("elasticsearch.replicas", 0)
+    refresh_interval = config.registry.get("elasticsearch.interval", "5s")
 
     # We use a randomly named index so that we can do a zero downtime reindex.
     # Essentially we'll use a randomly named index which we will use until all
@@ -70,20 +71,17 @@ def reindex(config, **kwargs):
     new_index_name = "{}-{}".format(index_base, random_token)
     doc_types = config.registry.get("search.doc_types", set())
 
-    # Create the new index with zero replicas then update it with index
-    # refreshes disabled while we are bulk indexing.
+    # Create the new index with zero replicas and index refreshes disabled
+    # while we are bulk indexing.
     new_index = get_index(
         new_index_name,
         doc_types,
         using=client,
         shards=config.registry.get("elasticsearch.shards", 1),
         replicas=0,
+        interval="-1",
     )
     new_index.create()
-    client.indices.put_settings(
-        index=new_index_name,
-        body={"index": {"refresh_interval": "-1"}}
-    )
 
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
@@ -93,7 +91,7 @@ def reindex(config, **kwargs):
         for _ in parallel_bulk(client, _project_docs(db)):
             pass
     except:
-        client.indices.delete(index=new_index_name)
+        new_index.delete()
         raise
     finally:
         db.rollback()
@@ -106,8 +104,8 @@ def reindex(config, **kwargs):
         index=new_index_name,
         body={
             "index": {
-                "number_of_replicas": num_replicas,
-                "refresh_interval": "5s",
+                "number_of_replicas": number_of_replicas,
+                "refresh_interval": refresh_interval,
             }
         }
     )
