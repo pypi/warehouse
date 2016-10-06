@@ -62,6 +62,8 @@ def includeme(config):
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
         ca_certs=certifi.where(),
+        timeout=30,
+        retry_on_timeout=True,
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
