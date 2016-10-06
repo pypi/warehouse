@@ -58,7 +58,7 @@ def reindex(config, **kwargs):
     client = config.registry["elasticsearch.client"]
     db = Session(bind=config.registry["sqlalchemy.engine"])
     number_of_replicas = config.registry.get("elasticsearch.replicas", 0)
-    refresh_interval = config.registry.get("elasticsearch.interval", "5s")
+    refresh_interval = config.registry.get("elasticsearch.interval", "1s")
 
     # We use a randomly named index so that we can do a zero downtime reindex.
     # Essentially we'll use a randomly named index which we will use until all

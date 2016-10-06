@@ -45,7 +45,7 @@ def test_es(monkeypatch):
         pretend.call(
             number_of_shards=1,
             number_of_replicas=0,
-            refresh_interval="5s",
+            refresh_interval="1s",
         )
     ]
     assert index_obj.search.calls == [pretend.call()]

@@ -29,7 +29,7 @@ def doc_type(cls):
     return cls
 
 
-def get_index(name, doc_types, *, using, shards=1, replicas=0, interval="5s"):
+def get_index(name, doc_types, *, using, shards=1, replicas=0, interval="1s"):
     index = Index(name, using=using)
     for doc_type in doc_types:
         index.doc_type(doc_type)
