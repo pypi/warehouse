@@ -51,10 +51,10 @@ billiard==3.5.0.1 \
     --hash=sha256:692a2a5a55ee39a42bcb7557930e2541da85df9ea81c6e24827f63b80cd39d0b
 bleach==1.4.3 \
     --hash=sha256:1293061adb5a9eebb7b260516e691785ac08cc1646c8976aeda7db9dbb1c6f4b
-boto3==1.4.0 \
+boto3==1.4.1 \
     --hash=sha256:16bf1ce40156356b41b057c307c1f1e225f8e7661c7bd60e0071183749a40249 \
     --hash=sha256:c365144fb98d022ad6f6cdeb1abf8a4849f1a135e3c4ef78ef5053982ed914b3
-botocore==1.4.59 \
+botocore==1.4.60 \
     --hash=sha256:5bdf8d103fc0e13998405262ea7a542192a468aa595597dfe764bcdcf8bc3be0 \
     --hash=sha256:e86d5f1bdaffde46ad5387db245fc76456d50926d5e2cc781690a3d7b8bdfa23
 celery==3.1.24 \
@@ -246,7 +246,7 @@ requests==2.11.1 \
 rfc3986==0.4.1 \
     --hash=sha256:6823e63264be3da1d42b3ec0e393dc8e6d03fd5e28d4291b797c76cf33759061 \
     --hash=sha256:5ac85eb132fae7bbd811fa48d11984ae3104be30d44d397a351d004c633a68d2
-s3transfer==0.1.6 \
+s3transfer==0.1.7 \
     --hash=sha256:de80a69c71b2993a6188423c37ae418b855870a06282d4b0ee56a9a6e8afc34f \
     --hash=sha256:7bff7d99c96cb7573781b3dfcc5148cab5196f46c5c43f045e3c4f29a10a212a
 setuptools==28.2.0 \
