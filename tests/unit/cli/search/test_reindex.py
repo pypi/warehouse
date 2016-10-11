@@ -56,12 +56,7 @@ class FakeESIndices:
 
         self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
         self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
-
-    def create(self, index, body):
-        self.indices[index] = body
-
-    def delete(self, index):
-        self.indices.pop(index, None)
+        self.delete = pretend.call_recorder(lambda *a, **kw: None)
 
     def exists_alias(self, name):
         return name in self.aliases
@@ -138,6 +133,8 @@ class TestReindex:
         monkeypatch.setattr(
             warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
 
+        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+
         result = cli.invoke(reindex, obj=config)
 
         assert result.exit_code == -1
@@ -148,7 +145,9 @@ class TestReindex:
         ]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert es_client.indices.indices == {}
+        assert es_client.indices.delete.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb'),
+        ]
         assert es_client.indices.put_settings.calls == []
         assert es_client.indices.forcemerge.calls == []
 
@@ -199,7 +198,7 @@ class TestReindex:
         assert parallel_bulk .calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
+        assert es_client.indices.delete.calls == []
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
@@ -267,7 +266,9 @@ class TestReindex:
         assert parallel_bulk.calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
+        assert es_client.indices.delete.calls == [
+            pretend.call('warehouse-aaaaaaaaaa'),
+        ]
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
