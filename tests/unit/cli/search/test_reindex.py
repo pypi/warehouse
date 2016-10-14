@@ -54,6 +54,9 @@ class FakeESIndices:
         self.indices = {}
         self.aliases = {}
 
+        self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
+        self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
+
     def create(self, index, body):
         self.indices[index] = body
 
@@ -146,6 +149,8 @@ class TestReindex:
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
         assert es_client.indices.indices == {}
+        assert es_client.indices.put_settings.calls == []
+        assert es_client.indices.forcemerge.calls == []
 
     def test_successfully_indexes_and_adds_new(self, monkeypatch, cli):
         sess_obj = pretend.stub(
@@ -198,6 +203,20 @@ class TestReindex:
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
+        assert es_client.indices.put_settings.calls == [
+            pretend.call(
+                index='warehouse-cbcbcbcbcb',
+                body={
+                    'index': {
+                        'number_of_replicas': 0,
+                        'refresh_interval': '1s',
+                    },
+                },
+            )
+        ]
+        assert es_client.indices.forcemerge.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb')
+        ]
 
     def test_successfully_indexes_and_replaces(self, monkeypatch, cli):
         sess_obj = pretend.stub(
@@ -252,3 +271,17 @@ class TestReindex:
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
+        assert es_client.indices.put_settings.calls == [
+            pretend.call(
+                index='warehouse-cbcbcbcbcb',
+                body={
+                    'index': {
+                        'number_of_replicas': 0,
+                        'refresh_interval': '1s',
+                    },
+                },
+            )
+        ]
+        assert es_client.indices.forcemerge.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb')
+        ]

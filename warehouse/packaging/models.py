@@ -22,6 +22,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, Table, Text,
 )
 from sqlalchemy import func, orm, sql
+from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
@@ -369,6 +370,7 @@ class File(db.Model):
     name = Column(Text)
     version = Column(Text)
     python_version = Column(Text)
+    requires_python = Column(Text)
     packagetype = Column(
         Enum(
             "bdist_dmg", "bdist_dumb", "bdist_egg", "bdist_msi", "bdist_rpm",
@@ -393,6 +395,10 @@ class File(db.Model):
     @pgp_path.expression
     def pgp_path(self):
         return func.concat(self.path, ".asc")
+
+    @validates("requires_python")
+    def validates_requires_python(self, *args, **kwargs):
+        raise RuntimeError("Cannot set File.requires_python")
 
 
 class Filename(db.ModelBase):
