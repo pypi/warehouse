@@ -125,7 +125,7 @@ docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
-licenses:
+licenses: .state/env/pyvenv.cfg
 	bin/licenses
 
 export DEPCHECKER
