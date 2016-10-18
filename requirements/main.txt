@@ -54,7 +54,7 @@ bleach==1.4.3 \
 boto3==1.4.1 \
     --hash=sha256:16bf1ce40156356b41b057c307c1f1e225f8e7661c7bd60e0071183749a40249 \
     --hash=sha256:c365144fb98d022ad6f6cdeb1abf8a4849f1a135e3c4ef78ef5053982ed914b3
-botocore==1.4.62 \
+botocore==1.4.63 \
     --hash=sha256:5bdf8d103fc0e13998405262ea7a542192a468aa595597dfe764bcdcf8bc3be0 \
     --hash=sha256:e86d5f1bdaffde46ad5387db245fc76456d50926d5e2cc781690a3d7b8bdfa23
 celery==3.1.24 \
