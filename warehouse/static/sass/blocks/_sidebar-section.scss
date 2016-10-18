@@ -26,13 +26,15 @@
 
   &--maintainers {
     @include clearfix;
-    a {
-      display: inline-block;
-      margin: 0 5px 5px 0;
+    display: flex;
+    flex-wrap: wrap;
 
-      &:last-of-type {
-        margin-right: 0;
-      }
+    h3 {
+      width: 100%
+    }
+
+    a {
+      margin: 0 5px 5px 0;
     }
 
     img {
