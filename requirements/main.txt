@@ -275,9 +275,9 @@ venusian==1.0 \
     --hash=sha256:1720cff2ca9c369c840c1d685a7c7a21da1afa687bfe62edd93cae4bf429ca5a
 webencodings==0.5 \
     --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
-WebOb==1.6.1 \
-    --hash=sha256:509ce06406bd9c63fc6fba4ea5e96d17f6080f126d6303d6ab583b5f20c3eced \
-    --hash=sha256:e804c583bd0fb947bd7c03d296942b38b985cf1da4fd82bf879994d29edb21fe
+WebOb==1.6.2 \
+    --hash=sha256:f952b693a2d1ae32962e92156f77a451c7376806bda4e72bb966bc99fdfbdf09 \
+    --hash=sha256:e096c20ec672412f7d463fd5ed23f71b9176945c66b8adb8b781b8cda174de84
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
 zope.deprecation==4.1.2 \
