@@ -111,7 +111,7 @@ docutils==0.12 \
 elasticsearch-dsl==2.1.0 \
     --hash=sha256:e11881321a2d0f40c78efcc50905f8f6dc090e1929e541727d7abdf5b8a446d9 \
     --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af
-elasticsearch==2.4.0 \
+elasticsearch==5.0.0 \
     --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692 \
     --hash=sha256:e71dd7058b940f409068d8d5df2354dc4367436947a28e0e03d35d5c0508c310
 hiredis==0.2.0 \
