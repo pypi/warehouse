@@ -5,6 +5,7 @@ boto3
 celery>=3.1
 certifi
 click
+disposable-email-domains
 elasticsearch>=2.0.0,<3.0.0
 elasticsearch_dsl>=2.0.0,<3.0.0
 hiredis

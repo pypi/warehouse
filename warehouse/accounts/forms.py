@@ -11,6 +11,7 @@
 # limitations under the License.
 import re
 
+import disposable_email_domains
 import wtforms
 import wtforms.fields.html5
 
@@ -84,6 +85,9 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError("Email exists.")
+        domain = field.data.split('@')[-1]
+        if domain in disposable_email_domains.blacklist:
+            raise wtforms.validators.ValidationError("Disposable email.")
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required

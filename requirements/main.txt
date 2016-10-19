@@ -305,3 +305,6 @@ zope.interface==4.3.2 \
     --hash=sha256:d5a92d4c10e81d7c2e96a8d6929905b795b46a14fda4b6ec8ec738c02a4f5406
 zope.sqlalchemy==0.7.7 \
     --hash=sha256:5da8ff6b060f3a47fc0cbc61cfd6a83b959b5e730f95e492edcf7b9bf3ec987a
+disposable-email-domains==0.0.2 \
+    --hash=sha256:1a14c60390349c339c10b11a79b3fa4bfccdc62f77c3c19f700e11bfb7a56623 \
+    --hash=sha256:dbbe5c4776f2dc8134b734a6345730095fa91b2f87d215b95e6c4b2ee75c41c9
