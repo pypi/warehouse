@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from elasticsearch_dsl import DocType, String, analyzer, MetaField, Date
+from elasticsearch_dsl import (
+    DocType, String, analyzer, MetaField, Date, Float
+)
 
 from warehouse.search import doc_type
 
@@ -47,6 +49,7 @@ class Project(DocType):
     platform = String(index="not_analyzed")
     created = Date()
     classifiers = String(index="not_analyzed", multi=True)
+    downloads = Float()
 
     class Meta:
         # disable the _all field to save some space
@@ -70,5 +73,6 @@ class Project(DocType):
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = list(release.classifiers)
+        obj["downloads"] = release.project.downloads
 
         return obj

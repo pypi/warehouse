@@ -13,6 +13,7 @@
 import enum
 
 from collections import OrderedDict
+from datetime import datetime
 
 from citext import CIText
 from pyramid.security import Allow
@@ -158,6 +159,12 @@ class Project(SitemapMixin, db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+    @property
+    def downloads(self):
+        release, *_ = self.releases
+        delta = (datetime.now() - release.created).days or 1
+        return release.downloads / delta
 
 
 class DependencyKind(enum.IntEnum):
@@ -346,6 +353,10 @@ class Release(db.ModelBase):
         return any([self.keywords,
                     self.author, self.author_email,
                     self.maintainer, self.maintainer_email])
+
+    @property
+    def downloads(self):
+        return sum([file_.downloads for file_ in self.files])
 
 
 class File(db.Model):
