@@ -148,7 +148,7 @@ msgpack-python==0.4.8 \
     --hash=sha256:1e68a277e4180baa7789be36f27f0891660205f6209f78a32282d3c422873d78 \
     --hash=sha256:f52d9f96df952369fe4adcb0506e10c1c92d47f653f601a66da2a26a7e7141ea \
     --hash=sha256:58c9c1d7891a35bddc6ee5dbec10d347a7ae4983169c24fc5fc8a57ae792ca76
-packaging==16.7 \
+packaging==16.8 \
     --hash=sha256:2e246cde53917a320c4edb549b6b6ed0c80e22be835047bad814687c7345011e \
     --hash=sha256:cbbbc487473b4d729cb0d86ea78ceeea22629cb1f31fd6cc717c5235616ed160
 paginate==0.5.4 \
