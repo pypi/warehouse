@@ -198,7 +198,7 @@ pyramid_mailer==0.14.1 \
 pyramid-multiauth==0.8.0 \
     --hash=sha256:a460e43223e8fbdaa580ef9319fb2f1299bf6cea9c9496e68169c3a6e07ed523 \
     --hash=sha256:535770d3807421c11f891c786cec45407eee71432eaa4d628fa4e6a9b04802d3
-pyramid-rpc==0.7.2 \
+pyramid-rpc==0.8 \
     --hash=sha256:9b949a62f7a5da7f275708610619fdde1500822ed46d336c05aa105cccc22b48 \
     --hash=sha256:0fa4c58586956be40b6fe95c9913f67ee1088eed1192b072932e0814cbec5ab8
 pyramid-services==0.4 \
