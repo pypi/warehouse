@@ -108,7 +108,7 @@ contextlib2==0.5.4 \
 docutils==0.12 \
     --hash=sha256:dcebd4928112631626f4c4d0df59787c748404e66dda952110030ea883d3b8cd \
     --hash=sha256:c7db717810ab6965f66c8cf0398a98c9d8df982da39b4cd7f162911eb89596fa
-elasticsearch-dsl==2.2.0 \
+elasticsearch-dsl==5.0.0 \
     --hash=sha256:e11881321a2d0f40c78efcc50905f8f6dc090e1929e541727d7abdf5b8a446d9 \
     --hash=sha256:48f5869035e852f68bfaf1ba586becf4b109c661e7c054045395f554ac7566af
 elasticsearch==5.0.1 \
