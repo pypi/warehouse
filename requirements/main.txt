@@ -41,12 +41,12 @@ disposable-email-domains==0.0.2 \
 docutils==0.12 \
     --hash=sha256:c7db717810ab6965f66c8cf0398a98c9d8df982da39b4cd7f162911eb89596fa \
     --hash=sha256:dcebd4928112631626f4c4d0df59787c748404e66dda952110030ea883d3b8cd
-elasticsearch-dsl==2.2.0 \
-    --hash=sha256:99bbb4dcbcfb5db4f57499237f24acf1397543e895e99994a09af2a6fbef93bc \
-    --hash=sha256:c8132c6e1bdfc5c345999d3949dd53a53b59ea73e2ee005f695de78be0552ceb
-elasticsearch==2.4.0 \
-    --hash=sha256:e71dd7058b940f409068d8d5df2354dc4367436947a28e0e03d35d5c0508c310 \
-    --hash=sha256:ede15c3573f46ea72c4d53ea7f11fe648c60d167d75d739e27f72d78a6d7f692
+elasticsearch-dsl==5.0.0 \
+    --hash=sha256:9ad78dda39e22dcfa16541a447bf7eda57c4766bfed772d86a7b3b6a9e542250 \
+    --hash=sha256:e686337a4094cc0e9241c616090e86b47e96462e43fe9ecc543025a2cfc9ae7d
+elasticsearch==5.0.1 \
+    --hash=sha256:0454bb57323c10535570042c5cb2246fbdacd286ef4a537cf82e873982a36293 \
+    --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
 html5lib==0.9999999 \
