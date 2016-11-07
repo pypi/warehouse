@@ -2,7 +2,7 @@ alembic>=0.7.0
 Babel
 bcrypt
 boto3
-celery>=3.1
+celery>=4
 certifi
 click
 disposable-email-domains
