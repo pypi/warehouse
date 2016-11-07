@@ -79,7 +79,7 @@ class WarehouseTask(Task):
             super().apply_async(*args, **kwargs)
 
 
-app = Celery("warehouse")
+app = Celery("warehouse", strict_typing=False)
 app.Task = WarehouseTask
 
 
@@ -90,13 +90,13 @@ def includeme(config):
     s = config.registry.settings
     app.pyramid_config = config
     app.conf.update(
-        BROKER_URL=s["celery.broker_url"],
-        BROKER_USE_SSL=s["warehouse.env"] == Environment.production,
-        CELERY_DISABLE_RATE_LIMITS=True,
-        CELERY_RESULT_BACKEND=s["celery.result_url"],
-        CELERY_RESULT_SERIALIZER="json",
-        CELERY_TASK_SERIALIZER="json",
-        CELERY_ACCEPT_CONTENT=["json", "msgpack"],
-        CELERY_MESSAGE_COMPRESSION="gzip",
-        CELERY_QUEUE_HA_POLICY="all",
+        accept_content=["json", "msgpack"],
+        broker_url=s["celery.broker_url"],
+        broker_use_ssl=s["warehouse.env"] == Environment.production,
+        result_backend=s["celery.result_url"],
+        result_compression="gzip",
+        result_serializer="json",
+        task_queue_ha_policy="all",
+        task_serializer="json",
+        worker_disable_rate_limits=True,
     )

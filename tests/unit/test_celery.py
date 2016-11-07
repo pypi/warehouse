@@ -217,13 +217,13 @@ def test_includeme(monkeypatch, env, ssl):
 
     assert app.pyramid_config is config
     assert app.conf == {
-        "BROKER_URL": config.registry.settings["celery.broker_url"],
-        "BROKER_USE_SSL": ssl,
-        "CELERY_DISABLE_RATE_LIMITS": True,
-        "CELERY_RESULT_BACKEND": config.registry.settings["celery.result_url"],
-        "CELERY_RESULT_SERIALIZER": "json",
-        "CELERY_TASK_SERIALIZER": "json",
-        "CELERY_ACCEPT_CONTENT": ["json", "msgpack"],
-        "CELERY_MESSAGE_COMPRESSION": "gzip",
-        "CELERY_QUEUE_HA_POLICY": "all",
+        "broker_url": config.registry.settings["celery.broker_url"],
+        "broker_use_ssl": ssl,
+        "worker_disable_rate_limits": True,
+        "result_backend": config.registry.settings["celery.result_url"],
+        "result_serializer": "json",
+        "task_serializer": "json",
+        "accept_content": ["json", "msgpack"],
+        "result_compression": "gzip",
+        "task_queue_ha_policy": "all",
     }
