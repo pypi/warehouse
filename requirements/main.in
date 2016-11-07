@@ -6,8 +6,8 @@ celery>=4
 certifi
 click
 disposable-email-domains
-elasticsearch>=2.0.0,<3.0.0
-elasticsearch_dsl>=2.0.0,<3.0.0
+elasticsearch>=5.0.0,<6.0.0
+elasticsearch_dsl>=5.0.0,<6.0.0
 hiredis
 html5lib
 itsdangerous

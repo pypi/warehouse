@@ -11,7 +11,7 @@ rabbitmq:
   image: rabbitmq:latest
 
 elasticsearch:
-  image: elasticsearch:2.2
+  image: elasticsearch:5
 
 camo:
   image: pypa/warehouse-camo:latest
