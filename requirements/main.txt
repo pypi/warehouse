@@ -49,7 +49,7 @@ elasticsearch==5.0.1 \
     --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
@@ -98,7 +98,7 @@ pyramid-jinja2==2.6.2 \
 pyramid-mailer==0.14.1 \
     --hash=sha256:763ca71c2ffcce6f0e955ba990f079fb86874e8cb35abdb0905294fa7486ec56 \
     --hash=sha256:ca8cc82ce94ce8f4c92d349e711d126eac02fd3553b78b0673b120acc3c9e93f
-pyramid-multiauth==0.8.0 \
+pyramid-multiauth==0.9.0 \
     --hash=sha256:535770d3807421c11f891c786cec45407eee71432eaa4d628fa4e6a9b04802d3 \
     --hash=sha256:a460e43223e8fbdaa580ef9319fb2f1299bf6cea9c9496e68169c3a6e07ed523
 pyramid-rpc==0.8 \
