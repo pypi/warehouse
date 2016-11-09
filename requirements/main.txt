@@ -62,7 +62,7 @@ jmespath==0.9.0 \
 kombu==4.0.0 \
     --hash=sha256:7fdf5e4a5818c476c95df0af24d79ebcef6a66eca1aa477ae3fcfd98d5c420c0 \
     --hash=sha256:fb855eccbe83d3b97d44ac3f5bb809f97b73938017e383953baf3cb60dbb1ea9
-Mako==1.0.5 \
+Mako==1.0.6 \
     --hash=sha256:e3e27cdd7abfd78337f33bd455f756c823c2d6224ad440a88f14bbd53a5ebc93
 MarkupSafe==0.23 \
     --hash=sha256:a4ec1aff59b95a14b45eb2e23761a0179e98319da5a7eb76b56ea8cdc7b871c3
