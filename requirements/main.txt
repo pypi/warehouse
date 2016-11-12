@@ -27,7 +27,7 @@ celery==4.0.0 \
 certifi==2016.9.26 \
     --hash=sha256:8275aef1bbeaf05c53715bfc5d8569bd1e04ca1e8e69608cc52bcaac2604eb19 \
     --hash=sha256:a60073d7bb5cb01671877efda875e8dab755b98baedfbb9b8b3d9be2d52ad022
-cffi==1.8.3 \
+cffi==1.9.0 \
     --hash=sha256:75348f45112cee84c233a010f404b9369da438e578104dd3b01f1054f9f7519a \
     --hash=sha256:c321bd46faa7847261b89c0469569530cad5a41976bb6dba8202c0159f476568
 click==6.6 \
