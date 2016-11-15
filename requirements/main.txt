@@ -124,7 +124,7 @@ pytz==2016.7 \
     --hash=sha256:6eab31709e3a4aea748457707da45e805b650cbb352583805d2417de2a1dd71e \
     --hash=sha256:8787de03f35f31699bcaf127e56ad14c00647965ed24d72dbaca87c6e4f843a3 \
     --hash=sha256:c6fe748ed6c676d9404b47897cfb399c514fb7428298465c8a3310ee5a2a0ec9
-raven==5.31.0 \
+raven==5.32.0 \
     --hash=sha256:9f06a22083b3ff25a8203b1bf5907df4eb8f74ad8575d61a4a023bde456c5cff \
     --hash=sha256:d5fb3f54af217209110f1d931798f46627a5d9e84768bddaa224f27b82ab3d7d
 readme-renderer==0.7.0 \
@@ -155,7 +155,7 @@ six==1.10.0 \
     --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
 sqlalchemy-citext==1.3.post0 \
     --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
-sqlalchemy==1.1.3 \
+sqlalchemy==1.1.4 \
     --hash=sha256:8b0ed90292a294e17d24482c9328abe69eb8e3143e2bd7103b6fadae2562638f
 structlog==16.1.0 \
     --hash=sha256:a8cc45c208c6b251031ec223940552eccd97dbdb322474e0c4ec9e50f76a225a \
