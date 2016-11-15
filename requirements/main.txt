@@ -92,7 +92,7 @@ pyparsing==2.1.10 \
     --hash=sha256:0aa6e8d8c3f9c447a95a33bb04b103ead630121c3f4233e2980348cecf8b69c8 \
     --hash=sha256:67101d7acee692962f33dd30b5dce079ff532dd9aa99ff48d52a3dad51d2fe84 \
     --hash=sha256:811c3e7b0031021137fc83e051795025fcb98674d07eb8fe922ba4de53d39188
-pyramid-jinja2==2.6.2 \
+pyramid-jinja2==2.7 \
     --hash=sha256:ae5ca85b1f36ed3b23b1e00df4ff09d728317f0d3bf54e9c4e8030c9e15ac12f \
     --hash=sha256:b6b61380da5918e7619c262546e9ee4e2884dc24a14ff12ab480f6b00b9d3a8f
 pyramid-mailer==0.14.1 \
