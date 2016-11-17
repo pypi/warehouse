@@ -10,29 +10,9 @@ You can find more information in the `documentation`_.
 Getting Started
 ---------------
 
-Running a copy of Warehouse locally requires using ``docker`` and
-``docker-compose``. Assuming you have those two items, here are a number of
-commands you can use:
-
-.. code-block:: console
-
-    $ # Start up a local environment
-    $ make serve
-    $ # Start up a local environment in debug mode (pdb enabled)
-    $ make debug
-    $ # Initialize the database and fill it with test data
-    $ make initdb
-    $ # Run the tests
-    $ make tests
-    $ # Build the documentation
-    $ make docs
-    $ # Run the various linters
-    $ make lint
-
-.. note:: reCaptcha is featured in authentication and registration pages. To
-          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
-          through to ``serve`` and ``debug`` targets.
-
+You can run Warehouse locally using ``docker`` and ``docker-compose``. See
+`Getting started <https://warehouse.readthedocs.io/development/getting-started/>`__
+in the documentation for instructions on how to set it up.
 
 Discussion
 ----------
