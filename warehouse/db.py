@@ -75,6 +75,7 @@ class Model(ModelBase):
         server_default=sqlalchemy.text("gen_random_uuid()"),
     )
 
+
 # Create our session class here, this will stay stateless as we'll bind the
 # engine to each new state we create instead of binding it to the session
 # class.
