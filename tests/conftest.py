@@ -58,6 +58,8 @@ def __capabilities_dict(envs, tags):  # noqa
     if "SAUCELABS_TUNNEL" in os.environ:
         caps.setdefault("tunnelIdentifier", os.environ["SAUCELABS_TUNNEL"])
     return caps
+
+
 __capabilities_dict._real_implementation = bok_choy.browser._capabilities_dict
 bok_choy.browser._capabilities_dict = __capabilities_dict
 
