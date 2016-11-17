@@ -16,18 +16,18 @@ commands you can use:
 
 .. code-block:: console
 
-    $ # Start up a local environment
-    $ make serve
-    $ # Start up a local environment in debug mode (pdb enabled)
-    $ make debug
-    $ # Initialize the database and fill it with test data
-    $ make initdb
-    $ # Run the tests
-    $ make tests
-    $ # Build the documentation
-    $ make docs
-    $ # Run the various linters
-    $ make lint
+    # Start up a local environment
+    make serve
+    # Start up a local environment in debug mode (pdb enabled)
+    make debug
+    # Initialize the database and fill it with test data
+    make initdb
+    # Run the tests
+    make tests
+    # Build the documentation
+    make docs
+    # Run the various linters
+    make lint
 
 .. note:: reCaptcha is featured in authentication and registration pages. To
           enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
