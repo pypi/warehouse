@@ -209,7 +209,7 @@ vine==1.1.3 \
     --hash=sha256:87b95da19249373430a8fafca36f1aecb7aa0f1cc78545877857afc46aea2441
 webencodings==0.5 \
     --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
-WebOb==1.6.2 \
+WebOb==1.6.3 \
     --hash=sha256:e096c20ec672412f7d463fd5ed23f71b9176945c66b8adb8b781b8cda174de84 \
     --hash=sha256:f952b693a2d1ae32962e92156f77a451c7376806bda4e72bb966bc99fdfbdf09
 WTForms==2.1 \
