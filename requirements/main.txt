@@ -214,8 +214,9 @@ WebOb==1.6.2 \
     --hash=sha256:f952b693a2d1ae32962e92156f77a451c7376806bda4e72bb966bc99fdfbdf09
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
-zope.deprecation==4.1.2 \
-    --hash=sha256:fed622b51ffc600c13cc5a5b6916b8514c115f34f7ea2730409f30c061eb0b78
+zope.deprecation==4.2.0 \
+    --hash=sha256:15e8a7135f40084b0e15cea9f7cb78e872b8c6a70805f0a0b91b7ce52913e31c \
+    --hash=sha256:ff32c5bb5388b77b22c83ed1f1aa01cdbb076d9f2cfa2b825450ce9e2ecfd738
 zope.interface==4.3.2 \
     --hash=sha256:6a0e224a052e3ce27b3a7b1300a24747513f7a507217fcc2a4cb02eb92945cee
 zope.sqlalchemy==0.7.7 \
