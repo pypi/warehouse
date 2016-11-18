@@ -125,6 +125,10 @@ In a second terminal, separate from the make serve command above, run:
 If you get an error about xz, you may need to install the `xz` utility. This is
 highly likely on Mac OS X and Windows.
 
+.. note:: reCaptcha is featured in authentication and registration pages. To
+          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
+          through to ``serve`` and ``debug`` targets.
+
 
 Viewing Warehouse in a browser
 ------------------------------
@@ -218,8 +222,8 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 ====== ========================================================================
 
 
-Running tests
-=============
+Running tests and linters
+=========================
 
 .. note:: PostgreSQL 9.4 is required because of pgcrypto extension
 
@@ -240,6 +244,12 @@ If you want to run a specific test, you can use the ``T`` variable:
 .. code-block:: console
 
     $ T=tests/unit/i18n/test_filters.py make tests
+
+You can run linters, programs that check the code, with:
+
+.. code-block:: console
+
+    $ make lint
 
 
 Building documentation
