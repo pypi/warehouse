@@ -83,7 +83,7 @@ elasticsearch==5.0.1 \
     --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
@@ -151,7 +151,7 @@ python-dateutil==2.6.0 \
     --hash=sha256:62a2f8df3d66f878373fd0072eacf4ee52194ba302e00082828e0d263b0418d2 \
     --hash=sha256:3acbef017340600e9ff8f2994d8f7afd6eacb295383f286466a6df3961e486f0 \
     --hash=sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716
-python-editor==1.0.1 \
+python-editor==1.0.2 \
     --hash=sha256:8672e9a44a7957741453dd35e842299f6c29f0a88dc9e4316b0fa5935abb9186
 pytz==2016.7 \
     --hash=sha256:054d9814d00254571cff84f6faedb25c046008322cbe51a6d5664c912b4f2929 \
