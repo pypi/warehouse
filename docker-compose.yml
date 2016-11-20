@@ -11,7 +11,7 @@ rabbitmq:
   image: rabbitmq:latest
 
 elasticsearch:
-  image: elasticsearch:2.2
+  image: elasticsearch:5
 
 camo:
   image: pypa/warehouse-camo:latest
@@ -74,7 +74,9 @@ web:
 worker:
   extends:
     service: app
-  command: celery -A warehouse worker -l info --autoreload
+  command: celery -A warehouse worker -l info
+  environment:
+    C_FORCE_ROOT: "1"
   links:
     - db
     - redis

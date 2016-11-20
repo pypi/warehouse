@@ -97,7 +97,7 @@ tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" \
 								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
-								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
+								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 saucelabs:
 	docker-compose run web env -i ENCODING="C.UTF-8" \

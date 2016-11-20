@@ -62,7 +62,7 @@ script:
   - node -v
   - npm -v
   - gulp dist
-  - bin/tests --dbfixtures-config tests/dbfixtures.travis.conf --liveserver-host $LIVESERVER_HOST
+  - bin/tests --postgresql-host 127.0.0.1 --liveserver-host $LIVESERVER_HOST
 
 matrix:
   include:

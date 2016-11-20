@@ -204,6 +204,18 @@ class TestRegistrationForm:
         assert not form.validate()
         assert form.email.errors.pop() == "Email exists."
 
+    def test_blacklisted_email_error(self):
+        form = forms.RegistrationForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(enabled=True),
+        )
+
+        assert not form.validate()
+        assert form.email.errors.pop() == "Disposable email."
+
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(
             data={"g_recpatcha_response": ""},

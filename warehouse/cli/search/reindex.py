@@ -81,7 +81,6 @@ def reindex(config, **kwargs):
         replicas=0,
         interval="-1",
     )
-    new_index.create()
 
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
