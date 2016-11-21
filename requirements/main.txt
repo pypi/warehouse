@@ -141,7 +141,7 @@ pyramid-rpc==0.8 \
 pyramid-services==0.4 \
     --hash=sha256:96c307cc9932c5ba269cceaa9b66ddbd0d864646052c141cfa3c0ba1ee4f518f \
     --hash=sha256:f538a5e7902026902c66a0f1254c4078fce39958e5217ef6d9dfe2704560fa24
-pyramid-tm==1.1.0 \
+pyramid-tm==1.1.1 \
     --hash=sha256:c3f8a5050b449a68436eb62f032659a79ffaa0874538d1c0409e9ec68d926b8e \
     --hash=sha256:fb488955aa08297d3b3437b0bed0add29920d050bb00e8d6d676cbb4a6f5246c
 pyramid==1.7.3 \
