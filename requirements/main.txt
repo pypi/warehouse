@@ -105,7 +105,7 @@ msgpack-python==0.4.8 \
 packaging==16.8 \
     --hash=sha256:5d50835fdf0a7edf0b55e311b7c887786504efea1177abd7e69329a8e5ea619e \
     --hash=sha256:99276dc6e3a7851f32027a68f1095cd3f77c148091b092ea867a351811cfe388
-paginate==0.5.4 \
+paginate==0.5.6 \
     --hash=sha256:03efdfd4e98d39f94bcd0551679f4c808300a2e50d72663eef1676c0aed3a7a3
 passlib==1.6.5 \
     --hash=sha256:a83d34f53dc9b17aa42c9a35c3fbcc5120f3fcb07f7f8721ec45e6a27be347fc \
