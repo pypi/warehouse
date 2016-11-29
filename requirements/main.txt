@@ -69,7 +69,7 @@ click==6.6 \
 contextlib2==0.5.4 \
     --hash=sha256:399f659f2a8b5d5d529f132e1136fc404fbbc28e34e4618c5c92bd595be9b162 \
     --hash=sha256:710626cde569f51a87f216ff757fe60f5cd13ae8f8114706590510cd5649ce88
-disposable-email-domains==0.0.3 \
+disposable-email-domains==0.0.4 \
     --hash=sha256:1a14c60390349c339c10b11a79b3fa4bfccdc62f77c3c19f700e11bfb7a56623 \
     --hash=sha256:dbbe5c4776f2dc8134b734a6345730095fa91b2f87d215b95e6c4b2ee75c41c9
 docutils==0.12 \
