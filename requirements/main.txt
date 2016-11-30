@@ -1,4 +1,4 @@
-alembic==0.8.8 \
+alembic==0.8.9 \
     --hash=sha256:cd6f2192ca2307bfe2a2a61f8a261420addc59a09a6379a6550e0a15693b0b8a
 amqp==2.1.1 \
     --hash=sha256:3c528db2e2bf0131311e27ddc231226919b073964c032f24b16cba3cfa149c23 \
@@ -18,7 +18,7 @@ bleach==1.5.0 \
 boto3==1.4.1 \
     --hash=sha256:0d5e1d546e3974437f3468ea96abac95ba99753830138c3fb14718c7fdf6121e \
     --hash=sha256:f73644c495f24020f20d0f6c22b9b8c4bba13416a2a17ad27120a5a24ac52e3b
-botocore==1.4.75 \
+botocore==1.4.79 \
     --hash=sha256:cad2ae9a872ffa4fb92a16c4876cf2a9c9b3e8abc5333a473ad6f74292745340 \
     --hash=sha256:911bb0f6013e72c509cf702b25c92012a9548fc4635eb5665389f0c5e964bf1d
 celery==4.0.0 \
@@ -69,7 +69,7 @@ click==6.6 \
 contextlib2==0.5.4 \
     --hash=sha256:399f659f2a8b5d5d529f132e1136fc404fbbc28e34e4618c5c92bd595be9b162 \
     --hash=sha256:710626cde569f51a87f216ff757fe60f5cd13ae8f8114706590510cd5649ce88
-disposable-email-domains==0.0.2 \
+disposable-email-domains==0.0.4 \
     --hash=sha256:1a14c60390349c339c10b11a79b3fa4bfccdc62f77c3c19f700e11bfb7a56623 \
     --hash=sha256:dbbe5c4776f2dc8134b734a6345730095fa91b2f87d215b95e6c4b2ee75c41c9
 docutils==0.12 \
@@ -83,7 +83,7 @@ elasticsearch==5.0.1 \
     --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
@@ -105,9 +105,9 @@ msgpack-python==0.4.8 \
 packaging==16.8 \
     --hash=sha256:5d50835fdf0a7edf0b55e311b7c887786504efea1177abd7e69329a8e5ea619e \
     --hash=sha256:99276dc6e3a7851f32027a68f1095cd3f77c148091b092ea867a351811cfe388
-paginate==0.5.4 \
+paginate==0.5.6 \
     --hash=sha256:03efdfd4e98d39f94bcd0551679f4c808300a2e50d72663eef1676c0aed3a7a3
-passlib==1.6.5 \
+passlib==1.7.0 \
     --hash=sha256:a83d34f53dc9b17aa42c9a35c3fbcc5120f3fcb07f7f8721ec45e6a27be347fc \
     --hash=sha256:ad631a58dc8abeb0f48016c13f4b3b0f3a7b1045a8cb3c61dd15e2d95b45c472
 PasteDeploy==1.5.2 \
@@ -141,7 +141,7 @@ pyramid-rpc==0.8 \
 pyramid-services==0.4 \
     --hash=sha256:96c307cc9932c5ba269cceaa9b66ddbd0d864646052c141cfa3c0ba1ee4f518f \
     --hash=sha256:f538a5e7902026902c66a0f1254c4078fce39958e5217ef6d9dfe2704560fa24
-pyramid-tm==1.0.1 \
+pyramid-tm==1.1.1 \
     --hash=sha256:c3f8a5050b449a68436eb62f032659a79ffaa0874538d1c0409e9ec68d926b8e \
     --hash=sha256:fb488955aa08297d3b3437b0bed0add29920d050bb00e8d6d676cbb4a6f5246c
 pyramid==1.7.3 \
@@ -151,7 +151,7 @@ python-dateutil==2.6.0 \
     --hash=sha256:62a2f8df3d66f878373fd0072eacf4ee52194ba302e00082828e0d263b0418d2 \
     --hash=sha256:3acbef017340600e9ff8f2994d8f7afd6eacb295383f286466a6df3961e486f0 \
     --hash=sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716
-python-editor==1.0.1 \
+python-editor==1.0.3 \
     --hash=sha256:8672e9a44a7957741453dd35e842299f6c29f0a88dc9e4316b0fa5935abb9186
 pytz==2016.7 \
     --hash=sha256:054d9814d00254571cff84f6faedb25c046008322cbe51a6d5664c912b4f2929 \
@@ -171,7 +171,7 @@ repoze.lru==0.6 \
     --hash=sha256:0f7a323bf716d3cb6cb3910cd4fccbee0b3d3793322738566ecce163b01bbd31
 repoze.sendmail==4.2 \
     --hash=sha256:ae6363c7694773331c41654d542a204523259206780f2063ac4af44f8d7cb30d
-requests==2.12.1 \
+requests==2.12.2 \
     --hash=sha256:3f3f27a9d0f9092935efc78054ef324eb9f8166718270aefe036dfa1e4f68e1e \
     --hash=sha256:2109ecea94df90980be040490ff1d879971b024861539abb00054062388b612e
 rfc3986==0.4.1 \
@@ -180,7 +180,7 @@ rfc3986==0.4.1 \
 s3transfer==0.1.9 \
     --hash=sha256:17114f393101a6c4a49318429b9facede6183ec52fd14ca54e09aa496da56fbc \
     --hash=sha256:17ad7d672115f93a72ed7917209cb0bb02fc87f96f11886408ed8a6b1bb4c754
-setuptools==28.8.0 \
+setuptools==29.0.1 \
     --hash=sha256:2e59d06ac798efce29c567ee0e0687514efca529a665b8f364cf497cd10d21b2 \
     --hash=sha256:432a1ad4044338c34c2d09b0ff75d509b9849df8cf329f4c1c7706d9c2ba3c61 \
     --hash=sha256:d41de15d58dc01d022f0aff6b514c20709d6f30948d9bfd8581960f3d5e7b997
@@ -209,7 +209,7 @@ vine==1.1.3 \
     --hash=sha256:87b95da19249373430a8fafca36f1aecb7aa0f1cc78545877857afc46aea2441
 webencodings==0.5 \
     --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
-WebOb==1.6.2 \
+WebOb==1.6.3 \
     --hash=sha256:e096c20ec672412f7d463fd5ed23f71b9176945c66b8adb8b781b8cda174de84 \
     --hash=sha256:f952b693a2d1ae32962e92156f77a451c7376806bda4e72bb966bc99fdfbdf09
 WTForms==2.1 \
