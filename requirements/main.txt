@@ -18,7 +18,7 @@ bleach==1.5.0 \
 boto3==1.4.1 \
     --hash=sha256:0d5e1d546e3974437f3468ea96abac95ba99753830138c3fb14718c7fdf6121e \
     --hash=sha256:f73644c495f24020f20d0f6c22b9b8c4bba13416a2a17ad27120a5a24ac52e3b
-botocore==1.4.79 \
+botocore==1.4.80 \
     --hash=sha256:1b1444e15814f7b5a047e300cb49985f273341bb158a5f3184e92b65ff7bb672 \
     --hash=sha256:ee730b281685b0164ca2eb9e86a1e3f294959c9e17ff16c5b42f7f71bf0408ac
 celery==4.0.0 \
@@ -50,7 +50,7 @@ elasticsearch==5.0.1 \
     --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
@@ -138,7 +138,7 @@ repoze.lru==0.6 \
     --hash=sha256:0f7a323bf716d3cb6cb3910cd4fccbee0b3d3793322738566ecce163b01bbd31
 repoze.sendmail==4.2 \
     --hash=sha256:ae6363c7694773331c41654d542a204523259206780f2063ac4af44f8d7cb30d
-requests==2.12.2 \
+requests==2.12.3 \
     --hash=sha256:09dadb7c5c4210ebbc7f1b14a351a754f1191bd7cd5a5b60ee1929b8c7dcbbe6 \
     --hash=sha256:e5a102790b234bde8f949090e50e294490c2be0d81e3d55530fd91f3b5eded63
 rfc3986==0.4.1 \
