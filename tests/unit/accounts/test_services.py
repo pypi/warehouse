@@ -30,7 +30,7 @@ class TestDatabaseUserService:
     def test_service_creation(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(
-            lambda schemes, deprecated: crypt_context_obj
+            lambda **kwargs: crypt_context_obj
         )
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
@@ -43,11 +43,20 @@ class TestDatabaseUserService:
             pretend.call(
                 schemes=[
                     "bcrypt_sha256",
+                    "argon2",
                     "bcrypt",
                     "django_bcrypt",
                     "unix_disabled",
                 ],
-                deprecated=["auto"],
+                deprecated=[
+                    "bcrypt",
+                    "django_bcrypt",
+                    "unix_disabled",
+                ],
+                truncate_error=True,
+                argon2__memory_cost=1024,
+                argon2__parallelism=6,
+                argon2__time_cost=6,
             ),
         ]
 

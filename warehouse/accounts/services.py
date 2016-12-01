@@ -29,11 +29,22 @@ class DatabaseUserService:
         self.hasher = CryptContext(
             schemes=[
                 "bcrypt_sha256",
+                "argon2",
                 "bcrypt",
                 "django_bcrypt",
                 "unix_disabled",
             ],
-            deprecated=["auto"],
+            deprecated=[
+                "bcrypt",
+                "django_bcrypt",
+                "unix_disabled",
+            ],
+            truncate_error=True,
+
+            # Argon 2 Configuration
+            argon2__memory_cost=1024,
+            argon2__parallelism=6,
+            argon2__time_cost=6,
         )
 
     @functools.lru_cache()
@@ -95,7 +106,7 @@ class DatabaseUserService:
 
         user = User(username=username,
                     name=name,
-                    password=self.hasher.encrypt(password),
+                    password=self.hasher.hash(password),
                     is_active=is_active,
                     is_staff=is_staff,
                     is_superuser=is_superuser)
