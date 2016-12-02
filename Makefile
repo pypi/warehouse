@@ -166,5 +166,7 @@ purge: clean
 	rm -rf .state
 	docker-compose rm --force --all
 
+stop:
+	docker ps -aq --filter name=warehouse | xargs docker stop
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug stop
