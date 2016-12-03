@@ -6,4 +6,4 @@ pretend
 pytest>=3.0.0
 pytest-postgresql==1.1.0
 responses>=0.5.1
-webtest
+webtest==2.0.23
