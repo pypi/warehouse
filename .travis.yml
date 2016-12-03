@@ -99,6 +99,10 @@ matrix:
 
 after_success: codecov
 
+branches:
+  only:
+    - master
+
 notifications:
   irc:
     channels:
