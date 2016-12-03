@@ -88,9 +88,9 @@
 <section class="package-status">
   <div class="site-container">
     {% if release.version != latest_release.version %}
-    <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.release', name=release.project.name, version=latest_release.version) }}">Newer version available ({{ latest_release.version }})</a>
+    <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_release.version }})</a>
     {% else %}
-    <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">Latest Version</a>
+    <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
     {% endif %}
 
     {# TODO: We need to actually make these do something. #}
