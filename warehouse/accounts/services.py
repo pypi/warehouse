@@ -28,17 +28,13 @@ class DatabaseUserService:
         self.db = session
         self.hasher = CryptContext(
             schemes=[
-                "bcrypt_sha256",
                 "argon2",
+                "bcrypt_sha256",
                 "bcrypt",
                 "django_bcrypt",
                 "unix_disabled",
             ],
-            deprecated=[
-                "bcrypt",
-                "django_bcrypt",
-                "unix_disabled",
-            ],
+            deprecated=["auto"],
             truncate_error=True,
 
             # Argon 2 Configuration

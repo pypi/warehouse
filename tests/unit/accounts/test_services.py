@@ -42,17 +42,13 @@ class TestDatabaseUserService:
         assert crypt_context_cls.calls == [
             pretend.call(
                 schemes=[
-                    "bcrypt_sha256",
                     "argon2",
+                    "bcrypt_sha256",
                     "bcrypt",
                     "django_bcrypt",
                     "unix_disabled",
                 ],
-                deprecated=[
-                    "bcrypt",
-                    "django_bcrypt",
-                    "unix_disabled",
-                ],
+                deprecated=["auto"],
                 truncate_error=True,
                 argon2__memory_cost=1024,
                 argon2__parallelism=6,
