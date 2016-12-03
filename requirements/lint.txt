@@ -1,4 +1,4 @@
-doc8
+doc8==0.7.0
 flake8
 html-linter==0.3.0
 pep8-naming
