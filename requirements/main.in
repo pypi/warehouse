@@ -9,6 +9,7 @@ click
 disposable-email-domains
 elasticsearch>=5.0.0,<6.0.0
 elasticsearch_dsl>=5.0.0,<6.0.0
+first
 hiredis
 html5lib
 itsdangerous

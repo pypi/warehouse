@@ -11,6 +11,8 @@
 # limitations under the License.
 
 from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
+from first import first
+from packaging.version import parse as parse_version
 
 from warehouse.search import doc_type
 
@@ -34,6 +36,7 @@ class Project(DocType):
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer, index_options="docs")
     version = Keyword(multi=True)
+    latest_version = Keyword()
     summary = Text(analyzer="snowball")
     description = Text(analyzer="snowball")
     author = Text()
@@ -57,7 +60,23 @@ class Project(DocType):
         obj = cls(meta={"id": release.project.normalized_name})
         obj["name"] = release.project.name
         obj["normalized_name"] = release.project.normalized_name
-        obj["version"] = [r.version for r in release.project.releases]
+        obj["version"] = [
+            r.version
+            for r in sorted(
+                release.project.releases,
+                key=lambda r: parse_version(r.version),
+                reverse=True,
+            )
+        ]
+        obj["latest_version"] = first(
+            sorted(
+                release.project.releases,
+                key=lambda r: parse_version(r.version),
+                reverse=True,
+            ),
+            key=lambda r: not r.is_prerelease,
+            default=release.project.releases[0],
+        ).version
         obj["summary"] = release.summary
         obj["description"] = release.description
         obj["author"] = release.author
