@@ -1,7 +1,7 @@
 bok-choy>=0.6.0
 coverage==4.2
 factory-boy==2.7.0
-freezegun
+freezegun==0.3.8
 pretend
 pytest>=3.0.0
 pytest-postgresql==1.1.0
