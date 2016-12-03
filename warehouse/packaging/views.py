@@ -85,8 +85,8 @@ def release_detail(release, request):
                   .all()
     )
 
-    # Get the latest non-prerelease version of this Project, or the latest
-    # of any version if there are no non-prerelease versions.
+    # Get the latest non-prerelease of this Project, or the latest release if
+    # all releases are prereleases.
     latest_release = first(
         all_releases,
         key=lambda r: not r.is_prerelease,
