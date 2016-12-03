@@ -4,8 +4,8 @@
 set -eo pipefail
 
 # Versions
-H2O_VERSION="2.0.0-beta2"
-CMAKE_VERSION="3.5.2"
+H2O_VERSION="2.0.4"
+CMAKE_VERSION="3.7.1"
 
 # Paths.
 BIN_DIR=$(cd $(dirname $0); pwd) # absolute path
