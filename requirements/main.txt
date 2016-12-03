@@ -50,7 +50,7 @@ elasticsearch==5.0.1 \
     --hash=sha256:bebb51b1bc312f2a305b49a2c0900bbfcbdfd9f23e93ff1fc05f4132f2a3d1ed
 hiredis==0.2.0 \
     --hash=sha256:ca958e13128e49674aa4a96f02746f5de5973f39b57297b84d59fd44d314d5b5
-html5lib==0.9999999 \
+html5lib==0.999999999 \
     --hash=sha256:2612a191a8d5842bfa057e41ba50bbb9dcb722419d2408c78cff4758d0754868
 itsdangerous==0.24 \
     --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
