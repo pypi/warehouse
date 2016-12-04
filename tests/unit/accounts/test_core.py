@@ -154,7 +154,7 @@ def test_includeme(monkeypatch):
 
     config = pretend.stub(
         register_service_factory=pretend.call_recorder(
-            lambda factory, iface: None
+            lambda factory, iface, name=None: None
         ),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         set_authentication_policy=pretend.call_recorder(lambda p: None),

@@ -16,6 +16,7 @@ import wtforms
 import wtforms.fields.html5
 
 from warehouse import forms, recaptcha
+from warehouse.accounts.interfaces import TooManyFailedLogins
 
 
 class CredentialsMixin:
@@ -119,5 +120,13 @@ class LoginForm(CredentialsMixin, forms.Form):
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
-            if not self.user_service.check_password(userid, field.data):
-                raise wtforms.validators.ValidationError("Invalid password.")
+            try:
+                if not self.user_service.check_password(userid, field.data):
+                    raise wtforms.validators.ValidationError(
+                        "Invalid password.",
+                    )
+            except TooManyFailedLogins:
+                raise wtforms.validators.ValidationError(
+                    "There have been too many unsuccessful login attempts, "
+                    "please try again later."
+                ) from None

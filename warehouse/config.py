@@ -136,6 +136,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "download_stats.url", "REDIS_URL")
+    maybe_set(settings, "ratelimit.url", "REDIS_URL")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
@@ -296,6 +297,9 @@ def configure(settings=None):
 
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
+
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
 
     config.include(".search")
 
