@@ -29,7 +29,7 @@ if ! test -d $CACHE_DIR/h2o || ! test -f $CACHE_DIR/h2o/h2o-version || [ $(cat $
 
     puts-step "Downloading Packages"
     puts-line "Downloading CMake"
-    curl "https://cmake.org/files/v3.5/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz" -sL -o - | tar xzf - -C $BUILD_DIR
+    curl "https://cmake.org/files/v3.7/cmake-$CMAKE_VERSION-Linux-x86_64.tar.gz" -sL -o - | tar xzf - -C $BUILD_DIR
     puts-line "Downloading H2O $H2O_VERSION"
     curl "https://github.com/h2o/h2o/archive/v${H2O_VERSION}.tar.gz" -sL -o - | tar xzf - -C $BUILD_DIR
     cd "$BUILD_DIR/h2o-$H2O_VERSION"
