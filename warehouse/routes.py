@@ -61,6 +61,11 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.profile.edit",
+        "/user/{username}/edit",
+        domain=warehouse,
+    )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route(
