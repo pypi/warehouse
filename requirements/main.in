@@ -14,6 +14,7 @@ hiredis
 html5lib
 itsdangerous
 Jinja2>=2.8
+limits
 msgpack-python
 packaging>=15.2
 paginate>=0.5.2
