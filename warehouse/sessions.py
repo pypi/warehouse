@@ -277,6 +277,11 @@ def session_view(view, info):
         # with a wrapper that just ensures that the session cannot be used.
         @functools.wraps(view)
         def wrapped(context, request):
+            # TODO: When Pyramid 1.8 is released we can make this better by
+            #       using info.exception_only.
+            if request.exception is not None:
+                return view(context, request)
+
             # Save the original session so that we can restore it once the
             # inner views have been called.
             original_session = request.session

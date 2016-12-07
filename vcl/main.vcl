@@ -171,6 +171,13 @@ sub vcl_recv {
         return(pass);
     }
 
+    # We never want to cache our admin URLs, while this should be "safe" due to
+    # the architecure of Warehouse, it'll just be easier to debug issues if
+    # these always are uncached.
+    if (req.url ~ "^/admin/") {
+        return(pass);
+    }
+
     # Finally, return the default lookup action.
     return(lookup);
 }

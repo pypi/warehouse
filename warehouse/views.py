@@ -67,12 +67,12 @@ def httpexception_view(exc, request):
 
 
 @forbidden_view_config()
-def forbidden(exc, request):
+def forbidden(exc, request, redirect_to="accounts.login"):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
     if request.authenticated_userid is None:
         url = request.route_url(
-            "accounts.login",
+            redirect_to,
             _query={REDIRECT_FIELD_NAME: request.path_qs},
         )
         return HTTPSeeOther(url)

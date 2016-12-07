@@ -19,6 +19,7 @@ import transaction
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
+from pyramid.security import Allow
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -48,6 +49,19 @@ class Configurator(_Configurator):
 
         # Finally, return our now wrapped app
         return app
+
+
+class RootFactory:
+
+    __parent__ = None
+    __name__ = None
+
+    __acl__ = [
+        (Allow, "group:admins", "admin"),
+    ]
+
+    def __init__(self, request):
+        pass
 
 
 def require_https_tween_factory(handler, registry):
@@ -185,6 +199,7 @@ def configure(settings=None):
     # Actually setup our Pyramid Configurator with the values pulled in from
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
+    config.set_root_factory(RootFactory)
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -327,6 +342,9 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Include our admin application
+    config.include(".admin")
 
     # Register forklift, at least until we split it out into it's own project.
     config.include(".forklift")

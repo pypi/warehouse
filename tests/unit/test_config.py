@@ -211,6 +211,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     configurator_settings = other_settings.copy()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
+        set_root_factory=pretend.call_recorder(lambda rf: None),
         include=pretend.call_recorder(lambda include: None),
         add_directive=pretend.call_recorder(lambda name, fn, **k: None),
         add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
@@ -286,6 +287,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
 
     assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
     assert result is configurator_obj
+    assert configurator_obj.set_root_factory.calls == [
+        pretend.call(config.RootFactory),
+    ]
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
@@ -331,6 +335,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".admin"),
             pretend.call(".forklift"),
             pretend.call(".raven"),
             pretend.call(".csp"),
