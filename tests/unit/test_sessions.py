@@ -544,7 +544,7 @@ class TestSessionView:
     @pytest.mark.parametrize("uses_session", [False, None])
     def test_invalid_session(self, uses_session):
         context = pretend.stub()
-        request = pretend.stub(session=pretend.stub())
+        request = pretend.stub(session=pretend.stub(), exception=None)
         response = pretend.stub()
 
         @pretend.call_recorder

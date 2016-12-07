@@ -45,7 +45,12 @@ def _authenticate(userid, request):
     if user is None:
         return
 
-    return []  # TODO: Add other principles.
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+
+    return principals
 
 
 def _user(request):
