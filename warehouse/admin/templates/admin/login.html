@@ -38,26 +38,28 @@
         {% endfor %}
       {% endif %}
 
-      {% if form.username.errors %}
-        {% for error in form.username.errors %}
-        <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
-        {% endfor %}
-      {% endif %}
-
-      <div class="form-group has-feedback">
+      <div class="form-group{% if form.username.errors %} has-error{% endif %}">
         {{ form.username(class="form-control", placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false") }}
-        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+
+        {% if form.username.errors %}
+        <span class="help-block">
+            {% for error in form.username.errors %}
+            <div>{{ error }}</div>
+            {% endfor %}
+        </span>
+        {% endif %}
       </div>
 
-      {% if form.password.errors %}
-        {% for error in form.password.errors %}
-        <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
-        {% endfor %}
-      {% endif %}
-
-      <div class="form-group has-feedback">
+      <div class="form-group{% if form.password.errors %} has-error{% endif %}">
         {{ form.password(class="form-control", placeholder="Password") }}
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+
+        {% if form.password.errors %}
+        <span class="help-block">
+            {% for error in form.password.errors %}
+            <div>{{ error }}</div>
+            {% endfor %}
+        </span>
+        {% endif %}
       </div>
 
       <div class="row">
