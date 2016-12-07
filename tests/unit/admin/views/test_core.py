@@ -12,7 +12,7 @@
 
 import pretend
 
-from warehouse.admin import views
+from warehouse.admin.views import core as views
 
 
 class TestForbidden:
