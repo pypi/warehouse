@@ -110,7 +110,7 @@ def database(request):
     pg_port = config.get("port") or 5432
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 9.5)
+    pg_version = config.get("version", 9.6)
 
     # Create our Database.
     init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
