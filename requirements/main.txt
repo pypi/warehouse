@@ -104,9 +104,9 @@ pyparsing==2.1.10 \
 pyramid-jinja2==2.7 \
     --hash=sha256:2e12f1f40d770be2d9680697bb7f9e3dd446341db254b8ebdd8539f9118ddd75 \
     --hash=sha256:5c21081f65a5bec0b76957990c2b89ed41f4fd11257121387110cb722fd0e5eb
-pyramid-mailer==0.14.1 \
-    --hash=sha256:763ca71c2ffcce6f0e955ba990f079fb86874e8cb35abdb0905294fa7486ec56 \
-    --hash=sha256:ca8cc82ce94ce8f4c92d349e711d126eac02fd3553b78b0673b120acc3c9e93f
+pyramid-mailer==0.15 \
+    --hash=sha256:2679f0539b2971a46378360b399a542d1acbf116d31c42d8c65be968c556d274 \
+    --hash=sha256:710f3d25a99c86c39033f75747419bfba78fc894696b901c13d5d8c26b85ded7
 pyramid-multiauth==0.9.0 \
     --hash=sha256:3eda2a01de867ce8e68e8f0f410a7b51be68891e34dc31808992fdf1bcc4f952 \
     --hash=sha256:6cad38c3613db10b45fe7dd5f4b81e43d7ed12c623cbceee7626d4d0dd8a0f52
