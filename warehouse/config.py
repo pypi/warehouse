@@ -316,6 +316,8 @@ def configure(settings=None):
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
 
+    config.include(".static")
+
     config.include(".search")
 
     # Register the support for AWS
@@ -382,6 +384,11 @@ def configure(settings=None):
             strict=not prevent_http_cache,
         ),
     )
+    config.whitenoise_serve_static(
+        autorefresh=prevent_http_cache,
+        max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+    )
+    config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
 
     # Enable Warehouse to serve our locale files
     config.add_static_view("locales", "warehouse:locales/")

@@ -1,2 +1,6 @@
 pip-tools>=1.0
 pyramid_debugtoolbar>=2.5
+
+# TODO: Once https://github.com/Pylons/hupper/pull/8 is merged we can replace
+#       this with just a hupper>N.
+git+https://github.com/dstufft/hupper.git@hupper-m#egg=hupper
