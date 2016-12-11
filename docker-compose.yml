@@ -59,7 +59,7 @@ app:
 web:
   extends:
     service: app
-  command: gunicorn -b 0.0.0.0:8000 -n warehouse --reload warehouse.wsgi
+  command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
   environment:
     PORT: 8000
   ports:

@@ -38,5 +38,6 @@ sqlalchemy>=0.9
 sqlalchemy-citext
 structlog
 transaction
+whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

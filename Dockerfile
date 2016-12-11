@@ -46,8 +46,8 @@ COPY requirements /tmp/requirements
 RUN set -x \
     && pip install -U pip setuptools \
     && pip install -r /tmp/requirements/dev.txt \
-                   -r /tmp/requirements/tests.txt \
-    && pip install -r /tmp/requirements/deploy.txt \
+    && pip install -r /tmp/requirements/tests.txt \
+                   -r /tmp/requirements/deploy.txt \
                    -r /tmp/requirements/main.txt \
     # Uncomment the below line if you're working on the PyPI theme, this is a
     # private repository due to the fact that other people's IP is contained
