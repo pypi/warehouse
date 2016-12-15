@@ -328,6 +328,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".db"),
             pretend.call(".rate_limiting"),
             pretend.call(".static"),
+            pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".celery"),

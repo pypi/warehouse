@@ -18,14 +18,14 @@ RUN set -x \
     && apt-get update \
     && apt-get install curl -y \
     && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-    && apt-get install git libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
+    && apt-get install git libxml2 libxslt1.1 libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN set -x \
     && apt-get update \
-    && apt-get install inotify-tools wget bzip2 gcc g++ make libpq-dev libjpeg-dev libffi-dev --no-install-recommends -y \
+    && apt-get install inotify-tools wget bzip2 gcc g++ make libpq-dev libjpeg-dev libffi-dev libxml2-dev libxslt1-dev --no-install-recommends -y \
     && wget https://saucelabs.com/downloads/sc-4.3.14-linux.tar.gz -O /tmp/sc.tar.gz \
     && tar zxvf /tmp/sc.tar.gz --strip 1 -C /usr/ \
     && chmod 755 /usr/bin/sc
