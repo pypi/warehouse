@@ -64,7 +64,6 @@ def upgrade():
                             AND packagetype = 'sdist'
                         ORDER BY upload_time
                         LIMIT (row.sdist_count - 1)
-                        FOR UPDATE
                     ) s
                     WHERE release_files.id = s.id;
                 END LOOP;
@@ -80,6 +79,7 @@ def upgrade():
         postgresql_where=sa.text(
             "packagetype = 'sdist' AND allow_multiple_sdist = false"
         ),
+        postgresql_concurrently=True,
     )
 
 
