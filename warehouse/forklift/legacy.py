@@ -809,11 +809,12 @@ def file_upload(request):
 
     # Check to see if uploading this file would create a duplicate sdist for
     # the current release.
-    if (request.db.query(
-            request.db.query(File)
-                      .filter((File.release == release) &
-                              (File.packagetype == "sdist"))
-                      .exists()).scalar()):
+    if (form.filetype.data == "sdist" and
+            request.db.query(
+                request.db.query(File)
+                          .filter((File.release == release) &
+                                  (File.packagetype == "sdist"))
+                          .exists()).scalar()):
         raise _exc_with_message(
             HTTPBadRequest,
             "Only one sdist may be uploaded per release.",
