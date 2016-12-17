@@ -31,8 +31,7 @@ def upgrade():
         sa.Column(
             "allow_multiple_sdist",
             sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=False,
+            nullable=True,
         ),
     )
 
@@ -69,6 +68,20 @@ def upgrade():
                 END LOOP;
             END $$;
         """
+    )
+
+    op.execute(
+        """ UPDATE release_files
+            SET allow_multiple_sdist = false
+            WHERE allow_multiple_sdist IS NULL
+        """
+    )
+
+    op.alter_column(
+        "release_files",
+        "allow_multiple_sdist",
+        nullable=False,
+        server_default=sa.text("false"),
     )
 
     op.create_index(
