@@ -38,7 +38,7 @@ from warehouse.packaging.models import (
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
-    ProjectFactory, ReleaseFactory, RoleFactory,
+    ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
 
 
@@ -932,6 +932,42 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Invalid file extension."
+
+    def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        FileFactory.create(
+            release=release,
+            packagetype="sdist",
+            filename="{}-{}.tar.gz".format(project.name, release.version),
+        )
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.zip".format(project.name, release.version)
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"A fake file."),
+                type="application/zip",
+            ),
+        })
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == "400 Only one sdist may be uploaded per release."
 
     @pytest.mark.parametrize("sig", [b"lol nope"])
     def test_upload_fails_with_invalid_signature(self, pyramid_config,

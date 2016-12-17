@@ -807,6 +807,18 @@ def file_upload(request):
             "different version.",
         )
 
+    # Check to see if uploading this file would create a duplicate sdist for
+    # the current release.
+    if (request.db.query(
+            request.db.query(File)
+                      .filter((File.release == release) &
+                              (File.packagetype == "sdist"))
+                      .exists()).scalar()):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only one sdist may be uploaded per release.",
+        )
+
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
