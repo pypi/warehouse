@@ -365,7 +365,6 @@ class File(db.Model):
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
 
-            Index("release_files_name_idx", "name"),
             Index("release_files_name_version_idx", "name", "version"),
             Index("release_files_packagetype_idx", "packagetype"),
             Index("release_files_version_idx", "version"),
