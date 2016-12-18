@@ -217,7 +217,22 @@ def search(request):
         query = request.es.query()
 
     if request.params.get("o"):
-        query = query.sort(request.params["o"])
+        sort_key = request.params["o"]
+        if sort_key.startswith("-"):
+            sort = {
+                sort_key[1:]: {
+                    "order": "desc",
+                    "unmapped_type": "long",
+                },
+            }
+        else:
+            sort = {
+                sort_key: {
+                    "unmapped_type": "long",
+                }
+            }
+
+        query = query.sort(sort)
 
     if request.params.getall("c"):
         query = query.filter("terms", classifiers=request.params.getall("c"))
