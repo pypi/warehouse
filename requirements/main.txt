@@ -101,7 +101,8 @@ kombu==4.0.2 \
 limits==1.2.0 \
     --hash=sha256:f8b04e2ead526fdd7382c9a9b9c9817530d1377ad5d8743b021f7c5b4a596a33
 lxml==3.7.0 \
-    --hash=sha256:9c62eb2a1862e1ae285d7e7e3b7dc8772d387b19258086afcec143c6b7b8a5c9
+    --hash=sha256:9c62eb2a1862e1ae285d7e7e3b7dc8772d387b19258086afcec143c6b7b8a5c9 \
+    --hash=sha256:bf907c3825d14cdc5874c97c1d54c5b034a2daecc59a450b945ac2186286d792
 Mako==1.0.6 \
     --hash=sha256:48559ebd872a8e77f92005884b3d88ffae552812cdf17db6768e5c3be5ebbe0d
 MarkupSafe==0.23 \
