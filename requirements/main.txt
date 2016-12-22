@@ -50,9 +50,9 @@ bleach==1.5.0 \
 boto3==1.4.3 \
     --hash=sha256:3ec5869557415af4f05db36faf03aebb51c4e0b9db28cbe8a05690b8604e0698 \
     --hash=sha256:d221b19d513f039d3980075cdd4cece51ec60f5034a8b1721cbbf0073343e5e8
-botocore==1.4.87 \
-    --hash=sha256:138ea88030168aba1c5eaf4f2d28a786f328b327d9e066387386f6db1a0553cb \
-    --hash=sha256:6ac64c778455a4e10b6556ee27592b9f7fb31925faf0054181c26ae7e40fea39
+botocore==1.4.90 \
+    --hash=sha256:19c09a491d42e36f11b2c75fa76e017d97e9007cc54e8fd6bf3bd87cea82e1b0 \
+    --hash=sha256:c578c769a4e8ebeb04bca77311d8042fb80949c2ecafd5ff3470ec9fffdf15ec
 celery==4.0.2 \
     --hash=sha256:0e5b7e0d7f03aa02061abfd27aa9da05b6740281ca1f5228a54fbf7fe74d8afa \
     --hash=sha256:e3d5a6c56a73ff8f2ddd4d06dc37f4c2afe4bb4da7928b884d0725ea865ef54d
@@ -221,9 +221,9 @@ vine==1.1.3 \
     --hash=sha256:87b95da19249373430a8fafca36f1aecb7aa0f1cc78545877857afc46aea2441
 webencodings==0.5 \
     --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
-WebOb==1.6.3 \
-    --hash=sha256:1b03115e162dd0102f6147c5d5ed71a3a2ba0f58ef829244b64f52fe6dbf5888 \
-    --hash=sha256:7ff07cc07d32a3fda749aead3579917e31c35240419d69bfc7b5220feac3eb04
+WebOb==1.7.0 \
+    --hash=sha256:2fd2d754b88ce24a67d8d35cdc15f8ba14f9c8ad1f6f28c8361839cf993ca98f \
+    --hash=sha256:d8ba8fbf5fc30ad7e68f37388b34526c604e4c3b342e654b72edbcb40b2e6b03
 whitenoise==3.2.2 \
     --hash=sha256:90a576ecb938cfef3fd1dba0c82d10e8e9ff0acb6079d7edba64822db0e4384d \
     --hash=sha256:e4c77cdde3f7a1cd2c1d985d6a3d7dc8aff5f3d18c2f331e7171933aacaeb440
