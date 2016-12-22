@@ -221,9 +221,9 @@ vine==1.1.3 \
     --hash=sha256:87b95da19249373430a8fafca36f1aecb7aa0f1cc78545877857afc46aea2441
 webencodings==0.5 \
     --hash=sha256:a5c55ee93b24e740fe951c37b5c228dccc1f171450e188555a775261cce1b904
-WebOb==1.6.3 \
-    --hash=sha256:1b03115e162dd0102f6147c5d5ed71a3a2ba0f58ef829244b64f52fe6dbf5888 \
-    --hash=sha256:7ff07cc07d32a3fda749aead3579917e31c35240419d69bfc7b5220feac3eb04
+WebOb==1.7.0 \
+    --hash=sha256:2fd2d754b88ce24a67d8d35cdc15f8ba14f9c8ad1f6f28c8361839cf993ca98f \
+    --hash=sha256:d8ba8fbf5fc30ad7e68f37388b34526c604e4c3b342e654b72edbcb40b2e6b03
 whitenoise==3.2.2 \
     --hash=sha256:90a576ecb938cfef3fd1dba0c82d10e8e9ff0acb6079d7edba64822db0e4384d \
     --hash=sha256:e4c77cdde3f7a1cd2c1d985d6a3d7dc8aff5f3d18c2f331e7171933aacaeb440
