@@ -52,8 +52,8 @@ lazy==1.2 \
 mirakuru==0.8.2 \
     --hash=sha256:cb5b5d11d57f74f073a9afd4025a7edb9d0170fabd16ef30b60bf1973005af48 \
     --hash=sha256:a72e59a9a55739cac123ad78afd26fe1d67f6b8998b36f4bf83b100e85510337
-needle==0.3 \
-    --hash=sha256:d60452d98ea429355a6b5f3f4ee80a8ac421907d1dcf842c22d6309cc32148ee
+needle==0.4 \
+    --hash=sha256:ac4dd8ed34d34b23201d5d3aa9bf49bed2b45fda241620d66993aeda9e292faa
 nose==1.3.7 \
     --hash=sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a \
     --hash=sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac \
@@ -171,9 +171,9 @@ six==1.10.0 \
 waitress==1.0.1 \
     --hash=sha256:b996b00516b832d8772d110280058e2c73523686104ee00cc739ddb13cee20c8 \
     --hash=sha256:2daacaece189ede6a23440afe03bda58089a6207f1d80a1e9497f979dfb741fc
-WebOb==1.6.3 \
-    --hash=sha256:7ff07cc07d32a3fda749aead3579917e31c35240419d69bfc7b5220feac3eb04 \
-    --hash=sha256:1b03115e162dd0102f6147c5d5ed71a3a2ba0f58ef829244b64f52fe6dbf5888
+WebOb==1.7.0 \
+    --hash=sha256:2fd2d754b88ce24a67d8d35cdc15f8ba14f9c8ad1f6f28c8361839cf993ca98f \
+    --hash=sha256:d8ba8fbf5fc30ad7e68f37388b34526c604e4c3b342e654b72edbcb40b2e6b03
 WebTest==2.0.24 \
     --hash=sha256:b1b0ca4dfc7ff45c22065a182067bac03f2678200022324f8c27ece806d16d33 \
     --hash=sha256:c56529b42b48123d44f16e3baf3987c5956fb512e71e8d71d78ef66325fadccd
