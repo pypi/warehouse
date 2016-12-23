@@ -15,9 +15,12 @@ html5lib
 itsdangerous
 Jinja2>=2.8
 limits
+lxml
+mistune
 msgpack-python
 packaging>=15.2
 paginate>=0.5.2
+paginate_sqlalchemy
 passlib>=1.6.4
 psycopg2
 pyblake2
@@ -38,5 +41,6 @@ sqlalchemy>=0.9
 sqlalchemy-citext
 structlog
 transaction
+whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

@@ -300,7 +300,6 @@ sub vcl_deliver {
 
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
-    unset resp.http.Server;
     unset resp.http.Via;
 
     # Unset a few headers set by Amazon that we don't really have a need/desire
