@@ -43,6 +43,9 @@ def includeme(config):
         "warehouse:templates/pages/sponsors.html",
     )
 
+    # Our legal policies
+    config.add_policy("terms-of-use", "terms.md")
+
     # HTML Snippets for including into other pages.
     config.add_route(
         "includes.current-user-indicator",
