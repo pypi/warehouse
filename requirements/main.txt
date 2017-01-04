@@ -229,9 +229,9 @@ webencodings==0.5 \
 WebOb==1.7.0 \
     --hash=sha256:2fd2d754b88ce24a67d8d35cdc15f8ba14f9c8ad1f6f28c8361839cf993ca98f \
     --hash=sha256:d8ba8fbf5fc30ad7e68f37388b34526c604e4c3b342e654b72edbcb40b2e6b03
-whitenoise==3.2.2 \
-    --hash=sha256:90a576ecb938cfef3fd1dba0c82d10e8e9ff0acb6079d7edba64822db0e4384d \
-    --hash=sha256:e4c77cdde3f7a1cd2c1d985d6a3d7dc8aff5f3d18c2f331e7171933aacaeb440
+whitenoise==3.2.3 \
+    --hash=sha256:e76bf2d44158ed2e85c512cec1595b34680ea76337f77ea635da3668b852d7fd \
+    --hash=sha256:4d98104c5704a88fdeb7c06ef6bba515a79ded41cd2b3967e20591b4fdbd2908
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
 zope.deprecation==4.2.0 \
