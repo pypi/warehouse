@@ -35,7 +35,7 @@ sudo: false
 addons:
   hosts:
     - warehouse.local
-  postgresql: "9.4" # https://github.com/travis-ci/travis-ci/issues/4264
+  postgresql: "9.6"
   # sauce_connect: true
   apt:
     sources:
@@ -54,8 +54,7 @@ cache:
 install:
   - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
   - pip install -U pip setuptools wheel codecov
-  - pip install -r requirements/main.txt
-  - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
+  - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
 
 script:
@@ -98,6 +97,10 @@ matrix:
         - SUITE=Licenses
 
 after_success: codecov
+
+branches:
+  only:
+    - master
 
 notifications:
   irc:

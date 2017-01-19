@@ -1,4 +1,5 @@
 alembic>=0.7.0
+argon2-cffi
 Babel
 bcrypt
 boto3
@@ -8,17 +9,22 @@ click
 disposable-email-domains
 elasticsearch>=5.0.0,<6.0.0
 elasticsearch_dsl>=5.0.0,<6.0.0
+first
 hiredis
 html5lib
 itsdangerous
 Jinja2>=2.8
+limits
+lxml
+mistune
 msgpack-python
 packaging>=15.2
 paginate>=0.5.2
+paginate_sqlalchemy
 passlib>=1.6.4
 psycopg2
 pyblake2
-pyramid>=1.7
+pyramid>=1.7,<1.8
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
@@ -35,5 +41,6 @@ sqlalchemy>=0.9
 sqlalchemy-citext
 structlog
 transaction
+whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

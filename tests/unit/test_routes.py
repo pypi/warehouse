@@ -63,6 +63,11 @@ def test_routes(warehouse):
         def add_xmlrpc_endpoint(endpoint, pattern, header, domain=None):
             pass
 
+        @staticmethod
+        @pretend.call_recorder
+        def add_policy(name, filename):
+            pass
+
     config = FakeConfig()
     includeme(config)
 
@@ -216,4 +221,8 @@ def test_routes(warehouse):
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
+    ]
+
+    assert config.add_policy.calls == [
+        pretend.call("terms-of-use", "terms.md"),
     ]

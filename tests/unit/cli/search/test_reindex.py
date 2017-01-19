@@ -15,6 +15,8 @@ import os
 import packaging.version
 import pretend
 
+from first import first
+
 import warehouse.cli.search.reindex
 
 from warehouse.cli.search.reindex import reindex, _project_docs
@@ -42,6 +44,10 @@ def test_project_docs(db_session):
                 "name": p.name,
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
+                "latest_version": first(
+                    prs,
+                    key=lambda r: not r.is_prerelease,
+                ).version,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())

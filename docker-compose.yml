@@ -1,5 +1,5 @@
 db:
-  image: postgres:9.5
+  image: postgres:9.6
   ports:
     # 5432 may already in use by another PostgreSQL on host
     - "5433:5432"
@@ -60,7 +60,7 @@ app:
 web:
   extends:
     service: app
-  command: gunicorn -b 0.0.0.0:8000 -n warehouse --reload warehouse.wsgi
+  command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
   environment:
     PORT: 8000
   ports:

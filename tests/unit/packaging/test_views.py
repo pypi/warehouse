@@ -12,6 +12,7 @@
 
 import pretend
 
+from first import first
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
@@ -67,6 +68,41 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_with_prereleases(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0")
+        ReleaseFactory.create(project=project, version="4.0.dev0")
+
+        release = ReleaseFactory.create(project=project, version="3.0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_only_prereleases(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(project=project, version="1.0.dev0")
+        ReleaseFactory.create(project=project, version="2.0.dev0")
+
+        release = ReleaseFactory.create(project=project, version="3.0.dev0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
 
 class TestReleaseDetail:
 
@@ -100,8 +136,12 @@ class TestReleaseDetail:
         project = ProjectFactory.create()
         releases = [
             ReleaseFactory.create(project=project, version=v)
-            for v in ["1.0", "2.0", "3.0"]
+            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
         ]
+        latest_release = first(
+            reversed(releases),
+            key=lambda r: not r.is_prerelease,
+        )
         files = [
             FileFactory.create(
                 release=r,
@@ -128,8 +168,14 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "latest_release": (
+                latest_release.version,
+                latest_release.is_prerelease,
+                latest_release.created,
+            ),
             "all_releases": [
-                (r.version, r.created) for r in reversed(releases)
+                (r.version, r.is_prerelease, r.created)
+                for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None

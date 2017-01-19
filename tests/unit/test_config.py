@@ -211,6 +211,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     configurator_settings = other_settings.copy()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
+        set_root_factory=pretend.call_recorder(lambda rf: None),
         include=pretend.call_recorder(lambda include: None),
         add_directive=pretend.call_recorder(lambda name, fn, **k: None),
         add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
@@ -225,6 +226,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_tween=pretend.call_recorder(lambda tween_factory, **kw: None),
         add_static_view=pretend.call_recorder(lambda *a, **kw: None),
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
+        whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
+        whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
@@ -286,6 +289,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
 
     assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
     assert result is configurator_obj
+    assert configurator_obj.set_root_factory.calls == [
+        pretend.call(config.RootFactory),
+    ]
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
@@ -320,6 +326,9 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".domain"),
             pretend.call(".i18n"),
             pretend.call(".db"),
+            pretend.call(".rate_limiting"),
+            pretend.call(".static"),
+            pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".celery"),
@@ -330,6 +339,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".admin"),
             pretend.call(".forklift"),
             pretend.call(".raven"),
             pretend.call(".csp"),
@@ -398,6 +408,12 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             reload=False,
             strict=True,
         ),
+    ]
+    assert configurator_obj.whitenoise_serve_static.calls == [
+        pretend.call(autorefresh=False, max_age=315360000),
+    ]
+    assert configurator_obj.whitenoise_add_files.calls == [
+        pretend.call("warehouse:static/dist/", prefix="/static/"),
     ]
     assert configurator_obj.add_directive.calls == [
         pretend.call(

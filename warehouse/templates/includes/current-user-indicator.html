@@ -15,6 +15,9 @@
 
   {% if request.user %}
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
+  {% if request.has_permission("admin") %}
+  <a class="horizontal-menu__link" href="{{ request.route_path('admin.dashboard') }}">Admin</a>
+  {% endif %}
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
   {% else %}
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Sign In</a>

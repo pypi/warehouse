@@ -24,6 +24,8 @@ from warehouse.accounts.services import (
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
 )
+from warehouse.rate_limiting import RateLimit, IRateLimiter
+
 
 REDIRECT_FIELD_NAME = 'next'
 
@@ -47,7 +49,12 @@ def _authenticate(userid, request):
     if user is None:
         return
 
-    return []  # TODO: Add other principles.
+    principals = []
+
+    if user.is_superuser:
+        principals.append("group:admins")
+
+    return principals
 
 
 def _user(request):
@@ -81,3 +88,16 @@ def includeme(config):
 
     # Add a request method which will allow people to access the user object.
     config.add_request_method(_user, name="user", reify=True)
+
+    # Register the rate limits that we're going to be using for our login
+    # attempts
+    config.register_service_factory(
+        RateLimit("10 per 5 minutes"),
+        IRateLimiter,
+        name="user.login",
+    )
+    config.register_service_factory(
+        RateLimit("1000 per 5 minutes"),
+        IRateLimiter,
+        name="global.login",
+    )

@@ -13,6 +13,14 @@
 from zope.interface import Interface
 
 
+class TooManyFailedLogins(Exception):
+
+    def __init__(self, *args, resets_in, **kwargs):
+        self.resets_in = resets_in
+
+        return super().__init__(*args, **kwargs)
+
+
 class IUserService(Interface):
 
     def get_user(userid):
