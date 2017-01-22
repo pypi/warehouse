@@ -161,8 +161,13 @@ class ResetPasswordForm(CredentialsMixin, forms.Form):
         self._fields.pop('username')
 
     def validate_password(self, field):
+        if not PWD_RE.match(field.data):
+            raise wtforms.validators.ValidationError(
+                "Password must contain an upper case letter, a lower case "
+                "letter, a number, a special character and be at least "
+                "%d characters in length" % PWD_MIN_LEN
+            )
         if self.userid is not None:
             if self.user_service.check_password(self.userid, field.data):
                 raise wtforms.validators.ValidationError(
                     "Password shouldn't match with previous one.")
-
