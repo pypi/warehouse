@@ -161,9 +161,9 @@ pyramid-services==0.4 \
 pyramid-tm==1.1.1 \
     --hash=sha256:44ce2845456c881fabb88edafbb421d76f3ffd590ee9a45a26d67437da9bd35f \
     --hash=sha256:6d8133e174118375d88dd0112f7dc509eae40074017d587648a17625f539ecd4
-pyramid==1.7.3 \
-    --hash=sha256:74b8eedf2b0a1a658ab79ae4b0ecf68fa8cdd5debcfec579c8b40bec83d1864e \
-    --hash=sha256:bb370b25727e16baff27468d4425216af4586b1a4516acf5ad8970b4c268cf79
+pyramid==1.8 \
+    --hash=sha256:e50be0b5bc0c2aeee90d621c9fc96e61179bfca83b94bed3ce749c32adab7efc \
+    --hash=sha256:ba27a33739c55500acfd5d369387938a59ee2c142d00fe0dc50881da495b7348
 python-dateutil==2.6.0 \
     --hash=sha256:3acbef017340600e9ff8f2994d8f7afd6eacb295383f286466a6df3961e486f0 \
     --hash=sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716 \
