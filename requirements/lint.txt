@@ -13,9 +13,9 @@ flake8==3.2.1 \
     --hash=sha256:c7c460b5aff3a2063c798a77af18ec70af3941d35a22e2e76965e3c0e0b36055
 html-linter==0.3.0 \
     --hash=sha256:1fedb2b0c3575023dcd7bf1c05a6ceeb650a7ea36d11411eb871b38fd92a0ed0
-mccabe==0.5.3 \
-    --hash=sha256:f9b58bf366c1506dcd6117b33e5c4874746f0de859c9c7cab8b516cb6be1d22e \
-    --hash=sha256:16293af41e7242031afd73896fef6458f4cad38201d21e28f344fff50ae1c25e
+mccabe==0.6.1 \
+    --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
+    --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
 pbr==1.10.0 \
     --hash=sha256:f5cf7265a80636ecff66806d13494cbf9d77a3758a65fd8b4d4d4bee81b0c375 \
     --hash=sha256:186428c270309e6fdfe2d5ab0949ab21ae5f7dea831eab96701b86bd666af39c
