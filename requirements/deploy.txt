@@ -16,9 +16,9 @@ incremental==16.10.1 \
 priority==1.2.2 \
     --hash=sha256:b584e83e1bf24227fb7ef8db5903510ed95eaec43a9dda22fcdc7dea52f957f3 \
     --hash=sha256:6cd04ba9d2ce1a6a25ceb5f52674c3f400cf21ff948fcfcf76afd6c8a9b19c07
-setuptools==33.1.1 \
-    --hash=sha256:4ed8f634b11fbba8c0ba9db01a8d24ad464f97a615889e9780fc74ddec956711 \
-    --hash=sha256:6b20352ed60ba08c43b3611bdb502286f7a869fbfcf472f40d7279f1e77de145
+setuptools==34.0.2 \
+    --hash=sha256:f9ac44de8b36a13ce35d2989052a295a548c9fe5a161fb066dff53592200aa12 \
+    --hash=sha256:a5bdc45a3c123a88c84e089a789ba70bbc61ee888c1306fd9dac04e037e81c37
 Twisted[http2]==16.6.0 \
     --hash=sha256:ed19c3cd92e94798ea79f06f939159f8858a3a4b65a26c40b275369d8cf5ac3e \
     --hash=sha256:d0fe115ea7ef8cf632d05103de60356c6e992b2153d6830bdc4476f8accb1fca
