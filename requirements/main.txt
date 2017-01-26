@@ -59,9 +59,9 @@ botocore==1.5.6 \
 celery==4.0.2 \
     --hash=sha256:0e5b7e0d7f03aa02061abfd27aa9da05b6740281ca1f5228a54fbf7fe74d8afa \
     --hash=sha256:e3d5a6c56a73ff8f2ddd4d06dc37f4c2afe4bb4da7928b884d0725ea865ef54d
-certifi==2016.9.26 \
-    --hash=sha256:8275aef1bbeaf05c53715bfc5d8569bd1e04ca1e8e69608cc52bcaac2604eb19 \
-    --hash=sha256:a60073d7bb5cb01671877efda875e8dab755b98baedfbb9b8b3d9be2d52ad022
+certifi==2017.1.23 \
+    --hash=sha256:f74a224a9860fd5a2e9757230a7ea3eba82d6d46914780abc18e70c8b58d4bf8 \
+    --hash=sha256:81877fb7ac126e9215dfb15bfef7115fdc30e798e0013065158eed0707fd99ce
 cffi==1.9.1 \
     --hash=sha256:563e0bd53fda03c151573217b3a49b3abad8813de9dd0632e10090f6190fdaf8 \
     --hash=sha256:a7930e73a4359b52323d09de6d6860840314aa09346cbcf4def8875e1b07ebc7
