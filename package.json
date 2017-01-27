@@ -23,7 +23,7 @@
     "gulp-rev-napkin": "0.1.0",
     "gulp-sass": "2.3.2",
     "gulp-sequence": "0.4.6",
-    "gulp-sourcemaps": "1.9.1",
+    "gulp-sourcemaps": "1.9.2",
     "gulp-uglify": "2.0.0",
     "gulp-watch": "4.3.11",
     "imports-loader": "0.6.5",

@@ -544,7 +544,7 @@ class TestSessionView:
     @pytest.mark.parametrize("uses_session", [False, None])
     def test_invalid_session(self, uses_session):
         context = pretend.stub()
-        request = pretend.stub(session=pretend.stub(), exception=None)
+        request = pretend.stub(session=pretend.stub())
         response = pretend.stub()
 
         @pretend.call_recorder
@@ -552,7 +552,7 @@ class TestSessionView:
             assert isinstance(request.session, InvalidSession)
             return response
 
-        info = pretend.stub(options={})
+        info = pretend.stub(options={}, exception_only=False)
         if uses_session is not None:
             info.options["uses_session"] = uses_session
         derived_view = session_view(view, info)
