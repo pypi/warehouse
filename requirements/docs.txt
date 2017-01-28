@@ -10,9 +10,9 @@ docutils==0.13.1 \
 imagesize==0.7.1 \
     --hash=sha256:6ebdc9e0ad188f9d1b2cdd9bc59cbe42bf931875e829e7a595e6b3abdc05cdfb \
     --hash=sha256:0ab2c62b87987e3252f89d30b7cedbec12a01af9274af9ffa48108f2c13c6062
-Jinja2==2.9.4 \
-    --hash=sha256:93b97a811b575998899b293fdb2144c536aeb7d6ee13464b0cf8e86ae64eb56b \
-    --hash=sha256:aab8d8ca9f45624f1e77f2844bf3c144d180e97da8824c2a6d7552ad039b5442
+Jinja2==2.9.5 \
+    --hash=sha256:a7b7438120dbe76a8e735ef7eba6048eaf4e0b7dbc530e100812f8ec462a4d50 \
+    --hash=sha256:702a24d992f856fa8d5a7a36db6128198d0c21e1da34448ca236c42e92384825
 MarkupSafe==0.23 \
     --hash=sha256:a4ec1aff59b95a14b45eb2e23761a0179e98319da5a7eb76b56ea8cdc7b871c3
 Pygments==2.2.0 \
