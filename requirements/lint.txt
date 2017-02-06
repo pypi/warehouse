@@ -22,9 +22,9 @@ pbr==1.10.0 \
 pep8-naming==0.4.1 \
     --hash=sha256:4eedfd4c4b05e48796f74f5d8628c068ff788b9c2b08471ad408007fc6450e5a \
     --hash=sha256:1b419fa45b68b61cd8c5daf4e0c96d28915ad14d3d5f35fcc1e7e95324a33a2e
-pycodestyle==2.2.0 \
-    --hash=sha256:60c4e1c36f301ac539a550a29e9d16862069ec240472d86e5e71c4fc645829cb \
-    --hash=sha256:df81dc3293e0123e2e8d1f2aaf819600e4ae287d8b3af8b72181af50257e5d9a
+pycodestyle==2.3.0 \
+    --hash=sha256:ae308be77310759b722965cfe4a81b69c10aacaecb2db2c874ceb1720cc8f1aa \
+    --hash=sha256:a5910db118cf7e66ff92fb281a203c19ca2b5134620dd2538a794e636253863b
 pyflakes==1.3.0 \
     --hash=sha256:ad89dafee8ca32282116209a0ca4dff050bdc343af958721d5517d242c1215d5 \
     --hash=sha256:a4f93317c97a9d9ed71d6ecfe08b68e3de9fea3f4d94dcd1d9d83ccbf929bc31
