@@ -244,7 +244,8 @@
             <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
               <div class="release__meta">
                 {% if is_current %}
-                <p class="release__version">{{ hrelease.version }}</p>
+                <p class="release__version"><a href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+                {{ hrelease.version }}</a></p>
                 <span class="badge">This version</span>
                 {% else %}
                 <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
