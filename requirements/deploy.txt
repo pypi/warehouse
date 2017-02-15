@@ -42,3 +42,6 @@ Twisted[http2]==17.1.0 \
     --hash=sha256:dbf211d70afe5b4442e3933ff01859533eba9f13d8b3e2e1b97dc2125e2d44dc
 zope.interface==4.3.3 \
     --hash=sha256:8780ef68ca8c3fe1abb30c058a59015129d6e04a6b02c2e56b9c7de6078dfa88
+attrs==16.3.0 \
+    --hash=sha256:c59426b15b45e39a7bc408eb6ba7e7188d9532764f873cc691199ddd975c97ef \
+    --hash=sha256:80203177723e36f3bbe15aa8553da6e80d47bfe53647220ccaa9ad7a5e473ccc
