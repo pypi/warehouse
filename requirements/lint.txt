@@ -1,4 +1,5 @@
 chardet==2.3.0 \
+    --hash=sha256:aaf514bde38020b4f1e42c6a6e141f2827a8a58ccfc3b22b6ff5a1a4b50be56e \
     --hash=sha256:e53e38b3a4afe6d1132de62b7400a4ac363452dc5dfcf8d88e8e0cce663c68aa
 doc8==0.7.0 \
     --hash=sha256:aac19233a195d7970677740edec63fdf5e19ca7e0d7ac09475438a1828110fe7 \
