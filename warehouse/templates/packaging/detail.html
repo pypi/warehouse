@@ -243,10 +243,10 @@
             {% set is_current = (hrelease.version == release.version) %}
             <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
               <div class="release__meta">
+                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% if is_current %}
                 <span class="badge">This version</span>
                 {% endif %}
-                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
 
                 <p class="release__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
               </div>
