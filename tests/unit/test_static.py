@@ -93,7 +93,10 @@ class TestWhitenoiseTween:
 
         assert resp.status_code == 200
         assert resp.headers["Content-Type"] == "application/json"
-        assert resp.headers["Cache-Control"] == "public, max-age=60"
+        assert (
+            set(i.strip() for i in resp.headers["Cache-Control"].split(","))
+            == {"public", "max-age=60"}
+        )
         assert resp.headers["Vary"] == "Accept-Encoding"
 
         with open(path, "rb") as fp:

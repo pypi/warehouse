@@ -56,7 +56,10 @@ class TestBasicAuthAuthenticationPolicy:
 
     def test_unauthenticated_userid_with_userid(self, monkeypatch):
         extract_http_basic_credentials = \
-            pretend.call_recorder(lambda request: ("username", "password"))
+            pretend.call_recorder(
+                lambda request:
+                    authentication.HTTPBasicCredentials("username", "password")
+            )
         monkeypatch.setattr(
             authentication,
             "extract_http_basic_credentials",
