@@ -100,7 +100,7 @@ class TestReadmeRender:
         result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup(
-            "<img src=https://camo.example.net/image.jpg>"
+            '<img src="https://camo.example.net/image.jpg">'
         )
         assert gen_camo_url.calls == [
             pretend.call(
