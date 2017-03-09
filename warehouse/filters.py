@@ -94,7 +94,7 @@ def readme(ctx, value, *, format):
             element.setAttribute("src", _camo_url(camo_url, camo_key, src))
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-    html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
+    html_serializer = html5lib.serializer.HTMLSerializer()
     rendered = "".join(html_serializer.serialize(tree_walker(dom)))
 
     return jinja2.Markup(rendered)
