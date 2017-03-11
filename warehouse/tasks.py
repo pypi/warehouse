@@ -165,4 +165,5 @@ def includeme(config):
         config.registry["celery.app"].finalize,
     )
     config.add_directive("make_celery_app", _get_celery_app, action_wrap=False)
+    config.add_directive("task", _celery_task_getter, action_wrap=False)
     config.add_request_method(_celery_task_getter, name="task", reify=True)

@@ -420,6 +420,7 @@ def test_includeme(env, ssl):
             tasks._get_celery_app,
             action_wrap=False,
         ),
+        pretend.call("task", tasks._celery_task_getter, action_wrap=False),
     ]
     assert config.add_request_method.calls == [
         pretend.call(tasks._celery_task_getter, name="task", reify=True),
