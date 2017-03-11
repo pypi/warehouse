@@ -325,8 +325,8 @@ def configure(settings=None):
     # Register the support for AWS
     config.include(".aws")
 
-    # Register the support for Celery
-    config.include(".celery")
+    # Register the support for Celery Tasks
+    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")
@@ -433,7 +433,13 @@ def configure(settings=None):
         config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
-    config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])
+    config.scan(
+        ignore=[
+            "warehouse.migrations.env",
+            "warehouse.celery",
+            "warehouse.wsgi",
+        ],
+    )
 
     # Finally, commit all of our changes
     config.commit()
