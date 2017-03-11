@@ -167,9 +167,10 @@ def _create_session(request):
 
 
 def _readonly(request):
-    for predicate in request.matched_route.predicates:
-        if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
-            return True
+    if request.matched_route is not None:
+        for predicate in request.matched_route.predicates:
+            if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
+                return True
 
     return False
 

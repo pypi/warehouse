@@ -23,6 +23,9 @@ omit =
     # do so would just get in the way.
     warehouse/wsgi.py
 
+    # And again, tiny shim code.
+    warehouse/celery.py
+
 
 [report]
 exclude_lines =
