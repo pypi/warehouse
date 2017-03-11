@@ -18,13 +18,6 @@ import pytest
 from warehouse import aws
 
 
-class TestBoto3Session:
-    def test_boto3_session_client_overrides_verify(self):
-        session = aws._Boto3Session()
-        client = session.client(service_name="s3", verify="LOL")
-        assert client._endpoint.verify == "LOL"
-
-
 @pytest.mark.parametrize("region", [None, "us-west-2"])
 def test_aws_session_factory(monkeypatch, region):
     boto_session_obj = pretend.stub()
