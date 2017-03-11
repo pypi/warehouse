@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import boto3
-import certifi
 import pretend
 import pytest
 
