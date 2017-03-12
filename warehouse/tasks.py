@@ -121,17 +121,22 @@ def task(**kwargs):
     return deco
 
 
-def _celery_task_getter(request):
+def _get_task(celery_app, task_func):
+    task_name = celery_app.gen_task_name(
+        task_func.__name__,
+        task_func.__module__,
+    )
+    return celery_app.tasks[task_name]
+
+
+def _get_task_from_request(request):
     celery_app = request.registry["celery.app"]
+    return functools.partial(_get_task, celery_app)
 
-    def get_task(task_func):
-        task_name = celery_app.gen_task_name(
-            task_func.__name__,
-            task_func.__module__,
-        )
-        return celery_app.tasks[task_name]
 
-    return get_task
+def _get_task_from_config(config, task):
+    celery_app = config.registry["celery.app"]
+    return _get_task(celery_app, task)
 
 
 def _get_celery_app(config):
@@ -165,5 +170,5 @@ def includeme(config):
         config.registry["celery.app"].finalize,
     )
     config.add_directive("make_celery_app", _get_celery_app, action_wrap=False)
-    config.add_directive("task", _celery_task_getter, action_wrap=False)
-    config.add_request_method(_celery_task_getter, name="task", reify=True)
+    config.add_directive("task", _get_task_from_config, action_wrap=False)
+    config.add_request_method(_get_task_from_request, name="task", reify=True)

@@ -358,10 +358,32 @@ class TestCeleryTaskGetter:
             gen_task_name=lambda func, module: module + "." + func,
             tasks={"tests.foo.task_func": task_obj},
         )
+        assert tasks._get_task(celery_app, task_func) is task_obj
+
+    def test_get_task_via_request(self):
+        task_func = pretend.stub(__name__="task_func", __module__="tests.foo")
+        task_obj = pretend.stub()
+        celery_app = pretend.stub(
+            gen_task_name=lambda func, module: module + "." + func,
+            tasks={"tests.foo.task_func": task_obj},
+        )
+
         request = pretend.stub(registry={"celery.app": celery_app})
-        get_task = tasks._celery_task_getter(request)
+        get_task = tasks._get_task_from_request(request)
 
         assert get_task(task_func) is task_obj
+
+    def test_get_task_via_config(self):
+        task_func = pretend.stub(__name__="task_func", __module__="tests.foo")
+        task_obj = pretend.stub()
+        celery_app = pretend.stub(
+            gen_task_name=lambda func, module: module + "." + func,
+            tasks={"tests.foo.task_func": task_obj},
+        )
+
+        config = pretend.stub(registry={"celery.app": celery_app})
+
+        assert tasks._get_task_from_config(config, task_func)
 
 
 def test_make_celery_app():
@@ -420,8 +442,8 @@ def test_includeme(env, ssl):
             tasks._get_celery_app,
             action_wrap=False,
         ),
-        pretend.call("task", tasks._celery_task_getter, action_wrap=False),
+        pretend.call("task", tasks._get_task_from_config, action_wrap=False),
     ]
     assert config.add_request_method.calls == [
-        pretend.call(tasks._celery_task_getter, name="task", reify=True),
+        pretend.call(tasks._get_task_from_request, name="task", reify=True),
     ]
