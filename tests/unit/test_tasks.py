@@ -271,7 +271,7 @@ class TestWarehouseTask:
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
-            pretend.call(RetryThisException, mock.ANY, mock.ANY),
+            pretend.call(Retry, mock.ANY, mock.ANY),
         ]
         assert request.tm._retryable.calls == [
             pretend.call(RetryThisException, mock.ANY),
@@ -386,6 +386,34 @@ class TestCeleryTaskGetter:
         assert tasks._get_task_from_config(config, task_func)
 
 
+def test_add_periodic_task():
+    signature = pretend.stub()
+    task_obj = pretend.stub(s=lambda: signature)
+    celery_app = pretend.stub(
+        add_periodic_task=pretend.call_recorder(lambda *a, **k: None),
+    )
+    actions = []
+    config = pretend.stub(
+        action=pretend.call_recorder(lambda d, f, order: actions.append(f)),
+        registry={"celery.app": celery_app},
+        task=pretend.call_recorder(lambda t: task_obj),
+    )
+
+    schedule = pretend.stub()
+    func = pretend.stub()
+
+    tasks._add_periodic_task(config, schedule, func)
+
+    for action in actions:
+        action()
+
+    assert config.action.calls == [pretend.call(None, mock.ANY, order=100)]
+    assert config.task.calls == [pretend.call(func)]
+    assert celery_app.add_periodic_task.calls == [
+        pretend.call(schedule, signature, args=(), kwargs=(), name=None),
+    ]
+
+
 def test_make_celery_app():
     celery_app = pretend.stub()
     config = pretend.stub(registry={"celery.app": celery_app})
@@ -413,6 +441,7 @@ def test_includeme(env, ssl):
                 "warehouse.env": env,
                 "celery.broker_url": pretend.stub(),
                 "celery.result_url": pretend.stub(),
+                "celery.scheduler_url": pretend.stub(),
             },
         ),
     )
@@ -431,12 +460,19 @@ def test_includeme(env, ssl):
             "task_serializer": "json",
             "accept_content": ["json", "msgpack"],
             "result_compression": "gzip",
-            "task_queue_ha_policy": "all"}.items():
+            "task_queue_ha_policy": "all",
+            "REDBEAT_REDIS_URL": (
+                config.registry.settings["celery.scheduler_url"])}.items():
         assert app.conf[key] == value
     assert config.action.calls == [
         pretend.call(("celery", "finalize"), app.finalize),
     ]
     assert config.add_directive.calls == [
+        pretend.call(
+            "add_periodic_task",
+            tasks._add_periodic_task,
+            action_wrap=False,
+        ),
         pretend.call(
             "make_celery_app",
             tasks._get_celery_app,

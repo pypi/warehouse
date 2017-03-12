@@ -331,6 +331,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
+            pretend.call(".gcloud"),
             pretend.call(".tasks"),
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
