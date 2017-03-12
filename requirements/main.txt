@@ -214,9 +214,9 @@ pytz==2016.10 \
 raven==6.0.0 \
     --hash=sha256:c9b521eaa4f253b5ed96051ab8f7c8e61fe901f9fc18ee6d9ac99726fbcb14fe \
     --hash=sha256:cee2d745c762230383fc89365770552c93c71205ee92c6e6bbbd85fe4dbb2803
-readme-renderer==17.1 \
-    --hash=sha256:9cc83dd43132e9e6b128d14ee95b09eff0df0e41b88132dc4af260a473beee9f \
-    --hash=sha256:69b1a7075462c9ba5fd586871b9d3a5370e88d48755fd307db6d8875fd250fbb
+readme-renderer==17.2 \
+    --hash=sha256:c9637bfcf1ff40f7683b3439f4b97eb0f9a1cffc2a1fad5fa01debd667ddb111 \
+    --hash=sha256:9deab442963a63a71ab494bf581b1c844473995a2357f4b3228a1df1c8cba8da
 redis==2.10.5 \
     --hash=sha256:5dfbae6acfc54edf0a7a415b99e0b21c0a3c27a7f787b292eea727b1facc5533 \
     --hash=sha256:97156b37d7cda4e7d8658be1148c983984e1a975090ba458cc7e244025191dbd
