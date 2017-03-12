@@ -16,7 +16,7 @@ import celery.app.backends
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.celery:TLSRedisBackend"  # noqa
+celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend"  # noqa
 
 import celery
 import celery.backends.redis
