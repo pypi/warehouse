@@ -10,9 +10,6 @@ pip install -c requirements.txt -r requirements/theme.txt
 PYPI_THEME=`python -c "import pypi_theme,os; print(os.path.join(os.path.dirname(pypi_theme.__file__), 'dist'))"`
 cp -t warehouse/static/dist -n -r $PYPI_THEME/*
 
-# Write out our Google Cloud service account json
-printf $GCLOUD_SERVICE_JSON > /app/gcloud.json
-
 # Remove items which are not important for Heroku deploys
 rm -rf dev docs requirements requirements.txt tests
 rm -rf .bowerrc .coveragerc .dockerignore .gitignore .travis.yml babel.cfg
