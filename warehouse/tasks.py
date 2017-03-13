@@ -51,13 +51,14 @@ class WarehouseTask(celery.Task):
         def run(*args, **kwargs):
             original_run = obj._wh_original_run
             request = obj.get_request()
-            try:
-                with request.tm:
+
+            with request.tm:
+                try:
                     return original_run(*args, **kwargs)
-            except BaseException as exc:
-                if request.tm._retryable(exc.__class__, exc):
-                    raise obj.retry(exc=exc)
-                raise
+                except BaseException as exc:
+                    if request.tm._retryable(exc.__class__, exc):
+                        raise obj.retry(exc=exc)
+                    raise
 
         obj._wh_original_run, obj.run = obj.run, run
 
@@ -143,6 +144,20 @@ def _get_celery_app(config):
     return config.registry["celery.app"]
 
 
+def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None,
+                       **opts):
+    def add_task():
+        config.registry["celery.app"].add_periodic_task(
+            schedule,
+            config.task(func).s(),
+            args=args,
+            kwargs=kwargs,
+            name=name,
+            **opts
+        )
+    config.action(None, add_task, order=100)
+
+
 def includeme(config):
     s = config.registry.settings
 
@@ -161,6 +176,7 @@ def includeme(config):
         task_queue_ha_policy="all",
         task_serializer="json",
         worker_disable_rate_limits=True,
+        REDBEAT_REDIS_URL=s["celery.scheduler_url"],
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
@@ -168,6 +184,12 @@ def includeme(config):
     config.action(
         ("celery", "finalize"),
         config.registry["celery.app"].finalize,
+    )
+
+    config.add_directive(
+        "add_periodic_task",
+        _add_periodic_task,
+        action_wrap=False,
     )
     config.add_directive("make_celery_app", _get_celery_app, action_wrap=False)
     config.add_directive("task", _get_task_from_config, action_wrap=False)
