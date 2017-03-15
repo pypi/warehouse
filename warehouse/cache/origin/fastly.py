@@ -16,7 +16,7 @@ import requests
 
 from zope.interface import implementer
 
-from warehouse import celery
+from warehouse import tasks
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
@@ -24,7 +24,7 @@ class UnsuccessfulPurge(Exception):
     pass
 
 
-@celery.task(bind=True, ignore_result=True, acks_late=True)
+@tasks.task(bind=True, ignore_result=True, acks_late=True)
 def purge_key(task, request, key):
     cacher = request.find_service(IOriginCache)
     try:
@@ -39,15 +39,17 @@ class FastlyCache:
 
     _api_domain = "https://api.fastly.com"
 
-    def __init__(self, *, api_key, service_id):
+    def __init__(self, *, api_key, service_id, purger):
         self.api_key = api_key
         self.service_id = service_id
+        self._purger = purger
 
     @classmethod
     def create_service(cls, context, request):
         return cls(
             api_key=request.registry.settings["origin_cache.api_key"],
             service_id=request.registry.settings["origin_cache.service_id"],
+            purger=request.task(purge_key).delay,
         )
 
     def cache(self, keys, request, response, *, seconds=None,
@@ -72,7 +74,7 @@ class FastlyCache:
 
     def purge(self, keys):
         for key in keys:
-            purge_key.delay(key)
+            self._purger(key)
 
     def purge_key(self, key):
         path = "/service/{service_id}/purge/{key}".format(

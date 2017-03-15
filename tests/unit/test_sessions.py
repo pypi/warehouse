@@ -552,7 +552,7 @@ class TestSessionView:
             assert isinstance(request.session, InvalidSession)
             return response
 
-        info = pretend.stub(options={})
+        info = pretend.stub(options={}, exception_only=False)
         if uses_session is not None:
             info.options["uses_session"] = uses_session
         derived_view = session_view(view, info)

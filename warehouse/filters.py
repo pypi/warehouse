@@ -23,6 +23,7 @@ import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
 
+import packaging.version
 import readme_renderer.rst
 import readme_renderer.txt
 
@@ -94,7 +95,7 @@ def readme(ctx, value, *, format):
             element.setAttribute("src", _camo_url(camo_url, camo_key, src))
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-    html_serializer = html5lib.serializer.htmlserializer.HTMLSerializer()
+    html_serializer = html5lib.serializer.HTMLSerializer()
     rendered = "".join(html_serializer.serialize(tree_walker(dom)))
 
     return jinja2.Markup(rendered)
@@ -164,3 +165,7 @@ def contains_valid_uris(items):
     URIs
     """
     return any(is_valid_uri(i) for i in items)
+
+
+def parse_version(version_str):
+    return packaging.version.parse(version_str)

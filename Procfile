@@ -1,2 +1,2 @@
-web bin/start-web gunicorn -c conf/heroku.gunicorn.conf warehouse.wsgi
-worker: bin/start-worker celery -A warehouse worker -l info
+web bin/start-web python -m twisted web -n -p tcp:port=$PORT --wsgi warehouse.wsgi.application
+worker: bin/start-worker celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info

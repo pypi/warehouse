@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from celery.schedules import crontab
+
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.services import RedisDownloadStatService
 from warehouse.packaging.models import Project, Release
+from warehouse.packaging.tasks import compute_trending
 
 
 def includeme(config):
@@ -43,3 +46,8 @@ def includeme(config):
         cache_keys=["project/{obj.project.normalized_name}"],
         purge_keys=["project/{obj.project.normalized_name}", "all-projects"],
     )
+
+    # Add a periodic task to compute trending once a day, assuming we have
+    # been configured to be able to access BigQuery.
+    if config.get_settings().get("warehouse.trending_table"):
+        config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)

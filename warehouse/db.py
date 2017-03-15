@@ -75,6 +75,7 @@ class Model(ModelBase):
         server_default=sqlalchemy.text("gen_random_uuid()"),
     )
 
+
 # Create our session class here, this will stay stateless as we'll bind the
 # engine to each new state we create instead of binding it to the session
 # class.
@@ -166,9 +167,10 @@ def _create_session(request):
 
 
 def _readonly(request):
-    for predicate in request.matched_route.predicates:
-        if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
-            return True
+    if request.matched_route is not None:
+        for predicate in request.matched_route.predicates:
+            if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
+                return True
 
     return False
 

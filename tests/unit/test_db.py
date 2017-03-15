@@ -214,6 +214,11 @@ def test_readonly(predicates, expected):
     assert _readonly(request) == expected
 
 
+def test_readonly_no_matched_route():
+    request = pretend.stub(matched_route=None)
+    assert not _readonly(request)
+
+
 def test_readonly_predicate():
     assert db.ReadOnlyPredicate(False, None)(pretend.stub(), pretend.stub())
     assert db.ReadOnlyPredicate(True, None)(pretend.stub(), pretend.stub())

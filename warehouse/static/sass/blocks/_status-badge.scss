@@ -61,6 +61,21 @@
     }
   }
 
+  &--warn {
+    color: $black;
+    background-color: $warn-color;
+    border: 1px solid darken($warn-color, 5);
+
+    &:hover {
+      color: $black;
+    }
+
+    &:before {
+      content: '\f071'; // Warning
+      border-right: 1px solid darken($warn-color, 5);
+    }
+  }
+
   &--bad {
     color: $white;
     background-color: $danger-color;

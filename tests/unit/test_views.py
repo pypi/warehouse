@@ -93,7 +93,7 @@ class TestIndex:
         assert index(db_request) == {
             # assert that ordering is correct
             'latest_releases': [release2, release1],
-            'top_projects': [release2],
+            'trending_projects': [release2],
             'num_projects': 1,
             'num_users': 3,
             'num_releases': 2,
@@ -220,11 +220,25 @@ class TestSearch:
             ),
         ]
 
-    @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_an_ordering(self, monkeypatch, db_request, page):
-        params = MultiDict({"q": "foo bar", "o": "-created"})
+    @pytest.mark.parametrize(
+        ("page", "order", "expected"),
+        [
+            (None, None, []),
+            (
+                1,
+                "-created",
+                [{"created": {"order": "desc", "unmapped_type": "long"}}],
+            ),
+            (5, "created", [{"created": {"unmapped_type": "long"}}]),
+        ],
+    )
+    def test_with_an_ordering(self, monkeypatch, db_request, page, order,
+                              expected):
+        params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
+        if order is not None:
+            params["o"] = order
         db_request.params = params
 
         sort = pretend.stub()
@@ -254,7 +268,11 @@ class TestSearch:
             "available_filters": [],
         }
         assert page_cls.calls == [
-            pretend.call(sort, url_maker=url_maker, page=page or 1),
+            pretend.call(
+                sort if order is not None else suggest,
+                url_maker=url_maker,
+                page=page or 1,
+            ),
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
@@ -270,9 +288,7 @@ class TestSearch:
                 term={"field": "name"},
             ),
         ]
-        assert suggest.sort.calls == [
-            pretend.call("-created")
-        ]
+        assert suggest.sort.calls == [pretend.call(i) for i in expected]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_classifiers(self, monkeypatch, db_request, page):
