@@ -331,7 +331,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
-            pretend.call(".celery"),
+            pretend.call(".gcloud"),
+            pretend.call(".tasks"),
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
@@ -410,7 +411,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
     ]
     assert configurator_obj.whitenoise_serve_static.calls == [
-        pretend.call(autorefresh=False, max_age=315360000),
+        pretend.call(
+            autorefresh=False,
+            max_age=315360000,
+            manifest="warehouse:static/dist/manifest.json",
+        ),
     ]
     assert configurator_obj.whitenoise_add_files.calls == [
         pretend.call("warehouse:static/dist/", prefix="/static/"),
@@ -423,7 +428,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ),
     ]
     assert configurator_obj.scan.calls == [
-        pretend.call(ignore=["warehouse.migrations.env", "warehouse.wsgi"]),
+        pretend.call(
+            ignore=[
+                "warehouse.migrations.env",
+                "warehouse.celery",
+                "warehouse.wsgi",
+            ],
+        ),
     ]
     assert configurator_obj.commit.calls == [pretend.call()]
     assert configurator_obj.add_renderer.calls == [

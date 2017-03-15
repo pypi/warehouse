@@ -142,8 +142,12 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
+    maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
+    maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
+    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
@@ -327,11 +331,12 @@ def configure(settings=None):
 
     config.include(".search")
 
-    # Register the support for AWS
+    # Register the support for AWS and Google Cloud
     config.include(".aws")
+    config.include(".gcloud")
 
-    # Register the support for Celery
-    config.include(".celery")
+    # Register the support for Celery Tasks
+    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")
@@ -394,6 +399,7 @@ def configure(settings=None):
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
         max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        manifest="warehouse:static/dist/manifest.json",
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
 
@@ -437,7 +443,13 @@ def configure(settings=None):
         config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
-    config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])
+    config.scan(
+        ignore=[
+            "warehouse.migrations.env",
+            "warehouse.celery",
+            "warehouse.wsgi",
+        ],
+    )
 
     # Finally, commit all of our changes
     config.commit()

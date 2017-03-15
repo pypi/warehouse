@@ -19,7 +19,7 @@ from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
-    Boolean, DateTime, Integer, Table, Text,
+    Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm import validates
@@ -105,6 +105,7 @@ class Project(SitemapMixin, db.ModelBase):
         nullable=False,
         server_default=sql.false(),
     )
+    zscore = Column(Float, nullable=True)
 
     users = orm.relationship(
         User,

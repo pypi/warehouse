@@ -9,7 +9,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add a column to project to record the zscore
 
-from warehouse.config import configure
+Revision ID: 5b3f9e687d94
+Revises: 7750037b351a
+Create Date: 2017-03-10 02:14:12.402080
+"""
 
-app = configure().make_celery_app()
+from alembic import op
+import sqlalchemy as sa
+
+
+revision = "5b3f9e687d94"
+down_revision = "7750037b351a"
+
+
+def upgrade():
+    op.add_column("packages", sa.Column("zscore", sa.Float(), nullable=True))
+
+
+def downgrade():
+    op.drop_column("packages", "zscore")
