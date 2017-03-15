@@ -19,7 +19,7 @@ from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
-    Boolean, DateTime, Integer, Table, Text,
+    Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm import validates
@@ -105,6 +105,7 @@ class Project(SitemapMixin, db.ModelBase):
         nullable=False,
         server_default=sql.false(),
     )
+    zscore = Column(Float, nullable=True)
 
     users = orm.relationship(
         User,
@@ -230,6 +231,7 @@ class Release(db.ModelBase):
         primary_key=True,
     )
     version = Column(Text, primary_key=True)
+    is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
     author_email = Column(Text)
     maintainer = Column(Text)
@@ -351,21 +353,34 @@ class Release(db.ModelBase):
 class File(db.Model):
 
     __tablename__ = "release_files"
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ["name", "version"],
-            ["releases.name", "releases.version"],
-            onupdate="CASCADE",
-        ),
 
-        CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
-        CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
+    @declared_attr
+    def __table_args__(cls):  # noqa
+        return (
+            ForeignKeyConstraint(
+                ["name", "version"],
+                ["releases.name", "releases.version"],
+                onupdate="CASCADE",
+            ),
 
-        Index("release_files_name_idx", "name"),
-        Index("release_files_name_version_idx", "name", "version"),
-        Index("release_files_packagetype_idx", "packagetype"),
-        Index("release_files_version_idx", "version"),
-    )
+            CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
+            CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
+
+            Index("release_files_name_version_idx", "name", "version"),
+            Index("release_files_packagetype_idx", "packagetype"),
+            Index("release_files_version_idx", "version"),
+            Index(
+                "release_files_single_sdist",
+                "name",
+                "version",
+                "packagetype",
+                unique=True,
+                postgresql_where=(
+                    (cls.packagetype == 'sdist') &
+                    (cls.allow_multiple_sdist == False)  # noqa
+                ),
+            ),
+        )
 
     name = Column(Text)
     version = Column(Text)
@@ -387,6 +402,14 @@ class File(db.Model):
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
     downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
+    # We need this column to allow us to handle the currently existing "double"
+    # sdists that exist in our database. Eventually we should try to get rid
+    # of all of them and then remove this column.
+    allow_multiple_sdist = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+    )
 
     @hybrid_property
     def pgp_path(self):

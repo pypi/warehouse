@@ -40,12 +40,13 @@ sub vcl_recv {
     #
     # This will match any URL except those that start with:
     #
+    #   * /admin/
     #   * /search/
     #   * /account/login/
     #   * /account/logout/
     #   * /account/register/
     #   * /pypi
-    if (req.url !~ "^/(search/|account/(login|logout|register)/|pypi)") {
+    if (req.url.path !~ "^/(admin/|search(/|$)|account/(login|logout|register)/|pypi)") {
         set req.url = req.url.path;
     }
 
@@ -171,6 +172,13 @@ sub vcl_recv {
         return(pass);
     }
 
+    # We never want to cache our admin URLs, while this should be "safe" due to
+    # the architecure of Warehouse, it'll just be easier to debug issues if
+    # these always are uncached.
+    if (req.url ~ "^/admin/") {
+        return(pass);
+    }
+
     # Finally, return the default lookup action.
     return(lookup);
 }
@@ -292,7 +300,6 @@ sub vcl_deliver {
 
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
-    unset resp.http.Server;
     unset resp.http.Via;
 
     # Unset a few headers set by Amazon that we don't really have a need/desire

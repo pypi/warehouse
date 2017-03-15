@@ -13,6 +13,7 @@
 import urllib.parse
 
 import jinja2
+import packaging.version
 import pretend
 import pytest
 import readme_renderer.rst
@@ -100,7 +101,7 @@ class TestReadmeRender:
         result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup(
-            "<img src=https://camo.example.net/image.jpg>"
+            '<img src="https://camo.example.net/image.jpg">'
         )
         assert gen_camo_url.calls == [
             pretend.call(
@@ -246,3 +247,13 @@ def test_contains_valid_uris(inp, expected):
 )
 def test_format_package_type(inp, expected):
     assert filters.format_package_type(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("1.0", packaging.version.Version("1.0")),
+    ]
+)
+def test_parse_version(inp, expected):
+    assert filters.parse_version(inp) == expected

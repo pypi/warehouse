@@ -12,6 +12,7 @@
 
 import pretend
 
+from pyramid import authentication
 from pyramid.interfaces import IAuthenticationPolicy
 from zope.interface.verify import verifyClass
 
@@ -28,10 +29,17 @@ class TestBasicAuthAuthenticationPolicy:
         )
 
     def test_unauthenticated_userid_no_userid(self, monkeypatch):
+        extract_http_basic_credentials = \
+            pretend.call_recorder(lambda request: None)
+        monkeypatch.setattr(
+            authentication,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+
         policy = auth_policy.BasicAuthAuthenticationPolicy(
             check=pretend.stub(),
         )
-        policy._get_credentials = pretend.call_recorder(lambda request: None)
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
@@ -42,16 +50,24 @@ class TestBasicAuthAuthenticationPolicy:
         )
 
         assert policy.unauthenticated_userid(request) is None
-        assert policy._get_credentials.calls == [pretend.call(request)]
+        assert extract_http_basic_credentials.calls == [pretend.call(request)]
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
     def test_unauthenticated_userid_with_userid(self, monkeypatch):
+        extract_http_basic_credentials = \
+            pretend.call_recorder(
+                lambda request:
+                    authentication.HTTPBasicCredentials("username", "password")
+            )
+        monkeypatch.setattr(
+            authentication,
+            "extract_http_basic_credentials",
+            extract_http_basic_credentials,
+        )
+
         policy = auth_policy.BasicAuthAuthenticationPolicy(
             check=pretend.stub(),
-        )
-        policy._get_credentials = pretend.call_recorder(
-            lambda request: ("username", "password")
         )
 
         vary_cb = pretend.stub()
@@ -68,6 +84,7 @@ class TestBasicAuthAuthenticationPolicy:
         )
 
         assert policy.unauthenticated_userid(request) is userid
+        assert extract_http_basic_credentials.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IUserService, context=None),
         ]

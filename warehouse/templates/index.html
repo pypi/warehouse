@@ -88,11 +88,11 @@
   <div class="site-container">
     <div class="col-half">
       <div class="heading-wsubtitle">
-        <h2 class="heading-wsubtitle__heading">Top Projects</h2>
-        <p class="heading-wsubtitle__subtitle">Top projects as downloaded by the community</p>
+        <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
+        <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
       <div class="package-list">
-        {% for release in top_projects %}
+        {% for release in trending_projects %}
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
