@@ -23,6 +23,7 @@ import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
 
+import packaging.version
 import readme_renderer.rst
 import readme_renderer.txt
 
@@ -164,3 +165,7 @@ def contains_valid_uris(items):
     URIs
     """
     return any(is_valid_uri(i) for i in items)
+
+
+def parse_version(version_str):
+    return packaging.version.parse(version_str)
