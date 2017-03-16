@@ -12,18 +12,43 @@
 
 import datetime
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from pyblake2 import blake2b
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
+)
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
 from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
+
+
+USER_ID_INSECURE_COOKIE = "user_id__insecure"
+
+
+@view_config(context=TooManyFailedLogins)
+def failed_logins(exc, request):
+    resp = HTTPTooManyRequests(
+        "There have been too many unsuccessful login attempts. Please try "
+        "again later.",
+        retry_after=exc.resets_in.total_seconds(),
+    )
+
+    # TODO: This is kind of gross, but we need it for as long as the legacy
+    #       upload API exists and is supported. Once we get rid of that we can
+    #       get rid of this as well.
+    resp.status = "{} {}".format(
+        resp.status_code,
+        "Too Many Failed Login Attempts",
+    )
+
+    return resp
 
 
 @view_config(
@@ -124,7 +149,23 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
         # Now that we're logged in we'll want to redirect the user to either
         # where they were trying to go originally, or to the default view.
-        return HTTPSeeOther(redirect_to, headers=dict(headers))
+        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+
+        # We'll use this cookie so that client side javascript can Determine
+        # the actual user ID (not username, user ID). This is *not* a security
+        # sensitive context and it *MUST* not be used where security matters.
+        #
+        # We'll also hash this value just to avoid leaking the actual User IDs
+        # here, even though it really shouldn't matter.
+        resp.set_cookie(
+            USER_ID_INSECURE_COOKIE,
+            blake2b(
+                str(userid).encode("ascii"),
+                person=b"warehouse.userid",
+            ).hexdigest().lower(),
+        )
+
+        return resp
 
     return {
         "form": form,
@@ -174,7 +215,13 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
-        return HTTPSeeOther(redirect_to, headers=dict(headers))
+        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+
+        # Ensure that we delete our user_id__insecure cookie, since the user is
+        # no longer logged in.
+        resp.delete_cookie(USER_ID_INSECURE_COOKIE)
+
+        return resp
 
     return {"redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to}}
 
@@ -246,7 +293,7 @@ def _login_user(request, userid):
             request.session.update(data)
 
         # Remember the userid using the authentication policy.
-        headers = remember(request, userid)
+        headers = remember(request, str(userid))
 
         # Cycle the CSRF token since we've crossed an authentication boundary
         # and we don't want to continue using the old one.

@@ -15,6 +15,7 @@ import pytest
 import wtforms
 
 from warehouse.accounts import forms
+from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse import recaptcha
 
 
@@ -87,6 +88,27 @@ class TestLoginForm:
             check_password=pretend.call_recorder(
                 lambda userid, password: False
             ),
+        )
+        form = forms.LoginForm(
+            data={"username": "my_username"},
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+
+    def test_validate_password_too_many_failed(self):
+        @pretend.call_recorder
+        def check_password(userid, password):
+            raise TooManyFailedLogins(resets_in=None)
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=check_password,
         )
         form = forms.LoginForm(
             data={"username": "my_username"},
@@ -203,6 +225,18 @@ class TestRegistrationForm:
 
         assert not form.validate()
         assert form.email.errors.pop() == "Email exists."
+
+    def test_blacklisted_email_error(self):
+        form = forms.RegistrationForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(enabled=True),
+        )
+
+        assert not form.validate()
+        assert form.email.errors.pop() == "Disposable email."
 
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(

@@ -1,4 +1,3 @@
 .git/*
-.tox/*
-
+node_modules
 dev/*

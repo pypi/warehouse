@@ -14,18 +14,39 @@ sub vcl_recv {
     # files in S3, and in general it's just not needed.
     set req.url = regsub(req.url, "#.*$", "");
 
+    # Fastly does some normalization of the Accept-Encoding header so that it
+    # reduces the number of cached copies (when served with the common,
+    # Vary: Accept-Encoding) that are cached for any one URL. This makes a lot
+    # of sense, except for the fact that we want to enable brotli compression
+    # for our static files. Thus we need to work around the normalized encoding
+    # in a way that still minimizes cached copies, but which will allow our
+    # static files to be served using brotli.
+    if (req.url ~ "^/static/" && req.http.Fastly-Orig-Accept-Encoding) {
+        if (req.http.User-Agent ~ "MSIE 6") {
+            # For that 0.3% of stubborn users out there
+            unset req.http.Accept-Encoding;
+        } elsif (req.http.Fastly-Orig-Accept-Encoding ~ "br") {
+            set req.http.Accept-Encoding = "br";
+        } elsif (req.http.Fastly-Orig-Accept-Encoding ~ "gzip") {
+            set req.http.Accept-Encoding = "gzip";
+        } else {
+            unset req.http.Accept-Encoding;
+        }
+    }
+
     # Most of the URLs in Warehouse do not support or require any sort of query
     # parameter. If we strip these at the edge then we'll increase our cache
     # efficiency when they won't otherwise change the output of the pages.
     #
     # This will match any URL except those that start with:
     #
+    #   * /admin/
     #   * /search/
     #   * /account/login/
     #   * /account/logout/
     #   * /account/register/
     #   * /pypi
-    if (req.url !~ "^/(search/|account/(login|logout|register)/|pypi)") {
+    if (req.url.path !~ "^/(admin/|search(/|$)|account/(login|logout|register)/|pypi)") {
         set req.url = req.url.path;
     }
 
@@ -75,15 +96,15 @@ sub vcl_recv {
         }
     }
 
-    # Redirect www.pypi.io and warehouse.python.org to pypi.io, this is
-    # purposely done *after* the HTTPS checks.
-    if (std.tolower(req.http.host) ~ "^(www.pypi.io|warehouse.python.org)$") {
-        set req.http.Location = "https://pypi.io" req.url;
+    # Redirect pypi.io, www.pypi.io, and warehouse.python.org to pypi.org, this
+    # is purposely done *after* the HTTPS checks.
+    if (std.tolower(req.http.host) ~ "^(www.pypi.org|(www.)?pypi.io|warehouse.python.org)$") {
+        set req.http.Location = "https://pypi.org" req.url;
         error 750 "Redirect to Primary Domain";
     }
     # Redirect warehouse-staging.python.org to test.pypi.io.
-    if (std.tolower(req.http.host) == "warehouse-staging.python.org") {
-        set req.http.Location = "https://test.pypi.io" req.url;
+    if (std.tolower(req.http.host) ~ "^(test.pypi.io|warehouse-staging.python.org)$") {
+        set req.http.Location = "https://test.pypi.org" req.url;
         error 750 "Redirect to Primary Domain";
     }
 
@@ -151,6 +172,13 @@ sub vcl_recv {
         return(pass);
     }
 
+    # We never want to cache our admin URLs, while this should be "safe" due to
+    # the architecure of Warehouse, it'll just be easier to debug issues if
+    # these always are uncached.
+    if (req.url ~ "^/admin/") {
+        return(pass);
+    }
+
     # Finally, return the default lookup action.
     return(lookup);
 }
@@ -171,6 +199,18 @@ sub vcl_fetch {
         if (stale.exists) {
             return(deliver_stale);
         }
+    }
+
+    # When delivering a 304 response, we don't always have access to all the
+    # headers in the resp because a 304 response is supposed to remove most of
+    # the headers. So we'll instead stash these headers on the request so that
+    # we can log this data from there instead of from the response.
+    if (beresp.http.x-amz-meta-project
+            || beresp.http.x-amz-meta-version
+            || beresp.http.x-amz-meta-package-type) {
+        set req.http.Fastly-amz-meta-project = beresp.http.x-amz-meta-project;
+        set req.http.Fastly-amz-meta-version = beresp.http.x-amz-meta-version;
+        set req.http.Fastly-amz-meta-package-type = beresp.http.x-amz-meta-package-type;
     }
 
 
@@ -260,7 +300,6 @@ sub vcl_deliver {
 
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
-    unset resp.http.Server;
     unset resp.http.Via;
 
     # Unset a few headers set by Amazon that we don't really have a need/desire
@@ -279,6 +318,28 @@ sub vcl_deliver {
     set resp.http.X-XSS-Protection = "1; mode=block";
     set resp.http.X-Content-Type-Options = "nosniff";
     set resp.http.X-Permitted-Cross-Domain-Policies = "none";
+
+    # Unstash our information about what project/version/package-type a
+    # particular file download was for.
+    if (req.http.Fastly-amz-meta-project
+            || req.http.Fastly-amz-meta-version
+            || req.http.Fastly-amz-meta-package-type) {
+        set resp.http.x-amz-meta-project = req.http.Fastly-amz-meta-project;
+        set resp.http.x-amz-meta-version = req.http.Fastly-amz-meta-version;
+        set resp.http.x-amz-meta-package-type = req.http.Fastly-amz-meta-package-type;
+    }
+
+    # If we're not executing a shielding request, and the URL is one of our file
+    # URLs, and it's a GET request, and the response is either a 200 or a 304
+    # then we want to log an event stating that a download has taken place.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/"
+            && req.request == "GET"
+            && http_status_matches(resp.status, "200,304")) {
+        log {"syslog "} req.service_id {" linehaul :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
+        log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
+    }
 
     return(deliver);
 }

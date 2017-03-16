@@ -1,0 +1,51 @@
+/*
+  A card that contains information about a package. Often found in package lists.
+
+  <div class="package-snippet">
+    <h3 class="package-snippet__title">
+      // Package title
+      <span class="package-snippet__version">// Version</span> // Optional!
+    </h3>
+    <p class="package-snippet__description">// Description</p>
+  </div>
+*/
+
+.package-snippet {
+  @include card;
+  padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
+  margin: 5px 0 15px;
+  // Use png fallback
+  background: $white url('../images/white-cube.png') no-repeat 0 50%;
+  // Or svg if the browser supports it
+  background-image: url('../images/white-cube.svg'), linear-gradient(transparent, transparent);
+  background-position: 20px;
+
+  @media screen and (max-width: $mobile) {
+    margin: 5px 0 ($spacing-unit / 2);
+    padding: 10px;
+    background-image: none;
+  }
+
+  &__title {
+    padding-bottom: 0;
+    word-wrap: break-word;
+  }
+
+  &__meta {
+    font-size: 16px;
+    padding: 1px 0 2px;
+  }
+
+  &__version {
+    font-weight: $bold-font-weight;
+  }
+
+  &__description {
+    clear: both;
+    font-size: 1rem;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

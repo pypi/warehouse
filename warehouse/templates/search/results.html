@@ -17,13 +17,11 @@
 
 {% macro project_snippet(item) -%}
 
-{% set version = item.version[0] %}
-
 <div class="package-snippet">
-  <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
-  <p class="package-snippet__meta" {{ l20n("packageSnippetMeta", version=version) }}>
-    <span class="package-snippet__version">{{ version }}</span>
-  </p>
+  <h3 class="package-snippet__title">
+    <a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a>
+    <span class="package-snippet__version">{{ item.latest_version }}</span>
+  </h3>
   <p class="package-snippet__description">{{ item.summary }}</p>
 </div>
 {%- endmacro %}
@@ -35,18 +33,61 @@
 {% set link = request.route_path('search', _query={'q': text}) %}
 {% set freq = best_guess.freq %}
 
-<span {{ l20n("suggestionWithTerm", term=term) }}>
+<span>
   Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
   {% if freq > 1 %}
-  <span {{ l20n("suggestionWithFrequency", freq=freq) }}>({{ freq }} results)</span>
+  <span>({{ freq }} results)</span>
   {% endif %}
 </span>
 {%- endmacro %}
 
 
-{% macro search_option(text, value, l20n_id) -%}
-<option {{ l20n(l20n_id) }} value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
+{% macro search_option(text, value) -%}
+<option value="{{ value }}" {{ 'selected' if value == order else ''}}>{{ text }}</option>
 {%- endmacro %}
+
+
+{% macro pagination(page) -%}
+{% if page.items and page.page_count > 1 %}
+  {% set map = page.link_map() %}
+  <div class="button-group">
+    {# previous button #}
+    {% if map.current_page.value == map.first_page.number %}
+    <a class="button button-group__button button--disabled">Previous</a>
+    {% else %}
+    <a href="{{ map.previous_page.href }}" class="button button-group__button">Previous</a>
+    {% endif %}
+
+    {# show first page button - special case #}
+    {% if map.current_page.value > map.first_page.number + map.radius %}
+    <a href="{{ map.first_page.href }}" class="button button-group__button">{{ map.first_page.number }}</a>
+    {% endif %}
+
+    {% for p in map.range_pages %}
+      {% if p.type == 'current_page' %}
+      <span class="button button-group__button button--highlight">{{ p.number }}</span>
+      {% elif p.type == 'page' %}
+      <a href="{{ p.href }}" class="button button-group__button">{{ p.number }}</a>
+      {% elif p.type == 'span' %}
+      <span class="button button-group__button">...</span>
+      {% endif %}
+    {% endfor %}
+
+    {# show last page button - special case #}
+    {% if map.current_page.value < map.last_page.number - map.radius %}
+    <a href="{{ map.last_page.href }}" class="button button-group__button">{{ map.last_page.number }}</a>
+    {% endif %}
+
+    {# "next" button #}
+    {% if map.current_page.value == map.last_page.number %}
+    <a class="button button-group__button button--disabled">Next</a>
+    {% else %}
+    <a href="{{ map.next_page.href }}" class="button button-group__button">Next</a>
+    {% endif %}
+  </div>
+{% endif %}
+{%- endmacro %}
+
 
 {% block content %}
 <section class="horizontal-section horizontal-section--medium">
@@ -55,14 +96,15 @@
       <div class="dark-overlay -js-dark-overlay"></div>
       <aside class="filter-panel -js-filter-panel">
         <a class="filter-panel__close -js-close-panel"><i class="fa fa-close"></i></a>
-        <h2 class="no-top-padding" {{ l20n("filterProjects") }}>Filter Projects</h2>
+        <h2 class="no-top-padding">Filter Projects</h2>
         <form id="classifiers">
-        <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
+        <input id="search" type="hidden" name="q" value="{{ term }}">
         <input type="hidden" name="o" value="{{ order }}">
 
+        {% set applied_filters_str = applied_filters|join(' ') %}
         {% for top_level, classifiers in available_filters %}
-          <div class="accordion {{'accordion--closed' if not loop.first }}">
-            <a class="accordion__link -js-accordion-trigger" {{ l20n("filterProjectsBy{}".format(top_level.replace(' ', ''))) }}>By {{ top_level }}</a>
+          <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
+            <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
             <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
@@ -86,24 +128,24 @@
       <section class="split-layout split-layout--table">
         <div>
         {% if term %}
-          <p {{ l20n("numberOfSearchResultsWithTerm", number=page.item_count, term=term) }}>
-            <strong>{{ page.item_count }}</strong> projects match '<em>{{ term }}</em>'.
+          <p>
+            <strong>{{ page.item_count|format_number }}</strong> projects match '<em>{{ term }}</em>'.
             {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
               {{ suggestion_link(page.collection.best_guess) }}
             {% endif %}
           </p>
         {% else %}
-        <p {{ l20n("numberOfSearchResultsWithoutTerm", number=page.item_count) }}>
-          <strong>{{ page.item_count }}</strong> projects.
+        <p>
+          <strong>{{ page.item_count|format_number }}</strong> projects.
         </p>
         {% endif %}
         </div>
           <div>
-            <input id="search" type="hidden" name="q" {{ l20n("search") }} value="{{ term }}">
-            <label for="order" {{ l20n("orderPackagesBy") }}>Order packages by &nbsp;</label>
+            <input id="search" type="hidden" name="q" value="{{ term }}">
+            <label for="order">Order by &nbsp;</label>
             <select class="-js-form-submit-trigger" name="o">
-              {{ search_option("Relevance", "", "relevance") }}
-              {{ search_option("Date Last Updated", "-created", "dateLastUpdated") }}
+              {{ search_option("Relevance", "") }}
+              {{ search_option("Date Last Updated", "-created") }}
             </select>
           </div>
       </section>
@@ -124,7 +166,7 @@
         {% endfor %}
       {% endif %}
         <span class="applied-filters__add-button">
-          <a class="-js-add-filter button button--small" {{ l20n("addFilter") }} href="#">Add Filter</a>
+          <a class="-js-add-filter button button--small" href="#">Add Filter</a>
         </span>
       </div>
 
@@ -134,8 +176,16 @@
           {{ project_snippet(item) }}
         {% else %}
           <div class="callout-block">
-            <p {{ l20n("noSearchResultsWithTerm", term=term) }}>
-              There were no packages matching '<em>{{term}}</em>'.
+            <p>
+              {% if term %}
+                There were no results for '<em>{{ term }}</em>'.
+              {% elif applied_filters %}
+                {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
+                  There were no results for '<em>{{ filters }}</em>' filter.
+                {% pluralize %}
+                  There were no results for '<em>{{ filters }}</em>' filters.
+                {% endtrans %}
+              {% endif %}
               {% if page.collection.best_guess %}
                 {{ suggestion_link(page.collection.best_guess) }}
               {% endif %}
@@ -144,7 +194,7 @@
         {% endfor %}
         </div>
 
-        {{ page.pager()|safe }}
+        {{ pagination(page) }}
       </section>
 
       </form>

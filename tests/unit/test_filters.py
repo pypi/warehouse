@@ -13,6 +13,7 @@
 import urllib.parse
 
 import jinja2
+import packaging.version
 import pretend
 import pytest
 import readme_renderer.rst
@@ -100,7 +101,7 @@ class TestReadmeRender:
         result = filters.readme(ctx, "raw thing", format="rst")
 
         assert result == jinja2.Markup(
-            "<img src=https://camo.example.net/image.jpg>"
+            '<img src="https://camo.example.net/image.jpg">'
         )
         assert gen_camo_url.calls == [
             pretend.call(
@@ -207,3 +208,52 @@ def test_format_tags(inp, expected):
 )
 def test_format_classifiers(inp, expected):
     assert list(filters.format_classifiers(inp).items()) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            ["abcdef", "ghijkl"],
+            False
+        ),
+        (
+            ["https://github.com/example/test", "https://pypi.io/"],
+            True
+        ),
+        (
+            ["abcdef", "https://github.com/example/test"],
+            True
+        )
+    ]
+)
+def test_contains_valid_uris(inp, expected):
+    assert filters.contains_valid_uris(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("bdist_dmg", "OSX Disk Image"),
+        ("bdist_dumb", "Dumb Binary"),
+        ("bdist_egg", "Egg"),
+        ("bdist_msi", "Windows MSI Installer"),
+        ("bdist_rpm", "RPM"),
+        ("bdist_wheel", "Wheel"),
+        ("bdist_wininst", "Windows Installer"),
+        ("sdist", "Source"),
+        ("invalid", "invalid"),
+    ],
+)
+def test_format_package_type(inp, expected):
+    assert filters.format_package_type(inp) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("1.0", packaging.version.Version("1.0")),
+    ]
+)
+def test_parse_version(inp, expected):
+    assert filters.parse_version(inp) == expected

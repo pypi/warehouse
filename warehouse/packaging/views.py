@@ -10,9 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from first import first
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -40,9 +40,10 @@ def project_detail(project, request):
     try:
         release = (
             request.db.query(Release)
-                      .options(joinedload(Release.uploader))
                       .filter(Release.project == project)
-                      .order_by(Release._pypi_ordering.desc())
+                      .order_by(
+                            Release.is_prerelease.nullslast(),
+                            Release._pypi_ordering.desc())
                       .limit(1)
                       .one()
         )
@@ -76,9 +77,20 @@ def release_detail(release, request):
     all_releases = (
         request.db.query(Release)
                   .filter(Release.project == project)
-                  .with_entities(Release.version, Release.created)
+                  .with_entities(
+                        Release.version,
+                        Release.is_prerelease,
+                        Release.created)
                   .order_by(Release._pypi_ordering.desc())
                   .all()
+    )
+
+    # Get the latest non-prerelease of this Project, or the latest release if
+    # all releases are prereleases.
+    latest_release = first(
+        all_releases,
+        key=lambda r: not r.is_prerelease,
+        default=all_releases[0],
     )
 
     # Get all of the maintainers for this project.
@@ -94,10 +106,23 @@ def release_detail(release, request):
         )
     ]
 
+    # Get the license from the classifiers or metadata, preferring classifiers.
+    license = None
+    if release.license:
+        # Make a best effort when the entire license text is given
+        # by using the first line only.
+        license = release.license.split('\n')[0]
+    license_classifiers = [c.split(" :: ")[-1] for c in release.classifiers
+                           if c.startswith("License")]
+    if license_classifiers:
+        license = ', '.join(license_classifiers)
+
     return {
         "project": project,
         "release": release,
         "files": release.files.all(),
+        "latest_release": latest_release,
         "all_releases": all_releases,
         "maintainers": maintainers,
+        "license": license,
     }

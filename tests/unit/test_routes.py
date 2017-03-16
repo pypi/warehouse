@@ -63,6 +63,11 @@ def test_routes(warehouse):
         def add_xmlrpc_endpoint(endpoint, pattern, header, domain=None):
             pass
 
+        @staticmethod
+        @pretend.call_recorder
+        def add_policy(name, filename):
+            pass
+
     config = FakeConfig()
     includeme(config)
 
@@ -70,6 +75,7 @@ def test_routes(warehouse):
         pretend.call("health", "/_health/"),
         pretend.call('index', '/', domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call(
             "bucket.sitemap.xml",
@@ -154,7 +160,6 @@ def test_routes(warehouse):
     assert config.add_template_view.calls == [
         pretend.call("help", "/help/", "pages/help.html"),
         pretend.call("security", "/security/", "pages/security.html"),
-        pretend.call("legal", "/legal/", "pages/legal.html"),
         pretend.call(
             "sponsors",
             "/sponsors/",
@@ -213,4 +218,8 @@ def test_routes(warehouse):
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
+    ]
+
+    assert config.add_policy.calls == [
+        pretend.call("terms-of-use", "terms.md"),
     ]

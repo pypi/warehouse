@@ -16,7 +16,7 @@ Code
 ----
 
 When in doubt, refer to :pep:`8` for Python code. You can check if your code
-meets our automated requirements by running ``tox -e pep8`` against it.
+meets our automated requirements by running ``make lint`` against it.
 
 `Write comments as complete sentences.`_
 
@@ -50,19 +50,12 @@ All code changes must be accompanied by unit tests with 100% code coverage (as
 measured by `coverage.py`_).
 
 
-Translations
-------------
-
-All user facing content must be marked for translation. More details about the
-Warehouse translation mechanism can be found in :doc:`translations`.
-
-
 Documentation
 -------------
 
 Important information should be documented with prose in the ``docs`` section.
 To ensure it builds and passes `doc8`_ style checks you can run
-``tox -e docs``.
+``make docs`` and ``make lint`` respectively.
 
 .. _`Write comments as complete sentences.`: http://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists

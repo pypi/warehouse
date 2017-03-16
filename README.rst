@@ -1,20 +1,6 @@
 Warehouse
 =========
 
-.. image:: https://readthedocs.org/projects/warehouse/badge/?version=latest
-    :target: https://warehouse.readthedocs.io/
-    :alt: Latest Docs
-
-.. image:: https://travis-ci.org/pypa/warehouse.svg?branch=master
-    :target: https://travis-ci.org/pypa/warehouse
-
-.. image:: http://codecov.io/github/pypa/warehouse/coverage.svg?branch=master
-    :target: http://codecov.io/github/pypa/warehouse?branch=master
-
-.. image:: https://requires.io/github/pypa/warehouse/requirements.svg?branch=master
-     :target: https://requires.io/github/pypa/warehouse/requirements/?branch=master
-     :alt: Requirements Status
-
 Warehouse is a next generation Python Package Repository designed to replace
 the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
 (whose source code `lives on Github <https://github.com/pypa/pypi-legacy/>`_).
@@ -24,29 +10,9 @@ You can find more information in the `documentation`_.
 Getting Started
 ---------------
 
-Running a copy of Warehouse locally requires using ``docker`` and
-``docker-compose``. Assuming you have those two items, here are a number of
-commands you can use:
-
-.. code-block:: console
-
-    $ # Start up a local environment
-    $ make serve
-    $ # Start up a local environment in debug mode (pdb enabled)
-    $ make debug
-    $ # Initialize the database and fill it with test data
-    $ make initdb
-    $ # Run the tests
-    $ make tests
-    $ # Build the documentation
-    $ make docs
-    $ # Run the various linters
-    $ make lint
-
-.. note:: reCaptcha is featured in authentication and registration pages. To
-          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
-          through to ``serve`` and ``debug`` targets.
-
+You can run Warehouse locally using ``docker`` and ``docker-compose``. See
+`Getting started <https://warehouse.readthedocs.io/development/getting-started/>`__
+in the documentation for instructions on how to set it up.
 
 Discussion
 ----------

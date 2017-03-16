@@ -22,13 +22,16 @@ from pyramid.view import (
 from elasticsearch_dsl import Q
 from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy.sql import exists
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import cache_control
 from warehouse.classifiers.models import Classifier
-from warehouse.packaging.models import Project, Release, File
+from warehouse.packaging.models import (
+    Project, Release, File, release_classifiers,
+)
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 
@@ -44,6 +47,17 @@ SEARCH_BOOSTS = {
     "keywords": 5,
     "summary": 5,
 }
+SEARCH_FILTER_ORDER = (
+    "Programming Language",
+    "License",
+    "Framework",
+    "Topic",
+    "Intended Audience",
+    "Environment",
+    "Operating System",
+    "Natural Language",
+    "Development Status",
+)
 
 
 @view_config(context=HTTPException)
@@ -53,12 +67,12 @@ def httpexception_view(exc, request):
 
 
 @forbidden_view_config()
-def forbidden(exc, request):
+def forbidden(exc, request, redirect_to="accounts.login"):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
     if request.authenticated_userid is None:
         url = request.route_url(
-            "accounts.login",
+            redirect_to,
             _query={REDIRECT_FIELD_NAME: request.path_qs},
         )
         return HTTPSeeOther(url)
@@ -87,6 +101,23 @@ def robotstxt(request):
 
 
 @view_config(
+    route_name="opensearch.xml",
+    renderer="opensearch.xml",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),         # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,                    # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,     # 1 day
+        )
+    ]
+)
+def opensearchxml(request):
+    request.response.content_type = "text/xml"
+    return {}
+
+
+@view_config(
     route_name="index",
     renderer="index.html",
     decorator=[
@@ -94,16 +125,16 @@ def robotstxt(request):
             1 * 60 * 60,                      # 1 hour
             stale_while_revalidate=10 * 60,   # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects"],
+            keys=["all-projects", "trending"],
         ),
     ]
 )
 def index(request):
     project_names = [
         r[0] for r in (
-            request.db.query(File.name)
-                   .group_by(File.name)
-                   .order_by(func.sum(File.downloads).desc())
+            request.db.query(Project.name)
+                   .order_by(Project.zscore.desc().nullslast(),
+                             func.random())
                    .limit(5)
                    .all())
     ]
@@ -112,21 +143,21 @@ def index(request):
         request.db.query(Release)
                   .distinct(Release.name)
                   .filter(Release.name.in_(project_names))
-                  .order_by(Release.name, Release._pypi_ordering.desc())
+                  .order_by(Release.name,
+                            Release.is_prerelease.nullslast(),
+                            Release._pypi_ordering.desc())
                   .subquery(),
     )
-    top_projects = (
+    trending_projects = (
         request.db.query(release_a)
-               .options(joinedload(release_a.project),
-                        joinedload(release_a.uploader))
+               .options(joinedload(release_a.project))
                .order_by(func.array_idx(project_names, release_a.name))
                .all()
     )
 
     latest_releases = (
         request.db.query(Release)
-                  .options(joinedload(Release.project),
-                           joinedload(Release.uploader))
+                  .options(joinedload(Release.project))
                   .order_by(Release.created.desc())
                   .limit(5)
                   .all()
@@ -146,7 +177,7 @@ def index(request):
 
     return {
         "latest_releases": latest_releases,
-        "top_projects": top_projects,
+        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),
@@ -188,7 +219,22 @@ def search(request):
         query = request.es.query()
 
     if request.params.get("o"):
-        query = query.sort(request.params["o"])
+        sort_key = request.params["o"]
+        if sort_key.startswith("-"):
+            sort = {
+                sort_key[1:]: {
+                    "order": "desc",
+                    "unmapped_type": "long",
+                },
+            }
+        else:
+            sort = {
+                sort_key: {
+                    "unmapped_type": "long",
+                }
+            }
+
+        query = query.sort(sort)
 
     if request.params.getall("c"):
         query = query.filter("terms", classifiers=request.params.getall("c"))
@@ -205,19 +251,35 @@ def search(request):
     )
 
     if page.page_count and page_num > page.page_count:
-        raise HTTPNotFound
+        return HTTPNotFound()
 
     available_filters = collections.defaultdict(list)
 
-    for cls in request.db.query(Classifier).order_by(Classifier.classifier):
+    classifiers_q = (
+        request.db.query(Classifier)
+        .with_entities(Classifier.classifier)
+        .filter(
+            exists([release_classifiers.c.trove_id])
+            .where(release_classifiers.c.trove_id == Classifier.id)
+        )
+        .order_by(Classifier.classifier)
+    )
+
+    for cls in classifiers_q:
         first, *_ = cls.classifier.split(' :: ')
         available_filters[first].append(cls.classifier)
+
+    def filter_key(item):
+        try:
+            return 0, SEARCH_FILTER_ORDER.index(item[0]), item[0]
+        except ValueError:
+            return 1, 0, item[0]
 
     return {
         "page": page,
         "term": q,
         "order": request.params.get("o", ''),
-        "available_filters": sorted(available_filters.items()),
+        "available_filters": sorted(available_filters.items(), key=filter_key),
         "applied_filters": request.params.getall("c"),
     }
 

@@ -14,6 +14,7 @@ import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
 import named from "vinyl-named";
 import path from "path";
+import { RootMostResolvePlugin } from "webpack-dependency-suite";
 import sourcemaps from "gulp-sourcemaps";
 import * as uglify from "uglify-js";
 import webpack from "webpack";
@@ -21,6 +22,7 @@ import webpack from "webpack";
 
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
+let rootDir = path.resolve();
 let staticPrefix = "warehouse/static/";
 let distPath = path.join(staticPrefix, "dist");
 let publicPath = "/static/";
@@ -34,16 +36,15 @@ let webpackConfig = {
         test: /\.js$/,
         exclude: /node_modules/,
         loaders: [
-          { loader: "babel", query: { presets: ["es2015-native-modules"] } },
+          { loader: "babel-loader", query: { presets: ["es2015"] } },
         ],
       },
     ],
   },
   plugins: [
     new webpack.ProvidePlugin({
-      "fetch": "imports?this=>global!exports?global.fetch!whatwg-fetch",
+      "fetch": "imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch",
     }),
-    new webpack.optimize.DedupePlugin(),
   ],
   // We tell it to use an inline source map, but only so that it can be loaded
   // by gulp-sourcemaps later on. It will actually be written out to disk and
@@ -59,6 +60,9 @@ let webpackConfig = {
     alias: {
       "clipboard": "clipboard/dist/clipboard",
     },
+    plugins: [
+      new RootMostResolvePlugin(rootDir, true),
+    ],
   },
 };
 
@@ -66,7 +70,6 @@ let webpackConfig = {
 gulp.task("dist:js", () => {
   let files = [
     path.join(staticPrefix, "js", "warehouse", "index.js"),
-    path.join(staticPrefix, "js", "main.js"),
   ];
 
   return gulp.src(files)
@@ -146,7 +149,9 @@ gulp.task("dist:font-awesome",
 
 gulp.task("dist:images", () => {
   return gulp.src(path.join(staticPrefix, "images", "**", "*"))
-              .pipe(gulpImage())
+              .pipe(gulpImage({
+                "svgo": false,  // SVGO is currently broken.
+              }))
               .pipe(gulp.dest(path.join(distPath, "images")));
 });
 
@@ -168,19 +173,36 @@ gulp.task("dist:manifest", () => {
     path.join(distPath, "images", "*"),
   ];
 
-  let m = new manifest({ fileNameManifest: "manifest.json" });
   return gulp.src(paths, { base: distPath })
-              .pipe(m.revision())
+              .pipe(manifest.revision({
+                fileNameManifest: "manifest.json",
+                includeFilesInManifest: [
+                  ".css",
+                  ".map",
+                  ".woff",
+                  ".woff2",
+                  ".svg",
+                  ".eot",
+                  ".ttf",
+                  ".otf",
+                  ".png",
+                  ".ico",
+                  ".js",
+                ],
+              }))
               .pipe(gulp.dest(distPath))
               .pipe(manifestClean({ verbose: false }))
-              .pipe(m.manifestFile())
+              .pipe(manifest.manifestFile())
               .pipe(gulp.dest(distPath));
 });
 
 
 gulp.task("dist:compress:gz", () => {
   return gulp.src(path.join(distPath, "**", "*"))
-              .pipe(gzip({ gzipOptions: { level: 9, memLevel: 9 }}))
+              .pipe(gzip({
+                skipGrowingFiles: true,
+                gzipOptions: { level: 9, memLevel: 9 },
+              }))
               .pipe(gulp.dest(distPath));
 });
 
@@ -200,7 +222,7 @@ gulp.task("dist:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({ mode: 0, quality: 11 }))
+              .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
               .pipe(gulp.dest(distPath));
 });
 
@@ -215,7 +237,7 @@ gulp.task("dist:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({ mode: 1, quality: 11 }))
+              .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
               .pipe(gulp.dest(distPath));
 });
 
@@ -262,7 +284,6 @@ gulp.task("watch", ["dist"], () => {
 
   gulpWatch(
     watchPaths,
-    { usePolling: true },
     gulpBatch((_, done) => { gulp.start("dist", done); })
   );
 });

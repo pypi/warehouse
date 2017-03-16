@@ -1,5 +1,8 @@
 db:
-  image: postgres:9.5
+  image: postgres:9.6
+  ports:
+    # 5432 may already in use by another PostgreSQL on host
+    - "5433:5432"
 
 redis:
   image: redis:latest
@@ -8,7 +11,7 @@ rabbitmq:
   image: rabbitmq:latest
 
 elasticsearch:
-  image: elasticsearch:2.2
+  image: elasticsearch:5
 
 camo:
   image: pypa/warehouse-camo:latest
@@ -32,6 +35,7 @@ app:
     - ./docs:/app/docs:z
     - ./warehouse:/app/warehouse:z
     - ./tests:/app/tests:z
+    - ./htmlcov:/app/htmlcov:z
   environment:
     WAREHOUSE_ENV: development
     WAREHOUSE_TOKEN: insecuretoken
@@ -50,11 +54,12 @@ app:
     FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/ url=http://files.example.com/packages/{path}"
     RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY}"
     RECAPTCHA_SECRET_KEY: "${RECAPTCHA_SECRET_KEY}"
+    STATUSPAGE_URL: https://2p66nmmycsj3.statuspage.io
 
 web:
   extends:
     service: app
-  command: gunicorn -b 0.0.0.0:8000 -n warehouse --reload warehouse.wsgi
+  command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
   environment:
     PORT: 8000
   ports:
@@ -68,7 +73,9 @@ web:
 worker:
   extends:
     service: app
-  command: celery -A warehouse worker -l info --autoreload
+  command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+  environment:
+    C_FORCE_ROOT: "1"
   links:
     - db
     - redis

@@ -22,15 +22,47 @@ import "babel-polyfill";
 import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
+import Analytics from "warehouse/utils/analytics";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
+import PositionWarning from "warehouse/utils/position-warning";
+import Statuspage from "warehouse/utils/statuspage";
+import timeAgo from "warehouse/utils/timeago";
+import projectTabs from "warehouse/utils/project-tabs";
+import searchFilterToggle from "warehouse/utils/search-filter-toggle";
+
+// timestamps for project histories set for 1 minute intervals
+docReady(() => {
+  const timeElements = document.querySelectorAll("time");
+  if (timeElements.length > 0) setInterval(timeAgo, 1000 * 60);
+});
+
+// project detail tabs
+docReady(()=> {
+  const headingBtn = document.querySelector(".-js-vertical-tab-content");
+  if (headingBtn) {
+    const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
+    const styleProps = getComputedStyle(mobileBtn, null);
+    projectTabs(styleProps.getPropertyValue("display") === "block");
+  }
+});
+
+// toggle search panel behavior
+docReady(() => {
+  if (document.querySelector(".-js-add-filter")) searchFilterToggle();
+});
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
 
+// Trigger our analytics code.
+docReady(Analytics);
+
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);
+
+docReady(Statuspage);
 
 // Copy handler for the pip command on package detail page
 docReady(() => {
@@ -59,4 +91,16 @@ docReady(() => {
       false
     );
   });
+});
+
+// Position sticky bar
+docReady(PositionWarning);
+
+docReady(() => {
+  let resizeTimer;
+  const onResize = () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(PositionWarning, 200);
+  };
+  window.addEventListener("resize", onResize, false);
 });

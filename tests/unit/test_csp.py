@@ -1,3 +1,15 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import collections
 
 import pretend
@@ -175,7 +187,10 @@ def test_includeme():
             lambda fact, name: None),
         add_settings=pretend.call_recorder(lambda settings: None),
         add_tween=pretend.call_recorder(lambda tween: None),
-        registry=pretend.stub(settings={"camo.url": "camo.url.value"}),
+        registry=pretend.stub(settings={
+            "camo.url": "camo.url.value",
+            "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        }),
     )
     csp.includeme(config)
 
@@ -192,7 +207,10 @@ def test_includeme():
             "csp": {
                 "base-uri": ["'self'"],
                 "block-all-mixed-content": [],
-                "connect-src": ["'self'"],
+                "connect-src": [
+                    "'self'",
+                    "https://2p66nmmycsj3.statuspage.io",
+                ],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
                 "form-action": ["'self'"],
@@ -205,7 +223,7 @@ def test_includeme():
                 ],
                 "referrer": ["origin-when-cross-origin"],
                 "reflected-xss": ["block"],
-                "script-src": ["'self'"],
+                "script-src": ["'self'", "www.google-analytics.com"],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })

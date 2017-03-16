@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import babel.dates
+import babel.numbers
 import email.utils
 import pretend
 
@@ -63,3 +64,22 @@ def test_format_rfc822_datetime(monkeypatch):
 
     assert filters.format_rfc822_datetime(ctx, *args, **kwargs) is formatted
     assert formatdate.calls == [pretend.call(timestamp, usegmt=True)]
+
+
+def test_format_number(monkeypatch):
+    formatted = pretend.stub()
+    format_number = pretend.call_recorder(lambda *a, **kw: formatted)
+    monkeypatch.setattr(babel.numbers, "format_number", format_number)
+
+    request = pretend.stub(locale=pretend.stub())
+    ctx = pretend.stub(get=pretend.call_recorder(lambda k: request))
+
+    number = pretend.stub()
+    locale = request.locale
+
+    assert filters.format_number(ctx, number) is formatted
+    assert filters.format_number(ctx, number, locale="tr-TR") is formatted
+    assert format_number.calls == [
+        pretend.call(number, locale=locale),
+        pretend.call(number, locale="tr-TR"),
+    ]
