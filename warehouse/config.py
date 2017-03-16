@@ -267,6 +267,7 @@ def configure(settings=None):
         "format_package_type",
         "warehouse.filters:format_package_type"
     )
+    filters.setdefault("parse_version", "warehouse.filters:parse_version")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
