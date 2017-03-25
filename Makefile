@@ -23,11 +23,11 @@ from pip.req import parse_requirements
 
 left, right = sys.argv[1:3]
 left_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(left, session=object())
 }
 right_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(right, session=object())
 }
 
