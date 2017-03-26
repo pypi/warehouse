@@ -14,8 +14,8 @@
       {% endfor %}
     </ul>
     {% endif %}
-    <label for="username">Username</label>
-    {{ form.username(placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false", value=user.username) }}
+    <label for="username">Username: </label>
+    {{ form.username(autocorrect="off", autocapitalize="off", spellcheck="false", readonly=True, value=user.username) }}
 
     <br>
 
@@ -27,7 +27,7 @@
       {% endfor %}
     </ul>
     {% endif %}
-    <label for="password">Password</label>
+    <label for="password">Password: </label>
     {{ form.password(placeholder="New Password") }}
 
     <br>
@@ -40,7 +40,7 @@
       {% endfor %}
     </ul>
     {% endif %}
-    <label for="confirm-password">Confirm Password</label>
+    <label for="confirm-password">Confirm Password: </label>
     {{ form.password_confirm(placeholder="Confirm password") }}
 
     <br>
@@ -53,7 +53,7 @@
       {% endfor %}
     </ul>
     {% endif %}
-    <label for="Name">Name</label>
+    <label for="Name">Name: </label>
     {{ form.full_name(placeholder="Full name", value=user.name|default(user.username, true)) }}
 
     <br>
@@ -66,7 +66,7 @@
       {% endfor %}
     </ul>
     {% endif %}
-    <label for="email">Email</label>
+    <label for="email">Email: </label>
     {{ form.email(placeholder="Email", value=user.email) }}
 
     <br>

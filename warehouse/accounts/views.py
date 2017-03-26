@@ -91,21 +91,28 @@ def edit_profile(request, _form_class=forms.EditProfileForm):
     if not request.user:
         return HTTPSeeOther(request.route_path("accounts.login"))
 
+    username = request.user.username
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
 
-    if request.method == "POST" and form.validate():
-        username = form.username.data
-        userid = user_service.find_userid(username)
+    if (
+        request.method == "POST" and form.validate()
+        and (username == form.username.data)
+    ):
+        # Note: If the request.user is not matching with what we get through
+        # the form is a possible misuse, in that case we simply send back
+        # the same edit profile page without any notification.
+        edit_data = {}
 
-        if not form.password.data:
+        if form.full_name.data != request.user.name:
+            edit_data = {"full_name": form.full_name.data}
+
+        if form.password.data:
+            edit_data.update({"password": form.password.data})
+
+        if edit_data:
             user = user_service.update_user(
-                userid, full_name=form.full_name.data
-            )
-        else:
-            user = user_service.update_user(
-                userid,
-                full_name=form.full_name.data, password=form.password.data
+                user_service.find_userid(username), **edit_data
             )
 
         return HTTPSeeOther(request.route_path("accounts.profile"))
