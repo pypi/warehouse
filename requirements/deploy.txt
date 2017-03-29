@@ -7,9 +7,9 @@ constantly==15.1.0 \
 h2==2.6.1 \
     --hash=sha256:66ccbd74b5ea97a115b287bed09c791f7ab85ace26ca8a63a6d49a48c8ab8194 \
     --hash=sha256:30de3fbfc0517522a84bfa3f68be1e390885ffa82849ca9bf2be4d6ee3ad88d0
-hpack==2.3.0 \
-    --hash=sha256:637b3f36a4fa9620b30fd4e2c8aa8c2202b9eb17dbbadc802528e0c2d21bfd6a \
-    --hash=sha256:51bd9aa8151efd190d70fe87991b1e3b79be0f93f0e34088fba2a8d34877a0a9
+hpack==3.0.0 \
+    --hash=sha256:0edd79eda27a53ba5be2dfabf3b15780928a0dff6eb0c60a3d6767720e970c89 \
+    --hash=sha256:8eec9c1f4bfae3408a3f30500261f7e6a65912dc138526ea054f9ad98892e9d2
 hyperframe==4.0.2 \
     --hash=sha256:27c0bc7c7794fee84dc57b74b3c08e5b3bed5e6932b7397a77cd3f6e73a35007 \
     --hash=sha256:12e0336997f564135ff5e1a3c667fad6fa2e8faa3ba7397352dabb2fc1871033
