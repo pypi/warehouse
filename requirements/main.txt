@@ -54,6 +54,9 @@ boto3==1.4.4 \
 botocore==1.5.31 \
     --hash=sha256:9b32f68f5da90d0bea383dcf5178434143d7d82150bd77d3f48ebaecb5b1a524 \
     --hash=sha256:9a11fa93785722822f291648920964724c41f756593dbf9a2d22ff2ea6a8b04f
+cachetools==2.0.0 \
+    --hash=sha256:cc4cb596b399c292a37ffdfdc713463da4feb81e18ca663e1ba2f89436cae0c1 \
+    --hash=sha256:715a7202240dc20dbe83abdb2d804d543e2d4f07af146f53c82166bd75f3a628
 celery==4.0.2 \
     --hash=sha256:0e5b7e0d7f03aa02061abfd27aa9da05b6740281ca1f5228a54fbf7fe74d8afa \
     --hash=sha256:e3d5a6c56a73ff8f2ddd4d06dc37f4c2afe4bb4da7928b884d0725ea865ef54d
@@ -89,9 +92,9 @@ first==2.0.1 \
 google-auth-httplib2==0.0.2 \
     --hash=sha256:312464fb81d2a941aa6541410ef61de9fa788753414ee5f2f1d74153d9c1540d \
     --hash=sha256:faacd855092a4c792e8cf3d3b4ed939518c495373a9f9cd31985c3166558452b
-google-auth==0.8.0 \
-    --hash=sha256:8827bd3286c27bdbe48d6c33c9a41126fc0239a37971d9cdc4e93196bf763ef5 \
-    --hash=sha256:ebe8c1b23f7de14500564648a050e2a1fe3a4836f05db7bba79568db151d7d0a
+google-auth==0.10.0 \
+    --hash=sha256:4c5a9b342b8a39b3c7127c1cf0961efe8c4d39315e10d1544b0f484a5b7a3042 \
+    --hash=sha256:27d3f3a275fd75b67458ddd0beb19bd8e5306aee5dd978bda10ada6a0834cc5b
 google-cloud-bigquery==0.23.0 \
     --hash=sha256:c5d70ca88fbdbadf50b895d42d85b2acd2494db56ac4056afd9814de23489eac \
     --hash=sha256:ebc467f95d2687e57976bb768822972798f7f7698ffaf038b095f9f979472b04
