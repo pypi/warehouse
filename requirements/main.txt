@@ -54,6 +54,9 @@ boto3==1.4.4 \
 botocore==1.5.31 \
     --hash=sha256:9b32f68f5da90d0bea383dcf5178434143d7d82150bd77d3f48ebaecb5b1a524 \
     --hash=sha256:9a11fa93785722822f291648920964724c41f756593dbf9a2d22ff2ea6a8b04f
+cachetools==2.0.0 \
+    --hash=sha256:cc4cb596b399c292a37ffdfdc713463da4feb81e18ca663e1ba2f89436cae0c1 \
+    --hash=sha256:715a7202240dc20dbe83abdb2d804d543e2d4f07af146f53c82166bd75f3a628
 celery==4.0.2 \
     --hash=sha256:0e5b7e0d7f03aa02061abfd27aa9da05b6740281ca1f5228a54fbf7fe74d8afa \
     --hash=sha256:e3d5a6c56a73ff8f2ddd4d06dc37f4c2afe4bb4da7928b884d0725ea865ef54d
