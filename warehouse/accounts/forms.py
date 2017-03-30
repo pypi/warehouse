@@ -130,3 +130,46 @@ class LoginForm(CredentialsMixin, forms.Form):
                     "There have been too many unsuccessful login attempts, "
                     "please try again later."
                 ) from None
+
+class EditProfileForm(forms.Form):
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(max=50),
+        ],
+    )
+
+    password = wtforms.PasswordField()
+
+    password_confirm = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.EqualTo(
+                "password", "Passwords must match."
+            ),
+        ],
+    )
+
+    full_name = wtforms.StringField()
+
+    email = wtforms.fields.html5.EmailField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Email(),
+        ],
+    )
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+    def validate_email(self, field):
+        if self.user_service.find_userid_by_email(field.data) is not None:
+            raise wtforms.validators.ValidationError("Email exists.")
+
+    def validate_password(self, field):
+        if field.data and not PWD_RE.match(field.data):
+            raise wtforms.validators.ValidationError(
+                "Password must contain an upper case letter, a lower case "
+                "letter, a number, a special character and be at least "
+                "%d characters in length" % PWD_MIN_LEN
+            )

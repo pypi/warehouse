@@ -23,6 +23,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
@@ -78,6 +79,45 @@ def profile(user, request):
     )
 
     return {"user": user, "projects": projects}
+
+
+@view_config(
+    route_name="accounts.profile.edit",
+    renderer="accounts/edit.html",
+    uses_session=True,
+    require_methods=False,
+)
+def edit_profile(request, _form_class=forms.EditProfileForm):
+    if not request.user:
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    username = request.user.username
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(request.POST, user_service=user_service)
+
+    if (
+        request.method == "POST" and form.validate()
+        and (username == form.username.data)
+    ):
+        # Note: If the request.user is not matching with what we get through
+        # the form is a possible misuse, in that case we simply send back
+        # the same edit profile page without any notification.
+        edit_data = {}
+
+        if form.full_name.data != request.user.name:
+            edit_data = {"full_name": form.full_name.data}
+
+        if form.password.data:
+            edit_data.update({"password": form.password.data})
+
+        if edit_data:
+            user = user_service.update_user(
+                user_service.find_userid(username), **edit_data
+            )
+
+        return HTTPSeeOther(request.route_path("accounts.profile"))
+
+    return {"user": request.user, "form": form}
 
 
 @view_config(
