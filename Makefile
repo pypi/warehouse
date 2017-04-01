@@ -23,11 +23,11 @@ from pip.req import parse_requirements
 
 left, right = sys.argv[1:3]
 left_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(left, session=object())
 }
 right_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(right, session=object())
 }
 
@@ -112,7 +112,7 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
 

@@ -1,9 +1,9 @@
 chardet==2.3.0 \
     --hash=sha256:aaf514bde38020b4f1e42c6a6e141f2827a8a58ccfc3b22b6ff5a1a4b50be56e \
     --hash=sha256:e53e38b3a4afe6d1132de62b7400a4ac363452dc5dfcf8d88e8e0cce663c68aa
-doc8==0.7.0 \
-    --hash=sha256:aac19233a195d7970677740edec63fdf5e19ca7e0d7ac09475438a1828110fe7 \
-    --hash=sha256:b89824683a23361c3f1f6ce8743cc97c86570596455dee1bb67d555f2106af06
+doc8==0.8.0 \
+    --hash=sha256:d12f08aa77a4a65eb28752f4bc78f41f611f9412c4155e2b03f1f5d4a45efe04 \
+    --hash=sha256:2df89f9c1a5abfb98ab55d0175fed633cae0cf45025b8b1e0ee5ea772be28543
 docopt==0.6.2 \
     --hash=sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491
 docutils==0.13.1 \
@@ -12,8 +12,8 @@ docutils==0.13.1 \
 flake8==3.3.0 \
     --hash=sha256:83905eadba99f73fbfe966598aaf1682b3eb6755d2263c5b33a4e8367d60b0d1 \
     --hash=sha256:b907a26dcf5580753d8f80f1be0ec1d5c45b719f7bac441120793d1a70b03f12
-html-linter==0.3.0 \
-    --hash=sha256:1fedb2b0c3575023dcd7bf1c05a6ceeb650a7ea36d11411eb871b38fd92a0ed0
+html-linter==0.4.0 \
+    --hash=sha256:342dad677f2fc810a2562fde0959046ed0d8fa1387bd9e085869e908c1941191
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f

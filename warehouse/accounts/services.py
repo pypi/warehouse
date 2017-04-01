@@ -33,6 +33,8 @@ from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
 
 logger = logging.getLogger(__name__)
 
+PASSWORD_FIELD = "password"
+
 
 class InvalidPasswordResetToken(Exception):
     pass
@@ -40,8 +42,6 @@ class InvalidPasswordResetToken(Exception):
 
 @implementer(IUserService)
 class DatabaseUserService:
-
-    password_field = "password"
 
     def __init__(self, session, ratelimiters=None):
         if ratelimiters is None:
@@ -177,9 +177,8 @@ class DatabaseUserService:
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
         for attr, value in changes.items():
-            # If it is password, then it should be encrypted.
-            if attr == self.password_field:
-                value = self.hasher.encrypt(value)
+            if attr == PASSWORD_FIELD:
+                value = self.hasher.hash(value)
             setattr(user, attr, value)
         return user
 
