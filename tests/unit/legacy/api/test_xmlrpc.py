@@ -471,7 +471,7 @@ def test_changelog(db_request, with_ids):
         for _ in range(10):
             entries.append(JournalEntryFactory.create(name=project.name))
 
-    entries = sorted(entries, key=lambda x: x.id)
+    entries = sorted(entries, key=lambda x: x.submitted_date)
 
     since = int(
         entries[int(len(entries) / 2)].submitted_date
