@@ -1,6 +1,6 @@
-chardet==2.3.0 \
-    --hash=sha256:aaf514bde38020b4f1e42c6a6e141f2827a8a58ccfc3b22b6ff5a1a4b50be56e \
-    --hash=sha256:e53e38b3a4afe6d1132de62b7400a4ac363452dc5dfcf8d88e8e0cce663c68aa
+chardet==3.0.0 \
+    --hash=sha256:bedd581d3daea4180b3cb555940dcbc89916e7922b070d2a9a37e660791e90a2 \
+    --hash=sha256:171dfc754d56c16b82cf77ac3eee1d42db9bc2f26c2c61c6573426d2a108d9e3
 doc8==0.8.0 \
     --hash=sha256:d12f08aa77a4a65eb28752f4bc78f41f611f9412c4155e2b03f1f5d4a45efe04 \
     --hash=sha256:2df89f9c1a5abfb98ab55d0175fed633cae0cf45025b8b1e0ee5ea772be28543
