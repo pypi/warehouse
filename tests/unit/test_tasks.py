@@ -18,6 +18,7 @@ import transaction
 
 from celery import Celery
 from pyramid import scripting
+from pyramid_retry import RetryableException
 
 from warehouse import tasks
 from warehouse.config import Environment
@@ -240,7 +241,7 @@ class TestWarehouseTask:
         assert request.tm.__exit__.calls == [pretend.call(None, None, None)]
 
     def test_run_retries_failed_transaction(self):
-        class RetryThisException(Exception):
+        class RetryThisException(RetryableException):
             pass
 
         class Retry(Exception):
@@ -259,7 +260,6 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-                _retryable=pretend.call_recorder(lambda *a, **kw: True),
             ),
         )
 
@@ -272,9 +272,6 @@ class TestWarehouseTask:
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
             pretend.call(Retry, mock.ANY, mock.ANY),
-        ]
-        assert request.tm._retryable.calls == [
-            pretend.call(RetryThisException, mock.ANY),
         ]
 
     def test_run_doesnt_retries_failed_transaction(self):
@@ -294,7 +291,6 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-                _retryable=pretend.call_recorder(lambda *a, **kw: False),
             ),
         )
 
@@ -307,9 +303,6 @@ class TestWarehouseTask:
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
             pretend.call(DontRetryThisException, mock.ANY, mock.ANY),
-        ]
-        assert request.tm._retryable.calls == [
-            pretend.call(DontRetryThisException, mock.ANY),
         ]
 
     def test_after_return_without_pyramid_env(self):
