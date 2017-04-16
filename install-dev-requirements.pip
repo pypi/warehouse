@@ -1,0 +1,7 @@
+#!/usr/bin/env pip install -r
+# Why requirements.txt?
+# See https://caremad.io/2013/07/setup-vs-requirement/
+
+https://github.com/Pylons/pyramid/archive/master.zip
+
+-e .
