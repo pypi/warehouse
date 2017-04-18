@@ -17,6 +17,7 @@ Quickstart for Developers with Docker experience
     $ cd warehouse
     $ make serve
     $ make initdb
+    $ docker start
 
 View Warehouse in the browser at ``http://localhost:80/``.
 
