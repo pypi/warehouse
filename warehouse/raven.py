@@ -16,7 +16,7 @@ import raven.middleware
 from pyramid.tweens import EXCVIEW, INGRESS
 from raven.utils.serializer.base import Serializer
 from raven.utils.serializer.manager import manager as serialization_manager
-
+from raven.contrib.celery import import_register_signal, register_logger_signal
 from warehouse.sessions import InvalidSession
 
 
@@ -60,6 +60,11 @@ def includeme(config):
         transport=config.registry.settings.get("sentry.transport"),
     )
     config.registry["raven.client"] = client
+    
+    # Hook into the Celery errorhandler and log celery errors at 
+    # logging.ERROR level.
+    register_logger_signal(client)
+    register_signal(client)
 
     # Create a request method that'll get us the Raven client in each request.
     config.add_request_method(_raven, name="raven", reify=True)
