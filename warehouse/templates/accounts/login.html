@@ -13,28 +13,32 @@
 -#}
 {% extends "base.html" %}
 
-{% import "accounts/macros.html" as macros %}
-
 {% block title %}Sign in{% endblock %}
 
 {% block content %}
-  {{ macros.legacy_pypi_message("login_form") }}
-  <form method="POST" action="{{ request.current_route_path() }}" class="hidden">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+<section class="horizontal-section">
+  <div class="narrow-container">
+    <h2>Login</h2>
 
-    {% if redirect.data %}
-    <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-    {% endif %}
+    <form method="POST" action="{{ request.current_route_path() }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-    {% if form.errors.__all__ %}
-    <ul class="errors">
-      {% for error in form.errors.__all__ %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+      {% if redirect.data %}
+      <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
+      {% endif %}
 
-    {% include "warehouse:templates/includes/input-credentials.html" %}
-    <input type="submit" value="Login">
-  </form>
+      {% if form.errors.__all__ %}
+      <ul class="errors">
+        {% for error in form.errors.__all__ %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      {% include "warehouse:templates/includes/input-credentials.html" %}
+
+      <input type="submit" value="Login" class="button">
+    </form>
+  </div>
+</section>
 {% endblock %}
