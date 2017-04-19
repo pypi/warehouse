@@ -44,6 +44,7 @@
     color: darken($brand-color, 10);
     text-decoration: none;
     z-index: index($z-index-scale, 'active-button');
+    outline: none;
   }
 
   &--large {
@@ -96,6 +97,7 @@
       background-color: darken($background-color, 5%);
       border: 2px solid darken($background-color, 5%);
       color: darken($background-color, 12%);
+      outline: none;
     }
   }
 

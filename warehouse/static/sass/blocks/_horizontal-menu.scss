@@ -21,6 +21,15 @@
         margin-right: 3px;
       }
     }
+
+    & input[type="submit"] {
+      border-color: transparent;
+      background-color: transparent;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   &--light {

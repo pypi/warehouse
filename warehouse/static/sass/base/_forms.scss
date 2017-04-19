@@ -21,6 +21,7 @@ select:hover,
 select:active {
   box-shadow: inset 0 0 0 2px $brand-color-soft;
   border-color: $brand-color-soft;
+  outline: none;
 }
 
 label {
@@ -29,4 +30,20 @@ label {
 
 .hidden {
   display: none;
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  > ul.errors {
+    margin: 20px 0 0 0;
+    padding-bottom: 5px;
+    list-style-type: none;
+    color: $danger-color;
+  }
+
+  > input {
+    display: block;
+    min-width: 350px;
+  }
 }
