@@ -107,6 +107,17 @@ sub vcl_recv {
         set req.http.Location = "https://test.pypi.org" req.url;
         error 750 "Redirect to Primary Domain";
     }
+    # If this is a upload.pypi.io request that's safe to redirect, then we'll
+    # go ahead and do that now, otherwise we'll just rewrite the HOST header so
+    # that it appears to be coming to the correct domain.
+    if (std.tolower(req.http.host) == "upload.pypi.io") {
+        if (req.request == "HEAD" || req.request != "GET") {
+            set req.http.Location = "https://upload.pypi.org" req.url;
+            error 750 "Redirect to Primary Domain";
+        } else {
+            req.http.Host = "upload.pypi.org";
+        }
+    }
 
     # Requests to /packages/ get dispatched to Amazon instead of to our typical
     # Origin. This requires a a bit of setup to make it work.
