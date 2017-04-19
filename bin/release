@@ -3,5 +3,11 @@
 # Fail fast and fail hard.
 set -eo pipefail
 
+# Setup our Redis settings
+source bin/redis-tls
+
 # Migrate our database to the latest revision.
 python -m warehouse db upgrade head
+
+# Make sure that our Fastly configuration is deployed
+bin/fastly-config
