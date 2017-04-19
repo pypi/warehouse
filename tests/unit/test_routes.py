@@ -87,6 +87,11 @@ def test_routes(warehouse):
             "/_includes/current-user-indicator/",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.flash-messages",
+            "/_includes/flash-messages/",
+            domain=warehouse,
+        ),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",

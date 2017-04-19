@@ -64,6 +64,10 @@
 
     {% include "warehouse:templates/includes/warning-banner.html" %}
 
+    {% block flash_messages %}
+      {{ html_include(request.route_path("includes.flash-messages")) }}
+    {% endblock %}
+
     <header class="site-header">
       <div class="site-container">
         <div class="split-layout">
