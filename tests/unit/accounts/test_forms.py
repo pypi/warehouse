@@ -295,7 +295,7 @@ class TestRegistrationForm:
     def test_password_strength(self):
         cases = (
             ("foobar", False),
-            ("somethingalittlebetter9", False),
+            ("somethingalittlebetter9", True),
             ("1aDeCent!1", True),
         )
         for pwd, valid in cases:

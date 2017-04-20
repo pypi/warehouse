@@ -293,6 +293,15 @@ def current_user_indicator(request):
     return {}
 
 
+@view_config(
+    route_name="includes.flash-messages",
+    renderer="includes/flash-messages.html",
+    uses_session=True,
+)
+def flash_messages(request):
+    return {}
+
+
 @view_config(route_name="health", renderer="string")
 def health(request):
     # This will ensure that we can access the database and run queries against

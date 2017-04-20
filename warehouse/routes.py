@@ -52,6 +52,11 @@ def includeme(config):
         "/_includes/current-user-indicator/",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.flash-messages",
+        "/_includes/flash-messages/",
+        domain=warehouse,
+    )
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
