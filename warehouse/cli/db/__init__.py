@@ -10,7 +10,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import contextlib
+
 from warehouse.cli import warehouse
+
+
+@contextlib.contextmanager
+def alembic_lock(engine, alembic_config):
+    with engine.begin() as connection:
+        # Attempt to acquire the alembic lock, this will wait until the lock
+        # has been acquired allowing multiple commands to wait for each other.
+        connection.execute("SELECT pg_advisory_lock(hashtext('alembic'))")
+
+        try:
+            # Tell Alembic use our current connection instead of creating it's
+            # own.
+            alembic_config.attributes["connection"] = connection
+
+            # Yield control back up to let the command itself run.
+            yield alembic_config
+        finally:
+            # Finally we need to release the lock we've acquired.
+            connection.execute(
+                "SELECT pg_advisory_unlock(hashtext('alembic'))")
 
 
 @warehouse.group()  # pragma: no branch
