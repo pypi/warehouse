@@ -34,6 +34,17 @@
         </ul>
         {% endif %}
 
+        <div class="form-group">
+          {% if form.full_name.errors %}
+          <ul class="errors">
+            {% for error in form.full_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {{ form.full_name(placeholder="Full name") }}
+        </div>
+
         {% include "warehouse:templates/includes/input-credentials.html" %}
 
         <div class="form-group">
@@ -45,17 +56,6 @@
           </ul>
           {% endif %}
           {{ form.password_confirm(placeholder="Confirm password", required="required") }}
-        </div>
-
-        <div class="form-group">
-          {% if form.full_name.errors %}
-          <ul class="errors">
-            {% for error in form.full_name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-          {{ form.full_name(placeholder="Full name") }}
         </div>
 
         <div class="form-group">

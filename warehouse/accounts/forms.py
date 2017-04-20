@@ -9,7 +9,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import re
 
 import disposable_email_domains
 import wtforms
@@ -38,22 +37,15 @@ class CredentialsMixin:
         self.user_service = user_service
 
 
-# XXX: This is a naive password strength validator, but something that can
-# easily be replicated in JS for client-side feedback.
-# see: https://github.com/pypa/warehouse/issues/6
-PWD_MIN_LEN = 8
-PWD_RE = re.compile(r"""
-^                                                       # start
-(?=.*[A-Z]+.*)                                          # >= 1 upper case
-(?=.*[a-z]+.*)                                          # >= 1 lower case
-(?=.*[0-9]+.*)                                          # >= 1 number
-(?=.*[.*~`\!@#$%^&\*\(\)_+-={}|\[\]\\:";'<>?,\./]+.*)   # >= 1 special char
-.{""" + str(PWD_MIN_LEN) + """,}                        # >= 8 chars
-$                                                       # end
-""", re.X)
-
-
 class RegistrationForm(CredentialsMixin, forms.Form):
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            forms.PasswordStrengthValidator(
+                user_input_fields=["full_name", "username", "email"],
+            ),
+        ],
+    )
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -100,14 +92,6 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             # TODO: log error
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Recaptcha error.")
-
-    def validate_password(self, field):
-        if not PWD_RE.match(field.data):
-            raise wtforms.validators.ValidationError(
-                "Password must contain an upper case letter, a lower case "
-                "letter, a number, a special character and be at least "
-                "%d characters in length" % PWD_MIN_LEN
-            )
 
 
 class LoginForm(CredentialsMixin, forms.Form):
