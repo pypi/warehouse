@@ -1,3 +1,10 @@
+# Note: It is VERY important to ensure that any changes to VCL will work
+#       properly with both the current version of ``master`` and the version in
+#       the pull request that adds any new changes. This is because the
+#       configuration will be applied automatically as part of the deployment
+#       process, but while the previous version of the code is still up and
+#       running. Thus backwards incompatible changes must be broken up over
+#       multiple pull requests in order to phase them in over multiple deploys.
 
 sub vcl_recv {
 
