@@ -313,8 +313,8 @@ WTForms==2.1 \
 zope.deprecation==4.2.0 \
     --hash=sha256:15e8a7135f40084b0e15cea9f7cb78e872b8c6a70805f0a0b91b7ce52913e31c \
     --hash=sha256:ff32c5bb5388b77b22c83ed1f1aa01cdbb076d9f2cfa2b825450ce9e2ecfd738
-zope.interface==4.3.3 \
-    --hash=sha256:8780ef68ca8c3fe1abb30c058a59015129d6e04a6b02c2e56b9c7de6078dfa88
+zope.interface==4.4.0 \
+    --hash=sha256:e50e5e87cde9bf0ed59229fd372390c2d68b3674ae313858ef544d32051e2cd3
 zope.sqlalchemy==0.7.7 \
     --hash=sha256:5da8ff6b060f3a47fc0cbc61cfd6a83b959b5e730f95e492edcf7b9bf3ec987a
 zxcvbn-python==4.4.14 \
