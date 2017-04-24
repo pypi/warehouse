@@ -283,9 +283,9 @@ sqlalchemy-citext==1.3.post0 \
     --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
 sqlalchemy==1.1.9 \
     --hash=sha256:b65cdc73cd348448ef0164f6c77d45a9f27ca575d3c5d71ccc33adf684bc6ef0
-structlog==16.1.0 \
-    --hash=sha256:a8cc45c208c6b251031ec223940552eccd97dbdb322474e0c4ec9e50f76a225a \
-    --hash=sha256:b44dfaadcbab84e6bb97bd9b263f61534a79611014679757cd93e2359ee7be01
+structlog==17.1.0 \
+    --hash=sha256:88dca8b62e4d41f7fc1f927aba350e9347fcbdda3277780d7cea172138f4bd31 \
+    --hash=sha256:5c8bd391e269ea4e670cd0463bae88e0c2ff1d10c23adbe1d01c21662ce4c240
 transaction==2.1.2 \
     --hash=sha256:b9bc365e7dba3877e0f6fdee32aa029b8c0c1eb4fe227f524bffd5fc46064bd5
 translationstring==1.3 \
