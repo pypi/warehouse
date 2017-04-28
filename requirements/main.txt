@@ -74,9 +74,9 @@ click==6.7 \
 contextlib2==0.5.4 \
     --hash=sha256:399f659f2a8b5d5d529f132e1136fc404fbbc28e34e4618c5c92bd595be9b162 \
     --hash=sha256:710626cde569f51a87f216ff757fe60f5cd13ae8f8114706590510cd5649ce88
-disposable-email-domains==0.0.8 \
-    --hash=sha256:310183ef5fdd87c95ad8fd496417e1b9c4dd54865e111ade077b554dd8b446b5 \
-    --hash=sha256:9ba8718ac720f6a1dae4bd7e668425b52233ca8099fe4a9f1b2ab68cbca5e575
+disposable-email-domains==0.0.9 \
+    --hash=sha256:c4398a29ffd5bd41f0efbb1af6afedbd810ee49980e27d5bdb8b9acd6830b240 \
+    --hash=sha256:925851f4dcff443bea93ec54728cb6419364337c8eff8971a2a26f88e122eba4
 docutils==0.13.1 \
     --hash=sha256:de454f1015958450b72641165c08afe7023cd7e3944396448f2fb1b0ccba9d77 \
     --hash=sha256:cb3ebcb09242804f84bdbf0b26504077a054da6772c6f4d625f335cc53ebf94d
