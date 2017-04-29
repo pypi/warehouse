@@ -26,7 +26,7 @@ def test_invalid_serializer():
     assert s.serialize(pretend.stub()) == "<InvalidSession>"
 
 
-class TestRavenTween:
+class TestRavenTween(object):
 
     def test_with_error(self):
         request = pretend.stub(

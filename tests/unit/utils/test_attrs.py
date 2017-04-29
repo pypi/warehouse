@@ -13,17 +13,17 @@
 from warehouse.utils.attrs import make_repr
 
 
-class TestMakeRepr:
+class TestMakeRepr(object):
 
     def test_on_class(self):
-        class Fake:
+        class Fake(object):
             foo = "bar"
             __repr__ = make_repr("foo")
 
         assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
 
     def test_with_function(self):
-        class Fake:
+        class Fake(object):
             foo = "bar"
 
             def __repr__(self):

@@ -40,7 +40,7 @@ _PRECISIONS = {
 
 
 @implementer(IDownloadStatService)
-class RedisDownloadStatService:
+class RedisDownloadStatService(object):
 
     def __init__(self, url):
         self.redis = redis.StrictRedis.from_url(url)
@@ -82,7 +82,7 @@ class RedisDownloadStatService:
 
 
 @implementer(IFileStorage)
-class LocalFileStorage:
+class LocalFileStorage(object):
 
     def __init__(self, base):
         # This class should not be used in production, it's trivial for it to
@@ -114,7 +114,7 @@ class LocalFileStorage:
 
 
 @implementer(IFileStorage)
-class S3FileStorage:
+class S3FileStorage(object):
 
     def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket

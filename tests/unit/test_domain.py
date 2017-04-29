@@ -16,7 +16,7 @@ import pytest
 from warehouse.domain import DomainPredicate, includeme
 
 
-class TestDomainPredicate:
+class TestDomainPredicate(object):
 
     @pytest.mark.parametrize(
         ("value", "expected"),

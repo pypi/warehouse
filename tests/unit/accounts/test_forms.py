@@ -19,7 +19,7 @@ from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse import recaptcha
 
 
-class TestLoginForm:
+class TestLoginForm(object):
 
     def test_creation(self):
         user_service = pretend.stub()
@@ -123,7 +123,7 @@ class TestLoginForm:
         assert user_service.check_password.calls == [pretend.call(1, "pw")]
 
 
-class TestRegistrationForm:
+class TestRegistrationForm(object):
     def test_create(self):
         user_service = pretend.stub()
         recaptcha_service = pretend.stub(enabled=True)

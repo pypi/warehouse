@@ -20,7 +20,7 @@ from warehouse import rate_limiting
 from warehouse.rate_limiting import RateLimiter, DummyRateLimiter, RateLimit
 
 
-class TestRateLimiter:
+class TestRateLimiter(object):
 
     def test_basic(self):
         limiter = RateLimiter(
@@ -86,7 +86,7 @@ class TestRateLimiter:
         assert resets_in <= datetime.timedelta(seconds=5)
 
 
-class TestDummyRateLimiter:
+class TestDummyRateLimiter(object):
 
     def test_basic(self):
         limiter = DummyRateLimiter()
@@ -96,7 +96,7 @@ class TestDummyRateLimiter:
         assert limiter.resets_in() is None
 
 
-class TestRateLimit:
+class TestRateLimit(object):
 
     def test_basic(self):
         limiter_obj = pretend.stub()

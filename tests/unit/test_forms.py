@@ -20,7 +20,7 @@ from warehouse.forms import (
 )
 
 
-class TestURIValidator:
+class TestURIValidator(object):
 
     @pytest.mark.parametrize(
         "uri",
@@ -51,7 +51,7 @@ class TestURIValidator:
         validator(pretend.stub(), pretend.stub(data="ftp://example.com/"))
 
 
-class TestPasswordStrengthValidator:
+class TestPasswordStrengthValidator(object):
 
     def test_invalid_fields(self):
         validator = PasswordStrengthValidator(user_input_fields=["foo"])
@@ -91,7 +91,7 @@ def _raiser(exc):
     raise exc
 
 
-class TestForm:
+class TestForm(object):
 
     def test_empty_form_no_errors(self):
         form = Form()
@@ -149,7 +149,7 @@ class TestForm:
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
-            class Meta:
+            class Meta(object):
                 validators = validator_funcs
 
         form = TestForm()
@@ -191,7 +191,7 @@ class TestForm:
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
-            class Meta:
+            class Meta(object):
                 validators = validator_funcs
 
         form = TestForm()
@@ -204,7 +204,7 @@ class TestForm:
                 break
 
 
-class TestDBForm:
+class TestDBForm(object):
 
     def test_form_requires_db(self):
         with pytest.raises(TypeError):

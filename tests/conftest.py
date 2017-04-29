@@ -179,7 +179,7 @@ def db_session(app_config):
         engine.dispose()
 
 
-class QueryRecorder:
+class QueryRecorder(object):
 
     def __init__(self):
         self.queries = []

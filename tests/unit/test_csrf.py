@@ -19,7 +19,7 @@ from pyramid.viewderivers import INGRESS, csrf_view
 from warehouse import csrf
 
 
-class TestRequireMethodView:
+class TestRequireMethodView(object):
 
     def test_passes_through_on_falsey(self):
         view = pretend.stub()

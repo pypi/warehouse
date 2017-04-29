@@ -19,7 +19,7 @@ from .base import WarehouseFactory
 
 
 class ClassifierFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = Classifier
 
     l2 = factory.fuzzy.FuzzyInteger(0)

@@ -54,7 +54,7 @@ def test_project_docs(db_session):
     ]
 
 
-class FakeESIndices:
+class FakeESIndices(object):
 
     def __init__(self):
         self.indices = {}
@@ -89,13 +89,13 @@ class FakeESIndices:
                     raise ValueError("Unknown action: {!r}.".format(action))
 
 
-class FakeESClient:
+class FakeESClient(object):
 
     def __init__(self):
         self.indices = FakeESIndices()
 
 
-class TestReindex:
+class TestReindex(object):
 
     def test_fails_when_raising(self, monkeypatch, cli):
         sess_obj = pretend.stub(

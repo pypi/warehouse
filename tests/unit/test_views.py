@@ -40,7 +40,7 @@ def test_httpexception_view():
     assert httpexception_view(context, request) is response
 
 
-class TestForbiddenView:
+class TestForbiddenView(object):
 
     def test_logged_in_returns_exception(self):
         exc, request = pretend.stub(), pretend.stub(authenticated_userid=1)
@@ -74,7 +74,7 @@ def test_opensearchxml(pyramid_request):
     assert pyramid_request.response.content_type == "text/xml"
 
 
-class TestIndex:
+class TestIndex(object):
 
     def test_index(self, db_request):
 
@@ -105,7 +105,7 @@ def test_esi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
 
 
-class TestSearch:
+class TestSearch(object):
 
     def _gather_es_queries(self, q):
         queries = []

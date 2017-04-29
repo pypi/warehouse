@@ -33,7 +33,7 @@ def test_camo_url():
     )
 
 
-class TestReadmeRender:
+class TestReadmeRender(object):
 
     def test_can_render(self, monkeypatch):
         monkeypatch.setattr(

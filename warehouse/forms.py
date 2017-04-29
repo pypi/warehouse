@@ -17,7 +17,7 @@ from zxcvbn import zxcvbn
 from warehouse.utils.http import is_valid_uri
 
 
-class URIValidator:
+class URIValidator(object):
 
     def __init__(self, require_scheme={"http", "https"},
                  require_authority=True):
@@ -31,7 +31,7 @@ class URIValidator:
             raise ValidationError("Invalid URI")
 
 
-class PasswordStrengthValidator:
+class PasswordStrengthValidator(object):
 
     # From the zxcvbn documentation, a score of 2 is:
     #       somewhat guessable: protection from unthrottled online attacks.

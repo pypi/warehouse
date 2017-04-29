@@ -17,7 +17,7 @@ from warehouse.utils.http import is_safe_url, is_valid_uri
 
 # (MOSTLY) FROM https://github.com/django/django/blob/
 # 011a54315e46acdf288003566b8570440f5ac985/tests/utils_tests/test_http.py
-class TestIsSafeUrl:
+class TestIsSafeUrl(object):
 
     @pytest.mark.parametrize(
         "url",
@@ -66,7 +66,7 @@ class TestIsSafeUrl:
         assert is_safe_url(url, host="testserver")
 
 
-class TestIsValidURI:
+class TestIsValidURI(object):
 
     @pytest.mark.parametrize(
         "uri",

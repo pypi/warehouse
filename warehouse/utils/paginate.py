@@ -13,7 +13,7 @@
 from paginate import Page
 
 
-class _ElasticsearchWrapper:
+class _ElasticsearchWrapper(object):
 
     max_results = 10000
 

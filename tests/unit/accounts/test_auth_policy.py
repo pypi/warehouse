@@ -20,7 +20,7 @@ from warehouse.accounts import auth_policy
 from warehouse.accounts.interfaces import IUserService
 
 
-class TestBasicAuthAuthenticationPolicy:
+class TestBasicAuthAuthenticationPolicy(object):
 
     def test_verify(self):
         assert verifyClass(
@@ -93,7 +93,7 @@ class TestBasicAuthAuthenticationPolicy:
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
 
-class TestSessionAuthenticationPolicy:
+class TestSessionAuthenticationPolicy(object):
 
     def test_verify(self):
         assert verifyClass(

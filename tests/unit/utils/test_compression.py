@@ -21,7 +21,7 @@ from warehouse.utils.compression import _compressor as compressor
 from warehouse.utils.compression import compression_tween_factory
 
 
-class TestCompressor:
+class TestCompressor(object):
 
     @pytest.mark.parametrize(
         "vary",

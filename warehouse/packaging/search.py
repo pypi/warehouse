@@ -51,7 +51,7 @@ class Project(DocType):
     created = Date()
     classifiers = Keyword(multi=True)
 
-    class Meta:
+    class Meta(object):
         # disable the _all field to save some space
         all = MetaField(enabled=False)
 

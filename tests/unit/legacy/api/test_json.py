@@ -22,7 +22,7 @@ from ....common.db.packaging import (
 )
 
 
-class TestJSONProject:
+class TestJSONProject(object):
 
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
@@ -102,7 +102,7 @@ class TestJSONProject:
         assert json_release.calls == [pretend.call(release, db_request)]
 
 
-class TestJSONRelease:
+class TestJSONRelease(object):
 
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()

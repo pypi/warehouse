@@ -27,7 +27,7 @@ from warehouse.sessions import (
 from warehouse.utils import crypto
 
 
-class TestInvalidSession:
+class TestInvalidSession(object):
 
     @pytest.mark.parametrize(
         "method",
@@ -76,7 +76,7 @@ class TestInvalidSession:
             getattr(session, name)
 
 
-class TestSession:
+class TestSession(object):
 
     @pytest.mark.parametrize(
         ("data", "expected"),
@@ -258,7 +258,7 @@ class TestSession:
         assert session.new_csrf_token.calls == [pretend.call()]
 
 
-class TestSessionFactory:
+class TestSessionFactory(object):
 
     def test_initialize(self, monkeypatch):
         timestamp_signer_obj = pretend.stub()
@@ -536,7 +536,7 @@ class TestSessionFactory:
         ]
 
 
-class TestSessionView:
+class TestSessionView(object):
 
     def test_has_options(self):
         assert set(session_view.options) == {"uses_session"}

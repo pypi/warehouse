@@ -22,7 +22,7 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
 @implementer(IRateLimiter)
-class RateLimiter:
+class RateLimiter(object):
 
     def __init__(self, storage, limit, identifiers=None):
         if identifiers is None:
@@ -79,7 +79,7 @@ class RateLimiter:
 
 
 @implementer(IRateLimiter)
-class DummyRateLimiter:
+class DummyRateLimiter(object):
 
     def test(self, *identifiers):
         return True
@@ -91,7 +91,7 @@ class DummyRateLimiter:
         return None
 
 
-class RateLimit:
+class RateLimit(object):
 
     def __init__(self, limit, identifiers=None, limiter_class=RateLimiter):
         self.limit = limit

@@ -30,7 +30,7 @@ PASSWORD_FIELD = "password"
 
 
 @implementer(IUserService)
-class DatabaseUserService:
+class DatabaseUserService(object):
 
     def __init__(self, session, ratelimiters=None):
         if ratelimiters is None:

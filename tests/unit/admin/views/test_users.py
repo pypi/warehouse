@@ -22,7 +22,7 @@ from warehouse.admin.views import users as views
 from ....common.db.accounts import UserFactory, EmailFactory
 
 
-class TestUserList:
+class TestUserList(object):
 
     def test_no_query(self, db_request):
         users = sorted(
@@ -128,7 +128,7 @@ class TestUserList:
         }
 
 
-class TestUserDetail:
+class TestUserDetail(object):
 
     def test_404s_on_nonexistant_user(self, db_request):
         user = UserFactory.create()

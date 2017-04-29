@@ -51,7 +51,7 @@ class Configurator(_Configurator):
         return app
 
 
-class RootFactory:
+class RootFactory(object):
 
     __parent__ = None
     __name__ = None

@@ -20,7 +20,7 @@ from warehouse.packaging.tasks import compute_trending
 from ...common.db.packaging import ProjectFactory
 
 
-class TestComputeTrending:
+class TestComputeTrending(object):
 
     @pytest.mark.parametrize("with_purges", [True, False])
     def test_computes_trending(self, db_request, with_purges):

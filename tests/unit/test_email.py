@@ -20,7 +20,7 @@ from pyramid_mailer.interfaces import IMailer
 from warehouse import email
 
 
-class TestSendEmail:
+class TestSendEmail(object):
 
     def test_send_email_success(self, monkeypatch):
         message_obj = Message()
@@ -54,13 +54,13 @@ class TestSendEmail:
         exc = Exception()
         message_obj = Message()
 
-        class Mailer:
+        class Mailer(object):
             @staticmethod
             @pretend.call_recorder
             def send_immediately(message):
                 raise exc
 
-        class Task:
+        class Task(object):
             @staticmethod
             @pretend.call_recorder
             def retry(exc):

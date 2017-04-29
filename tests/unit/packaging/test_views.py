@@ -24,7 +24,7 @@ from ...common.db.packaging import (
 )
 
 
-class TestProjectDetail:
+class TestProjectDetail(object):
 
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
@@ -104,7 +104,7 @@ class TestProjectDetail:
         assert release_detail.calls == [pretend.call(release, db_request)]
 
 
-class TestReleaseDetail:
+class TestReleaseDetail(object):
 
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()

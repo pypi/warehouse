@@ -18,19 +18,19 @@ from webob.multidict import MultiDict
 from warehouse.utils import paginate
 
 
-class FakeSuggestion:
+class FakeSuggestion(object):
 
     def __init__(self, options):
         self.options = options
 
 
-class FakeSuggest:
+class FakeSuggest(object):
 
     def __init__(self, name_suggestion):
         self.name_suggestion = name_suggestion
 
 
-class FakeResult:
+class FakeResult(object):
 
     def __init__(self, data, total):
         self.data = data
@@ -60,7 +60,7 @@ class FakeSuggestResult(FakeResult):
         return FakeSuggest(name_suggestion=self.suggestion)
 
 
-class FakeQuery:
+class FakeQuery(object):
 
     def __init__(self, fake):
         self.fake = fake
@@ -91,7 +91,7 @@ class FakeSuggestQuery(FakeQuery):
         return FakeSuggestResult(data, total, self.options, self.suggestion)
 
 
-class TestElasticsearchWrapper:
+class TestElasticsearchWrapper(object):
 
     def test_slices_and_length(self):
         wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))

@@ -20,7 +20,7 @@ from warehouse.cache.http import (
 
 @pytest.mark.parametrize("vary", [None, [], ["wat"]])
 def test_add_vary(vary):
-    class FakeRequest:
+    class FakeRequest(object):
 
         def __init__(self):
             self.callbacks = []
@@ -46,7 +46,7 @@ def test_add_vary(vary):
     assert response.vary == {"foobar"} | set(vary)
 
 
-class TestCacheControl:
+class TestCacheControl(object):
 
     def test_cache_public(self):
         response_obj = pretend.stub(
@@ -130,7 +130,7 @@ class TestCacheControl:
         assert response is response_obj
 
 
-class TestConditionalHTTPTween:
+class TestConditionalHTTPTween(object):
 
     def test_has_last_modified(self):
         response = pretend.stub(

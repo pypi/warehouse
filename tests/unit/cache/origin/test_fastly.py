@@ -21,7 +21,7 @@ from warehouse.cache.origin import fastly
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
-class TestPurgeKey:
+class TestPurgeKey(object):
 
     def test_purges_successfully(self, monkeypatch):
         task = pretend.stub()
@@ -47,13 +47,13 @@ class TestPurgeKey:
     def test_purges_fails(self, monkeypatch, exception_type):
         exc = exception_type()
 
-        class Cacher:
+        class Cacher(object):
             @staticmethod
             @pretend.call_recorder
             def purge_key(key):
                 raise exc
 
-        class Task:
+        class Task(object):
             @staticmethod
             @pretend.call_recorder
             def retry(exc):
@@ -73,7 +73,7 @@ class TestPurgeKey:
         assert task.retry.calls == [pretend.call(exc=exc)]
 
 
-class TestFastlyCache:
+class TestFastlyCache(object):
 
     def test_verify_service(self):
         assert verifyClass(IOriginCache, fastly.FastlyCache)

@@ -168,7 +168,7 @@ class Session(dict):
 
 
 @implementer(ISessionFactory)
-class SessionFactory:
+class SessionFactory(object):
 
     cookie_name = "session_id"
     max_age = 12 * 60 * 60  # 12 hours

@@ -25,7 +25,7 @@ from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
 from ...common.db.accounts import UserFactory
 
 
-class TestFailedLoginView:
+class TestFailedLoginView(object):
     exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
     request = pretend.stub()
 
@@ -39,7 +39,7 @@ class TestFailedLoginView:
     assert dict(resp.headers).get("Retry-After") == "600"
 
 
-class TestUserProfile:
+class TestUserProfile(object):
 
     def test_user_redirects_username(self, db_request):
         user = UserFactory.create()
@@ -70,7 +70,7 @@ class TestUserProfile:
         }
 
 
-class TestLogin:
+class TestLogin(object):
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_form(self, pyramid_request, next_url):
@@ -227,7 +227,7 @@ class TestLogin:
         assert result.headers["Location"] == observed_next_url
 
 
-class TestLogout:
+class TestLogout(object):
 
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_empty(self, pyramid_request, next_url):
@@ -275,7 +275,7 @@ class TestLogout:
         assert result.headers["Location"] == observed_next_url
 
 
-class TestRegister:
+class TestRegister(object):
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)

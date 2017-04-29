@@ -21,7 +21,7 @@ from . import Session
 
 class WarehouseFactory(SQLAlchemyModelFactory):
 
-    class Meta:
+    class Meta(object):
         abstract = True
         sqlalchemy_session = Session
 

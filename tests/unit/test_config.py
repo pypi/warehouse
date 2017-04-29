@@ -22,7 +22,7 @@ from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
-class TestRequireHTTPSTween:
+class TestRequireHTTPSTween(object):
 
     def test_noops_when_disabled(self):
         handler = pretend.stub()

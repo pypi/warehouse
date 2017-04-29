@@ -17,7 +17,7 @@ import pretend
 from warehouse import csp
 
 
-class TestCSPTween:
+class TestCSPTween(object):
 
     def test_csp_policy(self):
         response = pretend.stub(headers={})
@@ -164,7 +164,7 @@ class TestCSPTween:
         }
 
 
-class TestCSPPolicy:
+class TestCSPPolicy(object):
     def test_create(self):
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
@@ -230,7 +230,7 @@ def test_includeme():
     ]
 
 
-class TestFactory:
+class TestFactory(object):
     def test_copy(self):
         settings = {
             "csp": {

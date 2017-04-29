@@ -18,7 +18,7 @@ from warehouse import forms, recaptcha
 from warehouse.accounts.interfaces import TooManyFailedLogins
 
 
-class CredentialsMixin:
+class CredentialsMixin(object):
     username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),

@@ -15,7 +15,7 @@ import pretend
 from warehouse.utils import wsgi
 
 
-class TestProxyFixer:
+class TestProxyFixer(object):
 
     def test_skips_headers(self):
         response = pretend.stub()
@@ -174,7 +174,7 @@ class TestProxyFixer:
         ]
 
 
-class TestVhmRootRemover:
+class TestVhmRootRemover(object):
 
     def test_removes_header(self):
         response = pretend.stub()
@@ -201,7 +201,7 @@ class TestVhmRootRemover:
         ]
 
 
-class TestHostRewrite:
+class TestHostRewrite(object):
 
     def test_rewrites_host(self):
         response = pretend.stub()

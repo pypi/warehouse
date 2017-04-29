@@ -24,7 +24,7 @@ _REQUEST = pretend.stub(
 )
 
 
-class TestSession:
+class TestSession(object):
     def test_create(self):
         config = {
             "verify": "foo",

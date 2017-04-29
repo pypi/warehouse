@@ -13,7 +13,7 @@
 from sqlalchemy import Column, FetchedValue, Text
 
 
-class SitemapMixin:
+class SitemapMixin(object):
 
     sitemap_bucket = Column(
         Text,
