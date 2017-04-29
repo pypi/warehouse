@@ -25,7 +25,7 @@ from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 
 
-class UserFactory:
+class UserFactory(object):
 
     def __init__(self, request):
         self.request = request

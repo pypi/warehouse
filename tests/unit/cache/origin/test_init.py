@@ -18,16 +18,16 @@ from warehouse.cache.origin.interfaces import IOriginCache
 
 
 def test_store_purge_keys():
-    class Type1:
+    class Type1(object):
         pass
 
-    class Type2:
+    class Type2(object):
         pass
 
-    class Type3:
+    class Type3(object):
         pass
 
-    class Type4:
+    class Type4(object):
         pass
 
     config = pretend.stub(
@@ -95,7 +95,7 @@ def test_execute_purge_no_backend():
     assert "warehouse.cache.origin.purges" not in session.info
 
 
-class TestOriginCache:
+class TestOriginCache(object):
 
     def test_no_cache_key(self):
         response = pretend.stub()
@@ -116,7 +116,7 @@ class TestOriginCache:
         assert view(context, request) is response
 
     def test_no_origin_cache(self):
-        class Fake:
+        class Fake(object):
             pass
 
         response = pretend.stub()
@@ -150,10 +150,10 @@ class TestOriginCache:
         ],
     )
     def test_response_hook(self, seconds, keys):
-        class Fake:
+        class Fake(object):
             pass
 
-        class Cache:
+        class Cache(object):
 
             @staticmethod
             @pretend.call_recorder
@@ -199,7 +199,7 @@ class TestOriginCache:
         ]
 
 
-class TestKeyMaker:
+class TestKeyMaker(object):
 
     def test_both_cache_and_purge(self):
         key_maker = origin.key_maker_factory(
@@ -233,10 +233,10 @@ class TestKeyMaker:
 
 
 def test_register_origin_keys(monkeypatch):
-    class Fake1:
+    class Fake1(object):
         pass
 
-    class Fake2:
+    class Fake2(object):
         pass
 
     key_maker = pretend.stub()

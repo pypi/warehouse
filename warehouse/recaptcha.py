@@ -55,7 +55,7 @@ ChallengeResponse = collections.namedtuple(
 )
 
 
-class Service:
+class Service(object):
     def __init__(self, request):
         self.request = request
 

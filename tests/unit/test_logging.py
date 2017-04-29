@@ -26,7 +26,7 @@ import structlog.stdlib
 from warehouse import logging as wlogging
 
 
-class TestStructlogFormatter:
+class TestStructlogFormatter(object):
 
     def test_warehouse_logger_no_renderer(self):
         formatter = wlogging.StructlogFormatter()

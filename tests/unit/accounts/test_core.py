@@ -21,7 +21,7 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.services import database_login_factory
 
 
-class TestLogin:
+class TestLogin(object):
 
     def test_with_no_user(self):
         service = pretend.stub(
@@ -89,7 +89,7 @@ class TestLogin:
         assert authenticate.calls == [pretend.call(userid, request)]
 
 
-class TestAuthenticate:
+class TestAuthenticate(object):
 
     @pytest.mark.parametrize(
         ("is_superuser", "expected"),
@@ -118,7 +118,7 @@ class TestAuthenticate:
         assert service.get_user.calls == [pretend.call(1)]
 
 
-class TestUser:
+class TestUser(object):
 
     def test_with_user(self):
         user = pretend.stub()

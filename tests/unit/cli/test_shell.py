@@ -19,7 +19,7 @@ from warehouse import db
 from warehouse.cli import shell
 
 
-class TestAutoDetection:
+class TestAutoDetection(object):
 
     def test_bpython(self, monkeypatch):
         monkeypatch.setitem(sys.modules, "bpython", pretend.stub())
@@ -38,7 +38,7 @@ class TestAutoDetection:
         assert shell.autodetect() == "plain"
 
 
-class TestShells:
+class TestShells(object):
 
     def test_bpython(self, monkeypatch):
         bpython_mod = pretend.stub(embed=pretend.call_recorder(lambda a: None))
@@ -70,7 +70,7 @@ class TestShells:
         ]
 
 
-class TestCLIShell:
+class TestCLIShell(object):
 
     def test_autodetects(self, monkeypatch, cli):
         autodetect = pretend.call_recorder(lambda: "plain")

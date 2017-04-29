@@ -34,7 +34,7 @@ DEFAULT_ISOLATION = "READ COMMITTED"
 
 # We'll add a basic predicate that won't do anything except allow marking a
 # route as read only (or not).
-class ReadOnlyPredicate:
+class ReadOnlyPredicate(object):
 
     def __init__(self, val, config):
         self.val = val
@@ -50,7 +50,7 @@ class ReadOnlyPredicate:
         return True
 
 
-class ModelBase:
+class ModelBase(object):
 
     def __repr__(self):
         self.__repr__ = make_repr(*self.__table__.columns.keys(), _self=self)

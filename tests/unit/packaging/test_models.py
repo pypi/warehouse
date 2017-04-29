@@ -27,7 +27,7 @@ from ...common.db.packaging import (
 )
 
 
-class TestProjectFactory:
+class TestProjectFactory(object):
 
     @pytest.mark.parametrize(
         ("name", "normalized"),
@@ -50,7 +50,7 @@ class TestProjectFactory:
             root[project.name + "invalid"]
 
 
-class TestProject:
+class TestProject(object):
 
     def test_traversal_finds(self, db_request):
         project = DBProjectFactory.create()
@@ -101,7 +101,7 @@ class TestProject:
         ]
 
 
-class TestRelease:
+class TestRelease(object):
 
     def test_has_meta_true_with_keywords(self, db_session):
         release = DBReleaseFactory.create(keywords="foo, bar")
@@ -231,7 +231,7 @@ class TestRelease:
         assert dict(release.urls) == dict(expected)
 
 
-class TestFile:
+class TestFile(object):
 
     def test_requires_python(self, db_session):
         """ Attempt to write a File by setting requires_python directly,

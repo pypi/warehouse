@@ -22,7 +22,7 @@ from pyramid.tweens import EXCVIEW, INGRESS
 from warehouse import static
 
 
-class TestWhiteNose:
+class TestWhiteNose(object):
 
     def test_resolves_manifest_path(self, monkeypatch):
         resolver = pretend.stub(
@@ -109,7 +109,7 @@ class TestWhiteNose:
         )
 
 
-class TestWhitenoiseTween:
+class TestWhitenoiseTween(object):
 
     @pytest.mark.parametrize("autorefresh", [True, False])
     def test_bypasses(self, autorefresh):
@@ -191,7 +191,7 @@ class TestWhitenoiseTween:
             assert resp.body == fp.read()
 
 
-class TestDirectives:
+class TestDirectives(object):
 
     def test_whitenoise_serve_static_unsupported_kwarg(self):
         with pytest.raises(TypeError):

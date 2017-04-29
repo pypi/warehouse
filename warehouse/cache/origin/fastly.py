@@ -35,7 +35,7 @@ def purge_key(task, request, key):
 
 
 @implementer(IOriginCache)
-class FastlyCache:
+class FastlyCache(object):
 
     _api_domain = "https://api.fastly.com"
 

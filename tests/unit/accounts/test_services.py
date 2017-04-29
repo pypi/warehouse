@@ -24,7 +24,7 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 from ...common.db.accounts import UserFactory, EmailFactory
 
 
-class TestDatabaseUserService:
+class TestDatabaseUserService(object):
 
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)

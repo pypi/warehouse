@@ -21,7 +21,7 @@ from .base import WarehouseFactory, FuzzyEmail
 
 
 class UserFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = User
 
     username = factory.fuzzy.FuzzyText(length=12)
@@ -40,7 +40,7 @@ class UserFactory(WarehouseFactory):
 
 
 class EmailFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = Email
 
     user = factory.SubFactory(UserFactory)

@@ -29,7 +29,7 @@ from warehouse.packaging.services import (
 
 
 @freezegun.freeze_time("2012-01-14")
-class TestRedisDownloadStatService:
+class TestRedisDownloadStatService(object):
 
     def test_verify_service(self):
         assert verifyClass(IDownloadStatService, RedisDownloadStatService)
@@ -112,7 +112,7 @@ class TestRedisDownloadStatService:
         assert svc.redis.mget.calls == [pretend.call(*call_keys)]
 
 
-class TestLocalFileStorage:
+class TestLocalFileStorage(object):
 
     def test_verify_service(self):
         assert verifyClass(IFileStorage, LocalFileStorage)
@@ -176,7 +176,7 @@ class TestLocalFileStorage:
             assert fp.read() == b"Second Test File!"
 
 
-class TestS3FileStorage:
+class TestS3FileStorage(object):
 
     def test_verify_service(self):
         assert verifyClass(IFileStorage, S3FileStorage)

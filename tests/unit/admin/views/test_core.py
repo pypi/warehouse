@@ -15,7 +15,7 @@ import pretend
 from warehouse.admin.views import core as views
 
 
-class TestForbidden:
+class TestForbidden(object):
 
     def test_calls_real(self, monkeypatch):
         response = pretend.stub()
@@ -31,7 +31,7 @@ class TestForbidden:
         ]
 
 
-class TestDashboard:
+class TestDashboard(object):
 
     def test_dashboard(self):
         assert views.dashboard(pretend.stub()) == {}

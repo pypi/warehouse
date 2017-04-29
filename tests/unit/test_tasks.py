@@ -33,7 +33,7 @@ def test_tls_redis_backend():
     }
 
 
-class TestWarehouseTask:
+class TestWarehouseTask(object):
 
     def test_header(self):
         def header(request, thing):
@@ -349,7 +349,7 @@ class TestWarehouseTask:
         assert obj.request.pyramid_env["closer"].calls == [pretend.call()]
 
 
-class TestCeleryTaskGetter:
+class TestCeleryTaskGetter(object):
 
     def test_gets_task(self):
         task_func = pretend.stub(__name__="task_func", __module__="tests.foo")

@@ -59,7 +59,7 @@ class Role(db.Model):
     project = orm.relationship("Project", lazy=False)
 
 
-class ProjectFactory:
+class ProjectFactory(object):
 
     def __init__(self, request):
         self.request = request

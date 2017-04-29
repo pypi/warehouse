@@ -19,7 +19,7 @@ def _forwarded_value(values, num_proxies):
         return values[-num_proxies]
 
 
-class ProxyFixer:
+class ProxyFixer(object):
 
     def __init__(self, app, token, num_proxies=1):
         self.app = app
@@ -78,7 +78,7 @@ class ProxyFixer:
         return self.app(environ, start_response)
 
 
-class VhmRootRemover:
+class VhmRootRemover(object):
 
     def __init__(self, app):
         self.app = app
@@ -91,7 +91,7 @@ class VhmRootRemover:
         return self.app(environ, start_response)
 
 
-class HostRewrite:
+class HostRewrite(object):
 
     # TODO: This entire class should not be required.
 

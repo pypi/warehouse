@@ -15,7 +15,7 @@ import pytest
 from warehouse.utils.static import ManifestCacheBuster
 
 
-class TestManifestCacheBuster:
+class TestManifestCacheBuster(object):
 
     def test_returns_when_valid(self):
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")

@@ -49,7 +49,7 @@ def test_exc_with_message():
     assert exc.status == "400 My Test Message."
 
 
-class TestValidation:
+class TestValidation(object):
 
     @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1"])
     def test_validates_valid_pep440_version(self, version):
@@ -256,7 +256,7 @@ def test_construct_dependencies():
             pytest.fail("Unknown type of specifier")
 
 
-class TestListField:
+class TestListField(object):
 
     @pytest.mark.parametrize(
         ("data", "expected"),
@@ -273,7 +273,7 @@ class TestListField:
         assert field.data == expected
 
 
-class TestMetadataForm:
+class TestMetadataForm(object):
 
     @pytest.mark.parametrize(
         "data",
@@ -320,7 +320,7 @@ class TestMetadataForm:
         form.requires_python.validate(form)
 
 
-class TestFileValidation:
+class TestFileValidation(object):
 
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "")
@@ -457,7 +457,7 @@ class TestFileValidation:
         assert legacy._is_valid_dist_file(f, "bdist_wheel")
 
 
-class TestFileUpload:
+class TestFileUpload(object):
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request,

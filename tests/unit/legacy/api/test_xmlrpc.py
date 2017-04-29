@@ -28,7 +28,7 @@ from ....common.db.packaging import (
 )
 
 
-class TestSearch:
+class TestSearch(object):
 
     def test_fails_with_invalid_operator(self):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
@@ -45,7 +45,7 @@ class TestSearch:
             "TypeError: Invalid spec, must be a mapping/dictionary."
 
     def test_default_search_operator(self):
-        class FakeQuery:
+        class FakeQuery(object):
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -97,7 +97,7 @@ class TestSearch:
         ]
 
     def test_searches_with_and(self):
-        class FakeQuery:
+        class FakeQuery(object):
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -150,7 +150,7 @@ class TestSearch:
         ]
 
     def test_searches_with_or(self):
-        class FakeQuery:
+        class FakeQuery(object):
             def __init__(self, type, should):
                 self.type = type
                 self.should = should

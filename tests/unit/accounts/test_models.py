@@ -19,7 +19,7 @@ from ...common.db.accounts import (
 )
 
 
-class TestUserFactory:
+class TestUserFactory(object):
 
     @pytest.mark.parametrize(
         ("username", "normalized"),
@@ -42,7 +42,7 @@ class TestUserFactory:
             root[user.username + "invalid"]
 
 
-class TestUser:
+class TestUser(object):
 
     def test_get_primary_email_when_no_emails(self, db_session):
         user = DBUserFactory.create()

@@ -27,14 +27,14 @@ from .base import WarehouseFactory
 
 
 class ProjectFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = Project
 
     name = factory.fuzzy.FuzzyText(length=12)
 
 
 class ReleaseFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = Release
 
     name = factory.LazyAttribute(lambda o: o.project.name)
@@ -46,7 +46,7 @@ class ReleaseFactory(WarehouseFactory):
 
 
 class FileFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = File
 
     name = factory.LazyAttribute(lambda o: o.release.name)
@@ -77,7 +77,7 @@ class FileFactory(WarehouseFactory):
 
 
 class RoleFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = Role
 
     role_name = "Owner"
@@ -86,7 +86,7 @@ class RoleFactory(WarehouseFactory):
 
 
 class JournalEntryFactory(WarehouseFactory):
-    class Meta:
+    class Meta(object):
         model = JournalEntry
 
     id = factory.Sequence(lambda n: n)

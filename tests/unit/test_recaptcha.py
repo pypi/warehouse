@@ -35,7 +35,7 @@ _REQUEST = pretend.stub(
 )
 
 
-class TestVerifyResponse:
+class TestVerifyResponse(object):
     @responses.activate
     def test_verify_service_disabled(self):
         responses.add(
@@ -229,7 +229,7 @@ class TestVerifyResponse:
             serv.verify_response("meaningless")
 
 
-class TestCSPPolicy:
+class TestCSPPolicy(object):
     def test_csp_policy(self):
         scheme = 'https'
         request = pretend.stub(

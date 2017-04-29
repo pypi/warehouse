@@ -20,7 +20,7 @@ from warehouse.routes import includeme
 def test_routes(warehouse):
     docs_route_url = pretend.stub()
 
-    class FakeConfig:
+    class FakeConfig(object):
 
         def __init__(self):
             self.registry = pretend.stub(settings={

@@ -16,7 +16,7 @@ import pkgutil
 import click
 
 
-class LazyConfig:
+class LazyConfig(object):
     # This is defined here instead of anywhere else because we want to limit
     # the modules that this imports from Warehouse. Anything imported in
     # warehouse/__init__.py or warehouse/cli/__init__.py will not be able to

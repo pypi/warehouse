@@ -31,7 +31,7 @@ def test_robots_txt(webtest):
     )
 
 
-class TestLoginIndicator:
+class TestLoginIndicator(object):
 
     def test_indicator_shows_not_logged_in(self, server_url, browser):
         # Navigate to our index page

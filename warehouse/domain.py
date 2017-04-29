@@ -13,7 +13,7 @@
 from pyramid.util import is_same_domain
 
 
-class DomainPredicate:
+class DomainPredicate(object):
 
     def __init__(self, val, config):
         self.val = val
