@@ -69,7 +69,7 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             wtforms.validators.Email(
                 message=(
                     "The email address you have chosen is not a valid "
-                    " format. Please try again."
+                    "format. Please try again."
                 )
             ),
         ],
