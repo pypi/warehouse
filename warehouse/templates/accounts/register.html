@@ -27,22 +27,22 @@
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
-          <ul class="form-errors">
-            {% for error in form.errors.__all__ %}
-              <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+        <ul class="form-errors">
+          {% for error in form.errors.__all__ %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
         {% endif %}
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Name</label>
           {{ form.full_name(placeholder="Your name", class_="form-group__input") }}
           {% if form.full_name.errors %}
-            <ul class="form-errors">
-              {% for error in form.full_name.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+          <ul class="form-errors">
+            {% for error in form.full_name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
 
@@ -50,11 +50,11 @@
           <label for="full_name" class="form-group__label">Email Address</label>
           {{ form.email(placeholder="Your email address", required="required", class_="form-group__input") }}
           {% if form.email.errors %}
-            <ul class="form-errors">
-              {% for error in form.email.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+          <ul class="form-errors">
+            {% for error in form.email.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
 
@@ -62,11 +62,11 @@
           <label for="username" class="form-group__label">Username</label>
           {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
           {% if form.username.errors %}
-            <ul class="form-errors">
-              {% for error in form.username.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+          <ul class="form-errors">
+            {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
 
@@ -74,22 +74,22 @@
           <label for="password" class="form-group__label">Password</label>
           {{ form.password(placeholder="Select a password", required="required", class_="form-group__input") }}
           {% if form.password.errors %}
-            <ul class="form-errors">
-              {% for error in form.password.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+          <ul class="form-errors">
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
 
         <div class="form-group">
           {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input") }}
           {% if form.password_confirm.errors %}
-            <ul class="form-errors">
-              {% for error in form.password_confirm.errors %}
-                <li>{{ error }}</li>
-              {% endfor %}
-            </ul>
+          <ul class="form-errors">
+            {% for error in form.password_confirm.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
           {% endif %}
         </div>
 
