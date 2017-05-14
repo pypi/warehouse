@@ -10,7 +10,7 @@
   padding: 10px 10px 10px ($spacing-unit / 2);
   border: 1px solid $border-color;
   border-left-color: transparent;
-  margin-top: $spacing-unit;
+  margin-top: $spacing-unit / 2;
   position: relative;
   z-index: index($z-index-scale, 'callout-block');
 
@@ -23,5 +23,13 @@
     left: -1px;
     height: calc(100% + 2px);
     z-index: index($z-index-scale, 'callout-block-border');
+  }
+
+  &--danger {
+      border: 1px solid $danger-color;
+
+      &:before {
+        background-color: $danger-color;
+      }
   }
 }
