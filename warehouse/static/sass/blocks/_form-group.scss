@@ -1,0 +1,14 @@
+.form-group {
+  margin-bottom: 20px;
+
+  .form-group__label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+  }
+
+  .form-group__input {
+    display: block;
+    min-width: 350px;
+  }
+}
