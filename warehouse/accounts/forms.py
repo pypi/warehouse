@@ -22,7 +22,13 @@ class CredentialsMixin:
     username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Length(max=50),
+            wtforms.validators.Length(
+                max=50,
+                message=(
+                    "The username you have chosen is too long. Please choose "
+                    "a username with under 50 characters."
+                )
+            ),
         ],
     )
 
@@ -50,7 +56,7 @@ class RegistrationForm(CredentialsMixin, forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "password", "Passwords must match."
+                "password", "Your passwords do not match. Please try again."
             ),
         ],
     )
@@ -60,7 +66,12 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     email = wtforms.fields.html5.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Email(),
+            wtforms.validators.Email(
+                message=(
+                    "The email address you have chosen is not a valid "
+                    "format. Please try again."
+                )
+            ),
         ],
     )
 
@@ -73,14 +84,22 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     def validate_username(self, field):
         if self.user_service.find_userid(field.data) is not None:
             raise wtforms.validators.ValidationError(
-                "Username exists.")
+                "This username is already being used by another "
+                "account. Please choose a different username."
+            )
 
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
-            raise wtforms.validators.ValidationError("Email exists.")
+            raise wtforms.validators.ValidationError(
+                "This email address is already being used by another account. "
+                "Please use a different email."
+            )
         domain = field.data.split('@')[-1]
         if domain in disposable_email_domains.blacklist:
-            raise wtforms.validators.ValidationError("Disposable email.")
+            raise wtforms.validators.ValidationError(
+                "Sorry, you cannot create an account with an email address "
+                "from this domain. Please use a different email."
+            )
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
@@ -99,7 +118,9 @@ class LoginForm(CredentialsMixin, forms.Form):
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
-            raise wtforms.validators.ValidationError("Invalid user.")
+            raise wtforms.validators.ValidationError(
+                "No user found with that username. Please try again."
+            )
 
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
@@ -107,7 +128,8 @@ class LoginForm(CredentialsMixin, forms.Form):
             try:
                 if not self.user_service.check_password(userid, field.data):
                     raise wtforms.validators.ValidationError(
-                        "Invalid password.",
+                        "The username and password combination you have "
+                        "provided is invalid. Please try again."
                     )
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
