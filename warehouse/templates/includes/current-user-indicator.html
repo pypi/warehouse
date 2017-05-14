@@ -23,7 +23,7 @@
     <input type="submit" value="Sign Out">
   </form>
   {% else %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Sign In</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Login</a>
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
   {% endif %}
 

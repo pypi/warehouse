@@ -13,32 +13,54 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Sign in{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-<section class="horizontal-section">
-  <div class="narrow-container">
-    <h2>Login</h2>
+  <section class="horizontal-section">
+    <div class="site-container">
+      <h2>Login to PyPI</h2>
 
-    <form method="POST" action="{{ request.current_route_path() }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <form method="POST" action="{{ request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-      {% if redirect.data %}
-      <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-      {% endif %}
+        {% if redirect.data %}
+        <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
+        {% endif %}
 
-      {% if form.errors.__all__ %}
-      <ul class="errors">
-        {% for error in form.errors.__all__ %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+        {% if form.errors.__all__ %}
+        <ul class="form-errors">
+          {% for error in form.errors.__all__ %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
 
-      {% include "warehouse:templates/includes/input-credentials.html" %}
+        <div class="form-group">
+          <label for="username" class="form-group__label">Username</label>
+          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
+          {% if form.username.errors %}
+          <ul class="form-errors">
+            {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
 
-      <input type="submit" value="Login" class="button">
-    </form>
-  </div>
-</section>
+        <div class="form-group">
+          <label for="password" class="form-group__label">Password</label>
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          {% if form.password.errors %}
+          <ul class="form-errors">
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <input type="submit" value="Login" class="button button--highlight">
+      </form>
+    </div>
+  </section>
 {% endblock %}

@@ -140,19 +140,13 @@
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
         </ul>
-        <ul class="footer__menu">
-          <li>
-            <h3>Legal</h3>
-          </li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></li>
-        </ul>
       </div>
 
       <hr class="footer__divider">
 
       <div class="footer__text">
         <p>Developed and maintained by the Python community, for the Python community.</p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation.</p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>
     </footer>
 
