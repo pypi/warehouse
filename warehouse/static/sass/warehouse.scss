@@ -77,6 +77,8 @@
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
 @import "blocks/footer";
+@import "blocks/form-errors";
+@import "blocks/form-group";
 @import "blocks/heading-wsubtitle";
 @import "blocks/release";
 @import "blocks/release-timeline";
@@ -144,4 +146,8 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.hidden {
+  display: none;
 }
