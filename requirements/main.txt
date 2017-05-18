@@ -83,9 +83,9 @@ docutils==0.13.1 \
 elasticsearch-dsl==5.2.0 \
     --hash=sha256:0c4df03eeb2c254d0c2df49df3fcfbfb1f9af18ab22308487b023f9c9adbf87d \
     --hash=sha256:1a816fed5a0b9cbc862670f3455aa151e75f6042db38a1b008f73cc12173e0d0
-elasticsearch==5.3.0 \
-    --hash=sha256:aea16d6d6ad03a509c9f591eee9ce4ce62918d8ba26bf6513097223929be0a09 \
-    --hash=sha256:cb7f1346ebf7fb3fac1efcd8454d2d124d29cc55a009ed5683fe4c6ecad12925
+elasticsearch==5.4.0 \
+    --hash=sha256:8f02d626cff98befd298ffb1d19d8e519643d86d3aa27f6d7388566ec4ba48ee \
+    --hash=sha256:e754c688e20fe73160fb6f7f5b63f2a71c78788dc9e6908950681d3a39b56e85
 first==2.0.1 \
     --hash=sha256:3bb3de3582cb27071cfb514f00ed784dc444b7f96dc21e140de65fe00585c95e \
     --hash=sha256:41d5b64e70507d0c3ca742d68010a76060eea8a3d863e9b5130ab11a4a91aa0e
