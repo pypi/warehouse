@@ -80,9 +80,9 @@ disposable-email-domains==0.0.9 \
 docutils==0.13.1 \
     --hash=sha256:de454f1015958450b72641165c08afe7023cd7e3944396448f2fb1b0ccba9d77 \
     --hash=sha256:cb3ebcb09242804f84bdbf0b26504077a054da6772c6f4d625f335cc53ebf94d
-elasticsearch-dsl==5.2.0 \
-    --hash=sha256:0c4df03eeb2c254d0c2df49df3fcfbfb1f9af18ab22308487b023f9c9adbf87d \
-    --hash=sha256:1a816fed5a0b9cbc862670f3455aa151e75f6042db38a1b008f73cc12173e0d0
+elasticsearch-dsl==5.3.0 \
+    --hash=sha256:de5fd68901c5b94e51e2ae4e8ad6f618b22665d89794d96f9b6b763986665527 \
+    --hash=sha256:de81b2322cde9bf1171c8a41d80596cdadd433b88b93daa09060af3a512523a7
 elasticsearch==5.3.0 \
     --hash=sha256:aea16d6d6ad03a509c9f591eee9ce4ce62918d8ba26bf6513097223929be0a09 \
     --hash=sha256:cb7f1346ebf7fb3fac1efcd8454d2d124d29cc55a009ed5683fe4c6ecad12925
