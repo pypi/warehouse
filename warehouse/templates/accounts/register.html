@@ -73,6 +73,9 @@
         <div class="form-group">
           <label for="password" class="form-group__label">Password</label>
           {{ form.password(placeholder="Select a password", required="required", class_="form-group__input") }}
+          <p class="form-group__help-text">
+            Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
+          </p>
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
