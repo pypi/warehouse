@@ -129,7 +129,7 @@
         <div>
         {% if term %}
           <p>
-            <strong>{{ page.item_count|format_number }}</strong> projects match '<em>{{ term }}</em>'.
+            <strong>{{ page.item_count|format_number }}</strong> projects match "<em>{{ term }}</em>".
             {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
               {{ suggestion_link(page.collection.best_guess) }}
             {% endif %}

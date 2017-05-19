@@ -64,7 +64,9 @@
     background-color: darken($brand-color, 15);
     color: $white;
 
-    &:hover {
+    &:focus,
+    &:hover,
+    &:active {
       border-color: darken($brand-color, 21);
       background-color: darken($brand-color, 20);
       color: $white;
@@ -77,7 +79,9 @@
     color: $white;
     z-index: index($z-index-scale, 'highlight-button');
 
-    &:hover {
+    &:focus,
+    &:hover,
+    &:active {
       background-color: darken($brand-color, 2);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
@@ -92,6 +96,7 @@
     color: darken($background-color, 12%);
     text-decoration: line-through;
 
+    &:focus,
     &:hover,
     &:active {
       background-color: darken($background-color, 5%);
@@ -108,7 +113,6 @@
 
 
 // Toggle icons / text on mobile devices
-
 @media only screen and (max-width: $mobile){
   .button {
     &__icon {
