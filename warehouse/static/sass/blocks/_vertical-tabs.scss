@@ -73,7 +73,7 @@
   }
 
   &__content {
-    padding-left: $spacing-unit;
+    padding-right: $spacing-unit;
 
     @media only screen and (max-width: $tablet){
       padding: $spacing-unit ($spacing-unit / 2);

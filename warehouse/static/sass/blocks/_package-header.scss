@@ -18,6 +18,30 @@
 
 .package-header {
   @include site-container;
+  display: flex;
+
+  &__left {
+    width: 75%;
+    padding-right: $spacing-unit;
+  }
+
+  &__right {
+    text-align: right;
+    width: 25%;
+  }
+
+  @media screen and (max-width: $tablet) {
+    display: block;
+
+    &__left {
+      width: 100%;
+      padding-right: 0;
+    }
+
+    &__right {
+      display: none;
+    }
+  }
 
   a {
     color: $white;
@@ -29,12 +53,12 @@
     }
   }
 
-  &__license {
-    font-style: italic;
-  }
-
   &__name {
     padding: 0;
+    margin-top: -10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__description {
@@ -93,5 +117,14 @@
          display: none;
       }
     }
+  }
+
+  &__date {
+    font-style: italic;
+    padding-bottom: 5px;
+  }
+
+  &__license {
+    font-style: italic;
   }
 }

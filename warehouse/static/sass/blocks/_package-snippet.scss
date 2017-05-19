@@ -28,7 +28,9 @@
 
   &__title {
     padding-bottom: 0;
-    word-wrap: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__meta {
