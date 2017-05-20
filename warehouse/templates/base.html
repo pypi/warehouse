@@ -79,6 +79,10 @@
       {{ html_include(request.route_path("includes.flash-messages")) }}
     {% endblock %}
 
+    <div class="notification-bar">
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.io">Donate today!</a></span>
+    </div>
+
     <header class="site-header">
       <div class="site-container">
         <div class="split-layout">
@@ -156,7 +160,11 @@
       <hr class="footer__divider">
 
       <div class="footer__text">
-        <p>Developed and maintained by the Python community, for the Python community.</p>
+        <p>
+          Developed and maintained by the Python community, for the Python community.
+          <br>
+          <a href="https://donate.pypi.io">Donate Today!</a>
+        </p>
         <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>
     </footer>

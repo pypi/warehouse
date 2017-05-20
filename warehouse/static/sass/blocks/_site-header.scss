@@ -15,7 +15,7 @@
     max-width: 65px;
     float: left;
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: $small-tablet) {
       max-width: 50px;
     }
   }
