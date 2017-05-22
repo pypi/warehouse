@@ -70,6 +70,7 @@ def reindex(config, **kwargs):
     random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
     new_index_name = "{}-{}".format(index_base, random_token)
     doc_types = config.registry.get("search.doc_types", set())
+    shards = config.registry.get("elasticsearch.shards", 1)
 
     # Create the new index with zero replicas and index refreshes disabled
     # while we are bulk indexing.
@@ -77,10 +78,11 @@ def reindex(config, **kwargs):
         new_index_name,
         doc_types,
         using=client,
-        shards=config.registry.get("elasticsearch.shards", 1),
+        shards=shards,
         replicas=0,
         interval="-1",
     )
+    new_index.create(wait_for_active_shards=shards)
 
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
