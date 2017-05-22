@@ -62,7 +62,18 @@
 
   <body>
 
-    {% include "warehouse:templates/includes/warning-banner.html" %}
+    <section class="stick-to-top js-stick-to-top">
+      {% include "warehouse:templates/includes/warning-banner.html" %}
+
+      <!-- Add browser warning. Will show for ie9 and below -->
+      <!--[if IE]>
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
+      <![endif]-->
+      </div>
+
+    </section>
 
     {% block flash_messages %}
       {{ html_include(request.route_path("includes.flash-messages")) }}
