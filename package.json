@@ -31,7 +31,6 @@
     "uglify-js": "2.7.5",
     "vinyl-named": "1.1.0",
     "webpack": "2.1.0-beta.27",
-    "webpack-dependency-suite": "1.5.0",
     "webpack-stream": "3.2.0",
     "whatwg-fetch": "2.0.1"
   },

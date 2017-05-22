@@ -14,7 +14,6 @@ import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
 import named from "vinyl-named";
 import path from "path";
-import { RootMostResolvePlugin } from "webpack-dependency-suite";
 import sourcemaps from "gulp-sourcemaps";
 import * as uglify from "uglify-js";
 import webpack from "webpack";
@@ -22,7 +21,6 @@ import webpack from "webpack";
 
 // Configure where our files come from, where they get saved too, and what path
 // they are served from.
-let rootDir = path.resolve();
 let staticPrefix = "warehouse/static/";
 let distPath = path.join(staticPrefix, "dist");
 let publicPath = "/static/";
@@ -60,9 +58,6 @@ let webpackConfig = {
     alias: {
       "clipboard": "clipboard/dist/clipboard",
     },
-    plugins: [
-      new RootMostResolvePlugin(rootDir, true),
-    ],
   },
 };
 
