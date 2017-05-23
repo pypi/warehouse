@@ -31,7 +31,6 @@
 
 {% set text = best_guess.text %}
 {% set link = request.route_path('search', _query={'q': text}) %}
-{% set freq = best_guess.freq %}
 
 <span>
   Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
