@@ -63,6 +63,7 @@ class FakeESIndices:
         self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
         self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
         self.delete = pretend.call_recorder(lambda *a, **kw: None)
+        self.create = pretend.call_recorder(lambda *a, **kw: None)
 
     def exists_alias(self, name):
         return name in self.aliases
@@ -184,6 +185,7 @@ class TestReindex:
             registry={
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
+                "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -201,9 +203,22 @@ class TestReindex:
         assert sess_obj.execute.calls == [
             pretend.call("SET statement_timeout = '600s'"),
         ]
-        assert parallel_bulk .calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
+        assert es_client.indices.create.calls == [
+            pretend.call(
+                body={
+                    'settings': {
+                        'number_of_shards': 42,
+                        'number_of_replicas': 0,
+                        'refresh_interval': '-1',
+                    }
+                },
+                wait_for_active_shards=42,
+                index='warehouse-cbcbcbcbcb',
+            )
+        ]
         assert es_client.indices.delete.calls == []
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
@@ -252,6 +267,7 @@ class TestReindex:
             registry={
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
+                "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -272,6 +288,19 @@ class TestReindex:
         assert parallel_bulk.calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
+        assert es_client.indices.create.calls == [
+            pretend.call(
+                body={
+                    'settings': {
+                        'number_of_shards': 42,
+                        'number_of_replicas': 0,
+                        'refresh_interval': '-1',
+                    }
+                },
+                wait_for_active_shards=42,
+                index='warehouse-cbcbcbcbcb',
+            )
+        ]
         assert es_client.indices.delete.calls == [
             pretend.call('warehouse-aaaaaaaaaa'),
         ]
