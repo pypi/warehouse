@@ -35,6 +35,9 @@
 
 <span>
   Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
+  {% if freq > 1 %}
+  <span>({{ freq }} results)</span>
+  {% endif %}
 </span>
 {%- endmacro %}
 
@@ -140,7 +143,7 @@
           <div>
             <input id="search" type="hidden" name="q" value="{{ term }}">
             <label for="order">Order by &nbsp;</label>
-            <select class="-js-form-submit-trigger" id="order" name="o">
+            <select class="-js-form-submit-trigger" name="o">
               {{ search_option("Relevance", "") }}
               {{ search_option("Date Last Updated", "-created") }}
             </select>
