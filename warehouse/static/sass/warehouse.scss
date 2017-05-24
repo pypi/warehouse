@@ -77,6 +77,8 @@
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
 @import "blocks/footer";
+@import "blocks/form-errors";
+@import "blocks/form-group";
 @import "blocks/heading-wsubtitle";
 @import "blocks/release";
 @import "blocks/release-timeline";
@@ -91,7 +93,6 @@
 @import "blocks/package-links";
 @import "blocks/package-list";
 @import "blocks/package-snippet";
-@import "blocks/package-status";
 @import "blocks/project-description";
 @import "blocks/search-form";
 @import "blocks/sidebar-section";
@@ -104,9 +105,31 @@
 
 // TRUMPS LAYER: Overwrites everything else
 
+// Remove all styling
+.unstyled {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
 // Remove top padding on selected typography elements
 .no-top-padding {
   padding-top: 0;
+}
+
+// Remove top margin on selected blocks
+.no-top-margin {
+  margin-top: 0;
+}
+
+// Remove bottom margin on selected blocks
+.no-bottom-margin {
+  margin-bottom: 0;
+}
+
+// Make text or icons red to draw attention
+.danger {
+  color: $danger-color;
 }
 
 /*
@@ -122,4 +145,8 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.hidden {
+  display: none;
 }

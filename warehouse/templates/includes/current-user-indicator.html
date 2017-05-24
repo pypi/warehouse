@@ -18,11 +18,16 @@
   {% if request.has_permission("admin") %}
   <a class="horizontal-menu__link" href="{{ request.route_path('admin.dashboard') }}">Admin</a>
   {% endif %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+  <form method="POST" action="{{ request.route_path('accounts.logout') }}" class="horizontal-menu__link">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <input type="submit" value="Sign Out">
+  </form>
   {% else %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Sign In</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Login</a>
   <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
   {% endif %}
 
   <a class="horizontal-menu__link" href="{{ request.route_path('help') }}">Help</a>
+
+  <a class="horizontal-menu__link" href="https://donate.pypi.io">Donate</a>
 </nav>

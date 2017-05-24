@@ -21,6 +21,15 @@
         margin-right: 3px;
       }
     }
+
+    & input[type="submit"] {
+      border-color: transparent;
+      background-color: transparent;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   &--light {
@@ -41,7 +50,7 @@
         text-decoration: underline;
       }
 
-      @media only screen and (max-width: $mobile){
+      @media only screen and (max-width: $small-tablet){
         padding: 25px 10px;
       }
     }

@@ -46,4 +46,9 @@
   &--success {
     background-color: $success-color;
   }
+
+  // Remove top border when notification-bars are stacked on top of each other
+  + .notification-bar {
+    border-top: 0;
+  }
 }

@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import db
+from warehouse.cli.db import db, alembic_lock
 
 
 @db.command()
@@ -36,4 +36,6 @@ def merge(config, revisions, **kwargs):
     Takes one or more revisions or "heads" for all heads and merges them into
     a single revision.
     """
-    alembic.command.merge(config.alembic_config(), revisions, **kwargs)
+    with alembic_lock(config.registry["sqlalchemy.engine"],
+                      config.alembic_config()) as alembic_config:
+        alembic.command.merge(alembic_config, revisions, **kwargs)
