@@ -46,9 +46,11 @@
   &--success {
     background-color: $success-color;
   }
+}
 
-  // Remove top border when notification-bars are stacked on top of each other
-  + .notification-bar {
-    border-top: 0;
-  }
+// Remove top border when notification-bars are stacked on top of each other,
+// or when notification bar is under a sticky element
+.notification-bar + .notification-bar,
+body.with-sticky > .notification-bar {
+  border-top: 0;
 }
