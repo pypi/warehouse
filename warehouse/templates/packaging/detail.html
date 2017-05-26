@@ -66,7 +66,9 @@
       <h1 class="package-header__name">
         {{ release.project.name }} {{ release.version }}
       </h1>
-      <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
+      {% if release.summary %}
+        <p class="package-header__description">{{ release.summary }}</p>
+      {% endif %}
 
       {% if files %}
       <p class="package-header__pip-instructions">
