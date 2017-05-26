@@ -59,11 +59,10 @@
   }
 
   &--warn {
-    color: $black;
     background-color: $warn-color;
 
     &:hover {
-      color: $black;
+      color: $white;
     }
 
     &:before {
