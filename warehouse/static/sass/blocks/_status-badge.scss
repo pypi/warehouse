@@ -14,15 +14,14 @@
 */
 
 .status-badge {
-  @include span-columns(3);
   box-sizing: border-box;
   border-radius: 3px;
   display: inline-block;
   font-size: $small-font-size;
-  margin-bottom: 10px;
   color: $text-color;
   background-color: $white;
-  border: 1px solid #bebebe;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding-right: 12px;
 
   &:hover {
     color: $text-color;
@@ -37,7 +36,7 @@
     width: 40px;
     margin-right: 12px;
     text-align: center;
-    border-right: 1px solid #bebebe;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
   }
 
   &--unknown {
@@ -49,7 +48,6 @@
   &--good {
     color: $white;
     background-color: $success-color;
-    border: 1px solid darken($success-color, 5);
 
     &:hover {
       color: $white;
@@ -57,29 +55,11 @@
 
     &:before {
       content: '\f00c'; // Check / Tick
-      border-right: 1px solid darken($success-color, 5);
     }
   }
 
   &--warn {
-    color: $black;
     background-color: $warn-color;
-    border: 1px solid darken($warn-color, 5);
-
-    &:hover {
-      color: $black;
-    }
-
-    &:before {
-      content: '\f071'; // Warning
-      border-right: 1px solid darken($warn-color, 5);
-    }
-  }
-
-  &--bad {
-    color: $white;
-    background-color: $danger-color;
-    border: 1px solid darken($danger-color, 7);
 
     &:hover {
       color: $white;
@@ -87,16 +67,20 @@
 
     &:before {
       content: '\f071'; // Warning
-      border-right: 1px solid darken($danger-color, 7);
     }
   }
 
-  @media only screen and (max-width: $large-desktop){
-     @include span-columns(6);
-  }
+  &--bad {
+    color: $white;
+    background-color: $danger-color;
 
-  @media only screen and (max-width: $small-tablet){
-     @include span-columns(12);
+    &:hover {
+      color: $white;
+    }
+
+    &:before {
+      content: '\f071'; // Warning
+    }
   }
 
   @media only screen and (max-width: $mobile){

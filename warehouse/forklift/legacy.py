@@ -54,6 +54,7 @@ _allowed_platforms = {
     "any",
     "win32", "win_amd64", "win_ia64",
     "manylinux1_x86_64", "manylinux1_i686",
+    "linux_armv6l", "linux_armv7l",
 }
 # macosx is a little more complicated:
 _macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")

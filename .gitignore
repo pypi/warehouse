@@ -8,6 +8,7 @@
 .cache/
 .coverage
 .state
+.idea
 
 docs/_build/
 build/

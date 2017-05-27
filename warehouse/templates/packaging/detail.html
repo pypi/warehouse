@@ -62,43 +62,47 @@
 {% block content %}
 <section class="banner">
   <div class="package-header">
-    <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
-    <p class="package-header__description">{% if release.summary %}{{ release.summary }}{% endif %}</p>
-    {% if files %}
-    <p class="package-header__pip-instructions">
-      <span id="pip-command">
-      {% if request.matched_route.name == "packaging.release" %}
-        pip install {{ release.project.normalized_name }}=={{ release.version }}
-      {% else %}
-        pip install {{ release.project.normalized_name }}
+    <div class="package-header__left">
+      <h1 class="package-header__name">
+        {{ release.project.name }} {{ release.version }}
+      </h1>
+      {% if release.summary %}
+        <p class="package-header__description">{{ release.summary }}</p>
       {% endif %}
-      </span>
-      <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
-        <i class="fa fa-copy"></i>
-        <span class="sr-only">Copy PIP instructions<span>
-      </a>
-    </p>
-    {% endif %}
-    {% if license %}
-    <p class="package-header__license">License: {{ license }}</p>
-    {% endif %}
-  </div>
-</section>
 
-<section class="package-status">
-  <div class="site-container">
-    {% if release.version|parse_version > latest_release.version|parse_version %}
-    <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_release.version }})</a>
-    {% elif release.version|parse_version != latest_release.version|parse_version %}
-    <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_release.version }})</a>
-    {% else %}
-    <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
-    {% endif %}
+      {% if files %}
+      <p class="package-header__pip-instructions">
+        <span id="pip-command">
+        {% if request.matched_route.name == "packaging.release" %}
+          pip install {{ release.project.normalized_name }}=={{ release.version }}
+        {% else %}
+          pip install {{ release.project.normalized_name }}
+        {% endif %}
+        </span>
+        <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
+          <i class="fa fa-copy"></i>
+          <span class="sr-only">Copy PIP instructions<span>
+        </a>
+      </p>
+      {% endif %}
 
-    {# TODO: We need to actually make these do something. #}
-    <a class="status-badge status-badge--unknown" href="#">Dependencies status unknown</a>
-    <a class="status-badge status-badge--unknown" href="#">Test status unknown</a>
-    <a class="status-badge status-badge--unknown" href="#">Test coverage unknown</a>
+      {% if release.version|parse_version > latest_release.version|parse_version %}
+      <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_release.version }})</a>
+      {% elif release.version|parse_version != latest_release.version|parse_version %}
+      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_release.version }})</a>
+      {% else %}
+      <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
+      {% endif %}
+    </div>
+
+    <div class="package-header__right">
+      <p class="package-header__date">
+        <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time>
+      </p>
+      {% if license %}
+      <p class="package-header__license">License: {{ license }}</p>
+      {% endif %}
+    </div>
   </div>
 </section>
 
@@ -124,69 +128,6 @@
 <section>
   <div class="site-container">
     <div class="vertical-tabs">
-      <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Navigation</h3>
-            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
-            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
-            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a> #}
-            {% if files %}
-              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
-            {% endif %}
-        </div>
-
-        {% if release.has_meta %}
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Meta</h3>
-          {% if release.author_email %}
-            <p>Author: <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
-          {% elif release.author %}
-            <p>Author: {{ release.author }}</p>
-          {% endif %}
-          {% if release.maintainer_email %}
-            <p>Maintainer: <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
-          {% elif release.maintainer %}
-            <p>Maintainer: {{ release.maintainer }}</p>
-          {% endif %}
-          {% if release.keywords %}
-          <p class="tags"><i class="fa fa-tags"></i>
-            {% for keyword in release.keywords | format_tags %}
-            <span class="package-keyword">
-              {{ keyword }}{% if not loop.last %},{% endif %}
-            </span>
-            {% endfor %}
-          </p>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        <div class="sidebar-section sidebar-section--maintainers">
-          <h3 class="sidebar-section__title">Maintainers</h3>
-          {% for maintainer in maintainers %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"><img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}"></a>
-          {% endfor %}
-        </div>
-
-        {% if release.classifiers %}
-        <div class="sidebar-section classifiers">
-          <h3>Classifiers</h3>
-          <dl>
-            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
-            <dt>{{ classifier_head }}</dt>
-            {% for classifier in classifier_tail %}
-            <dd>
-            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
-              {{ classifier }}
-            </a>
-            </dd>
-            {% endfor %}
-            {% endfor %}
-          </dl>
-        </div>
-        {% endif %}
-      </div>
-
       <div class="vertical-tabs__panel">
         {# Tab: Project Description #}
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description">Project Description</a>
@@ -250,7 +191,9 @@
                 <span class="badge">This version</span>
                 {% endif %}
 
-                <p class="release__version-date"><time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time></span>
+                <p class="release__version-date">
+                  <time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time>
+                </span>
               </div>
 
               <div class="release__graphic">
@@ -306,14 +249,14 @@
           <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#files">Download Files</a>
           <div id="files" class="-js-vertical-tab-content vertical-tabs__content">
             <h2>Download Files</h2>
-            <p>TODO: Brief introduction on what you do with files - including link to relevant help section.</p>
+            <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
 
             <table class="downloads-table">
               <thead>
                 <tr>
                   <th class="downloads-table__filename">
                     File Name &amp; Checksum
-                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode">
+                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle"></i>
                       <span class="sr-only">SHA256 Checksum Help</span>
                     </a>
@@ -351,6 +294,70 @@
               </tbody>
             </table>
           </div>
+        {% endif %}
+      </div>
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Navigation</h3>
+            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
+            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
+            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a> #}
+            {% if files %}
+              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
+            {% endif %}
+        </div>
+
+        {% if release.has_meta %}
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Meta</h3>
+          {% if release.author_email %}
+            <p>Author: <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+          {% elif release.author %}
+            <p>Author: {{ release.author }}</p>
+          {% endif %}
+          {% if release.maintainer_email %}
+            <p>Maintainer: <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+          {% elif release.maintainer %}
+            <p>Maintainer: {{ release.maintainer }}</p>
+          {% endif %}
+          {% if release.keywords %}
+          <p class="tags"><i class="fa fa-tags"></i>
+            {% for keyword in release.keywords | format_tags %}
+            <span class="package-keyword">
+              {{ keyword }}{% if not loop.last %},{% endif %}
+            </span>
+            {% endfor %}
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="sidebar-section sidebar-section--maintainers">
+          <h3 class="sidebar-section__title">Maintainers</h3>
+          {% for maintainer in maintainers %}
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="tooltipped tooltipped-w" aria-label="{{ maintainer.username}}" data-original-label="{{ maintainer.username}}">
+              <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}">
+            </a>
+          {% endfor %}
+        </div>
+
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3>Classifiers</h3>
+          <dl>
+            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+            <dt>{{ classifier_head }}</dt>
+            {% for classifier in classifier_tail %}
+            <dd>
+            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+              {{ classifier }}
+            </a>
+            </dd>
+            {% endfor %}
+            {% endfor %}
+          </dl>
+        </div>
         {% endif %}
       </div>
     </div>
