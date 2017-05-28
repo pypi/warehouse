@@ -345,7 +345,8 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords,
+        return any([self.license,
+                    self.keywords,
                     self.author, self.author_email,
                     self.maintainer, self.maintainer_email])
 
