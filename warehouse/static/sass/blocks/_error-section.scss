@@ -1,0 +1,98 @@
+/*
+  A section that is 100% high and contains an error message.
+
+  <div class="error-section">
+    <div class-"error-section__content">
+      <h1 class="error-section__heading">Heading here</h1>
+      <!-- search here -->
+      <div class="error-section__text">
+        <!-- text here -->
+      </div>
+    </div>
+  </div>
+*/
+
+.error-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+
+  &__content {
+    text-align: center;
+    min-width: 0;
+  }
+
+  &__heading {
+    font-size: 2.4em;
+    padding: $spacing-unit ($spacing-unit / 2);
+
+    @media screen and (max-width: $small-tablet) {
+      font-size: 1.5em;
+    }
+  }
+
+  &__text {
+    margin-top: $spacing-unit;
+    padding: $spacing-unit ($spacing-unit / 2);
+  }
+
+  &--dark {
+    background-color: $brand-color;
+    color: $white;
+
+    a {
+      color: $white;
+      text-decoration: underline;
+    }
+  }
+
+  &--ee {
+    min-height: auto;
+    padding: ($spacing-unit * 4) 0;
+
+    @media screen and (max-width: $small-tablet) {
+      padding: ($spacing-unit * 2) 0;
+    }
+
+    .error-section__heading {
+      display: inline;
+      font-family: 'Ewert', cursive;
+      font-weight: 400;
+      color: darken($brand-color, 15);
+      background: $highlight-color;
+
+      span {
+        font-size: 2.7em;
+        line-height: 1;
+        padding-bottom: 30px;
+        font-size: 3.5em;
+
+        @media screen and (max-width: $desktop) {
+          font-size: 2.8em;
+        }
+
+        @media screen and (max-width: $tablet) {
+          font-size: 2.1em;
+        }
+
+        @media screen and (max-width: $small-tablet) {
+          font-size: 1.8em;
+        }
+
+        @media screen and (max-width: $mobile) {
+          font-size: 1.2em;
+        }
+      }
+    }
+
+    .error-section__video {
+      margin: ($spacing-unit * 2) auto 0 auto;
+    	width: 600px;
+    	height: 400px;
+      max-width: 80%;
+      background-color: darken($brand-color, 15);
+    	border: 9px dashed #fff;
+    }
+  }
+}
