@@ -5,20 +5,33 @@
   This block assumes it is placed inside a dark container.
 
   <div class="package-header">
-    <p class="package-header__license"></p>
-    <h1 class="package-header__name"></h1>
-    <p class="package-header__description"></p>
-    <p class="package-header__pip-instructions">
-      <span>// pip instructions</span>
-      <a><i></i></a> // copy icon
-    </p>
-    <p class="package-header__help-link">// Help link</p>
+    <div class="package-header__left">
+      <h1 class="package-header__name"></h1>
+      <p class="package-header__pip-instructions">
+        <span>// pip instructions</span>
+        <a><i></i></a> // copy icon
+      </p>
+    </div>
+    <div class="package-header__right">
+      // status badge here
+      <p class="package-header__date"></p>
+    </div>
   </div>
 */
 
 .package-header {
   @include site-container;
   display: flex;
+
+  a {
+    color: $white;
+    text-decoration: underline;
+    text-decoration-color: $transparent-white;
+
+    &:hover {
+      text-decoration-color: $white;
+    }
+  }
 
   &__left {
     width: 75%;
@@ -43,16 +56,6 @@
     }
   }
 
-  a {
-    color: $white;
-    text-decoration: underline;
-    text-decoration-color: $transparent-white;
-
-    &:hover {
-      text-decoration-color: $white;
-    }
-  }
-
   &__name {
     padding: 0;
     margin-top: -10px;
@@ -61,15 +64,9 @@
     text-overflow: ellipsis;
   }
 
-  &__description {
-    font-size: 1.2rem;
-    font-style: italic;
-    padding: 10px 0;
-  }
-
   &__pip-instructions {
     @include clearfix;
-    margin: 10px 0 20px;
+    margin: 10px 0 0;
     padding-bottom: 0;
 
     span {
@@ -121,10 +118,7 @@
 
   &__date {
     font-style: italic;
+    margin-top: 20px;
     padding-bottom: 5px;
-  }
-
-  &__license {
-    font-style: italic;
   }
 }
