@@ -52,7 +52,6 @@
 </div>
 {%- endmacro %}
 
-
 {% block title %}{{ release.project.name }}{% endblock %}
 
 {% block description %}{{ release.summary }}{% endblock %}
@@ -66,9 +65,6 @@
       <h1 class="package-header__name">
         {{ release.project.name }} {{ release.version }}
       </h1>
-      {% if release.summary %}
-        <p class="package-header__description">{{ release.summary }}</p>
-      {% endif %}
 
       {% if files %}
       <p class="package-header__pip-instructions">
@@ -85,7 +81,9 @@
         </a>
       </p>
       {% endif %}
+    </div>
 
+    <div class="package-header__right">
       {% if release.version|parse_version > latest_release.version|parse_version %}
       <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_release.version }})</a>
       {% elif release.version|parse_version != latest_release.version|parse_version %}
@@ -93,41 +91,104 @@
       {% else %}
       <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
       {% endif %}
-    </div>
-
-    <div class="package-header__right">
       <p class="package-header__date">
         <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time>
       </p>
-      {% if license %}
-      <p class="package-header__license">License: {{ license }}</p>
-      {% endif %}
     </div>
   </div>
 </section>
 
-{% if release.urls.values() | contains_valid_uris %}
+{% if release.summary %}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
-    <div class="package-links">
-      <nav class="horizontal-menu package-links__horizontal-menu">
-        {% for name, url in release.urls.items() %}
-        {% if is_valid_uri(url) %}
-        <a class="horizontal-menu__link horizontal-menu__link--with-icon" href="{{ url }}" rel="nofollow">
-          {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
-          {{ url_icon(name, url) }}{{ name }}
-        </a>
-        {% endif %}
-        {% endfor %}
-      </nav>
-    </div>
+    <p class="package-description">{{ release.summary }}</p>
   </div>
 </section>
 {% endif %}
 
+
 <section>
   <div class="site-container">
     <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Navigation</h3>
+            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
+            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
+            {% if files %}
+              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
+            {% endif %}
+        </div>
+
+        {% if release.urls.values() | contains_valid_uris %}
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Project Links</h3>
+          {% for name, url in release.urls.items() %}
+          {% if is_valid_uri(url) %}
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
+            {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
+            {{ url_icon(name, url) }}{{ name }}
+          </a>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if release.has_meta %}
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Meta</h3>
+          {% if license %}
+          <p><strong>License:</strong> {{ license }}</p>
+          {% endif %}
+          {% if release.author_email %}
+            <p><strong>Author:</strong> <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+          {% elif release.author %}
+            <p><strong>Author:</strong> {{ release.author }}</p>
+          {% endif %}
+          {% if release.maintainer_email %}
+            <p><strong>Maintainer:</strong> <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+          {% elif release.maintainer %}
+            <p><strong>Maintainer:</strong> {{ release.maintainer }}</p>
+          {% endif %}
+          {% if release.keywords %}
+          <p class="tags"><i class="fa fa-tags"></i>
+            {% for keyword in release.keywords | format_tags %}
+            <span class="package-keyword">
+              {{ keyword }}{% if not loop.last %},{% endif %}
+            </span>
+            {% endfor %}
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="sidebar-section sidebar-section--maintainers">
+          <h3 class="sidebar-section__title">Maintainers</h3>
+          {% for maintainer in maintainers %}
+            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="tooltipped tooltipped-e" aria-label="{{ maintainer.username}}" data-original-label="{{ maintainer.username}}">
+              <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}">
+            </a>
+          {% endfor %}
+        </div>
+
+        {% if release.classifiers %}
+        <div class="sidebar-section classifiers">
+          <h3>Classifiers</h3>
+          <dl>
+            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+            <dt>{{ classifier_head }}</dt>
+            {% for classifier in classifier_tail %}
+            <dd>
+            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+              {{ classifier }}
+            </a>
+            </dd>
+            {% endfor %}
+            {% endfor %}
+          </dl>
+        </div>
+        {% endif %}
+      </div>
       <div class="vertical-tabs__panel">
         {# Tab: Project Description #}
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description">Project Description</a>
@@ -143,57 +204,19 @@
           {% endif %}
         </div>
 
-        {# Tab: Dependencies #}
-        {# Note: Commented out dependencies tab
-        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#dependencies">Dependencies</a>
-        <div id="dependencies" class="-js-vertical-tab-content vertical-tabs__content">
-          <h2>Dependencies (TODO)</h2>
-          <p>
-            To run <em>{{ release.project.name }}</em>, you will need to have the following projects installed:
-          </p>
-
-          <div class="package-list">
-            {% for _ in [1, 2] %}
-              {{ project_snippet(release) }}
-            {% endfor %}
-          </div>
-
-          <h2 class="no-top-padding">Reverse Dependencies (TODO)</h2>
-          <p>
-            The following projects rely on <em>{{ release.project.name }}</em>:
-          </p>
-
-          <div class="package-list">
-            {% for _ in [1, 2, 3] %}
-              {{ project_snippet(release) }}
-            {% endfor %}
-          </div>
-        </div>
-        #}
-
         {# Tab: Release History #}
         <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>
         <div id="history" class="-js-vertical-tab-content vertical-tabs__content">
-          <div class="split-layout split-layout--table">
-            <h2>Release History</h2>
-            <div>
-              <a class="button -js-toggle" href="#">Expand All</a>
-            </div>
-          </div>
+          <h2>Release History</h2>
 
           <section class="release-timeline">
             {% for hrelease in all_releases %}
             {% set is_current = (hrelease.version == release.version) %}
             <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
               <div class="release__meta">
-                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
                 {% if is_current %}
                 <span class="badge">This version</span>
                 {% endif %}
-
-                <p class="release__version-date">
-                  <time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time>
-                </span>
               </div>
 
               <div class="release__graphic">
@@ -207,42 +230,16 @@
                 {% endif %}
               </div>
 
-              <div class="release__changelog">
-                <div class="card release__card">
-                  <p>TODO: Figure out how to actually get changelog content.
-                  <p>Changelog content for this version goes here.</p>
-                  <p>Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                  <p><a href="clicking-here-expands-changelog"><i class="fa fa-plus-square-o"></i> <span>Show More</span></a></p>
-                </div>
+              <div class="card release__card">
+                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
+                <p class="release__version-date">
+                  <time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time>
+                </span>
               </div>
             </div>
             {% endfor %}
           </section>
         </div>
-
-        {# Tab: Statistics #}
-        {# Note: Commented out statistics tab
-        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#statistics">Download Statistics</a>
-        <div id="statistics" class="-js-vertical-tab-content vertical-tabs__content">
-          <h2>Download Statistics</h2>
-          <div class="button-group">
-            <a class="button-group__button button button--highlight" href="#">All versions</a>
-            <a class="button-group__button button" href="#">This version only ({{ release.version }})</a>
-          </div>
-
-          <div class="download-graph">
-            <div class="download-graph__overview">
-              <!--TODO -->
-              <p><strong>Today:</strong> 34</p>
-              <p><strong>This Week:</strong> 54</p>
-              <p><strong>This Month: </strong> 5,434</p>
-              <p><strong>This Year: </strong> 46,339</p>
-              <p><strong>All Time:</strong> 2,342,323</p>
-            </div>
-            <div class="download-graph__graph">TODO: Bar chart here showing downloads over time</div>
-          </div>
-        </div>
-        #}
 
         {% if files %}
           {# Tab: Downloads #}
@@ -294,70 +291,6 @@
               </tbody>
             </table>
           </div>
-        {% endif %}
-      </div>
-      <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Navigation</h3>
-            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
-            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#dependencies">Dependencies</a> #}
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
-            {# <a class="-js-vertical-tab vertical-tabs__tab" href="#statistics">Download Statistics</a> #}
-            {% if files %}
-              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
-            {% endif %}
-        </div>
-
-        {% if release.has_meta %}
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Meta</h3>
-          {% if release.author_email %}
-            <p>Author: <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
-          {% elif release.author %}
-            <p>Author: {{ release.author }}</p>
-          {% endif %}
-          {% if release.maintainer_email %}
-            <p>Maintainer: <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
-          {% elif release.maintainer %}
-            <p>Maintainer: {{ release.maintainer }}</p>
-          {% endif %}
-          {% if release.keywords %}
-          <p class="tags"><i class="fa fa-tags"></i>
-            {% for keyword in release.keywords | format_tags %}
-            <span class="package-keyword">
-              {{ keyword }}{% if not loop.last %},{% endif %}
-            </span>
-            {% endfor %}
-          </p>
-          {% endif %}
-        </div>
-        {% endif %}
-
-        <div class="sidebar-section sidebar-section--maintainers">
-          <h3 class="sidebar-section__title">Maintainers</h3>
-          {% for maintainer in maintainers %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="tooltipped tooltipped-w" aria-label="{{ maintainer.username}}" data-original-label="{{ maintainer.username}}">
-              <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ maintainer.username}}">
-            </a>
-          {% endfor %}
-        </div>
-
-        {% if release.classifiers %}
-        <div class="sidebar-section classifiers">
-          <h3>Classifiers</h3>
-          <dl>
-            {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
-            <dt>{{ classifier_head }}</dt>
-            {% for classifier in classifier_tail %}
-            <dd>
-            <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
-              {{ classifier }}
-            </a>
-            </dd>
-            {% endfor %}
-            {% endfor %}
-          </dl>
-        </div>
         {% endif %}
       </div>
     </div>

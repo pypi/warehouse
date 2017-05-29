@@ -6,10 +6,10 @@
 
 @mixin site-container {
   @include centered-container($site-container);
-  padding: 0 20px;
+  padding: 0 $spacing-unit;
 
-  @media screen and (max-width: $mobile) {
-    padding: 0 15px;
+  @media screen and (max-width: $small-tablet) {
+    padding: 0 ($spacing-unit / 2);
   }
 }
 
