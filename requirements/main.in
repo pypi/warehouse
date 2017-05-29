@@ -26,7 +26,7 @@ paginate_sqlalchemy
 passlib>=1.6.4
 psycopg2
 pyblake2
-pyramid>=1.8
+pyramid>=1.9a2
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
