@@ -284,11 +284,14 @@ def configure(settings=None):
         renderers.JSON(sort_keys=True, separators=(",", ":")),
     )
 
+    # Configure retry support.
+    config.add_settings({"retry.attempts": 3})
+    config.include("pyramid_retry")
+
     # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
     config.add_settings({
-        "tm.attempts": 3,
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
         "tm.activate_hook": activate_hook,
         "tm.annotate_user": False,
