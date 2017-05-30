@@ -62,6 +62,24 @@ sub vcl_recv {
     # thing, reducing cache misses due to ordering differences.
     set req.url = boltsort.sort(req.url);
 
+    # We have a number of items that we'll pass back to the origin.
+    # Set a header to tell the backend if we're using https or http.
+    if (req.http.Fastly-SSL) {
+        set req.http.Warehouse-Proto = "https";
+    } else {
+        set req.http.Warehouse-Proto = "http";
+    }
+
+    # Pass the client IP address back to the backend.
+    if (req.http.Fastly-Client-IP) {
+        set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
+    }
+
+    # Pass the real host value back to the backend.
+    if (req.http.Host) {
+        set req.http.Warehouse-Host = req.http.host;
+    }
+
 
 #FASTLY recv
 
@@ -138,27 +156,6 @@ sub vcl_recv {
     unset req.http.AWS-Access-Key-ID;
     unset req.http.AWS-Secret-Access-Key;
     unset req.http.AWS-Bucket-Name;
-
-    # We have a number of items that we'll pass back to the origin, but only
-    # if we have a Warehouse-Token that will allow them to be accepted.
-    if (req.http.Warehouse-Token) {
-        # Set a header to tell the backend if we're using https or http.
-        if (req.http.Fastly-SSL) {
-            set req.http.Warehouse-Proto = "https";
-        } else {
-            set req.http.Warehouse-Proto = "http";
-        }
-
-        # Pass the client IP address back to the backend.
-        if (req.http.Fastly-Client-IP) {
-            set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
-        }
-
-        # Pass the real host value back to the backend.
-        if (req.http.Host) {
-            set req.http.Warehouse-Host = req.http.host;
-        }
-    }
 
     # On a POST, we want to skip the shielding and hit backends directly.
     if (req.request == "POST") {
@@ -310,7 +307,7 @@ sub vcl_deliver {
     # URLs, and it's a GET request, and the response is either a 200 or a 304
     # then we want to log an event stating that a download has taken place.
     if (!req.http.Fastly-FF
-            && std.tolower(req.http.host) == "files.pythonhosted.org"
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
             && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/"
             && req.request == "GET"
             && http_status_matches(resp.status, "200,304")) {
@@ -325,6 +322,7 @@ sub vcl_deliver {
     unset resp.http.x-amz-meta-version;
     unset resp.http.x-amz-meta-package-type;
     unset resp.http.x-amz-meta-project;
+
 
     return(deliver);
 }
