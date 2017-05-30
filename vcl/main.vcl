@@ -69,15 +69,29 @@ sub vcl_recv {
     } else {
         set req.http.Warehouse-Proto = "http";
     }
-
     # Pass the client IP address back to the backend.
     if (req.http.Fastly-Client-IP) {
         set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
     }
-
     # Pass the real host value back to the backend.
     if (req.http.Host) {
         set req.http.Warehouse-Host = req.http.host;
+    }
+
+    # Currently Fastly does not provide a way to access response headers when
+    # the response is a 304 response. This is because the RFC states that only
+    # a limit set of headers should be sent with a 304 response, and the rest
+    # are SHOULD NOT. Since this stripping happens *prior* to vcl_deliver being
+    # ran, that breaks our ability to log on 304 responses. Ideally at some
+    # point Fastly offers us a way to access the "real" response headers even
+    # for a 304 response, but for now, we are going to remove the headers that
+    # allow a conditional response to be made. If at some point Fastly does
+    # allow this, then we can delete this code.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
+        unset req.http.If-None-Match;
+        unset req.http.If-Modified-Since;
     }
 
 
@@ -303,6 +317,23 @@ sub vcl_deliver {
     set resp.http.X-Content-Type-Options = "nosniff";
     set resp.http.X-Permitted-Cross-Domain-Policies = "none";
 
+    # Currently Fastly does not provide a way to access response headers when
+    # the response is a 304 response. This is because the RFC states that only
+    # a limit set of headers should be sent with a 304 response, and the rest
+    # are SHOULD NOT. Since this stripping happens *prior* to vcl_deliver being
+    # ran, that breaks our ability to log on 304 responses. Ideally at some
+    # point Fastly offers us a way to access the "real" response headers even
+    # for a 304 response, but for now, we are going to remove the headers that
+    # allow a conditional response to be made. If at some point Fastly does
+    # allow this, then we can delete this code, and also allow a 304 response
+    # in the http_status_matches() check further down.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
+        unset resp.http.ETag;
+        unset resp.http.Last-Modified;
+    }
+
     # If we're not executing a shielding request, and the URL is one of our file
     # URLs, and it's a GET request, and the response is either a 200 or a 304
     # then we want to log an event stating that a download has taken place.
@@ -310,7 +341,7 @@ sub vcl_deliver {
             && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
             && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/"
             && req.request == "GET"
-            && http_status_matches(resp.status, "200,304")) {
+            && http_status_matches(resp.status, "200")) {
         log {"syslog "} req.service_id {" linehaul :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
         log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
     }
