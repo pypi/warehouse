@@ -309,14 +309,6 @@ sub vcl_deliver {
     # they are not generally useful.
     unset resp.http.Via;
 
-    # Unset a few headers set by Amazon that we don't really have a need/desire
-    # to send to clients.
-    unset resp.http.X-AMZ-Replication-Status;
-    unset resp.http.X-AMZ-Meta-Python-Version;
-    unset resp.http.X-AMZ-Meta-Version;
-    unset resp.http.X-AMZ-Meta-Package-Type;
-    unset resp.http.X-AMZ-Meta-Project;
-
     # Set our standard security headers, we do this in VCL rather than in
     # Warehouse itself so that we always get these headers, regardless of the
     # origin server being used.
@@ -347,6 +339,14 @@ sub vcl_deliver {
         log {"syslog "} req.service_id {" linehaul :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
         log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
     }
+
+    # Unset a few headers set by Amazon that we don't really have a need/desire
+    # to send to clients.
+    unset resp.http.x-amz-replication-status;
+    unset resp.http.x-amz-meta-python-version;
+    # unset resp.http.x-amz-meta-version;
+    # unset resp.http.x-amz-meta-package-type;
+    # unset resp.http.x-amz-meta-project;
 
     return(deliver);
 }
