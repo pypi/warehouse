@@ -17,26 +17,14 @@
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
     <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-    <h2 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h2>
-
-    <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
-      <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search Projects" autofocus>
-      <button class="search-form__button button button--large button--dark" type="submit">
-        <span class="button__icon">
-          <i class="fa fa-search"></i>
-        </span>
-        <span class="button__text">Search</span>
-      </button>
-    </form>
-
-    <div class="viewport-section__text">
+    <h2 class="viewport-section__heading">API Endpoint</h2>
+    <div class="viewport-section__text no-top-margin">
       <p>
-        That's a {% block error_code %}{% endblock %}!<br/>
-        <a href="/">Back to the homepage!</a>
+        This URL is an API endpoint for uploading files to PyPI.<br/>
+        For more information on uploading projects to PyPI, please visit the <a href="https://packaging.python.org/distributing/#uploading-your-project-to-pypi">Python Packaging User Guide.</a>
       </p>
+      <p>Otherwise, we suggest you <a href="https://pypi.io">go to the PyPI homepage</a>.</p>
     </div>
   </div>
 </div>
-{% block easter_egg %}{% endblock %}
 {% endblock body %}

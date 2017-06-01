@@ -1,18 +1,18 @@
 /*
-  A section that is 100% high and contains an error message.
+  A section that is the height of the viewport.
 
-  <div class="error-section">
-    <div class-"error-section__content">
-      <h1 class="error-section__heading">Heading here</h1>
+  <div class="viewport-section">
+    <div class-"viewport-section__content">
+      <h1 class="viewport-section__heading">Heading here</h1>
       <!-- search here -->
-      <div class="error-section__text">
+      <div class="viewport-section__text">
         <!-- text here -->
       </div>
     </div>
   </div>
 */
 
-.error-section {
+.viewport-section {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,7 +55,7 @@
       padding: ($spacing-unit * 2) 0;
     }
 
-    .error-section__heading {
+    .viewport-section__heading {
       display: inline;
       font-family: 'Ewert', cursive;
       font-weight: 400;
@@ -86,7 +86,7 @@
       }
     }
 
-    .error-section__video {
+    .viewport-section__video {
       margin: ($spacing-unit * 2) auto 0 auto;
     	width: 600px;
     	height: 400px;
