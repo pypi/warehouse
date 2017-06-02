@@ -11,13 +11,18 @@
 # limitations under the License.
 
 import pretend
+import pytest
+
+from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.models import Project, Release
+from warehouse.packaging.tasks import compute_trending
 
 
-def test_includme(monkeypatch):
+@pytest.mark.parametrize("with_trending", [True, False])
+def test_includme(monkeypatch, with_trending):
     storage_class = pretend.stub(create_service=pretend.stub())
 
     download_stat_service_obj = pretend.stub()
@@ -43,6 +48,9 @@ def test_includme(monkeypatch):
             },
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
+        get_settings=lambda: (
+            {"warehouse.trending_table": "foobar"} if with_trending else {}),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     packaging.includeme(config)
@@ -75,3 +83,8 @@ def test_includme(monkeypatch):
             ],
         ),
     ]
+
+    if with_trending:
+        assert config.add_periodic_task.calls == [
+            pretend.call(crontab(minute=0, hour=3), compute_trending),
+        ]

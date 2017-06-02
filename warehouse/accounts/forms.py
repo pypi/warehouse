@@ -9,19 +9,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import re
 
+import disposable_email_domains
 import wtforms
 import wtforms.fields.html5
 
 from warehouse import forms, recaptcha
+from warehouse.accounts.interfaces import TooManyFailedLogins
 
 
 class CredentialsMixin:
     username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Length(max=50),
+            wtforms.validators.Length(
+                max=50,
+                message=(
+                    "The username you have chosen is too long. Please choose "
+                    "a username with under 50 characters."
+                )
+            ),
         ],
     )
 
@@ -36,27 +43,20 @@ class CredentialsMixin:
         self.user_service = user_service
 
 
-# XXX: This is a naive password strength validator, but something that can
-# easily be replicated in JS for client-side feedback.
-# see: https://github.com/pypa/warehouse/issues/6
-PWD_MIN_LEN = 8
-PWD_RE = re.compile(r"""
-^                                                       # start
-(?=.*[A-Z]+.*)                                          # >= 1 upper case
-(?=.*[a-z]+.*)                                          # >= 1 lower case
-(?=.*[0-9]+.*)                                          # >= 1 number
-(?=.*[.*~`\!@#$%^&\*\(\)_+-={}|\[\]\\:";'<>?,\./]+.*)   # >= 1 special char
-.{""" + str(PWD_MIN_LEN) + """,}                        # >= 8 chars
-$                                                       # end
-""", re.X)
-
-
 class RegistrationForm(CredentialsMixin, forms.Form):
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            forms.PasswordStrengthValidator(
+                user_input_fields=["full_name", "username", "email"],
+            ),
+        ],
+    )
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "password", "Passwords must match."
+                "password", "Your passwords do not match. Please try again."
             ),
         ],
     )
@@ -66,7 +66,12 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     email = wtforms.fields.html5.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Email(),
+            wtforms.validators.Email(
+                message=(
+                    "The email address you have chosen is not a valid "
+                    "format. Please try again."
+                )
+            ),
         ],
     )
 
@@ -79,11 +84,22 @@ class RegistrationForm(CredentialsMixin, forms.Form):
     def validate_username(self, field):
         if self.user_service.find_userid(field.data) is not None:
             raise wtforms.validators.ValidationError(
-                "Username exists.")
+                "This username is already being used by another "
+                "account. Please choose a different username."
+            )
 
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
-            raise wtforms.validators.ValidationError("Email exists.")
+            raise wtforms.validators.ValidationError(
+                "This email address is already being used by another account. "
+                "Please use a different email."
+            )
+        domain = field.data.split('@')[-1]
+        if domain in disposable_email_domains.blacklist:
+            raise wtforms.validators.ValidationError(
+                "Sorry, you cannot create an account with an email address "
+                "from this domain. Please use a different email."
+            )
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
@@ -96,24 +112,27 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
-    def validate_password(self, field):
-        if not PWD_RE.match(field.data):
-            raise wtforms.validators.ValidationError(
-                "Password must contain an upper case letter, a lower case "
-                "letter, a number, a special character and be at least "
-                "%d characters in length" % PWD_MIN_LEN
-            )
-
 
 class LoginForm(CredentialsMixin, forms.Form):
     def validate_username(self, field):
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
-            raise wtforms.validators.ValidationError("Invalid user.")
+            raise wtforms.validators.ValidationError(
+                "No user found with that username. Please try again."
+            )
 
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
-            if not self.user_service.check_password(userid, field.data):
-                raise wtforms.validators.ValidationError("Invalid password.")
+            try:
+                if not self.user_service.check_password(userid, field.data):
+                    raise wtforms.validators.ValidationError(
+                        "The username and password combination you have "
+                        "provided is invalid. Please try again."
+                    )
+            except TooManyFailedLogins:
+                raise wtforms.validators.ValidationError(
+                    "There have been too many unsuccessful login attempts, "
+                    "please try again later."
+                ) from None

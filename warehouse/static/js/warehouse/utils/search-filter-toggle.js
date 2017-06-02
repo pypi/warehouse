@@ -24,5 +24,5 @@ export default () => {
   }
 
   toggleEvent(showPanel, "block");
-  toggleEvent(hidePanel, "none");
+  toggleEvent(hidePanel, "");
 };

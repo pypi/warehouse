@@ -62,7 +62,24 @@
 
   <body>
 
-    {% include "warehouse:templates/includes/warning-banner.html" %}
+    <section class="stick-to-top js-stick-to-top">
+      {% include "warehouse:templates/includes/warning-banner.html" %}
+      <!-- Add browser warning. Will show for ie9 and below -->
+      <!--[if IE]>
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
+      </div>
+      <![endif]-->
+    </section>
+
+    {% block flash_messages %}
+      {{ html_include(request.route_path("includes.flash-messages")) }}
+    {% endblock %}
+
+    <div class="notification-bar">
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.io">Donate today!</a></span>
+    </div>
 
     <header class="site-header">
       <div class="site-container">
@@ -141,8 +158,12 @@
       <hr class="footer__divider">
 
       <div class="footer__text">
-        <p>Developed and maintained by the Python community, for the Python community.</p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="https://www.python.org/about/legal/">Legal Statements</a></p>
+        <p>
+          Developed and maintained by the Python community, for the Python community.
+          <br>
+          <a href="https://donate.pypi.io">Donate Today!</a>
+        </p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>
     </footer>
 

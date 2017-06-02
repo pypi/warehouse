@@ -67,12 +67,12 @@ def httpexception_view(exc, request):
 
 
 @forbidden_view_config()
-def forbidden(exc, request):
+def forbidden(exc, request, redirect_to="accounts.login"):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
     if request.authenticated_userid is None:
         url = request.route_url(
-            "accounts.login",
+            redirect_to,
             _query={REDIRECT_FIELD_NAME: request.path_qs},
         )
         return HTTPSeeOther(url)
@@ -125,16 +125,16 @@ def opensearchxml(request):
             1 * 60 * 60,                      # 1 hour
             stale_while_revalidate=10 * 60,   # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects"],
+            keys=["all-projects", "trending"],
         ),
     ]
 )
 def index(request):
     project_names = [
         r[0] for r in (
-            request.db.query(File.name)
-                   .group_by(File.name)
-                   .order_by(func.sum(File.downloads).desc())
+            request.db.query(Project.name)
+                   .order_by(Project.zscore.desc().nullslast(),
+                             func.random())
                    .limit(5)
                    .all())
     ]
@@ -143,10 +143,12 @@ def index(request):
         request.db.query(Release)
                   .distinct(Release.name)
                   .filter(Release.name.in_(project_names))
-                  .order_by(Release.name, Release._pypi_ordering.desc())
+                  .order_by(Release.name,
+                            Release.is_prerelease.nullslast(),
+                            Release._pypi_ordering.desc())
                   .subquery(),
     )
-    top_projects = (
+    trending_projects = (
         request.db.query(release_a)
                .options(joinedload(release_a.project))
                .order_by(func.array_idx(project_names, release_a.name))
@@ -175,7 +177,7 @@ def index(request):
 
     return {
         "latest_releases": latest_releases,
-        "top_projects": top_projects,
+        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),
@@ -217,7 +219,22 @@ def search(request):
         query = request.es.query()
 
     if request.params.get("o"):
-        query = query.sort(request.params["o"])
+        sort_key = request.params["o"]
+        if sort_key.startswith("-"):
+            sort = {
+                sort_key[1:]: {
+                    "order": "desc",
+                    "unmapped_type": "long",
+                },
+            }
+        else:
+            sort = {
+                sort_key: {
+                    "unmapped_type": "long",
+                }
+            }
+
+        query = query.sort(sort)
 
     if request.params.getall("c"):
         query = query.filter("terms", classifiers=request.params.getall("c"))
@@ -273,6 +290,15 @@ def search(request):
     uses_session=True,
 )
 def current_user_indicator(request):
+    return {}
+
+
+@view_config(
+    route_name="includes.flash-messages",
+    renderer="includes/flash-messages.html",
+    uses_session=True,
+)
+def flash_messages(request):
     return {}
 
 

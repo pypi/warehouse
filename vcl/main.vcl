@@ -1,3 +1,10 @@
+# Note: It is VERY important to ensure that any changes to VCL will work
+#       properly with both the current version of ``master`` and the version in
+#       the pull request that adds any new changes. This is because the
+#       configuration will be applied automatically as part of the deployment
+#       process, but while the previous version of the code is still up and
+#       running. Thus backwards incompatible changes must be broken up over
+#       multiple pull requests in order to phase them in over multiple deploys.
 
 sub vcl_recv {
 
@@ -40,12 +47,13 @@ sub vcl_recv {
     #
     # This will match any URL except those that start with:
     #
+    #   * /admin/
     #   * /search/
     #   * /account/login/
     #   * /account/logout/
     #   * /account/register/
     #   * /pypi
-    if (req.url !~ "^/(search/|account/(login|logout|register)/|pypi)") {
+    if (req.url.path !~ "^/(admin/|search(/|$)|account/(login|logout|register)/|pypi)") {
         set req.url = req.url.path;
     }
 
@@ -53,6 +61,38 @@ sub vcl_recv {
     # parameters in a different order will end up being represented as the same
     # thing, reducing cache misses due to ordering differences.
     set req.url = boltsort.sort(req.url);
+
+    # We have a number of items that we'll pass back to the origin.
+    # Set a header to tell the backend if we're using https or http.
+    if (req.http.Fastly-SSL) {
+        set req.http.Warehouse-Proto = "https";
+    } else {
+        set req.http.Warehouse-Proto = "http";
+    }
+    # Pass the client IP address back to the backend.
+    if (req.http.Fastly-Client-IP) {
+        set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
+    }
+    # Pass the real host value back to the backend.
+    if (req.http.Host) {
+        set req.http.Warehouse-Host = req.http.host;
+    }
+
+    # Currently Fastly does not provide a way to access response headers when
+    # the response is a 304 response. This is because the RFC states that only
+    # a limit set of headers should be sent with a 304 response, and the rest
+    # are SHOULD NOT. Since this stripping happens *prior* to vcl_deliver being
+    # ran, that breaks our ability to log on 304 responses. Ideally at some
+    # point Fastly offers us a way to access the "real" response headers even
+    # for a 304 response, but for now, we are going to remove the headers that
+    # allow a conditional response to be made. If at some point Fastly does
+    # allow this, then we can delete this code.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
+        unset req.http.If-None-Match;
+        unset req.http.If-Modified-Since;
+    }
 
 
 #FASTLY recv
@@ -131,27 +171,6 @@ sub vcl_recv {
     unset req.http.AWS-Secret-Access-Key;
     unset req.http.AWS-Bucket-Name;
 
-    # We have a number of items that we'll pass back to the origin, but only
-    # if we have a Warehouse-Token that will allow them to be accepted.
-    if (req.http.Warehouse-Token) {
-        # Set a header to tell the backend if we're using https or http.
-        if (req.http.Fastly-SSL) {
-            set req.http.Warehouse-Proto = "https";
-        } else {
-            set req.http.Warehouse-Proto = "http";
-        }
-
-        # Pass the client IP address back to the backend.
-        if (req.http.Fastly-Client-IP) {
-            set req.http.Warehouse-IP = req.http.Fastly-Client-IP;
-        }
-
-        # Pass the real host value back to the backend.
-        if (req.http.Host) {
-            set req.http.Warehouse-Host = req.http.host;
-        }
-    }
-
     # On a POST, we want to skip the shielding and hit backends directly.
     if (req.request == "POST") {
         set req.backend = F_Heroku;
@@ -168,6 +187,13 @@ sub vcl_recv {
     # We don't ever want to cache our health URL. Outside systems should be
     # able to use it to reach past Fastly and get an end to end health check.
     if (req.url == "/_health/") {
+        return(pass);
+    }
+
+    # We never want to cache our admin URLs, while this should be "safe" due to
+    # the architecure of Warehouse, it'll just be easier to debug issues if
+    # these always are uncached.
+    if (req.url ~ "^/admin/") {
         return(pass);
     }
 
@@ -191,18 +217,6 @@ sub vcl_fetch {
         if (stale.exists) {
             return(deliver_stale);
         }
-    }
-
-    # When delivering a 304 response, we don't always have access to all the
-    # headers in the resp because a 304 response is supposed to remove most of
-    # the headers. So we'll instead stash these headers on the request so that
-    # we can log this data from there instead of from the response.
-    if (beresp.http.x-amz-meta-project
-            || beresp.http.x-amz-meta-version
-            || beresp.http.x-amz-meta-package-type) {
-        set req.http.Fastly-amz-meta-project = beresp.http.x-amz-meta-project;
-        set req.http.Fastly-amz-meta-version = beresp.http.x-amz-meta-version;
-        set req.http.Fastly-amz-meta-package-type = beresp.http.x-amz-meta-package-type;
     }
 
 
@@ -292,16 +306,7 @@ sub vcl_deliver {
 
     # Unset headers that we don't need/want to send on to the client because
     # they are not generally useful.
-    unset resp.http.Server;
     unset resp.http.Via;
-
-    # Unset a few headers set by Amazon that we don't really have a need/desire
-    # to send to clients.
-    unset resp.http.X-AMZ-Replication-Status;
-    unset resp.http.X-AMZ-Meta-Python-Version;
-    unset resp.http.X-AMZ-Meta-Version;
-    unset resp.http.X-AMZ-Meta-Package-Type;
-    unset resp.http.X-AMZ-Meta-Project;
 
     # Set our standard security headers, we do this in VCL rather than in
     # Warehouse itself so that we always get these headers, regardless of the
@@ -312,27 +317,43 @@ sub vcl_deliver {
     set resp.http.X-Content-Type-Options = "nosniff";
     set resp.http.X-Permitted-Cross-Domain-Policies = "none";
 
-    # Unstash our information about what project/version/package-type a
-    # particular file download was for.
-    if (req.http.Fastly-amz-meta-project
-            || req.http.Fastly-amz-meta-version
-            || req.http.Fastly-amz-meta-package-type) {
-        set resp.http.x-amz-meta-project = req.http.Fastly-amz-meta-project;
-        set resp.http.x-amz-meta-version = req.http.Fastly-amz-meta-version;
-        set resp.http.x-amz-meta-package-type = req.http.Fastly-amz-meta-package-type;
+    # Currently Fastly does not provide a way to access response headers when
+    # the response is a 304 response. This is because the RFC states that only
+    # a limit set of headers should be sent with a 304 response, and the rest
+    # are SHOULD NOT. Since this stripping happens *prior* to vcl_deliver being
+    # ran, that breaks our ability to log on 304 responses. Ideally at some
+    # point Fastly offers us a way to access the "real" response headers even
+    # for a 304 response, but for now, we are going to remove the headers that
+    # allow a conditional response to be made. If at some point Fastly does
+    # allow this, then we can delete this code, and also allow a 304 response
+    # in the http_status_matches() check further down.
+    if (!req.http.Fastly-FF
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
+            && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
+        unset resp.http.ETag;
+        unset resp.http.Last-Modified;
     }
 
     # If we're not executing a shielding request, and the URL is one of our file
     # URLs, and it's a GET request, and the response is either a 200 or a 304
     # then we want to log an event stating that a download has taken place.
     if (!req.http.Fastly-FF
-            && std.tolower(req.http.host) == "files.pythonhosted.org"
+            && std.tolower(req.http.Warehouse-Host) == "files.pythonhosted.org"
             && req.url.path ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/"
             && req.request == "GET"
-            && http_status_matches(resp.status, "200,304")) {
+            && http_status_matches(resp.status, "200")) {
         log {"syslog "} req.service_id {" linehaul :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
         log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
     }
+
+    # Unset a few headers set by Amazon that we don't really have a need/desire
+    # to send to clients.
+    unset resp.http.x-amz-replication-status;
+    unset resp.http.x-amz-meta-python-version;
+    unset resp.http.x-amz-meta-version;
+    unset resp.http.x-amz-meta-package-type;
+    unset resp.http.x-amz-meta-project;
+
 
     return(deliver);
 }

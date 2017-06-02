@@ -54,6 +54,7 @@ _allowed_platforms = {
     "any",
     "win32", "win_amd64", "win_ia64",
     "manylinux1_x86_64", "manylinux1_i686",
+    "linux_armv6l", "linux_armv7l",
 }
 # macosx is a little more complicated:
 _macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
@@ -77,10 +78,14 @@ def _valid_platform_tag(platform_tag):
 _error_message_order = ["metadata_version", "name", "version"]
 
 
-_dist_file_re = re.compile(
-    r".+?\.(exe|tar\.gz|bz2|rpm|deb|zip|tgz|egg|dmg|msi|whl)$",
-    re.I,
-)
+_dist_file_regexes = {
+    # True/False is for legacy or not.
+    True: re.compile(
+        r".+?\.(exe|tar\.gz|bz2|rpm|deb|zip|tgz|egg|dmg|msi|whl)$",
+        re.I,
+    ),
+    False: re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I),
+}
 
 
 _wheel_file_re = re.compile(
@@ -758,7 +763,7 @@ def file_upload(request):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
+    if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
         raise _exc_with_message(HTTPBadRequest, "Invalid file extension.")
 
     # Make sure that our filename matches the project that it is being uploaded
@@ -778,6 +783,13 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+    # Ensure that the package filetpye is allowed.
+    # TODO: Once PEP 527 is completely implemented we should be able to delete
+    #       this and just move it into the form itself.
+    if (not project.allow_legacy_files and
+            form.filetype.data not in {"sdist", "bdist_wheel", "bdist_egg"}):
+        raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
+
     # Check to see if the file that was uploaded exists already or not.
     if request.db.query(
             request.db.query(File)
@@ -794,6 +806,19 @@ def file_upload(request):
             HTTPBadRequest,
             "This filename has previously been used, you should use a "
             "different version.",
+        )
+
+    # Check to see if uploading this file would create a duplicate sdist for
+    # the current release.
+    if (form.filetype.data == "sdist" and
+            request.db.query(
+                request.db.query(File)
+                          .filter((File.release == release) &
+                                  (File.packagetype == "sdist"))
+                          .exists()).scalar()):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only one sdist may be uploaded per release.",
         )
 
     # The project may or may not have a file size specified on the project, if

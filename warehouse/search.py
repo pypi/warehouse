@@ -16,7 +16,7 @@ import certifi
 import elasticsearch
 import venusian
 
-from elasticsearch_dsl import Index
+from elasticsearch_dsl import Index, serializer
 
 
 def doc_type(cls):
@@ -29,11 +29,15 @@ def doc_type(cls):
     return cls
 
 
-def get_index(name, doc_types, *, using, shards=1, replicas=0):
+def get_index(name, doc_types, *, using, shards=1, replicas=0, interval="1s"):
     index = Index(name, using=using)
     for doc_type in doc_types:
         index.doc_type(doc_type)
-    index.settings(number_of_shards=shards, number_of_replicas=replicas)
+    index.settings(
+        number_of_shards=shards,
+        number_of_replicas=replicas,
+        refresh_interval=interval,
+    )
     return index
 
 
@@ -58,6 +62,9 @@ def includeme(config):
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
         ca_certs=certifi.where(),
+        timeout=30,
+        retry_on_timeout=True,
+        serializer=serializer.serializer,
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])

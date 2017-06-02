@@ -1,0 +1,26 @@
+/*
+  A list of form errors:
+
+  <ul class="form-errors">
+    <li>This is a form error</li>
+    <li>This is another error</li>
+  </ul>
+*/
+
+.form-errors {
+  margin: 5px 0 0 0;
+  padding-bottom: 5px;
+  list-style-type: none;
+  color: $danger-color;
+
+  li {
+    max-width: 350px;
+
+    &:before {
+      font-family: 'FontAwesome';
+      content: "\f06a";
+      margin-right: 5px;
+      color: $danger-color;
+    }
+  }
+}

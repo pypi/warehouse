@@ -1,0 +1,14 @@
+#!/bin/bash
+
+EXIT_CODE=0
+
+# Search all .py files
+for fn in $(find . -type f \( -name "*.py" -o -name "*.html" \) ! -path "./.state*" ! -path "./node_modules*" ! -path "./htmlcov*" ! -path "./warehouse/static*"); do
+    # Check for license in first 3 lines (allows for shebang and encoding)
+    if [[ ! "$(head -3 $fn | grep "^ *# Licensed")" ]]; then
+        echo $fn is missing a license
+        EXIT_CODE=1
+    fi
+done
+
+exit $EXIT_CODE

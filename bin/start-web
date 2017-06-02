@@ -6,53 +6,8 @@ set -eo pipefail
 # Setup our Redis settings
 source bin/redis-tls
 
-# Make sure that our Fastly configuration is deployed
-bin/fastly-config
+# Configure Google Cloud
+bin/configure-gcloud
 
-# Setup a FIFO that we'll use to send around commands to shut everything downn.
-psmgr=/tmp/h2o-wait
-rm -f $psmgr
-mkfifo $psmgr
-
-# Evaluate config to get $PORT
-erb conf/h2o.conf.erb > conf/h2o.conf
-
-# Start App Server
-(
-	# Take the command passed to this bin and start it.
-	# E.g. bin/start-web bundle exec unicorn -c config/unicorn.rb
-    COMMAND="$@"
-	echo "buildpack=h2o at=start-app cmd=$COMMAND"
-	$COMMAND
-	echo 'app' >$psmgr
-) &
-
-
-FILE="/tmp/app-initialized"
-
-# We block on app-initialized so that when h2o binds to $PORT our app is ready
-# for traffic.
-while [[ ! -f "$FILE" ]]
-do
-    echo 'buildpack=h2o at=app-initialization'
-    sleep 1
-done
-echo 'buildpack=h2o at=app-initialized'
-
-# Start h2o
-(
-	# We expect h2o to run in foreground.
-	# We also expect a socket to be at /tmp/h2o.socket.
-	echo 'buildpack=h2o at=h2o-start'
-    bin/h2o -c conf/h2o.conf -m worker
-	echo 'h2o' >$psmgr
-) &
-
-# This read will block the process waiting on a msg to be put into the fifo.
-# If any of the processes defined above should exit, a msg will be put into the
-# fifo causing the read operation to un-block. The process putting the msg into
-# the fifo will use it's process name as a msg so that we can print the
-# offending process to stdout.
-read exit_process <$psmgr
-echo "buildpack=h2o at=exit process=$exit_process"
-exit 1
+# Finally, go ahead and execute the given command.
+exec "$@"

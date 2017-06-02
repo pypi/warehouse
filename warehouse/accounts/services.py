@@ -10,30 +10,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import datetime
 import functools
+import logging
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
 from warehouse.accounts.models import Email, User
+from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
+
+
+logger = logging.getLogger(__name__)
+
+PASSWORD_FIELD = "password"
 
 
 @implementer(IUserService)
 class DatabaseUserService:
 
-    def __init__(self, session):
+    def __init__(self, session, ratelimiters=None):
+        if ratelimiters is None:
+            ratelimiters = {}
+        ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
+
         self.db = session
+        self.ratelimiters = ratelimiters
         self.hasher = CryptContext(
             schemes=[
+                "argon2",
                 "bcrypt_sha256",
                 "bcrypt",
                 "django_bcrypt",
                 "unix_disabled",
             ],
             deprecated=["auto"],
+            truncate_error=True,
+
+            # Argon 2 Configuration
+            argon2__memory_cost=1024,
+            argon2__parallelism=6,
+            argon2__time_cost=6,
         )
 
     @functools.lru_cache()
@@ -71,31 +91,56 @@ class DatabaseUserService:
         return user_id
 
     def check_password(self, userid, password):
+        # The very first thing we want to do is check to see if we've hit our
+        # global rate limit or not, assuming that we've been configured with a
+        # global rate limiter anyways.
+        if not self.ratelimiters["global"].test():
+            logger.warning("Global failed login threshold reached.")
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["global"].resets_in(),
+            )
+
         user = self.get_user(userid)
-        if user is None:
-            return False
+        if user is not None:
+            # Now, check to make sure that we haven't hitten a rate limit on a
+            # per user basis.
+            if not self.ratelimiters["user"].test(user.id):
+                raise TooManyFailedLogins(
+                    resets_in=self.ratelimiters["user"].resets_in(user.id),
+                )
 
-        # Actually check our hash, optionally getting a new hash for it if
-        # we should upgrade our saved hashed.
-        ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            # Actually check our hash, optionally getting a new hash for it if
+            # we should upgrade our saved hashed.
+            ok, new_hash = self.hasher.verify_and_update(
+                password,
+                user.password,
+            )
 
-        # Check if the password itself was OK or not.
-        if not ok:
-            return False
+            # First, check to see if the password that we were given was OK.
+            if ok:
+                # Then, if the password was OK check to see if we've been given
+                # a new password hash from the hasher, if so we'll want to save
+                # that hash.
+                if new_hash:
+                    user.password = new_hash
 
-        # If we've gotten a new password hash from the hasher, then we'll want
-        # to save that hash.
-        if new_hash:
-            user.password = new_hash
+                return True
 
-        return True
+        # If we've gotten here, then we'll want to record a failed login in our
+        # rate limiting before returning False to indicate a failed password
+        # verification.
+        if user is not None:
+            self.ratelimiters["user"].hit(user.id)
+        self.ratelimiters["global"].hit()
+
+        return False
 
     def create_user(self, username, name, password, email,
                     is_active=False, is_staff=False, is_superuser=False):
 
         user = User(username=username,
                     name=name,
-                    password=self.hasher.encrypt(password),
+                    password=self.hasher.hash(password),
                     is_active=is_active,
                     is_staff=is_staff,
                     is_superuser=is_superuser)
@@ -110,6 +155,8 @@ class DatabaseUserService:
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
         for attr, value in changes.items():
+            if attr == PASSWORD_FIELD:
+                value = self.hasher.hash(value)
             setattr(user, attr, value)
         return user
 
@@ -121,4 +168,18 @@ class DatabaseUserService:
 
 
 def database_login_factory(context, request):
-    return DatabaseUserService(request.db)
+    return DatabaseUserService(
+        request.db,
+        ratelimiters={
+            "global": request.find_service(
+                IRateLimiter,
+                name="global.login",
+                context=None,
+            ),
+            "user": request.find_service(
+                IRateLimiter,
+                name="user.login",
+                context=None,
+            ),
+        },
+    )

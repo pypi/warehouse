@@ -20,4 +20,7 @@ export default () => {
   if (elmBody === null)
     return;
   elmBody.style.paddingTop = height + "px";
+  if (height) {
+    elmBody.classList.add("with-sticky");
+  }
 };

@@ -18,7 +18,6 @@ from wsgiref.simple_server import make_server
 
 import alembic.command
 import click.testing
-import psycopg2
 import pyramid.testing
 import pytest
 import webtest as _webtest
@@ -27,10 +26,9 @@ import bok_choy.browser
 
 from bok_choy.browser import browser as _browser
 from needle.driver import NeedleWebDriverMixin, NeedleOpera
-from pytest_dbfixtures.factories.postgresql import (
-    init_postgresql_database, drop_postgresql_database,
+from pytest_postgresql.factories import (
+    init_postgresql_database, drop_postgresql_database, get_config,
 )
-from pytest_dbfixtures.utils import get_config
 from selenium.webdriver.edge.webdriver import WebDriver as MicrosoftEdge
 from sqlalchemy import event
 
@@ -60,6 +58,8 @@ def __capabilities_dict(envs, tags):  # noqa
     if "SAUCELABS_TUNNEL" in os.environ:
         caps.setdefault("tunnelIdentifier", os.environ["SAUCELABS_TUNNEL"])
     return caps
+
+
 __capabilities_dict._real_implementation = bok_choy.browser._capabilities_dict
 bok_choy.browser._capabilities_dict = __capabilities_dict
 
@@ -106,18 +106,19 @@ def cli():
 @pytest.fixture(scope="session")
 def database(request):
     config = get_config(request)
-    pg_host = config.postgresql.host
-    pg_port = config.postgresql.port
-    pg_user = config.postgresql.user
-    pg_db = config.postgresql.db
+    pg_host = config.get("host")
+    pg_port = config.get("port") or 5432
+    pg_user = config.get("user")
+    pg_db = config.get("db", "tests")
+    pg_version = config.get("version", 9.6)
 
     # Create our Database.
-    init_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
+    init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
 
     # Ensure our database gets deleted.
     @request.addfinalizer
     def drop_database():
-        drop_postgresql_database(psycopg2, pg_user, pg_host, pg_port, pg_db)
+        drop_postgresql_database(pg_user, pg_host, pg_port, pg_db, pg_version)
 
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 
@@ -132,9 +133,11 @@ def app_config(database):
             "camo.key": "insecure key",
             "celery.broker_url": "amqp://",
             "celery.result_url": "redis://localhost:0/",
+            "celery.scheduler_url": "redis://localhost:0/",
             "database.url": database,
             "docs.url": "http://docs.example.com/",
             "download_stats.url": "redis://localhost:0/",
+            "ratelimit.url": "memory://",
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",

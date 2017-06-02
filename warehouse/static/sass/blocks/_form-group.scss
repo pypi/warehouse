@@ -1,0 +1,34 @@
+/*
+  A form field, with label, input, and help text.
+
+  <div class="form-group">
+    <label class="form-group__label" for="myinput">Label here</label>
+    <input class="form-group__input" id="myinput" />
+    <p class="form-group__help-text">Some help text here</p>
+  </div>
+*/
+
+.form-group {
+  margin-bottom: 20px;
+
+  &__label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+  }
+
+  &__input {
+    display: block;
+    width: 350px;
+    max-width: 100%;
+  }
+
+  &__help-text {
+    padding: 0;
+    margin-top: 5px;
+    width: 350px;
+    max-width: 100%;
+    font-size: $small-font-size;
+    font-style: italic;
+  }
+}

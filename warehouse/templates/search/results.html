@@ -17,13 +17,11 @@
 
 {% macro project_snippet(item) -%}
 
-{% set version = item.version[0] %}
-
 <div class="package-snippet">
-  <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a></h3>
-  <p class="package-snippet__meta">
-    <span class="package-snippet__version">{{ version }}</span>
-  </p>
+  <h3 class="package-snippet__title">
+    <a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a>
+    <span class="package-snippet__version">{{ item.latest_version }}</span>
+  </h3>
   <p class="package-snippet__description">{{ item.summary }}</p>
 </div>
 {%- endmacro %}
@@ -33,13 +31,9 @@
 
 {% set text = best_guess.text %}
 {% set link = request.route_path('search', _query={'q': text}) %}
-{% set freq = best_guess.freq %}
 
 <span>
   Did you mean '<a class="link" href="{{ link }}">{{ text }}</a>'?
-  {% if freq > 1 %}
-  <span>({{ freq }} results)</span>
-  {% endif %}
 </span>
 {%- endmacro %}
 
@@ -131,7 +125,7 @@
         <div>
         {% if term %}
           <p>
-            <strong>{{ page.item_count|format_number }}</strong> projects match '<em>{{ term }}</em>'.
+            <strong>{{ page.item_count|format_number }}</strong> projects match "<em>{{ term }}</em>".
             {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
               {{ suggestion_link(page.collection.best_guess) }}
             {% endif %}
@@ -145,7 +139,7 @@
           <div>
             <input id="search" type="hidden" name="q" value="{{ term }}">
             <label for="order">Order by &nbsp;</label>
-            <select class="-js-form-submit-trigger" name="o">
+            <select class="-js-form-submit-trigger" id="order" name="o">
               {{ search_option("Relevance", "") }}
               {{ search_option("Date Last Updated", "-created") }}
             </select>

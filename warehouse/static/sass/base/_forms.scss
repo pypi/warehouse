@@ -21,12 +21,9 @@ select:hover,
 select:active {
   box-shadow: inset 0 0 0 2px $brand-color-soft;
   border-color: $brand-color-soft;
+  outline: none;
 }
 
 label {
   vertical-align: middle;
-}
-
-.hidden {
-  display: none;
 }

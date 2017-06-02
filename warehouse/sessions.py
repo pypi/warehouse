@@ -272,6 +272,8 @@ def session_view(view, info):
         # with a small wrapper around it to ensure that it has a Vary: Cookie
         # header.
         return add_vary("Cookie")(view)
+    elif info.exception_only:
+        return view
     else:
         # If we're not using the session on this view, then we'll wrap the view
         # with a wrapper that just ensures that the session cannot be used.
@@ -295,6 +297,7 @@ def session_view(view, info):
                 request.session = original_session
 
         return wrapped
+
 
 session_view.options = {"uses_session"}
 

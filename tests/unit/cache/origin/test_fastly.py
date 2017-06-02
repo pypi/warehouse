@@ -30,7 +30,7 @@ class TestPurgeKey:
             find_service=pretend.call_recorder(lambda iface: cacher),
         )
 
-        fastly.purge_key.__wrapped__.__func__(task, request, "foo")
+        fastly.purge_key(task, request, "foo")
 
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
@@ -66,7 +66,7 @@ class TestPurgeKey:
         )
 
         with pytest.raises(celery.exceptions.Retry):
-            fastly.purge_key.__wrapped__.__func__(task, request, "foo")
+            fastly.purge_key(task, request, "foo")
 
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
@@ -79,6 +79,7 @@ class TestFastlyCache:
         assert verifyClass(IOriginCache, fastly.FastlyCache)
 
     def test_create_service(self):
+        purge_key = pretend.stub(delay=pretend.stub())
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
@@ -86,17 +87,19 @@ class TestFastlyCache:
                     "origin_cache.service_id": "the service id",
                 },
             ),
+            task=lambda f: purge_key,
         )
         cacher = fastly.FastlyCache.create_service(None, request)
         assert isinstance(cacher, fastly.FastlyCache)
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
+        assert cacher._purger is purge_key.delay
 
     def test_adds_surrogate_key(self):
         request = pretend.stub()
         response = pretend.stub(headers={})
 
-        cacher = fastly.FastlyCache(api_key=None, service_id=None)
+        cacher = fastly.FastlyCache(api_key=None, service_id=None, purger=None)
         cacher.cache(["abc", "defg"], request, response)
 
         assert response.headers == {"Surrogate-Key": "abc defg"}
@@ -105,7 +108,7 @@ class TestFastlyCache:
         request = pretend.stub()
         response = pretend.stub(headers={})
 
-        cacher = fastly.FastlyCache(api_key=None, service_id=None)
+        cacher = fastly.FastlyCache(api_key=None, service_id=None, purger=None)
         cacher.cache(
             ["abc", "defg"],
             request,
@@ -124,13 +127,12 @@ class TestFastlyCache:
         }
 
     def test_purge(self, monkeypatch):
+        purge_delay = pretend.call_recorder(lambda *a, **kw: None)
         cacher = fastly.FastlyCache(
             api_key="an api key",
             service_id="the-service-id",
+            purger=purge_delay,
         )
-
-        purge_delay = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(fastly.purge_key, "delay", purge_delay)
 
         cacher.purge(["one", "two"])
 
@@ -140,6 +142,7 @@ class TestFastlyCache:
         cacher = fastly.FastlyCache(
             api_key="an api key",
             service_id="the-service-id",
+            purger=None,
         )
 
         response = pretend.stub(
@@ -168,6 +171,7 @@ class TestFastlyCache:
         cacher = fastly.FastlyCache(
             api_key="an api key",
             service_id="the-service-id",
+            purger=None,
         )
 
         response = pretend.stub(

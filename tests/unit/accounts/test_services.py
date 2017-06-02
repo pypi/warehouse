@@ -13,11 +13,13 @@
 import uuid
 
 import pretend
+import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import UserFactory, EmailFactory
 
@@ -30,7 +32,7 @@ class TestDatabaseUserService:
     def test_service_creation(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(
-            lambda schemes, deprecated: crypt_context_obj
+            lambda **kwargs: crypt_context_obj
         )
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
@@ -42,12 +44,17 @@ class TestDatabaseUserService:
         assert crypt_context_cls.calls == [
             pretend.call(
                 schemes=[
+                    "argon2",
                     "bcrypt_sha256",
                     "bcrypt",
                     "django_bcrypt",
                     "unix_disabled",
                 ],
                 deprecated=["auto"],
+                truncate_error=True,
+                argon2__memory_cost=1024,
+                argon2__parallelism=6,
+                argon2__time_cost=6,
             ),
         ]
 
@@ -60,9 +67,41 @@ class TestDatabaseUserService:
         service = services.DatabaseUserService(db_session)
         assert service.find_userid(user.username) == user.id
 
+    def test_check_password_global_rate_limited(self):
+        resets = pretend.stub()
+        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
+        service = services.DatabaseUserService(
+            pretend.stub(),
+            ratelimiters={"global": limiter},
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            service.check_password(uuid.uuid4(), None)
+
+        assert excinfo.value.resets_in is resets
+
     def test_check_password_nonexistant_user(self, db_session):
         service = services.DatabaseUserService(db_session)
         assert not service.check_password(uuid.uuid4(), None)
+
+    def test_check_password_user_rate_limited(self, db_session):
+        user = UserFactory.create()
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        service = services.DatabaseUserService(
+            db_session,
+            ratelimiters={"user": limiter},
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            service.check_password(user.id, None)
+
+        assert excinfo.value.resets_in is resets
+        assert limiter.test.calls == [pretend.call(user.id)]
+        assert limiter.resets_in.calls == [pretend.call(user.id)]
 
     def test_check_password_invalid(self, db_session):
         user = UserFactory.create()
@@ -123,10 +162,12 @@ class TestDatabaseUserService:
     def test_update_user(self, db_session):
         user = UserFactory.create()
         service = services.DatabaseUserService(db_session)
-        new_name = "new username"
-        service.update_user(user.id, username=new_name)
+        new_name, password = "new username", "TestPa@@w0rd"
+        service.update_user(user.id, username=new_name, password=password)
         user_from_db = service.get_user(user.id)
         assert user_from_db.username == user.username
+        assert password != user_from_db.password
+        assert service.hasher.verify(password, user_from_db.password)
 
     def test_verify_email(self, db_session):
         service = services.DatabaseUserService(db_session)
@@ -173,11 +214,37 @@ class TestDatabaseUserService:
 
 def test_database_login_factory(monkeypatch):
     service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda session: service_obj)
+    service_cls = pretend.call_recorder(
+        lambda session, ratelimiters: service_obj,
+    )
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
 
+    global_ratelimiter = pretend.stub()
+    user_ratelimiter = pretend.stub()
+
+    def find_service(iface, name, context):
+        assert iface is IRateLimiter
+        assert context is None
+        assert name in {"global.login", "user.login"}
+
+        return ({
+            "global.login": global_ratelimiter,
+            "user.login": user_ratelimiter
+        }).get(name)
+
     context = pretend.stub()
-    request = pretend.stub(db=pretend.stub())
+    request = pretend.stub(
+        db=pretend.stub(),
+        find_service=find_service,
+    )
 
     assert services.database_login_factory(context, request) is service_obj
-    assert service_cls.calls == [pretend.call(request.db)]
+    assert service_cls.calls == [
+        pretend.call(
+            request.db,
+            ratelimiters={
+                "global": global_ratelimiter,
+                "user": user_ratelimiter,
+            },
+        ),
+    ]

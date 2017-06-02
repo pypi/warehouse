@@ -18,34 +18,29 @@ export RECAPTCHA_SECRET_KEY := $(shell echo "$${RECAPTCHA_SECRET_KEY:-6LeIxAcTAA
 
 define DEPCHECKER
 import sys
-import collections
 
 from pip.req import parse_requirements
 
-Dependency = collections.namedtuple("Dependency", ["name", "specifier"])
-
 left, right = sys.argv[1:3]
 left_reqs = {
-	Dependency(name=d.name, specifier=d.specifier)
+    d.name.lower()
 	for d in parse_requirements(left, session=object())
-	if d.name != "setuptools"
 }
 right_reqs = {
-	Dependency(name=d.name, specifier=d.specifier)
+    d.name.lower()
 	for d in parse_requirements(right, session=object())
-	if d.name != "setuptools"
 }
 
 extra_in_left = left_reqs - right_reqs
 extra_in_right = right_reqs - left_reqs
 
 if extra_in_left:
-	for dep in sorted(extra_in_left, key=lambda x: x.name):
-		print("- {}{}".format(dep.name, dep.specifier))
+	for dep in sorted(extra_in_left):
+		print("- {}".format(dep))
 
 if extra_in_right:
-	for dep in sorted(extra_in_right, key=lambda x: x.name):
-		print("+ {}{}".format(dep.name, dep.specifier))
+	for dep in sorted(extra_in_right):
+		print("+ {}".format(dep))
 
 if extra_in_left or extra_in_right:
 	sys.exit(1)
@@ -97,7 +92,7 @@ tests:
 	docker-compose run web env -i ENCODING="C.UTF-8" \
 								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
-								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
+								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 saucelabs:
 	docker-compose run web env -i ENCODING="C.UTF-8" \
@@ -117,23 +112,26 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
-
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
 
+licenses:
+	bin/licenses
+
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
 	rm -r $(TMPDIR)
+	$(BINDIR)/pip check
 
 travis-deps:
 ifneq ($(PR), false)
@@ -164,5 +162,7 @@ purge: clean
 	rm -rf .state
 	docker-compose rm --force --all
 
+stop:
+	docker ps -aq --filter name=warehouse | xargs docker stop
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop

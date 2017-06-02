@@ -293,7 +293,7 @@ def changelog_since_serial(request, serial):
         request.db.query(JournalEntry)
                   .filter(JournalEntry.id > serial)
                   .order_by(JournalEntry.id)
-                  .all()
+                  .limit(50000)
     )
 
     return [
@@ -318,8 +318,8 @@ def changelog(request, since, with_ids=False):
     entries = (
         request.db.query(JournalEntry)
                   .filter(JournalEntry.submitted_date > since)
-                  .order_by(JournalEntry.id)
-                  .all()
+                  .order_by(JournalEntry.submitted_date)
+                  .limit(50000)
     )
 
     results = (

@@ -26,18 +26,21 @@
 
   &--maintainers {
     @include clearfix;
+    display: flex;
+    flex-wrap: wrap;
+
+    h3 {
+      width: 100%
+    }
+
+    a {
+      margin: 0 5px 5px 0;
+    }
 
     img {
-      margin: 0 5px 5px 0;
-      display: inline;
-      float: left;
-
-      &:last-of-type {
-        margin-right: 0;
-      }
-
       @media only screen and (max-width: $desktop){
         max-width: 40px;
+        max-height: 40px;
       }
     }
   }

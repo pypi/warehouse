@@ -13,20 +13,41 @@
 import datetime
 
 from pyblake2 import blake2b
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from pyramid.httpexceptions import (
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
+)
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
+
+
+@view_config(context=TooManyFailedLogins)
+def failed_logins(exc, request):
+    resp = HTTPTooManyRequests(
+        "There have been too many unsuccessful login attempts. Please try "
+        "again later.",
+        retry_after=exc.resets_in.total_seconds(),
+    )
+
+    # TODO: This is kind of gross, but we need it for as long as the legacy
+    #       upload API exists and is supported. Once we get rid of that we can
+    #       get rid of this as well.
+    resp.status = "{} {}".format(
+        resp.status_code,
+        "Too Many Failed Login Attempts",
+    )
+
+    return resp
 
 
 @view_config(

@@ -1,27 +1,66 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
 {% extends "base.html" %}
 
-{% import "accounts/macros.html" as macros %}
-
-{% block title %}Sign in{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-  {{ macros.legacy_pypi_message("login_form") }}
-  <form method="POST" action="{{ request.current_route_path() }}" class="hidden">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+  <section class="horizontal-section">
+    <div class="site-container">
+      <h2>Login to PyPI</h2>
 
-    {% if redirect.data %}
-    <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-    {% endif %}
+      <form method="POST" action="{{ request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-    {% if form.errors.__all__ %}
-    <ul class="errors">
-      {% for error in form.errors.__all__ %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+        {% if redirect.data %}
+        <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
+        {% endif %}
 
-    {% include "warehouse:templates/includes/input-credentials.html" %}
-    <input type="submit" value="Login">
-  </form>
+        {% if form.errors.__all__ %}
+        <ul class="form-errors">
+          {% for error in form.errors.__all__ %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="username" class="form-group__label">Username</label>
+          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
+          {% if form.username.errors %}
+          <ul class="form-errors">
+            {% for error in form.username.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-group__label">Password</label>
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          {% if form.password.errors %}
+          <ul class="form-errors">
+            {% for error in form.password.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <input type="submit" value="Login" class="button button--highlight">
+      </form>
+    </div>
+  </section>
 {% endblock %}

@@ -3,7 +3,7 @@ python: 3.5.2
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=5.5.0
+    - TRAVIS_NODE_VERSION=6.6.0
     - LIVESERVER_HOST=warehouse.local
     - CXX=g++-4.8
     - secure: "fj97g3yXU6cJPFGpK2Vrd0f9Vms7zCO2oiyT1SUCs5NQMq1WXZfFuYYMSZ3luwzAcRZ/LZtuuoW+CL+5VyCz/qSTv4YOm5Ao2DscEXcemeJPt98abtKcCIRtFVgJ7N7SnO9d4ndmRk6G18CmbcsLINLXe0N27ocwR7bY0m31Wes="
@@ -35,7 +35,7 @@ sudo: false
 addons:
   hosts:
     - warehouse.local
-  postgresql: "9.4"
+  postgresql: "9.6"
   # sauce_connect: true
   apt:
     sources:
@@ -53,16 +53,15 @@ cache:
 
 install:
   - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
-  - pip install -U pip setuptools wheel codecov
-  - pip install -r requirements/main.txt
-  - pip install -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
+  - pip install -U pip setuptools wheel
+  - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
 
 script:
   - node -v
   - npm -v
   - gulp dist
-  - bin/tests --dbfixtures-config tests/dbfixtures.travis.conf --liveserver-host $LIVESERVER_HOST
+  - bin/tests --postgresql-host 127.0.0.1 --liveserver-host $LIVESERVER_HOST
 
 matrix:
   include:
@@ -93,8 +92,13 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-4.8
+    - script: make licenses BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=Licenses
 
-after_success: codecov
+branches:
+  only:
+    - master
 
 notifications:
   irc:

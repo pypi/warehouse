@@ -24,6 +24,15 @@ ${imports if imports else ""}
 revision = ${repr(up_revision)}
 down_revision = ${repr(down_revision)}
 
+# Note: It is VERY important to ensure that a migration does not lock for a
+#       long period of time and to ensure that each individual migration does
+#       not break compatibility with the *previous* version of the code base.
+#       This is because the migrations will be ran automatically as part of the
+#       deployment process, but while the previous version of the code is still
+#       up and running. Thus backwards incompatible changes must be broken up
+#       over multiple migrations inside of multiple pull requests in order to
+#       phase them in over multiple deploys.
+
 def upgrade():
     ${upgrades if upgrades else "pass"}
 

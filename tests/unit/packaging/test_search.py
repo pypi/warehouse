@@ -22,10 +22,11 @@ def test_build_search():
             name="Foobar",
             normalized_name="foobar",
             releases=[
-                pretend.stub(version="1.0"),
-                pretend.stub(version="2.0"),
-                pretend.stub(version="3.0"),
-                pretend.stub(version="4.0"),
+                pretend.stub(version="1.0", is_prerelease=False),
+                pretend.stub(version="2.0", is_prerelease=False),
+                pretend.stub(version="3.0", is_prerelease=False),
+                pretend.stub(version="4.0", is_prerelease=False),
+                pretend.stub(version="5.0.dev0", is_prerelease=True),
             ],
         ),
         summary="This is my summary",
@@ -45,7 +46,8 @@ def test_build_search():
 
     assert obj.meta.id == "foobar"
     assert obj["name"] == "Foobar"
-    assert obj["version"] == ["1.0", "2.0", "3.0", "4.0"]
+    assert obj["version"] == ["5.0.dev0", "4.0", "3.0", "2.0", "1.0"]
+    assert obj["latest_version"] == "4.0"
     assert obj["summary"] == "This is my summary"
     assert obj["description"] == "This is my description"
     assert obj["author"] == "Jane Author"

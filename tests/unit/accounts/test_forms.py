@@ -15,6 +15,7 @@ import pytest
 import wtforms
 
 from warehouse.accounts import forms
+from warehouse.accounts.interfaces import TooManyFailedLogins
 from warehouse import recaptcha
 
 
@@ -100,6 +101,27 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
         assert user_service.check_password.calls == [pretend.call(1, "pw")]
 
+    def test_validate_password_too_many_failed(self):
+        @pretend.call_recorder
+        def check_password(userid, password):
+            raise TooManyFailedLogins(resets_in=None)
+
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=check_password,
+        )
+        form = forms.LoginForm(
+            data={"username": "my_username"},
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+
 
 class TestRegistrationForm:
     def test_create(self):
@@ -143,7 +165,10 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.password_confirm.errors.pop() == "Passwords must match."
+        assert (
+            form.password_confirm.errors.pop() ==
+            "Your passwords do not match. Please try again."
+        )
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
@@ -188,7 +213,11 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Invalid email address."
+        assert (
+            form.email.errors.pop() ==
+            "The email address you have chosen is not a valid format. "
+            "Please try again."
+        )
 
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
@@ -202,7 +231,27 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Email exists."
+        assert (
+            form.email.errors.pop() ==
+            "This email address is already being used by another account. "
+            "Please use a different email."
+        )
+
+    def test_blacklisted_email_error(self):
+        form = forms.RegistrationForm(
+            data={"email": "foo@bearsarefuzzy.com"},
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(enabled=True),
+        )
+
+        assert not form.validate()
+        assert (
+            form.email.errors.pop() ==
+            "Sorry, you cannot create an account with an email address from "
+            "this domain. Please use a different email."
+        )
 
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(
@@ -256,12 +305,16 @@ class TestRegistrationForm:
             ),
         )
         assert not form.validate()
-        assert form.username.errors.pop() == "Username exists."
+        assert (
+            form.username.errors.pop() ==
+            "This username is already being used by another account. "
+            "Please choose a different username."
+        )
 
     def test_password_strength(self):
         cases = (
             ("foobar", False),
-            ("somethingalittlebetter9", False),
+            ("somethingalittlebetter9", True),
             ("1aDeCent!1", True),
         )
         for pwd, valid in cases:

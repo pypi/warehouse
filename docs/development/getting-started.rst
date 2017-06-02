@@ -44,21 +44,19 @@ Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
 to automate setting up a "batteries included" development environment.
-The Dockerfile and docker-compose.yml files include all the required steps for
-installing and configuring all the required external services of the
+The Dockerfile and ``docker-compose.yml`` files include all the required steps
+for installing and configuring all the required external services of the
 development environment.
 
 
 Installing Docker
 ~~~~~~~~~~~~~~~~~
 
-* Install `Docker <https://docs.docker.com/installation/#installation>`_
+* Install `Docker Engine <https://docs.docker.com/engine/installation/>`_
 
-* Install either `Docker for Mac`_ or `Docker for Windows`_ if you're on OS X
-  or Windows respectively.
-
-.. _Docker for Mac: https://docs.docker.com/docker-for-mac/
-.. _Docker for Windows: https://docs.docker.com/docker-for-windows/
+.. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
+.. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
+.. _Docker for Linux: https://docs.docker.com/engine/installation/linux/
 
 
 Verifying Docker Installation
@@ -86,9 +84,6 @@ Check that Docker Compose is installed: ``docker-compose -v``
 
 Building the Warehouse Container
 --------------------------------
-
-.. note:: docker-compose is supported on only Python 2.x while warehouse runs
-          on Python 3
 
 Once you have Docker and Docker Compose installed, run:
 
@@ -130,17 +125,23 @@ In a second terminal, separate from the make serve command above, run:
 If you get an error about xz, you may need to install the `xz` utility. This is
 highly likely on Mac OS X and Windows.
 
+.. note:: reCaptcha is featured in authentication and registration pages. To
+          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
+          through to ``serve`` and ``debug`` targets.
+
 
 Viewing Warehouse in a browser
 ------------------------------
 
-Web container is listening on port 80. It's accessible at ``http://localhost:80/``.
+Web container is listening on port 80. It's accessible at
+``http://localhost:80/``.
 
 .. note::
 
-    On Mac OS and Windows, the warehouse application might be accessible at
-    ``https://<docker-ip>:80/` you can get information about the docker
-    container with ``docker-machine env``
+    If you are using ``docker-machine`` on an older version of Mac OS or
+    Windows, the warehouse application might be accessible at
+    ``https://<docker-ip>:80/`` instead. You can get information about the
+    docker container with ``docker-machine env``
 
 
 What did we just do and what is happening behind the scenes?
@@ -221,8 +222,8 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 ====== ========================================================================
 
 
-Running tests
-=============
+Running tests and linters
+=========================
 
 .. note:: PostgreSQL 9.4 is required because of pgcrypto extension
 
@@ -243,6 +244,12 @@ If you want to run a specific test, you can use the ``T`` variable:
 .. code-block:: console
 
     $ T=tests/unit/i18n/test_filters.py make tests
+
+You can run linters, programs that check the code, with:
+
+.. code-block:: console
+
+    $ make lint
 
 
 Building documentation

@@ -15,6 +15,8 @@ import os
 import packaging.version
 import pretend
 
+from first import first
+
 import warehouse.cli.search.reindex
 
 from warehouse.cli.search.reindex import reindex, _project_docs
@@ -42,6 +44,10 @@ def test_project_docs(db_session):
                 "name": p.name,
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
+                "latest_version": first(
+                    prs,
+                    key=lambda r: not r.is_prerelease,
+                ).version,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
@@ -54,11 +60,10 @@ class FakeESIndices:
         self.indices = {}
         self.aliases = {}
 
-    def create(self, index, body):
-        self.indices[index] = body
-
-    def delete(self, index):
-        self.indices.pop(index, None)
+        self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
+        self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
+        self.delete = pretend.call_recorder(lambda *a, **kw: None)
+        self.create = pretend.call_recorder(lambda *a, **kw: None)
 
     def exists_alias(self, name):
         return name in self.aliases
@@ -135,6 +140,8 @@ class TestReindex:
         monkeypatch.setattr(
             warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
 
+        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+
         result = cli.invoke(reindex, obj=config)
 
         assert result.exit_code == -1
@@ -145,7 +152,11 @@ class TestReindex:
         ]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert es_client.indices.indices == {}
+        assert es_client.indices.delete.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb'),
+        ]
+        assert es_client.indices.put_settings.calls == []
+        assert es_client.indices.forcemerge.calls == []
 
     def test_successfully_indexes_and_adds_new(self, monkeypatch, cli):
         sess_obj = pretend.stub(
@@ -174,6 +185,7 @@ class TestReindex:
             registry={
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
+                "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -191,13 +203,40 @@ class TestReindex:
         assert sess_obj.execute.calls == [
             pretend.call("SET statement_timeout = '600s'"),
         ]
-        assert parallel_bulk .calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
+        assert es_client.indices.create.calls == [
+            pretend.call(
+                body={
+                    'settings': {
+                        'number_of_shards': 42,
+                        'number_of_replicas': 0,
+                        'refresh_interval': '-1',
+                    }
+                },
+                wait_for_active_shards=42,
+                index='warehouse-cbcbcbcbcb',
+            )
+        ]
+        assert es_client.indices.delete.calls == []
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
+        assert es_client.indices.put_settings.calls == [
+            pretend.call(
+                index='warehouse-cbcbcbcbcb',
+                body={
+                    'index': {
+                        'number_of_replicas': 0,
+                        'refresh_interval': '1s',
+                    },
+                },
+            )
+        ]
+        assert es_client.indices.forcemerge.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb')
+        ]
 
     def test_successfully_indexes_and_replaces(self, monkeypatch, cli):
         sess_obj = pretend.stub(
@@ -228,6 +267,7 @@ class TestReindex:
             registry={
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
+                "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             },
         )
@@ -248,7 +288,36 @@ class TestReindex:
         assert parallel_bulk.calls == [pretend.call(es_client, docs)]
         assert sess_obj.rollback.calls == [pretend.call()]
         assert sess_obj.close.calls == [pretend.call()]
-        assert set(es_client.indices.indices) == {"warehouse-cbcbcbcbcb"}
+        assert es_client.indices.create.calls == [
+            pretend.call(
+                body={
+                    'settings': {
+                        'number_of_shards': 42,
+                        'number_of_replicas': 0,
+                        'refresh_interval': '-1',
+                    }
+                },
+                wait_for_active_shards=42,
+                index='warehouse-cbcbcbcbcb',
+            )
+        ]
+        assert es_client.indices.delete.calls == [
+            pretend.call('warehouse-aaaaaaaaaa'),
+        ]
         assert es_client.indices.aliases == {
             "warehouse": ["warehouse-cbcbcbcbcb"],
         }
+        assert es_client.indices.put_settings.calls == [
+            pretend.call(
+                index='warehouse-cbcbcbcbcb',
+                body={
+                    'index': {
+                        'number_of_replicas': 0,
+                        'refresh_interval': '1s',
+                    },
+                },
+            )
+        ]
+        assert es_client.indices.forcemerge.calls == [
+            pretend.call(index='warehouse-cbcbcbcbcb')
+        ]

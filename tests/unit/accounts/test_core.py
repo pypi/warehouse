@@ -14,6 +14,7 @@ import datetime
 
 import freezegun
 import pretend
+import pytest
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import IUserService
@@ -90,14 +91,21 @@ class TestLogin:
 
 class TestAuthenticate:
 
-    def test_with_user(self):
-        user = pretend.stub()
+    @pytest.mark.parametrize(
+        ("is_superuser", "expected"),
+        [
+            (False, []),
+            (True, ["group:admins"]),
+        ],
+    )
+    def test_with_user(self, is_superuser, expected):
+        user = pretend.stub(is_superuser=is_superuser)
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: user)
         )
         request = pretend.stub(find_service=lambda iface, context: service)
 
-        assert accounts._authenticate(1, request) == []
+        assert accounts._authenticate(1, request) == expected
         assert service.get_user.calls == [pretend.call(1)]
 
     def test_without_user(self):
@@ -154,7 +162,7 @@ def test_includeme(monkeypatch):
 
     config = pretend.stub(
         register_service_factory=pretend.call_recorder(
-            lambda factory, iface: None
+            lambda factory, iface, name=None: None
         ),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         set_authentication_policy=pretend.call_recorder(lambda p: None),

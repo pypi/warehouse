@@ -1,3 +1,15 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from alembic import context
 from sqlalchemy import create_engine, pool
 
@@ -30,18 +42,18 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    options = context.config.get_section(context.config.config_ini_section)
-    url = options.pop("url")
-    engine = create_engine(url, poolclass=pool.NullPool)
+    connectable = context.config.attributes.get("connection", None)
 
-    connection = engine.connect()
-    context.configure(connection=connection, target_metadata=db.metadata)
+    if connectable is None:
+        options = context.config.get_section(context.config.config_ini_section)
+        url = options.pop("url")
+        connectable = create_engine(url, poolclass=pool.NullPool)
 
-    try:
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=db.metadata)
         with context.begin_transaction():
             context.run_migrations()
-    finally:
-        connection.close()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

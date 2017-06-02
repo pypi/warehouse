@@ -19,6 +19,7 @@ import transaction
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
+from pyramid.security import Allow
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -48,6 +49,19 @@ class Configurator(_Configurator):
 
         # Finally, return our now wrapped app
         return app
+
+
+class RootFactory:
+
+    __parent__ = None
+    __name__ = None
+
+    __acl__ = [
+        (Allow, "group:admins", "admin"),
+    ]
+
+    def __init__(self, request):
+        pass
 
 
 def require_https_tween_factory(handler, registry):
@@ -128,14 +142,19 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
+    maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
+    maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
+    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "download_stats.url", "REDIS_URL")
+    maybe_set(settings, "ratelimit.url", "REDIS_URL")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
@@ -184,6 +203,7 @@ def configure(settings=None):
     # Actually setup our Pyramid Configurator with the values pulled in from
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
+    config.set_root_factory(RootFactory)
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -242,6 +262,7 @@ def configure(settings=None):
         "format_package_type",
         "warehouse.filters:format_package_type"
     )
+    filters.setdefault("parse_version", "warehouse.filters:parse_version")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -263,11 +284,14 @@ def configure(settings=None):
         renderers.JSON(sort_keys=True, separators=(",", ":")),
     )
 
+    # Configure retry support.
+    config.add_settings({"retry.attempts": 3})
+    config.include("pyramid_retry")
+
     # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
     config.add_settings({
-        "tm.attempts": 3,
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
         "tm.activate_hook": activate_hook,
         "tm.annotate_user": False,
@@ -297,13 +321,21 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
+
+    config.include(".static")
+
+    config.include(".policy")
+
     config.include(".search")
 
-    # Register the support for AWS
+    # Register the support for AWS and Google Cloud
     config.include(".aws")
+    config.include(".gcloud")
 
-    # Register the support for Celery
-    config.include(".celery")
+    # Register the support for Celery Tasks
+    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")
@@ -323,6 +355,9 @@ def configure(settings=None):
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
+
+    # Include our admin application
+    config.include(".admin")
 
     # Register forklift, at least until we split it out into it's own project.
     config.include(".forklift")
@@ -360,6 +395,12 @@ def configure(settings=None):
             strict=not prevent_http_cache,
         ),
     )
+    config.whitenoise_serve_static(
+        autorefresh=prevent_http_cache,
+        max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
+        manifest="warehouse:static/dist/manifest.json",
+    )
+    config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
 
     # Enable Warehouse to serve our locale files
     config.add_static_view("locales", "warehouse:locales/")
@@ -401,7 +442,13 @@ def configure(settings=None):
         config.include(config.get_settings()["warehouse.theme"])
 
     # Scan everything for configuration
-    config.scan(ignore=["warehouse.migrations.env", "warehouse.wsgi"])
+    config.scan(
+        ignore=[
+            "warehouse.migrations.env",
+            "warehouse.celery",
+            "warehouse.wsgi",
+        ],
+    )
 
     # Finally, commit all of our changes
     config.commit()

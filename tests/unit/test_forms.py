@@ -15,7 +15,9 @@ import pytest
 
 from wtforms.validators import StopValidation, ValidationError
 
-from warehouse.forms import Form, DBForm, URIValidator
+from warehouse.forms import (
+    Form, DBForm, URIValidator, PasswordStrengthValidator,
+)
 
 
 class TestURIValidator:
@@ -47,6 +49,42 @@ class TestURIValidator:
     def test_plain_schemes(self):
         validator = URIValidator(require_scheme=True)
         validator(pretend.stub(), pretend.stub(data="ftp://example.com/"))
+
+
+class TestPasswordStrengthValidator:
+
+    def test_invalid_fields(self):
+        validator = PasswordStrengthValidator(user_input_fields=["foo"])
+        with pytest.raises(ValidationError) as exc:
+            validator({}, pretend.stub())
+        assert str(exc.value) == "Invalid field name: 'foo'"
+
+    @pytest.mark.parametrize("password", ["this is a great password!"])
+    def test_good_passwords(self, password):
+        validator = PasswordStrengthValidator()
+        validator(pretend.stub(), pretend.stub(data=password))
+
+    @pytest.mark.parametrize(
+        ("password", "expected"),
+        [
+            (
+                "qwerty",
+                ("This is a top-10 common password. Add another word or two. "
+                 "Uncommon words are better."),
+            ),
+            (
+                "bombo!b",
+                ("Password is too easily guessed. Add another word or two. "
+                 "Uncommon words are better."),
+            ),
+            ("bombo!b asdadad", "Password is too easily guessed."),
+        ],
+    )
+    def test_invalid_password(self, password, expected):
+        validator = PasswordStrengthValidator(required_strength=5)
+        with pytest.raises(ValidationError) as exc:
+            validator(pretend.stub(), pretend.stub(data=password))
+        assert str(exc.value) == expected
 
 
 def _raiser(exc):

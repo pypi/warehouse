@@ -1,0 +1,9 @@
+bok-choy>=0.6.0
+coverage
+factory_boy
+freezegun
+pretend
+pytest>=3.0.0
+pytest-postgresql
+responses>=0.5.1
+webtest

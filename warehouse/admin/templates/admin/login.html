@@ -1,0 +1,73 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}Sign in{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block wrapper %}
+<div class="login-box">
+
+  <div class="login-logo">
+    <a href="{{ request.route_path('admin.dashboard') }}"><b>Warehouse</b> Admin</a>
+  </div>
+
+  <div class="login-box-body">
+    <form method="POST" action="{{ request.current_route_path() }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+      {% if redirect.data %}
+      <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
+      {% endif %}
+
+      {% if form.errors.__all__ %}
+        {% for error in form.errors.__all__ %}
+        <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="form-group{% if form.username.errors %} has-error{% endif %}">
+        {{ form.username(class="form-control", placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false") }}
+
+        {% if form.username.errors %}
+        <span class="help-block">
+            {% for error in form.username.errors %}
+            <div>{{ error }}</div>
+            {% endfor %}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="form-group{% if form.password.errors %} has-error{% endif %}">
+        {{ form.password(class="form-control", placeholder="Password") }}
+
+        {% if form.password.errors %}
+        <span class="help-block">
+            {% for error in form.password.errors %}
+            <div>{{ error }}</div>
+            {% endfor %}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="row">
+        <div class="col-xs-4 pull-right">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

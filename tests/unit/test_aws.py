@@ -10,31 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import certifi
+import boto3
 import pretend
 import pytest
 
 from warehouse import aws
 
 
-class TestBoto3Session:
-
-    def test_boto3_session_client_defaults_old_certifi(self):
-        session = aws._Boto3Session()
-        client = session.client(service_name="s3")
-        assert client._endpoint.verify == certifi.old_where()
-
-    def test_boto3_session_client_overrides_verify(self):
-        session = aws._Boto3Session()
-        client = session.client(service_name="s3", verify="LOL")
-        assert client._endpoint.verify == "LOL"
-
-
 @pytest.mark.parametrize("region", [None, "us-west-2"])
 def test_aws_session_factory(monkeypatch, region):
     boto_session_obj = pretend.stub()
     boto_session_cls = pretend.call_recorder(lambda **kw: boto_session_obj)
-    monkeypatch.setattr(aws, "_Boto3Session", boto_session_cls)
+    monkeypatch.setattr(boto3.session, "Session", boto_session_cls)
 
     request = pretend.stub(
         registry=pretend.stub(

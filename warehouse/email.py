@@ -13,10 +13,10 @@
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
-from warehouse import celery
+from warehouse import tasks
 
 
-@celery.task(bind=True, ignore_result=True, acks_late=True)
+@tasks.task(bind=True, ignore_result=True, acks_late=True)
 def send_email(task, request, body, recipients, subject):
 
     mailer = get_mailer(request)
