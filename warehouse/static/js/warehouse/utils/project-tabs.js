@@ -1,4 +1,7 @@
-export default (inMobileState) => {
+export default () => {
+  const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
+  const styleProps = getComputedStyle(mobileBtn, null);
+  const inMobileState = (styleProps.getPropertyValue("display") === "block");
   const btnClassName = inMobileState ? ".-js-vertical-tab-mobile-heading" : ".-js-vertical-tab";
   const activeClass = "vertical-tabs__tab--is-active";
   const getBtnByHref = (id) => document.querySelector(`${btnClassName}[href="#${id}"]`);
@@ -34,4 +37,5 @@ export default (inMobileState) => {
     var btn = getBtnByHref(location.hash.replace("#", ""));
     toggleTab(btn);
   }, false);
+
 };
