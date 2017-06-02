@@ -35,5 +35,5 @@ fi
 
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
-python -m coverage report -m
+python -m coverage report -m --fail-under=100 || echo "Must Have 100% Coverage"
 python -m coverage html
