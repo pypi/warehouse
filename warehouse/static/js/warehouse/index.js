@@ -42,10 +42,9 @@ docReady(() => {
 docReady(()=> {
   const headingBtn = document.querySelector(".-js-vertical-tab-content");
   if (headingBtn) {
-    const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
-    const styleProps = getComputedStyle(mobileBtn, null);
-    projectTabs(styleProps.getPropertyValue("display") === "block");
+    projectTabs();
   }
+  window.addEventListener("resize", projectTabs, false);
 });
 
 // toggle search panel behavior
