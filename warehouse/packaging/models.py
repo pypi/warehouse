@@ -348,7 +348,8 @@ class Release(db.ModelBase):
         return any([self.license,
                     self.keywords,
                     self.author, self.author_email,
-                    self.maintainer, self.maintainer_email])
+                    self.maintainer, self.maintainer_email,
+                    self.requires_python])
 
 
 class File(db.Model):

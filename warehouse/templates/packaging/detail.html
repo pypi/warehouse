@@ -159,6 +159,11 @@
             {% endfor %}
           </p>
           {% endif %}
+          {% if release.requires_python %}
+          <p>
+            <strong>Requires:</strong> Python {{ release.requires_python }}
+          </p>
+          {% endif %}
         </div>
         {% endif %}
 
