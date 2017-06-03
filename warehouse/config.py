@@ -93,8 +93,11 @@ def activate_hook(request):
     return True
 
 
-def template_view(config, name, route, template):
-    config.add_route(name, route)
+def template_view(config, name, route, template, route_kw=None):
+    if route_kw is None:
+        route_kw = {}
+
+    config.add_route(name, route, **route_kw)
     config.add_view(renderer=template, route_name=name)
 
 

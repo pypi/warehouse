@@ -97,15 +97,20 @@ def test_activate_hook(path, expected):
     assert config.activate_hook(request) == expected
 
 
-def test_template_view():
+@pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
+def test_template_view(route_kw):
     configobj = pretend.stub(
         add_route=pretend.call_recorder(lambda *a, **kw: None),
         add_view=pretend.call_recorder(lambda *a, **kw: None),
     )
 
-    config.template_view(configobj, "test", "/test/", "test.html")
+    config.template_view(configobj, "test", "/test/", "test.html",
+                         route_kw=route_kw)
 
-    assert configobj.add_route.calls == [pretend.call("test", "/test/")]
+    assert configobj.add_route.calls == [
+        pretend.call(
+            "test", "/test/", **({} if route_kw is None else route_kw)),
+    ]
     assert configobj.add_view.calls == [
         pretend.call(renderer="test.html", route_name="test"),
     ]
