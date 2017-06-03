@@ -1,130 +1,37 @@
-<!--
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "error-base.html" %}
 
- http://www.apache.org/licenses/LICENSE-2.0
+{% block title %}Internal Server Error (500){% endblock %}
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
+{% block error_heading %}Sorry, something went wrong{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% block error_text %}
+<div class="viewport-section__text no-top-margin no-top-padding">
+  <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
+  <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
 
-    <meta name="defaultLanguage" content="en">
-    <meta name="availableLanguages" content="en">
-
-    <title>Internal Server Error (500)</title>
-
-    <meta name="description" content="The Python Package Index (PyPI) is a repository of software for the Python programming language.">
-
-    <!-- Fonts -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
-
-    <style>
-      html,
-      body {
-        box-sizing: border-box;
-        font-family: 'Source Sans Pro', 'Helvetica', Arial, sans-serif;
-        font-size: 17px;
-        line-height: 1.4;
-        font-weight: 300;
-        color: #fff;
-        -webkit-text-size-adjust: 100%;
-        font-size: 100%;
-        padding: 0;
-        margin: 0;
-      }
-
-      h1, strong {
-        font-weight: 600;
-      }
-
-      ul {
-        list-style-type: none;
-        padding-left: 0;
-      }
-
-      hr {
-        margin: 50px auto;
-        width: 300px;
-        max-width: 100%;
-        border: 0;
-        height: 2px;
-        background: rgba(255, 255, 255, 0.5);
-      }
-
-      .viewport-section {
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #006dad;
-        color: #fff;
-      }
-
-      .viewport-section a {
-        color: #fff;
-      }
-
-      .viewport-section__content {
-        text-align: center;
-        padding: 30px;
-        min-width: 0;
-      }
-
-      .viewport-section__heading {
-        font-size: 2.4em;
-        padding: 20px 15px 0;
-        margin: 0;
-      }
-
-      @media screen and (max-width: 600px) {
-        .viewport-section__content {
-          padding: 15px;
-        }
-
-        .viewport-section__heading {
-          font-size: 1.5em;
-        }
-      }
-    </style>
-
-  </head>
-
-  <body>
-    <div class="viewport-section">
-      <div class="viewport-section__content">
-        <img alt="PyPI logo" src="https://pypi.org/static/images/logo-small.6eef541e.svg">
-        <h1 class="viewport-section__heading">Sorry, something went wrong</h1>
-
-        <div class="viewport-section__text">
-          <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
-          <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
-
-          <ul class="unstyled">
-            <li><a href="https://status.python.org/">Check our status page</a></li>
-            <li><a href="https://twitter.com/PythonStatus">View Python Status on Twitter</a></li>
-          </ul>
-
-          <hr>
-
-          <p>
-            <strong>
-              Rely on PyPI to get your job done?</br>
-              Consider <a href="https://github.com/pypa/warehouse">contributing</a> or <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13">donating</a> to help us build a more stable and secure platform.
-            </strong>
-          </p>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+  <ul class="unstyled">
+    <li><a href="https://status.python.org/">Check our status page</a></li>
+    <li><a href="https://twitter.com/PythonStatus">View Python Status on Twitter</a></li>
+  </ul>
+  <hr class="viewport-section__rule">
+  <p>
+    <strong>
+      Rely on PyPI to get your job done?</br>
+      Consider <a href="https://github.com/pypa/warehouse">contributing</a> or <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13">donating</a> to help us build a more stable and secure platform.
+    </strong>
+  </p>
+</div>
+{% endblock error_text %}

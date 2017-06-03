@@ -37,6 +37,15 @@
     padding: $spacing-unit ($spacing-unit / 2);
   }
 
+  &__rule {
+    margin: 50px auto;
+    width: 300px;
+    max-width: 100%;
+    border: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+  }
+
   &--dark {
     background-color: $brand-color;
     color: $white;

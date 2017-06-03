@@ -1,0 +1,27 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "error-base.html" %}
+
+{% block error_search %}
+<form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
+  <label for="search" class="sr-only">Search PyPI</label>
+  <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search Projects" autofocus>
+  <button class="search-form__button button button--large button--dark" type="submit">
+    <span class="button__icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="button__text">Search</span>
+  </button>
+</form>
+{% endblock error_search %}

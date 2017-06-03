@@ -19,23 +19,16 @@
     <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
     <h2 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h2>
 
-    <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
-      <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search Projects" autofocus>
-      <button class="search-form__button button button--large button--dark" type="submit">
-        <span class="button__icon">
-          <i class="fa fa-search"></i>
-        </span>
-        <span class="button__text">Search</span>
-      </button>
-    </form>
+    {% block error_search %}{% endblock error_search %}
 
+    {% block error_text %}
     <div class="viewport-section__text">
       <p>
         That's a {% block error_code %}{% endblock %}!<br/>
         <a href="/">Back to the homepage!</a>
       </p>
     </div>
+    {% endblock error_text %}
   </div>
 </div>
 {% block easter_egg %}{% endblock %}
