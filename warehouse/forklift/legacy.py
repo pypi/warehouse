@@ -1020,10 +1020,131 @@ def _legacy_purge(status, *args, **kwargs):
     require_methods=["POST"],
 )
 def submit(request):
-    return _exc_with_message(
-        HTTPGone,
-        "This API is no longer supported, instead simply upload the file.",
+    # Before we do anything, if there isn't an authenticated user with this
+    # request, then we'll go ahead and bomb out.
+    if request.authenticated_userid is None:
+        raise _exc_with_message(
+            HTTPForbidden,
+            "Invalid or non-existent authentication information.",
+        )
+
+    # distutils "helpfully" substitutes unknown, but "required" values with the
+    # string "UNKNOWN". This is basically never what anyone actually wants so
+    # we'll just go ahead and delete anything whose value is UNKNOWN.
+    for key in list(request.POST):
+        if request.POST.get(key) == "UNKNOWN":
+            del request.POST[key]
+
+    # We require protocol_version 1, it's the only supported version however
+    # passing a different version should raise an error.
+    if request.POST.get("protocol_version", "1") != "1":
+        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
+
+    # Look up all of the valid classifiers
+    all_classifiers = request.db.query(Classifier).all()
+
+    # Validate and process the incoming metadata.
+    form = MetadataForm(request.POST)
+    form.classifiers.choices = [
+        (c.classifier, c.classifier) for c in all_classifiers
+    ]
+    if not form.validate():
+        for field_name in _error_message_order:
+            if field_name in form.errors:
+                break
+        else:
+            field_name = sorted(form.errors.keys())[0]
+
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "{field}: {msgs[0]}".format(
+                field=field_name,
+                msgs=form.errors[field_name],
+            ),
+        )
+
+    project = Project(name=form.name.data)
+    request.db.add(project)
+    request.db.add(
+        Role(user=request.user, project=project, role_name="Owner")
     )
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="create",
+            submitted_by=request.user,
+            submitted_from=request.client_addr,
+        ),
+    )
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="add Owner {}".format(request.user.username),
+            submitted_by=request.user,
+            submitted_from=request.client_addr,
+        ),
+    )
+
+    try:
+        release = (
+            request.db.query(Release)
+                      .filter(
+                            (Release.project == project) &
+                            (Release.version == form.version.data)).one()
+        )
+    except NoResultFound:
+        release = Release(
+            project=project,
+            _classifiers=[
+                c for c in all_classifiers
+                if c.classifier in form.classifiers.data
+            ],
+            _pypi_hidden=False,
+            dependencies=list(_construct_dependencies(
+                form,
+                {
+                    "requires": DependencyKind.requires,
+                    "provides": DependencyKind.provides,
+                    "obsoletes": DependencyKind.obsoletes,
+                    "requires_dist": DependencyKind.requires_dist,
+                    "provides_dist": DependencyKind.provides_dist,
+                    "obsoletes_dist": DependencyKind.obsoletes_dist,
+                    "requires_external": DependencyKind.requires_external,
+                    "project_urls": DependencyKind.project_url,
+                }
+            )),
+            **{
+                k: getattr(form, k).data
+                for k in {
+                    # This is a list of all the fields in the form that we
+                    # should pull off and insert into our new release.
+                    "version",
+                    "summary", "description", "license",
+                    "author", "author_email", "maintainer", "maintainer_email",
+                    "keywords", "platform",
+                    "home_page", "download_url",
+                    "requires_python",
+                }
+            }
+        )
+        request.db.add(release)
+        # TODO: This should be handled by some sort of database trigger or a
+        #       SQLAlchemy hook or the like instead of doing it inline in this
+        #       view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user,
+                submitted_from=request.client_addr,
+            ),
+        )
+
+    return Response()
 
 
 @view_config(
