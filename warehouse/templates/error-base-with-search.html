@@ -13,6 +13,8 @@
 -#}
 {% extends "error-base.html" %}
 
+{% block title %}{{ super() }}{% endblock %}
+
 {% block error_search %}
 <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
   <label for="search" class="sr-only">Search PyPI</label>

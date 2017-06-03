@@ -13,6 +13,8 @@
 -#}
 {% extends "base.html" %}
 
+{% block title %}{{ request.host }}{% endblock %}
+
 {% block body %}
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
@@ -23,7 +25,7 @@
         This URL is an API endpoint for uploading files to PyPI.<br/>
         For more information on uploading projects to PyPI, please visit the <a href="https://packaging.python.org/distributing/#uploading-your-project-to-pypi">Python Packaging User Guide.</a>
       </p>
-      <p>Otherwise, we suggest you <a href="https://pypi.io">go to the PyPI homepage</a>.</p>
+      <p>Otherwise, we suggest you <a href="https://pypi.org/">go to the PyPI homepage</a>.</p>
     </div>
   </div>
 </div>
