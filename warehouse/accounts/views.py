@@ -53,6 +53,7 @@ def failed_logins(exc, request):
 @view_config(
     route_name="accounts.profile",
     renderer="accounts/profile.html",
+    uses_session=True,
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60,                 # 1 day

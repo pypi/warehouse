@@ -21,26 +21,35 @@
     <div class="left-layout__sidebar">
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
-        <img src="{{ gravatar(user.email, size=400) }}" height="200" width="200" alt="{{ alt }}" title="{{ alt }}">
+        <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         {% csi request.route_path('accounts.edit_gravatar', username=user.username) %}
         {% endcsi %}
-        <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
-        {% if user.date_joined %}
-          <p class="author-profile__joined">
-            Joined on {{ user.date_joined|format_date() }}
-          </p>
-        {% endif %}
-        {#
-        <div class="author-profile__bio">
-          <p>User Bio will go here</p>
+        <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
+        <div class="author-profile__meta">
+          {% if user.name %}
+            <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+          {% endif %}
+          {% if user.date_joined %}
+          <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
+          {% endif %}
         </div>
-        #}
       </div>
     </div>
 
     <div class="left-layout__main">
-      <h2>Projects</h2>
+      <h2>
+        {% if projects %}
+          {% trans count=projects|length %}
+            {{ count }} Project
+          {% pluralize %}
+            {{ count }} Projects
+          {% endtrans %}
+        {% else %}
+          No Projects
+        {% endif %}
+      </h2>
       <div class="package-list">
+        {% if projects %}
         {% for release in projects %}
         <div class="package-snippet">
           <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
@@ -50,6 +59,15 @@
           <p class="package-snippet__description">{{ release.summary }}</p>
         </div>
         {% endfor %}
+        {% else %}
+          <div class="callout-block no-top-margin">
+            {% if user == request.user %}
+              <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="">Python Packaging User Guide</a></p>
+            {% else %}
+              <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
