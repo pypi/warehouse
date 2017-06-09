@@ -88,7 +88,11 @@ def includeme(config):
             ],
             "referrer": ["origin-when-cross-origin"],
             "reflected-xss": ["block"],
-            "script-src": [SELF, "www.google-analytics.com", "ajax.googleapis.com"],
+            "script-src": [
+                SELF,
+                "www.google-analytics.com",
+                "ajax.googleapis.com"
+            ],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
     })

@@ -110,7 +110,7 @@ function changeType(x, type) {
     // in the :type: parameter. We can get away with this because
     // this copy of the element is not in the DOM ... yet.
     tmp.attr("type", type);
-	  
+
     // Replace the existing input element with our shiny new one (*Surprise IE* :-)
     x.replaceWith(tmp);
     return true;
