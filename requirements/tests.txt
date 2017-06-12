@@ -62,9 +62,9 @@ coverage==4.4.1 \
 factory-boy==2.8.1 \
     --hash=sha256:246f7da9caf9bf855aaa73b4963353ccb147fdd3adcbc419fa29422c5b69dd4c \
     --hash=sha256:a6644e391a371be603aca8624f3dedbc5a2aa4622878c20494ba17abb4b171bb
-Faker==0.7.15 \
-    --hash=sha256:269f4395bcc8761d8cf87e4d98ae371a1ac79533b8aafcf87bd02fd25841d2b1 \
-    --hash=sha256:532e3dfeda26ca04d18896cf6ae6da6e2a760fe100f116173742ca4f524f0548
+Faker==0.7.16 \
+    --hash=sha256:8625e80f1c1b6a87f13faa1459f68271c7adba6419722ddac23098aa54cf07e4 \
+    --hash=sha256:caf24d57993f6915fcd3cde1b074afe98d31f7aa081f83156f0b6f816d7fbb85
 freezegun==0.3.9 \
     --hash=sha256:8842688de9497c82ecb40c30274ecc676e97ac78765b0ade105a97063d5b7a11 \
     --hash=sha256:783ccccd7f60968bfe49ad9e114c18ea2b63831faaaf61c1f1f71ddfde1c0eee
@@ -195,9 +195,9 @@ py==1.4.34 \
 pytest-postgresql==1.2.0 \
     --hash=sha256:29a985c10b51ae4ed0df64258656d167269c9ca93c12747e0a8f4f543f67be75 \
     --hash=sha256:4f3fb4b0bda3ea7c52f377628b3bbf5c576acafd6d8a82255352ccb62911e6db
-pytest==3.1.1 \
-    --hash=sha256:765ce3acfff504c6c31e3c024c97dd57c8caa9b0cacd5ec3d0ef4c646a1ddf04 \
-    --hash=sha256:0173a366a259e1d23b0f433b1f06e1b753110bb33e77a79bd8ea54cbd0b5df15
+pytest==3.1.2 \
+    --hash=sha256:41e618f317957505ae2e81935733d8304d84170f7e21dfb15184d6fa8d7a5230 \
+    --hash=sha256:795ec29fbba70b22a593691ce8bcd4bdde2dc96e8099731f73c7d8bb3ce879bf
 python-dateutil==2.6.0 \
     --hash=sha256:62a2f8df3d66f878373fd0072eacf4ee52194ba302e00082828e0d263b0418d2 \
     --hash=sha256:3acbef017340600e9ff8f2994d8f7afd6eacb295383f286466a6df3961e486f0 \
