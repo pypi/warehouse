@@ -62,9 +62,9 @@ coverage==4.4.1 \
 factory-boy==2.8.1 \
     --hash=sha256:246f7da9caf9bf855aaa73b4963353ccb147fdd3adcbc419fa29422c5b69dd4c \
     --hash=sha256:a6644e391a371be603aca8624f3dedbc5a2aa4622878c20494ba17abb4b171bb
-Faker==0.7.16 \
-    --hash=sha256:8625e80f1c1b6a87f13faa1459f68271c7adba6419722ddac23098aa54cf07e4 \
-    --hash=sha256:caf24d57993f6915fcd3cde1b074afe98d31f7aa081f83156f0b6f816d7fbb85
+Faker==0.7.17 \
+    --hash=sha256:1236c6dd61d1914d4972a1a1ffd3dba989f37d81b4ecb27c66fd2d241cfbf220 \
+    --hash=sha256:49cba0c3df3dac4fe5cf22d1a5799683c572172b9a0e94ec318e359339648a58
 freezegun==0.3.9 \
     --hash=sha256:8842688de9497c82ecb40c30274ecc676e97ac78765b0ade105a97063d5b7a11 \
     --hash=sha256:783ccccd7f60968bfe49ad9e114c18ea2b63831faaaf61c1f1f71ddfde1c0eee
