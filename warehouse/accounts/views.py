@@ -12,7 +12,7 @@
 
 import datetime
 
-from pyblake2 import blake2b
+from nacl.hashlib import blake2b
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )

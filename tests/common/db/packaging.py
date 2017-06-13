@@ -16,7 +16,7 @@ import hashlib
 import factory
 import factory.fuzzy
 
-from pyblake2 import blake2b
+from nacl.hashlib import blake2b
 
 from warehouse.packaging.models import (
     Project, Release, Role, File, JournalEntry,

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import builtins
+
 from unittest import mock
 
 import pretend
@@ -81,7 +83,7 @@ class TestWarehouseTask:
         super_class = pretend.stub(
             apply_async=pretend.call_recorder(lambda *a, **kw: async_result),
         )
-        real_super = __builtins__["super"]
+        real_super = builtins.super
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
 
         def fake_super(*args, **kwargs):
@@ -96,7 +98,7 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(builtins, "super", fake_super)
 
         assert task.apply_async() is async_result
 
@@ -109,7 +111,7 @@ class TestWarehouseTask:
         super_class = pretend.stub(
             apply_async=pretend.call_recorder(lambda *a, **kw: async_result),
         )
-        real_super = __builtins__["super"]
+        real_super = builtins.super
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
 
         def fake_super(*args, **kwargs):
@@ -125,7 +127,7 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(builtins, "super", fake_super)
 
         assert task.apply_async() is async_result
 
@@ -164,7 +166,7 @@ class TestWarehouseTask:
         super_class = pretend.stub(
             apply_async=pretend.call_recorder(lambda *a, **kw: None),
         )
-        real_super = __builtins__["super"]
+        real_super = builtins.super
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
 
         def fake_super(*args, **kwargs):
@@ -176,7 +178,7 @@ class TestWarehouseTask:
         task = tasks.WarehouseTask()
         task.app = Celery()
 
-        monkeypatch.setitem(__builtins__, "super", fake_super)
+        monkeypatch.setattr(builtins, "super", fake_super)
 
         task._after_commit_hook(success, *args, **kwargs)
 
