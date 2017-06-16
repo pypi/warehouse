@@ -1,4 +1,4 @@
-FROM python:3.5.2-slim
+FROM pypy:3-5.8.0-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/
@@ -17,6 +17,8 @@ RUN set -x \
 RUN set -x \
     && apt-get update \
     && apt-get install curl -y \
+    && mkdir -p /usr/share/man/man1/ \
+    && mkdir -p /usr/share/man/man7/ \
     && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
     && apt-get install git libxml2 libxslt1.1 libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
     && apt-get autoremove -y \
