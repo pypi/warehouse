@@ -48,7 +48,6 @@ COPY requirements /tmp/requirements
 RUN set -x \
     && pip install -U pip setuptools \
     && pip install -r /tmp/requirements/dev.txt \
-    && pip install https://github.com/dstufft/pytest-postgresql/archive/pypy.zip#egg=pytest-postgresql \
     && pip install -r /tmp/requirements/tests.txt \
                    -r /tmp/requirements/deploy.txt \
                    -r /tmp/requirements/main.txt \
