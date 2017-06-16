@@ -12,7 +12,6 @@ elasticsearch>=5.0.0,<6.0.0
 elasticsearch_dsl>=5.0.0,<6.0.0
 first
 google-cloud-bigquery
-hiredis
 html5lib
 itsdangerous
 Jinja2>=2.8
