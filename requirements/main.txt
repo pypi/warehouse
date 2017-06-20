@@ -370,5 +370,5 @@ zope.interface==4.4.2 \
     --hash=sha256:f8e0b9a41ad54402785fc1ceb40b29a630779b61755ef51cd00c0bba3d2e5d4e
 zope.sqlalchemy==0.7.7 \
     --hash=sha256:5da8ff6b060f3a47fc0cbc61cfd6a83b959b5e730f95e492edcf7b9bf3ec987a
-zxcvbn-python==4.4.14 \
-    --hash=sha256:fd3a46536035851571e3f4142b64d6e7bcf0ade3cd40d8fecae7a1243945e327
+zxcvbn-python==4.4.15 \
+    --hash=sha256:ef982a382518d217d353a42093aa8bb8608a50bc2df559c08885bba166782cd0
