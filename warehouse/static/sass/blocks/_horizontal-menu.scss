@@ -21,6 +21,12 @@
         margin-right: 3px;
       }
     }
+
+    &--remove-on-mobile {
+      @media only screen and (max-width: $mobile){
+        display: none;
+      }
+    }
   }
 
   &--light {
