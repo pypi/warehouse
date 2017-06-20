@@ -96,12 +96,34 @@
     }
 
     .viewport-section__video {
-      margin: ($spacing-unit * 2) auto 0 auto;
-    	width: 600px;
-    	height: 400px;
+      // make the video responsive :)
+      width: 800px;
       max-width: 80%;
-      background-color: darken($brand-color, 15);
-    	border: 9px dashed #fff;
+      margin: ($spacing-unit * 4) auto 0;
+
+      @media screen and (max-width: $small-tablet) {
+        margin: $spacing-unit auto 0;
+      }
+
+      .viewport-section__video-container {
+        float: none;
+        clear: both;
+        position: relative;
+        padding-bottom: 56.25%;
+        padding-top: 25px;
+        height: 0;
+        background-color: darken($brand-color, 15);
+        border: 9px dashed #fff;
+        outline: 9px solid darken($brand-color, 15);
+
+        iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        }
+      }
     }
   }
 }
