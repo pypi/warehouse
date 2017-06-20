@@ -21,19 +21,10 @@
         margin-right: 3px;
       }
     }
-
-    & input[type="submit"] {
-      border-color: transparent;
-      background-color: transparent;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
   }
 
   &--light {
-    > .horizontal-menu__link {
+    .horizontal-menu__link {
       color: $white;
 
       &:hover {
@@ -43,7 +34,7 @@
   }
 
   &--tall {
-    > .horizontal-menu__link {
+    .horizontal-menu__link {
       padding: 32px ($spacing-unit / 2);
 
       &:hover {
