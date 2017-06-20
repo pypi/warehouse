@@ -232,9 +232,9 @@ pyramid-mailer==0.15.1 \
 pyramid-multiauth==0.9.0 \
     --hash=sha256:3eda2a01de867ce8e68e8f0f410a7b51be68891e34dc31808992fdf1bcc4f952 \
     --hash=sha256:6cad38c3613db10b45fe7dd5f4b81e43d7ed12c623cbceee7626d4d0dd8a0f52
-pyramid-retry==0.4 \
-    --hash=sha256:4adbbbddd00f6bb4b4ad7dd8e4bdf498214e6f132ef1031b83293f18a96ad345 \
-    --hash=sha256:d3ebbdfc33a7d0b7f0553107b9370be307589970e1bcaad8631049b048c5611e
+pyramid-retry==0.5 \
+    --hash=sha256:ade60f8def4cb179e102a0dd6545835e62aa946479a7e0354c0b2c2f9bc86947 \
+    --hash=sha256:94401b2e1c6850517f1a5eb2caad63f1120b7263dce1a5087afef15145b5d95a
 pyramid-rpc==0.8 \
     --hash=sha256:0ad0368404d4f5c7afd31e801b48efed6866bdbeb0f5d14413d2a0bb17f00bd6 \
     --hash=sha256:5dcd59a52d28ed5594df897ddbd473f68e599d48d4c86546e688db9752fa1f3a
