@@ -34,6 +34,6 @@ if [ "$TRAVIS" == "true" -a "$SELENIUM_BROWSER" != "phantomjs" ]; then
 fi
 
 # Actually run our tests.
-pypy3 -m coverage run -m pytest --strict $@
-pypy3 -m coverage report -m
-pypy3 -m coverage html
+python -m coverage run -m pytest --strict $@
+python -m coverage report -m
+python -m coverage html

@@ -26,7 +26,7 @@ import wtforms
 import wtforms.validators
 from rfc3986 import uri_reference
 
-from nacl.hashlib import blake2b
+from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
