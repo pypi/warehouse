@@ -9,4 +9,14 @@
   See: https://www.smashingmagazine.com/2014/06/sassy-z-index-management-for-complex-layouts/
 */
 
-$z-index-scale: 'history-line', 'history-node', 'callout-block', 'callout-block-border', 'button', 'active-button', 'highlight-button', 'sticky-top', 'dark-overlay', 'filter-panel';
+$z-index-scale: 'history-line',
+                'history-node',
+                'callout-block',
+                'callout-block-border',
+                'button',
+                'active-button',
+                'highlight-button',
+                'dropdown',
+                'sticky-top',
+                'dark-overlay',
+                'filter-panel';

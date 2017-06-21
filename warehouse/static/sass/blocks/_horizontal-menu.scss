@@ -22,18 +22,15 @@
       }
     }
 
-    & input[type="submit"] {
-      border-color: transparent;
-      background-color: transparent;
-
-      &:hover {
-        text-decoration: underline;
+    &--remove-on-mobile {
+      @media only screen and (max-width: $mobile){
+        display: none;
       }
     }
   }
 
   &--light {
-    > .horizontal-menu__link {
+    .horizontal-menu__link {
       color: $white;
 
       &:hover {
@@ -43,7 +40,7 @@
   }
 
   &--tall {
-    > .horizontal-menu__link {
+    .horizontal-menu__link {
       padding: 32px ($spacing-unit / 2);
 
       &:hover {

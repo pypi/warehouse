@@ -47,7 +47,7 @@ class TestLoginIndicator:
             a.get("href")
             for a in document.findall(".//nav[@id='user-indicator']/a")
         ]
-        assert urls == ["/account/login/",
-                        "/account/register/",
-                        "/help/",
-                        "https://donate.pypi.io"]
+        assert urls == ["/help/",
+                        "https://donate.pypi.io",
+                        "/account/login/",
+                        "/account/register/"]

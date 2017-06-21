@@ -1,17 +1,20 @@
 // SETTINGS - COLOURS
 
-$brand-color:           #006dad;
-$highlight-color:       #ffd343;
-$success-color:         #169428;
-$warn-color:            #f05d22;
-$danger-color:          #f41f1f;
-$brand-color-soft:      lighten($brand-color, 45);
+$brand-color:                 #006dad;
+$highlight-color:             #ffd343;
+$success-color:               #169428;
+$warn-color:                  #f05d22;
+$danger-color:                #f41f1f;
+$brand-color-soft:            lighten($brand-color, 45);
 
-$white:                 #fff;
-$black:                 #000;
-$background-color:      #fdfdfd;
-$base-grey:             #ececec;
-$light-grey:            #bbb;
-$border-color:          darken($base-grey, 10);
-$text-color:            #464646;
-$transparent-white:     transparentize($white, 0.6);
+$white:                       #fff;
+$black:                       #000;
+$background-color:            #fdfdfd;
+$base-grey:                   #ececec;
+$light-grey:                  #bbb;
+$border-color:                darken($base-grey, 10);
+$text-color:                  #464646;
+$transparent-white:           transparentize($white, 0.6);
+
+$header-background-color:     lighten($brand-color, 2);
+$header-border-color:         darken($brand-color, 2);
