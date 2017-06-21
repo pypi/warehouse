@@ -16,8 +16,6 @@ import hashlib
 import factory
 import factory.fuzzy
 
-from pyblake2 import blake2b
-
 from warehouse.packaging.models import (
     Project, Release, Role, File, JournalEntry,
 )
@@ -60,7 +58,8 @@ class FileFactory(WarehouseFactory):
     )
     blake2_256_digest = factory.LazyAttribute(
         lambda o: (
-            blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
+            hashlib.blake2b(o.filename.encode("utf8"),
+                            digest_size=32).hexdigest(),
         )
     )
     upload_time = factory.fuzzy.FuzzyNaiveDateTime(

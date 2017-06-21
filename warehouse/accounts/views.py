@@ -11,8 +11,8 @@
 # limitations under the License.
 
 import datetime
+import hashlib
 
-from pyblake2 import blake2b
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
@@ -126,7 +126,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # here, even though it really shouldn't matter.
         resp.set_cookie(
             USER_ID_INSECURE_COOKIE,
-            blake2b(
+            hashlib.blake2b(
                 str(userid).encode("ascii"),
                 person=b"warehouse.userid",
             ).hexdigest().lower(),
