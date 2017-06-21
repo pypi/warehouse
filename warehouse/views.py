@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import gc
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
@@ -307,6 +308,9 @@ def health(request):
     # This will ensure that we can access the database and run queries against
     # it without doing anything that will take a lock or block other queries.
     request.db.execute("SELECT 1")
+
+    # TODO: Remove this, testing a possible cause of high memory growth
+    gc.collect()
 
     # Nothing will actually check this, but it's a little nicer to have
     # something to return besides an empty body.
