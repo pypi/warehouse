@@ -22,7 +22,7 @@ packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-psycopg2cffi
+pg8000
 pynacl
 pyramid>=1.9a2
 pyramid_jinja2>=2.5
