@@ -232,9 +232,9 @@ pyramid-mailer==0.15.1 \
 pyramid-multiauth==0.9.0 \
     --hash=sha256:3eda2a01de867ce8e68e8f0f410a7b51be68891e34dc31808992fdf1bcc4f952 \
     --hash=sha256:6cad38c3613db10b45fe7dd5f4b81e43d7ed12c623cbceee7626d4d0dd8a0f52
-pyramid-retry==0.4 \
-    --hash=sha256:4adbbbddd00f6bb4b4ad7dd8e4bdf498214e6f132ef1031b83293f18a96ad345 \
-    --hash=sha256:d3ebbdfc33a7d0b7f0553107b9370be307589970e1bcaad8631049b048c5611e
+pyramid-retry==0.5 \
+    --hash=sha256:ade60f8def4cb179e102a0dd6545835e62aa946479a7e0354c0b2c2f9bc86947 \
+    --hash=sha256:94401b2e1c6850517f1a5eb2caad63f1120b7263dce1a5087afef15145b5d95a
 pyramid-rpc==0.8 \
     --hash=sha256:0ad0368404d4f5c7afd31e801b48efed6866bdbeb0f5d14413d2a0bb17f00bd6 \
     --hash=sha256:5dcd59a52d28ed5594df897ddbd473f68e599d48d4c86546e688db9752fa1f3a
@@ -244,9 +244,9 @@ pyramid-services==1.1 \
 pyramid-tm==2.1 \
     --hash=sha256:9802ebf8eb0de11933a149da3b84a0d1aee5c23a5ab1f38ecd46135e805c6abc \
     --hash=sha256:7d9bf39582757f72eac12ec4f69a03415161f90538eb3dc4415ebd76100f56a6
-pyramid==1.9a2 \
-    --hash=sha256:8ca32bc97ed838be62a0d58ab4703bab8877b00f58f89c500f27d490a74d1e3f \
-    --hash=sha256:97e07442ea4fdcf29ad1a8b972e393f5a8b8902445d9a376665cda4a79952e68
+pyramid==1.9b1 \
+    --hash=sha256:2906209761358ad0bb2ef70bb6cc47d3210c5fa4fe8ddf12014afb4104e7843b \
+    --hash=sha256:f05272c341ec5e28fa19e6c1952d704f445f2f17b969c2721fe5d0ccab266bdb
 python-dateutil==2.6.0 \
     --hash=sha256:3acbef017340600e9ff8f2994d8f7afd6eacb295383f286466a6df3961e486f0 \
     --hash=sha256:537bf2a8f8ce6f6862ad705cd68f9e405c0b5db014aa40fa29eab4335d4b1716 \
@@ -370,5 +370,5 @@ zope.interface==4.4.2 \
     --hash=sha256:f8e0b9a41ad54402785fc1ceb40b29a630779b61755ef51cd00c0bba3d2e5d4e
 zope.sqlalchemy==0.7.7 \
     --hash=sha256:5da8ff6b060f3a47fc0cbc61cfd6a83b959b5e730f95e492edcf7b9bf3ec987a
-zxcvbn-python==4.4.14 \
-    --hash=sha256:fd3a46536035851571e3f4142b64d6e7bcf0ade3cd40d8fecae7a1243945e327
+zxcvbn-python==4.4.15 \
+    --hash=sha256:ef982a382518d217d353a42093aa8bb8608a50bc2df559c08885bba166782cd0
