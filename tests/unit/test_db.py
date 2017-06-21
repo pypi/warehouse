@@ -14,7 +14,6 @@ from unittest import mock
 
 import alembic.config
 import pretend
-import psycopg2.extensions
 import pytest
 import sqlalchemy
 import venusian
@@ -137,25 +136,15 @@ def test_creates_engine(monkeypatch):
     assert listen.calls == [pretend.call(engine, "reset", _reset)]
 
 
-@pytest.mark.parametrize(
-    ("read_only", "tx_status"),
-    [
-        (True, psycopg2.extensions.TRANSACTION_STATUS_IDLE),
-        (True, psycopg2.extensions.TRANSACTION_STATUS_INTRANS),
-        (False, psycopg2.extensions.TRANSACTION_STATUS_IDLE),
-        (False, psycopg2.extensions.TRANSACTION_STATUS_INTRANS),
-    ],
-)
-def test_create_session(monkeypatch, read_only, tx_status):
+@pytest.mark.parametrize("read_only", [True, False])
+def test_create_session(monkeypatch, read_only):
     session_obj = pretend.stub(close=pretend.call_recorder(lambda: None))
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
 
     connection = pretend.stub(
         connection=pretend.stub(
-            get_transaction_status=pretend.call_recorder(lambda: tx_status),
             set_session=pretend.call_recorder(lambda **kw: None),
-            rollback=pretend.call_recorder(lambda: None),
         ),
         info={},
         close=pretend.call_recorder(lambda: None),
@@ -174,9 +163,6 @@ def test_create_session(monkeypatch, read_only, tx_status):
     monkeypatch.setattr(zope.sqlalchemy, "register", register)
 
     assert _create_session(request) is session_obj
-    assert connection.connection.get_transaction_status.calls == [
-        pretend.call(),
-    ]
     assert session_cls.calls == [pretend.call(bind=connection)]
     assert register.calls == [
         pretend.call(session_obj, transaction_manager=request.tm),
@@ -195,9 +181,6 @@ def test_create_session(monkeypatch, read_only, tx_status):
                 deferrable=True,
             )
         ]
-
-    if tx_status != psycopg2.extensions.TRANSACTION_STATUS_IDLE:
-        connection.connection.rollback.calls == [pretend.call()]
 
 
 @pytest.mark.parametrize(

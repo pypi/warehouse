@@ -11,9 +11,9 @@
 # limitations under the License.
 
 import functools
+import re
 
 import alembic.config
-import psycopg2.extensions
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
@@ -131,13 +131,6 @@ def _create_session(request):
     # Create our connection, most likely pulling it from the pool of
     # connections
     connection = request.registry["sqlalchemy.engine"].connect()
-    if (connection.connection.get_transaction_status() !=
-            psycopg2.extensions.TRANSACTION_STATUS_IDLE):
-        # Work around a bug where SQLALchemy leaves the initial connection in
-        # a pool inside of a transaction.
-        # TODO: Remove this in the future, brand new connections on a fresh
-        #       instance should not raise an Exception.
-        connection.connection.rollback()
 
     # Now that we have a connection, we're going to go and set it to the
     # correct isolation level.
@@ -180,9 +173,12 @@ def includeme(config):
     config.add_directive("alembic_config", _configure_alembic)
 
     # Create our SQLAlchemy Engine.
-    config.registry["sqlalchemy.engine"] = _create_engine(
+    database_url = re.sub(
+        r"^postgresql://",
+        "postgresql+pg8000://",
         config.registry.settings["database.url"],
     )
+    config.registry["sqlalchemy.engine"] = _create_engine(database_url)
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
