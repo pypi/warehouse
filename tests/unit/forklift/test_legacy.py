@@ -23,7 +23,7 @@ import pretend
 import pytest
 import requests
 
-from nacl.hashlib import blake2b
+from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
