@@ -166,6 +166,7 @@ def json_release(release, request):
                 name=project.name,
                 version=release.version,
             ),
+            "requires_dist": list(release.requires_dist),
             "docs_url": project.documentation_url,
             "bugtrack_url": project.bugtrack_url,
             "home_page": release.home_page,
