@@ -53,7 +53,7 @@ default:
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt
 	# Create our Python 3.5 virtual environment
 	rm -rf .state/env
-	python3.5 -m venv .state/env
+	python3.6 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
