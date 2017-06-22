@@ -243,6 +243,12 @@ def configure(settings=None):
     # Anytime we want to render a .xml template, we'll also use Jinja.
     config.add_jinja2_renderer(".xml")
 
+    # We need to enable our Client Side Include extension
+    config.get_settings().setdefault(
+        "jinja2.extensions",
+        ["warehouse.utils.html.ClientSideIncludeExtension"],
+    )
+
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault(
@@ -268,7 +274,6 @@ def configure(settings=None):
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
     jglobals.setdefault("is_valid_uri", "warehouse.utils.http:is_valid_uri")
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
-    jglobals.setdefault("html_include", "warehouse.utils.html:html_include")
     jglobals.setdefault("now", "warehouse.utils:now")
 
     # We'll store all of our templates in one location, warehouse/templates
