@@ -57,10 +57,8 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
     )
     blake2_256_digest = factory.LazyAttribute(
-        lambda o: (
-            hashlib.blake2b(o.filename.encode("utf8"),
-                            digest_size=32).hexdigest(),
-        )
+        lambda o: hashlib.blake2b(o.filename.encode("utf8"),
+                                  digest_size=32).hexdigest()
     )
     upload_time = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2008, 1, 1)
