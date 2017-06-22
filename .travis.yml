@@ -1,5 +1,5 @@
 language: python
-python: 3.5.2
+python: 3.6.1
 
 env:
   global:
@@ -42,7 +42,7 @@ install:
 script:
   - node -v
   - npm -v
-  - gulp dist
+  - ./node_modules/.bin/gulp dist
   - bin/tests --postgresql-host 127.0.0.1 --liveserver-host $LIVESERVER_HOST
 
 matrix:

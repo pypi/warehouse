@@ -1,4 +1,4 @@
-FROM python:3.5.2-slim
+FROM python:3.6.1-slim
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /app/
