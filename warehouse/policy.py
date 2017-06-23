@@ -44,9 +44,10 @@ def markdown_view_factory(*, filename):
         html = html5lib.parse(
             rendered,
             namespaceHTMLElements=False,
+            treebuilder="lxml",
         )
 
-        title = html.find(".//h1[1]").text
+        title = html.find("//h1[1]").text
 
         return {"title": title, "html": jinja2.Markup(rendered)}
 

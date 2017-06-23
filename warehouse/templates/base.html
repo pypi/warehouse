@@ -76,7 +76,8 @@
     </section>
 
     {% block flash_messages %}
-      {{ html_include(request.route_path("includes.flash-messages")) }}
+      {% csi request.route_path("includes.flash-messages") %}
+      {% endcsi %}
     {% endblock %}
 
     <div class="notification-bar">
@@ -100,7 +101,8 @@
           </div>
           {% endblock %}
 
-          {{ html_include(request.route_path("includes.current-user-indicator")) }}
+          {% csi request.route_path("includes.current-user-indicator") %}
+          {% endcsi %}
         </div>
       </div>
     </header>

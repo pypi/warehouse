@@ -23,7 +23,6 @@ import pretend
 import pytest
 import requests
 
-from nacl.hashlib import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
@@ -1279,7 +1278,7 @@ class TestFileUpload:
                 sha256_digest=hashlib.sha256(
                     filename.encode("utf8")
                 ).hexdigest(),
-                blake2_256_digest=blake2b(
+                blake2_256_digest=hashlib.blake2b(
                     filename.encode("utf8"),
                     digest_size=32,
                 ).hexdigest(),
