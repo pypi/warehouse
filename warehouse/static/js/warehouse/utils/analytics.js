@@ -11,7 +11,6 @@
  * limitations under the License.
  */
 
-
 /* global ga */
 
 import * as cookie from "cookie";
