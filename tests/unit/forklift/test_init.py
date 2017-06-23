@@ -26,6 +26,7 @@ def test_includeme(forklift):
         get_settings=lambda: settings,
         include=pretend.call_recorder(lambda n: None),
         add_legacy_action_route=pretend.call_recorder(lambda *a, **k: None),
+        add_template_view=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     includeme(config)
@@ -49,3 +50,14 @@ def test_includeme(forklift):
             domain=forklift,
         ),
     ]
+    if forklift:
+        config.add_template_view.calls == [
+            pretend.call(
+                "forklift.index",
+                "/",
+                "upload.html",
+                route_kw={"domain": forklift},
+            ),
+        ]
+    else:
+        config.add_template_view.calls == []
