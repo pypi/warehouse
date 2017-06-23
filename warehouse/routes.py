@@ -21,6 +21,10 @@ def includeme(config):
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
 
+    # Internal route to make it easier to force a particular status for
+    # debugging HTTPException templates.
+    config.add_route("force-status", "/_force-status/{status:[45]\d\d}/")
+
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)

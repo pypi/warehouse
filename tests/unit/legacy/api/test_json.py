@@ -208,6 +208,7 @@ class TestJSONRelease:
                 "platform": None,
                 "project_url": "/the/fake/url/",
                 "release_url": "/the/fake/url/",
+                "requires_dist": [],
                 "requires_python": None,
                 "summary": None,
                 "version": "2.0",

@@ -11,14 +11,12 @@
  * limitations under the License.
  */
 
-
 const fetchOptions = {
   mode: "same-origin",
   credentials: "same-origin",
   cache: "default",
   redirect: "follow",
 };
-
 
 export default () => {
   // Each HTML include will generate a promise, which we'll later use to wait

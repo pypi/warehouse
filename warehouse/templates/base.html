@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    {% block extra_css %}{% endblock %}
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
@@ -36,7 +37,7 @@
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
 
-    <meta property="og:url" content="{{ request.current_route_url() }}">
+    <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.urll }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/logo-large.svg') }}">
@@ -61,6 +62,7 @@
   </head>
 
   <body>
+    {% block body %}
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
@@ -170,6 +172,8 @@
     </footer>
 
     {% include "warehouse:templates/includes/sponsors.html" %}
+
+    {% endblock body %}
   </body>
 
 </html>
