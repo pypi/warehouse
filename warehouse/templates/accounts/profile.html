@@ -15,8 +15,6 @@
 
 {% block title %}{{ user.username }}{% endblock %}
 
-{% set own_profile = request.user and request.user.username == user.username %}
-
 {% block content %}
 <section class="horizontal-section horizontal-section--medium">
   <div class="left-layout">
@@ -24,9 +22,8 @@
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
         <img src="{{ gravatar(user.email, size=400) }}" height="200" width="200" alt="{{ alt }}" title="{{ alt }}">
-        {% if own_profile %}
-        <a href="{{ gravatar_profile(user.email) }}">Change this image</a>
-        {% endif %}
+        {% csi request.route_path('accounts.edit_gravatar', username=user.username) %}
+        {% endcsi %}
         <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}{% if user.name %}({{ user.username }}){% endif %}</h1>
         {% if user.date_joined %}
           <p class="author-profile__joined">

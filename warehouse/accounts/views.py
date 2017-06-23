@@ -53,7 +53,6 @@ def failed_logins(exc, request):
 @view_config(
     route_name="accounts.profile",
     renderer="accounts/profile.html",
-    uses_session=True,
     decorator=[
         origin_cache(
             1 * 24 * 60 * 60,                 # 1 day
@@ -232,6 +231,15 @@ def register(request, _form_class=forms.RegistrationForm):
             headers=dict(_login_user(request, user.id)))
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.edit_gravatar",
+    renderer="accounts/csi/edit_gravatar.csi.html",
+    uses_session=True,
+)
+def edit_gravatar_csi(user, request):
+    return {"user": user}
 
 
 def _login_user(request, userid):
