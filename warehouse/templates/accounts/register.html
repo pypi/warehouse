@@ -47,7 +47,7 @@
         </div>
 
         <div class="form-group">
-          <label for="full_name" class="form-group__label">Email Address</label>
+          <label for="email" class="form-group__label">Email Address</label>
           {{ form.email(placeholder="Your email address", required="required", class_="form-group__input") }}
           {% if form.email.errors %}
           <ul class="form-errors">
@@ -72,7 +72,7 @@
 
         <div class="form-group">
           <label for="password" class="form-group__label">Password</label>
-          {{ form.password(placeholder="Select a password", required="required", class_="form-group__input") }}
+          {{ form.password(placeholder="Select a password", required="required", class_="form-group__input -js-pw-m-fld") }}
           <p class="form-group__help-text">
             Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
           </p>
@@ -86,7 +86,8 @@
         </div>
 
         <div class="form-group">
-          {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input") }}
+          {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input -js-pw-m-fld") }}
+          <label id="-js-pw-m-lbl"><input type="checkbox" id="unmaskpw" class="-js-pw-m-cbx" name="unmaskpw" value=""> Show password</label>
           {% if form.password_confirm.errors %}
           <ul class="form-errors">
             {% for error in form.password_confirm.errors %}
@@ -100,12 +101,22 @@
           {{ recaptcha_html(request, form) }}
         </div>
 
-        <input type="submit" value="Create Account" class="button button--highlight">
+        <input type="submit" value="Create Account" class="button button--highlight -js-pw-m-sbt">
       </form>
     </div>
   </section>
+
 {% endblock %}
 
 {% block extra_js %}
+{#
+ # The pwmask JS requires jQuery to execute. However, we must guarantee pwmask does execute
+ # until after the HTML parser has completed to assure all elements manipulated by pwmask
+ # to to toggle the password attribute have been identified and added to the DOM tree.
+ # Thus, jQuery is loaded/execited immediately mode while pwmask is loaded async and execution
+ # is deferred until after the parser has completed it's task.
+-#}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script async defer src="{{ request.static_path('warehouse:static/dist/js/pwmask.js') }}"></script>
   {{ recaptcha_src(request) }}
 {% endblock %}
