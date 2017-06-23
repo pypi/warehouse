@@ -24,7 +24,7 @@ from pyramid.httpexceptions import (
 from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
-    httpexception_view, index, robotstxt, opensearchxml, search
+    httpexception_view, index, robotstxt, opensearchxml, search, force_status,
 )
 
 from ..common.db.accounts import UserFactory
@@ -34,18 +34,79 @@ from ..common.db.packaging import (
 )
 
 
-def test_httpexception_view():
-    response = context = pretend.stub()
-    request = pretend.stub()
-    assert httpexception_view(context, request) is response
+class TestHTTPExceptionView:
+
+    def test_returns_context_when_no_template(self, pyramid_config):
+        pyramid_config.testing_add_renderer("non-existent.html")
+
+        response = context = pretend.stub(status_code=499)
+        request = pretend.stub()
+        assert httpexception_view(context, request) is response
+
+    @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
+    def test_renders_template(self, pyramid_config, status_code):
+        renderer = pyramid_config.testing_add_renderer(
+            "{}.html".format(status_code))
+
+        context = pretend.stub(
+            status="{} My Cool Status".format(status_code),
+            status_code=status_code,
+            headers={},
+        )
+        request = pretend.stub()
+        response = httpexception_view(context, request)
+
+        assert response.status_code == status_code
+        assert response.status == "{} My Cool Status".format(status_code)
+        renderer.assert_()
+
+    @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
+    def test_renders_template_with_headers(self, pyramid_config, status_code):
+        renderer = pyramid_config.testing_add_renderer(
+            "{}.html".format(status_code))
+
+        context = pretend.stub(
+            status="{} My Cool Status".format(status_code),
+            status_code=status_code,
+            headers={"Foo": "Bar"},
+        )
+        request = pretend.stub()
+        response = httpexception_view(context, request)
+
+        assert response.status_code == status_code
+        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.headers["Foo"] == "Bar"
+        renderer.assert_()
+
+    def test_renders_404_with_csp(self, pyramid_config):
+        renderer = pyramid_config.testing_add_renderer("404.html")
+
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+
+        context = HTTPNotFound()
+        request = pretend.stub(find_service=lambda name: services[name])
+        response = httpexception_view(context, request)
+
+        assert response.status_code == 404
+        assert response.status == "404 Not Found"
+        assert csp == {
+          "frame-src": ["https://www.youtube-nocookie.com"],
+          "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+        }
+        renderer.assert_()
 
 
 class TestForbiddenView:
 
-    def test_logged_in_returns_exception(self):
-        exc, request = pretend.stub(), pretend.stub(authenticated_userid=1)
+    def test_logged_in_returns_exception(self, pyramid_config):
+        renderer = pyramid_config.testing_add_renderer("403.html")
+
+        exc = pretend.stub(status_code=403, status="403 Forbidden", headers={})
+        request = pretend.stub(authenticated_userid=1)
         resp = forbidden(exc, request)
-        assert resp is exc
+        assert resp.status_code == 403
+        renderer.assert_()
 
     def test_logged_out_redirects_login(self):
         exc = pretend.stub()
@@ -450,3 +511,14 @@ def test_health():
 
     assert health(request) == "OK"
     assert request.db.execute.calls == [pretend.call("SELECT 1")]
+
+
+class TestForceStatus:
+
+    def test_valid(self):
+        with pytest.raises(HTTPBadRequest):
+            force_status(pretend.stub(matchdict={"status": "400"}))
+
+    def test_invalid(self):
+        with pytest.raises(HTTPNotFound):
+            force_status(pretend.stub(matchdict={"status": "599"}))

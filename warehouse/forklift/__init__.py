@@ -45,3 +45,11 @@ def includeme(config):
         "doc_upload",
         domain=forklift,
     )
+
+    if forklift:
+        config.add_template_view(
+            "forklift.index",
+            "/",
+            "upload.html",
+            route_kw={"domain": forklift},
+        )
