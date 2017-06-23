@@ -331,3 +331,12 @@ class TestClientSideIncludes:
         assert views.edit_gravatar_csi(user, db_request) == {
             "user": user,
         }
+
+
+class TestProfileCallout:
+
+    def test_profile_callout_returns_user(self):
+        user = pretend.stub()
+        request = pretend.stub()
+
+        assert views.profile_callout(user, request) == {"user": user}

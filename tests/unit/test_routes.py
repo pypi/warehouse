@@ -93,6 +93,13 @@ def test_routes(warehouse):
             "/_includes/flash-messages/",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.current-user-profile-callout",
+            "/_includes/current-user-profile-callout/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+            domain=warehouse,
+        ),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",

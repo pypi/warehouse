@@ -27,7 +27,7 @@
         <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
         <div class="author-profile__meta">
           {% if user.name %}
-            <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+          <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
           {% endif %}
           {% if user.date_joined %}
           <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
@@ -60,13 +60,11 @@
         </div>
         {% endfor %}
         {% else %}
+          {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}
           <div class="callout-block no-top-margin">
-            {% if user == request.user %}
-              <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="">Python Packaging User Guide</a></p>
-            {% else %}
-              <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
-            {% endif %}
+            <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
           </div>
+          {% endcsi %}
         {% endif %}
       </div>
     </div>
