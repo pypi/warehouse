@@ -80,6 +80,13 @@ def includeme(config):
         "/account/register/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.edit_gravatar",
+        "/user/{username}/edit_gravatar/",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Packaging
     config.add_route(

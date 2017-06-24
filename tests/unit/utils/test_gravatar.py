@@ -12,7 +12,7 @@
 
 import pytest
 
-from warehouse.utils.gravatar import gravatar
+from warehouse.utils.gravatar import gravatar, profile
 
 
 @pytest.mark.parametrize(
@@ -61,3 +61,9 @@ def test_gravatar(email, size, expected):
     if size is not None:
         kwargs["size"] = size
     assert gravatar(email, **kwargs) == expected
+
+
+def test_profile():
+    email = "foo@example.com"
+    expected = "https://gravatar.com/b48def645758b95537d4424c84d1a9ff"
+    assert profile(email) == expected
