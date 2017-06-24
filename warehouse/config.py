@@ -277,6 +277,7 @@ def configure(settings=None):
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
     jglobals.setdefault("is_valid_uri", "warehouse.utils.http:is_valid_uri")
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
+    jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
 
     # We'll store all of our templates in one location, warehouse/templates
