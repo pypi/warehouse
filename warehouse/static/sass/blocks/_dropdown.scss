@@ -13,11 +13,14 @@
  */
 
 /*
-  A dropdown - containing a trigger and dropdown menu. Styled to match the
-  banner.
+  A dropdown - containing a trigger and dropdown content, which may include
+  links. Styled to match the banner.
 
   <div class="dropdown">
-
+    <button class="dropdown__trigger">
+    <div class="dropdown__content">
+      <a class="dropdown__link">Link Here</a>
+    </div>
   </div>
  */
 
@@ -49,9 +52,9 @@
     border: 1px solid $header-border-color;
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
     z-index: index($z-index-scale, 'dropdown');
-    opacity: 0;
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-top: 1px solid $header-border-color;
+    display: none;
   }
 
   // Show content if triggered
@@ -59,7 +62,7 @@
   &__trigger:focus + &__content,
   &__trigger:active + &__content,
   &__content:hover {
-    opacity: 1;
+    display: block;
   }
 
   &__link,
