@@ -20,11 +20,10 @@
     <h1 class="author-profile__name">
       // Username
     </h1>
-    <p class="author-profile__joined">
-      // Joined Date
-    </p>
-    <div class="bio">
-      // Author bio
+    <div class="author-profile__meta"
+      <p>
+        // Meta
+      </p>
     </div>
   </div>
 */
@@ -33,7 +32,11 @@
   padding-right: $spacing-unit;
 
   @media only screen and (max-width: $desktop){
-    padding: 0 0 ($spacing-unit * 2) 0;
+    padding: 0 0 ($spacing-unit * 1.5) 0;
+
+    img  {
+      display: none;
+    }
   }
 
   h1.author-profile__name {
@@ -42,13 +45,15 @@
     border-bottom: 2px solid $border-color;
     margin: 20px 0;
     word-break: break-all;
+
+    @media only screen and (max-width: $desktop){
+      border-top: 0;
+      margin-top: 0;
+      padding-top: 0;
+    }
   }
 
-  &__joined {
-    font-weight: $bold-font-weight;
-  }
-
-  &__bio {
+  &__meta {
     font-style: italic;
   }
 }

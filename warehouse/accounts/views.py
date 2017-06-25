@@ -281,3 +281,12 @@ def _login_user(request, userid):
         user_service.update_user(userid, last_login=datetime.datetime.utcnow())
 
         return headers
+
+
+@view_config(
+    route_name="includes.current-user-profile-callout",
+    renderer="includes/accounts/profile-callout.html",
+    uses_session=True,
+)
+def profile_callout(user, request):
+    return {"user": user}
