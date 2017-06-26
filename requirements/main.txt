@@ -150,9 +150,9 @@ google-auth-httplib2==0.0.2 \
 google-auth==1.0.1 \
     --hash=sha256:f52f6fc59f228c92629948167efa31652a934390cecfdd5be735424e46641099 \
     --hash=sha256:dd7b6e5f3bd15c0f7cfee63a266acea40c779da0a924b475bc1812e6e10687e1
-google-cloud-bigquery==0.24.0 \
-    --hash=sha256:3455d9ba66c876a37ff73108a95771edce4e082537d6119c19dcc1371f1b086a \
-    --hash=sha256:a251d169a6bf4efdb48dc98c95d704598512104d021fa5b444ed1e19c4166979
+google-cloud-bigquery==0.25.0 \
+    --hash=sha256:456be78376730beb28a91375e24a3ef37916fe7938b4fb8b56f589f4b2138439 \
+    --hash=sha256:6e8cc6914701bbfd8845cc0e0b19c5e2123649fc6ddc49aa945d83629499f4ec
 google-cloud-core==0.24.1 \
     --hash=sha256:fe73253dd98965bdd02ac6951afabe9e09bda203fc8065bf285d8d13172afc9c \
     --hash=sha256:a59fe1f4e58fe71b96aba911401811f6e566f62984a404248390c849bbc5dc7a
