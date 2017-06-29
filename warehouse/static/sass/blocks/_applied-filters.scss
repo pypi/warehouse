@@ -28,10 +28,6 @@
   margin-top: 10px;
   @include clearfix;
 
-  @media only screen and (max-width: $tablet){
-    margin-top: 20px;
-  }
-
   &__add-button {
     display: none;
 
