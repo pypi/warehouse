@@ -42,6 +42,10 @@ const convertToReadableText = (time) => {
   }
 };
 
+export const getTimeAgoText = (timestampString) => {
+  return convertToReadableText(enumerateTime(timestampString));
+};
+
 export default () => {
   const timeElements = document.querySelectorAll("time");
   for (const timeElement of timeElements) {

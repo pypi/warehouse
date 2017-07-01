@@ -13,6 +13,7 @@
 import enum
 
 from collections import OrderedDict
+from urllib.parse import urlparse
 
 import packaging.utils
 from citext import CIText
@@ -406,6 +407,19 @@ class Release(db.ModelBase):
             _urls["Download"] = self.download_url
 
         return _urls
+
+    @property
+    def github_repo_info_url(self):
+        if self.home_page:
+            parsed = urlparse(self.home_page)
+            if parsed.netloc == 'github.com' and parsed.path.count('/') >= 2:
+                splited_path = parsed.path.split('/')
+                user_name, repo_name = splited_path[1], splited_path[2]
+                tpl = "https://api.github.com/repos/{user_name}/{repo_name}"
+                return tpl.format(
+                    user_name=user_name,
+                    repo_name=repo_name
+                )
 
     @property
     def has_meta(self):

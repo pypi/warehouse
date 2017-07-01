@@ -73,6 +73,7 @@ def includeme(config):
                 item for item in [
                     SELF,
                     config.registry.settings.get("statuspage.url"),
+                    "https://api.github.com/repos/",
                 ]
                 if item
             ],
