@@ -41,10 +41,8 @@
   }
 
   &__title {
+    @include ellipsis;
     padding-bottom: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   &__meta {
@@ -57,11 +55,9 @@
   }
 
   &__description {
+    @include ellipsis;
     clear: both;
     font-size: 1rem;
     font-style: italic;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 }

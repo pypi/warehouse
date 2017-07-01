@@ -92,12 +92,10 @@
   }
 
   &__version {
+    @include ellipsis;
     padding-bottom: 0;
     font-size: 20px;
     font-weight: $bold-font-weight;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   &__version-date {
