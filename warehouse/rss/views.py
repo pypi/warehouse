@@ -11,6 +11,8 @@
 # limitations under the License.
 
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPNotFound
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload, load_only
 
 from warehouse.cache.origin import origin_cache
@@ -43,6 +45,43 @@ def rss_updates(request):
     )
 
     return {"latest_releases": latest_releases}
+
+
+@view_config(
+    route_name="rss.project_updates",
+    renderer="rss/project_updates.xml",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60,                         # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=5 * 24 * 60 * 60,          # 5 days
+        ),
+    ],
+)
+def rss_project_updates(request):
+    project_name = request.matchdict["name"]
+    request.response.content_type = "text/xml"
+
+    request.find_service(name="csp").merge(XML_CSP)
+
+    latest_releases = (
+        request.db.query(Release)
+        .join(Project)
+        .filter(
+            Project.normalized_name == func.normalize_pep426_name(project_name)
+        )
+        .order_by(Release.created.desc())
+        .limit(10)
+        .all()
+    )
+
+    if not latest_releases:
+        return HTTPNotFound()
+
+    return {
+        "project_name": project_name,
+        "latest_releases": latest_releases
+    }
 
 
 @view_config(

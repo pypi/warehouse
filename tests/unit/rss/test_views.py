@@ -13,6 +13,7 @@
 import datetime
 
 import pretend
+from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse.rss import views as rss
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
@@ -71,3 +72,35 @@ def test_rss_packages(db_request):
         "newest_projects": [project3, project1],
     }
     assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_project_updates(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project1 = ProjectFactory.create()
+    project2 = ProjectFactory.create()
+
+    release1 = ReleaseFactory.create(project=project1)
+    release1.created = datetime.date(2011, 1, 1)
+    release2 = ReleaseFactory.create(project=project2)
+    release2.created = datetime.date(2012, 1, 1)
+    release3 = ReleaseFactory.create(project=project1)
+    release3.created = datetime.date(2013, 1, 1)
+
+    db_request.matchdict["name"] = project1.name
+    assert rss.rss_project_updates(db_request) == {
+        "latest_releases": [release3, release1],
+        "project_name": project1.name
+    }
+    assert db_request.response.content_type == "text/xml"
+
+    db_request.matchdict["name"] = "package_does_not_exists"
+    assert isinstance(rss.rss_project_updates(db_request), HTTPNotFound)

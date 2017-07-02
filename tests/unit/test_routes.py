@@ -141,6 +141,8 @@ def test_routes(warehouse):
             "https://files.example.com/packages/{path}",
         ),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
+        pretend.call("rss.project_updates",
+                     "/rss/{name}/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
