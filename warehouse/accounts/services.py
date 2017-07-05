@@ -26,6 +26,8 @@ from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
 
 logger = logging.getLogger(__name__)
 
+PASSWORD_FIELD = "password"
+
 
 @implementer(IUserService)
 class DatabaseUserService:
@@ -153,6 +155,8 @@ class DatabaseUserService:
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
         for attr, value in changes.items():
+            if attr == PASSWORD_FIELD:
+                value = self.hasher.hash(value)
             setattr(user, attr, value)
         return user
 

@@ -1,21 +1,31 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /*
   Individual release information represented as a card with meta data
 
   <div class="release">
     <div class="release__meta">
-      // Aligned to the left
-      <p class="release__version"></p>
-      // Optional badge here
-      <p class="release__version-date"></p>
+      // Badge here
     </div>
     <div class="release__graphic"> // Node graphic with connecting line
       <div class="release__line"></div>
       <img class="release__node">
     </div>
-    <div class="release__changelog">
-      <div class="release__card">
-        // Changelog here
-      </div>
+    <div class="release__card">
+      <p class="release__version"></p>
+      <p class="release__version-date"></p>
     </div>
   </div>
 */
@@ -23,65 +33,34 @@
 .release {
   @include clearfix;
   display: table;
+  table-layout: fixed;
   width: 100%;
   border-left: 1px solid $background-color;
-  padding: 0 20px;
-
-  @media only screen and (max-width: $tablet){
-    padding: 0 10px;
-  }
-
-  @media only screen and (max-width: $small-tablet){
-    display: block;
-    padding: 10px 10px 0 10px;
-    margin: 10px 0;
-  }
+  padding: 0 ($spacing-unit / 2);
 
   &__meta {
-    width: 15%;
+    width: 110px;
     display: table-cell;
     vertical-align: middle;
-    font-size: 18px;
     text-align: right;
-    font-weight: $bold-font-weight;
 
-    @media only screen and (max-width: $large-desktop){
-      width: 20%;
+    @media screen and (max-width: $tablet) {
+      text-align: left;
     }
 
-    @media only screen and (max-width: $tablet){
-      width: 30%;
-      text-align: center;
+    @media screen and (max-width: $mobile) {
+      display: none;
     }
-
-    @media only screen and (max-width: $small-tablet){
-      display: block;
-      width: 100%;
-    }
-  }
-
-  &__version {
-    padding-bottom: 0;
-  }
-
-  &__version-date {
-    font-size: $small-font-size;
-    font-weight: normal;
-    margin-top: 5px;
   }
 
   &__graphic {
-    width: 10%;
+    width: 80px;
     display: table-cell;
     text-align: center;
     vertical-align: middle;
     position: relative;
 
-    @media only screen and (max-width: $large-desktop){
-      width: 15%;
-    }
-
-    @media only screen and (max-width: $tablet){
+    @media screen and (max-width: $tablet) {
       display: none;
     }
   }
@@ -103,36 +82,24 @@
     z-index: index($z-index-scale, 'history-node');
   }
 
-  &__changelog {
-    width: 75%;
-    display: table-cell;
-
-    @media only screen and (max-width: $large-desktop){
-      width: 65%;
-    }
-
-    @media only screen and (max-width: $tablet){
-      width: 70%;
-    }
-
-    @media only screen and (max-width: $small-tablet){
-      display: block;
-      width: 100%;
-    }
-  }
-
   &__card {
     background-color: #f5f5f5;
     border: 1px solid darken(#ececec, 5);
     background-color: $white;
     box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
-    padding: ($spacing-unit / 2);
-    margin: 20px 0;
-    font-size: ($spacing-unit / 2);
+    padding: $spacing-unit / 2;
+    margin: ($spacing-unit / 2) 0;
+  }
 
-    @media only screen and (max-width: $tablet){
-      margin: 10px 0;
-    }
+  &__version {
+    @include ellipsis;
+    padding-bottom: 0;
+    font-size: 20px;
+    font-weight: $bold-font-weight;
+  }
+
+  &__version-date {
+    font-style: italic;
   }
 
   &--current {

@@ -14,8 +14,9 @@ import collections
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
-    HTTPBadRequest,
+    HTTPBadRequest, exception_response,
 )
+from pyramid.renderers import render_to_response
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
@@ -60,10 +61,41 @@ SEARCH_FILTER_ORDER = (
 )
 
 
+# 403, 404, 410, 500,
+
+
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 def httpexception_view(exc, request):
-    return exc
+    # This special case exists for the easter egg that appears on the 404
+    # response page. We don't generally allow youtube embeds, but we make an
+    # except for this one.
+    if isinstance(exc, HTTPNotFound):
+        request.find_service(name="csp").merge({
+          "frame-src": ["https://www.youtube-nocookie.com"],
+          "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+        })
+
+    try:
+        response = render_to_response(
+            "{}.html".format(exc.status_code),
+            {},
+            request=request,
+        )
+    except LookupError:
+        # We don't have a customized template for this error, so we'll just let
+        # the default happen instead.
+        return exc
+
+    # Copy over the important values from our HTTPException to our new response
+    # object.
+    response.status = exc.status
+    response.headers.extend(
+        (k, v) for k, v in exc.headers.items()
+        if k not in response.headers
+    )
+
+    return response
 
 
 @forbidden_view_config()
@@ -79,8 +111,7 @@ def forbidden(exc, request, redirect_to="accounts.login"):
 
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.
-    # TODO: Style the forbidden page.
-    return exc
+    return httpexception_view(exc, request)
 
 
 @view_config(
@@ -125,16 +156,16 @@ def opensearchxml(request):
             1 * 60 * 60,                      # 1 hour
             stale_while_revalidate=10 * 60,   # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects"],
+            keys=["all-projects", "trending"],
         ),
     ]
 )
 def index(request):
     project_names = [
         r[0] for r in (
-            request.db.query(File.name)
-                   .group_by(File.name)
-                   .order_by(func.sum(File.downloads).desc())
+            request.db.query(Project.name)
+                   .order_by(Project.zscore.desc().nullslast(),
+                             func.random())
                    .limit(5)
                    .all())
     ]
@@ -143,10 +174,12 @@ def index(request):
         request.db.query(Release)
                   .distinct(Release.name)
                   .filter(Release.name.in_(project_names))
-                  .order_by(Release.name, Release._pypi_ordering.desc())
+                  .order_by(Release.name,
+                            Release.is_prerelease.nullslast(),
+                            Release._pypi_ordering.desc())
                   .subquery(),
     )
-    top_projects = (
+    trending_projects = (
         request.db.query(release_a)
                .options(joinedload(release_a.project))
                .order_by(func.array_idx(project_names, release_a.name))
@@ -175,7 +208,7 @@ def index(request):
 
     return {
         "latest_releases": latest_releases,
-        "top_projects": top_projects,
+        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),
@@ -291,6 +324,15 @@ def current_user_indicator(request):
     return {}
 
 
+@view_config(
+    route_name="includes.flash-messages",
+    renderer="includes/flash-messages.html",
+    uses_session=True,
+)
+def flash_messages(request):
+    return {}
+
+
 @view_config(route_name="health", renderer="string")
 def health(request):
     # This will ensure that we can access the database and run queries against
@@ -300,3 +342,11 @@ def health(request):
     # Nothing will actually check this, but it's a little nicer to have
     # something to return besides an empty body.
     return "OK"
+
+
+@view_config(route_name="force-status")
+def force_status(request):
+    try:
+        raise exception_response(int(request.matchdict["status"]))
+    except KeyError:
+        raise exception_response(404) from None

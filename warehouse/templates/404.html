@@ -1,0 +1,37 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "error-base-with-search.html" %}
+
+{% block title %}Page Not Found (404){% endblock %}
+
+{% block error_heading %}We looked everywhere but couldn't find this page{% endblock %}
+
+{% block error_code %}404{% endblock %}
+
+{% block extra_css %}
+  <link href="https://fonts.googleapis.com/css?family=Ewert" rel="stylesheet">
+{% endblock %}
+
+{% block easter_egg %}
+  <div class="viewport-section viewport-section--ee">
+    <div class="viewport-section__content">
+      <h1 class="viewport-section__heading">And now for something <br><span>completely different</span></h1>
+      <div class="viewport-section__video">
+        <div class="viewport-section__video-container">
+          <iframe id="cheeseshop-skit-video" class="-js-autoplay-when-visible" width="560" height="315" src="https://www.youtube-nocookie.com/embed/cWDdd5KKhts?rel=0&enablejsapi=1&controls=0&showinfo=0&iv_load_policy=3&origin={{ request.host_url }}" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

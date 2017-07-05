@@ -10,15 +10,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+import os.path
+
 from pyramid.httpexceptions import HTTPMethodNotAllowed
 from pyramid.path import AssetResolver
 from pyramid.tweens import INGRESS, EXCVIEW
 from pyramid.response import FileResponse
 from webob.multidict import MultiDict
-from whitenoise import WhiteNoise
+from whitenoise import WhiteNoise as _WhiteNoise
 
 
 resolver = AssetResolver()
+
+
+class WhiteNoise(_WhiteNoise):
+
+    config_attrs = _WhiteNoise.config_attrs + ("manifest",)
+
+    def __init__(self, *args, manifest=None, **kwargs):
+        self.manifest_path = (
+            resolver.resolve(manifest).abspath()
+            if manifest is not None else None
+        )
+        return super().__init__(*args, **kwargs)
+
+    @property
+    def manifest(self):
+        if not hasattr(self, "_manifest"):
+            manifest_files = set()
+
+            if self.manifest_path is not None:
+                with open(self.manifest_path, "r", encoding="utf8") as fp:
+                    data = json.load(fp)
+                manifest_files.update(data.values())
+
+            if not self.autorefresh:
+                self._manifest = manifest_files
+
+            return manifest_files
+        else:
+            return self._manifest
+
+    def is_immutable_file(self, path, url):
+        if self.manifest_path is not None:
+            manifest_dir = os.path.dirname(self.manifest_path)
+            if os.path.commonpath([self.manifest_path, path]) == manifest_dir:
+                if os.path.relpath(path, manifest_dir) in self.manifest:
+                    return True
+
+        return super().is_immutable_file(path, url)
 
 
 def whitenoise_tween_factory(handler, registry):

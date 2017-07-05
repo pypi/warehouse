@@ -10,22 +10,110 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
+
 from unittest import mock
 
 import pretend
 import pytest
 
 from pyramid.tweens import EXCVIEW, INGRESS
-from whitenoise import WhiteNoise
 
 from warehouse import static
+
+
+class TestWhiteNose:
+
+    def test_resolves_manifest_path(self, monkeypatch):
+        resolver = pretend.stub(
+            resolve=pretend.call_recorder(
+                lambda p: pretend.stub(
+                    abspath=lambda: "/path/to/manifest.json",
+                ),
+            ),
+        )
+        monkeypatch.setattr(static, "resolver", resolver)
+
+        whitenoise = static.WhiteNoise(
+            None,
+            manifest="warehouse:manifest.json",
+        )
+
+        assert whitenoise.manifest_path == "/path/to/manifest.json"
+        assert resolver.resolve.calls == [
+            pretend.call("warehouse:manifest.json"),
+        ]
+
+    def test_empty_manifest_when_no_manifest_provided(self):
+        whitenoise = static.WhiteNoise(None)
+        assert whitenoise.manifest == set()
+
+    def test_loads_manifest(self, tmpdir):
+        manifest_path = str(tmpdir.join("manifest.json"))
+        with open(manifest_path, "w", encoding="utf8") as fp:
+            json.dump({"file.txt": "file.hash.txt"}, fp)
+
+        whitenoise = static.WhiteNoise(None, manifest=manifest_path)
+
+        assert whitenoise.manifest_path == manifest_path
+        assert whitenoise.manifest == {"file.hash.txt"}
+
+    @pytest.mark.parametrize("autorefresh", [True, False])
+    def test_caches_manifest(self, tmpdir, autorefresh):
+        manifest_path = str(tmpdir.join("manifest.json"))
+        with open(manifest_path, "w", encoding="utf8") as fp:
+            json.dump({"file.txt": "file.hash.txt"}, fp)
+
+        whitenoise = static.WhiteNoise(
+            None,
+            manifest=manifest_path,
+            autorefresh=autorefresh,
+        )
+
+        assert whitenoise.manifest_path == manifest_path
+        assert whitenoise.manifest == {"file.hash.txt"}
+
+        with open(manifest_path, "w", encoding="utf8") as fp:
+            json.dump({"file.txt": "file.newhash.txt"}, fp)
+
+        assert whitenoise.manifest == \
+            ({"file.newhash.txt"} if autorefresh else {"file.hash.txt"})
+
+    def test_is_immutable_file_no_manifest(self):
+        whitenoise = static.WhiteNoise(None)
+        assert not whitenoise.is_immutable_file(None, None)
+
+    def test_is_immutable_file_wrong_path(self):
+        whitenoise = static.WhiteNoise(None, manifest="/path/to/manifest.json")
+        assert not whitenoise.is_immutable_file(
+            "/path/in/another/dir",
+            "/static/another/dir",
+        )
+
+    def test_is_immutable_file_not_in_manifest(self):
+        whitenoise = static.WhiteNoise(None, manifest="/path/to/manifest.json")
+        whitenoise._manifest = {"another/file.txt"}
+
+        assert not whitenoise.is_immutable_file(
+            "/path/to/the/file.txt",
+            "static/the/file.txt",
+        )
+
+    def test_is_immutable_file_in_manifest(self):
+        whitenoise = static.WhiteNoise(None, manifest="/path/to/manifest.json")
+        whitenoise._manifest = {"the/file.txt"}
+
+        assert whitenoise.is_immutable_file(
+            "/path/to/the/file.txt",
+            "static/the/file.txt",
+        )
 
 
 class TestWhitenoiseTween:
 
     @pytest.mark.parametrize("autorefresh", [True, False])
     def test_bypasses(self, autorefresh):
-        whitenoise = WhiteNoise(None, autorefresh=autorefresh)
+        whitenoise = static.WhiteNoise(None, autorefresh=autorefresh)
         whitenoise.add_files(
             static.resolver.resolve("warehouse:/static/dist/").abspath(),
             prefix="/static/",
@@ -44,7 +132,7 @@ class TestWhitenoiseTween:
 
     @pytest.mark.parametrize("autorefresh", [True, False])
     def test_method_not_allowed(self, autorefresh):
-        whitenoise = WhiteNoise(None, autorefresh=autorefresh)
+        whitenoise = static.WhiteNoise(None, autorefresh=autorefresh)
         whitenoise.add_files(
             static.resolver.resolve("warehouse:/static/dist/").abspath(),
             prefix="/static/",
@@ -67,7 +155,7 @@ class TestWhitenoiseTween:
         assert resp.status_code == 405
 
     def test_serves(self):
-        whitenoise = WhiteNoise(None, autorefresh=True)
+        whitenoise = static.WhiteNoise(None, autorefresh=True)
         whitenoise.add_files(
             static.resolver.resolve("warehouse:/static/dist/").abspath(),
             prefix="/static/",
@@ -93,7 +181,10 @@ class TestWhitenoiseTween:
 
         assert resp.status_code == 200
         assert resp.headers["Content-Type"] == "application/json"
-        assert resp.headers["Cache-Control"] == "public, max-age=60"
+        assert (
+            set(i.strip() for i in resp.headers["Cache-Control"].split(","))
+            == {"public", "max-age=60"}
+        )
         assert resp.headers["Vary"] == "Accept-Encoding"
 
         with open(path, "rb") as fp:

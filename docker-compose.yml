@@ -73,7 +73,7 @@ web:
 worker:
   extends:
     service: app
-  command: celery -A warehouse worker -l info
+  command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
   environment:
     C_FORCE_ROOT: "1"
   links:

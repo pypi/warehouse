@@ -31,6 +31,11 @@ def test_robots_txt(webtest):
     )
 
 
+def test_non_existent_route_404(webtest):
+    resp = webtest.get("/asdadadasdasd/", status=404)
+    assert resp.status_code == 404
+
+
 class TestLoginIndicator:
 
     def test_indicator_shows_not_logged_in(self, server_url, browser):
@@ -47,4 +52,7 @@ class TestLoginIndicator:
             a.get("href")
             for a in document.findall(".//nav[@id='user-indicator']/a")
         ]
-        assert urls == ["/account/login/", "/account/register/", "/help/"]
+        assert urls == ["/help/",
+                        "https://donate.pypi.io",
+                        "/account/login/",
+                        "/account/register/"]

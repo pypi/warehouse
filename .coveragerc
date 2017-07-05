@@ -9,7 +9,7 @@ omit =
     # point is this is dead code/tables laying around until we can delete them.
     warehouse/legacy/tables.py
 
-    # We don't want to get cover inforation for our migrations.
+    # We don't want to get coverage information for our migrations.
     warehouse/migrations/*
 
     # We don't want to actually cover our __main__.py file because it is hard
@@ -22,6 +22,9 @@ omit =
     # Again, tiny shim code that we don't actually need to test and trying to
     # do so would just get in the way.
     warehouse/wsgi.py
+
+    # And again, tiny shim code.
+    warehouse/celery.py
 
 
 [report]

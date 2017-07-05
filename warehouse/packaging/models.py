@@ -19,7 +19,7 @@ from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
-    Boolean, DateTime, Integer, Table, Text,
+    Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
 from sqlalchemy.orm import validates
@@ -105,6 +105,7 @@ class Project(SitemapMixin, db.ModelBase):
         nullable=False,
         server_default=sql.false(),
     )
+    zscore = Column(Float, nullable=True)
 
     users = orm.relationship(
         User,
@@ -344,9 +345,11 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords,
+        return any([self.license,
+                    self.keywords,
                     self.author, self.author_email,
-                    self.maintainer, self.maintainer_email])
+                    self.maintainer, self.maintainer_email,
+                    self.requires_python])
 
 
 class File(db.Model):

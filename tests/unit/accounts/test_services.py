@@ -162,10 +162,12 @@ class TestDatabaseUserService:
     def test_update_user(self, db_session):
         user = UserFactory.create()
         service = services.DatabaseUserService(db_session)
-        new_name = "new username"
-        service.update_user(user.id, username=new_name)
+        new_name, password = "new username", "TestPa@@w0rd"
+        service.update_user(user.id, username=new_name, password=password)
         user_from_db = service.get_user(user.id)
         assert user_from_db.username == user.username
+        assert password != user_from_db.password
+        assert service.hasher.verify(password, user_from_db.password)
 
     def test_verify_email(self, db_session):
         service = services.DatabaseUserService(db_session)

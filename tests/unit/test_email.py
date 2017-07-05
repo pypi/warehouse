@@ -43,9 +43,7 @@ class TestSendEmail:
             )
         )
 
-        email.send_email.__wrapped__.__func__(
-            task, request, "body", ["recipients"], "subject"
-        )
+        email.send_email(task, request, "body", ["recipients"], "subject")
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
@@ -84,9 +82,7 @@ class TestSendEmail:
         )
 
         with pytest.raises(celery.exceptions.Retry):
-            email.send_email.__wrapped__.__func__(
-                task, request, "body", ["recipients"], "subject"
-            )
+            email.send_email(task, request, "body", ["recipients"], "subject")
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]

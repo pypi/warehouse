@@ -11,6 +11,7 @@
     "clipboard": "1.5.15",
     "cookie": "0.3.1",
     "del": "2.2.2",
+    "enter-view": "0.1.0",
     "exports-loader": "0.6.3",
     "font-awesome": "4.7.0",
     "gulp": "3.9.1",
@@ -31,9 +32,9 @@
     "uglify-js": "2.7.5",
     "vinyl-named": "1.1.0",
     "webpack": "2.1.0-beta.27",
-    "webpack-dependency-suite": "1.5.0",
     "webpack-stream": "3.2.0",
-    "whatwg-fetch": "2.0.1"
+    "whatwg-fetch": "2.0.1",
+    "youtube-iframe": "1.0.3"
   },
   "devDependencies": {
     "eslint": "3.11.1"

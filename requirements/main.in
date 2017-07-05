@@ -4,12 +4,14 @@ Babel
 bcrypt
 boto3
 celery>=4
+celery-redbeat
 certifi
 click
 disposable-email-domains
 elasticsearch>=5.0.0,<6.0.0
 elasticsearch_dsl>=5.0.0,<6.0.0
 first
+google-cloud-bigquery
 hiredis
 html5lib
 itsdangerous
@@ -23,11 +25,11 @@ paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
 psycopg2
-pyblake2
-pyramid>=1.8
+pyramid>=1.9a2
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
+pyramid_retry>=0.3
 pyramid_rpc>=0.7
 pyramid_services
 pyramid_tm>=0.12
@@ -44,3 +46,4 @@ transaction
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy
+zxcvbn-python

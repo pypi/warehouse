@@ -11,20 +11,10 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% if form.username.errors %}
-<ul class="errors">
-  {% for error in form.username.errors %}
-  <li>{{ error }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-{{ form.username(placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false") }}
+{% extends "error-base-with-search.html" %}
 
-{% if form.password.errors %}
-<ul class="errors">
-  {% for error in form.password.errors %}
-  <li>{{ error }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-{{ form.password(placeholder="Password") }}
+{% block title %}Access Denied / Forbidden (403){% endblock %}
+
+{% block error_heading %}You don't have permission to view this page{% endblock %}
+
+{% block error_code %}403{% endblock %}

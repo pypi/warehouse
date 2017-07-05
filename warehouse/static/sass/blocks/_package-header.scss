@@ -1,3 +1,17 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /*
   The  main header of a package detail page. Contains key package information
   including name, description, license, etc.
@@ -5,19 +19,23 @@
   This block assumes it is placed inside a dark container.
 
   <div class="package-header">
-    <p class="package-header__license"></p>
-    <h1 class="package-header__name"></h1>
-    <p class="package-header__description"></p>
-    <p class="package-header__pip-instructions">
-      <span>// pip instructions</span>
-      <a><i></i></a> // copy icon
-    </p>
-    <p class="package-header__help-link">// Help link</p>
+    <div class="package-header__left">
+      <h1 class="package-header__name"></h1>
+      <p class="package-header__pip-instructions">
+        <span>// pip instructions</span>
+        <a><i></i></a> // copy icon
+      </p>
+    </div>
+    <div class="package-header__right">
+      // status badge here
+      <p class="package-header__date"></p>
+    </div>
   </div>
 */
 
 .package-header {
   @include site-container;
+  display: flex;
 
   a {
     color: $white;
@@ -29,23 +47,38 @@
     }
   }
 
-  &__license {
-    font-style: italic;
+  &__left {
+    width: 75%;
+    padding-right: $spacing-unit;
+  }
+
+  &__right {
+    text-align: right;
+    width: 25%;
+  }
+
+  @media screen and (max-width: $tablet) {
+    display: block;
+
+    &__left {
+      width: 100%;
+      padding-right: 0;
+    }
+
+    &__right {
+      display: none;
+    }
   }
 
   &__name {
+    @include ellipsis;
     padding: 0;
-  }
-
-  &__description {
-    font-size: 1.2rem;
-    font-style: italic;
-    padding: 10px 0;
+    margin-top: -10px;
   }
 
   &__pip-instructions {
     @include clearfix;
-    margin: 10px 0 20px;
+    margin: 10px 0 0;
     padding-bottom: 0;
 
     span {
@@ -93,5 +126,11 @@
          display: none;
       }
     }
+  }
+
+  &__date {
+    font-style: italic;
+    margin-top: 20px;
+    padding-bottom: 5px;
   }
 }

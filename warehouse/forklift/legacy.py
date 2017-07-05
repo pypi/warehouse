@@ -26,7 +26,6 @@ import wtforms
 import wtforms.validators
 from rfc3986 import uri_reference
 
-from pyblake2 import blake2b
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
@@ -54,6 +53,7 @@ _allowed_platforms = {
     "any",
     "win32", "win_amd64", "win_ia64",
     "manylinux1_x86_64", "manylinux1_i686",
+    "linux_armv6l", "linux_armv7l",
 }
 # macosx is a little more complicated:
 _macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
@@ -835,7 +835,7 @@ def file_upload(request):
             file_hashes = {
                 "md5": hashlib.md5(),
                 "sha256": hashlib.sha256(),
-                "blake2_256": blake2b(digest_size=256 // 8),
+                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
             for chunk in iter(
                     lambda: request.POST["content"].file.read(8096), b""):

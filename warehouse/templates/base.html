@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    {% block extra_css %}{% endblock %}
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
@@ -36,7 +37,7 @@
     <link rel="canonical" href="{% block canonical_url %}{% endblock %}">
     {% endif %}
 
-    <meta property="og:url" content="{{ request.current_route_url() }}">
+    <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.urll }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/logo-large.svg') }}">
@@ -61,8 +62,27 @@
   </head>
 
   <body>
+    {% block body %}
 
-    {% include "warehouse:templates/includes/warning-banner.html" %}
+    <section class="stick-to-top js-stick-to-top">
+      {% include "warehouse:templates/includes/warning-banner.html" %}
+      <!-- Add browser warning. Will show for ie9 and below -->
+      <!--[if IE]>
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
+      </div>
+      <![endif]-->
+    </section>
+
+    {% block flash_messages %}
+      {% csi request.route_path("includes.flash-messages") %}
+      {% endcsi %}
+    {% endblock %}
+
+    <div class="notification-bar">
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.io">Donate today!</a></span>
+    </div>
 
     <header class="site-header">
       <div class="site-container">
@@ -81,7 +101,8 @@
           </div>
           {% endblock %}
 
-          {{ html_include(request.route_path("includes.current-user-indicator")) }}
+          {% csi request.route_path("includes.current-user-indicator") %}
+          {% endcsi %}
         </div>
       </div>
     </header>
@@ -136,23 +157,23 @@
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
         </ul>
-        <ul class="footer__menu">
-          <li>
-            <h3>Legal</h3>
-          </li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></li>
-        </ul>
       </div>
 
       <hr class="footer__divider">
 
       <div class="footer__text">
-        <p>Developed and maintained by the Python community, for the Python community.</p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation.</p>
+        <p>
+          Developed and maintained by the Python community, for the Python community.
+          <br>
+          <a href="https://donate.pypi.io">Donate Today!</a>
+        </p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>
     </footer>
 
     {% include "warehouse:templates/includes/sponsors.html" %}
+
+    {% endblock body %}
   </body>
 
 </html>

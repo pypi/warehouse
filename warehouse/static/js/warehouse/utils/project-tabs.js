@@ -1,4 +1,20 @@
-export default (inMobileState) => {
+/* Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+export default () => {
+  const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
+  const styleProps = getComputedStyle(mobileBtn, null);
+  const inMobileState = (styleProps.getPropertyValue("display") === "block");
   const btnClassName = inMobileState ? ".-js-vertical-tab-mobile-heading" : ".-js-vertical-tab";
   const activeClass = "vertical-tabs__tab--is-active";
   const getBtnByHref = (id) => document.querySelector(`${btnClassName}[href="#${id}"]`);
@@ -34,4 +50,5 @@ export default (inMobileState) => {
     var btn = getBtnByHref(location.hash.replace("#", ""));
     toggleTab(btn);
   }, false);
+
 };

@@ -11,18 +11,47 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
 
   {% if request.user %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">{{ request.user.username }}</a>
-  {% if request.has_permission("admin") %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('admin.dashboard') }}">Admin</a>
-  {% endif %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.logout') }}">Sign Out</a>
+  <div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+    <div class="dropdown">
+      <button class="horizontal-menu__link dropdown__trigger">
+        Welcome back, {{ request.user.username }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down"></i></span>
+      </button>
+      <div class="dropdown__content">
+        {% if request.has_permission("admin") %}
+        <a class="dropdown__link" href="{{ request.route_path('admin.dashboard') }}">
+          <i class="fa fa-cog"></i>
+          Admin
+        </a>
+        {% endif %}
+        <a class="dropdown__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">
+          <i class="fa fa-cube"></i>
+          Your Projects
+        </a>
+        <a class="dropdown__link" href="{{ request.route_path('help') }}">
+          <i class="fa fa-question-circle"></i>
+          Get Help
+        </a>
+        <a class="dropdown__link" href="https://donate.pypi.io">
+          <i class="fa fa-heart"></i>
+          Donate
+        </a>
+        <form method="POST" action="{{ request.route_path('accounts.logout') }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" value="sign out" class="dropdown__link">
+            <i class="fa fa-sign-out"></i>
+            Sign Out
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
   {% else %}
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Sign In</a>
-  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
+  <nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+    <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
+    <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.io">Donate</a>
+    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Login</a>
+    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
+  </nav>
   {% endif %}
-
-  <a class="horizontal-menu__link" href="{{ request.route_path('help') }}">Help</a>
-</nav>

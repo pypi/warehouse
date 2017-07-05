@@ -133,6 +133,7 @@ def app_config(database):
             "camo.key": "insecure key",
             "celery.broker_url": "amqp://",
             "celery.result_url": "redis://localhost:0/",
+            "celery.scheduler_url": "redis://localhost:0/",
             "database.url": database,
             "docs.url": "http://docs.example.com/",
             "download_stats.url": "redis://localhost:0/",

@@ -42,18 +42,17 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    options = context.config.get_section(context.config.config_ini_section)
-    url = options.pop("url")
-    engine = create_engine(url, poolclass=pool.NullPool)
+    connectable = context.config.attributes.get("connection", None)
 
-    connection = engine.connect()
-    context.configure(connection=connection, target_metadata=db.metadata)
+    if connectable is None:
+        options = context.config.get_section(context.config.config_ini_section)
+        url = options.pop("url")
+        connectable = create_engine(url, poolclass=pool.NullPool)
 
-    try:
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=db.metadata)
         with context.begin_transaction():
             context.run_migrations()
-    finally:
-        connection.close()
 
 
 if context.is_offline_mode():

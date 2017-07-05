@@ -73,6 +73,7 @@ def test_routes(warehouse):
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
+        pretend.call("force-status", "/_force-status/{status:[45]\d\d}/"),
         pretend.call('index', '/', domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
@@ -85,6 +86,18 @@ def test_routes(warehouse):
         pretend.call(
             "includes.current-user-indicator",
             "/_includes/current-user-indicator/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "includes.flash-messages",
+            "/_includes/flash-messages/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "includes.current-user-profile-callout",
+            "/_includes/current-user-profile-callout/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call("search", "/search/", domain=warehouse),
@@ -100,6 +113,13 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.register",
             "/account/register/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.edit_gravatar",
+            "/user/{username}/edit_gravatar/",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(

@@ -6,8 +6,8 @@ set -eo pipefail
 # Setup our Redis settings
 source bin/redis-tls
 
-# Make sure that our Fastly configuration is deployed
-bin/fastly-config
+# Configure Google Cloud
+bin/configure-gcloud
 
 # Finally, go ahead and execute the given command.
 exec "$@"

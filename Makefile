@@ -23,11 +23,11 @@ from pip.req import parse_requirements
 
 left, right = sys.argv[1:3]
 left_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(left, session=object())
 }
 right_reqs = {
-    d.name
+    d.name.lower()
 	for d in parse_requirements(right, session=object())
 }
 
@@ -53,7 +53,7 @@ default:
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt
 	# Create our Python 3.5 virtual environment
 	rm -rf .state/env
-	python3.5 -m venv .state/env
+	python3.6 -m venv .state/env
 
 	# install/upgrade general requirements
 	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
@@ -112,7 +112,7 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
 
@@ -165,4 +165,4 @@ purge: clean
 stop:
 	docker ps -aq --filter name=warehouse | xargs docker stop
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge update-requirements debug stop
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
