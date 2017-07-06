@@ -47,3 +47,8 @@ class FuzzyEmail(fuzzy.BaseFuzzyAttribute):
         chars = string.ascii_letters + string.digits
         username = "".join(random.choice(chars) for i in range(12))
         return "@".join([username, self.domain])
+
+
+class FuzzyGPGKeyID(fuzzy.BaseFuzzyAttribute):
+    def fuzz(self):
+        return format(random.randint(0, 0xffffffff), '02x').upper()

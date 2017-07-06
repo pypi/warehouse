@@ -77,6 +77,13 @@ class User(SitemapMixin, db.Model):
         lazy=False,
     )
 
+    gpg_keys = orm.relationship(
+        "GPGKey",
+        backref="user",
+        cascade="all, delete-orphan",
+        lazy=False,
+    )
+
     @hybrid_property
     def email(self):
         primaries = [x for x in self.emails if x.primary]
@@ -88,6 +95,20 @@ class User(SitemapMixin, db.Model):
         return (
             select([Email.email])
             .where((Email.user_id == self.id) & (Email.primary == True))  # noqa
+            .as_scalar()
+        )
+
+    @hybrid_property
+    def gpg_key(self):
+        verified = [x for x in self.gpg_keys if x.verified]
+        if verified:
+            return verified.key_id
+
+    @gpg_key.expression
+    def gpg_key(self):
+        return (
+            select([GPGKey.key_id])
+            .where((GPGKey.user_id == self.id) & (GPGKey.verified == True))  # noqa
             .as_scalar()
         )
 
@@ -110,4 +131,25 @@ class Email(db.ModelBase):
     )
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
+    verified = Column(Boolean, nullable=False)
+
+
+class GPGKey(db.ModelBase):
+    __tablename__ = "accounts_gpgkey",
+    __table_args__ = (
+        UniqueConstraint("key_id", name="accounts_gpgkey_key_id_key"),
+        CheckConstraint(
+            "key_id ~* '^[A-F0-9]{8}$'::citext",
+            name="accounts_gpgkey_valid_key_id",
+        ),
+
+        Index("accounts_gpgkey_user_id", "user_id"),
+    )
+    id = Column(Integer, primary_key=True, nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
+        nullable=False,
+    )
+    key_id = Column(CIText, nullable=False)
     verified = Column(Boolean, nullable=False)

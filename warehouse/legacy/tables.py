@@ -21,37 +21,10 @@ from citext import CIText
 from sqlalchemy import (
     CheckConstraint, Column, ForeignKey, ForeignKeyConstraint, Index, Table,
     UniqueConstraint,
-    Boolean, Date, DateTime, Integer, LargeBinary, String, Text,
+    Date, DateTime, Integer, LargeBinary, String, Text,
 )
-from sqlalchemy.dialects.postgresql import UUID
 
 from warehouse import db
-
-
-accounts_gpgkey = Table(
-    "accounts_gpgkey",
-    db.metadata,
-
-    Column("id", Integer(), primary_key=True, nullable=False),
-    Column(
-        "user_id",
-        UUID(as_uuid=True),
-        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
-    ),
-    Column("key_id", CIText(), nullable=False),
-    Column("verified", Boolean(), nullable=False),
-
-    UniqueConstraint("key_id", name="accounts_gpgkey_key_id_key"),
-
-    CheckConstraint(
-        "key_id ~* '^[A-F0-9]{8}$'::citext",
-        name="accounts_gpgkey_valid_key_id",
-    ),
-)
-
-
-Index("accounts_gpgkey_user_id", accounts_gpgkey.c.user_id)
 
 
 browse_tally = Table(
