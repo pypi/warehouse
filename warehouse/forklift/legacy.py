@@ -1021,9 +1021,8 @@ def _legacy_purge(status, *args, **kwargs):
 def submit(request):
     return _exc_with_message(
         HTTPGone,
-        ("This API is no longer supported. For more information about "
-         "uploading files to PyPI, read "
-         "https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi"),
+        ("Project pre-registration is no longer required or supported, so "
+         "continue directly to uploading files."),
     )
 
 
