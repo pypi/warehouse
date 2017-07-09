@@ -2203,7 +2203,8 @@ def test_submit(pyramid_request):
 
     assert resp.status_code == 410
     assert resp.status == \
-        "410 This API is no longer supported, instead simply upload the file."
+        ("410 Project pre-registration is no longer required or supported, so "
+         "continue directly to uploading files.")
 
 
 def test_doc_upload(pyramid_request):
