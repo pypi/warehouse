@@ -19,9 +19,9 @@ incremental==17.5.0 \
 priority==1.3.0 \
     --hash=sha256:be4fcb94b5e37cdeb40af5533afe6dd603bd665fe9c8b3052610fc1001d5d1eb \
     --hash=sha256:6bc1961a6d7fcacbfc337769f1a382c8e746566aaa365e78047abe9f66b2ffbe
-setuptools==36.1.1 \
-    --hash=sha256:96f772b7112e6b45e3ec9094ff7621b1fc42654d6c25bfe19713f282c1b82d6e \
-    --hash=sha256:ff77f35dded40eba2898fcacffad583c2287a35cb7a9306d0a5ec58bb5896510
+setuptools==36.2.0 \
+    --hash=sha256:8dbfb44a16b73ea756edfe8805a25338eead94bd2426b64374a7f6a7a125028d \
+    --hash=sha256:4c2bda3829c9dbbe9c2b33d89c4b1cb6d45813615ab8e248ad352e3697a96d81
 six==1.10.0 \
     --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
     --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
