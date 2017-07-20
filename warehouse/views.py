@@ -78,7 +78,8 @@ def httpexception_view(exc, request):
         })
     try:
         # Lightweight version of 404 page for `/simple/`
-        if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
+        if (isinstance(exc, HTTPNotFound) and
+                request.path.startswith("/simple/")):
             response = Response(
                 body="404 Not Found",
                 content_type="text/plain"

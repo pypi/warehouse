@@ -103,7 +103,10 @@ class TestHTTPExceptionView:
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
         context = HTTPNotFound()
-        for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
+        for path in (
+            "/simple/not_found_package",
+            "/simple/some/unusual/path/"
+        ):
             request = pretend.stub(
                 find_service=lambda name: services[name],
                 path=path
