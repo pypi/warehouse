@@ -133,7 +133,7 @@ class TestSimpleDetail:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
 
-    def test_with_files_with_seiral(self, db_request):
+    def test_with_files_with_serial(self, db_request):
         project = ProjectFactory.create()
         releases = [
             ReleaseFactory.create(project=project)
