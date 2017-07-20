@@ -91,4 +91,5 @@ class TestIsValidURI:
         assert not is_valid_uri(uri)
 
     def test_plain_schemes(self):
-        assert is_valid_uri("ftp://example.com/", require_scheme=True)
+        assert is_valid_uri("ftp://example.com/", require_scheme=True,
+                            allowed_schemes=[])
