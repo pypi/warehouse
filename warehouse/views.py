@@ -17,6 +17,7 @@ from pyramid.httpexceptions import (
     HTTPBadRequest, exception_response,
 )
 from pyramid.renderers import render_to_response
+from pyramid.response import Response
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
@@ -72,16 +73,23 @@ def httpexception_view(exc, request):
     # except for this one.
     if isinstance(exc, HTTPNotFound):
         request.find_service(name="csp").merge({
-          "frame-src": ["https://www.youtube-nocookie.com"],
-          "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+            "frame-src": ["https://www.youtube-nocookie.com"],
+            "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
         })
-
     try:
-        response = render_to_response(
-            "{}.html".format(exc.status_code),
-            {},
-            request=request,
-        )
+        # Lightweight version of 404 page for `/simple/`
+        if (isinstance(exc, HTTPNotFound) and
+                request.path.startswith("/simple/")):
+            response = Response(
+                body="404 Not Found",
+                content_type="text/plain"
+            )
+        else:
+            response = render_to_response(
+                "{}.html".format(exc.status_code),
+                {},
+                request=request,
+            )
     except LookupError:
         # We don't have a customized template for this error, so we'll just let
         # the default happen instead.
