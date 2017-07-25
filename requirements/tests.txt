@@ -207,9 +207,9 @@ pytest==3.1.3 \
 python-dateutil==2.6.1 \
     --hash=sha256:95511bae634d69bc7329ba55e646499a842bc4ec342ad54a8cdb65645a0aad3c \
     --hash=sha256:891c38b2a02f5bb1be3e4793866c8df49c7d19baabf9c1bad62547e0b4866aca
-requests==2.18.1 \
-    --hash=sha256:6afd3371c1f4c1970497cdcace5c5ecbbe58267bf05ca1abd93d99d170803ab7 \
-    --hash=sha256:c6f3bdf4a4323ac7b45d01e04a6f6c20e32a052cd04de81e05103abc049ad9b9
+requests==2.18.2 \
+    --hash=sha256:414459f05392835d4d653b57b8e58f98aea9c6ff2782e37de0a1ee92891ce900 \
+    --hash=sha256:5b26fcc5e72757a867e4d562333f841eddcef93548908a1bb1a9207260618da9
 responses==0.5.1 \
     --hash=sha256:3a907f7aae2fd2286d06cfdf238957786c38bbcadc451adceecc769a4ef882b7 \
     --hash=sha256:8cad64c45959a651ceaf0023484bd26180c927fea64a81e63d334ddf6377ecea
