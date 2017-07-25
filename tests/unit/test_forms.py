@@ -47,7 +47,7 @@ class TestURIValidator:
             validator(pretend.stub(), pretend.stub(data=uri))
 
     def test_plain_schemes(self):
-        validator = URIValidator(require_scheme=True)
+        validator = URIValidator(require_scheme=True, allowed_schemes=[])
         validator(pretend.stub(), pretend.stub(data="ftp://example.com/"))
 
 
