@@ -58,29 +58,11 @@ def rss_updates(request):
         ),
     ],
 )
-def rss_project_updates(request):
-    project_name = request.matchdict["name"]
+def rss_project_updates(project, request):
     request.response.content_type = "text/xml"
-
     request.find_service(name="csp").merge(XML_CSP)
-
-    latest_releases = (
-        request.db.query(Release)
-        .join(Project)
-        .filter(
-            Project.normalized_name == func.normalize_pep426_name(project_name)
-        )
-        .order_by(Release.created.desc())
-        .limit(10)
-        .all()
-    )
-
-    if not latest_releases:
-        return HTTPNotFound()
-
     return {
-        "project_name": project_name,
-        "latest_releases": latest_releases
+        "project": project,
     }
 
 
