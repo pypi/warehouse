@@ -85,16 +85,37 @@ class TestHTTPExceptionView:
         services = {"csp": pretend.stub(merge=csp.update)}
 
         context = HTTPNotFound()
-        request = pretend.stub(find_service=lambda name: services[name])
+        request = pretend.stub(
+            find_service=lambda name: services[name],
+            path=""
+        )
         response = httpexception_view(context, request)
 
         assert response.status_code == 404
         assert response.status == "404 Not Found"
         assert csp == {
-          "frame-src": ["https://www.youtube-nocookie.com"],
-          "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+            "frame-src": ["https://www.youtube-nocookie.com"],
+            "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
         }
         renderer.assert_()
+
+    def test_simple_404(self):
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        context = HTTPNotFound()
+        for path in (
+            "/simple/not_found_package",
+            "/simple/some/unusual/path/"
+        ):
+            request = pretend.stub(
+                find_service=lambda name: services[name],
+                path=path
+            )
+            response = httpexception_view(context, request)
+            assert response.status_code == 404
+            assert response.status == "404 Not Found"
+            assert response.content_type == "text/plain"
+            assert response.text == "404 Not Found"
 
 
 class TestForbiddenView:

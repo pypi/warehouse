@@ -24,7 +24,6 @@ import pkg_resources
 import requests
 import wtforms
 import wtforms.validators
-from rfc3986 import uri_reference
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
@@ -39,6 +38,7 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry,
 )
+from warehouse.utils import http
 
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -236,9 +236,7 @@ def _validate_project_url(value):
     if not url:
         raise wtforms.validators.ValidationError("Must have an URL.")
 
-    url = uri_reference(url)
-    url = url.normalize()
-    if not (url.is_valid() and url.scheme in ('http', 'https')):
+    if not http.is_valid_uri(url, require_authority=False):
         raise wtforms.validators.ValidationError("Invalid URL.")
 
 
@@ -1021,7 +1019,8 @@ def _legacy_purge(status, *args, **kwargs):
 def submit(request):
     return _exc_with_message(
         HTTPGone,
-        "This API is no longer supported, instead simply upload the file.",
+        ("Project pre-registration is no longer required or supported, so "
+         "continue directly to uploading files."),
     )
 
 
