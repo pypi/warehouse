@@ -11,8 +11,6 @@
 # limitations under the License.
 
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPNotFound
-from sqlalchemy import func
 from sqlalchemy.orm import joinedload, load_only
 
 from warehouse.cache.origin import origin_cache

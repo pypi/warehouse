@@ -13,7 +13,6 @@
 import datetime
 
 import pretend
-from pyramid.httpexceptions import HTTPNotFound
 
 from warehouse.rss import views as rss
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
