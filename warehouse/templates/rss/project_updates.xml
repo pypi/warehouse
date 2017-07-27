@@ -1,6 +1,6 @@
 {% extends "base.xml" %}
-{% block title %}Latest releases of the {{ project.name }} package{% endblock %}
-{% block description %}Latest releases of the {{ project.name }} to the Python Package Index{% endblock %}
+{% block title %}Latest releases of the "{{ project.name }}" project{% endblock %}
+{% block description %}Latest releases of the "{{ project.name }}" project to the Python Package Index{% endblock %}
 {% block link %}{{ request.route_url('packaging.project', name=project.name) }}{% endblock %}
 {% block items %}
   {% for release in project.releases %}
