@@ -31,7 +31,17 @@ class WarehouseFactory(SQLAlchemyModelFactory):
 
     @classmethod
     def _create(cls, *args, **kwargs):
-        r = super()._create(*args, **kwargs)
+        new_kwargs = {}
+        for k, v in kwargs.items():
+            if isinstance(v, tuple):
+                v = list(v)
+            new_kwargs[k] = v
+        new_args = []
+        for a in args:
+            if isinstance(a, tuple):
+                a = list(a)
+            new_args.append(a)
+        r = super()._create(*new_args, **new_kwargs)
         session = cls._meta.sqlalchemy_session
         session.flush()
         return r
