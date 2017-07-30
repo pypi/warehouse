@@ -21,6 +21,7 @@ from warehouse.packaging.models import (
     ProjectFactory, Dependency, DependencyKind, File,
 )
 
+from ...common.db.classifiers import ClassifierFactory as DBClassifierFactory
 from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory, ReleaseFactory as DBReleaseFactory,
     FileFactory as DBFileFactory, RoleFactory as DBRoleFactory,
@@ -229,6 +230,13 @@ class TestRelease:
 
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
+
+    def test_create_classfiers_from_tuple(self, db_session):
+        classifier = DBClassifierFactory.create(
+            classifier="Some :: Random :: Classifier")
+        release = DBReleaseFactory.create(_classifiers=(classifier,))
+
+        assert release.classifiers[0] == "Some :: Random :: Classifier"
 
 
 class TestFile:
