@@ -56,6 +56,8 @@ def test_templates_for_empty_titles():
         for file_name in files:
             if file_name == "macros.html":
                 continue
+            if file_name.endswith(".csi.html"):
+                continue
             if file_name.endswith(".html"):
                 rel_dir = os.path.relpath(dir_, dir_name)
                 rel_file = os.path.join(rel_dir, file_name)

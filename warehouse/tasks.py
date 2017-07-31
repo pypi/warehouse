@@ -57,8 +57,8 @@ class WarehouseTask(celery.Task):
                 try:
                     return original_run(*args, **kwargs)
                 except BaseException as exc:
-                    if (isinstance(exc, pyramid_retry.RetryableException)
-                            or pyramid_retry.IRetryableError.providedBy(exc)):
+                    if (isinstance(exc, pyramid_retry.RetryableException) or
+                            pyramid_retry.IRetryableError.providedBy(exc)):
                         raise obj.retry(exc=exc)
                     raise
 

@@ -61,6 +61,13 @@ def includeme(config):
         "/_includes/flash-messages/",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.current-user-profile-callout",
+        "/_includes/current-user-profile-callout/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
@@ -78,6 +85,13 @@ def includeme(config):
     config.add_route(
         "accounts.register",
         "/account/register/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.edit_gravatar",
+        "/user/{username}/edit_gravatar/",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 

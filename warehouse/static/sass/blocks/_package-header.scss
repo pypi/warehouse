@@ -71,11 +71,9 @@
   }
 
   &__name {
+    @include ellipsis;
     padding: 0;
     margin-top: -10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   &__pip-instructions {

@@ -322,3 +322,21 @@ class TestRegister:
         result = views.register(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+
+
+class TestClientSideIncludes:
+
+    def test_edit_gravatar_csi_returns_user(self, db_request):
+        user = UserFactory.create()
+        assert views.edit_gravatar_csi(user, db_request) == {
+            "user": user,
+        }
+
+
+class TestProfileCallout:
+
+    def test_profile_callout_returns_user(self):
+        user = pretend.stub()
+        request = pretend.stub()
+
+        assert views.profile_callout(user, request) == {"user": user}

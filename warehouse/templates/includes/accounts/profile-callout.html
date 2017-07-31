@@ -11,15 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<html>
-  <head>
-    <title>Links for {{ project.name }}</title>
-    <meta name="api-version" value="2" />
-  </head>
-  <body>
-    <h1>Links for {{ project.name }}</h1>
-    {% for file in files -%}
-    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}>{{ file.filename }}</a><br>
-    {% endfor %}
-  </body>
-</html>
+
+<div class="callout-block no-top-margin">
+  {% if user.id == request.user.id %}
+  <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+  {% else %}
+  <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
+  {% endif %}
+</div>

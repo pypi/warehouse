@@ -14,15 +14,21 @@ import hashlib
 import urllib.parse
 
 
-def gravatar(email, size=80):
+def _hash(email):
     if email is None:
         email = ""
 
-    email_hash = hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
+    return hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
 
-    url = "https://secure.gravatar.com/avatar/{}".format(email_hash)
+
+def gravatar(email, size=80):
+    url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
     params = {
         "size": size,
     }
 
     return "?".join([url, urllib.parse.urlencode(params)])
+
+
+def profile(email):
+    return "https://gravatar.com/{}".format(_hash(email))

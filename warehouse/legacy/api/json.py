@@ -43,8 +43,8 @@ def json_project(project, request):
             request.db.query(Release)
                       .filter(Release.project == project)
                       .order_by(
-                            Release.is_prerelease.nullslast(),
-                            Release._pypi_ordering.desc())
+                          Release.is_prerelease.nullslast(),
+                          Release._pypi_ordering.desc())
                       .limit(1)
                       .one()
         )

@@ -11,15 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<html>
-  <head>
-    <title>Links for {{ project.name }}</title>
-    <meta name="api-version" value="2" />
-  </head>
-  <body>
-    <h1>Links for {{ project.name }}</h1>
-    {% for file in files -%}
-    <a href="{{ request.route_url('packaging.file', path=file.path) }}#sha256={{ file.sha256_digest }}"{% if file.release.requires_python %} data-requires-python="{{ file.release.requires_python }}"{% endif %}>{{ file.filename }}</a><br>
-    {% endfor %}
-  </body>
-</html>
+{% set own_profile = request.user and request.user.username == user.username %}
+{% if own_profile %}
+<a href="{{ gravatar_profile(user.email) }}">Change this image</a>
+{% endif %}
