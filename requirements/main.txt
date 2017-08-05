@@ -398,6 +398,8 @@ sqlalchemy==1.1.13 \
 structlog==17.2.0 \
     --hash=sha256:9947d12d904529e6133384e52091ce92d0541472a722460cfcb4bcc8d02340b0 \
     --hash=sha256:6980001045abd235fa12582222627c19b89109e58b85eb77d5a5abc778df6e20
+tenacity==4.4.0 \
+    --hash=sha256:9c5554b494dd8bae998dbffd7b8d1876e6b94de0c1df1ac51d0db25bb9f830b2
 transaction==2.1.2 \
     --hash=sha256:994ba6b5d0bb9aeb573624ff55e6ca286128decec3ecaa4cb02e864e60ccfe63 \
     --hash=sha256:b9bc365e7dba3877e0f6fdee32aa029b8c0c1eb4fe227f524bffd5fc46064bd5
