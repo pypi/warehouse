@@ -424,9 +424,9 @@ whitenoise==3.3.0 \
     --hash=sha256:d098327276de6fd189398a7bcb95789d1bb2d41b3e011eeae4562f6b1a107dd4
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
-zope.deprecation==4.2.0 \
-    --hash=sha256:15e8a7135f40084b0e15cea9f7cb78e872b8c6a70805f0a0b91b7ce52913e31c \
-    --hash=sha256:ff32c5bb5388b77b22c83ed1f1aa01cdbb076d9f2cfa2b825450ce9e2ecfd738
+zope.deprecation==4.3.0 \
+    --hash=sha256:c83cfef3085d10dcb07de5a59a2d95713865befa46e0e88784c5648610fba789 \
+    --hash=sha256:7d52e134bbaaa0d72e1e2bc90f0587f1adc116c4bdf15912afaf2f1e8856b224
 zope.interface==4.4.2 \
     --hash=sha256:0effab9d51933e35ccd01f4c8c6d72f8040df78deacb2ec9176a7519722ce9ba \
     --hash=sha256:5c14d72a86df23bc473efa8567a2f04fc94d1ba84a8ba651e3a9991e8b20a15a \
