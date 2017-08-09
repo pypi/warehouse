@@ -1,5 +1,5 @@
-alembic==0.9.4 \
-    --hash=sha256:aa07406e74b18583c92c909b319bd79b89f281c2161615b0a11e2001df45a8d1
+alembic==0.9.5 \
+    --hash=sha256:8bdcb4babaa16b9a826f8084949cc2665cb328ecf7b89b3224b0ab85bd16fd05
 amqp==2.2.1 \
     --hash=sha256:880fced46b2225af6160950c209ddcbdef849a954935c83d61de89ed75f3d3b7 \
     --hash=sha256:7ababb2c28672c2a48b907095bc79104531217a98807751b51e0d8c0fa831aff
@@ -69,9 +69,9 @@ bleach==2.0.0 \
 boto3==1.4.5 \
     --hash=sha256:a4552ebaee08d1cc77c7f0e2756bb9e51b3f40076cf304c8c42e51e8b85d5e8f \
     --hash=sha256:6d570df0f692e82b35e9abafbb4584b899b2803e8cfcb70d1f371ca08919831d
-botocore==1.5.92 \
-    --hash=sha256:8d040deebd79e2060bac4e9e6a161897afd624f151478cc098b2d40d0c01b362 \
-    --hash=sha256:5a14eec600f5595dabe3949819d30e2c13c49b0efe224a9051ee3ef0689246a4
+botocore==1.5.94 \
+    --hash=sha256:560d11555d83d21efa446836b022e19a6960c01852567358a3f25de2e6d44b5f \
+    --hash=sha256:846a4ef555b1fc5e532c6abc809863cf564d06469f3980013435cdf535ba25c4
 cachetools==2.0.0 \
     --hash=sha256:cc4cb596b399c292a37ffdfdc713463da4feb81e18ca663e1ba2f89436cae0c1 \
     --hash=sha256:715a7202240dc20dbe83abdb2d804d543e2d4f07af146f53c82166bd75f3a628
@@ -154,9 +154,9 @@ google-cloud-bigquery==0.26.0 \
 google-cloud-core==0.26.0 \
     --hash=sha256:3bc807b6c7e8632f8fe615309a80524097e51092bdb93e28f4ba26fafe792c75 \
     --hash=sha256:fb2f73e988216a25188035295c8151973251bff8c7e2ecdf3f63c2e5c7f52537
-google-resumable-media==0.2.2 \
-    --hash=sha256:a3d98bdd89e17881e0496ac9404d814ec2183635672988c068d5b79667dda7e2 \
-    --hash=sha256:f65d97899dd2c776c76e5a9af4b371c99e0c703f9020ded4408ffa5345b7305b
+google-resumable-media==0.2.3 \
+    --hash=sha256:7d0484b590fc5ca6ae2e3509416199bba9d867a4db1ccc52d57f8fda37351a00 \
+    --hash=sha256:be95e3e775dbc0ff6a962a0f2b274f51ceae18f57b0eb47b444585477b317414
 googleapis-common-protos==1.5.2 \
     --hash=sha256:f94cc66efba677a086b8b17b1240239433495b77631cd410f70151a8ff14435d
 hiredis==0.2.0 \
@@ -424,9 +424,9 @@ whitenoise==3.3.0 \
     --hash=sha256:d098327276de6fd189398a7bcb95789d1bb2d41b3e011eeae4562f6b1a107dd4
 WTForms==2.1 \
     --hash=sha256:ffdf10bd1fa565b8233380cb77a304cd36fd55c73023e91d4b803c96bc11d46f
-zope.deprecation==4.2.0 \
-    --hash=sha256:15e8a7135f40084b0e15cea9f7cb78e872b8c6a70805f0a0b91b7ce52913e31c \
-    --hash=sha256:ff32c5bb5388b77b22c83ed1f1aa01cdbb076d9f2cfa2b825450ce9e2ecfd738
+zope.deprecation==4.3.0 \
+    --hash=sha256:c83cfef3085d10dcb07de5a59a2d95713865befa46e0e88784c5648610fba789 \
+    --hash=sha256:7d52e134bbaaa0d72e1e2bc90f0587f1adc116c4bdf15912afaf2f1e8856b224
 zope.interface==4.4.2 \
     --hash=sha256:0effab9d51933e35ccd01f4c8c6d72f8040df78deacb2ec9176a7519722ce9ba \
     --hash=sha256:5c14d72a86df23bc473efa8567a2f04fc94d1ba84a8ba651e3a9991e8b20a15a \
