@@ -59,23 +59,40 @@
     <g
        id="g4506"
        transform="translate(-67.857146,-23.035712)"
-       inkscape:export-filename="/home/nicky/Code/client_code/warehouse-ui/img/white-cube-sml.png"
        inkscape:export-xdpi="98.922112"
        inkscape:export-ydpi="98.922112">
       <path
          inkscape:connector-curvature="0"
          id="path5201-0-9"
-         style="fill:#f7f7f4;fill-opacity:1;stroke:#cccccc;stroke-width:0.35507631;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none"
+         fill="#f7f7f4"
+         fill-opacity="1"
+         stroke="#cccccc"
+         stroke-width="0.35507631"
+         stroke-linejoin="bevel"
+         stroke-miterlimit="4"
+         stroke-dasharray="none"
          d="m 660.75803,449.15562 15.55544,5.66172 15.78565,-5.74552 -15.55544,-5.66172 z" />
       <path
          inkscape:connector-curvature="0"
          id="path5203-3-8"
-         style="fill:#ffffff;fill-opacity:1;stroke:#cccccc;stroke-width:0.35507631;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none"
+         fill="#ffffff"
+         fill-opacity="1"
+         stroke="#cccccc"
+         stroke-width="0.35507631"
+         stroke-linejoin="bevel"
+         stroke-miterlimit="4"
+         stroke-dasharray="none"
          d="m 676.31347,454.81734 0,18.28268 15.78565,-5.74551 0,-18.28269 z" />
       <path
          inkscape:connector-curvature="0"
          id="path5205-3-0"
-         style="fill:#efeeea;fill-opacity:1;stroke:#cccccc;stroke-width:0.35507631;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none"
+         fill="#efeeea"
+         fill-opacity="1"
+         stroke="#cccccc"
+         stroke-width="0.35507631"
+         stroke-linejoin="bevel"
+         stroke-miterlimit="4"
+         stroke-dasharray="none"
          d="m 660.75803,449.15562 15.55544,5.66172 0,18.28268 -15.55544,-5.66171 z" />
     </g>
   </g>
