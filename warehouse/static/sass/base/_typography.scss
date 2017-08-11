@@ -103,6 +103,8 @@ a {
     color: darken($brand-color, 10);
     text-decoration: underline;
   }
+
+  @include link-focus
 }
 
 @include selection {

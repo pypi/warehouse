@@ -17,3 +17,11 @@
   box-shadow: 1px 1px 2px 1px rgba(0,0,0,0.05);
   background-color: $white;
 }
+
+@mixin link-focus {
+  &:focus {
+    background-color: $highlight-color;
+    color: $black;
+    outline: 2px solid $highlight-color;
+  }
+}

@@ -50,6 +50,8 @@
       &:hover {
         text-decoration-color: $transparent-white;
       }
+
+      @include link-focus
     }
   }
 

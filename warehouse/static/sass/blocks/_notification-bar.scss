@@ -50,6 +50,8 @@
     a {
       color: $white;
       text-decoration: underline;
+
+      @include link-focus
     }
   }
 
