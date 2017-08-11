@@ -223,7 +223,11 @@ def test_includeme():
                 ],
                 "referrer": ["origin-when-cross-origin"],
                 "reflected-xss": ["block"],
-                "script-src": ["'self'", "www.google-analytics.com"],
+                "script-src": [
+                    "'self'",
+                    "www.google-analytics.com",
+                    "ajax.googleapis.com"
+                ],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })
