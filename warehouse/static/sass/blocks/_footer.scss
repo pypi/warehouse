@@ -76,10 +76,11 @@
         color: $footer-faded-color;
         text-decoration: none;
 
-        &:focus,
         &:hover {
           color: transparentize($white, 0);
         }
+
+        @include link-focus
       }
 
       h3 {
@@ -106,6 +107,8 @@
     a {
       color: transparentize($white, 0.5);
       text-decoration: underline;
+
+      @include link-focus
     }
   }
 }
