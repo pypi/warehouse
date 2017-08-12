@@ -37,7 +37,7 @@
   }
 
   @media only screen and (max-width: $large-desktop){
-    // Hide 'file type' column
+    // Hide "file type" column
     th:nth-child(3),
     td:nth-child(3) {
       display: none;
@@ -45,7 +45,7 @@
   }
 
   @media only screen and (max-width: $desktop){
-    // Hide 'version' column
+    // Hide "version" column
     th:nth-child(5),
     td:nth-child(5) {
       display: none;
@@ -53,13 +53,13 @@
   }
 
   @media only screen and (max-width: $tablet){
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(4),
     td:nth-child(4) {
       display: none;
     }
 
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(2),
     td:nth-child(2) {
       width: 20%;
@@ -72,7 +72,7 @@
   }
 
   @media only screen and (max-width: $mobile){
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(2),
     td:nth-child(2) {
       display: none;
