@@ -63,6 +63,9 @@
 
   <body>
     {% block body %}
+    <div class="sr-only">
+      <a href="#content">Skip to main content</a>
+    </div>
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
@@ -122,8 +125,10 @@
     </section>
     {% endblock mobile_search %}
 
-    {% block content %}
-    {% endblock content %}
+    <main id="content">
+      {% block content %}
+      {% endblock content %}
+    </main>
 
     <footer class="footer" role="contentinfo">
       <div class="footer__logo">
