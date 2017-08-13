@@ -41,6 +41,7 @@
   cursor: pointer;
   text-decoration: none;
   padding: 0 ($spacing-unit / 2);
+  background-color: transparent;
   color: lighten($text-color, 10);
   height: 41px;
   line-height: 35px;
@@ -96,7 +97,8 @@
     &:focus,
     &:hover,
     &:active {
-      background-color: darken($brand-color, 2);
+      border-color: darken($brand-color, 10);
+      background-color: darken($brand-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
