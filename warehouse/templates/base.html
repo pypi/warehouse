@@ -97,9 +97,11 @@
             </a>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
-              <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-              <input class="search-form__button button button--dark" type="submit" value="Search">
+              <div role="search">
+                <label for="search" class="sr-only">Search PyPI</label>
+                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                <input class="search-form__button button button--dark" type="submit" value="Search">
+              </div>
             </form>
           </div>
           {% endblock %}
@@ -113,14 +115,16 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
-        <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
-        <button class="search-form__button button button--dark" type="submit">
-          <span class="button__icon">
-            <i class="fa fa-search"></i>
-          </span>
-          <span class="button__text">Search</span>
-        </button>
+        <div role="search">
+          <label for="mobile-search" class="sr-only">Search PyPI</label>
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
+          <button class="search-form__button button button--dark" type="submit">
+            <span class="button__icon">
+              <i class="fa fa-search"></i>
+            </span>
+            <span class="button__text">Search</span>
+          </button>
+        </div>
       </form>
     </section>
     {% endblock mobile_search %}
