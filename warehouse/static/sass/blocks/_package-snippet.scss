@@ -43,6 +43,7 @@
   &__title {
     @include ellipsis;
     padding-bottom: 0;
+    display: block;
   }
 
   &__meta {
