@@ -45,9 +45,11 @@
     background-color: $brand-color;
     width: 300px;
     max-width: 100%;
-    z-index: index($z-index-scale, 'filter-panel');
+    z-index: index($z-index-scale, "filter-panel");
 
-    h2, label, a {
+    h2,
+    label,
+    a {
       color: $white;
     }
 

@@ -18,7 +18,8 @@ ul {
   list-style-type: circle;
 }
 
-ul, ol {
+ul,
+ol {
   margin-left: $spacing-unit;
   margin-bottom: $spacing-unit / 2;
 }
