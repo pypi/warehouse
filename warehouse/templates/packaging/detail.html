@@ -37,7 +37,7 @@
   {% set icon = "external-link-square" %}
 {% endif %}
 
-<i class="fa fa-{{ icon }}"></i>
+<i class="fa fa-{{ icon }}" aria-hidden="true"></i>
 
 {%- endmacro %}
 
@@ -76,7 +76,7 @@
         {% endif %}
         </span>
         <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
-          <i class="fa fa-copy"></i>
+          <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
         </a>
       </p>
@@ -153,7 +153,9 @@
             <p><strong>Maintainer:</strong> {{ release.maintainer }}</p>
           {% endif %}
           {% if release.keywords %}
-          <p class="tags"><i class="fa fa-tags"></i>
+          <p class="tags">
+            <i class="fa fa-tags"aria-hidden="true"></i>
+            <span class="sr-only">Tags:</span>
             {% for keyword in release.keywords | format_tags %}
             <span class="package-keyword">
               {{ keyword }}{% if not loop.last %},{% endif %}
@@ -262,7 +264,7 @@
                   <th class="downloads-table__filename">
                     File Name &amp; Checksum
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
-                      <i class="fa fa-question-circle"></i>
+                      <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 Checksum Help</span>
                     </a>
                   </th>
@@ -278,7 +280,7 @@
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-sha256-link downloads-table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                      <i class="fa fa-copy"></i>
+                      <i class="fa fa-copy" aria-hidden="true"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256
                     </a>

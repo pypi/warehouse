@@ -72,7 +72,10 @@
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning">
-        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
@@ -120,7 +123,8 @@
           <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
           <button class="search-form__button button button--dark" type="submit">
             <span class="button__icon">
-              <i class="fa fa-search"></i>
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="sr-only">Search</span>
             </span>
             <span class="button__text">Search</span>
           </button>
