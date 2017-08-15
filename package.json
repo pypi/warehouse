@@ -37,7 +37,8 @@
     "youtube-iframe": "1.0.3"
   },
   "devDependencies": {
-    "eslint": "3.11.1"
+    "eslint": "3.11.1",
+    "sass-lint": "1.10.2"
   },
   "eslintConfig": {
     "env": {

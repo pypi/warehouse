@@ -37,7 +37,7 @@
     }
 
     &:before {
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       content: "\f139";
       margin-right: $spacing-unit / 2;
     }
@@ -59,7 +59,7 @@
 
     .accordion__link {
       &:before {
-        font-family: 'FontAwesome';
+        font-family: "FontAwesome";
         content: "\f13a";
       }
     }
