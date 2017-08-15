@@ -115,6 +115,7 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
+	./node_modules/.bin/sass-lint --verbose
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"

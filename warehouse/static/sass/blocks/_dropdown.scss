@@ -51,7 +51,7 @@
     right: 0;
     border: 1px solid $header-border-color;
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
-    z-index: index($z-index-scale, 'dropdown');
+    z-index: index($z-index-scale, "dropdown");
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-top: 1px solid $header-border-color;
     display: none;

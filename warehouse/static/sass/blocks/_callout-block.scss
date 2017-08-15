@@ -26,17 +26,17 @@
   border-left-color: transparent;
   margin-top: $spacing-unit / 2;
   position: relative;
-  z-index: index($z-index-scale, 'callout-block');
+  z-index: index($z-index-scale, "callout-block");
 
   &:before {
-    content: '';
+    content: "";
     width: 5px;
     background-color: $brand-color;
     position: absolute;
     top: -1px;
     left: -1px;
     height: calc(100% + 2px);
-    z-index: index($z-index-scale, 'callout-block-border');
+    z-index: index($z-index-scale, "callout-block-border");
   }
 
   &--danger {

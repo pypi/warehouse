@@ -29,9 +29,9 @@
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 5px 0 15px;
   // Use png fallback
-  background: $white url('../images/white-cube.png') no-repeat 0 50%;
+  background: $white url("../images/white-cube.png") no-repeat 0 50%;
   // Or svg if the browser supports it
-  background-image: url('../images/white-cube.svg'), linear-gradient(transparent, transparent);
+  background-image: url("../images/white-cube.svg"), linear-gradient(transparent, transparent);
   background-position: 20px;
 
   @media screen and (max-width: $mobile) {
@@ -43,6 +43,7 @@
   &__title {
     @include ellipsis;
     padding-bottom: 0;
+    display: block;
   }
 
   &__meta {

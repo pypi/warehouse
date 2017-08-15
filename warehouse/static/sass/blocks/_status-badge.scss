@@ -42,8 +42,8 @@
   }
 
   &:before {
-    content: '\f05a'; // Info icon
-    font-family: 'FontAwesome';
+    content: "\f05a"; // Info icon
+    font-family: "FontAwesome";
     margin-right: 3px;
     display: inline-block;
     padding: 8px 12px;
@@ -55,7 +55,7 @@
 
   &--unknown {
     &:before {
-      content: '\f059'; // Question mark
+      content: "\f059"; // Question mark
     }
   }
 
@@ -68,7 +68,7 @@
     }
 
     &:before {
-      content: '\f00c'; // Check / Tick
+      content: "\f00c"; // Check / Tick
     }
   }
 
@@ -80,7 +80,7 @@
     }
 
     &:before {
-      content: '\f071'; // Warning
+      content: "\f071"; // Warning
     }
   }
 
@@ -93,7 +93,7 @@
     }
 
     &:before {
-      content: '\f071'; // Warning
+      content: "\f071"; // Warning
     }
   }
 
