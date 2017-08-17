@@ -360,9 +360,9 @@ raven==6.1.0 \
 readme-renderer==17.2 \
     --hash=sha256:c9637bfcf1ff40f7683b3439f4b97eb0f9a1cffc2a1fad5fa01debd667ddb111 \
     --hash=sha256:9deab442963a63a71ab494bf581b1c844473995a2357f4b3228a1df1c8cba8da
-redis==2.10.5 \
-    --hash=sha256:5dfbae6acfc54edf0a7a415b99e0b21c0a3c27a7f787b292eea727b1facc5533 \
-    --hash=sha256:97156b37d7cda4e7d8658be1148c983984e1a975090ba458cc7e244025191dbd
+redis==2.10.6 \
+    --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb \
+    --hash=sha256:a22ca993cea2962dbb588f9f30d0015ac4afcc45bee27d3978c0dbe9e97c6c0f
 repoze.lru==0.6 \
     --hash=sha256:0f7a323bf716d3cb6cb3910cd4fccbee0b3d3793322738566ecce163b01bbd31
 repoze.sendmail==4.4.1 \
