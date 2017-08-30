@@ -151,9 +151,9 @@ google-auth==1.0.2 \
 google-cloud-bigquery==0.27.0 \
     --hash=sha256:ad86defd25dcb704200e50b3950ade85f4e7fba6d8c209c12f5cd1d46ddffa9b \
     --hash=sha256:d12550f7bd54cb89ed026f0fd8ac3bc9b6cab9e3ff67f7310b149cca8e4ba5ad
-google-cloud-core==0.27.0 \
-    --hash=sha256:798894fd2fb2fdfaa8b97fd1355ff83ae43c86b1d077579577a637640b207264 \
-    --hash=sha256:2386ad6c50d78457a8cf43c2fb2b74e4560ce70a5f95c416f33fb8769437f6d0
+google-cloud-core==0.27.1 \
+    --hash=sha256:05486972ceae281c1005918655313ad21a880bee6bdf74b8703c09afdab9a1f9 \
+    --hash=sha256:1e52449feb72160a726798a085d7b0cf1d7b88d4b4af00f04d9ca9d6eb47847b
 google-resumable-media==0.2.3 \
     --hash=sha256:7d0484b590fc5ca6ae2e3509416199bba9d867a4db1ccc52d57f8fda37351a00 \
     --hash=sha256:be95e3e775dbc0ff6a962a0f2b274f51ceae18f57b0eb47b444585477b317414
