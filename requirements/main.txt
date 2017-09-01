@@ -379,9 +379,9 @@ rfc3986==1.1.0 \
 rsa==3.4.2 \
     --hash=sha256:43f682fea81c452c98d09fc316aae12de6d30c4b5c84226642cf8f8fd1c93abd \
     --hash=sha256:25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5
-s3transfer==0.1.10 \
-    --hash=sha256:bc52f38637f37572ae180c08a2dd87a4825b46713797633aab6e1a42d6b2b8ff \
-    --hash=sha256:ba1a9104939b7c0331dc4dd234d79afeed8b66edce77bbeeecd4f56de74a0fc1
+s3transfer==0.1.11 \
+    --hash=sha256:c7b16f4cca5acd2bd57ac9623bfba3fece047247392893506d0d2e6f25620eb3 \
+    --hash=sha256:76f1f58f4a47e2c8afa135e2c76958806a3abbc42b721d87fd9d11409c75d979
 setuptools==36.3.0 \
     --hash=sha256:42bafe9efb8f771f6c96bb8e052e1de7474270719d471d596b9d91e53e8befd4 \
     --hash=sha256:e9fa391c1183b40fc6a1298bee02d554743f23c805a3b75dbb18def0f0755fb1
