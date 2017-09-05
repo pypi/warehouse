@@ -654,7 +654,7 @@ def file_upload(request):
                 name=project.name,
                 action="create",
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
         request.db.add(
@@ -662,7 +662,7 @@ def file_upload(request):
                 name=project.name,
                 action="add Owner {}".format(request.user.username),
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 
@@ -727,7 +727,7 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 
@@ -956,7 +956,7 @@ def file_upload(request):
                     filename=file_.filename,
                 ),
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 
