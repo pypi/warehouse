@@ -35,8 +35,8 @@ restructuredtext-lint==1.1.1 \
 six==1.10.0 \
     --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
     --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
-stevedore==1.25.0 \
-    --hash=sha256:47e5b57d480f24de7e071bf7ad2b7222f76d43bc9a852736e0e6b932fcc6b280 \
-    --hash=sha256:c8a373b90487b7a1b52ebaa3ca5059315bf68d9ebe15b2203c2fa675bd7e1e7e
+stevedore==1.26.0 \
+    --hash=sha256:3d45e1de8b28d5b806d3934ffb132117526eeb2ee6cfc2420ade7af0de98cfc0 \
+    --hash=sha256:49faa305099932476fe31c8e3b5092ac987034910a1674f9792b9ed3ff1d8167
 template-remover==0.1.9 \
     --hash=sha256:480f1ce63f56affac1edb29356afcca1260e8409cd928fcf9438fc149df5ff41
