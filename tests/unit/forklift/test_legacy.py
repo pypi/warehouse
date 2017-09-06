@@ -711,7 +711,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.40"
+        db_request.remote_addr = "10.10.10.40"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1455,7 +1455,7 @@ class TestFileUpload:
         )
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1562,7 +1562,7 @@ class TestFileUpload:
         )
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1660,7 +1660,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.bz2".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1705,7 +1705,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1800,7 +1800,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1907,7 +1907,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
-        db_request.client_addr = "10.10.10.10"
+        db_request.remote_addr = "10.10.10.10"
 
         resp = legacy.file_upload(db_request)
 
@@ -1997,7 +1997,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
-        db_request.client_addr = "10.10.10.10"
+        db_request.remote_addr = "10.10.10.10"
 
         tm = pretend.stub(
             addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None),
@@ -2052,7 +2052,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -2132,7 +2132,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
