@@ -72,7 +72,10 @@
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning">
-        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
@@ -97,9 +100,11 @@
             </a>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
-              <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-              <input class="search-form__button button button--dark" type="submit" value="Search">
+              <div role="search">
+                <label for="search" class="sr-only">Search PyPI</label>
+                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                <input class="search-form__button button button--dark" type="submit" value="Search">
+              </div>
             </form>
           </div>
           {% endblock %}
@@ -113,14 +118,17 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
-        <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
-        <button class="search-form__button button button--dark" type="submit">
-          <span class="button__icon">
-            <i class="fa fa-search"></i>
-          </span>
-          <span class="button__text">Search</span>
-        </button>
+        <div role="search">
+          <label for="mobile-search" class="sr-only">Search PyPI</label>
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
+          <button class="search-form__button button button--dark" type="submit">
+            <span class="button__icon">
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="sr-only">Search</span>
+            </span>
+            <span class="button__text">Search</span>
+          </button>
+        </div>
       </form>
     </section>
     {% endblock mobile_search %}
