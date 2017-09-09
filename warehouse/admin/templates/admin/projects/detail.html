@@ -1,0 +1,101 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+
+  <div class="col-sm-10">
+    {{ field(id=input_id, class=class, placeholder=placeholder)}}
+
+    {% if field.errors %}
+    <span class="help-block">
+        {% for error in field.errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+    </span>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="active">{{ project.name }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+      <div class="col-md-12">
+        <div class="box box-primary">
+          <div class="box-body box-profile">
+            <h3 class="project-name text-center">{{ project.name }}</h3>
+            <div>
+              <table class="table table-hover">
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                </tr>
+                {% for user, role_name in maintainers %}
+                <tr>
+                  <td><a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">{{ user.username }}</a></td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ role_name }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            <div>
+              <table class="table table-hover">
+                <th>Releases</th>
+                {% for release in project.releases %}
+                <tr>
+                  <td>{{ release.version }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            <div>
+              <table class="table table-hover">
+                <tr>
+                  <th>name</th>
+                  <th>version</th>
+                  <th>date</th>
+                  <th>submitted_by</th>
+                  <th>submitted_from</th>
+                  <th>action</th>
+                </tr>
+                {% for entry in journal %}
+                <tr>
+                  <td>{{ entry.name }}</td>
+                  <td>{{ entry.version }}</td>
+                  <td>{{ entry.submitted_date }}</td>
+                  <td><a href="{{ request.route_path('admin.user.detail', user_id=entry.submitted_by.id) }}">{{ entry.submitted_by.username }}</a></td>
+                  <td>{{ entry.submitted_from }}</td>
+                  <td>{{ entry.action }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}

@@ -29,3 +29,15 @@ def includeme(config):
         "/admin/users/{user_id}/",
         domain=warehouse,
     )
+
+    # Project related Admin pages
+    config.add_route(
+        "admin.project.list",
+        "/admin/projects/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.detail",
+        "/admin/projects/{project_name}/",
+        domain=warehouse,
+    )
