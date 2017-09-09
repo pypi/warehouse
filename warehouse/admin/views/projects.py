@@ -91,7 +91,7 @@ def project_detail(request):
                 request.db.query(JournalEntry)
                 .filter(JournalEntry.name == project.normalized_name)
                 .order_by(JournalEntry.submitted_date.desc())
-                .all()
+                .limit(50)
             )
         ]
     except NoResultFound:
