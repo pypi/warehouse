@@ -142,6 +142,7 @@ class TestJSONRelease:
             for r in releases[:-1]
         ]
         user = UserFactory.create()
+        JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(
             name=project.name,
             submitted_by=user,

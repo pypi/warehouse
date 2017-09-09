@@ -53,11 +53,11 @@
                   <th>Email</th>
                   <th>Role</th>
                 </tr>
-                {% for user, role_name in maintainers %}
+                {% for role in maintainers %}
                 <tr>
-                  <td><a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">{{ user.username }}</a></td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ role_name }}</td>
+                  <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
+                  <td>{{ role.user.email }}</td>
+                  <td>{{ role.role_name }}</td>
                 </tr>
                 {% endfor %}
               </table>

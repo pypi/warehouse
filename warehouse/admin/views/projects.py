@@ -75,16 +75,19 @@ def project_detail(request):
             .one()
         )
         maintainers = [
-            (r.user, r.role_name)
-            for r in (
+            role
+            for role in (
                 request.db.query(Role)
                 .join(User)
                 .filter(Role.project == project)
                 .distinct(User.username)
-                .order_by(User.username)
                 .all()
             )
         ]
+        maintainers = sorted(
+            maintainers,
+            key=lambda x: (x.role_name, x.user.username),
+        )
         journal = [
             entry
             for entry in (
@@ -108,15 +111,22 @@ def project_detail(request):
 )
 def releases_list(request):
     q = request.params.get("q")
+    project_name = request.matchdict["project_name"]
 
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    releases_query = request.db.query(Release) \
-                     .filter(Release.name == request.matchdict["project_name"]) \
-                     .order_by(Release.created)
+    project = (request.db.query(Project)
+               .filter(or_(Project.name == project_name,
+                           Project.normalized_name == project_name))
+               .limit(1)
+               .one())
+
+    releases_query = (request.db.query(Release)
+                      .filter(Release.project == project)
+                      .order_by(Release._pypi_ordering.desc()))
 
     if q:
         terms = shlex.split(q)
@@ -137,7 +147,11 @@ def releases_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"releases": releases, "project_name": request.matchdict["project_name"], "query": q}
+    return {
+        "releases": list(releases),
+        "project_name": project.name,
+        "query": q,
+    }
 
 
 @view_config(
@@ -148,25 +162,22 @@ def releases_list(request):
 )
 def journals_list(request):
     q = request.params.get("q")
+    project_name = request.matchdict["project_name"]
 
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-        journal = [
-            entry
-            for entry in (
-                request.db.query(JournalEntry)
-                .filter(JournalEntry.name == project.normalized_name)
-                .order_by(JournalEntry.submitted_date.desc())
-                .limit(50)
-            )
-        ]
+    project = (request.db.query(Project)
+               .filter(or_(Project.name == project_name,
+                           Project.normalized_name == project_name))
+               .limit(1)
+               .one())
 
-    journals_query = request.db.query(JournalEntry) \
-                     .filter(JournalEntry.name == request.matchdict["project_name"]) \
-                     .order_by(JournalEntry.submitted_date.desc())
+    journals_query = (request.db.query(JournalEntry)
+                      .filter(JournalEntry.name == project.normalized_name)
+                      .order_by(JournalEntry.submitted_date.desc()))
 
     if q:
         terms = shlex.split(q)
@@ -187,4 +198,4 @@ def journals_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"journals": journals, "project_name": request.matchdict["project_name"], "query": q}
+    return {"journals": journals, "project_name": project.name, "query": q}
