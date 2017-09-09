@@ -19,7 +19,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project, Role, JournalEntry
+from warehouse.packaging.models import Project, Release, Role, JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -98,3 +98,93 @@ def project_detail(request):
         raise HTTPNotFound
 
     return {"project": project, "maintainers": maintainers, "journal": journal}
+
+
+@view_config(
+    route_name="admin.project.releases",
+    renderer="admin/projects/releases_list.html",
+    permission="admin",
+    uses_session=True,
+)
+def releases_list(request):
+    q = request.params.get("q")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    releases_query = request.db.query(Release) \
+                     .filter(Release.name == request.matchdict["project_name"]) \
+                     .order_by(Release.created)
+
+    if q:
+        terms = shlex.split(q)
+
+        filters = []
+        for term in terms:
+            if ":" in term:
+                field, value = term.split(":", 1)
+                if field.lower() == "version":
+                    filters.append(Release.version.ilike(value))
+
+        releases_query = releases_query.filter(or_(*filters))
+
+    releases = SQLAlchemyORMPage(
+        releases_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"releases": releases, "project_name": request.matchdict["project_name"], "query": q}
+
+
+@view_config(
+    route_name="admin.project.journals",
+    renderer="admin/projects/journals_list.html",
+    permission="admin",
+    uses_session=True,
+)
+def journals_list(request):
+    q = request.params.get("q")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+        journal = [
+            entry
+            for entry in (
+                request.db.query(JournalEntry)
+                .filter(JournalEntry.name == project.normalized_name)
+                .order_by(JournalEntry.submitted_date.desc())
+                .limit(50)
+            )
+        ]
+
+    journals_query = request.db.query(JournalEntry) \
+                     .filter(JournalEntry.name == request.matchdict["project_name"]) \
+                     .order_by(JournalEntry.submitted_date.desc())
+
+    if q:
+        terms = shlex.split(q)
+
+        filters = []
+        for term in terms:
+            if ":" in term:
+                field, value = term.split(":", 1)
+                if field.lower() == "version":
+                    filters.append(JournalEntry.version.ilike(value))
+
+        journals_query = journals_query.filter(or_(*filters))
+
+    journals = SQLAlchemyORMPage(
+        journals_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"journals": journals, "project_name": request.matchdict["project_name"], "query": q}

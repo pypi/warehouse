@@ -41,3 +41,13 @@ def includeme(config):
         "/admin/projects/{project_name}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.project.releases",
+        "/admin/projects/{project_name}/releases/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.journals",
+        "/admin/projects/{project_name}/journals/",
+        domain=warehouse,
+    )
