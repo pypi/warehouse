@@ -13,10 +13,12 @@
 import shlex
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPMovedPermanently,
+)
 from pyramid.view import view_config
 from sqlalchemy import or_
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
@@ -64,41 +66,39 @@ def project_list(request):
              uses_session=True,
              require_csrf=True,
              require_methods=False)
-def project_detail(request):
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(
-                Project.normalized_name ==
-                request.matchdict["project_name"]
-            )
-            .one()
+def project_detail(project, request):
+    project_name = request.matchdict["project_name"]
+
+    if project_name != project.normalized_name:
+        raise HTTPMovedPermanently(
+            request.current_route_path(
+                project_name=project.normalized_name,
+            ),
         )
-        maintainers = [
-            role
-            for role in (
-                request.db.query(Role)
-                .join(User)
-                .filter(Role.project == project)
-                .distinct(User.username)
-                .all()
-            )
-        ]
-        maintainers = sorted(
-            maintainers,
-            key=lambda x: (x.role_name, x.user.username),
+
+    maintainers = [
+        role
+        for role in (
+            request.db.query(Role)
+            .join(User)
+            .filter(Role.project == project)
+            .distinct(User.username)
+            .all()
         )
-        journal = [
-            entry
-            for entry in (
-                request.db.query(JournalEntry)
-                .filter(JournalEntry.name == project.normalized_name)
-                .order_by(JournalEntry.submitted_date.desc())
-                .limit(50)
-            )
-        ]
-    except NoResultFound:
-        raise HTTPNotFound
+    ]
+    maintainers = sorted(
+        maintainers,
+        key=lambda x: (x.role_name, x.user.username),
+    )
+    journal = [
+        entry
+        for entry in (
+            request.db.query(JournalEntry)
+            .filter(JournalEntry.name == project.normalized_name)
+            .order_by(JournalEntry.submitted_date.desc())
+            .limit(50)
+        )
+    ]
 
     return {"project": project, "maintainers": maintainers, "journal": journal}
 
@@ -109,20 +109,21 @@ def project_detail(request):
     permission="admin",
     uses_session=True,
 )
-def releases_list(request):
+def releases_list(project, request):
     q = request.params.get("q")
     project_name = request.matchdict["project_name"]
+
+    if project_name != project.normalized_name:
+        raise HTTPMovedPermanently(
+            request.current_route_path(
+                project_name=project.normalized_name,
+            ),
+        )
 
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
-
-    project = (request.db.query(Project)
-               .filter(or_(Project.name == project_name,
-                           Project.normalized_name == project_name))
-               .limit(1)
-               .one())
 
     releases_query = (request.db.query(Release)
                       .filter(Release.project == project)
@@ -160,20 +161,21 @@ def releases_list(request):
     permission="admin",
     uses_session=True,
 )
-def journals_list(request):
+def journals_list(project, request):
     q = request.params.get("q")
     project_name = request.matchdict["project_name"]
+
+    if project_name != project.normalized_name:
+        raise HTTPMovedPermanently(
+            request.current_route_path(
+                project_name=project.normalized_name,
+            ),
+        )
 
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
-
-    project = (request.db.query(Project)
-               .filter(or_(Project.name == project_name,
-                           Project.normalized_name == project_name))
-               .limit(1)
-               .one())
 
     journals_query = (request.db.query(JournalEntry)
                       .filter(JournalEntry.name == project.normalized_name)

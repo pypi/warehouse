@@ -12,10 +12,8 @@
 
 import pretend
 import pytest
-import uuid
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
-from webob.multidict import MultiDict
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
 from warehouse.admin.views import projects as views
 
@@ -89,16 +87,6 @@ class TestProjectList:
 
 class TestProjectDetail:
 
-    def test_404s_on_non_existent_project(self, db_request):
-        project = ProjectFactory.create()
-        project_name = uuid.uuid4()
-        while project_name == project.normalized_name:
-            project_name = uuid.uuid4()
-        db_request.matchdict["project_name"] = str(project_name)
-
-        with pytest.raises(HTTPNotFound):
-            views.project_detail(db_request)
-
     def test_gets_project(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
@@ -112,12 +100,20 @@ class TestProjectDetail:
             key=lambda x: (x.role_name, x.user.username),
         )
         db_request.matchdict["project_name"] = str(project.normalized_name)
-        db_request.POST = MultiDict(db_request.POST)
-        result = views.project_detail(db_request)
+        result = views.project_detail(project, db_request)
 
         assert result["project"] == project
         assert result["maintainers"] == roles
         assert result["journal"] == journals[:50]
+
+    def test_non_normalized_name(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = str(project.name)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/the-redirect/"
+        )
+        with pytest.raises(HTTPMovedPermanently):
+            views.project_detail(project, db_request)
 
 
 class TestProjectReleasesList:
@@ -132,8 +128,8 @@ class TestProjectReleasesList:
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
-        result = views.releases_list(db_request)
+        db_request.matchdict["project_name"] = project.normalized_name
+        result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[:25],
@@ -151,9 +147,9 @@ class TestProjectReleasesList:
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["page"] = "2"
-        result = views.releases_list(db_request)
+        result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[25:],
@@ -161,14 +157,13 @@ class TestProjectReleasesList:
             "query": None,
         }
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(
-            matchdict={"project_name": "foobar"},
-            params={"page": "not an integer"},
-        )
+    def test_with_invalid_page(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.GET["page"] = "not an integer"
 
         with pytest.raises(HTTPBadRequest):
-            views.releases_list(request)
+            views.releases_list(project, db_request)
 
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
@@ -180,9 +175,9 @@ class TestProjectReleasesList:
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "version:{}".format(releases[3].version)
-        result = views.releases_list(db_request)
+        result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": [releases[3]],
@@ -200,9 +195,9 @@ class TestProjectReleasesList:
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "user:{}".format(releases[3].uploader)
-        result = views.releases_list(db_request)
+        result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[:25],
@@ -220,15 +215,24 @@ class TestProjectReleasesList:
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "{}".format(releases[3].version)
-        result = views.releases_list(db_request)
+        result = views.releases_list(project, db_request)
 
         assert result == {
             "releases": releases[:25],
             "project": project,
             "query": "{}".format(releases[3].version),
         }
+
+    def test_non_normalized_name(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = str(project.name)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/the-redirect/releases/"
+        )
+        with pytest.raises(HTTPMovedPermanently):
+            views.releases_list(project, db_request)
 
 
 class TestProjectJournalsList:
@@ -241,8 +245,8 @@ class TestProjectJournalsList:
             key=lambda x: x.submitted_date,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
-        result = views.journals_list(db_request)
+        db_request.matchdict["project_name"] = project.normalized_name
+        result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
@@ -258,9 +262,9 @@ class TestProjectJournalsList:
             key=lambda x: x.submitted_date,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["page"] = "2"
-        result = views.journals_list(db_request)
+        result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[25:],
@@ -268,14 +272,13 @@ class TestProjectJournalsList:
             "query": None,
         }
 
-    def test_with_invalid_page(self):
-        request = pretend.stub(
-            matchdict={"project_name": "foobar"},
-            params={"page": "not an integer"},
-        )
+    def test_with_invalid_page(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.GET["page"] = "not an integer"
 
         with pytest.raises(HTTPBadRequest):
-            views.journals_list(request)
+            views.journals_list(project, db_request)
 
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
@@ -285,9 +288,9 @@ class TestProjectJournalsList:
             key=lambda x: x.submitted_date,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "version:{}".format(journals[3].version)
-        result = views.journals_list(db_request)
+        result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": [journals[3]],
@@ -303,9 +306,9 @@ class TestProjectJournalsList:
             key=lambda x: x.submitted_date,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "user:{}".format(journals[3].submitted_by)
-        result = views.journals_list(db_request)
+        result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
@@ -321,12 +324,21 @@ class TestProjectJournalsList:
             key=lambda x: x.submitted_date,
             reverse=True,
         )
-        db_request.matchdict["project_name"] = project.name
+        db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["q"] = "{}".format(journals[3].version)
-        result = views.journals_list(db_request)
+        result = views.journals_list(project, db_request)
 
         assert result == {
             "journals": journals[:25],
             "project": project,
             "query": "{}".format(journals[3].version),
         }
+
+    def test_non_normalized_name(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = str(project.name)
+        db_request.current_route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/the-redirect/journals/"
+        )
+        with pytest.raises(HTTPMovedPermanently):
+            views.journals_list(project, db_request)

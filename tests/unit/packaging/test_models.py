@@ -94,6 +94,7 @@ class TestProject:
         )
 
         assert project.__acl__() == [
+            (Allow, "group:admins", "admin"),
             (Allow, owner1.user.id, ["upload"]),
             (Allow, owner2.user.id, ["upload"]),
             (Allow, maintainer1.user.id, ["upload"]),
