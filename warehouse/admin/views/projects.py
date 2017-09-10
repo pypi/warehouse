@@ -149,7 +149,7 @@ def releases_list(request):
 
     return {
         "releases": list(releases),
-        "project_name": project.name,
+        "project": project,
         "query": q,
     }
 
@@ -198,4 +198,4 @@ def journals_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"journals": journals, "project_name": project.name, "query": q}
+    return {"journals": journals, "project": project, "query": q}

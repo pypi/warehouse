@@ -15,11 +15,11 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% block title %}Journal Entries For {{ project_name }}{% endblock %}
+{% block title %}Journal Entries For {{ project.name }}{% endblock %}
 
 {% block breadcrumb %}
   <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
-  <li><a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}">{{ project_name }}</a></li>
+  <li><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></li>
   <li class="active">Journal Entries</li>
 {% endblock %}
 

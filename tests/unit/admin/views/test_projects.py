@@ -137,7 +137,7 @@ class TestProjectReleasesList:
 
         assert result == {
             "releases": releases[:25],
-            "project_name": project.name,
+            "project": project,
             "query": None,
         }
 
@@ -157,7 +157,7 @@ class TestProjectReleasesList:
 
         assert result == {
             "releases": releases[25:],
-            "project_name": project.name,
+            "project": project,
             "query": None,
         }
 
@@ -186,7 +186,7 @@ class TestProjectReleasesList:
 
         assert result == {
             "releases": [releases[3]],
-            "project_name": project.name,
+            "project": project,
             "query": "version:{}".format(releases[3].version),
         }
 
@@ -246,7 +246,7 @@ class TestProjectJournalsList:
 
         assert result == {
             "journals": journals[:25],
-            "project_name": project.name,
+            "project": project,
             "query": None,
         }
 
@@ -264,7 +264,7 @@ class TestProjectJournalsList:
 
         assert result == {
             "journals": journals[25:],
-            "project_name": project.name,
+            "project": project,
             "query": None,
         }
 
@@ -291,7 +291,7 @@ class TestProjectJournalsList:
 
         assert result == {
             "journals": [journals[3]],
-            "project_name": project.name,
+            "project": project,
             "query": "version:{}".format(journals[3].version),
         }
 
