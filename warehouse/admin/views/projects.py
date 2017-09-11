@@ -94,7 +94,7 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
-            .filter(JournalEntry.name == project.normalized_name)
+            .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc())
             .limit(50)
         )
@@ -178,7 +178,7 @@ def journals_list(project, request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     journals_query = (request.db.query(JournalEntry)
-                      .filter(JournalEntry.name == project.normalized_name)
+                      .filter(JournalEntry.name == project.name)
                       .order_by(JournalEntry.submitted_date.desc()))
 
     if q:
