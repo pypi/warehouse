@@ -90,7 +90,7 @@ class TestProjectDetail:
     def test_gets_project(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(75)],
             key=lambda x: x.submitted_date,
             reverse=True,
@@ -240,7 +240,7 @@ class TestProjectJournalsList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(30)],
             key=lambda x: x.submitted_date,
             reverse=True,
@@ -257,7 +257,7 @@ class TestProjectJournalsList:
     def test_with_page(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(30)],
             key=lambda x: x.submitted_date,
             reverse=True,
@@ -283,7 +283,7 @@ class TestProjectJournalsList:
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(30)],
             key=lambda x: x.submitted_date,
             reverse=True,
@@ -301,7 +301,7 @@ class TestProjectJournalsList:
     def test_invalid_key_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(30)],
             key=lambda x: x.submitted_date,
             reverse=True,
@@ -319,7 +319,7 @@ class TestProjectJournalsList:
     def test_basic_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.normalized_name)
+            [JournalEntryFactory(name=project.name)
              for _ in range(30)],
             key=lambda x: x.submitted_date,
             reverse=True,
