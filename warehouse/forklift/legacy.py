@@ -761,7 +761,11 @@ def file_upload(request):
 
     # Make sure the filename ends with an allowed extension.
     if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
-        raise _exc_with_message(HTTPBadRequest, "Invalid file extension.")
+        raise _exc_with_message(
+            HTTPBadRequest, 
+            "Invalid file extension. PEP 527 requires .tar.gz or .zip "
+            "(https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
