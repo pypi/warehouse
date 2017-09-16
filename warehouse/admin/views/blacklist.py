@@ -91,8 +91,8 @@ def confirm_blacklist(request):
     # need to warn that blacklisting will delete those.
     project = (
         request.db.query(Project)
-                  .filter(Project.normalized_name
-                          == func.normalize_pep426_name(project_name))
+                  .filter(Project.normalized_name ==
+                          func.normalize_pep426_name(project_name))
                   .first()
     )
     if project is not None:
@@ -182,8 +182,8 @@ def add_blacklist(request):
     #       some kind of garbage collection at some point.
     project = (
         request.db.query(Project)
-                  .filter(Project.normalized_name
-                          == func.normalize_pep426_name(project_name))
+                  .filter(Project.normalized_name ==
+                          func.normalize_pep426_name(project_name))
                   .first()
     )
     if project is not None:
@@ -200,8 +200,8 @@ def add_blacklist(request):
         (request.db.query(Dependency).filter(Dependency.name == project.name)
                    .delete())
         (request.db.execute(release_classifiers.delete()
-                            .where(release_classifiers.c.name
-                                   == project.name)))
+                            .where(release_classifiers.c.name ==
+                                   project.name)))
         request.db.query(Release).filter(Release.name == project.name).delete()
         request.db.query(Project).filter(Project.name == project.name).delete()
 
