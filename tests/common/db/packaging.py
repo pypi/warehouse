@@ -12,12 +12,13 @@
 
 import datetime
 import hashlib
+import string
 
 import factory
 import factory.fuzzy
 
 from warehouse.packaging.models import (
-    Project, Release, Role, File, JournalEntry,
+    Project, Release, Role, File, JournalEntry, BlacklistedProject,
 )
 
 from .accounts import UserFactory
@@ -93,3 +94,12 @@ class JournalEntryFactory(WarehouseFactory):
         datetime.datetime(2008, 1, 1)
     )
     submitted_by = factory.SubFactory(UserFactory)
+
+
+class BlacklistedProjectFactory(WarehouseFactory):
+    class Meta:
+        model = BlacklistedProject
+
+    created = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
+    name = factory.fuzzy.FuzzyText(length=12)
+    blacklisted_by = factory.SubFactory(UserFactory)
