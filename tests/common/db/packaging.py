@@ -12,7 +12,6 @@
 
 import datetime
 import hashlib
-import string
 
 import factory
 import factory.fuzzy
