@@ -1,0 +1,65 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% block title %}Confirm Blacklist for {{ blacklist.project }}{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.blacklist.list') }}">Blacklist</a></li>
+  <li class="active">Confirm for {{ blacklist.project }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <div class="box box-primary">
+          <div class="box-body">
+              {% if existing.project %}
+              <p>
+                Blacklisting {{ blacklist.project }} will irreversibly delete
+                the {{ existing.project.name }} project along with
+                {{ existing.releases|length() }} releases and
+                {{ existing.files|length() }} files. This project has
+                {{ existing.users|length() }} users able to access it, listed
+                below:
+
+                <ul>
+                  {% for user in existing.users %}
+                  <li>
+                    <a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">
+                      {{ user.username }}
+                    </a>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </p>
+              {% endif %}
+
+              <p>
+                Are you sure you want to blacklist
+                <strong>{{ blacklist.project }}</strong>?
+              </p>
+
+              <form action="{{ request.current_route_path() }}" method="POST">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="project" type="hidden" value="{{ blacklist.project }}">
+                <input name="comment" type="Hidden" value="{{ blacklist.comment }}">
+                <button type="submit" class="btn btn-primary">Confirm</button>
+              </form>
+          </div>
+        </div>
+      </div>
+  </div>
+{% endblock %}
