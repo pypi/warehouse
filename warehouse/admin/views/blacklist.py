@@ -12,6 +12,7 @@
 
 import shlex
 
+from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -148,7 +149,20 @@ def add_blacklist(request):
         raise HTTPBadRequest("Must have a project to confirm.")
     comment = request.POST.get("comment", "")
 
-    print(request.user)
+    # Verify that the user has confirmed the request to blacklist.
+    confirm = request.POST.get("confirm")
+    if not confirm:
+        request.session.flash(
+            "Must confirm the blacklist request.",
+            queue="error",
+        )
+        return HTTPMovedPermanently(request.current_route_path())
+    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+        request.session.flash(
+            f"{confirm!r} is not the same as {project_name!r}",
+            queue="error",
+        )
+        return HTTPMovedPermanently(request.current_route_path())
 
     # Add our requested blacklist.
     request.db.add(
