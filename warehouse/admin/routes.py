@@ -69,3 +69,8 @@ def includeme(config):
         "/admin/blacklist/add/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.blacklist.remove",
+        "/admin/blacklist/remove/",
+        domain=warehouse,
+    )

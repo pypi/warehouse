@@ -16,15 +16,18 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
+    HTTPNotFound,
 )
 from pyramid.view import view_config
 from sqlalchemy import func, or_
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import (
     Project, Release, Dependency, File, Role, BlacklistedProject, JournalEntry,
     release_classifiers
 )
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -169,23 +172,60 @@ def add_blacklist(request):
                           == func.normalize_pep426_name(project_name))
                   .first()
     )
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="remove",
-            submitted_by=request.user,
-            submitted_from=request.remote_addr,
+    if project is not None:
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action="remove",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
         )
-    )
-    request.db.query(Role).filter(Role.project == project).delete()
-    request.db.query(File).filter(File.name == project.name).delete()
-    (request.db.query(Dependency).filter(Dependency.name == project.name)
-               .delete())
-    (request.db.execute(release_classifiers.delete()
-                        .where(release_classifiers.c.name == project.name)))
-    request.db.query(Release).filter(Release.name == project.name).delete()
-    request.db.query(Project).filter(Project.name == project.name).delete()
+        request.db.query(Role).filter(Role.project == project).delete()
+        request.db.query(File).filter(File.name == project.name).delete()
+        (request.db.query(Dependency).filter(Dependency.name == project.name)
+                   .delete())
+        (request.db.execute(release_classifiers.delete()
+                            .where(release_classifiers.c.name
+                                   == project.name)))
+        request.db.query(Release).filter(Release.name == project.name).delete()
+        request.db.query(Project).filter(Project.name == project.name).delete()
 
     request.session.flash("Successfully blacklisted {}".format(project_name))
 
     return HTTPMovedPermanently(request.route_path("admin.blacklist.list"))
+
+
+@view_config(
+    route_name="admin.blacklist.remove",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def remove_blacklist(request):
+    blacklist_id = request.POST.get("blacklist_id")
+    if blacklist_id is None:
+        raise HTTPBadRequest("Must have a blacklist_id to remove.")
+
+    try:
+        blacklist = (
+            request.db.query(BlacklistedProject)
+                      .filter(BlacklistedProject.id == blacklist_id)
+                      .one()
+        )
+    except NoResultFound:
+        raise HTTPNotFound from None
+
+    request.db.delete(blacklist)
+
+    request.session.flash(f"{blacklist.name!r} successfully unblacklisted.")
+
+    redirect_to = request.POST.get("next")
+    # If the user-originating redirection url is not safe, then redirect to
+    # the index instead.
+    if (not redirect_to or
+            not is_safe_url(url=redirect_to, host=request.host)):
+        redirect_to = request.route_path("admin.blacklist.list")
+
+    return HTTPMovedPermanently(redirect_to)

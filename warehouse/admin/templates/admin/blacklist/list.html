@@ -43,6 +43,7 @@
         <th>Blacklisted By</th>
         <th>Blackisted On</th>
         <th>Comment</th>
+        <th>Actions</th>
       </tr>
 
       {% for blacklisted in blacklist %}
@@ -57,6 +58,16 @@
         </td>
         <td>{{ blacklisted.created|format_datetime() }}</td>
         <td>{{ blacklisted.comment }}</td>
+        <td>
+          <form method="POST" action="{{ request.route_path('admin.blacklist.remove') }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input name="blacklist_id" type="hidden" value="{{ blacklisted.id }}">
+            <input name="next" type="hidden" value="{{ request.current_route_path() }}">
+            <button type="submit" class="btn btn-link">
+              <i class="fa fa-close"></i>
+            </button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </table>
