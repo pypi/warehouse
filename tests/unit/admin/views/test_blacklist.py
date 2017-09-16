@@ -16,16 +16,13 @@ import pretend
 import pytest
 
 from packaging.utils import canonicalize_name
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 
 from warehouse.admin.views import blacklist as views
-from warehouse.packaging.models import (
-    BlacklistedProject, Project, Role, Release, File,
-)
+from warehouse.packaging.models import BlacklistedProject, Project
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
