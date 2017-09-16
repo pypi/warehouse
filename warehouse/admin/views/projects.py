@@ -149,7 +149,7 @@ def releases_list(project, request):
     )
 
     return {
-        "releases": list(releases),
+        "releases": releases,
         "project": project,
         "query": q,
     }
