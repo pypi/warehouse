@@ -109,6 +109,30 @@
   {# =============================================== #}
 
   <div class="content-wrapper">
+      {% for message in request.session.pop_flash(queue="error") %}
+      <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+
+        {{ message }}
+      </div>
+      {% endfor %}
+
+      {% for message in request.session.pop_flash() %}
+      <div class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+
+        {{ message }}
+      </div>
+      {% endfor %}
+
+      {% for message in request.session.pop_flash(queue="success") %}
+      <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+
+        {{ message }}
+      </div>
+      {% endfor %}
+
     <section class="content-header">
       <h1>{{ self.title()|default('Dashboard', true) }}</h1>
       <ol class="breadcrumb">

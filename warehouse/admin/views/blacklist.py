@@ -205,7 +205,10 @@ def add_blacklist(request):
         request.db.query(Release).filter(Release.name == project.name).delete()
         request.db.query(Project).filter(Project.name == project.name).delete()
 
-    request.session.flash(f"Successfully blacklisted {project_name!r}")
+    request.session.flash(
+        f"Successfully blacklisted {project_name!r}",
+        queue="success",
+    )
 
     return HTTPMovedPermanently(request.route_path("admin.blacklist.list"))
 
@@ -233,7 +236,10 @@ def remove_blacklist(request):
 
     request.db.delete(blacklist)
 
-    request.session.flash(f"{blacklist.name!r} successfully unblacklisted.")
+    request.session.flash(
+        f"{blacklist.name!r} successfully unblacklisted.",
+        queue="success",
+    )
 
     redirect_to = request.POST.get("next")
     # If the user-originating redirection url is not safe, then redirect to
