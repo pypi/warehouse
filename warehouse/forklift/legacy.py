@@ -28,7 +28,7 @@ import wtforms.validators
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import exists, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
@@ -36,7 +36,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
-    JournalEntry,
+    JournalEntry, BlacklistedProject,
 )
 from warehouse.utils import http
 
@@ -613,14 +613,6 @@ def file_upload(request):
             ),
         )
 
-    # TODO: We need a better method of blocking names rather than just
-    #       hardcoding some names into source control.
-    if form.name.data.lower() in {"requirements.txt", "rrequirements.txt"}:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "The name {!r} is not allowed.".format(form.name.data),
-        )
-
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
         raise _exc_with_message(
@@ -639,6 +631,17 @@ def file_upload(request):
                           func.normalize_pep426_name(form.name.data)).one()
         )
     except NoResultFound:
+        # Before we create the project, we're going to check our blacklist to
+        # see if this project is even allowed to be registered. If it is not,
+        # then we're going to deny the request to create this project.
+        if request.db.query(exists().where(
+                BlacklistedProject.name ==
+                func.normalize_pep426_name(form.name.data))).scalar():
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "The name {!r} is not allowed.".format(form.name.data),
+            ) from None
+
         # The project doesn't exist in our database, so we'll add it along with
         # a role setting the current user as the "Owner" of the project.
         project = Project(name=form.name.data)
