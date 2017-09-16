@@ -191,7 +191,7 @@ def add_blacklist(request):
         request.db.query(Release).filter(Release.name == project.name).delete()
         request.db.query(Project).filter(Project.name == project.name).delete()
 
-    request.session.flash("Successfully blacklisted {}".format(project_name))
+    request.session.flash(f"Successfully blacklisted {project_name!r}")
 
     return HTTPMovedPermanently(request.route_path("admin.blacklist.list"))
 
