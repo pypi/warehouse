@@ -606,6 +606,11 @@ class TestFileUpload:
             "version": "1.0",
             "filetype": "sdist",
             "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename=f"{name}-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
         })
 
         with pytest.raises(HTTPBadRequest) as excinfo:
