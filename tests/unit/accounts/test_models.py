@@ -16,6 +16,7 @@ from warehouse.accounts.models import User, UserFactory
 
 from ...common.db.accounts import (
     UserFactory as DBUserFactory, EmailFactory as DBEmailFactory,
+    GPGKeyFactory as DBGPGKeyFactory
 )
 
 
@@ -71,6 +72,37 @@ class TestUser:
 
         result = db_session.query(User).filter(
             User.email == email.email
+        ).first()
+
+        assert result is None
+
+    def test_get_verified_key_when_no_keys(self, db_session):
+        user = DBUserFactory.create()
+        assert user.gpg_key is None
+
+    def test_get_gpg_key(self, db_session):
+        user = DBUserFactory.create()
+        key = DBGPGKeyFactory.create(user=user)
+        DBGPGKeyFactory.create(user=user, verified=False)
+
+        assert user.gpg_key == key.key_id
+
+    def test_query_by_gpg_key_when_verified(self, db_session):
+        user = DBUserFactory.create()
+        key = DBGPGKeyFactory.create(user=user)
+
+        result = db_session.query(User).filter(
+            User.gpg_key == key.key_id
+        ).first()
+
+        assert result == user
+
+    def test_query_by_gpg_key_when_not_verified(self, db_session):
+        user = DBUserFactory.create()
+        key = DBGPGKeyFactory.create(user=user, verified=False)
+
+        result = db_session.query(User).filter(
+            User.gpg_key == key.key_id
         ).first()
 
         assert result is None

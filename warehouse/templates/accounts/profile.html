@@ -32,6 +32,9 @@
           {% if user.date_joined %}
           <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
           {% endif %}
+          {% if user.gpg_key %}
+          <p><i class="fa fa-key" aria-hidden="true"></i>&nbsp;&nbsp;GPG key: {{ user.gpg_key }}</p>
+          {% endif %}
         </div>
       </div>
     </div>

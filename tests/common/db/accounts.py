@@ -15,9 +15,9 @@ import datetime
 import factory
 import factory.fuzzy
 
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import User, Email, GPGKey
 
-from .base import WarehouseFactory, FuzzyEmail
+from .base import WarehouseFactory, FuzzyEmail, FuzzyGPGKeyID
 
 
 class UserFactory(WarehouseFactory):
@@ -45,4 +45,13 @@ class EmailFactory(WarehouseFactory):
 
     user = factory.SubFactory(UserFactory)
     email = FuzzyEmail()
+    verified = True
+
+
+class GPGKeyFactory(WarehouseFactory):
+    class Meta:
+        model = GPGKey
+
+    user = factory.SubFactory(UserFactory)
+    email = FuzzyGPGKeyID()
     verified = True
