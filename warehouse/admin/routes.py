@@ -58,6 +58,13 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Journal related Admin pages
+    config.add_route(
+        "admin.journals.list",
+        "/admin/journals/",
+        domain=warehouse,
+    )
+
     # Blacklist related Admin pages
     config.add_route(
         "admin.blacklist.list",
