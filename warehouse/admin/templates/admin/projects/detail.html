@@ -108,4 +108,25 @@
         </div>
       </div>
   </div>
+  <div class="box box-secondary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Blacklist Project</h3>
+    </div>
+
+    <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
+      <input name="project" type="hidden" value="{{ project.normalized_name }}">
+      <div class="box-body">
+        <div class="form-group col-sm-12">
+          <label for="blacklistedComment">Comment</label>
+          <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
+        </div>
+      </div>
+
+      <div class="box-footer">
+        <div class="pull-right">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
 {% endblock %}
