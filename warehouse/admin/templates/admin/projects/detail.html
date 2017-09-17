@@ -115,12 +115,11 @@
 
     <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
       <div class="box-body">
-        <div class="form-group col-sm-4">
-          <label for="blacklistedProject">Project Name</label>
-          <input name="project" class="form-control" id="blacklistedProject" readonly="readonly" value="{{ project.normalized_name }}" placeholder="{{ project.name }}">
+        <div class="form-group">
+          <input name="project" class="form-control" id="blacklistedProject" type="hidden" readonly="readonly" value="{{ project.normalized_name }}" placeholder="{{ project.name }}">
         </div>
 
-        <div class="form-group col-sm-8">
+        <div class="form-group col-sm-12">
           <label for="blacklistedComment">Comment</label>
           <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
         </div>
