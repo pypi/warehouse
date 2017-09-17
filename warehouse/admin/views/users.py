@@ -23,6 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.models import User, Email
+from warehouse.packaging.models import Role
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -109,10 +110,18 @@ def user_detail(request):
     except NoResultFound:
         raise HTTPNotFound
 
+    roles = (
+        request.db.query(Role)
+                  .join(User)
+                  .filter(Role.user == user)
+                  .order_by(Role.role_name, Role.package_name)
+                  .all()
+    )
+
     form = UserForm(request.POST, user)
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
         return HTTPSeeOther(location=request.current_route_path())
 
-    return {"user": user, "form": form}
+    return {"user": user, "form": form, "roles": roles}
