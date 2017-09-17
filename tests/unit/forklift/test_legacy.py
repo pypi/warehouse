@@ -935,7 +935,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1369,7 +1372,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
     def test_upload_fails_with_unsafe_filename(self, pyramid_config,
