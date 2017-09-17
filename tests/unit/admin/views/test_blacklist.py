@@ -116,7 +116,7 @@ class TestConfirmBlacklist:
                 "project": None,
                 "releases": [],
                 "files": [],
-                "users": [],
+                "roles": [],
             }
         }
 
@@ -134,7 +134,7 @@ class TestConfirmBlacklist:
                 "project": project,
                 "releases": [],
                 "files": [],
-                "users": [],
+                "roles": [],
             }
         }
 
