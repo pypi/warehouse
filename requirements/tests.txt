@@ -212,9 +212,9 @@ responses==0.7.0 \
 selenium==3.5.0 \
     --hash=sha256:69b479bdfa1ab2fee86a75086f7d5c6ef93cdad8cb6521cb0596554c6722f3eb \
     --hash=sha256:267418f5fde1a4f8c180e5b8f45bd57c6d45b1f7d8fa5ad699a48e9a98fa79a3
-six==1.10.0 \
-    --hash=sha256:0ff78c403d9bccf5a425a6d31a12aa6b47f1c21ca4dc2573a7e2f32a97335eb1 \
-    --hash=sha256:105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a
+six==1.11.0 \
+    --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
+    --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
 UkPostcodeParser==1.1.2 \
     --hash=sha256:2fde05ec11af6faa93de42753d4b676988831dbdc430d6a9e49304e65cd05fd7 \
     --hash=sha256:f6b45434b73f1782bdb0f952036cd9f07a55d20ed184f2c42ff3695847d444d9 \
