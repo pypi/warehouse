@@ -54,8 +54,8 @@ def includeme(config):
             route_kw={"domain": forklift},
         )
 
-        # Any call to /legacy/ not handled by another route (e.g. no :action 
-        # URL parameter, or an invalid :action URL parameter) falls through to 
+        # Any call to /legacy/ not handled by another route (e.g. no :action
+        # URL parameter, or an invalid :action URL parameter) falls through to
         # this catch-all route.
         config.add_template_view(
             "forklift.legacy.invalid_request",
