@@ -29,18 +29,20 @@
               {% if existing.project %}
               <p>
                 Blacklisting {{ blacklist.project }} will irreversibly delete
-                the {{ existing.project.name }} project along with
-                {{ existing.releases|length() }} releases and
-                {{ existing.files|length() }} files. This project has
+                the <a href="{{ request.route_path('admin.project.detail', project_name=existing.project.normalized_name) }}">{{ existing.project.name }}</a>
+                project along with
+                <a href="{{ request.route_path('admin.project.releases', project_name=existing.project.normalized_name) }}">{{ existing.releases|length() }} releases</a>
+                and {{ existing.files|length() }} files. This project has
                 {{ existing.users|length() }} users able to access it, listed
                 below:
 
                 <ul>
-                  {% for user in existing.users %}
+                  {% for role in existing.roles %}
                   <li>
-                    <a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">
-                      {{ user.username }}
+                    <a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">
+                      {{ role.user.username }}
                     </a>
+                    <em>({{ role.role_name }})</em>
                   </li>
                   {% endfor %}
                 </ul>

@@ -14,11 +14,7 @@ import shlex
 
 from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import (
-    HTTPBadRequest,
-    HTTPMovedPermanently,
-    HTTPNotFound,
-)
+from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import func, or_
 from sqlalchemy.orm.exc import NoResultFound
@@ -106,21 +102,18 @@ def confirm_blacklist(request):
                       .filter(File.name == project.name)
                       .all()
         )
-        users = [
-            r.user
-            for r in (
-                request.db.query(Role)
-                .join(User)
-                .filter(Role.project == project)
-                .distinct(User.username)
-                .order_by(User.username)
-                .all()
-            )
-        ]
+        roles = (
+            request.db.query(Role)
+                      .join(User)
+                      .filter(Role.project == project)
+                      .distinct(User.username)
+                      .order_by(User.username)
+                      .all()
+        )
     else:
         releases = []
         files = []
-        users = []
+        roles = []
 
     return {
         "blacklist": {
@@ -131,7 +124,7 @@ def confirm_blacklist(request):
             "project": project,
             "releases": releases,
             "files": files,
-            "users": users,
+            "roles": roles,
         }
     }
 
@@ -156,13 +149,13 @@ def add_blacklist(request):
             "Must confirm the blacklist request.",
             queue="error",
         )
-        return HTTPMovedPermanently(request.current_route_path())
+        return HTTPSeeOther(request.current_route_path())
     elif canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}",
             queue="error",
         )
-        return HTTPMovedPermanently(request.current_route_path())
+        return HTTPSeeOther(request.current_route_path())
 
     # Add our requested blacklist.
     request.db.add(
@@ -210,7 +203,7 @@ def add_blacklist(request):
         queue="success",
     )
 
-    return HTTPMovedPermanently(request.route_path("admin.blacklist.list"))
+    return HTTPSeeOther(request.route_path("admin.blacklist.list"))
 
 
 @view_config(
@@ -248,4 +241,4 @@ def remove_blacklist(request):
             not is_safe_url(url=redirect_to, host=request.host)):
         redirect_to = request.route_path("admin.blacklist.list")
 
-    return HTTPMovedPermanently(redirect_to)
+    return HTTPSeeOther(redirect_to)

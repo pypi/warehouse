@@ -161,7 +161,7 @@ class TestAddBlacklist:
         assert request.session.flash.calls == [
             pretend.call("Must confirm the blacklist request.", queue="error"),
         ]
-        assert result.status_code == 301
+        assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
     def test_wrong_confirm(self):
@@ -178,7 +178,7 @@ class TestAddBlacklist:
         assert request.session.flash.calls == [
             pretend.call("'bar' is not the same as 'foo'", queue="error"),
         ]
-        assert result.status_code == 301
+        assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
     def test_adds_blacklist(self, db_request):
@@ -268,7 +268,7 @@ class TestRemoveBlacklist:
 
         resp = views.remove_blacklist(db_request)
 
-        assert resp.status_code == 301
+        assert resp.status_code == 303
         assert resp.headers["Location"] == "/admin/blacklist/"
         assert not (db_request.db.query(BlacklistedProject)
                                  .filter(BlacklistedProject.id == blacklist.id)
@@ -282,7 +282,7 @@ class TestRemoveBlacklist:
 
         resp = views.remove_blacklist(db_request)
 
-        assert resp.status_code == 301
+        assert resp.status_code == 303
         assert resp.headers["Location"] == "/another/url/"
         assert not (db_request.db.query(BlacklistedProject)
                                  .filter(BlacklistedProject.id == blacklist.id)
