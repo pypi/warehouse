@@ -931,8 +931,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension. PEP 527 requires .tar.gz or .zip "
-            "(https://www.python.org/dev/peps/pep-0527/)."
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -1368,8 +1368,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension. PEP 527 requires .tar.gz or .zip "
-            "(https://www.python.org/dev/peps/pep-0527/)."
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
         )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
