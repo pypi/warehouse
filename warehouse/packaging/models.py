@@ -22,6 +22,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -135,7 +136,9 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = []
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -497,3 +500,30 @@ class JournalEntry(db.ModelBase):
     )
     submitted_by = orm.relationship(User)
     submitted_from = Column(Text)
+
+
+class BlacklistedProject(db.Model):
+
+    __tablename__ = "blacklist"
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="blacklist_valid_name",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _blacklisted_by = Column(
+        "blacklisted_by",
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id"),
+    )
+    blacklisted_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")

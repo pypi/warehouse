@@ -29,3 +29,48 @@ def includeme(config):
         "/admin/users/{user_id}/",
         domain=warehouse,
     )
+
+    # Project related Admin pages
+    config.add_route(
+        "admin.project.list",
+        "/admin/projects/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.detail",
+        "/admin/projects/{project_name}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.releases",
+        "/admin/projects/{project_name}/releases/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.journals",
+        "/admin/projects/{project_name}/journals/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+
+    # Blacklist related Admin pages
+    config.add_route(
+        "admin.blacklist.list",
+        "/admin/blacklist/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.blacklist.add",
+        "/admin/blacklist/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.blacklist.remove",
+        "/admin/blacklist/remove/",
+        domain=warehouse,
+    )
