@@ -597,7 +597,12 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 {}".format(message)
 
-    @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
+    @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt",
+                                      "xml", "XML", "pickle", "PiCKle",
+                                      "main", "future", "al", "uU", "test",
+                                      "encodings.utf_8_sig",
+                                      "distutils.command.build_clib",
+                                      "CGIHTTPServer", "cgihttpserver"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
