@@ -17,11 +17,15 @@ import re
 import tempfile
 import zipfile
 
+from itertools import chain
+
 import packaging.specifiers
 import packaging.requirements
+import packaging.utils
 import packaging.version
 import pkg_resources
 import requests
+import stdlib_list
 import wtforms
 import wtforms.validators
 
@@ -46,6 +50,11 @@ MAX_SIGSIZE = 8 * 1024           # 8K
 
 PATH_HASHER = "blake2_256"
 
+STDLIB_PROHIBITTED = {
+    packaging.utils.canonicalize_name(s.rstrip('-_.').lstrip('-_.'))
+    for s in chain.from_iterable(stdlib_list.stdlib_list(version)
+                                 for version in stdlib_list.short_versions)
+}
 
 # Wheel platform checking
 # These platforms can be handled by a simple static list:
@@ -640,6 +649,15 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 "The name {!r} is not allowed.".format(form.name.data),
+            ) from None
+
+        # Also check for collisions with Python Standard Library modules.
+        if (packaging.utils.canonicalize_name(form.name.data) in
+                STDLIB_PROHIBITTED):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("The name {!r} is not allowed (conflict with Python "
+                 "Standard Libary module name).").format(form.name.data),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
