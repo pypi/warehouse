@@ -648,7 +648,10 @@ def file_upload(request):
                 func.normalize_pep426_name(form.name.data))).scalar():
             raise _exc_with_message(
                 HTTPBadRequest,
-                "The name {!r} is not allowed.".format(form.name.data),
+                ("The name {!r} is not allowed. "
+                 "See https://pypi.org/help/#project-name "
+                 "for more information.")
+                .format(form.name.data),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
@@ -657,7 +660,9 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 ("The name {!r} is not allowed (conflict with Python "
-                 "Standard Libary module name).").format(form.name.data),
+                 "Standard Libary module name). See "
+                 "https://pypi.org/help/#project-name for more information.")
+                .format(form.name.data),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
@@ -693,7 +698,9 @@ def file_upload(request):
     if not request.has_permission("upload", project):
         raise _exc_with_message(
             HTTPForbidden,
-            "You are not allowed to upload to {!r}.".format(project.name)
+            ("You are not allowed to upload to {!r}. "
+             "See https://pypi.org/help#project-name for more information.")
+            .format(project.name)
         )
 
     try:
