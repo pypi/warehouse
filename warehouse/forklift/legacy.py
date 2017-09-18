@@ -660,7 +660,7 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 ("The name {!r} is not allowed (conflict with Python "
-                 "Standard Libary module name). See "
+                 "Standard Library module name). See "
                  "https://pypi.org/help/#project-name for more information.")
                 .format(form.name.data),
             ) from None

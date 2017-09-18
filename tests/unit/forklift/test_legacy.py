@@ -650,7 +650,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (("400 The name {!r} is not allowed (conflict "
-                                "with Python Standard Libary module name). "
+                                "with Python Standard Library module name). "
                                 "See https://pypi.org/help/#project-name "
                                 "for more information.").format(name))
 
