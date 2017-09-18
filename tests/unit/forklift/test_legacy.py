@@ -619,7 +619,9 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 The name {!r} is not allowed.".format(name)
+        assert resp.status == ("400 The name {!r} is not allowed. "
+                               "See https://pypi.org/help/#project-name "
+                               "for more information.").format(name)
 
     @pytest.mark.parametrize("name", ["xml", "XML", "pickle", "PiCKle",
                                       "main", "future", "al", "uU", "test",
@@ -648,8 +650,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (("400 The name {!r} is not allowed (conflict "
-                                "with Python Standard Libary module name).")
-                               .format(name))
+                                "with Python Standard Libary module name). "
+                                "See https://pypi.org/help/#project-name "
+                                "for more information.").format(name))
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
