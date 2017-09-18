@@ -656,7 +656,8 @@ def file_upload(request):
                 STDLIB_PROHIBITTED):
             raise _exc_with_message(
                 HTTPBadRequest,
-                "The name {!r} is not allowed.".format(form.name.data),
+                ("The name {!r} is not allowed (conflict with Python "
+                 "Standard Libary module name).").format(form.name.data),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
