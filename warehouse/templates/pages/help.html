@@ -80,6 +80,21 @@
 
       <p>This is mostly just a warning at this point that the UI might return funky results, some things might not be great yet and to discourage throwing the full force of people's production traffic at it.</p>
       <p>The current hosting arrangement can't handle the full amount of traffic we get from <code>pip install</code> however uploads are fine and we're working on building on the new infrastructure with our future hosting arrangement that can handle the full production load.</p>
+
+      <h3 id="project-name" class="common-question">Why isn't my desired Project name available?</h3>
+
+      <p>When creating a new Project on PyPI, you may recieve an error from your publishing tool which indicates that a project is not able to be created with your desired name. In addition you may find that there are no associated project or release on pypi.org, currently there are three primary reasons this may occur:</p>
+      <ul>
+        <li>The project name conflicts with a <a href="https://docs.python.org/3/library/index.html">Python Standard Library</a> module from any major version from 2.5 to present.</li>
+        <li>The project name has been explicitly prohibitted by the PyPI administrators, for example <code>pip install requirements.txt</code> is a common typo for <code>pip install -r requirements.txt</code>, and should not surprise the user with a malicious package.</li>
+        <li>The project name has been registered by another user, but no releases have been created.</li>
+      </ul>
+
+      <h3 id="project-name-claim" class="common-question">How do I claim an abandoned or previously registered Project name?</h3>
+
+      <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development with <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a></p>
+
+      <p>When <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> is accepted, the project will create a workflow, to be documented here.</p>
     </div>
   </section>
 
