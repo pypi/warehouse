@@ -17,11 +17,15 @@ import re
 import tempfile
 import zipfile
 
+from itertools import chain
+
 import packaging.specifiers
 import packaging.requirements
+import packaging.utils
 import packaging.version
 import pkg_resources
 import requests
+import stdlib_list
 import wtforms
 import wtforms.validators
 
@@ -46,6 +50,11 @@ MAX_SIGSIZE = 8 * 1024           # 8K
 
 PATH_HASHER = "blake2_256"
 
+STDLIB_PROHIBITTED = {
+    packaging.utils.canonicalize_name(s.rstrip('-_.').lstrip('-_.'))
+    for s in chain.from_iterable(stdlib_list.stdlib_list(version)
+                                 for version in stdlib_list.short_versions)
+}
 
 # Wheel platform checking
 # These platforms can be handled by a simple static list:
@@ -642,6 +651,15 @@ def file_upload(request):
                 "The name {!r} is not allowed.".format(form.name.data),
             ) from None
 
+        # Also check for collisions with Python Standard Library modules.
+        if (packaging.utils.canonicalize_name(form.name.data) in
+                STDLIB_PROHIBITTED):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("The name {!r} is not allowed (conflict with Python "
+                 "Standard Libary module name).").format(form.name.data),
+            ) from None
+
         # The project doesn't exist in our database, so we'll add it along with
         # a role setting the current user as the "Owner" of the project.
         project = Project(name=form.name.data)
@@ -764,7 +782,11 @@ def file_upload(request):
 
     # Make sure the filename ends with an allowed extension.
     if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
-        raise _exc_with_message(HTTPBadRequest, "Invalid file extension.")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Invalid file extension. PEP 527 requires one of: .egg, .tar.gz, "
+            ".whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.

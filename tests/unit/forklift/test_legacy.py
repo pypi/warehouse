@@ -621,6 +621,36 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 The name {!r} is not allowed.".format(name)
 
+    @pytest.mark.parametrize("name", ["xml", "XML", "pickle", "PiCKle",
+                                      "main", "future", "al", "uU", "test",
+                                      "encodings.utf_8_sig",
+                                      "distutils.command.build_clib",
+                                      "CGIHTTPServer", "cgihttpserver"])
+    def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
+        pyramid_config.testing_securitypolicy(userid=1)
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": name,
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename=f"{name}-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (("400 The name {!r} is not allowed (conflict "
+                                "with Python Standard Libary module name).")
+                               .format(name))
+
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
@@ -935,7 +965,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1369,7 +1402,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
     def test_upload_fails_with_unsafe_filename(self, pyramid_config,

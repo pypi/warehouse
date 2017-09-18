@@ -108,9 +108,12 @@
         </div>
       </div>
   </div>
-  <div class="box box-secondary">
+  <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">Blacklist Project</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
     </div>
 
     <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
