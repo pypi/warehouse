@@ -572,6 +572,14 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
+def _is_duplicate_file(request, filename, sha256_hash):
+    """ Check to see if file already exists, and if it's content matches
+    """
+    requested_file = request.db.query(File).filter(File.filename == filename)
+    return (request.db.query(requested_file.exists()).scalar() and
+            requested_file.first().sha256_digest == sha256_hash)
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -819,13 +827,6 @@ def file_upload(request):
             form.filetype.data not in {"sdist", "bdist_wheel", "bdist_egg"}):
         raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
 
-    # Check to see if the file that was uploaded exists already or not.
-    if request.db.query(
-            request.db.query(File)
-                      .filter(File.filename == filename)
-                      .exists()).scalar():
-        raise _exc_with_message(HTTPBadRequest, "File already exists.")
-
     # Check to see if the file that was uploaded exists in our filename log.
     if (request.db.query(
             request.db.query(Filename)
@@ -870,8 +871,6 @@ def file_upload(request):
             for chunk in iter(
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
-                if file_size > file_size_limit:
-                    raise _exc_with_message(HTTPBadRequest, "File too large.")
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
@@ -881,6 +880,14 @@ def file_upload(request):
             k: h.hexdigest().lower()
             for k, h in file_hashes.items()
         }
+
+        # Check to see if the file that was uploaded exists already or not.
+        if _is_duplicate_file(request, filename, file_hashes["sha256"]):
+            raise _exc_with_message(HTTPBadRequest, "File already exists.")
+
+        # Check to make sure the file is not too large
+        if file_size > file_size_limit:
+            raise _exc_with_message(HTTPBadRequest, "File too large.")
 
         # Actually verify the digests that we've gotten. We're going to use
         # hmac.compare_digest even though we probably don't actually need to
