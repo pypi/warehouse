@@ -871,6 +871,8 @@ def file_upload(request):
             for chunk in iter(
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
+                if file_size > file_size_limit:
+                    raise _exc_with_message(HTTPBadRequest, "File too large.")
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
@@ -884,10 +886,6 @@ def file_upload(request):
         # Check to see if the file that was uploaded exists already or not.
         if _is_duplicate_file(request, filename, file_hashes["sha256"]):
             raise _exc_with_message(HTTPBadRequest, "File already exists.")
-
-        # Check to make sure the file is not too large
-        if file_size > file_size_limit:
-            raise _exc_with_message(HTTPBadRequest, "File too large.")
 
         # Actually verify the digests that we've gotten. We're going to use
         # hmac.compare_digest even though we probably don't actually need to

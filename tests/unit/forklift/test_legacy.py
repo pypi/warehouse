@@ -1297,7 +1297,7 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        file_content = io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1))
+        file_content = io.BytesIO(b"A fake file.")
 
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
