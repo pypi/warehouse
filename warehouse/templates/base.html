@@ -103,6 +103,7 @@
               <div role="search">
                 <label for="search" class="sr-only">Search PyPI</label>
                 <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                {%- block search_form_extra_inputs %}{% endblock %}
                 <input class="search-form__button button button--dark" type="submit" value="Search">
               </div>
             </form>
@@ -121,6 +122,7 @@
         <div role="search">
           <label for="mobile-search" class="sr-only">Search PyPI</label>
           <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
+          {{ self.search_form_extra_inputs() }}
           <button class="search-form__button button button--dark" type="submit">
             <span class="button__icon">
               <i class="fa fa-search" aria-hidden="true"></i>
