@@ -571,14 +571,22 @@ def _is_valid_dist_file(filename, filetype):
     # allow it.
     return True
 
-
-def _is_duplicate_file(request, filename, sha256_hash):
+def _is_duplicate_file(db_session, filename, hashes):
     """ Check to see if file already exists, and if it's content matches
     """
-    requested_file = request.db.query(File).filter(File.filename == filename)
-    return (request.db.query(requested_file.exists()).scalar() and
-            requested_file.first().sha256_digest == sha256_hash)
 
+    file_ = (
+        db_session.query(File)
+                  .filter(File.filename == filename)
+                  .first()
+    )
+
+    if file_:
+        return (file_.sha256_digest == hashes["sha256"] and
+                file_.md5_digest == hashes["md5"] and
+                file_.blake2_256_digest == hashes["blake2_256"])
+
+    return False
 
 @view_config(
     route_name="forklift.legacy.file_upload",
@@ -883,10 +891,6 @@ def file_upload(request):
             for k, h in file_hashes.items()
         }
 
-        # Check to see if the file that was uploaded exists already or not.
-        if _is_duplicate_file(request, filename, file_hashes["sha256"]):
-            raise _exc_with_message(HTTPBadRequest, "File already exists.")
-
         # Actually verify the digests that we've gotten. We're going to use
         # hmac.compare_digest even though we probably don't actually need to
         # because it's better safe than sorry. In the case of multiple digests
@@ -904,6 +908,10 @@ def file_upload(request):
                 "The digest supplied does not match a digest calculated "
                 "from the uploaded file."
             )
+
+        # Check to see if the file that was uploaded exists already or not.
+        if _is_duplicate_file(request.db, filename, file_hashes):
+            raise _exc_with_message(HTTPBadRequest, "File already exists.")
 
         # Check the file to make sure it is a valid distribution file.
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):

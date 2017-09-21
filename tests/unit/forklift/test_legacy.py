@@ -1304,7 +1304,7 @@ class TestFileUpload:
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
-            "md5_digest": "nope!",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
             "content": pretend.stub(
                 filename=filename,
                 file=file_content,
@@ -1316,12 +1316,12 @@ class TestFileUpload:
             File(
                 release=release,
                 filename=filename,
-                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(
                     file_content.getvalue()
                 ).hexdigest(),
                 blake2_256_digest=hashlib.blake2b(
-                    filename.encode("utf8"),
+                    file_content.getvalue(),
                     digest_size=32,
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
