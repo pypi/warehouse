@@ -1408,7 +1408,7 @@ class TestFileUpload:
             "different version."
         )
 
-    def test_upload_fails_with_existing_file(self, pyramid_config, db_request):
+    def test_upload_noop_with_existing_filename_same_content(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -1442,6 +1442,54 @@ class TestFileUpload:
                 ).hexdigest(),
                 blake2_256_digest=hashlib.blake2b(
                     file_content.getvalue(),
+                    digest_size=256 // 8
+                ).hexdigest(),
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+
+    def test_upload_fails_with_existing_filename_different_content(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+            "content": pretend.stub(
+                filename=filename,
+                file=file_content,
+                type="application/tar",
+            ),
+        })
+
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode('utf8')).hexdigest(),
+                sha256_digest=hashlib.sha256(
+                    filename.encode('utf8')
+                ).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode('utf8'),
                     digest_size=256 // 8
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
