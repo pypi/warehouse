@@ -84,6 +84,11 @@
 {% endif %}
 {%- endmacro %}
 
+{% block search_form_extra_inputs -%}
+  {%- for classifier in applied_filters %}
+    <input name="c" type="hidden" value="{{ classifier|e }}">
+  {%- endfor -%}
+{%- endblock %}
 
 {% block content %}
 <section class="horizontal-section horizontal-section--medium">

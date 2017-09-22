@@ -714,9 +714,9 @@ def file_upload(request):
     if not request.has_permission("upload", project):
         raise _exc_with_message(
             HTTPForbidden,
-            ("You are not allowed to upload to {!r}. "
+            ("The user '{0}' is not allowed to upload to project '{1}'. "
              "See https://pypi.org/help#project-name for more information.")
-            .format(project.name)
+            .format(request.user.username, project.name)
         )
 
     try:
