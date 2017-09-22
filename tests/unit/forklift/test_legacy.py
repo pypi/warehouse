@@ -492,7 +492,7 @@ class TestIsDuplicateFile:
 
         assert legacy._is_duplicate_file(db_request.db, filename, hashes)
 
-    def test_is_duplicate_false(self, pyramid_config, db_request):
+    def test_is_duplicate_none(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -531,7 +531,7 @@ class TestIsDuplicateFile:
             db_request.db, requested_file_name, hashes
         ) is None
 
-    def test_is_duplicate_none(self, pyramid_config, db_request):
+    def test_is_duplicate_false(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
