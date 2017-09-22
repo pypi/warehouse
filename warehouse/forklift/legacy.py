@@ -572,6 +572,30 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
+def _is_duplicate_file(db_session, filename, hashes):
+    """
+    Check to see if file already exists, and if it's content matches
+
+    Returns:
+    - True: This file is a duplicate and all further processing should halt.
+    - False: This file exists, but it is not a duplicate.
+    - None: This file does not exist.
+    """
+
+    file_ = (
+        db_session.query(File)
+                  .filter(File.filename == filename)
+                  .first()
+    )
+
+    if file_ is not None:
+        return (file_.sha256_digest == hashes["sha256"] and
+                file_.md5_digest == hashes["md5"] and
+                file_.blake2_256_digest == hashes["blake2_256"])
+
+    return None
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -819,13 +843,6 @@ def file_upload(request):
             form.filetype.data not in {"sdist", "bdist_wheel", "bdist_egg"}):
         raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
 
-    # Check to see if the file that was uploaded exists already or not.
-    if request.db.query(
-            request.db.query(File)
-                      .filter(File.filename == filename)
-                      .exists()).scalar():
-        raise _exc_with_message(HTTPBadRequest, "File already exists.")
-
     # Check to see if the file that was uploaded exists in our filename log.
     if (request.db.query(
             request.db.query(Filename)
@@ -899,6 +916,13 @@ def file_upload(request):
                 "The digest supplied does not match a digest calculated "
                 "from the uploaded file."
             )
+
+        # Check to see if the file that was uploaded exists already or not.
+        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+        if is_duplicate:
+            return Response()
+        elif is_duplicate is not None:
+            raise _exc_with_message(HTTPBadRequest, "File already exists.")
 
         # Check the file to make sure it is a valid distribution file.
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
