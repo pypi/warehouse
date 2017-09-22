@@ -921,6 +921,8 @@ def file_upload(request):
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
             raise _exc_with_message(HTTPBadRequest, "File already exists.")
+        elif is_duplicate is not None:
+            return Response()
 
         # Check the file to make sure it is a valid distribution file.
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
