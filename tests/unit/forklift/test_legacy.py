@@ -1565,11 +1565,15 @@ class TestFileUpload:
     def test_upload_fails_without_permission(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1, permissive=False)
 
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user1, project=project)
 
         filename = "{}-{}.tar.wat".format(project.name, release.version)
 
+        db_request.user = user2
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
