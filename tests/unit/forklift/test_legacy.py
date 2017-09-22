@@ -1381,16 +1381,17 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
 
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
-            "md5_digest": "nope!",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                file=file_content,
                 type="application/tar",
             ),
         })
