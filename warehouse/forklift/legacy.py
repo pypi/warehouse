@@ -913,7 +913,7 @@ def file_upload(request):
         elif is_duplicate is not None:
             raise _exc_with_message(HTTPBadRequest, "File already exists.")
 
-        # Check to see if the file that was uploaded exists in our filename log.
+        # Check to see if the file that was uploaded exists in our filename log
         if (request.db.query(
                 request.db.query(Filename)
                           .filter(Filename.filename == filename)
