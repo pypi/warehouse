@@ -571,8 +571,15 @@ def _is_valid_dist_file(filename, filetype):
     # allow it.
     return True
 
+
 def _is_duplicate_file(db_session, filename, hashes):
-    """ Check to see if file already exists, and if it's content matches
+    """
+    Check to see if file already exists, and if it's content matches
+
+    Returns:
+    - True: This file is a duplicate and all further processing should halt.
+    - False: This file exists, but it is not a duplicate.
+    - None: This file does not exist.
     """
 
     file_ = (
@@ -581,12 +588,13 @@ def _is_duplicate_file(db_session, filename, hashes):
                   .first()
     )
 
-    if file_:
+    if file_ is not None:
         return (file_.sha256_digest == hashes["sha256"] and
                 file_.md5_digest == hashes["md5"] and
                 file_.blake2_256_digest == hashes["blake2_256"])
 
-    return False
+    return None
+
 
 @view_config(
     route_name="forklift.legacy.file_upload",
@@ -910,7 +918,8 @@ def file_upload(request):
             )
 
         # Check to see if the file that was uploaded exists already or not.
-        if _is_duplicate_file(request.db, filename, file_hashes):
+        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+        if is_duplicate:
             raise _exc_with_message(HTTPBadRequest, "File already exists.")
 
         # Check the file to make sure it is a valid distribution file.
