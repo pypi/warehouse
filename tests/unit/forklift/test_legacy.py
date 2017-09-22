@@ -1409,7 +1409,8 @@ class TestFileUpload:
         )
 
     def test_upload_noop_with_existing_filename_same_content(self,
-                                                             pyramid_config, db_request):
+                                                             pyramid_config,
+                                                             db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -1456,8 +1457,9 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-    def test_upload_fails_with_existing_filename_different_content(self,
-                                                                   pyramid_config, db_request):
+    def test_upload_fails_with_existing_filename_diff_content(self,
+                                                              pyramid_config,
+                                                              db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
