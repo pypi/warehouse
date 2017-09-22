@@ -1455,7 +1455,6 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-
     def test_upload_fails_with_existing_filename_different_content(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
