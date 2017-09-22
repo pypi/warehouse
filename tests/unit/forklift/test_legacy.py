@@ -472,7 +472,9 @@ class TestIsDuplicateFile:
         hashes = {
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
-            "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest()
+            "blake2_256": hashlib.blake2b(
+                file_value, digest_size=256 // 8
+            ).hexdigest()
         }
         db_request.db.add(
             File(
@@ -499,7 +501,8 @@ class TestIsDuplicateFile:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
-        requested_file_name = "{}-{}-1.tar.gz".format(project.name, release.version)
+        requested_file_name = "{}-{}-1.tar.gz".format(project.name,
+                                                      release.version)
         file_content = io.BytesIO(b"A fake file.")
         file_value = file_content.getvalue()
 
@@ -507,8 +510,7 @@ class TestIsDuplicateFile:
             "sha256": hashlib.sha256(file_value).hexdigest(),
             "md5": hashlib.md5(file_value).hexdigest(),
             "blake2_256": hashlib.blake2b(
-                file_value,
-                digest_size=256 // 8
+                file_value, digest_size=256 // 8
             ).hexdigest()
         }
         db_request.db.add(
@@ -525,7 +527,9 @@ class TestIsDuplicateFile:
             ),
         )
 
-        assert legacy._is_duplicate_file(db_request.db, requested_file_name, hashes) is None
+        assert legacy._is_duplicate_file(
+            db_request.db, requested_file_name, hashes
+        ) is None
 
     def test_is_duplicate_none(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -567,7 +571,9 @@ class TestIsDuplicateFile:
             ),
         )
 
-        assert legacy._is_duplicate_file(db_request.db, filename, wrong_hashes) is False
+        assert legacy._is_duplicate_file(
+            db_request.db, filename, wrong_hashes
+        ) is False
 
 
 class TestFileUpload:
