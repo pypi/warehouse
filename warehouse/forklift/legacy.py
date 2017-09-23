@@ -843,30 +843,6 @@ def file_upload(request):
             form.filetype.data not in {"sdist", "bdist_wheel", "bdist_egg"}):
         raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
 
-    # Check to see if the file that was uploaded exists in our filename log.
-    if (request.db.query(
-            request.db.query(Filename)
-                      .filter(Filename.filename == filename)
-                      .exists()).scalar()):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "This filename has previously been used, you should use a "
-            "different version.",
-        )
-
-    # Check to see if uploading this file would create a duplicate sdist for
-    # the current release.
-    if (form.filetype.data == "sdist" and
-            request.db.query(
-                request.db.query(File)
-                          .filter((File.release == release) &
-                                  (File.packagetype == "sdist"))
-                          .exists()).scalar()):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Only one sdist may be uploaded per release.",
-        )
-
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
     # size limits.
@@ -923,6 +899,30 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(HTTPBadRequest, "File already exists.")
+
+        # Check to see if the file that was uploaded exists in our filename log
+        if (request.db.query(
+                request.db.query(Filename)
+                          .filter(Filename.filename == filename)
+                          .exists()).scalar()):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "This filename has previously been used, you should use a "
+                "different version.",
+            )
+
+        # Check to see if uploading this file would create a duplicate sdist
+        # for the current release.
+        if (form.filetype.data == "sdist" and
+                request.db.query(
+                    request.db.query(File)
+                              .filter((File.release == release) &
+                                      (File.packagetype == "sdist"))
+                              .exists()).scalar()):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "Only one sdist may be uploaded per release.",
+            )
 
         # Check the file to make sure it is a valid distribution file.
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
