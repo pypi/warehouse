@@ -20,6 +20,7 @@ from webob.multidict import MultiDict
 from warehouse.admin.views import users as views
 
 from ....common.db.accounts import UserFactory, EmailFactory
+from ....common.db.packaging import ProjectFactory, RoleFactory
 
 
 class TestUserList:
@@ -142,11 +143,16 @@ class TestUserDetail:
 
     def test_gets_user(self, db_request):
         user = UserFactory.create()
+        project = ProjectFactory.create()
+        roles = sorted(
+            [RoleFactory(project=project, user=user, role_name='Owner')],
+        )
         db_request.matchdict["user_id"] = str(user.id)
         db_request.POST = MultiDict(db_request.POST)
         result = views.user_detail(db_request)
 
         assert result["user"] == user
+        assert result["roles"] == roles
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()

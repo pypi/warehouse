@@ -57,3 +57,27 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+
+    # Journal related Admin pages
+    config.add_route(
+        "admin.journals.list",
+        "/admin/journals/",
+        domain=warehouse,
+    )
+
+    # Blacklist related Admin pages
+    config.add_route(
+        "admin.blacklist.list",
+        "/admin/blacklist/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.blacklist.add",
+        "/admin/blacklist/add/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.blacklist.remove",
+        "/admin/blacklist/remove/",
+        domain=warehouse,
+    )
