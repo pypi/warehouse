@@ -121,7 +121,7 @@
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
         <div role="search">
           <label for="mobile-search" class="sr-only">Search PyPI</label>
-          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
           {{ self.search_form_extra_inputs() }}
           <button class="search-form__button button button--dark" type="submit">
             <span class="button__icon">
