@@ -446,7 +446,8 @@ class TestSearch:
             ),
         ]
         assert es_query.filter.calls == [
-            pretend.call('terms', classifiers=['foo :: bar', 'fiz :: buz'])
+            pretend.call('terms', classifiers=['foo :: bar']),
+            pretend.call('terms', classifiers=['fiz :: buz'])
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
