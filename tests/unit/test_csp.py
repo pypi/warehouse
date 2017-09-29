@@ -222,7 +222,6 @@ def test_includeme():
                     "https://secure.gravatar.com",
                 ],
                 "referrer": ["origin-when-cross-origin"],
-                "reflected-xss": ["block"],
                 "script-src": ["'self'", "www.google-analytics.com"],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
