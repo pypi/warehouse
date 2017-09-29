@@ -221,7 +221,6 @@ def test_includeme():
                     "camo.url.value",
                     "https://secure.gravatar.com",
                 ],
-                "referrer": ["origin-when-cross-origin"],
                 "script-src": ["'self'", "www.google-analytics.com"],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },

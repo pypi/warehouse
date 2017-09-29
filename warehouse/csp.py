@@ -86,7 +86,6 @@ def includeme(config):
                 config.registry.settings["camo.url"],
                 "https://secure.gravatar.com",
             ],
-            "referrer": ["origin-when-cross-origin"],
             "script-src": [SELF, "www.google-analytics.com"],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
