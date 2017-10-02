@@ -65,6 +65,7 @@ let webpackConfig = {
 gulp.task("dist:js", () => {
   let files = [
     path.join(staticPrefix, "js", "warehouse", "index.js"),
+    path.join(staticPrefix, "js", "pwmask", "pw-mask-toggle.js"),
   ];
 
   return gulp.src(files)
@@ -76,9 +77,11 @@ gulp.task("dist:js", () => {
                   file.path
                 );
                 // If this is our main application, then we want to call it
-                // just "warehouse", otherwise, we'll use whatever the real
-                // name is.
+                // just "warehouse". If this is the password unmasking code
+                // we'll call it "pwmask"; much easier to type. otherwise, we'll
+                // use whatever the real name is.
                 if (relPath == "warehouse/index.js") { return "warehouse"; }
+                else if (relPath == "pwmask/pw-mask-toggle.js") { return "pwmask"; }
                 else { return path.parse(relPath).name; }
               }))
               .pipe(gulpWebpack(webpackConfig, webpack))
