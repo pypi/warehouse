@@ -354,21 +354,21 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "12345"
+        db_request.POST["upload_limit"] = "90"
 
         views.set_upload_limit(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo' to 12345",
+                "Successfully set the upload limit on 'foo'.",
                 queue="success"),
         ]
 
-        assert project.upload_limit == 12345
+        assert project.upload_limit == 90 * views.ONE_MB
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
-        project.upload_limit = 12345
+        project.upload_limit = 90 * views.ONE_MB
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/")
@@ -381,17 +381,26 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo' to None",
+                "Successfully set the upload limit on 'foo'.",
                 queue="success"),
         ]
 
         assert project.upload_limit is None
 
-    def test_sets_limit_with_bad_value(self, db_request):
+    def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST["upload_limit"] = "meep"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_upload_limit(project, db_request)
+
+    def test_sets_limit_with_less_than_minimum(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "20"
 
         with pytest.raises(HTTPBadRequest):
             views.set_upload_limit(project, db_request)
