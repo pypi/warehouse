@@ -19,7 +19,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import or_
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
