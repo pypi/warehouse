@@ -56,9 +56,9 @@
                   <td>Upload limit</td>
                   <td>
                     {% if project.upload_limit %}
-                      {{ project.upload_limit / ONE_MB }} MB ({{ "{:,.0f}".format(project.upload_limit) }} bytes)
+                      {{ project.upload_limit|filesizeformat(binary=True) }}
                     {% else %}
-                      Default ({{ MAX_FILESIZE / ONE_MB }} MB)
+                      Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
                     {% endif %}
                   </td>
                 </tr>
