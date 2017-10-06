@@ -16,6 +16,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
+    HTTPSeeOther,
 )
 from pyramid.view import view_config
 from sqlalchemy import or_
@@ -201,3 +202,37 @@ def journals_list(project, request):
     )
 
     return {"journals": journals, "project": project, "query": q}
+
+
+@view_config(
+    route_name="admin.project.set_upload_limit",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def set_upload_limit(project, request):
+    upload_limit = request.POST.get("upload_limit", "")
+
+    # Update the project's upload limit.
+    # If the upload limit is an empty string or othrwise falsy, just set the
+    # limit to None, indicating the default limit.
+    if not upload_limit:
+        project.upload_limit = None
+    else:
+        try:
+            project.upload_limit = int(upload_limit)
+        except ValueError:
+            raise HTTPBadRequest(
+                f"Invalid value for upload_limit: {upload_limit}, "
+                f"must be integer or empty string.")
+
+    request.session.flash(
+        f"Successfully set the upload limit on {project.name!r} to "
+        f"{project.upload_limit!r}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            'admin.project.detail', project_name=project.normalized_name))
