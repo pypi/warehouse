@@ -17,6 +17,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
 from warehouse.admin.views import projects as views
 
+from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
@@ -342,3 +343,26 @@ class TestProjectJournalsList:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
+
+
+class TestProjectSetLimit:
+    def test_sets_integer_limit(self, db_request):
+        project = ProjectFactory.create()
+
+        db_request.user = UserFactory.create()
+        db_request.current_route_path = lambda: "/admin/projects/",
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "12345"
+
+        views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully set the upload limit on 'foo' to '12345'",
+                queue="success"),
+        ]
+
+        assert project.upload_limit == 12345

@@ -46,6 +46,18 @@
         <div class="box box-primary">
           <div class="box-body box-profile">
             <h3 class="project-name text-center">{{ project.name }}</h3>
+            <div class="box-body box-attributes">
+              <table class="table table-hover">
+                <tr>
+                  <th>Attribute</th>
+                  <th>Value</th>
+                </tr>
+                <tr>
+                  <td>Upload limit</td>
+                  <td>{{ project.upload_limit }}</td>
+                </tr>
+              </table>
+            </div>
             <div class="box-body box-maintainers">
               <table class="table table-hover">
                 <tr>
@@ -108,6 +120,7 @@
         </div>
       </div>
   </div>
+  <!-- Blacklist form -->
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
       <h3 class="box-title">Blacklist Project</h3>
@@ -122,6 +135,32 @@
         <div class="form-group col-sm-12">
           <label for="blacklistedComment">Comment</label>
           <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
+        </div>
+      </div>
+
+      <div class="box-footer">
+        <div class="pull-right">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Upload limit form -->
+  <div class="box box-secondary collapsed-box">
+    <div class="box-header with-border">
+      <h3 class="box-title">Set upload limit</h3>
+      <div class="box-tools">
+        <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <div class="box-body">
+        <div class="form-group col-sm-12">
+          <label for="uploadLimit">Upload limit (in bytes)</label>
+          <input type="text" name="upload_limit" class="form-control" id="uploadLimit" rows="3" value="{{ project.upload_limit | default('', True)}}">
         </div>
       </div>
 
