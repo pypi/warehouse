@@ -24,6 +24,9 @@ from sqlalchemy import or_
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.forklift.legacy import MAX_FILESIZE
+
+ONE_MB = 1024 * 1024  # bytes
 
 
 @view_config(
@@ -101,7 +104,13 @@ def project_detail(project, request):
         )
     ]
 
-    return {"project": project, "maintainers": maintainers, "journal": journal}
+    return {
+        "project": project,
+        "maintainers": maintainers,
+        "journal": journal,
+        "ONE_MB": ONE_MB,
+        "MAX_FILESIZE": MAX_FILESIZE
+    }
 
 
 @view_config(
@@ -218,18 +227,27 @@ def set_upload_limit(project, request):
     # If the upload limit is an empty string or othrwise falsy, just set the
     # limit to None, indicating the default limit.
     if not upload_limit:
-        project.upload_limit = None
+        upload_limit = None
     else:
         try:
-            project.upload_limit = int(upload_limit)
+            upload_limit = int(upload_limit)
         except ValueError:
             raise HTTPBadRequest(
-                f"Invalid value for upload_limit: {upload_limit}, "
+                f"Invalid value for upload limit: {upload_limit}, "
                 f"must be integer or empty string.")
 
+        # The form is in MB, but the database field is in bytes.
+        upload_limit *= ONE_MB
+
+        if upload_limit < MAX_FILESIZE:
+            raise HTTPBadRequest(
+                f"Upload limit can not be less than the default limit of "
+                f"{MAX_FILESIZE / ONE_MB}MB.")
+
+    project.upload_limit = upload_limit
+
     request.session.flash(
-        f"Successfully set the upload limit on {project.name!r} to "
-        f"{project.upload_limit!r}",
+        f"Successfully set the upload limit on {project.name!r}.",
         queue="success",
     )
 
