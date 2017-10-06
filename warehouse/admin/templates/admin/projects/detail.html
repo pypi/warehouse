@@ -54,7 +54,13 @@
                 </tr>
                 <tr>
                   <td>Upload limit</td>
-                  <td>{{ project.upload_limit }}</td>
+                  <td>
+                    {% if project.upload_limit %}
+                      {{ project.upload_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                      Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </td>
                 </tr>
               </table>
             </div>
@@ -159,8 +165,13 @@
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="box-body">
         <div class="form-group col-sm-12">
-          <label for="uploadLimit">Upload limit (in bytes)</label>
-          <input type="text" name="upload_limit" class="form-control" id="uploadLimit" rows="3" value="{{ project.upload_limit | default('', True)}}">
+          <label for="uploadLimit">Upload limit (in Megabytes)</label>
+          {% if project.upload_limit %}
+            {% set upload_limit_value = project.upload_limit / ONE_MB %}
+          {% else %}
+            {% set upload_limit_value = '' %}
+          {% endif %}
+          <input type="number" name="upload_limit" class="form-control" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" value="{{ upload_limit_value }}">
         </div>
       </div>
 
