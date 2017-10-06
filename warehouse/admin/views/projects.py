@@ -214,17 +214,22 @@ def journals_list(project, request):
 def set_upload_limit(project, request):
     upload_limit = request.POST.get("upload_limit", "")
 
+    # Update the project's upload limit.
     # If the upload limit is an empty string or othrwise falsy, just set the
     # limit to None, indicating the default limit.
     if not upload_limit:
-        upload_limit = None
-
-    # Update the project's upload limit.
-    project.upload_limit = int(upload_limit)
+        project.upload_limit = None
+    else:
+        try:
+            project.upload_limit = int(upload_limit)
+        except ValueError:
+            raise HTTPBadRequest(
+                f"Invalid value for upload_limit: {upload_limit}, "
+                f"must be integer or empty string.")
 
     request.session.flash(
         f"Successfully set the upload limit on {project.name!r} to "
-        f"{upload_limit!r}",
+        f"{project.upload_limit!r}",
         queue="success",
     )
 

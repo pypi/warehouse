@@ -17,7 +17,6 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
 
 from warehouse.admin.views import projects as views
 
-from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
@@ -346,11 +345,11 @@ class TestProjectJournalsList:
 
 
 class TestProjectSetLimit:
-    def test_sets_integer_limit(self, db_request):
-        project = ProjectFactory.create()
+    def test_sets_limitwith_integer(self, db_request):
+        project = ProjectFactory.create(name="foo")
 
-        db_request.user = UserFactory.create()
-        db_request.current_route_path = lambda: "/admin/projects/",
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -361,8 +360,38 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo' to '12345'",
+                "Successfully set the upload limit on 'foo' to 12345",
                 queue="success"),
         ]
 
         assert project.upload_limit == 12345
+
+    def test_sets_limit_with_none(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        project.upload_limit = 12345
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+
+        views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully set the upload limit on 'foo' to None",
+                queue="success"),
+        ]
+
+        assert project.upload_limit is None
+
+    def test_sets_limit_with_bad_value(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "meep"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_upload_limit(project, db_request)
