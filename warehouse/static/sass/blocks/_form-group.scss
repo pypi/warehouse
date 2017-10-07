@@ -31,6 +31,12 @@
     margin-bottom: 7px;
   }
 
+  &__show-pw {
+    font-weight: $base-font-weight;
+    font-size: $base-font-size;
+    margin-left: 147px;
+  }
+
   &__input {
     display: block;
     width: 350px;

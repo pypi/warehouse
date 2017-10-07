@@ -48,8 +48,8 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-group__label">Password</label>
-          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          <label for="password" class="form-group__label">Password<span id="-js-pw-m-lbl" class="form-group__show-pw"><input type="checkbox" id="unmaskpw" class="-js-pw-m-cbx" name="unmaskpw" value=""> Show password</span></label>
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input -js-pw-m-fld") }}
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
@@ -59,8 +59,21 @@
           {% endif %}
         </div>
 
-        <input type="submit" value="Login" class="button button--highlight">
+        <input type="submit" value="Login" class="button button--highlight -js-pw-m-sbt">
       </form>
     </div>
   </section>
+
+{% endblock %}
+
+{% block extra_js %}
+{#
+ # The pwmask JS requires jQuery to execute. However, we must guarantee pwmask does execute
+ # until after the HTML parser has completed to assure all elements manipulated by pwmask
+ # to to toggle the password attribute have been identified and added to the DOM tree.
+ # Thus, jQuery is loaded/execited immediately mode while pwmask is loaded async and execution
+ # is deferred until after the parser has completed it's task.
+-#}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script async defer src="{{ request.static_path('warehouse:static/dist/js/pwmask.js') }}"></script>
 {% endblock %}
