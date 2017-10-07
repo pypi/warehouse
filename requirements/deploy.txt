@@ -122,9 +122,9 @@ pyasn1-modules==0.1.4 \
     --hash=sha256:b07c17bdb34d6f64aafea6269f2e8fb306a57473f0f38d9a6ca389d6ab30ac4a
 pycparser==2.18 \
     --hash=sha256:99a8ca03e29851d96616ad0404b4aad7d9ee16f25c9f9708a11faf2810f7b226
-pyOpenSSL==17.2.0 \
-    --hash=sha256:c8959e441c2d85d646f3d6e9024ec02b2fc8dda92596e44ce3460b3a476bc694 \
-    --hash=sha256:5d617ce36b07c51f330aa63b83bf7f25c40a0e95958876d54d1982f8c91b4834
+pyOpenSSL==17.3.0 \
+    --hash=sha256:aade9985b93eaec51b0c0a2a60d14bb8dcff1ff8e36fe542e3c22812ec07315e \
+    --hash=sha256:29630b9064a82e04d8242ea01d7c93d70ec320f5e3ed48e95fcabc6b1d0f6c76
 service_identity==17.0.0 \
     --hash=sha256:0e76f3c042cc0f5c7e6da002cf646f59dc4023962d1d1166343ce53bdad39e17 \
     --hash=sha256:4001fbb3da19e0df22c47a06d29681a398473af4aa9d745eca525b3b2c2302ab
