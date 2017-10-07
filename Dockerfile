@@ -1,67 +1,105 @@
-FROM python:3.6.1-slim
+# First things first, we build an image which is where we're going to compile
+# our static assets with. It is important that the steps in this remain the
+# same as the steps in Dockerfile.static, EXCEPT this may include additional
+# steps appended onto the end.
+FROM node:6.11.1 as static
 
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /app/
-# Setup proxy configuration
-# ENV http_proxy "http://proxy.foo.com:1234"
-# ENV https_proxy "http://proxy.foo.com:1234"
-# ENV no_proxy "*.foo.com"
+WORKDIR /app/
 
-# Setup the locales in the Dockerfile
+# The list of C packages we need are almost never going to change, so installing
+# them first, right off the bat lets us cache that and having node.js level
+# dependency changes not trigger a reinstall.
 RUN set -x \
     && apt-get update \
-    && apt-get install locales -y \
-    && locale-gen en_US.UTF-8
-
-# Install Warehouse's Dependencies
-RUN set -x \
-    && apt-get update \
-    && apt-get install curl -y \
-    && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-    && apt-get install git libxml2 libxslt1.1 libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
+    && apt-get install --no-install-recommends -y \
+        libjpeg62 \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# However, we do want to trigger a reinstall of our node.js dependencies anytime
+# our package.json changes, so we'll ensure that we're copying that into our
+# static container prior to actually installing the npm dependencies.
+COPY package.json .babelrc /app/
+
+# Installing npm dependencies is done as a distinct step and *prior* to copying
+# over our static files so that, you guessed it, we don't invalidate the cache
+# of installed dependencies just because files have been modified.
 RUN set -x \
     && apt-get update \
-    && apt-get install inotify-tools wget bzip2 gcc g++ make libpq-dev libjpeg-dev libffi-dev libxml2-dev libxslt1-dev --no-install-recommends -y \
-    && wget https://saucelabs.com/downloads/sc-4.3.14-linux.tar.gz -O /tmp/sc.tar.gz \
-    && tar zxvf /tmp/sc.tar.gz --strip 1 -C /usr/ \
-    && chmod 755 /usr/bin/sc
-
-COPY package.json /tmp/package.json
-
-# Install NPM dependencies
-RUN set -x \
-    && npm install -g phantomjs-prebuilt gulp-cli \
-    && cd /tmp \
+    && apt-get install --no-install-recommends -y \
+        libjpeg-dev \
+    && npm install -g gulp-cli \
     && npm install \
-    && mkdir /app \
-    && cp -a /tmp/node_modules /app/
+    && apt-get remove --purge -y libjpeg-dev \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-COPY requirements /tmp/requirements
+# Actually copy over our static files, we only copy over the static files to
+# save a small amount of space in our image and because we don't need them. We
+# copy Gulpfile.babel.js last even though it's least likely to change, because
+# it's very small so copying it needlessly isn't a big deal but it will save a
+# small amount of copying when only Gulpfile.babel.js is modified.
+COPY warehouse/static/ /app/warehouse/static/
+COPY Gulpfile.babel.js /app/
 
-# Install Python dependencies
-RUN set -x \
-    && pip install -U pip setuptools \
-    && pip install -r /tmp/requirements/dev.txt \
-    && pip install -r /tmp/requirements/tests.txt \
-                   -r /tmp/requirements/deploy.txt \
-                   -r /tmp/requirements/main.txt \
-    # Uncomment the below line if you're working on the PyPI theme, this is a
-    # private repository due to the fact that other people's IP is contained
-    # in it.
-    # && pip install -c requirements/main.txt -r requirements/theme.txt \
-    && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
-    && rm -rf ~/.cache/
+RUN gulp dist
 
-# Copy the directory into the container
-COPY . /app/
 
-# Set our work directory to our app directory
+# Now we're going to build our actual application image, which will eventually
+# pull in the static files that were built above.
+FROM python:3.6.2-alpine3.6
+
+# Setup some basic environment variables that are ~never going to change.
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH /app/
+
 WORKDIR /app/
 
-# Uncomment the below line and add the appropriate private index for the
-# pypi-theme package.
-# ENV PIP_EXTRA_INDEX_URL ...
+# Define whether we're building a production or a development image. This will
+# generally be used to control whether or not we install our development and
+# test dependencies.
+ARG DEVEL=no
+
+# Install System level Warehouse requirements, this is done before everything
+# else because these are rarely ever going to change.
+RUN set -x \
+    && apk --no-cache add libpq \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg postgresql-client'; fi)
+
+# We need a way for the build system to pass in a repository that will be used
+# to install our theme from. For this we'll add the THEME_REPO build argument
+# which takes a PEP 503 compatible repository URL that must be available to
+# install the requirements/theme.txt requirement file.
+ARG THEME_REPO
+
+# We copy this into the docker container prior to copying in the rest of our
+# application so that we can skip installing requirements if the only thing
+# that has changed is the Warehouse code itself.
+COPY requirements /tmp/requirements
+
+# Install the Python level Warehouse requirements, this is done after copying
+# the requirements but prior to copying Warehouse itself into the container so
+# that code changes don't require triggering an entire install of all of
+# Warehouse's dependencies.
+RUN set -x \
+    && apk --no-cache add --virtual build-dependencies \
+        build-base libffi-dev libxml2-dev libxslt-dev postgresql-dev \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'jpeg-dev linux-headers'; fi) \
+    && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi \
+    && PIP_EXTRA_INDEX_URL=$THEME_REPO \
+        pip --no-cache-dir --disable-pip-version-check \
+            install -r /tmp/requirements/deploy.txt \
+                    -r /tmp/requirements/main.txt \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt'; fi) \
+                    $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
+    && find /usr/local -name '*.pyc' -delete \
+    && apk del build-dependencies
+
+# Copy the directory into the container, this is done last so that changes to
+# Warehouse itself require the least amount of layers being invalidated from
+# the cache. This is most important in development, but it also useful for
+# deploying new code changes.
+COPY --from=static /app/warehouse/static/dist/ /app/warehouse/static/dist/
+COPY . /app/

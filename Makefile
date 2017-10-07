@@ -86,16 +86,16 @@ serve: .state/docker-build
 	docker-compose up
 
 debug: .state/docker-build
-	docker-compose run --service-ports web
+	docker-compose run --rm --service-ports web
 
 tests:
-	docker-compose run web env -i ENCODING="C.UTF-8" \
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 saucelabs:
-	docker-compose run web env -i ENCODING="C.UTF-8" \
+	docker-compose run web --rm env -i ENCODING="C.UTF-8" \
 								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  SELENIUM_BROWSER="$(SELENIUM_BROWSER)" \
 								  SELENIUM_VERSION="$(SELENIUM_VERSION)" \
@@ -141,19 +141,19 @@ ifneq ($(PR), false)
 endif
 
 initdb:
-	docker-compose run web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
-	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -k dev/$(DB).sql.xz
-	docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
+	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
-	docker-compose run web python -m warehouse db upgrade head
+	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
 reindex:
-	docker-compose run web python -m warehouse search reindex
+	docker-compose run --rm web python -m warehouse search reindex
 
 shell:
-	docker-compose run web python -m warehouse shell
+	docker-compose run --rm web python -m warehouse shell
 
 clean:
 	rm -rf warehouse/static/components
