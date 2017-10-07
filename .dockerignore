@@ -1,3 +1,6 @@
 .git/*
 node_modules
 dev/*
+**/*.pyc
+htmlcov
+warehouse/static/dist
