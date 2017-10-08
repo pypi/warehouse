@@ -65,8 +65,8 @@ ARG DEVEL=no
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
 RUN set -x \
-    && apk --no-cache add libpq \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg postgresql-client'; fi)
+    && apk --no-cache add libpq libxml2 libxslt \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg postgresql-client'; fi)
 
 # We need a way for the build system to pass in a repository that will be used
 # to install our theme from. For this we'll add the THEME_REPO build argument
