@@ -221,9 +221,9 @@ UkPostcodeParser==1.1.2 \
 urllib3==1.22 \
     --hash=sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b \
     --hash=sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f
-waitress==1.0.2 \
-    --hash=sha256:d00e6c533c0fba6b3cbc7f1f1fcf037c84ee47b3065ce20c2c2d55e3eaf3b063 \
-    --hash=sha256:c74fa1b92cb183d5a3684210b1bf0a0845fe8eb378fa816f17199111bbf7865f
+waitress==1.1.0 \
+    --hash=sha256:40b0f297a7f3af61fbfbdc67e59090c70dc150a1601c39ecc9f5f1d283fb931b \
+    --hash=sha256:d33cd3d62426c0f1b3cd84ee3d65779c7003aae3fc060dee60524d10a57f05a9
 WebOb==1.7.3 \
     --hash=sha256:0ef6a10fc04a9e699fe0260b3af9b3518e239d35e2942c6fdc2959c193730a2d \
     --hash=sha256:e65ca14b9f5ae5b031988ffc93f8b7f305ddfcf17a4c774ae0db47bcb3b87283
