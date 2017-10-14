@@ -1,5 +1,5 @@
 language: python
-python: 3.6.1
+python: 3.6.3
 
 env:
   global:
