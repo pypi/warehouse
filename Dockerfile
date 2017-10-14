@@ -49,7 +49,7 @@ RUN gulp dist
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.6.3-alpine3.6
+FROM python:3.6.2-alpine3.6
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
