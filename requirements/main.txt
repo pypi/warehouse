@@ -69,9 +69,9 @@ bleach==2.1.1 \
 boto3==1.4.7 \
     --hash=sha256:38057b066990172ce6ebbf2a5e046a545503793581fcf14cab0e3821c6112eb0 \
     --hash=sha256:f79f77dca2280f7780f39d72a5088f4cf2b626c0921e7185ed6ac17abfdd7e6c
-botocore==1.7.31 \
-    --hash=sha256:82dd6cddbb3cd91c81a46508584abd0fe13265b25420c5a99a960b9ed2b15f01 \
-    --hash=sha256:107bd6e7ed5f1c0b56010b6b2d1cb483b9d89d4870ff1903e33667fc2a14c71d
+botocore==1.7.33 \
+    --hash=sha256:37e10509df468c11b479339d52c27e7647fe4f1b92bd098b7253f6a6d41b071c \
+    --hash=sha256:2a669d113f9e3b1f9ddab280e641e71bc62c78c07c75d73d939409fae4152de1
 cachetools==2.0.1 \
     --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
     --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d
@@ -146,9 +146,9 @@ google-cloud-bigquery==0.27.0 \
 google-cloud-core==0.27.1 \
     --hash=sha256:05486972ceae281c1005918655313ad21a880bee6bdf74b8703c09afdab9a1f9 \
     --hash=sha256:1e52449feb72160a726798a085d7b0cf1d7b88d4b4af00f04d9ca9d6eb47847b
-google-resumable-media==0.3.0 \
-    --hash=sha256:e29e8dd5f3487616579e17265146338c8496299c106cee966c1c900702f65adc \
-    --hash=sha256:50d752565dd8258a6c75a4c47acded350edee07ad64f87308a278c2db30d35c4
+google-resumable-media==0.3.1 \
+    --hash=sha256:116de90b9cd483b17c53618ee6a5a20f33e741c648140c8cc9c2141e07616ff1 \
+    --hash=sha256:97de518f8166d442cc0b61fab308bcd319dbb970981e667ec8ded44f5ce49836
 googleapis-common-protos==1.5.3 \
     --hash=sha256:c075eddaa2628ab519e01b7d75b76e66c40eaa50fc52758d8225f84708950ef2
 hiredis==0.2.0 \
