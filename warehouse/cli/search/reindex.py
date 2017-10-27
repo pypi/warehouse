@@ -91,7 +91,7 @@ def reindex(config, **kwargs):
 
         for _ in parallel_bulk(client, _project_docs(db)):
             pass
-    except:
+    except:  # noqa
         new_index.delete()
         raise
     finally:
