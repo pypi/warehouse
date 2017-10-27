@@ -93,7 +93,7 @@ Once you have Docker and Docker Compose installed, run:
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the docker container at ``/app/``.
+mounted inside of the docker container at ``/opt/warehouse/src/``.
 
 
 Running the Warehouse Container and Services
@@ -147,9 +147,9 @@ Web container is listening on port 80. It's accessible at
 What did we just do and what is happening behind the scenes?
 ------------------------------------------------------------
 
-The repository is exposed inside of the web container at ``/app/`` and
-Warehouse will automatically reload when it detects any changes made to the
-code.
+The repository is exposed inside of the web container at
+``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
+any changes made to the code.
 
 The example data located in ``dev/example.sql.xz`` is taken from
 `Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove

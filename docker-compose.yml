@@ -39,11 +39,11 @@ services:
       # or any file not in these directories will require a rebuild.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
-      - ./dev:/app/dev:z
-      - ./docs:/app/docs:z
-      - ./warehouse:/app/warehouse:z
-      - ./tests:/app/tests:z
-      - ./htmlcov:/app/htmlcov:z
+      - ./dev:/opt/warehouse/src/dev:z
+      - ./docs:/opt/warehouse/src/docs:z
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./htmlcov:/opt/warehouse/src/htmlcov:z
     ports:
       - "80:8000"
     links:
@@ -73,6 +73,6 @@ services:
       dockerfile: Dockerfile.static
     command: gulp watch
     volumes:
-      - ./warehouse:/app/warehouse:z
-      - ./Gulpfile.babel.js:/app/Gulpfile.babel.js:z
-      - ./.babelrc:/app/.babelrc:z
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
+      - ./.babelrc:/opt/warehouse/src/.babelrc:z
