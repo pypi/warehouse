@@ -81,7 +81,7 @@ debug: .state/docker-build
 
 tests:
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
-								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
