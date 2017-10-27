@@ -17,18 +17,22 @@ import re
 import tempfile
 import zipfile
 
+from itertools import chain
+
 import packaging.specifiers
 import packaging.requirements
+import packaging.utils
 import packaging.version
 import pkg_resources
 import requests
+import stdlib_list
 import wtforms
 import wtforms.validators
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import exists, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
@@ -36,7 +40,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
-    JournalEntry,
+    JournalEntry, BlacklistedProject,
 )
 from warehouse.utils import http
 
@@ -46,6 +50,11 @@ MAX_SIGSIZE = 8 * 1024           # 8K
 
 PATH_HASHER = "blake2_256"
 
+STDLIB_PROHIBITTED = {
+    packaging.utils.canonicalize_name(s.rstrip('-_.').lstrip('-_.'))
+    for s in chain.from_iterable(stdlib_list.stdlib_list(version)
+                                 for version in stdlib_list.short_versions)
+}
 
 # Wheel platform checking
 # These platforms can be handled by a simple static list:
@@ -563,6 +572,30 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
+def _is_duplicate_file(db_session, filename, hashes):
+    """
+    Check to see if file already exists, and if it's content matches
+
+    Returns:
+    - True: This file is a duplicate and all further processing should halt.
+    - False: This file exists, but it is not a duplicate.
+    - None: This file does not exist.
+    """
+
+    file_ = (
+        db_session.query(File)
+                  .filter(File.filename == filename)
+                  .first()
+    )
+
+    if file_ is not None:
+        return (file_.sha256_digest == hashes["sha256"] and
+                file_.md5_digest == hashes["md5"] and
+                file_.blake2_256_digest == hashes["blake2_256"])
+
+    return None
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -613,14 +646,6 @@ def file_upload(request):
             ),
         )
 
-    # TODO: We need a better method of blocking names rather than just
-    #       hardcoding some names into source control.
-    if form.name.data.lower() in {"requirements.txt", "rrequirements.txt"}:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "The name {!r} is not allowed.".format(form.name.data),
-        )
-
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
         raise _exc_with_message(
@@ -639,6 +664,31 @@ def file_upload(request):
                           func.normalize_pep426_name(form.name.data)).one()
         )
     except NoResultFound:
+        # Before we create the project, we're going to check our blacklist to
+        # see if this project is even allowed to be registered. If it is not,
+        # then we're going to deny the request to create this project.
+        if request.db.query(exists().where(
+                BlacklistedProject.name ==
+                func.normalize_pep426_name(form.name.data))).scalar():
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("The name {!r} is not allowed. "
+                 "See https://pypi.org/help/#project-name "
+                 "for more information.")
+                .format(form.name.data),
+            ) from None
+
+        # Also check for collisions with Python Standard Library modules.
+        if (packaging.utils.canonicalize_name(form.name.data) in
+                STDLIB_PROHIBITTED):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("The name {!r} is not allowed (conflict with Python "
+                 "Standard Library module name). See "
+                 "https://pypi.org/help/#project-name for more information.")
+                .format(form.name.data),
+            ) from None
+
         # The project doesn't exist in our database, so we'll add it along with
         # a role setting the current user as the "Owner" of the project.
         project = Project(name=form.name.data)
@@ -654,7 +704,7 @@ def file_upload(request):
                 name=project.name,
                 action="create",
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
         request.db.add(
@@ -662,7 +712,7 @@ def file_upload(request):
                 name=project.name,
                 action="add Owner {}".format(request.user.username),
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 
@@ -672,7 +722,9 @@ def file_upload(request):
     if not request.has_permission("upload", project):
         raise _exc_with_message(
             HTTPForbidden,
-            "You are not allowed to upload to {!r}.".format(project.name)
+            ("The user '{0}' is not allowed to upload to project '{1}'. "
+             "See https://pypi.org/help#project-name for more information.")
+            .format(request.user.username, project.name)
         )
 
     try:
@@ -727,7 +779,7 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 
@@ -761,7 +813,11 @@ def file_upload(request):
 
     # Make sure the filename ends with an allowed extension.
     if _dist_file_regexes[project.allow_legacy_files].search(filename) is None:
-        raise _exc_with_message(HTTPBadRequest, "Invalid file extension.")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Invalid file extension. PEP 527 requires one of: .egg, .tar.gz, "
+            ".whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
@@ -786,37 +842,6 @@ def file_upload(request):
     if (not project.allow_legacy_files and
             form.filetype.data not in {"sdist", "bdist_wheel", "bdist_egg"}):
         raise _exc_with_message(HTTPBadRequest, "Unknown type of file.")
-
-    # Check to see if the file that was uploaded exists already or not.
-    if request.db.query(
-            request.db.query(File)
-                      .filter(File.filename == filename)
-                      .exists()).scalar():
-        raise _exc_with_message(HTTPBadRequest, "File already exists.")
-
-    # Check to see if the file that was uploaded exists in our filename log.
-    if (request.db.query(
-            request.db.query(Filename)
-                      .filter(Filename.filename == filename)
-                      .exists()).scalar()):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "This filename has previously been used, you should use a "
-            "different version.",
-        )
-
-    # Check to see if uploading this file would create a duplicate sdist for
-    # the current release.
-    if (form.filetype.data == "sdist" and
-            request.db.query(
-                request.db.query(File)
-                          .filter((File.release == release) &
-                                  (File.packagetype == "sdist"))
-                          .exists()).scalar()):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Only one sdist may be uploaded per release.",
-        )
 
     # The project may or may not have a file size specified on the project, if
     # it does then it may or may not be smaller or larger than our global file
@@ -866,6 +891,37 @@ def file_upload(request):
                 HTTPBadRequest,
                 "The digest supplied does not match a digest calculated "
                 "from the uploaded file."
+            )
+
+        # Check to see if the file that was uploaded exists already or not.
+        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+        if is_duplicate:
+            return Response()
+        elif is_duplicate is not None:
+            raise _exc_with_message(HTTPBadRequest, "File already exists.")
+
+        # Check to see if the file that was uploaded exists in our filename log
+        if (request.db.query(
+                request.db.query(Filename)
+                          .filter(Filename.filename == filename)
+                          .exists()).scalar()):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "This filename has previously been used, you should use a "
+                "different version.",
+            )
+
+        # Check to see if uploading this file would create a duplicate sdist
+        # for the current release.
+        if (form.filetype.data == "sdist" and
+                request.db.query(
+                    request.db.query(File)
+                              .filter((File.release == release) &
+                                      (File.packagetype == "sdist"))
+                              .exists()).scalar()):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "Only one sdist may be uploaded per release.",
             )
 
         # Check the file to make sure it is a valid distribution file.
@@ -956,7 +1012,7 @@ def file_upload(request):
                     filename=file_.filename,
                 ),
                 submitted_by=request.user,
-                submitted_from=request.client_addr,
+                submitted_from=request.remote_addr,
             ),
         )
 

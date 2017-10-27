@@ -142,6 +142,7 @@ class TestJSONRelease:
             for r in releases[:-1]
         ]
         user = UserFactory.create()
+        JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(
             name=project.name,
             submitted_by=user,
@@ -217,7 +218,7 @@ class TestJSONRelease:
                 "1.0": [
                     {
                         "comment_text": None,
-                        "downloads": 0,
+                        "downloads": -1,
                         "filename": files[0].filename,
                         "has_sig": True,
                         "md5_digest": files[0].md5_digest,
@@ -237,7 +238,7 @@ class TestJSONRelease:
                 "2.0": [
                     {
                         "comment_text": None,
-                        "downloads": 0,
+                        "downloads": -1,
                         "filename": files[1].filename,
                         "has_sig": True,
                         "md5_digest": files[1].md5_digest,
@@ -259,7 +260,7 @@ class TestJSONRelease:
             "urls": [
                 {
                     "comment_text": None,
-                    "downloads": 0,
+                    "downloads": -1,
                     "filename": files[1].filename,
                     "has_sig": True,
                     "md5_digest": files[1].md5_digest,

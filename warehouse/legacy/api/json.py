@@ -125,7 +125,9 @@ def json_release(release, request):
                     "sha256": f.sha256_digest,
                 },
                 "size": f.size,
-                "downloads": f.downloads,
+                # TODO: Remove this once we've had a long enough time with it
+                #       here to consider it no longer in use.
+                "downloads": -1,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "url": request.route_url("packaging.file", path=f.path),
             }

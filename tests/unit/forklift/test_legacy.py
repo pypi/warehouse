@@ -456,6 +456,126 @@ class TestFileValidation:
         assert legacy._is_valid_dist_file(f, "bdist_wheel")
 
 
+class TestIsDuplicateFile:
+    def test_is_duplicate_true(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+        file_value = file_content.getvalue()
+
+        hashes = {
+            "sha256": hashlib.sha256(file_value).hexdigest(),
+            "md5": hashlib.md5(file_value).hexdigest(),
+            "blake2_256": hashlib.blake2b(
+                file_value, digest_size=256 // 8
+            ).hexdigest()
+        }
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashes["md5"],
+                sha256_digest=hashes["sha256"],
+                blake2_256_digest=hashes["blake2_256"],
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        assert legacy._is_duplicate_file(db_request.db, filename, hashes)
+
+    def test_is_duplicate_none(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        requested_file_name = "{}-{}-1.tar.gz".format(project.name,
+                                                      release.version)
+        file_content = io.BytesIO(b"A fake file.")
+        file_value = file_content.getvalue()
+
+        hashes = {
+            "sha256": hashlib.sha256(file_value).hexdigest(),
+            "md5": hashlib.md5(file_value).hexdigest(),
+            "blake2_256": hashlib.blake2b(
+                file_value, digest_size=256 // 8
+            ).hexdigest()
+        }
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashes["md5"],
+                sha256_digest=hashes["sha256"],
+                blake2_256_digest=hashes["blake2_256"],
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        assert legacy._is_duplicate_file(
+            db_request.db, requested_file_name, hashes
+        ) is None
+
+    def test_is_duplicate_false(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+        file_value = file_content.getvalue()
+
+        hashes = {
+            "sha256": hashlib.sha256(file_value).hexdigest(),
+            "md5": hashlib.md5(file_value).hexdigest(),
+            "blake2_256": hashlib.blake2b(
+                file_value, digest_size=256 // 8
+            ).hexdigest()
+        }
+
+        wrong_hashes = {
+            "sha256": "nah",
+            "md5": "nope",
+            "blake2_256": "nuh uh"
+        }
+
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashes["md5"],
+                sha256_digest=hashes["sha256"],
+                blake2_256_digest=hashes["blake2_256"],
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        assert legacy._is_duplicate_file(
+            db_request.db, filename, wrong_hashes
+        ) is False
+
+
 class TestFileUpload:
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
@@ -606,6 +726,11 @@ class TestFileUpload:
             "version": "1.0",
             "filetype": "sdist",
             "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename=f"{name}-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
         })
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -614,7 +739,40 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 The name {!r} is not allowed.".format(name)
+        assert resp.status == ("400 The name {!r} is not allowed. "
+                               "See https://pypi.org/help/#project-name "
+                               "for more information.").format(name)
+
+    @pytest.mark.parametrize("name", ["xml", "XML", "pickle", "PiCKle",
+                                      "main", "future", "al", "uU", "test",
+                                      "encodings.utf_8_sig",
+                                      "distutils.command.build_clib",
+                                      "CGIHTTPServer", "cgihttpserver"])
+    def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
+        pyramid_config.testing_securitypolicy(userid=1)
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": name,
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename=f"{name}-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (("400 The name {!r} is not allowed (conflict "
+                                "with Python Standard Library module name). "
+                                "See https://pypi.org/help/#project-name "
+                                "for more information.").format(name))
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -711,7 +869,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.40"
+        db_request.remote_addr = "10.10.10.40"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -930,7 +1088,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1220,16 +1381,17 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
 
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
-            "md5_digest": "nope!",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                file=file_content,
                 type="application/tar",
             ),
         })
@@ -1247,7 +1409,9 @@ class TestFileUpload:
             "different version."
         )
 
-    def test_upload_fails_with_existing_file(self, pyramid_config, db_request):
+    def test_upload_noop_with_existing_filename_same_content(self,
+                                                             pyramid_config,
+                                                             db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -1256,16 +1420,17 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
 
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
-            "md5_digest": "nope!",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                file=file_content,
                 type="application/tar",
             ),
         })
@@ -1274,13 +1439,62 @@ class TestFileUpload:
             File(
                 release=release,
                 filename=filename,
-                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(
-                    filename.encode("utf8")
+                    file_content.getvalue()
                 ).hexdigest(),
                 blake2_256_digest=hashlib.blake2b(
-                    filename.encode("utf8"),
-                    digest_size=32,
+                    file_content.getvalue(),
+                    digest_size=256 // 8
+                ).hexdigest(),
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    def test_upload_fails_with_existing_filename_diff_content(self,
+                                                              pyramid_config,
+                                                              db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+            "content": pretend.stub(
+                filename=filename,
+                file=file_content,
+                type="application/tar",
+            ),
+        })
+
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode('utf8')).hexdigest(),
+                sha256_digest=hashlib.sha256(
+                    filename.encode('utf8')
+                ).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode('utf8'),
+                    digest_size=256 // 8
                 ).hexdigest(),
                 path="source/{name[0]}/{name}/{filename}".format(
                     name=project.name,
@@ -1364,7 +1578,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 Invalid file extension."
+        assert resp.status == (
+            "400 Invalid file extension. PEP 527 requires one of: .egg, "
+            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+        )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
     def test_upload_fails_with_unsafe_filename(self, pyramid_config,
@@ -1406,11 +1623,15 @@ class TestFileUpload:
     def test_upload_fails_without_permission(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1, permissive=False)
 
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user1, project=project)
 
         filename = "{}-{}.tar.wat".format(project.name, release.version)
 
+        db_request.user = user2
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1455,7 +1676,7 @@ class TestFileUpload:
         )
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1562,7 +1783,7 @@ class TestFileUpload:
         )
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1660,7 +1881,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.bz2".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1705,7 +1926,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, release.version)
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.30"
+        db_request.remote_addr = "10.10.10.30"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1800,7 +2021,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -1907,7 +2128,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
-        db_request.client_addr = "10.10.10.10"
+        db_request.remote_addr = "10.10.10.10"
 
         resp = legacy.file_upload(db_request)
 
@@ -1997,7 +2218,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
-        db_request.client_addr = "10.10.10.10"
+        db_request.remote_addr = "10.10.10.10"
 
         tm = pretend.stub(
             addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None),
@@ -2052,7 +2273,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
@@ -2132,7 +2353,7 @@ class TestFileUpload:
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
         db_request.user = user
-        db_request.client_addr = "10.10.10.20"
+        db_request.remote_addr = "10.10.10.20"
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,

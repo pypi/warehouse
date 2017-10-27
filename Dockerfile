@@ -1,67 +1,149 @@
-FROM python:3.6.1-slim
+# First things first, we build an image which is where we're going to compile
+# our static assets with. It is important that the steps in this remain the
+# same as the steps in Dockerfile.static, EXCEPT this may include additional
+# steps appended onto the end.
+FROM node:6.11.1 as static
 
+WORKDIR /opt/warehouse/src/
+
+# The list of C packages we need are almost never going to change, so installing
+# them first, right off the bat lets us cache that and having node.js level
+# dependency changes not trigger a reinstall.
+RUN set -x \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        libjpeg-dev
+
+# However, we do want to trigger a reinstall of our node.js dependencies anytime
+# our package.json changes, so we'll ensure that we're copying that into our
+# static container prior to actually installing the npm dependencies.
+COPY package.json .babelrc /opt/warehouse/src/
+
+# Installing npm dependencies is done as a distinct step and *prior* to copying
+# over our static files so that, you guessed it, we don't invalidate the cache
+# of installed dependencies just because files have been modified.
+RUN set -x \
+    && npm install -g gulp-cli \
+    && npm install
+
+# Actually copy over our static files, we only copy over the static files to
+# save a small amount of space in our image and because we don't need them. We
+# copy Gulpfile.babel.js last even though it's least likely to change, because
+# it's very small so copying it needlessly isn't a big deal but it will save a
+# small amount of copying when only Gulpfile.babel.js is modified.
+COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
+COPY Gulpfile.babel.js /opt/warehouse/src/
+
+RUN gulp dist
+
+
+
+
+
+
+# Now we're going to build our actual application, but not the actual production
+# image that it gets deployed into.
+FROM python:3.6.3-slim-stretch as build
+
+# Define whether we're building a production or a development image. This will
+# generally be used to control whether or not we install our development and
+# test dependencies.
+ARG DEVEL=no
+
+# Install System level Warehouse build requirements, this is done before
+# everything else because these are rarely ever going to change.
+RUN set -x \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
+
+# We need a way for the build system to pass in a repository that will be used
+# to install our theme from. For this we'll add the THEME_REPO build argument
+# which takes a PEP 503 compatible repository URL that must be available to
+# install the requirements/theme.txt requirement file.
+ARG THEME_REPO
+
+# We create an /opt directory with a virtual environment in it to store our
+# application in.
+RUN set -x \
+    && python3 -m venv /opt/warehouse
+
+
+# Now that we've created our virtual environment, we'll go ahead and update
+# our $PATH to refer to it first.
+ENV PATH="/opt/warehouse/bin:${PATH}"
+
+# Next, we want to update pip, setuptools, and wheel inside of this virtual
+# environment to ensure that we have the latest versions of them.
+# TODO: We use --require-hashes in our requirements files, but not here, making
+#       the ones in the requirements files kind of a moot point. We should
+#       probably pin these too, and update them as we do anything else.
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+
+# We copy this into the docker container prior to copying in the rest of our
+# application so that we can skip installing requirements if the only thing
+# that has changed is the Warehouse code itself.
+COPY requirements /tmp/requirements
+
+# Install our development dependencies if we're building a development install
+# otherwise this will do nothing.
+RUN set -x \
+    && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+
+# Install the Python level Warehouse requirements, this is done after copying
+# the requirements but prior to copying Warehouse itself into the container so
+# that code changes don't require triggering an entire install of all of
+# Warehouse's dependencies.
+RUN set -x \
+    && PIP_EXTRA_INDEX_URL=$THEME_REPO \
+        pip --no-cache-dir --disable-pip-version-check \
+            install -r /tmp/requirements/deploy.txt \
+                    -r /tmp/requirements/main.txt \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt'; fi) \
+                    $(if [ "$THEME_REPO" != "" ]; then echo '-r /tmp/requirements/theme.txt'; fi) \
+    && find /opt/warehouse -name '*.pyc' -delete
+
+
+
+
+
+# Now we're going to build our actual application image, which will eventually
+# pull in the static files that were built above.
+FROM python:3.6.3-slim-stretch
+
+# Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /app/
-# Setup proxy configuration
-# ENV http_proxy "http://proxy.foo.com:1234"
-# ENV https_proxy "http://proxy.foo.com:1234"
-# ENV no_proxy "*.foo.com"
+ENV PYTHONPATH /opt/warehouse/src/
+ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Setup the locales in the Dockerfile
+WORKDIR /opt/warehouse/src/
+
+# Define whether we're building a production or a development image. This will
+# generally be used to control whether or not we install our development and
+# test dependencies.
+ARG DEVEL=no
+
+# This is a work around because otherwise postgresql-client bombs out trying
+# to create symlinks to these directories.
+RUN set -x \
+    && mkdir -p /usr/share/man/man1 \
+    && mkdir -p /usr/share/man/man7
+
+# Install System level Warehouse requirements, this is done before everything
+# else because these are rarely ever going to change.
 RUN set -x \
     && apt-get update \
-    && apt-get install locales -y \
-    && locale-gen en_US.UTF-8
-
-# Install Warehouse's Dependencies
-RUN set -x \
-    && apt-get update \
-    && apt-get install curl -y \
-    && curl -sL https://deb.nodesource.com/setup_6.x | bash - \
-    && apt-get install git libxml2 libxslt1.1 libpq5 libjpeg62 libffi6 libfontconfig postgresql-client --no-install-recommends nodejs -y \
-    && apt-get autoremove -y \
+    && apt-get install --no-install-recommends -y \
+        libpq5 libxml2 libxslt1.1  \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN set -x \
-    && apt-get update \
-    && apt-get install inotify-tools wget bzip2 gcc g++ make libpq-dev libjpeg-dev libffi-dev libxml2-dev libxslt1-dev --no-install-recommends -y \
-    && wget https://saucelabs.com/downloads/sc-4.3.14-linux.tar.gz -O /tmp/sc.tar.gz \
-    && tar zxvf /tmp/sc.tar.gz --strip 1 -C /usr/ \
-    && chmod 755 /usr/bin/sc
-
-COPY package.json /tmp/package.json
-
-# Install NPM dependencies
-RUN set -x \
-    && npm install -g phantomjs-prebuilt gulp-cli \
-    && cd /tmp \
-    && npm install \
-    && mkdir /app \
-    && cp -a /tmp/node_modules /app/
-
-COPY requirements /tmp/requirements
-
-# Install Python dependencies
-RUN set -x \
-    && pip install -U pip setuptools \
-    && pip install -r /tmp/requirements/dev.txt \
-    && pip install -r /tmp/requirements/tests.txt \
-                   -r /tmp/requirements/deploy.txt \
-                   -r /tmp/requirements/main.txt \
-    # Uncomment the below line if you're working on the PyPI theme, this is a
-    # private repository due to the fact that other people's IP is contained
-    # in it.
-    # && pip install -c requirements/main.txt -r requirements/theme.txt \
-    && find /usr/local -type f -name '*.pyc' -name '*.pyo' -delete \
-    && rm -rf ~/.cache/
-
-# Copy the directory into the container
-COPY . /app/
-
-# Set our work directory to our app directory
-WORKDIR /app/
-
-# Uncomment the below line and add the appropriate private index for the
-# pypi-theme package.
-# ENV PIP_EXTRA_INDEX_URL ...
+# Copy the directory into the container, this is done last so that changes to
+# Warehouse itself require the least amount of layers being invalidated from
+# the cache. This is most important in development, but it also useful for
+# deploying new code changes.
+COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
+COPY --from=build /opt/warehouse/ /opt/warehouse/
+COPY . /opt/warehouse/src/

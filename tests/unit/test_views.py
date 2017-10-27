@@ -25,6 +25,7 @@ from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
+    flash_messages
 )
 
 from ..common.db.accounts import UserFactory
@@ -185,6 +186,10 @@ class TestIndex:
 
 def test_esi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
+
+
+def test_esi_flash_messages():
+    assert flash_messages(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -446,7 +451,8 @@ class TestSearch:
             ),
         ]
         assert es_query.filter.calls == [
-            pretend.call('terms', classifiers=['foo :: bar', 'fiz :: buz'])
+            pretend.call('terms', classifiers=['foo :: bar']),
+            pretend.call('terms', classifiers=['fiz :: buz'])
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])

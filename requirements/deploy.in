@@ -1,1 +1,1 @@
-Twisted[http2]>=16.6.0
+Twisted[http2,tls]>=16.6.0

@@ -84,6 +84,11 @@
 {% endif %}
 {%- endmacro %}
 
+{% block search_form_extra_inputs -%}
+  {%- for classifier in applied_filters %}
+    <input name="c" type="hidden" value="{{ classifier|e }}">
+  {%- endfor -%}
+{%- endblock %}
 
 {% block content %}
 <section class="horizontal-section horizontal-section--medium">
@@ -91,7 +96,10 @@
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
       <aside class="filter-panel -js-filter-panel">
-        <a class="filter-panel__close -js-close-panel"><i class="fa fa-close"></i></a>
+        <a class="filter-panel__close -js-close-panel">
+          <i class="fa fa-close" aria-hidden="true"></i>
+          <span class="sr-only">Close</span>
+        </a>
         <h2 class="no-top-padding">Filter Projects</h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" value="{{ term }}">
@@ -152,11 +160,13 @@
         <div class="filter-badge">
           <input type="hidden" name="c" value="{{ filter }}">
           <span class="filter-badge__icon">
-            <i class="fa fa-filter"></i>
+            <i class="fa fa-filter" aria-hidden="true"></i>
+            <span class="sr-only">Filter</span>
           </span>
           <span class="filter-badge__description">{{ filter }}</span>
           <a class="filter-badge__remove-button" href="#">
-            <i class="fa fa-close"></i>
+            <i class="fa fa-close" aria-hidden="true"></i>
+            <span class="sr-only">Close</span>
           </a>
         </div>
         {% endfor %}

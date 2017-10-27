@@ -275,8 +275,9 @@ def search(request):
 
         query = query.sort(sort)
 
-    if request.params.getall("c"):
-        query = query.filter("terms", classifiers=request.params.getall("c"))
+    # Require match to all specified classifiers
+    for classifier in request.params.getall("c"):
+        query = query.filter("terms", classifiers=[classifier])
 
     try:
         page_num = int(request.params.get("page", 1))
