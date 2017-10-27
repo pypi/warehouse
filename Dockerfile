@@ -50,12 +50,6 @@ FROM python:3.6.3-slim-stretch as build
 # test dependencies.
 ARG DEVEL=no
 
-# This is a work around because otherwise libpq-dev bombs out trying
-# to create symlinks to these directories.
-RUN set -x \
-    && mkdir -p /usr/share/man/man1 \
-    && mkdir -p /usr/share/man/man7
-
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
 RUN set -x \
