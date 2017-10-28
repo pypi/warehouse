@@ -156,6 +156,11 @@ gulp.task("dist:images", () => {
     .pipe(gulp.dest(path.join(distPath, "images")));
 });
 
+gulp.task("dist:vendor", () => {
+  return gulp.src(path.join(staticPrefix, "js", "vendor", "**", "*"))
+              .pipe(gulp.dest(path.join(distPath, "js", "vendor")));
+});
+
 
 gulp.task("dist:manifest", () => {
   let paths = [
@@ -258,7 +263,7 @@ gulp.task("dist", (cb) => {
     // any previously built files.
     "clean",
     // Build all of our static assets.
-    ["dist:font-awesome", "dist:css", "dist:js"],
+    ["dist:font-awesome", "dist:css", "dist:js", "dist:vendor"],
     // We have this here, instead of in the list above even though there is no
     // ordering dependency so that all of it's output shows up together which
     // makes it easier to read.

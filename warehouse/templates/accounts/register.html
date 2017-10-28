@@ -80,6 +80,7 @@
           {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password") }}
           <p class="form-group__help-text">
             Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
+            Password strength: <span class="pw-strength"><span class="pw-strength-guage"></span></span>
           </p>
           {% if form.new_password.errors %}
           <ul class="form-errors">
@@ -114,4 +115,7 @@
 
 {% block extra_js %}
   {{ recaptcha_src(request) }}
+  <script async
+  src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
+</script>
 {% endblock %}

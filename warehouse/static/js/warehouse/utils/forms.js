@@ -49,3 +49,24 @@ export function submitTriggers() {
     );
   }
 }
+
+/* global zxcvbn */
+
+const checkPasswordStrength = (event) => {
+  let result = document.querySelector(".pw-strength-guage");
+  if (event.target.value === "") {
+    result.setAttribute("class", "pw-strength-guage");
+  } else {
+    // following recommendations on the zxcvbn JS docs
+    // the zxcvbn function is available by loading `vendor/zxcvbn.js`
+    // in the register page template only
+    let zxcvbnResult = zxcvbn(event.target.value);
+    result.setAttribute("class", `pw-strength-guage pw-strength-guage__${zxcvbnResult.score}`);
+  }
+};
+
+export function passwordStrength() {
+  let password = document.querySelector("#password");
+  if (password === null) return;
+  password.addEventListener("input", checkPasswordStrength, false);
+}
