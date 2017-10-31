@@ -137,15 +137,18 @@ elasticsearch==5.4.0 \
 first==2.0.1 \
     --hash=sha256:3bb3de3582cb27071cfb514f00ed784dc444b7f96dc21e140de65fe00585c95e \
     --hash=sha256:41d5b64e70507d0c3ca742d68010a76060eea8a3d863e9b5130ab11a4a91aa0e
+google-api-core==0.1.1 \
+    --hash=sha256:7deffb08c6afa4b6e60fa28d805cfe0909a506930d038bae8422da86a9667e64 \
+    --hash=sha256:796a2b6279a636fd4d4e5b3995e0c94dd6cded4da3762614a68fc89b17fa8779
 google-auth==1.1.1 \
     --hash=sha256:434b66a162880527917c013a55346541ed374e1acece8d4a28442e19f7a98b7e \
     --hash=sha256:e00236a914906409367e96fdcf5c08aaca3ab5bd3aab0c5c5ea9255162640215
-google-cloud-bigquery==0.27.0 \
-    --hash=sha256:ad86defd25dcb704200e50b3950ade85f4e7fba6d8c209c12f5cd1d46ddffa9b \
-    --hash=sha256:d12550f7bd54cb89ed026f0fd8ac3bc9b6cab9e3ff67f7310b149cca8e4ba5ad
-google-cloud-core==0.27.1 \
-    --hash=sha256:05486972ceae281c1005918655313ad21a880bee6bdf74b8703c09afdab9a1f9 \
-    --hash=sha256:1e52449feb72160a726798a085d7b0cf1d7b88d4b4af00f04d9ca9d6eb47847b
+google-cloud-bigquery==0.28.0 \
+    --hash=sha256:1c5a42332b43b58d6039fbca697a88c230487212afb6b4a6cbe0d5f3d5685785 \
+    --hash=sha256:511f27e5e398f8bb4dcad914596e32fe5bcb111257f032d93956a2dcced4a00f
+google-cloud-core==0.28.0 \
+    --hash=sha256:dd746f5ddd4e893c2605f3d569f1ace13c0f10bdac8a8d2e27bc95920d7d0afc \
+    --hash=sha256:27c62f624cf1ef5010a4aa84db1279f9a2658cc713aeb3e64744513d53ea0bc1
 google-resumable-media==0.3.1 \
     --hash=sha256:116de90b9cd483b17c53618ee6a5a20f33e741c648140c8cc9c2141e07616ff1 \
     --hash=sha256:97de518f8166d442cc0b61fab308bcd319dbb970981e667ec8ded44f5ce49836
