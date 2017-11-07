@@ -69,9 +69,9 @@ bleach==2.1.1 \
 boto3==1.4.7 \
     --hash=sha256:38057b066990172ce6ebbf2a5e046a545503793581fcf14cab0e3821c6112eb0 \
     --hash=sha256:f79f77dca2280f7780f39d72a5088f4cf2b626c0921e7185ed6ac17abfdd7e6c
-botocore==1.7.39 \
-    --hash=sha256:4bb3ab06641877600e48da5fb2832418fd185df5cb204e9f0b77a82e2baee280 \
-    --hash=sha256:28168c86cdb8847eaa0d53551ce9cbcac83f0d59d225c4281f43515b7dd1980d
+botocore==1.7.40 \
+    --hash=sha256:2b89030441341d4683d218b499c892b20fb812207a20fbea5b2568dbbb6699ac \
+    --hash=sha256:5d75ecccb304dd1e4a73a6cbe999225dd000949d505f94643aa3691f80ba3c73
 cachetools==2.0.1 \
     --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
     --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d
@@ -212,9 +212,9 @@ Mako==1.0.7 \
     --hash=sha256:4e02fde57bd4abb5ec400181e4c314f56ac3e49ba4fb8b0d50bba18cb27d25ae
 MarkupSafe==1.0 \
     --hash=sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665
-mistune==0.8 \
-    --hash=sha256:78f5d7f4850c0df94aeec64f994bb8390ca0bc717034bff8d63452815695f02f \
-    --hash=sha256:dc3f43e7cf0abb95cdfecbf82d85c419108d5f13e1844b2a8a2fc0abf24c7a47
+mistune==0.8.1 \
+    --hash=sha256:511f11b307b061136b2aaa99854fa078d688c79426ee9c5857ba784f7a2fad40 \
+    --hash=sha256:4c0f66924ce28f03b95b210ea57e57bd0b59f479edd91c2fa4fe59331eae4a82
 msgpack-python==0.4.8 \
     --hash=sha256:1a2b19df0f03519ec7f19f826afb935b202d8979b0856c6fb3dc28955799f886
 packaging==16.8 \
