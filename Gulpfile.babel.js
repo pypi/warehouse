@@ -158,7 +158,7 @@ gulp.task("dist:images", () => {
 
 gulp.task("dist:vendor", () => {
   return gulp.src(path.join(staticPrefix, "js", "vendor", "**", "*"))
-              .pipe(gulp.dest(path.join(distPath, "js", "vendor")));
+    .pipe(gulp.dest(path.join(distPath, "js", "vendor")));
 });
 
 

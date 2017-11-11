@@ -116,4 +116,37 @@
       margin-top: 10px;
     }
   }
+
+  .form-tooltip {
+    position: absolute;
+    border: 1px solid gray;
+    display: inline-block;
+    padding: .5em;
+    background-color: #fff;
+    font-size: .8em;
+    text-align: left;
+    z-index: 98;
+    max-width: 15em;
+    margin-top: 5px;
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: 2em;
+      height: 1em;
+      width: 1em;
+      background: #fff;
+      box-sizing: border-box;
+      transform: rotate(45deg) translate(-50%);
+      border-top: inherit;
+      border-left: inherit;
+      box-shadow: inherit;
+    }
+
+    .fa {
+      color: orange;
+      margin-right: 0.5em;
+    }
+  }
 }

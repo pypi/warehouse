@@ -65,7 +65,7 @@ docReady(Analytics);
 
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);
-docReady(formUtils.passwordStrength);
+docReady(formUtils.registerFormValidation);
 
 docReady(Statuspage);
 

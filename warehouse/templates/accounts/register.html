@@ -36,7 +36,7 @@
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Name</label>
-          {{ form.full_name(placeholder="Your name", class_="form-group__input") }}
+          {{ form.full_name(placeholder="Your name", required="required", class_="form-group__input") }}
           {% if form.full_name.errors %}
           <ul class="form-errors">
             {% for error in form.full_name.errors %}
