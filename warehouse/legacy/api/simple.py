@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pkg_resources
+
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
@@ -47,6 +49,16 @@ def simple_index(request):
     return {"projects": projects}
 
 
+def get_sort_key_file(file):
+    return (
+        file.name,
+        # need to parse so 1, 10, 2 compare correctly
+        pkg_resources.parse_version(file.version),
+        # get same extensions together
+        file.filename[::-1]
+    )
+
+
 @view_config(
     route_name="legacy.api.simple.detail",
     renderer="legacy/api/simple/detail.html",
@@ -73,7 +85,7 @@ def simple_detail(project, request):
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
     # Get all of the files for this project.
-    files = (
+    unsorted_files = (
         request.db.query(File)
         .options(joinedload(File.release))
         .filter(
@@ -84,8 +96,9 @@ def simple_detail(project, request):
                           .with_entities(Release.version)
             )
         )
-        .order_by(File.filename)
         .all()
     )
+
+    files = sorted(unsorted_files, key=get_sort_key_file)
 
     return {"project": project, "files": files}
