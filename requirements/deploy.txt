@@ -121,9 +121,9 @@ pyOpenSSL==17.3.0 \
 service_identity==17.0.0 \
     --hash=sha256:0e76f3c042cc0f5c7e6da002cf646f59dc4023962d1d1166343ce53bdad39e17 \
     --hash=sha256:4001fbb3da19e0df22c47a06d29681a398473af4aa9d745eca525b3b2c2302ab
-setuptools==36.7.2 \
-    --hash=sha256:bae92a71c82f818deb0b60ff1f7d764b8902cfc24187746b1aa6186918a70db3 \
-    --hash=sha256:ad86fd8dd09c285c33b4c5b82bbc21d21883637faef78b0ab58fa9984847220d
+setuptools==37.0.0 \
+    --hash=sha256:a1d38d97b3759b3fede089e240b6aefaae50d21361c2c2d4ac92c3de4ebe3d50 \
+    --hash=sha256:0b95db16abf74d435217f17774245fce1ea5a583e5ae8098d98f4ab0145491e3
 six==1.11.0 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
