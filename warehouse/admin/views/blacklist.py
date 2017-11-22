@@ -20,9 +20,9 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.admin.utils import remove_project
 from warehouse.packaging.models import (
-    Project, Release, Dependency, File, Role, BlacklistedProject, JournalEntry,
-    release_classifiers
+    Project, Release, File, Role, BlacklistedProject
 )
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
@@ -166,13 +166,9 @@ def add_blacklist(request):
         )
     )
 
-    # Go through and delete anything that we need to delete so that our
-    # blacklist actually blocks things and isn't ignored (since the blacklist
-    # only takes effect on new project registration).
-    # TODO: This should be in a generic function somewhere instead of putting
-    #       it here, however this will have to do for now.
-    # TODO: We don't actually delete files from the data store. We should add
-    #       some kind of garbage collection at some point.
+    # Go through and delete the project and everything related to it so that
+    # our blacklist actually blocks things and isn't ignored (since the
+    # blacklist only takes effect on new project registration).
     project = (
         request.db.query(Project)
                   .filter(Project.normalized_name ==
@@ -180,23 +176,7 @@ def add_blacklist(request):
                   .first()
     )
     if project is not None:
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action="remove",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-        request.db.query(Role).filter(Role.project == project).delete()
-        request.db.query(File).filter(File.name == project.name).delete()
-        (request.db.query(Dependency).filter(Dependency.name == project.name)
-                   .delete())
-        (request.db.execute(release_classifiers.delete()
-                            .where(release_classifiers.c.name ==
-                                   project.name)))
-        request.db.query(Release).filter(Release.name == project.name).delete()
-        request.db.query(Project).filter(Project.name == project.name).delete()
+        remove_project(project, request)
 
     request.session.flash(
         f"Successfully blacklisted {project_name!r}",
