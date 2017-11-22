@@ -17,7 +17,8 @@ import factory
 import factory.fuzzy
 
 from warehouse.packaging.models import (
-    Project, Release, Role, File, JournalEntry, BlacklistedProject,
+    BlacklistedProject, Dependency, DependencyKind, File, JournalEntry,
+    Project, Release, Role,
 )
 
 from .accounts import UserFactory
@@ -80,6 +81,16 @@ class RoleFactory(WarehouseFactory):
     role_name = "Owner"
     user = factory.SubFactory(UserFactory)
     project = factory.SubFactory(ProjectFactory)
+
+
+class DependencyFactory(WarehouseFactory):
+    class Meta:
+        model = Dependency
+
+    name = factory.fuzzy.FuzzyText(length=12)
+    version = factory.Sequence(lambda n: str(n) + ".0")
+    kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
+    specifier = factory.fuzzy.FuzzyText(length=12)
 
 
 class JournalEntryFactory(WarehouseFactory):
