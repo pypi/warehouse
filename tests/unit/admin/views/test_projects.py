@@ -13,10 +13,14 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
+from pyramid.httpexceptions import (
+    HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther,
+)
 
 from warehouse.admin.views import projects as views
+from warehouse.packaging.models import Project
 
+from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
@@ -404,3 +408,67 @@ class TestProjectSetLimit:
 
         with pytest.raises(HTTPBadRequest):
             views.set_upload_limit(project, db_request)
+
+
+class TestDeleteProject:
+
+    def test_no_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Must confirm the request.", queue="error"),
+        ]
+
+    def test_wrong_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={"confirm": "bar"},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+        ]
+
+    def test_deletes_project(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.POST["confirm"] = project.normalized_name
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        views.delete_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully deleted the project 'foo'.",
+                queue="success"),
+        ]
+
+        assert not (db_request.db.query(Project)
+                                 .filter(Project.name == "foo").count())
