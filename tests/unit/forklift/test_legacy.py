@@ -2408,15 +2408,15 @@ class TestFileUpload:
 
 @pytest.mark.parametrize("status", [True, False])
 def test_legacy_purge(monkeypatch, status):
-    post = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(requests, "post", post)
+    get = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(requests, "get", get)
 
     legacy._legacy_purge(status, 1, 2, three=4)
 
     if status:
-        assert post.calls == [pretend.call(1, 2, three=4)]
+        assert get.calls == [pretend.call(1, 2, three=4)]
     else:
-        assert post.calls == []
+        assert get.calls == []
 
 
 def test_submit(pyramid_request):
