@@ -1059,7 +1059,7 @@ def file_upload(request):
 
 def _legacy_purge(status, *args, **kwargs):
     if status:
-        requests.post(*args, **kwargs)
+        requests.get(*args, **kwargs)
 
 
 @view_config(
