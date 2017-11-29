@@ -257,46 +257,49 @@ Troubleshooting
 Errors when executing ``make lint``
 ------------------------------------
 
-The linter depends on Node.js and the npm packages eslint and sass-lint. If the above command fails with an error like the following:
+The linter depends on Node.js and the npm packages eslint and sass-lint.
+If the above command fails with an error like the following:
 
 .. code-block:: console
 
     ./node_modules/.bin/eslint 'warehouse/static/js/**
-    ' make: ./node_modules/.bin/eslint: Command not found 
-    Makefile:88: recipe for target 'lint' failed 
+    ' make: ./node_modules/.bin/eslint: Command not found
+    Makefile:88: recipe for target 'lint' failed
     make: *** [lint] Error 127
 
-You may need to install Node.js, npm, and the npm packages eslint and sass-lint. 
+You may need to install Node.js, npm, and the npm packages eslint
+and sass-lint.
 
 .. note::
 
-    If your system uses apt as a package manager, like Debian, Ubuntu or Mint, do not install Node.js from apt. It installs a version of Node.js, 4.2.6, that does not work with npm, which is needed to install the other packages. 
+    If your system uses apt as a package manager, like Debian, Ubuntu, or Mint, do not install Node.js from apt. It installs a version of Node.js, 4.2.6, that does not work with npm, which is needed to install the other packages.
 
-To install Node.js and npm on Debian, Ubuntu or Mint, find the stable release from `the Node.js website <https://nodejs.org/en/download/>`_ for your system type, and copy the url. 
+To install Node.js and npm on Debian, Ubuntu or Mint, find the stable release from `the Node.js website <https://nodejs.org/en/download/>`_ for your system type, and copy the url.
 
-Download it by running the following: 
+Download it by running the following:
 
 .. code-block:: console
 
     $ cd
     $ wget [url of tarball from nodejs.org]
 
-Unpack the tarball by running: 
+Unpack the tarball by running:
 
 .. code-block:: console
 
     $ tar -C /usr/local --strip-components 1 -xJf [name of tarball downloaded from nodejs.org]
 
-If the above command fails, you may need to run it with sudo. 
+If the above command fails, you may need to run it with sudo.
 
-Test the installation by running the following: 
+Test the installation by running the following:
 
 .. code-block:: console
 
     $ node -v
     $ npm -v
 
-Those commands should output the version numbers of Node.js and npm that you have installed. 
+Those commands should output the version numbers of Node.js and npm that
+you have installed.
 
 Now, use npm to install the linter dependencies:
 
