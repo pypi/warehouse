@@ -69,9 +69,9 @@ bleach==2.1.1 \
 boto3==1.4.8 \
     --hash=sha256:edd35eb7cd8d56f08e65b112206936cf9f76bb406fb15f63075ff72331ef6f5f \
     --hash=sha256:332c6a17fd695581dd6f9ed825ce13c2d5ee3a6f5e1b079bed0ff7293809faf0
-botocore==1.8.2 \
-    --hash=sha256:72662f245a9dd7564709d9499a9040abf9b3975937a5806ae072ce98ac12c590 \
-    --hash=sha256:a579b4006b3aeeabc83ac0d9fb2604aa71beda6ddc894f0619a755281af55538
+botocore==1.8.4 \
+    --hash=sha256:267034da82529377f5b89e29fcec23f0addfde13b795e3c1cc0455947ba21e76 \
+    --hash=sha256:4c9831c0db7509315cc2b089bf6ee8edf22a7b9ca78d1401674217398cf6de42
 cachetools==2.0.1 \
     --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
     --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d
