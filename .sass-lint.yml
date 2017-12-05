@@ -14,7 +14,7 @@ rules:
     - 2
     - convention: '0'
   brace-style:
-    - 1
+    - 2
     - allow-single-line: false
   class-name-format:
     - 2
@@ -30,6 +30,6 @@ rules:
     - 2
     - convention: hyphenatedbem
   quotes:
-    - 1
+    - 2
     - style: double
   variable-name-format: 2
