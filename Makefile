@@ -1,4 +1,5 @@
 BINDIR = $(PWD)/.state/env/bin
+TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
@@ -54,9 +55,6 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
-	# Install our node requirements
-	npm install
-
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
@@ -90,9 +88,15 @@ lint: .state/env/pyvenv.cfg
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
-
+ifneq ($(TRAVIS), false)
+	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**'
 	./node_modules/.bin/sass-lint --verbose
+else
+	# We're not on Travis, so we should lint static files inside the static container
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**'
+	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
+endif
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
