@@ -76,3 +76,4 @@ services:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
