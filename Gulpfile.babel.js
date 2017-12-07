@@ -1,4 +1,6 @@
 import brotli from "gulp-brotli";
+
+import composer from "gulp-uglify/composer";
 import del from "del";
 import gulp from "gulp";
 import gulpBatch from "gulp-batch";
@@ -6,7 +8,6 @@ import gulpCSSNano from "gulp-cssnano";
 import gulpImage from "gulp-image";
 import gulpSass from "gulp-sass";
 import gulpSequence  from "gulp-sequence";
-import gulpUglify from "gulp-uglify/minifier";
 import gulpWatch from "gulp-watch";
 import gulpWebpack  from "webpack-stream";
 import gzip from "gulp-gzip";
@@ -15,7 +16,7 @@ import manifestClean from "gulp-rev-napkin";
 import named from "vinyl-named";
 import path from "path";
 import sourcemaps from "gulp-sourcemaps";
-import * as uglify from "uglify-js";
+import uglifyjs from "uglify-js";
 import webpack from "webpack";
 
 
@@ -26,6 +27,12 @@ let distPath = path.join(staticPrefix, "dist");
 let publicPath = "/static/";
 
 
+// We pass in our own uglify instance rather than allow
+// gulp-uglify to use it's own. This makes the usage slightly
+// more complicated, however it means that we have explicit
+// control over the exact version of uglify-js used.
+var uglify = composer(uglifyjs, console);
+
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
   module: {
@@ -33,9 +40,12 @@ let webpackConfig = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        loaders: [
-          { loader: "babel-loader", query: { presets: ["es2015"] } },
-        ],
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["env"],
+          },
+        },
       },
     ],
   },
@@ -83,16 +93,11 @@ gulp.task("dist:js", () => {
               }))
               .pipe(gulpWebpack(webpackConfig, webpack))
               .pipe(sourcemaps.init({ loadMaps: true }))
-                .pipe(gulpUglify(
-                  // We don't care about IE6-8 so there's no reason to have
-                  // uglify contain to maintain compatability for it.
-                  {compress: { screw_ie8: true }, mangle: { screw_ie8: true }},
-                  // We pass in our own uglify instance rather than allow
-                  // gulp-uglify to use it's own. This makes the usage slightly
-                  // more complicated, however it means that we have explicit
-                  // control over the exact version of uglify-js used.
-                  uglify
-                ))
+              .pipe(uglify(
+                // We don't care about IE6-8 so there's no reason to have
+                // uglify contain to maintain compatability for it.
+                { compress: { ie8: false }, mangle: { ie8: false } }
+              ))
               .pipe(sourcemaps.write("."))
               .pipe(gulp.dest(path.join(distPath, "js")));
 });
