@@ -78,28 +78,28 @@ gulp.task("dist:js", () => {
   ];
 
   return gulp.src(files)
-              // .pipe(named(() => { return "warehouse"; }))
-              .pipe(named((file) => {
-                // Get the filename that is relative to our js directory
-                let relPath = path.relative(
-                  path.join(staticPrefix, "js"),
-                  file.path
-                );
-                // If this is our main application, then we want to call it
-                // just "warehouse", otherwise, we'll use whatever the real
-                // name is.
-                if (relPath == "warehouse/index.js") { return "warehouse"; }
-                else { return path.parse(relPath).name; }
-              }))
-              .pipe(gulpWebpack(webpackConfig, webpack))
-              .pipe(sourcemaps.init({ loadMaps: true }))
-              .pipe(uglify(
-                // We don't care about IE6-8 so there's no reason to have
-                // uglify contain to maintain compatability for it.
-                { compress: { ie8: false }, mangle: { ie8: false } }
-              ))
-              .pipe(sourcemaps.write("."))
-              .pipe(gulp.dest(path.join(distPath, "js")));
+    // .pipe(named(() => { return "warehouse"; }))
+    .pipe(named((file) => {
+      // Get the filename that is relative to our js directory
+      let relPath = path.relative(
+        path.join(staticPrefix, "js"),
+        file.path
+      );
+      // If this is our main application, then we want to call it
+      // just "warehouse", otherwise, we'll use whatever the real
+      // name is.
+      if (relPath == "warehouse/index.js") { return "warehouse"; }
+      else { return path.parse(relPath).name; }
+    }))
+    .pipe(gulpWebpack(webpackConfig, webpack))
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(uglify(
+      // We don't care about IE6-8 so there's no reason to have
+      // uglify contain to maintain compatability for it.
+      { compress: { ie8: false }, mangle: { ie8: false } }
+    ))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join(distPath, "js")));
 });
 
 
@@ -107,16 +107,16 @@ gulp.task("dist:css", () => {
   let sassPath = path.join(staticPrefix, "sass");
 
   return gulp.src(path.join(sassPath, "warehouse.scss"))
-              .pipe(sourcemaps.init())
-                .pipe(
-                  gulpSass({ includePaths: [sassPath] })
-                    .on("error", gulpSass.logError))
-                .pipe(gulpCSSNano({
-                  safe: true,
-                  discardComments: {removeAll: true},
-                }))
-              .pipe(sourcemaps.write("."))
-              .pipe(gulp.dest(path.join(distPath, "css")));
+    .pipe(sourcemaps.init())
+    .pipe(
+      gulpSass({ includePaths: [sassPath] })
+        .on("error", gulpSass.logError))
+    .pipe(gulpCSSNano({
+      safe: true,
+      discardComments: {removeAll: true},
+    }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join(distPath, "css")));
 });
 
 
@@ -125,13 +125,13 @@ gulp.task("dist:font-awesome:css", () => {
   let fACSSPath = path.resolve(fABasePath, "css", "font-awesome.css");
 
   return gulp.src(fACSSPath)
-              .pipe(sourcemaps.init({ loadMaps: true }))
-                .pipe(gulpCSSNano({
-                  safe: true,
-                  discardComments: {removeAll: true},
-                }))
-              .pipe(sourcemaps.write("."))
-              .pipe(gulp.dest(path.join(distPath, "css")));
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(gulpCSSNano({
+      safe: true,
+      discardComments: {removeAll: true},
+    }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join(distPath, "css")));
 });
 
 gulp.task("dist:font-awesome:fonts", () => {
@@ -139,7 +139,7 @@ gulp.task("dist:font-awesome:fonts", () => {
   let faFontPath = path.resolve(fABasePath, "fonts", "*.*");
 
   return gulp.src(faFontPath)
-              .pipe(gulp.dest(path.join(distPath, "fonts")));
+    .pipe(gulp.dest(path.join(distPath, "fonts")));
 });
 
 
@@ -149,10 +149,10 @@ gulp.task("dist:font-awesome",
 
 gulp.task("dist:images", () => {
   return gulp.src(path.join(staticPrefix, "images", "**", "*"))
-              .pipe(gulpImage({
-                "svgo": false,  // SVGO is currently broken.
-              }))
-              .pipe(gulp.dest(path.join(distPath, "images")));
+    .pipe(gulpImage({
+      "svgo": false,  // SVGO is currently broken.
+    }))
+    .pipe(gulp.dest(path.join(distPath, "images")));
 });
 
 
@@ -174,36 +174,36 @@ gulp.task("dist:manifest", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(manifest.revision({
-                fileNameManifest: "manifest.json",
-                includeFilesInManifest: [
-                  ".css",
-                  ".map",
-                  ".woff",
-                  ".woff2",
-                  ".svg",
-                  ".eot",
-                  ".ttf",
-                  ".otf",
-                  ".png",
-                  ".ico",
-                  ".js",
-                ],
-              }))
-              .pipe(gulp.dest(distPath))
-              .pipe(manifestClean({ verbose: false }))
-              .pipe(manifest.manifestFile())
-              .pipe(gulp.dest(distPath));
+    .pipe(manifest.revision({
+      fileNameManifest: "manifest.json",
+      includeFilesInManifest: [
+        ".css",
+        ".map",
+        ".woff",
+        ".woff2",
+        ".svg",
+        ".eot",
+        ".ttf",
+        ".otf",
+        ".png",
+        ".ico",
+        ".js",
+      ],
+    }))
+    .pipe(gulp.dest(distPath))
+    .pipe(manifestClean({ verbose: false }))
+    .pipe(manifest.manifestFile())
+    .pipe(gulp.dest(distPath));
 });
 
 
 gulp.task("dist:compress:gz", () => {
   return gulp.src(path.join(distPath, "**", "*"))
-              .pipe(gzip({
-                skipGrowingFiles: true,
-                gzipOptions: { level: 9, memLevel: 9 },
-              }))
-              .pipe(gulp.dest(distPath));
+    .pipe(gzip({
+      skipGrowingFiles: true,
+      gzipOptions: { level: 9, memLevel: 9 },
+    }))
+    .pipe(gulp.dest(distPath));
 });
 
 
@@ -222,8 +222,8 @@ gulp.task("dist:compress:br:generic", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
-              .pipe(gulp.dest(distPath));
+    .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
+    .pipe(gulp.dest(distPath));
 });
 
 
@@ -237,8 +237,8 @@ gulp.task("dist:compress:br:text", () => {
   ];
 
   return gulp.src(paths, { base: distPath })
-              .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
-              .pipe(gulp.dest(distPath));
+    .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
+    .pipe(gulp.dest(distPath));
 });
 
 

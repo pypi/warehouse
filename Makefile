@@ -90,11 +90,11 @@ lint: .state/env/pyvenv.cfg
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
-	./node_modules/.bin/eslint 'warehouse/static/js/**'
+	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
 	./node_modules/.bin/sass-lint --verbose
 else
 	# We're not on Travis, so we should lint static files inside the static container
-	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**'
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
 	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
 endif
 
