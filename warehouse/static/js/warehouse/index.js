@@ -106,7 +106,6 @@ docReady(() => {
   window.addEventListener("resize", onResize, false);
 });
 
-
 docReady(() => {
   if (document.querySelector(".-js-autoplay-when-visible")) {
     YouTubeIframeLoader.load((YT) => {
@@ -118,6 +117,25 @@ docReady(() => {
           });
         },
       });
+    });
+  }
+});
+
+docReady(() => {
+  let passwordField = document.querySelector("#password");
+  let showPasswordCheck = document.querySelector("#show-password");
+
+  if (passwordField && showPasswordCheck) {
+    // Reset these so they don't persist between page reloads
+    passwordField.type = "password";
+    showPasswordCheck.checked = false;
+
+    showPasswordCheck.addEventListener("click", function () {
+      if (showPasswordCheck.checked) {
+        passwordField.type = "text";
+      } else {
+        passwordField.type = "password";
+      }
     });
   }
 });
