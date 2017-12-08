@@ -16,6 +16,7 @@ import re
 import tempfile
 import zipfile
 
+from cgi import FieldStorage
 from unittest import mock
 
 import pkg_resources
@@ -701,6 +702,18 @@ class TestFileUpload:
                     "summary": "A\nB",
                 },
                 "summary: Multiple lines are not allowed.",
+            ),
+
+            # classifiers are a FieldStorage
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "classifiers": FieldStorage(),
+                },
+                "classifiers: Must be a list, not tuple.",
             ),
         ],
     )

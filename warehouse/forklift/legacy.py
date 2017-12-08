@@ -17,6 +17,7 @@ import re
 import tempfile
 import zipfile
 
+from cgi import FieldStorage
 from itertools import chain
 
 import packaging.specifiers
@@ -628,6 +629,16 @@ def file_upload(request):
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
+
+    # Check if the classifiers were supplied as a tuple
+    # ref: https://github.com/pypa/warehouse/issues/2185
+    classifiers = request.POST.getall('classifiers')
+    if any(isinstance(classifier, FieldStorage) for classifier in classifiers):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "classifiers: Must be a list, not tuple.",
+        )
+
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers
     ]
