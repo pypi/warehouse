@@ -1,4 +1,4 @@
-FROM node:6.11.1 as static
+FROM node:8.9.1 as static
 
 WORKDIR /opt/warehouse/src/
 
