@@ -133,6 +133,7 @@ def includeme(config):
         ],
         under=[
             "warehouse.csp.content_security_policy_tween_factory",
+            "warehouse.referrer_policy.referrer_policy_tween_factory",
             "warehouse.config.require_https_tween_factory",
             INGRESS,
         ],

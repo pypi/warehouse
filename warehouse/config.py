@@ -436,6 +436,9 @@ def configure(settings=None):
     # Register Content-Security-Policy service
     config.include(".csp")
 
+    # Register Referrer-Policy service
+    config.include(".referrer_policy")
+
     # Register recaptcha service
     config.include(".recaptcha")
 

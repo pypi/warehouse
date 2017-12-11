@@ -144,18 +144,9 @@ def user_packages(request, username):
 
 @pypi_xmlrpc(method="top_packages")
 def top_packages(request, num=None):
-    fdownloads = func.sum(File.downloads).label("downloads")
-
-    downloads = (
-        request.db.query(File.name, fdownloads)
-                  .group_by(File.name)
-                  .order_by(fdownloads.desc())
+    raise XMLRPCWrappedError(
+        RuntimeError("This API has been removed. Please Use BigQuery instead.")
     )
-
-    if num is not None:
-        downloads = downloads.limit(num)
-
-    return [(d[0], d[1]) for d in downloads.all()]
 
 
 @pypi_xmlrpc(method="package_releases")
@@ -262,7 +253,9 @@ def release_urls(request, package_name, version):
             "has_sig": f.has_signature,
             "upload_time": f.upload_time,
             "comment_text": f.comment_text,
-            "downloads": f.downloads,
+            # TODO: Remove this once we've had a long enough time with it
+            #       here to consider it no longer in use.
+            "downloads": -1,
             "url": request.route_url("packaging.file", path=f.path),
         }
         for f in files

@@ -311,6 +311,28 @@ class TestRegistrationForm:
             "Please choose a different username."
         )
 
+    @pytest.mark.parametrize("username", ['_foo', 'bar_', 'foo^bar'])
+    def test_username_is_valid(self, username):
+        form = forms.RegistrationForm(
+            data={"username": username},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        assert (
+            form.username.errors.pop() ==
+            "The username is invalid. Usernames "
+            "must be composed of letters, numbers, "
+            "dots, hyphens and underscores. And must "
+            "also start and finish with a letter or number. "
+            "Please choose a different username."
+        )
+
     def test_password_strength(self):
         cases = (
             ("foobar", False),

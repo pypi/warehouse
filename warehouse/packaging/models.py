@@ -405,7 +405,6 @@ class File(db.Model):
     md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
-    downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
@@ -415,6 +414,10 @@ class File(db.Model):
         nullable=False,
         server_default=sql.false(),
     )
+
+    # TODO: Once Legacy PyPI is gone, then we should remove this column
+    #       completely as we no longer use it.
+    downloads = Column(Integer, server_default=sql.text("0"))
 
     @hybrid_property
     def pgp_path(self):

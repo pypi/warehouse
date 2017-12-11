@@ -13,10 +13,14 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
+from pyramid.httpexceptions import (
+    HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther,
+)
 
 from warehouse.admin.views import projects as views
+from warehouse.packaging.models import Project
 
+from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
@@ -342,3 +346,129 @@ class TestProjectJournalsList:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
+
+
+class TestProjectSetLimit:
+    def test_sets_limitwith_integer(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "90"
+
+        views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully set the upload limit on 'foo'.",
+                queue="success"),
+        ]
+
+        assert project.upload_limit == 90 * views.ONE_MB
+
+    def test_sets_limit_with_none(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        project.upload_limit = 90 * views.ONE_MB
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+
+        views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully set the upload limit on 'foo'.",
+                queue="success"),
+        ]
+
+        assert project.upload_limit is None
+
+    def test_sets_limit_with_non_integer(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "meep"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_upload_limit(project, db_request)
+
+    def test_sets_limit_with_less_than_minimum(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["upload_limit"] = "20"
+
+        with pytest.raises(HTTPBadRequest):
+            views.set_upload_limit(project, db_request)
+
+
+class TestDeleteProject:
+
+    def test_no_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Must confirm the request.", queue="error"),
+        ]
+
+    def test_wrong_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={"confirm": "bar"},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+        ]
+
+    def test_deletes_project(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.POST["confirm"] = project.normalized_name
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        views.delete_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully deleted the project 'foo'.",
+                queue="success"),
+        ]
+
+        assert not (db_request.db.query(Project)
+                                 .filter(Project.name == "foo").count())

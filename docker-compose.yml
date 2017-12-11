@@ -1,88 +1,79 @@
-db:
-  image: postgres:9.6
-  ports:
-    # 5432 may already in use by another PostgreSQL on host
-    - "5433:5432"
+version: '3'
 
-redis:
-  image: redis:latest
+services:
+  db:
+    image: postgres:9.6
+    ports:
+      # 5432 may already in use by another PostgreSQL on host
+      - "5433:5432"
 
-rabbitmq:
-  image: rabbitmq:latest
+  redis:
+    image: redis:latest
 
-elasticsearch:
-  image: elasticsearch:5
+  rabbitmq:
+    image: rabbitmq:latest
 
-camo:
-  image: pypa/warehouse-camo:latest
-  ports:
-    - "9000:9000"
-  environment:
-    CAMO_KEY: "insecure camo key"
+  elasticsearch:
+    image: elasticsearch:5
 
-app:
-  build: .
-  volumes:
-    # We specify all of these directories instead of just . because we want to
-    # avoid having ./node_modules from the host OS being shared with the docker
-    # container, and since there's no way to exclude a directory, the only way
-    # to make this work is to share multiple, smaller directories. These cover
-    # the important things that we want to share, but changes to requirements
-    # or any file not in these directories will require a rebuild.
-    # The :z option fixes permission issues with SELinux by setting a
-    # permissive security context.
-    - ./dev:/app/dev:z
-    - ./docs:/app/docs:z
-    - ./warehouse:/app/warehouse:z
-    - ./tests:/app/tests:z
-    - ./htmlcov:/app/htmlcov:z
-  environment:
-    WAREHOUSE_ENV: development
-    WAREHOUSE_TOKEN: insecuretoken
-    # Uncomment the below line if you're working on the PyPI theme, this is a
-    # private repository due to the fact that other people's IP is contained in
-    # it.
-    # WAREHOUSE_THEME: pypi_theme.pypi
-    AMQP_URL: amqp://guest@rabbitmq:5672//
-    DATABASE_URL: postgresql://postgres@db/warehouse
-    ELASTICSEARCH_URL: http://elasticsearch:9200/development
-    REDIS_URL: redis://redis:6379/0
-    SESSION_SECRET: "an insecure development secret"
-    CAMO_URL: "{request.scheme}://{request.domain}:9000/"
-    CAMO_KEY: "insecure camo key"
-    DOCS_URL: "https://pythonhosted.org/{project}/"
-    FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/app/data/packages/ url=http://files.example.com/packages/{path}"
-    RECAPTCHA_SITE_KEY: "${RECAPTCHA_SITE_KEY}"
-    RECAPTCHA_SECRET_KEY: "${RECAPTCHA_SECRET_KEY}"
-    STATUSPAGE_URL: https://2p66nmmycsj3.statuspage.io
+  camo:
+    image: pypa/warehouse-camo:latest
+    ports:
+      - "9000:9000"
+    environment:
+      CAMO_KEY: "insecure camo key"
 
-web:
-  extends:
-    service: app
-  command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
-  environment:
-    PORT: 8000
-  ports:
-    - "80:8000"
-  links:
-    - db
-    - redis
-    - rabbitmq
-    - elasticsearch
+  web:
+    build:
+      context: .
+      args:
+        DEVEL: "yes"
+    command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
+    env_file: dev/environment
+    volumes:
+      # We specify all of these directories instead of just . because we want to
+      # avoid having ./node_modules from the host OS being shared with the docker
+      # container, and since there's no way to exclude a directory, the only way
+      # to make this work is to share multiple, smaller directories. These cover
+      # the important things that we want to share, but changes to requirements
+      # or any file not in these directories will require a rebuild.
+      # The :z option fixes permission issues with SELinux by setting a
+      # permissive security context.
+      - ./dev:/opt/warehouse/src/dev:z
+      - ./docs:/opt/warehouse/src/docs:z
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./htmlcov:/opt/warehouse/src/htmlcov:z
+    ports:
+      - "80:8000"
+    links:
+      - db
+      - redis
+      - rabbitmq
+      - elasticsearch
 
-worker:
-  extends:
-    service: app
-  command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
-  environment:
-    C_FORCE_ROOT: "1"
-  links:
-    - db
-    - redis
-    - rabbitmq
-    - elasticsearch
+  worker:
+    build:
+      context: .
+      args:
+        DEVEL: "yes"
+    command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    env_file: dev/environment
+    environment:
+      C_FORCE_ROOT: "1"
+    links:
+      - db
+      - redis
+      - rabbitmq
+      - elasticsearch
 
-static:
-  extends:
-    service: app
-  command: gulp watch
+  static:
+    build:
+      context: .
+      dockerfile: Dockerfile.static
+    command: gulp watch
+    volumes:
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
+      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z

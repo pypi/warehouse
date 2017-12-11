@@ -57,6 +57,20 @@ def includeme(config):
         traverse="/{project_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.project.set_upload_limit",
+        "/admin/projects/{project_name}/set_upload_limit/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.delete",
+        "/admin/projects/{project_name}/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Journal related Admin pages
     config.add_route(
