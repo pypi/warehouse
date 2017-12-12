@@ -251,11 +251,8 @@ def _validate_project_url(value):
 
 
 def _validate_project_url_list(form, field):
-    if not isinstance(field.data, list):
-        raise wtforms.validators.ValidationError("Must be a list.")
-    else:
-        for datum in field.data:
-            _validate_project_url(datum)
+    for datum in field.data:
+        _validate_project_url(datum)
 
 
 def _construct_dependencies(form, types):
@@ -267,7 +264,7 @@ def _construct_dependencies(form, types):
 class ListField(wtforms.Field):
 
     def process_formdata(self, valuelist):
-        self.data = [v.strip() for v in valuelist]
+        self.data = [v.strip() for v in valuelist if v]
 
 
 # TODO: Eventually this whole validation thing should move to the packaging
