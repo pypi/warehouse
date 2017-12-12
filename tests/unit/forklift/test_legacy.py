@@ -298,6 +298,7 @@ class TestListField:
             (["  foo"], ["foo"]),
             (["f oo  "], ["f oo"]),
             ('', []),
+            (' ', []),
         ],
     )
     def test_processes_form_data(self, data, expected):

@@ -264,7 +264,7 @@ def _construct_dependencies(form, types):
 class ListField(wtforms.Field):
 
     def process_formdata(self, valuelist):
-        self.data = [v.strip() for v in valuelist if v]
+        self.data = [v.strip() for v in valuelist if v.strip()]
 
 
 # TODO: Eventually this whole validation thing should move to the packaging
