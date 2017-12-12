@@ -251,8 +251,11 @@ def _validate_project_url(value):
 
 
 def _validate_project_url_list(form, field):
-    for datum in field.data:
-        _validate_project_url(datum)
+    if isinstance(field.data, str):
+        _validate_project_url(field.data)  # Or raise ValidationError?
+    else:
+        for datum in field.data:
+            _validate_project_url(datum)
 
 
 def _construct_dependencies(form, types):
