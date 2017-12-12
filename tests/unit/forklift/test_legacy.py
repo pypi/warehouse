@@ -217,11 +217,31 @@ class TestValidation:
             ("A" * 33) + ", https://example.com/",
             "Home, I am a banana",
             "Home, ssh://foobar",
+            "",
         ],
     )
     def test_validate_project_url_invalid(self, project_url):
         with pytest.raises(ValidationError):
             legacy._validate_project_url(project_url)
+
+    @pytest.mark.parametrize(
+        "project_urls",
+        [
+            [
+                "Home, https://pypi.python.org/",  # Valid
+                "",  # Invalid
+            ],
+            [
+                ("A" * 32) + ", https://example.com/",  # Valid
+                ("A" * 33) + ", https://example.com/",  # Invalid
+            ],
+            '',  # Not a list
+        ]
+    )
+    def test_invalid_project_url_list(self, project_urls):
+        form, field = pretend.stub(), pretend.stub(data=project_urls)
+        with pytest.raises(ValidationError):
+            legacy._validate_project_url_list(form, field)
 
     def test_validate_project_url_list(self, monkeypatch):
         validator = pretend.call_recorder(lambda datum: None)
