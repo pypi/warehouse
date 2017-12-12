@@ -251,8 +251,8 @@ def _validate_project_url(value):
 
 
 def _validate_project_url_list(form, field):
-    if isinstance(field.data, str):
-        _validate_project_url(field.data)  # Or raise ValidationError?
+    if not isinstance(field.data, list):
+        raise wtforms.validators.ValidationError("Must be a list.")
     else:
         for datum in field.data:
             _validate_project_url(datum)
