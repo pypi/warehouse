@@ -7,6 +7,7 @@ celery>=4
 celery-redbeat
 certifi
 click
+decorator
 disposable-email-domains
 elasticsearch>=5.0.0,<6.0.0
 elasticsearch_dsl>=5.0.0,<6.0.0
@@ -14,7 +15,10 @@ first
 google-cloud-bigquery
 hiredis
 html5lib
+ipython
+ipython-genutils
 itsdangerous
+jedi
 Jinja2>=2.8
 limits
 lxml
@@ -23,8 +27,13 @@ msgpack-python
 packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy
+parso
 passlib>=1.6.4
+pexpect
+pickleshare
+prompt-toolkit
 psycopg2
+ptyprocess
 pyramid>=1.9a2
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
@@ -39,11 +48,14 @@ requests
 redis>=2.8.0
 rfc3986
 setuptools
+simplegeneric
 sqlalchemy>=0.9
 sqlalchemy-citext
 stdlib-list
 structlog
 transaction
+traitlets
+wcwidth
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy
