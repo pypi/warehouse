@@ -95,10 +95,10 @@ class TestProject:
 
         assert project.__acl__() == [
             (Allow, "group:admins", "admin"),
-            (Allow, owner1.user.id, ["manage", "upload"]),
-            (Allow, owner2.user.id, ["manage", "upload"]),
-            (Allow, maintainer1.user.id, ["upload"]),
-            (Allow, maintainer2.user.id, ["upload"]),
+            (Allow, str(owner1.user.id), ["manage", "upload"]),
+            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(maintainer1.user.id), ["upload"]),
+            (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
 

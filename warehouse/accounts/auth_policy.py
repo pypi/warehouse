@@ -34,7 +34,7 @@ class BasicAuthAuthenticationPolicy(_BasicAuthAuthenticationPolicy):
         # want to locate the userid from the IUserService.
         if username is not None:
             login_service = request.find_service(IUserService, context=None)
-            return login_service.find_userid(username)
+            return str(login_service.find_userid(username))
 
 
 class SessionAuthenticationPolicy(_SessionAuthenticationPolicy):
