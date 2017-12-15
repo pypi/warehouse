@@ -147,8 +147,10 @@ class Project(SitemapMixin, db.ModelBase):
         for role in sorted(
                 query.all(),
                 key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
-            acls.append((Allow, role.user.id, ["upload"]))
-
+            if role.role_name == "Owner":
+                acls.append((Allow, role.user.id, ["manage", "upload"]))
+            else:
+                acls.append((Allow, role.user.id, ["upload"]))
         return acls
 
     @property
