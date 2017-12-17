@@ -1,16 +1,8 @@
 BINDIR = $(PWD)/.state/env/bin
+TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
-
-SELENIUM_BROWSER := $(shell echo "$${SELENIUM_BROWSER:-phantomjs}")
-SELENIUM_VERSION := $(shell echo "$${SELENIUM_VERSION:-latest}")
-SELENIUM_PLATFORM := $(shell echo "$${SELENIUM_PLATFORM:-OS X 10.11}")
-SELENIUM_HOST := $(shell echo "$${SELENIUM_HOST:-localhost}")
-SELENIUM_PORT := $(shell echo "$${SELENIUM_PORT:-4445}")
-
-SAUCE_USER_NAME := $(shell echo "$${SAUCE_USER_NAME}")
-SAUCE_API_KEY := $(shell echo "$${SAUCE_API_KEY}")
 
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
@@ -63,9 +55,6 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
-	# Install our node requirements
-	npm install
-
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build
@@ -86,26 +75,12 @@ serve: .state/docker-build
 	docker-compose up
 
 debug: .state/docker-build
-	docker-compose run --service-ports web
+	docker-compose run --rm --service-ports web
 
 tests:
-	docker-compose run web env -i ENCODING="C.UTF-8" \
-								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
+	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
+								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
-
-saucelabs:
-	docker-compose run web env -i ENCODING="C.UTF-8" \
-								  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-								  SELENIUM_BROWSER="$(SELENIUM_BROWSER)" \
-								  SELENIUM_VERSION="$(SELENIUM_VERSION)" \
-								  SELENIUM_PLATFORM="$(SELENIUM_PLATFORM)" \
-								  SELENIUM_HOST="$(SELENIUM_HOST)" \
-								  SELENIUM_PORT="$(SELENIUM_PORT)" \
-								  SAUCE_USER_NAME="$(SAUCE_USER_NAME)" \
-								  SAUCE_API_KEY="$(SAUCE_API_KEY)" \
-								  WAREHOUSE_ENABLE_SAUCECONNECT=true \
-								  bin/tests --dbfixtures-config tests/dbfixtures.conf $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
@@ -113,8 +88,15 @@ lint: .state/env/pyvenv.cfg
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
-
-	./node_modules/.bin/eslint 'warehouse/static/js/**'
+ifneq ($(TRAVIS), false)
+	# We're on Travis, so we can lint static files locally
+	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
+	./node_modules/.bin/sass-lint --verbose
+else
+	# We're not on Travis, so we should lint static files inside the static container
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
+	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
+endif
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"
@@ -140,19 +122,19 @@ ifneq ($(PR), false)
 endif
 
 initdb:
-	docker-compose run web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
-	docker-compose run web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
+	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	xz -d -k dev/$(DB).sql.xz
-	docker-compose run web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
+	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
-	docker-compose run web python -m warehouse db upgrade head
+	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
 reindex:
-	docker-compose run web python -m warehouse search reindex
+	docker-compose run --rm web python -m warehouse search reindex
 
 shell:
-	docker-compose run web python -m warehouse shell
+	docker-compose run --rm web python -m warehouse shell
 
 clean:
 	rm -rf warehouse/static/components

@@ -37,7 +37,7 @@
   {% set icon = "external-link-square" %}
 {% endif %}
 
-<i class="fa fa-{{ icon }}"></i>
+<i class="fa fa-{{ icon }}" aria-hidden="true"></i>
 
 {%- endmacro %}
 
@@ -70,13 +70,13 @@
       <p class="package-header__pip-instructions">
         <span id="pip-command">
         {% if request.matched_route.name == "packaging.release" %}
-          pip install {{ release.project.normalized_name }}=={{ release.version }}
+          pip install {{ release.project.name }}=={{ release.version }}
         {% else %}
-          pip install {{ release.project.normalized_name }}
+          pip install {{ release.project.name }}
         {% endif %}
         </span>
         <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
-          <i class="fa fa-copy"></i>
+          <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
         </a>
       </p>
@@ -113,11 +113,13 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
-            <a class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description">Project Description</a>
-            <a class="-js-vertical-tab vertical-tabs__tab" href="#history">Release History</a>
-            {% if files %}
-              <a class="-js-vertical-tab vertical-tabs__tab" href="#files">Download Files</a>
-            {% endif %}
+            <div role="tablist">
+              <a id="description-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--is-active" href="#description" role="tab">Project Description</a>
+              <a id="history-tab" class="-js-vertical-tab vertical-tabs__tab" href="#history" role="tab">Release History</a>
+              {% if files %}
+                <a id="download-tab" class="-js-vertical-tab vertical-tabs__tab" href="#files" role="tab">Download Files</a>
+              {% endif %}
+            </div>
         </div>
 
         {% if release.urls.values() | contains_valid_uris %}
@@ -151,7 +153,9 @@
             <p><strong>Maintainer:</strong> {{ release.maintainer }}</p>
           {% endif %}
           {% if release.keywords %}
-          <p class="tags"><i class="fa fa-tags"></i>
+          <p class="tags">
+            <i class="fa fa-tags"aria-hidden="true"></i>
+            <span class="sr-only">Tags:</span>
             {% for keyword in release.keywords | format_tags %}
             <span class="package-keyword">
               {{ keyword }}{% if not loop.last %},{% endif %}
@@ -197,8 +201,8 @@
       </div>
       <div class="vertical-tabs__panel">
         {# Tab: Project Description #}
-        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description">Project Description</a>
-        <div id="description" class="-js-vertical-tab-content vertical-tabs__content">
+        <a id="mobile-description-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" href="#description">Project Description</a>
+        <div id="description" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
           {% if release.description %}
           <div class="project-description">
             {{ release.description|readme(format="rst") }}
@@ -211,8 +215,8 @@
         </div>
 
         {# Tab: Release History #}
-        <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>
-        <div id="history" class="-js-vertical-tab-content vertical-tabs__content">
+        <a id="mobile-history-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#history">Release History</a>
+        <div id="history" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab">
           <h2>Release History</h2>
 
           <section class="release-timeline">
@@ -249,8 +253,8 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <a class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#files">Download Files</a>
-          <div id="files" class="-js-vertical-tab-content vertical-tabs__content">
+          <a id="mobile-files-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--mobile" href="#files">Download Files</a>
+          <div id="files" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab">
             <h2>Download Files</h2>
             <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
 
@@ -260,7 +264,7 @@
                   <th class="downloads-table__filename">
                     File Name &amp; Checksum
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
-                      <i class="fa fa-question-circle"></i>
+                      <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 Checksum Help</span>
                     </a>
                   </th>
@@ -276,7 +280,7 @@
                     {{ file.filename }}</a>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-sha256-link downloads-table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                      <i class="fa fa-copy"></i>
+                      <i class="fa fa-copy" aria-hidden="true"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256
                     </a>

@@ -9,8 +9,7 @@ we can improve the process.
 
 
 Quickstart for Developers with Docker experience
-================================================
-
+------------------------------------------------
 .. code-block:: console
 
     $ git clone git@github.com:pypa/warehouse.git
@@ -22,11 +21,10 @@ View Warehouse in the browser at ``http://localhost:80/``.
 
 
 Detailed Installation Instructions
-==================================
+----------------------------------
 
 Getting the warehouse source code
----------------------------------
-
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Clone the warehouse repository from GitHub:
 
 .. code-block:: console
@@ -35,7 +33,7 @@ Clone the warehouse repository from GitHub:
 
 
 Configure the development environment
--------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Why Docker?
 ~~~~~~~~~~~
@@ -83,7 +81,7 @@ Check that Docker Compose is installed: ``docker-compose -v``
 
 
 Building the Warehouse Container
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you have Docker and Docker Compose installed, run:
 
@@ -93,11 +91,11 @@ Once you have Docker and Docker Compose installed, run:
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the docker container at ``/app/``.
+mounted inside of the docker container at ``/opt/warehouse/src/``.
 
 
 Running the Warehouse Container and Services
---------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After building the Docker container, you'll need to create a Postgres database
 and run all of the data migrations.
@@ -131,7 +129,7 @@ highly likely on Mac OS X and Windows.
 
 
 Viewing Warehouse in a browser
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
@@ -145,11 +143,11 @@ Web container is listening on port 80. It's accessible at
 
 
 What did we just do and what is happening behind the scenes?
-------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The repository is exposed inside of the web container at ``/app/`` and
-Warehouse will automatically reload when it detects any changes made to the
-code.
+The repository is exposed inside of the web container at
+``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
+any changes made to the code.
 
 The example data located in ``dev/example.sql.xz`` is taken from
 `Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
@@ -158,10 +156,10 @@ anything private. The password for every account has been set to the string
 
 
 Troubleshooting
-===============
+---------------
 
 Errors when executing ``make serve``
-------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 * If the ``Dockerfile`` is edited or new dependencies are added (either by you
   or a prior pull request), a new container will need to built. A new container
@@ -175,7 +173,7 @@ Errors when executing ``make serve``
   ``Dockerfile``.
 
 "no space left on device" when using ``docker-compose``
--------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``docker-compose`` may leave orphaned volumes during teardown. If you run
 into the message "no space left on device", try running the following command
@@ -193,14 +191,14 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 
 Building Styles
-===============
+---------------
 
 Styles are written in the scss variant of Sass and compiled using Gulp. They
 will be automatically built when changed when ``make serve`` is running.
 
 
 Running the Interactive Shell
-=============================
+-----------------------------
 
 There is an interactive shell available in Warehouse which will automatically
 configure Warehouse and create a database session and make them available as
@@ -223,7 +221,7 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 
 
 Running tests and linters
-=========================
+-------------------------
 
 .. note:: PostgreSQL 9.4 is required because of pgcrypto extension
 
@@ -253,7 +251,7 @@ You can run linters, programs that check the code, with:
 
 
 Building documentation
-======================
+----------------------
 
 The Warehouse documentation is stored in the ``docs/`` directory. It is written
 in `reStructured Text`_ and rendered using `Sphinx`_.

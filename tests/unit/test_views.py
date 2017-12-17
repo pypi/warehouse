@@ -25,6 +25,7 @@ from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
+    flash_messages
 )
 
 from ..common.db.accounts import UserFactory
@@ -85,16 +86,37 @@ class TestHTTPExceptionView:
         services = {"csp": pretend.stub(merge=csp.update)}
 
         context = HTTPNotFound()
-        request = pretend.stub(find_service=lambda name: services[name])
+        request = pretend.stub(
+            find_service=lambda name: services[name],
+            path=""
+        )
         response = httpexception_view(context, request)
 
         assert response.status_code == 404
         assert response.status == "404 Not Found"
         assert csp == {
-          "frame-src": ["https://www.youtube-nocookie.com"],
-          "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+            "frame-src": ["https://www.youtube-nocookie.com"],
+            "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
         }
         renderer.assert_()
+
+    def test_simple_404(self):
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        context = HTTPNotFound()
+        for path in (
+            "/simple/not_found_package",
+            "/simple/some/unusual/path/"
+        ):
+            request = pretend.stub(
+                find_service=lambda name: services[name],
+                path=path
+            )
+            response = httpexception_view(context, request)
+            assert response.status_code == 404
+            assert response.status == "404 Not Found"
+            assert response.content_type == "text/plain"
+            assert response.text == "404 Not Found"
 
 
 class TestForbiddenView:
@@ -164,6 +186,10 @@ class TestIndex:
 
 def test_esi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
+
+
+def test_esi_flash_messages():
+    assert flash_messages(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -425,7 +451,8 @@ class TestSearch:
             ),
         ]
         assert es_query.filter.calls == [
-            pretend.call('terms', classifiers=['foo :: bar', 'fiz :: buz'])
+            pretend.call('terms', classifiers=['foo :: bar']),
+            pretend.call('terms', classifiers=['fiz :: buz'])
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])

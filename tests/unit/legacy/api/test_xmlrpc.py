@@ -10,9 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import datetime
-import random
 
 import pretend
 import pytest
@@ -253,21 +251,12 @@ def test_user_packages(db_request):
 
 
 @pytest.mark.parametrize("num", [None, 1, 5])
-def test_top_packages(db_request, num):
-    projects = [ProjectFactory.create() for _ in range(10)]
-    files = collections.Counter()
-    for project in projects:
-        releases = [ReleaseFactory.create(project=project) for _ in range(3)]
-        for release in releases:
-            file_ = FileFactory.create(
-                release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
-                downloads=random.randint(0, 1000),
-            )
-            files[project.name] += file_.downloads
+def test_top_packages(num):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.top_packages(pretend.stub(), num)
 
-    assert set(xmlrpc.top_packages(db_request, num)) == \
-        set(files.most_common(num))
+    assert exc.value.faultString == \
+        "RuntimeError: This API has been removed. Please Use BigQuery instead."
 
 
 def test_package_releases(db_request):
@@ -390,7 +379,7 @@ def test_release_urls(db_request):
             "has_sig": file_.has_signature,
             "upload_time": file_.upload_time,
             "comment_text": file_.comment_text,
-            "downloads": file_.downloads,
+            "downloads": -1,
             "url": urls[0],
         }
     ]

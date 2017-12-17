@@ -45,6 +45,8 @@
     &:hover {
       text-decoration-color: $white;
     }
+
+    @include link-focus
   }
 
   &__left {

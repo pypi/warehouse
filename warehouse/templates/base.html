@@ -63,13 +63,19 @@
 
   <body>
     {% block body %}
+    <div class="sr-only">
+      <a href="#content">Skip to main content</a>
+    </div>
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning">
-        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
@@ -81,7 +87,7 @@
     {% endblock %}
 
     <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.io">Donate today!</a></span>
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
     <header class="site-header">
@@ -94,9 +100,12 @@
             </a>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
-              <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-              <input class="search-form__button button button--dark" type="submit" value="Search">
+              <div role="search">
+                <label for="search" class="sr-only">Search PyPI</label>
+                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                {%- block search_form_extra_inputs %}{% endblock %}
+                <input class="search-form__button button button--dark" type="submit" value="Search">
+              </div>
             </form>
           </div>
           {% endblock %}
@@ -110,20 +119,26 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
-        <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
-        <button class="search-form__button button button--dark" type="submit">
-          <span class="button__icon">
-            <i class="fa fa-search"></i>
-          </span>
-          <span class="button__text">Search</span>
-        </button>
+        <div role="search">
+          <label for="mobile-search" class="sr-only">Search PyPI</label>
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+          {{ self.search_form_extra_inputs() }}
+          <button class="search-form__button button button--dark" type="submit">
+            <span class="button__icon">
+              <i class="fa fa-search" aria-hidden="true"></i>
+              <span class="sr-only">Search</span>
+            </span>
+            <span class="button__text">Search</span>
+          </button>
+        </div>
       </form>
     </section>
     {% endblock mobile_search %}
 
-    {% block content %}
-    {% endblock content %}
+    <main id="content">
+      {% block content %}
+      {% endblock content %}
+    </main>
 
     <footer class="footer" role="contentinfo">
       <div class="footer__logo">
@@ -165,7 +180,7 @@
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>
-          <a href="https://donate.pypi.io">Donate Today!</a>
+          <a href="https://donate.pypi.org">Donate Today!</a>
         </p>
         <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>

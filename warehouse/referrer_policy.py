@@ -10,13 +10,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .base import PageObject
+
+def referrer_policy_tween_factory(handler, registry):
+    def referrer_policy_tween(request):
+        response = handler(request)
+
+        response.headers['Referrer-Policy'] = 'origin-when-cross-origin'
+
+        return response
+
+    return referrer_policy_tween
 
 
-class IndexPage(PageObject):
-
-    path = "/"
-
-    def is_browser_on_page(self):
-        return self.browser.title == \
-            "PyPI - the Python Package Index · Warehouse"
+def includeme(config):
+    config.add_tween("warehouse.referrer_policy.referrer_policy_tween_factory")

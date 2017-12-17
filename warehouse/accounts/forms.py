@@ -29,6 +29,18 @@ class CredentialsMixin:
                     "a username with under 50 characters."
                 )
             ),
+            # the regexp below must match the CheckConstraint
+            # for the username field in accounts.models.User
+            wtforms.validators.Regexp(
+                r'^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$',
+                message=(
+                    "The username is invalid. Usernames "
+                    "must be composed of letters, numbers, "
+                    "dots, hyphens and underscores. And must "
+                    "also start and finish with a letter or number. "
+                    "Please choose a different username."
+                )
+            )
         ],
     )
 

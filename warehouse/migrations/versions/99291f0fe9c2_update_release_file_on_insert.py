@@ -35,14 +35,14 @@ down_revision = 'e7b09b5c089d'
 def upgrade():
 
     op.execute(
-         """ UPDATE release_files
-             SET requires_python = releases.requires_python
-             FROM releases
-             WHERE
-                 release_files.name=releases.name
-                 AND release_files.version=releases.version;
-          """
-      )
+        """ UPDATE release_files
+            SET requires_python = releases.requires_python
+            FROM releases
+            WHERE
+                release_files.name=releases.name
+                AND release_files.version=releases.version;
+        """
+    )
 
     # Establish a trigger such that on INSERT on release_files.
     # The requires_python value is no supposed to be set directly here

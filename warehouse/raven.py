@@ -39,7 +39,7 @@ def raven_tween_factory(handler, registry):
     def raven_tween(request):
         try:
             return handler(request)
-        except:
+        except:  # noqa
             request.raven.captureException()
             raise
 

@@ -4,12 +4,7 @@ python: 3.6.1
 env:
   global:
     - TRAVIS_NODE_VERSION=6.6.0
-    - LIVESERVER_HOST=warehouse.local
     - CXX=g++-4.8
-    - secure: "fj97g3yXU6cJPFGpK2Vrd0f9Vms7zCO2oiyT1SUCs5NQMq1WXZfFuYYMSZ3luwzAcRZ/LZtuuoW+CL+5VyCz/qSTv4YOm5Ao2DscEXcemeJPt98abtKcCIRtFVgJ7N7SnO9d4ndmRk6G18CmbcsLINLXe0N27ocwR7bY0m31Wes="
-    - secure: "e5568YThsje9x+aFqcCJ8Wt/uMGDM8gY4FHiHPNcyB2Doa63nyVeTIWvOqmuh67PoqGQPMKIof5gt4FXDiMu10fvkZ6R/NhGEOWd4bbzednHny4H3ey3tsVKvfURfGju2PpkopK4IMFWHKRo4h4RoheY01gdNBSkBtllWPfEXF4="
-    - secure: "IMdeE5r/XktX8cp18D4lS+0zPFrvM15R4kEVAPeuM+ef2EQ7vywf9sT0gL8WxPE6cfxBQ7oS7NpUaNTcKushKmI5gtAyjCczmzbXcPlHA71ho4ssqxoX+g61v34EUYiNPiKrEy/Wk0UX943ZpcWcahxpLJfKmcW3ZKUFHUQ6qcU="
-    - secure: "S9p1nPqBRJ8M/pOzQ/y8m8ye+QDoQas32B2MN+8rOKM9lBb7TpmPnYyAeLrZtstSOQ/dJRUmRrSMeEa2pB8I8s8LUJrNOEyKX2G3QC7MMVzpMtfyJYr9TL3KtcppKE54vZovr6xCtciOlY8EJM2IxZZ25e9YZIt+JTxll0QggIo="
 
 dist: trusty
 sudo: false
@@ -43,12 +38,12 @@ script:
   - node -v
   - npm -v
   - ./node_modules/.bin/gulp dist
-  - bin/tests --postgresql-host 127.0.0.1 --liveserver-host $LIVESERVER_HOST
+  - bin/tests --postgresql-host 127.0.0.1
 
 matrix:
   include:
     - env:
-      - SUITE=Tests SELENIUM_BROWSER=phantomjs LIVESERVER_HOST=127.0.0.1
+      - SUITE=Tests
     - script: make lint BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Lint
