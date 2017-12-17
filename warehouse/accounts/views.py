@@ -81,7 +81,7 @@ def profile(user, request):
     return {"user": user, "projects": projects}
 
 
-def _sort_user_projects(user, projects):
+def _sort_user_projects(projects):
     return sorted(projects, key=lambda p: p.created, reverse=True)
 
 
