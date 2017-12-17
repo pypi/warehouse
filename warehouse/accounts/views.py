@@ -76,8 +76,13 @@ def profile(user, request):
                   .order_by(Project.name, Release._pypi_ordering.desc())
                   .all()
     )
+    projects = _sort_user_projects(projects)
 
     return {"user": user, "projects": projects}
+
+
+def _sort_user_projects(projects):
+    return sorted(projects, key=lambda p: p.created, reverse=True)
 
 
 @view_config(

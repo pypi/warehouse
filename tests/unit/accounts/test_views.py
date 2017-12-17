@@ -23,6 +23,7 @@ from warehouse.accounts import views
 from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
 
 from ...common.db.accounts import UserFactory
+from ...common.db.packaging import ReleaseFactory
 
 
 class TestFailedLoginView:
@@ -68,6 +69,14 @@ class TestUserProfile:
             "user": user,
             "projects": [],
         }
+
+    def test_sort_projects(self):
+        projects = [ReleaseFactory.create() for _ in range(10)]
+        import random
+        random.shuffle(projects)
+        sorted_projects = views._sort_user_projects(projects)
+        assert sorted_projects[0].created > sorted_projects[1].created
+
 
 
 class TestLogin:
