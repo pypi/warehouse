@@ -154,6 +154,7 @@
           <li><a href="https://packaging.python.org/installing/">Installing Packages</a></li>
           <li><a href="https://packaging.python.org/distributing/">Uploading Packages</a></li>
           <li><a href="https://packaging.python.org/">User Guide</a></li>
+          <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
@@ -162,9 +163,11 @@
           {% if request.registry.settings.get("statuspage.url") %}
           <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
           {% endif %}
-          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/" class="tooltipped tooltipped-e" aria-label="Package Index Name Retention" data-original-label="Package Index Name Retention">PEP 541</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
+
+
         <ul class="footer__menu">
           <li>
             <h3>Contributing to PyPI</h3>
@@ -172,7 +175,17 @@
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
           <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development Roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
+          <li><a href="">Development Roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
+        </ul>
+        <ul class="footer__menu">
+          <li>
+            <h3>Using PyPI</h3>
+          </li>
+          <li><a href="">Code of Conduct</a></li>
+          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a href="">Privacy Policy</a></li>
+          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></li>
         </ul>
       </div>
 
@@ -184,7 +197,7 @@
           <br>
           <a href="https://donate.pypi.org">Donate Today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation.</p>
       </div>
     </footer>
 
