@@ -108,6 +108,20 @@ def includeme(config):
         traverse="/{name}",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.project.roles",
+        "/project/{name}/collaboration/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_role",
+        "/project/{name}/collaboration/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
 
     # Packaging
     config.add_route(

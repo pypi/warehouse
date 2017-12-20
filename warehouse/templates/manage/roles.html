@@ -1,0 +1,78 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "project_settings_base.html" %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block main %}
+  <h2>Collaborators</h2>
+  <p>
+    There are two possible roles for collaborators:
+    <dl>
+      <dt>Owner</dt>
+      <dd>Owns a package, may add other collaborators for that package, and upload releases for a package.</dd>
+      <dt>Maintainer</dt>
+      <dd>May upload releases for a package.</dd>
+    </dl>
+  </p>
+  <h3>Collaborators for {{ project.name }}</h3>
+  <ul class="collaborator-list">
+  {% for role in roles|sort(attribute="user.username") %}
+    <li class="collaborator">
+      <img src="{{ gravatar(role.user.email, size=64) }}" alt="{{ alt }}" title="{{ alt }}">
+      <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
+        {{ role.user.username }}
+        {% if role.user.name %}
+          ({{ role.user.name }})
+        {% endif %}
+      </a>
+      {{ role.role_name }}
+
+      <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <input type="hidden" name="role_id" value="{{ role.id }}">
+        <button type="submit"
+          {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
+            title="Cannot remove yourself as owner"
+            disabled
+          {% else %}
+            title="Remove {{ role.user.username }}'s role as {{ role.role_name }}"
+          {% endif %}
+        >
+          <i class="fa fa-times"></i>
+        </button>
+      </form>
+    </li>
+  {% endfor %}
+  </ul>
+  <h3>Add a new collaborator</h3>
+  <p>
+    Add a new collaborator by entering their exact username.
+  </p>
+  <form method="POST">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form.username }}
+    {{ form.role_name }}
+    <input type="submit" value="Add collaborator">
+  </form>
+  {% if form.errors %}
+    <ul class="form-errors">
+    {% for field, errors in form.errors|dictsort if errors %}
+      {% for error in errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endblock %}
