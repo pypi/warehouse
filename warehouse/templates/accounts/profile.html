@@ -22,8 +22,6 @@
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
         <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-        {% csi request.route_path('accounts.edit_gravatar', username=user.username) %}
-        {% endcsi %}
         <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
         <div class="author-profile__meta">
           {% if user.name %}

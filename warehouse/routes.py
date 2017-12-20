@@ -97,13 +97,6 @@ def includeme(config):
         "/account/reset-password/",
         domain=warehouse,
     )
-    config.add_route(
-        "accounts.edit_gravatar",
-        "/user/{username}/edit_gravatar/",
-        factory="warehouse.accounts.models:UserFactory",
-        traverse="/{username}",
-        domain=warehouse,
-    )
 
     # Management (views for logged-in users)
     config.add_route("manage.profile", "/manage/profile/", domain=warehouse)

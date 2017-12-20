@@ -126,13 +126,6 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "accounts.edit_gravatar",
-            "/user/{username}/edit_gravatar/",
-            factory="warehouse.accounts.models:UserFactory",
-            traverse="/{username}",
-            domain=warehouse,
-        ),
-        pretend.call(
             "manage.profile",
             "/manage/profile/",
             domain=warehouse
