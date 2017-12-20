@@ -105,6 +105,17 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Management (views for logged-in users)
+    config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
+    config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
+    config.add_route(
+        "manage.project.settings",
+        "/project/{name}/settings/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+
     # Packaging
     config.add_route(
         "packaging.project",
