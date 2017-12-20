@@ -87,6 +87,7 @@
 
         <div class="form-group">
           {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input") }}
+          <input id="show-password" type="checkbox">&nbsp;Show password
           {% if form.password_confirm.errors %}
           <ul class="form-errors">
             {% for error in form.password_confirm.errors %}
