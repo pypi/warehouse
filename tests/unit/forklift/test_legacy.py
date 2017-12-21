@@ -26,6 +26,7 @@ import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from webob.multidict import MultiDict
+from wtforms.form import Form
 from wtforms.validators import ValidationError
 
 from warehouse.classifiers.models import Classifier
@@ -217,11 +218,43 @@ class TestValidation:
             ("A" * 33) + ", https://example.com/",
             "Home, I am a banana",
             "Home, ssh://foobar",
+            "",
         ],
     )
     def test_validate_project_url_invalid(self, project_url):
         with pytest.raises(ValidationError):
             legacy._validate_project_url(project_url)
+
+    @pytest.mark.parametrize(
+        "project_urls",
+        [
+            [
+                "Home, https://pypi.python.org/",
+                ("A" * 32) + ", https://example.com/",
+            ],
+        ]
+    )
+    def test_all_valid_project_url_list(self, project_urls):
+        form, field = pretend.stub(), pretend.stub(data=project_urls)
+        legacy._validate_project_url_list(form, field)
+
+    @pytest.mark.parametrize(
+        "project_urls",
+        [
+            [
+                "Home, https://pypi.python.org/",  # Valid
+                "",  # Invalid
+            ],
+            [
+                ("A" * 32) + ", https://example.com/",  # Valid
+                ("A" * 33) + ", https://example.com/",  # Invalid
+            ],
+        ]
+    )
+    def test_invalid_member_project_url_list(self, project_urls):
+        form, field = pretend.stub(), pretend.stub(data=project_urls)
+        with pytest.raises(ValidationError):
+            legacy._validate_project_url_list(form, field)
 
     def test_validate_project_url_list(self, monkeypatch):
         validator = pretend.call_recorder(lambda datum: None)
@@ -264,6 +297,8 @@ class TestListField:
             (["foo", "bar"], ["foo", "bar"]),
             (["  foo"], ["foo"]),
             (["f oo  "], ["f oo"]),
+            ('', []),
+            (' ', []),
         ],
     )
     def test_processes_form_data(self, data, expected):
@@ -271,6 +306,21 @@ class TestListField:
         field = field.bind(pretend.stub(meta=pretend.stub()), "formname")
         field.process_formdata(data)
         assert field.data == expected
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("", []),
+            ("wutang", ["wutang"]),
+        ]
+    )
+    def test_coerce_string_into_list(self, value, expected):
+        class MyForm(Form):
+            test = legacy.ListField()
+
+        form = MyForm(MultiDict({'test': value}))
+
+        assert form.test.data == expected
 
 
 class TestMetadataForm:

@@ -66,9 +66,9 @@ email_validator==1.0.3 \
 factory-boy==2.9.2 \
     --hash=sha256:b8334bcc3c5b10af9a83ab5b8786f98cb322638dc1e6d320cad01c7f2b420e87 \
     --hash=sha256:340c602f6fed2d8dd160397f28f2c0219e937f0488460450e8e5bf2add020ed6
-Faker==0.8.7 \
-    --hash=sha256:f5529ff519a4bed0c0c8ccbbf7ca0d918ed0a9826fe8adc60f58d5b052a946dc \
-    --hash=sha256:bf7dabcd6807c8829da28a4de491adf7998af506b8571db6a6eb58161157248a
+Faker==0.8.8 \
+    --hash=sha256:2f6ccc9da046d4cd20401734cf6a1ac73a4e4d8256e7b283496ee6827ad2eb60 \
+    --hash=sha256:e928cf853ef69d7471421f2a3716a1239e43de0fa9855f4016ee0c9f1057328a
 freezegun==0.3.9 \
     --hash=sha256:8842688de9497c82ecb40c30274ecc676e97ac78765b0ade105a97063d5b7a11 \
     --hash=sha256:783ccccd7f60968bfe49ad9e114c18ea2b63831faaaf61c1f1f71ddfde1c0eee
