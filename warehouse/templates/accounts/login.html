@@ -50,6 +50,7 @@
         <div class="form-group">
           <label for="password" class="form-group__label">Password</label>
           {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          <input id="show-password" type="checkbox">&nbsp;Show password
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
