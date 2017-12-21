@@ -28,15 +28,9 @@
 }
 
 @mixin split-layout {
-  @include clearfix;
-
-  > :first-child {
-    float: left;
-  }
-
-  > :last-child {
-    float: right;
-  }
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 @mixin split-table-layout {

@@ -122,19 +122,23 @@ docReady(() => {
 });
 
 docReady(() => {
-  let passwordField = document.querySelector("#password");
+  let passwordFields = document.querySelectorAll("#password, #password_confirm");
   let showPasswordCheck = document.querySelector("#show-password");
 
-  if (passwordField && showPasswordCheck) {
+  if (passwordFields && showPasswordCheck) {
     // Reset these so they don't persist between page reloads
-    passwordField.type = "password";
-    showPasswordCheck.checked = false;
+    for (let field of passwordFields) {
+      field.type = "password";
+      showPasswordCheck.checked = false;
+    }
 
     showPasswordCheck.addEventListener("click", function () {
-      if (showPasswordCheck.checked) {
-        passwordField.type = "text";
-      } else {
-        passwordField.type = "password";
+      for (let field of passwordFields) {
+        if (showPasswordCheck.checked) {
+          field.type = "text";
+        } else {
+          field.type = "password";
+        }
       }
     });
   }
