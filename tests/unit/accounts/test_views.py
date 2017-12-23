@@ -363,6 +363,9 @@ class TestRecoverPassword:
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
         )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
         monkeypatch.setattr(views, "send_email", send_email)
 
         result = views.recover_password(

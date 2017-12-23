@@ -160,31 +160,30 @@ class RecoverPasswordForm(LoginForm):
         self._fields.pop('password')
 
 
-class ResetPasswordForm(CredentialsMixin, forms.Form):
+class ResetPasswordForm(forms.Form):
+
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            forms.PasswordStrengthValidator(),
+        ],
+    )
 
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "password", "Passwords must match."
+                "password", "Your passwords do not match. Please try again."
             ),
         ],
     )
 
-    def __init__(self, *args, userid, **kwargs):
+    def __init__(self, *args, userid, user_service, **kwargs):
         super(ResetPasswordForm, self).__init__(*args, **kwargs)
-
         self.userid = userid
-        # Pop username field that comes from CredentialsMixIn.
-        self._fields.pop('username')
+        self.user_service = user_service
 
     def validate_password(self, field):
-        if not PWD_RE.match(field.data):
-            raise wtforms.validators.ValidationError(
-                "Password must contain an upper case letter, a lower case "
-                "letter, a number, a special character and be at least "
-                "%d characters in length" % PWD_MIN_LEN
-            )
         if self.userid is not None:
             if self.user_service.check_password(self.userid, field.data):
                 raise wtforms.validators.ValidationError(

@@ -288,8 +288,7 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
 
         # Generate a new OTK.
         otk = password_recovery_service.generate_otk(user)
-
-        send_email.delay(
+        request.task(send_email).delay(
             PASSWORD_RECOVERY_MESSAGE.format(
                 name=username,
                 otk=otk,

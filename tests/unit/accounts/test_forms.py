@@ -423,6 +423,9 @@ class TestResetPasswordForm:
             find_userid_by_email=pretend.call_recorder(
                 lambda _: pretend.stub()
             ),
+            check_password=pretend.call_recorder(
+                lambda _, i: i
+            )
         )
         form = forms.ResetPasswordForm(
             userid="foo",
@@ -434,12 +437,15 @@ class TestResetPasswordForm:
         )
 
         assert not form.validate()
-        assert form.password_confirm.errors.pop() == "Passwords must match."
+        assert (
+            form.password_confirm.errors.pop() ==
+            "Your passwords do not match. Please try again."
+        )
 
     def test_password_strength(self):
         cases = (
             ("foobar", False),
-            ("somethingalittlebetter9", False),
+            ("somethingalittlebetter9", True),
             ("1aDeCent!1", True),
         )
         for pwd, valid in cases:
