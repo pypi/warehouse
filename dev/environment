@@ -28,4 +28,4 @@ RECAPTCHA_SECRET_KEY="${RECAPTCHA_SECRET_KEY}"
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
-PASSWORD_RECOVERY_SECRET_KEY: "an insecure password recovery secret key"
+PASSWORD_RECOVERY_SECRET_KEY="an insecure password recovery secret key"
