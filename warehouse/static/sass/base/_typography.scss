@@ -1,3 +1,17 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // HIGH LEVEL
 
 html {
@@ -21,7 +35,11 @@ body {
 
 // CODE
 
-code, kbd, pre, samp, tt {
+code,
+kbd,
+pre,
+samp,
+tt {
   font-family: $code-font;
   background-color: lighten($base-grey, 5);
   border: 1px solid $border-color;
@@ -89,6 +107,8 @@ a {
     color: darken($brand-color, 10);
     text-decoration: underline;
   }
+
+  @include link-focus
 }
 
 @include selection {
@@ -100,16 +120,27 @@ a {
 // VERTICAL RHYTHM
 
 // Set `padding-bottom` to maintain vertical rhythm
-h1, h2, h3, h4, h5, h6,
-p, blockquote, pre,
-ul, ol, dl, figure,
-%vertical-rhythm {
-    padding-bottom: $spacing-unit / 2;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+ul,
+ol,
+dl,
+figure {
+  padding-bottom: $spacing-unit / 2;
 }
 
-p:last-child, pre:last-child,
-ul:last-child, ol:last-child,
-dl:last-child, figure:last-child,
-%vertical-rhythm {
-    padding-bottom: 0;
+p:last-child,
+pre:last-child,
+ul:last-child,
+ol:last-child,
+dl:last-child,
+figure:last-child {
+  padding-bottom: 0;
 }

@@ -16,10 +16,9 @@ import hashlib
 import factory
 import factory.fuzzy
 
-from pyblake2 import blake2b
-
 from warehouse.packaging.models import (
-    Project, Release, Role, File, JournalEntry,
+    BlacklistedProject, Dependency, DependencyKind, File, JournalEntry,
+    Project, Release, Role,
 )
 
 from .accounts import UserFactory
@@ -59,9 +58,8 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
     )
     blake2_256_digest = factory.LazyAttribute(
-        lambda o: (
-            blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
-        )
+        lambda o: hashlib.blake2b(o.filename.encode("utf8"),
+                                  digest_size=32).hexdigest()
     )
     upload_time = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2008, 1, 1)
@@ -85,6 +83,16 @@ class RoleFactory(WarehouseFactory):
     project = factory.SubFactory(ProjectFactory)
 
 
+class DependencyFactory(WarehouseFactory):
+    class Meta:
+        model = Dependency
+
+    name = factory.fuzzy.FuzzyText(length=12)
+    version = factory.Sequence(lambda n: str(n) + ".0")
+    kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
+    specifier = factory.fuzzy.FuzzyText(length=12)
+
+
 class JournalEntryFactory(WarehouseFactory):
     class Meta:
         model = JournalEntry
@@ -96,3 +104,12 @@ class JournalEntryFactory(WarehouseFactory):
         datetime.datetime(2008, 1, 1)
     )
     submitted_by = factory.SubFactory(UserFactory)
+
+
+class BlacklistedProjectFactory(WarehouseFactory):
+    class Meta:
+        model = BlacklistedProject
+
+    created = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
+    name = factory.fuzzy.FuzzyText(length=12)
+    blacklisted_by = factory.SubFactory(UserFactory)

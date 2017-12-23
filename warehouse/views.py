@@ -14,8 +14,10 @@ import collections
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
-    HTTPBadRequest,
+    HTTPBadRequest, exception_response,
 )
+from pyramid.renderers import render_to_response
+from pyramid.response import Response
 from pyramid.view import (
     notfound_view_config, forbidden_view_config, view_config,
 )
@@ -60,10 +62,48 @@ SEARCH_FILTER_ORDER = (
 )
 
 
+# 403, 404, 410, 500,
+
+
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 def httpexception_view(exc, request):
-    return exc
+    # This special case exists for the easter egg that appears on the 404
+    # response page. We don't generally allow youtube embeds, but we make an
+    # except for this one.
+    if isinstance(exc, HTTPNotFound):
+        request.find_service(name="csp").merge({
+            "frame-src": ["https://www.youtube-nocookie.com"],
+            "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
+        })
+    try:
+        # Lightweight version of 404 page for `/simple/`
+        if (isinstance(exc, HTTPNotFound) and
+                request.path.startswith("/simple/")):
+            response = Response(
+                body="404 Not Found",
+                content_type="text/plain"
+            )
+        else:
+            response = render_to_response(
+                "{}.html".format(exc.status_code),
+                {},
+                request=request,
+            )
+    except LookupError:
+        # We don't have a customized template for this error, so we'll just let
+        # the default happen instead.
+        return exc
+
+    # Copy over the important values from our HTTPException to our new response
+    # object.
+    response.status = exc.status
+    response.headers.extend(
+        (k, v) for k, v in exc.headers.items()
+        if k not in response.headers
+    )
+
+    return response
 
 
 @forbidden_view_config()
@@ -79,8 +119,7 @@ def forbidden(exc, request, redirect_to="accounts.login"):
 
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.
-    # TODO: Style the forbidden page.
-    return exc
+    return httpexception_view(exc, request)
 
 
 @view_config(
@@ -236,8 +275,9 @@ def search(request):
 
         query = query.sort(sort)
 
-    if request.params.getall("c"):
-        query = query.filter("terms", classifiers=request.params.getall("c"))
+    # Require match to all specified classifiers
+    for classifier in request.params.getall("c"):
+        query = query.filter("terms", classifiers=[classifier])
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -311,3 +351,11 @@ def health(request):
     # Nothing will actually check this, but it's a little nicer to have
     # something to return besides an empty body.
     return "OK"
+
+
+@view_config(route_name="force-status")
+def force_status(request):
+    try:
+        raise exception_response(int(request.matchdict["status"]))
+    except KeyError:
+        raise exception_response(404) from None

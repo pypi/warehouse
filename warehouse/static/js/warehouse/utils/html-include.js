@@ -11,14 +11,12 @@
  * limitations under the License.
  */
 
-
 const fetchOptions = {
   mode: "same-origin",
   credentials: "same-origin",
   cache: "default",
   redirect: "follow",
 };
-
 
 export default () => {
   // Each HTML include will generate a promise, which we'll later use to wait
@@ -34,11 +32,11 @@ export default () => {
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
     let p = fetch(element.getAttribute("data-html-include"), fetchOptions)
-            .then(response => {
-              if (response.ok) { return response.text(); }
-              else { return ""; }
-            })
-            .then(content => { element.innerHTML = content; });
+      .then(response => {
+        if (response.ok) { return response.text(); }
+        else { return ""; }
+      })
+      .then(content => { element.innerHTML = content; });
     promises.push(p);
   });
 

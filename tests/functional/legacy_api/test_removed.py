@@ -17,7 +17,8 @@ import pytest
 def test_removed_upload_apis(webtest, action):
     resp = webtest.post("/legacy/?:action={}".format(action), status=410)
     assert resp.status == \
-        "410 This API is no longer supported, instead simply upload the file."
+        ("410 Project pre-registration is no longer required or supported, so "
+         "continue directly to uploading files.")
 
 
 def test_remove_doc_upload(webtest):

@@ -1,0 +1,31 @@
+WAREHOUSE_ENV=development
+WAREHOUSE_TOKEN=insecuretoken
+
+# Uncomment the below line if you're working on the PyPI theme, this is a
+# private repository due to the fact that other people's IP is contained in
+# it.
+# WAREHOUSE_THEME: pypi_theme.pypi
+
+AMQP_URL=amqp://guest@rabbitmq:5672//
+
+DATABASE_URL=postgresql://postgres@db/warehouse
+
+ELASTICSEARCH_URL=http://elasticsearch:9200/development
+
+REDIS_URL=redis://redis:6379/0
+
+SESSION_SECRET="an insecure development secret"
+
+CAMO_URL="{request.scheme}://{request.domain}:9000/"
+CAMO_KEY="insecure camo key"
+
+DOCS_URL="https://pythonhosted.org/{project}/"
+
+FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.example.com/packages/{path}
+
+RECAPTCHA_SITE_KEY="${RECAPTCHA_SITE_KEY}"
+RECAPTCHA_SECRET_KEY="${RECAPTCHA_SECRET_KEY}"
+
+STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
+
+PASSWORD_RECOVERY_SECRET_KEY: "an insecure password recovery secret key"

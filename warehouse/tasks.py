@@ -21,6 +21,7 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend
 import celery
 import celery.backends.redis
 import pyramid.scripting
+import pyramid_retry
 import transaction
 import venusian
 
@@ -56,7 +57,8 @@ class WarehouseTask(celery.Task):
                 try:
                     return original_run(*args, **kwargs)
                 except BaseException as exc:
-                    if request.tm._retryable(exc.__class__, exc):
+                    if (isinstance(exc, pyramid_retry.RetryableException) or
+                            pyramid_retry.IRetryableError.providedBy(exc)):
                         raise obj.retry(exc=exc)
                     raise
 

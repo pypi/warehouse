@@ -97,15 +97,20 @@ def test_activate_hook(path, expected):
     assert config.activate_hook(request) == expected
 
 
-def test_template_view():
+@pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
+def test_template_view(route_kw):
     configobj = pretend.stub(
         add_route=pretend.call_recorder(lambda *a, **kw: None),
         add_view=pretend.call_recorder(lambda *a, **kw: None),
     )
 
-    config.template_view(configobj, "test", "/test/", "test.html")
+    config.template_view(configobj, "test", "/test/", "test.html",
+                         route_kw=route_kw)
 
-    assert configobj.add_route.calls == [pretend.call("test", "/test/")]
+    assert configobj.add_route.calls == [
+        pretend.call(
+            "test", "/test/", **({} if route_kw is None else route_kw)),
+    ]
     assert configobj.add_view.calls == [
         pretend.call(renderer="test.html", route_name="test"),
     ]
@@ -319,6 +324,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 ),
             ]
         ] + [
+            pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
             pretend.call("pyramid_services"),
             pretend.call("pyramid_rpc.xmlrpc"),
@@ -344,6 +350,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".forklift"),
             pretend.call(".raven"),
             pretend.call(".csp"),
+            pretend.call(".referrer_policy"),
             pretend.call(".recaptcha"),
             pretend.call(".http"),
         ] + [
@@ -365,8 +372,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.add_settings.calls == [
         pretend.call({"jinja2.newstyle": True}),
+        pretend.call({"retry.attempts": 3}),
         pretend.call({
-            "tm.attempts": 3,
             "tm.manager_hook": mock.ANY,
             "tm.activate_hook": config.activate_hook,
             "tm.annotate_user": False,
@@ -377,7 +384,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             },
         }),
     ]
-    add_settings_dict = configurator_obj.add_settings.calls[1].args[0]
+    add_settings_dict = configurator_obj.add_settings.calls[2].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
     assert configurator_obj.add_tween.calls == [

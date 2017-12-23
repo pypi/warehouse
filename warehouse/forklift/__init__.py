@@ -45,3 +45,21 @@ def includeme(config):
         "doc_upload",
         domain=forklift,
     )
+
+    if forklift:
+        config.add_template_view(
+            "forklift.index",
+            "/",
+            "upload.html",
+            route_kw={"domain": forklift},
+        )
+
+        # Any call to /legacy/ not handled by another route (e.g. no :action
+        # URL parameter, or an invalid :action URL parameter) falls through to
+        # this catch-all route.
+        config.add_template_view(
+            "forklift.legacy.invalid_request",
+            "/legacy/",
+            "upload.html",
+            route_kw={"domain": forklift},
+        )

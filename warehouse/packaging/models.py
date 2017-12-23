@@ -22,6 +22,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -135,7 +136,9 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = []
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -345,9 +348,11 @@ class Release(db.ModelBase):
 
     @property
     def has_meta(self):
-        return any([self.keywords,
+        return any([self.license,
+                    self.keywords,
                     self.author, self.author_email,
-                    self.maintainer, self.maintainer_email])
+                    self.maintainer, self.maintainer_email,
+                    self.requires_python])
 
 
 class File(db.Model):
@@ -400,7 +405,6 @@ class File(db.Model):
     md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
-    downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
@@ -410,6 +414,10 @@ class File(db.Model):
         nullable=False,
         server_default=sql.false(),
     )
+
+    # TODO: Once Legacy PyPI is gone, then we should remove this column
+    #       completely as we no longer use it.
+    downloads = Column(Integer, server_default=sql.text("0"))
 
     @hybrid_property
     def pgp_path(self):
@@ -495,3 +503,30 @@ class JournalEntry(db.ModelBase):
     )
     submitted_by = orm.relationship(User)
     submitted_from = Column(Text)
+
+
+class BlacklistedProject(db.Model):
+
+    __tablename__ = "blacklist"
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="blacklist_valid_name",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _blacklisted_by = Column(
+        "blacklisted_by",
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id"),
+    )
+    blacklisted_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")

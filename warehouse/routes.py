@@ -21,6 +21,10 @@ def includeme(config):
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
 
+    # Internal route to make it easier to force a particular status for
+    # debugging HTTPException templates.
+    config.add_route("force-status", "/_force-status/{status:[45]\d\d}/")
+
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
@@ -57,6 +61,13 @@ def includeme(config):
         "/_includes/flash-messages/",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.current-user-profile-callout",
+        "/_includes/current-user-profile-callout/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+        domain=warehouse,
+    )
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
@@ -84,6 +95,13 @@ def includeme(config):
     config.add_route(
         "accounts.reset-password",
         "/account/reset-password/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.edit_gravatar",
+        "/user/{username}/edit_gravatar/",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 

@@ -11,24 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-<div class="form-group">
-  {% if form.username.errors %}
-  <ul class="errors">
-    {% for error in form.username.errors %}
-    <li>{{ error }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-  {{ form.username(placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required") }}
-</div>
 
-<div class="form-group">
-  {% if form.password.errors %}
-  <ul class="errors">
-    {% for error in form.password.errors %}
-    <li>{{ error }}</li>
-    {% endfor %}
-  </ul>
+<div class="callout-block no-top-margin">
+  {% if user.id == request.user.id %}
+  <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+  {% else %}
+  <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
   {% endif %}
-  {{ form.password(placeholder="Password", required="required") }}
 </div>

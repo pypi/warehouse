@@ -1,0 +1,39 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "error-base.html" %}
+
+{% block title %}Internal Server Error (500){% endblock %}
+
+{% block error_heading %}Sorry, something went wrong{% endblock %}
+
+{% block error_text %}
+<div class="viewport-section__text no-top-margin no-top-padding">
+  <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
+  <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
+
+  <ul class="unstyled">
+    <li><a href="https://status.python.org/">Check our status page</a></li>
+    <li><a href="https://twitter.com/PythonStatus">View Python Status on Twitter</a></li>
+  </ul>
+  <br>
+  <p class="no-bottom-padding"><strong>Error code 500</strong></p>
+  <hr class="viewport-section__rule">
+  <p>
+    <strong>
+      Rely on PyPI to get your job done?<br>
+      Consider <a href="https://github.com/pypa/warehouse">contributing</a> or <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13">donating</a> to help us build a more stable and secure platform.
+    </strong>
+  </p>
+</div>
+{% endblock error_text %}

@@ -1,33 +1,10 @@
 language: python
-python: 3.5.2
+python: 3.6.1
 
 env:
   global:
     - TRAVIS_NODE_VERSION=6.6.0
-    - LIVESERVER_HOST=warehouse.local
     - CXX=g++-4.8
-    - secure: "fj97g3yXU6cJPFGpK2Vrd0f9Vms7zCO2oiyT1SUCs5NQMq1WXZfFuYYMSZ3luwzAcRZ/LZtuuoW+CL+5VyCz/qSTv4YOm5Ao2DscEXcemeJPt98abtKcCIRtFVgJ7N7SnO9d4ndmRk6G18CmbcsLINLXe0N27ocwR7bY0m31Wes="
-    - secure: "e5568YThsje9x+aFqcCJ8Wt/uMGDM8gY4FHiHPNcyB2Doa63nyVeTIWvOqmuh67PoqGQPMKIof5gt4FXDiMu10fvkZ6R/NhGEOWd4bbzednHny4H3ey3tsVKvfURfGju2PpkopK4IMFWHKRo4h4RoheY01gdNBSkBtllWPfEXF4="
-    - secure: "IMdeE5r/XktX8cp18D4lS+0zPFrvM15R4kEVAPeuM+ef2EQ7vywf9sT0gL8WxPE6cfxBQ7oS7NpUaNTcKushKmI5gtAyjCczmzbXcPlHA71ho4ssqxoX+g61v34EUYiNPiKrEy/Wk0UX943ZpcWcahxpLJfKmcW3ZKUFHUQ6qcU="
-    - secure: "S9p1nPqBRJ8M/pOzQ/y8m8ye+QDoQas32B2MN+8rOKM9lBb7TpmPnYyAeLrZtstSOQ/dJRUmRrSMeEa2pB8I8s8LUJrNOEyKX2G3QC7MMVzpMtfyJYr9TL3KtcppKE54vZovr6xCtciOlY8EJM2IxZZ25e9YZIt+JTxll0QggIo="
-  matrix:
-    - SUITE=Tests SELENIUM_BROWSER=phantomjs LIVESERVER_HOST=127.0.0.1
-    # We don't exhaustively test every combination of Browser/Version/OS since
-    # that would be a massive number of test cases. Instead we test our
-    # supported browsers on one operating system. To choose which operating
-    # system we test it on we look at which OS has the largest share of users
-    # for that browser and use that while also trying to divide our tests out
-    # amongst different OSs.
-    # - SUITE=Tests SELENIUM_BROWSER=chrome SELENIUM_VERSION=latest SELENIUM_PLATFORM="Windows 10"
-    # - SUITE=Tests SELENIUM_BROWSER=chrome SELENIUM_VERSION=latest-1 SELENIUM_PLATFORM="Windows 10"
-    # - SUITE=Tests SELENIUM_BROWSER=firefox SELENIUM_VERSION=latest SELENIUM_PLATFORM="Linux"
-    # - SUITE=Tests SELENIUM_BROWSER=firefox SELENIUM_VERSION=latest-1 SELENIUM_PLATFORM="Linux"
-    # - SUITE=Tests SELENIUM_BROWSER=MicrosoftEdge SELENIUM_VERSION=latest SELENIUM_PLATFORM="Windows 10"
-    # - SUITE=Tests SELENIUM_BROWSER=MicrosoftEdge SELENIUM_VERSION=latest-1 SELENIUM_PLATFORM="Windows 10"
-    # - SUITE=Tests SELENIUM_BROWSER=opera SELENIUM_VERSION=latest SELENIUM_PLATFORM="Windows 7"
-    # - SUITE=Tests SELENIUM_BROWSER=opera SELENIUM_VERSION=latest-1 SELENIUM_PLATFORM="Windows 7"
-    # - SUITE=Tests SELENIUM_BROWSER=safari SELENIUM_VERSION=9.0 SELENIUM_PLATFORM="OS X 10.11"
-    # - SUITE=Tests SELENIUM_BROWSER="internet explorer" SELENIUM_VERSION="11.0" SELENIUM_PLATFORM="Windows 7"
 
 dist: trusty
 sudo: false
@@ -53,18 +30,20 @@ cache:
 
 install:
   - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
-  - pip install -U pip setuptools wheel codecov
+  - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
 
 script:
   - node -v
   - npm -v
-  - gulp dist
-  - bin/tests --postgresql-host 127.0.0.1 --liveserver-host $LIVESERVER_HOST
+  - ./node_modules/.bin/gulp dist
+  - bin/tests --postgresql-host 127.0.0.1
 
 matrix:
   include:
+    - env:
+      - SUITE=Tests
     - script: make lint BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Lint
@@ -96,7 +75,8 @@ matrix:
       env:
         - SUITE=Licenses
 
-after_success: codecov
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 branches:
   only:

@@ -8,31 +8,6 @@ set -x
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
-# If we're running on Travis, and the secure environment variables are not
-# available, and we're not using phantomjs, then we want to skip running tests
-# since we can't run them on SauceLabs.
-if [ "$TRAVIS" == "true" -a "$TRAVIS_SECURE_ENV_VARS" != "true" -a "$SELENIUM_BROWSER" != "phantomjs" ]; then
-    echo "Skipping due to no availability of SauceLabs in Pull Requests"
-    exit 0
-fi
-
-# If we're told to use saucelabs, then start up sauceconnect.
-if [ "$WAREHOUSE_ENABLE_SAUCECONNECT" == "true" ]; then
-    sc -u $SAUCE_USER_NAME -k $SAUCE_API_KEY -f /tmp/tunnel_created --daemonize
-
-    # Wait for sc to touch the file to indicate that it has finished.
-    while read i; do if [ "$i" = tunnel_created ]; then break; fi; done \
-       < <(inotifywait  -e create,open --format '%f' --quiet /tmp --monitor)
-fi
-
-# If we're running on Travis, then we want to set a few other environment
-# variables when we're not using the phantomjs browser.
-if [ "$TRAVIS" == "true" -a "$SELENIUM_BROWSER" != "phantomjs" ]; then
-    export SAUCELABS_TUNNEL="$TRAVIS_JOB_NUMBER"
-    export SELENIUM_HOST="ondemand.saucelabs.com"
-    export SELENIUM_PORT="80"
-fi
-
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
 python -m coverage report -m

@@ -1,19 +1,16 @@
-/*
-  A table whose column widths are set by its content - in this case, a
-  package's download data.
-
-  <table class="downloads-table">
-    <thead>
-      <th class="downloads-table__filename">File Name</th>
-      <th class="downloads-table__version">Version</th>
-      <th class="downloads-table__file-type">File Type</th>
-      <th class="downloads-table__upload-date">Upload Date</th>
-    </thead>
-    <tbody>
-      // table cells here
-    </tbody>
-  </table>
-*/
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 .downloads-table {
   box-sizing: border-box;
@@ -40,7 +37,7 @@
   }
 
   @media only screen and (max-width: $large-desktop){
-    // Hide 'file type' column
+    // Hide "file type" column
     th:nth-child(3),
     td:nth-child(3) {
       display: none;
@@ -48,7 +45,7 @@
   }
 
   @media only screen and (max-width: $desktop){
-    // Hide 'version' column
+    // Hide "version" column
     th:nth-child(5),
     td:nth-child(5) {
       display: none;
@@ -56,13 +53,13 @@
   }
 
   @media only screen and (max-width: $tablet){
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(4),
     td:nth-child(4) {
       display: none;
     }
 
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(2),
     td:nth-child(2) {
       width: 20%;
@@ -75,7 +72,7 @@
   }
 
   @media only screen and (max-width: $mobile){
-    // Hide 'upload date' column
+    // Hide "upload date" column
     th:nth-child(2),
     td:nth-child(2) {
       display: none;

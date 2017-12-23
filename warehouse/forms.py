@@ -19,14 +19,17 @@ from warehouse.utils.http import is_valid_uri
 
 class URIValidator:
 
-    def __init__(self, require_scheme={"http", "https"},
+    def __init__(self, require_scheme=True,
+                 allowed_schemes={"http", "https"},
                  require_authority=True):
         self.require_scheme = require_scheme
+        self.allowed_schemes = allowed_schemes
         self.require_authority = require_authority
 
     def __call__(self, form, field):
         if not is_valid_uri(field.data,
                             require_authority=self.require_authority,
+                            allowed_schemes=self.allowed_schemes,
                             require_scheme=self.require_scheme):
             raise ValidationError("Invalid URI")
 

@@ -93,8 +93,11 @@ def activate_hook(request):
     return True
 
 
-def template_view(config, name, route, template):
-    config.add_route(name, route)
+def template_view(config, name, route, template, route_kw=None):
+    if route_kw is None:
+        route_kw = {}
+
+    config.add_route(name, route, **route_kw)
     config.add_view(renderer=template, route_name=name)
 
 
@@ -248,6 +251,12 @@ def configure(settings=None):
     # Anytime we want to render a .xml template, we'll also use Jinja.
     config.add_jinja2_renderer(".xml")
 
+    # We need to enable our Client Side Include extension
+    config.get_settings().setdefault(
+        "jinja2.extensions",
+        ["warehouse.utils.html.ClientSideIncludeExtension"],
+    )
+
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault(
@@ -273,7 +282,7 @@ def configure(settings=None):
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
     jglobals.setdefault("is_valid_uri", "warehouse.utils.http:is_valid_uri")
     jglobals.setdefault("gravatar", "warehouse.utils.gravatar:gravatar")
-    jglobals.setdefault("html_include", "warehouse.utils.html:html_include")
+    jglobals.setdefault("gravatar_profile", "warehouse.utils.gravatar:profile")
     jglobals.setdefault("now", "warehouse.utils:now")
 
     # We'll store all of our templates in one location, warehouse/templates
@@ -289,11 +298,14 @@ def configure(settings=None):
         renderers.JSON(sort_keys=True, separators=(",", ":")),
     )
 
+    # Configure retry support.
+    config.add_settings({"retry.attempts": 3})
+    config.include("pyramid_retry")
+
     # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
     config.add_settings({
-        "tm.attempts": 3,
         "tm.manager_hook": lambda request: transaction.TransactionManager(),
         "tm.activate_hook": activate_hook,
         "tm.annotate_user": False,
@@ -428,6 +440,9 @@ def configure(settings=None):
 
     # Register Content-Security-Policy service
     config.include(".csp")
+
+    # Register Referrer-Policy service
+    config.include(".referrer_policy")
 
     # Register recaptcha service
     config.include(".recaptcha")

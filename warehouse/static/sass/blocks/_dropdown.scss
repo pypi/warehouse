@@ -1,0 +1,97 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  A dropdown - containing a trigger and dropdown content, which may include
+  links. Styled to match the banner.
+
+  <div class="dropdown">
+    <button class="dropdown__trigger">
+    <div class="dropdown__content">
+      <a class="dropdown__link">Link Here</a>
+    </div>
+  </div>
+ */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+
+  // Remove form styling
+  form,
+  button {
+    border: 0;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  &__trigger {
+    cursor: pointer;
+  }
+
+  &__trigger-caret,
+  &__trigger-caret:hover {
+    margin-left: 5px;
+    text-decoration: none;
+  }
+
+  &__content {
+    position: absolute;
+    right: 0;
+    border: 1px solid $header-border-color;
+    box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
+    z-index: index($z-index-scale, "dropdown");
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 1px solid $header-border-color;
+    display: none;
+  }
+
+  // Show content if triggered
+  &__trigger:hover + &__content,
+  &__trigger:focus + &__content,
+  &__trigger:active + &__content,
+  &__content:hover {
+    display: block;
+  }
+
+  &__link,
+  button.dropdown__link {
+    display: block;
+    padding: 15px 15px 15px 45px;
+    border-bottom: 1px solid $header-border-color;
+    background-color: $header-background-color;
+    min-width: 175px;
+    color: $white;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &:hover {
+      background-color: darken($header-background-color, 1.5);
+      color: $white;
+      text-decoration: underline;
+    }
+
+    .fa {
+      font-size: 14px;
+      position: absolute;
+      left: 15px;
+      top: 20px;
+    }
+  }
+}

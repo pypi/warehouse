@@ -23,6 +23,7 @@ import docReady from "warehouse/utils/doc-ready";
 
 // Import our utility functions
 import Analytics from "warehouse/utils/analytics";
+import enterView from "enter-view";
 import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
@@ -31,6 +32,7 @@ import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
+import YouTubeIframeLoader from "youtube-iframe";
 
 // timestamps for project histories set for 1 minute intervals
 docReady(() => {
@@ -42,10 +44,9 @@ docReady(() => {
 docReady(()=> {
   const headingBtn = document.querySelector(".-js-vertical-tab-content");
   if (headingBtn) {
-    const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
-    const styleProps = getComputedStyle(mobileBtn, null);
-    projectTabs(styleProps.getPropertyValue("display") === "block");
+    projectTabs();
   }
+  window.addEventListener("resize", projectTabs, false);
 });
 
 // toggle search panel behavior
@@ -103,4 +104,42 @@ docReady(() => {
     resizeTimer = setTimeout(PositionWarning, 200);
   };
   window.addEventListener("resize", onResize, false);
+});
+
+docReady(() => {
+  if (document.querySelector(".-js-autoplay-when-visible")) {
+    YouTubeIframeLoader.load((YT) => {
+      enterView({
+        selector: ".-js-autoplay-when-visible",
+        trigger: (el) => {
+          new YT.Player(el.id, {
+            events: { "onReady": (e) => { e.target.playVideo(); } },
+          });
+        },
+      });
+    });
+  }
+});
+
+docReady(() => {
+  let passwordFields = document.querySelectorAll("#password, #password_confirm");
+  let showPasswordCheck = document.querySelector("#show-password");
+
+  if (passwordFields && showPasswordCheck) {
+    // Reset these so they don't persist between page reloads
+    for (let field of passwordFields) {
+      field.type = "password";
+      showPasswordCheck.checked = false;
+    }
+
+    showPasswordCheck.addEventListener("click", function () {
+      for (let field of passwordFields) {
+        if (showPasswordCheck.checked) {
+          field.type = "text";
+        } else {
+          field.type = "password";
+        }
+      }
+    });
+  }
 });

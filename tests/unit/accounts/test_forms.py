@@ -165,7 +165,10 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.password_confirm.errors.pop() == "Passwords must match."
+        assert (
+            form.password_confirm.errors.pop() ==
+            "Your passwords do not match. Please try again."
+        )
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
@@ -210,7 +213,11 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Invalid email address."
+        assert (
+            form.email.errors.pop() ==
+            "The email address you have chosen is not a valid format. "
+            "Please try again."
+        )
 
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
@@ -224,7 +231,11 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Email exists."
+        assert (
+            form.email.errors.pop() ==
+            "This email address is already being used by another account. "
+            "Please use a different email."
+        )
 
     def test_blacklisted_email_error(self):
         form = forms.RegistrationForm(
@@ -236,7 +247,11 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
-        assert form.email.errors.pop() == "Disposable email."
+        assert (
+            form.email.errors.pop() ==
+            "Sorry, you cannot create an account with an email address from "
+            "this domain. Please use a different email."
+        )
 
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(
@@ -290,7 +305,33 @@ class TestRegistrationForm:
             ),
         )
         assert not form.validate()
-        assert form.username.errors.pop() == "Username exists."
+        assert (
+            form.username.errors.pop() ==
+            "This username is already being used by another account. "
+            "Please choose a different username."
+        )
+
+    @pytest.mark.parametrize("username", ['_foo', 'bar_', 'foo^bar'])
+    def test_username_is_valid(self, username):
+        form = forms.RegistrationForm(
+            data={"username": username},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        assert (
+            form.username.errors.pop() ==
+            "The username is invalid. Usernames "
+            "must be composed of letters, numbers, "
+            "dots, hyphens and underscores. And must "
+            "also start and finish with a letter or number. "
+            "Please choose a different username."
+        )
 
     def test_password_strength(self):
         cases = (

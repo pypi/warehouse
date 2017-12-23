@@ -1,7 +1,21 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // SETTINGS - FONTS
 
-$base-font-family: 'Source Sans Pro', 'Helvetica', Arial, sans-serif;
-$code-font: 'Source Code Pro', monospace;
+$base-font-family: "Source Sans Pro", "Helvetica", Arial, sans-serif;
+$code-font: "Source Code Pro", monospace;
 
 
 /*
@@ -13,9 +27,9 @@ $code-font: 'Source Code Pro', monospace;
 
 $em-base:          17px;
 $base-font-size:   17px;
-$small-font-size:  $base-font-size * .8;
+$small-font-size:  $base-font-size * 0.8;
 $button-font-size: $base-font-size;
-$input-font-size:  $base-font-size *1.1;
+$input-font-size:  $base-font-size * 1.1;
 
 $base-line-height: 1.4;
 $base-font-weight: 300;
