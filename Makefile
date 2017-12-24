@@ -4,6 +4,9 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 
+# set IPYTHON = yes if needed in development environment
+IPYTHON =
+
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
 export RECAPTCHA_SECRET_KEY := $(shell echo "$${RECAPTCHA_SECRET_KEY:-6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe}")
@@ -42,7 +45,7 @@ default:
 	@echo "Must call a specific subcommand"
 	@exit 1
 
-.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt
+.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
 	# Create our Python 3.5 virtual environment
 	rm -rf .state/env
 	python3.6 -m venv .state/env
@@ -54,6 +57,11 @@ default:
 	.state/env/bin/python -m pip install -r requirements/dev.txt
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
+
+	# install ipython if enabled
+ifeq ($(IPYTHON),"yes")
+	.state/env/bin/python -m pip install -r requirements/ipython.txt
+endif
 
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
