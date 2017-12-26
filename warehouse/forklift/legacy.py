@@ -875,7 +875,11 @@ def file_upload(request):
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
-                    raise _exc_with_message(HTTPBadRequest, "File too large.")
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                       "File too large. "
+                       "Limit for project \"{}\" is {}.".format(
+                           project.name, file_size_limit))
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
