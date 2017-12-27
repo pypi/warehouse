@@ -220,7 +220,7 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
 ====== ========================================================================
 
 You can also run the Ipython shell as the interactive shell. To do so make
-the following 3 changes:
+the following 3 changes *prior to running the* ``make build`` *step*:
 
 * In docker-compose.yml, set the value IPYTHON to "yes".
 
