@@ -97,7 +97,7 @@ RUN set -x \
     && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
 
 RUN set -x \
-    && if [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
