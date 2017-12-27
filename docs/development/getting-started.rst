@@ -224,7 +224,8 @@ the following 3 changes *prior to running the* ``make build`` *step*:
 
 * In docker-compose.yml, set the value IPYTHON to "yes".
 
-* In the Dockerfile, set the ARG IPYTHON variable to yes (with no quotes).
+* In the Dockerfile, set the ARG IPYTHON variable and the ARG DEVEL variable
+  to yes (with no quotes).
 
 * In the Makefile set the IPYTHON variable to yes (with no quotes).
 
