@@ -224,12 +224,7 @@ def configure(settings=None):
     config.include("pyramid_jinja2")
 
     # Including pyramid_mailer for sending emails through SMTP.
-    # Lower environments (< prod) shouldn't send the actual email's, so we are
-    # adding pyramid_mailer.debug to route the email's to disk.
-    if config.registry.settings["warehouse.env"] == Environment.production:
-        config.include("pyramid_mailer")
-    else:
-        config.include("pyramid_mailer.debug")
+    config.include("pyramid_mailer")
 
     # We want to use newstyle gettext
     config.add_settings({"jinja2.newstyle": True})

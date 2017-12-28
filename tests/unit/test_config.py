@@ -315,15 +315,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
-        ] + [
-            pretend.call(x) for x in [
-                (
-                    "pyramid_mailer.debug"
-                    if environment == config.Environment.development
-                    else "pyramid_mailer"
-                ),
-            ]
-        ] + [
+            pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
             pretend.call("pyramid_services"),
