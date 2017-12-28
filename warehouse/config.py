@@ -164,7 +164,7 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "mail.host", "MAL_HOST")
+    maybe_set(settings, "mail.host", "MAIL_HOST")
     maybe_set(settings, "mail.port", "MAIL_PORT")
     maybe_set(settings, "mail.username", "MAIL_USERNAME")
     maybe_set(settings, "mail.password", "MAIL_PASSWORD")
