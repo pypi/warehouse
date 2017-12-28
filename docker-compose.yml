@@ -66,6 +66,7 @@ services:
       - redis
       - rabbitmq
       - elasticsearch
+      - smtp
 
   static:
     build:
@@ -77,3 +78,12 @@ services:
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+
+  smtp:
+    build:
+      context: .
+    command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
+    ports:
+      - "2525:2525"
+    volumes:
+      - ./dev/smtp.py:/opt/warehouse/dev/smtp.py
