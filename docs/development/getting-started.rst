@@ -219,18 +219,16 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
        to connect to the database.
 ====== ========================================================================
 
-You can also run the Ipython shell as the interactive shell. To do so make
-the following 3 changes *prior to running the* ``make build`` *step*:
+You can also run the IPython shell as the interactive shell. To do so export
+the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
+``make build`` *step*:
 
-* In docker-compose.yml, set the value IPYTHON to "yes".
+.. code-block:: console
 
-* In the Dockerfile, set the ARG IPYTHON variable and the ARG DEVEL variable
-  to yes (with no quotes).
+    $ export WAREHOUSE_IPYTHON_SHELL=1
 
-* In the Makefile set the IPYTHON variable to yes (with no quotes).
-
-Then run the ``make shell`` command as you would above and you'll get the
-Ipython shell.
+Now you will be able to run the ``make shell`` command to get the IPython
+shell.
 
 Running tests and linters
 -------------------------

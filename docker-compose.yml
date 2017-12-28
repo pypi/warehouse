@@ -27,7 +27,7 @@ services:
     build:
       context: .
       args:
-        DEVEL: "yes"
+        DEVEL: "no"
         IPYTHON: "no"
     command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
     env_file: dev/environment
@@ -57,7 +57,7 @@ services:
     build:
       context: .
       args:
-        DEVEL: "yes"
+        DEVEL: "no"
     command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     env_file: dev/environment
     environment:

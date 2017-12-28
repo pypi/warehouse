@@ -3,9 +3,15 @@ TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
+DEVEL := no
+IPYTHON := no
 
-# set IPYTHON = yes if needed in development environment
-IPYTHON =
+# set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
+# needed in development environment
+ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
+    IPYTHON = yes
+    DEVEL = yes
+endif
 
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
@@ -65,14 +71,18 @@ endif
 
 .state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --build-arg DEVEL=$(DEVEL) web
+	docker-compose build worker
+	docker-compose build static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build
 
 build:
-	docker-compose build
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) --build-arg DEVEL=$(DEVEL) web
+	docker-compose build worker
+	docker-compose build static
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
