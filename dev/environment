@@ -26,4 +26,9 @@ FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/wareho
 RECAPTCHA_SITE_KEY="${RECAPTCHA_SITE_KEY}"
 RECAPTCHA_SECRET_KEY="${RECAPTCHA_SECRET_KEY}"
 
+MAIL_HOST=smtp
+MAIL_PORT=2525
+MAIL_SENDER=noreply@pypi.org
+MAIL_SSL=false
+
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
