@@ -66,12 +66,12 @@ billiard==3.5.0.3 \
 bleach==2.1.2 \
     --hash=sha256:cf567e7ed30ea5e05b31231d88ae170af1c5544758b9d7bebbc20590b7c30b1e \
     --hash=sha256:38fc8cbebea4e787d8db55d6f324820c7f74362b70db9142c1ac7920452d1a19
-boto3==1.5.6 \
-    --hash=sha256:d407829f895b4e4bb384c50242c28f44a61514c8d72238b5e3d763122e396886 \
-    --hash=sha256:ce8da4c1f5dd965a0d055b6842eb2d93348aded99d7e3c32f8aaea2b6921df8a
-botocore==1.8.20 \
-    --hash=sha256:c3d6954f2d8bd97d826d09077bff73da2f28880e9623b3e0b0a9fe899be6cd3f \
-    --hash=sha256:19aef3d362b887bcfa30bf19433d2b2f6d6897587afe397ada20e8a3603850ae
+boto3==1.5.7 \
+    --hash=sha256:00a384f703d7abdc9eb932e64404060b6287543afbd03cae0f811dc29aa2c129 \
+    --hash=sha256:c41540a1d74a4ef7c642d91cb47dae884eafe6665d76a1b9ce1032e3aabde56c
+botocore==1.8.21 \
+    --hash=sha256:b15773f65e4fb2fd58709a7b8453f524ec0d04c86e2052b0dd3c938b4eb38be2 \
+    --hash=sha256:e4513a02f68e7efd7494ee56db201d87620218ca879aae361abbb71bcde3aa5f
 cachetools==2.0.1 \
     --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
     --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d

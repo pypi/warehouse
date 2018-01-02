@@ -50,6 +50,11 @@ FROM python:3.6.3-slim-stretch as build
 # test dependencies.
 ARG DEVEL=no
 
+# To enable Ipython in the development environment set to yes (for using ipython
+# as the warehouse shell interpreter,
+# i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
+ARG IPYTHON=no
+
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
 RUN set -x \
@@ -90,6 +95,9 @@ COPY requirements /tmp/requirements
 # otherwise this will do nothing.
 RUN set -x \
     && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+
+RUN set -x \
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so

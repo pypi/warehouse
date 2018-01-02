@@ -219,6 +219,16 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
        to connect to the database.
 ====== ========================================================================
 
+You can also run the IPython shell as the interactive shell. To do so export
+the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
+``make build`` *step*:
+
+.. code-block:: console
+
+    $ export WAREHOUSE_IPYTHON_SHELL=1
+
+Now you will be able to run the ``make shell`` command to get the IPython
+shell.
 
 Running tests and linters
 -------------------------

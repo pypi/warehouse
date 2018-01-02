@@ -28,6 +28,7 @@ services:
       context: .
       args:
         DEVEL: "yes"
+        IPYTHON: "no"
     command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
     env_file: dev/environment
     volumes:
