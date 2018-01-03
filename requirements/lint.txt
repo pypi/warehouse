@@ -21,9 +21,9 @@ mccabe==0.6.1 \
 pbr==3.1.1 \
     --hash=sha256:60c25b7dfd054ef9bb0ae327af949dd4676aa09ac3a9471cdc871d8a9213f9ac \
     --hash=sha256:05f61c71aaefc02d8e37c0a3eeb9815ff526ea28b3b76324769e6158d7f95be1
-pep8-naming==0.4.1 \
-    --hash=sha256:4eedfd4c4b05e48796f74f5d8628c068ff788b9c2b08471ad408007fc6450e5a \
-    --hash=sha256:1b419fa45b68b61cd8c5daf4e0c96d28915ad14d3d5f35fcc1e7e95324a33a2e
+pep8-naming==0.5.0 \
+    --hash=sha256:0b82da414024f290e0e7aad80d9a7614d6a85bedd82304deeb2e4e0a74f8968b \
+    --hash=sha256:5a2a085340b1d530605a7f4a96816433be43504c58eace799dbacdcfd6febe9d
 pycodestyle==2.3.1 \
     --hash=sha256:6c4245ade1edfad79c3446fadfc96b0de2759662dc29d07d80a6f27ad1ca6ba9 \
     --hash=sha256:682256a5b318149ca0d2a9185d365d8864a768a28db66a84a2ea946bcc426766
