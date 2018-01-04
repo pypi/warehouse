@@ -78,8 +78,8 @@ cachetools==2.0.1 \
 celery==4.1.0 \
     --hash=sha256:81a67f0d53a688ec2bc8557bd5d6d7218f925a6f2e6df80e01560de9e28997ec \
     --hash=sha256:77ff3730198d6a17b3c1f05579ebe570b579efb35f6d7e13dba3b1368d068b35
-celery-redbeat==0.11.0 \
-    --hash=sha256:1adde1b7dc285afc9d8a3f9b19634bb3b27fff3c2ee4cd985338b60ab6bcaffc
+celery-redbeat==0.11.1 \
+    --hash=sha256:fa1951cee7dfb8e185f53ce6dfb78f53b66ace76d5799f67ddac75ae1550aa87
 certifi==2017.11.5 \
     --hash=sha256:244be0d93b71e93fc0a0a479862051414d0e00e16435707e5bf5000f92e04694 \
     --hash=sha256:5ec74291ca1136b40f0379e1128ff80e866597e4e2c1e755739a913bbc3613c0
