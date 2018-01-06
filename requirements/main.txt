@@ -215,8 +215,9 @@ MarkupSafe==1.0 \
 mistune==0.8.3 \
     --hash=sha256:b4c512ce2fc99e5a62eb95a4aba4b73e5f90264115c40b70a21e1f7d4e0eac91 \
     --hash=sha256:bc10c33bfdcaa4e749b779f62f60d6e12f8215c46a292d05e486b869ae306619
-msgpack-python==0.4.8 \
-    --hash=sha256:1a2b19df0f03519ec7f19f826afb935b202d8979b0856c6fb3dc28955799f886
+msgpack-python==0.5.0 \
+    --hash=sha256:4f4d9f98941a2c4fba76c4157b309b304e30dddd2fc351770f85639c455df5cc \
+    --hash=sha256:cb31b95ed684e9b2bee184ea58bcbb27ba008123cf8c62a4bb8c281af79ecd89
 packaging==16.8 \
     --hash=sha256:5d50835fdf0a7edf0b55e311b7c887786504efea1177abd7e69329a8e5ea619e \
     --hash=sha256:99276dc6e3a7851f32027a68f1095cd3f77c148091b092ea867a351811cfe388
