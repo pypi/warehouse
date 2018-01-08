@@ -19,7 +19,7 @@ Jinja2>=2.8
 limits
 lxml
 mistune
-msgpack-python
+msgpack
 packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy
