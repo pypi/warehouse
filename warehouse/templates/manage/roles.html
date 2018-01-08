@@ -85,7 +85,7 @@
             {{ form.username(placeholder="user's exact username") }}
           </td>
           <td>{{ form.role_name }}</td>
-          <td><input type="submit" value="Add another" class="button"></td>
+          <td><input type="submit" value="Add" class="button button--highlight"></td>
         </tr>
         {% if form.errors %}
           <tr class="formset-table__errors">
@@ -104,5 +104,4 @@
     </tbody>
   </table>
   <br/>
-  <button class="button button--highlight">Save Collaborators</button>
 {% endblock %}
