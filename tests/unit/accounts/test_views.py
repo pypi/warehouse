@@ -324,6 +324,56 @@ class TestRegister:
         assert result.headers["Location"] == "/"
 
 
+class TestRecoverPassword:
+    def test_get(self, pyramid_request):
+        form_inst = pretend.stub()
+        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: pretend.stub(
+                enabled=False,
+                csp_policy=pretend.stub(),
+                merge=lambda _: None,
+            )
+        )
+        result = views.recover_password(pyramid_request, _form_class=form)
+        assert result["form"] is form_inst
+
+    def test_recover_password(self, monkeypatch, pyramid_request):
+        pyramid_request.method = "POST"
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: pretend.stub(
+                csp_policy={},
+                merge=lambda _: {},
+                enabled=False,
+                generate_otk=pretend.call_recorder(lambda _: "OTK"),
+                get_user_by_username=pretend.call_recorder(
+                    lambda _: pretend.stub(email="email")
+                ),
+                verify_response=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None),
+            )
+        )
+        pyramid_request.POST = {"username": "username_value"}
+
+        form_obj = pretend.stub(
+            username=pretend.stub(data="username"),
+            validate=pretend.call_recorder(lambda *args: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(views, "send_email", send_email)
+
+        result = views.recover_password(
+            pyramid_request, _form_class=form_class
+        )
+        assert result["success"] is True
+
+
 class TestClientSideIncludes:
 
     def test_edit_gravatar_csi_returns_user(self, db_request):

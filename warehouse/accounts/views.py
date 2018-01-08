@@ -22,11 +22,26 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+)
 from warehouse.cache.origin import origin_cache
+from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
+
+PASSWORD_RECOVERY_MESSAGE = """
+    Someone, perhaps you, has requested that the password be changed for your
+    username, "{name}". If you wish to proceed with the change, please follow
+    the link below:
+
+      {url}/account/reset-password/?otk={otk}
+
+    This will present a form in which you may set your new password.
+"""
+
+PASSWORD_RECOVERY_EMAIL_SUBJECT = "PyPI password change request"
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -229,6 +244,59 @@ def register(request, _form_class=forms.RegistrationForm):
         return HTTPSeeOther(
             request.route_path("index"),
             headers=dict(_login_user(request, user.id)))
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.recover-password",
+    renderer="accounts/recover-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def recover_password(request, _form_class=forms.RecoverPasswordForm):
+
+    # Purpose of this view is to take a valid user-name and send a email
+    # along with the password reset link.
+
+    # Password recovery rocess:
+    #   Step-1:
+    #      Ask for user-name with a GET request.
+    #
+    #   Step-2:
+    #      On submit user-name with a POST request, we'll verify whether the
+    #      given user-name is a valid one or not, so here two cases.
+    #
+    #      if user-name is not valid:
+    #         show error "Invalid user"
+    #
+    #      else:
+    #          Generate a new OTK and send it to user via email.
+
+    user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        # Get the user object by using username.
+        user = user_service.get_user_by_username(username)
+
+        # Generate a new OTK.
+        otk = password_recovery_service.generate_otk(user)
+        request.task(send_email).delay(
+            PASSWORD_RECOVERY_MESSAGE.format(
+                name=username,
+                otk=otk,
+                url=request.application_url
+            ),
+            [user.email],
+            PASSWORD_RECOVERY_EMAIL_SUBJECT
+        )
+        return {'success': True}
 
     return {"form": form}
 

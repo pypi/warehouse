@@ -208,3 +208,8 @@ def includeme(config):
         "/rss/packages.xml",
         domain=warehouse,
     )
+        "accounts.recover-password",
+        "/account/recover-password/",
+        domain=warehouse,
+    )
+    config.add_route(

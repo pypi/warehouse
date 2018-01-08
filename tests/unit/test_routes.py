@@ -236,3 +236,8 @@ def test_routes(warehouse):
     assert config.add_policy.calls == [
         pretend.call("terms-of-use", "terms.md"),
     ]
+            "accounts.recover-password",
+            "/account/recover-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
