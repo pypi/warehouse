@@ -16,6 +16,7 @@ import hashlib
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
+from pyramid.renderers import render
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
@@ -33,18 +34,6 @@ from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
-
-PASSWORD_RESET_MESSAGE = """
-    Someone, perhaps you, has requested that the password be changed for your
-    username, "{name}". If you wish to proceed with the change, please follow
-    the link below:
-
-      {url}/account/reset-password/?otk={otk}
-
-    This will present a form in which you may set your new password.
-"""
-
-PASSWORD_RESET_EMAIL_SUBJECT = "PyPI password change request"
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -290,15 +279,20 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         # Generate a new OTK.
         otk = password_reset_service.generate_otk(user)
-        request.task(send_email).delay(
-            PASSWORD_RESET_MESSAGE.format(
-                name=username,
-                otk=otk,
-                url=request.application_url
-            ),
-            [user.email],
-            PASSWORD_RESET_EMAIL_SUBJECT
+
+        subject = render(
+            'email/password-reset.subject.txt',
+            {},
+            request=request,
         )
+
+        body = render(
+            'email/password-reset.body.txt',
+            {'otk': otk, 'username': username},
+            request=request,
+        )
+
+        request.task(send_email).delay(body, [user.email], subject)
         return {'success': True}
 
     return {"form": form}

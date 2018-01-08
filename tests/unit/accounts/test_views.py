@@ -342,7 +342,8 @@ class TestRequestPasswordReset:
         )
         assert result["form"] is form_inst
 
-    def test_request_password_reset(self, monkeypatch, pyramid_request):
+    def test_request_password_reset(
+            self, monkeypatch, pyramid_request, pyramid_config):
         pyramid_request.method = "POST"
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
@@ -358,6 +359,12 @@ class TestRequestPasswordReset:
             )
         )
         pyramid_request.POST = {"username": "username_value"}
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/password-reset.subject.txt'
+        )
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/password-reset.body.txt'
+        )
 
         form_obj = pretend.stub(
             username=pretend.stub(data="username"),
@@ -376,6 +383,8 @@ class TestRequestPasswordReset:
             pyramid_request, _form_class=form_class
         )
         assert result["success"] is True
+        subject_renderer.assert_()
+        body_renderer.assert_(otk='OTK', username='username')
 
 
 class TestResetPassword:
