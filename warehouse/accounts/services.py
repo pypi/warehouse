@@ -183,3 +183,15 @@ def database_login_factory(context, request):
             ),
         },
     )
+    def get_user_by_username(self, username):
+        try:
+            user = (
+                self.db.query(User)
+                    .filter(User.username == username)
+                    .one()
+            )
+        except NoResultFound:
+            return
+        return user
+
+    @functools.lru_cache()

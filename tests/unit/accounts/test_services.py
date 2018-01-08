@@ -248,3 +248,18 @@ def test_database_login_factory(monkeypatch):
             },
         ),
     ]
+    def test_get_user_by_username(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = UserFactory.create()
+        found_user = service.get_user_by_username(user.username)
+        db_session.flush()
+
+        assert user.username == found_user.username
+
+    def test_get_user_by_username_failure(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        UserFactory.create()
+        found_user = service.get_user_by_username("UNKNOWNTOTHEWORLD")
+        db_session.flush()
+
+        assert found_user is None
