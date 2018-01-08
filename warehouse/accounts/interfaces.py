@@ -59,3 +59,16 @@ class IUserService(Interface):
         """
         verifies the user
         """
+
+
+class IPasswordRecoveryService(Interface):
+
+    def generate_otk(user):
+        """
+        Generate new otk with gven data.
+        """
+
+    def validate_otk(otk):
+        """
+        Check for validity of the otk.
+        """

@@ -13,20 +13,30 @@
 import collections
 import datetime
 import functools
+import hmac
 import logging
+import uuid
 
 from passlib.context import CryptContext
+from pyblake2 import blake2b
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+)
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
+from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
 
 
 logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
+
+
+class InvalidPasswordResetToken(Exception):
+    pass
 
 
 @implementer(IUserService)
@@ -62,6 +72,18 @@ class DatabaseUserService:
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
+
+    @functools.lru_cache()
+    def get_user_by_username(self, username):
+        try:
+            user = (
+                self.db.query(User)
+                    .filter(User.username == username)
+                    .one()
+            )
+        except NoResultFound:
+            return
+        return user
 
     @functools.lru_cache()
     def find_userid(self, username):
@@ -167,6 +189,69 @@ class DatabaseUserService:
                 email.verified = True
 
 
+@implementer(IPasswordRecoveryService)
+class PasswordRecoveryService:
+
+    max_age = 21600  # 21600 seconds == 6 * 60 * 60 == 6 hours
+    salt = "password-recovery"
+
+    def __init__(self, secret, user_service):
+        self.signer = URLSafeTimedSerializer(secret, self.salt)
+        self.user_service = user_service
+
+    def _generate_hash(self, user):
+        # We'll be using three attributes to generate hash.
+        #
+        # 1. user.id:
+        #     Certainly this is not going to help to invalidate the OTK, but it
+        #     makes hash unique even though last_login and password_date are
+        #     same for different users.
+        #
+        # 2. user.last_login:
+        #     After getting recovery key to reset the password, In less than
+        #     six hours it's possible that user might login with their existing
+        #     passwords. In that case last_login time gets updated to new one
+        #     and it makes the OTK invalid to use. (It doesn't make any sense to
+        #     keep OTK valid even after user able to login with existing password)
+        #
+        # 3. user.password_date:
+        #     Once User.password is updated, it make sure that
+        #     User.password_date also gets updated, So that it's easy to
+        #     invalidate the hash.
+
+        hash_key = blake2b(
+            "|".join(
+                map(str, [user.id, user.last_login, user.password_date])
+            ).encode("utf8")
+        ).hexdigest()
+
+        return hash_key
+
+    def generate_otk(self, user):
+        return self.signer.dumps({
+            "user.id": str(user.id),
+            "user.hash": self._generate_hash(user),
+        })
+
+    def validate_otk(self, otk):
+        try:
+            data = self.signer.loads(otk, max_age=self.max_age)
+        except BadData:
+            raise InvalidPasswordResetToken
+
+        # Check whether the user.id is valid or not.
+        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
+        if user is None:
+            raise InvalidPasswordResetToken
+
+        user_hash = self._generate_hash(user)
+        # Compare user.hash values.
+        if not hmac.compare_digest(data.get("user.hash"), user_hash):
+            raise InvalidPasswordResetToken
+
+        return user.id
+
+
 def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
@@ -183,15 +268,10 @@ def database_login_factory(context, request):
             ),
         },
     )
-    def get_user_by_username(self, username):
-        try:
-            user = (
-                self.db.query(User)
-                    .filter(User.username == username)
-                    .one()
-            )
-        except NoResultFound:
-            return
-        return user
 
-    @functools.lru_cache()
+
+def password_recovery_factory(context, request):
+    return PasswordRecoveryService(
+        request.registry.settings["password_recovery.secret"],
+        request.find_service(IUserService, context=context)
+    )
