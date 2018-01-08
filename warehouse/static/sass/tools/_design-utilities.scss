@@ -22,7 +22,6 @@
   &:focus {
     background-color: $highlight-color;
     color: darken($highlight-color, 50);
-    outline: 2px solid $highlight-color;
     cursor: pointer;
   }
 }

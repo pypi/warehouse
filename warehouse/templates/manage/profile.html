@@ -11,33 +11,26 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "base.html" %}
+{% extends "manage_base.html" %}
 
 {% set user = request.user %}
 {% set title = "Manage Your Profile" %}
-
+{% block profile_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
-<section class="horizontal-section">
-  <div class="site-container">
-    <h2>{{ title }}</h2>
-    <div class="left-layout__sidebar">
-      <div class="author-profile">
-        {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
-        <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-        <a href="{{ gravatar_profile(user.email) }}">Change this image</a>
-        <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
-        <div class="author-profile__meta">
-          {% if user.name %}
-          <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
-          {% endif %}
-          {% if user.date_joined %}
-          <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
-          {% endif %}
-        </div>
-      </div>
+{% block main %}
+  <h1>{{ title }}</h1>
+  <div class="author-profile">
+    {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
+    <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
+    <a href="{{ gravatar_profile(user.email) }}">Change this image</a>
+    <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
+    <div class="author-profile__meta">
+      {% if user.name %}
+      <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+      {% endif %}
+      {% if user.date_joined %}
+      <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
+      {% endif %}
     </div>
-  </div>
-</section>
 {% endblock %}

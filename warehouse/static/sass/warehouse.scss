@@ -49,7 +49,6 @@
 @import "base/typography";
 @import "base/images-figures";
 @import "base/lists";
-@import "base/tables";
 @import "base/forms";
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
@@ -73,7 +72,6 @@
 @import "blocks/common-question";
 @import "blocks/dark-overlay";
 @import "blocks/download-graph";
-@import "blocks/downloads-table";
 @import "blocks/dropdown";
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
@@ -93,7 +91,6 @@
 @import "blocks/package-list";
 @import "blocks/package-snippet";
 @import "blocks/project-description";
-@import "blocks/project-settings";
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";
@@ -102,6 +99,7 @@
 @import "blocks/sponsors";
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
+@import "blocks/table";
 @import "blocks/tooltip";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";

@@ -104,6 +104,21 @@
     }
   }
 
+  &--danger {
+    border-color: $danger-color;
+    background-color: $danger-color;
+    color: $white;
+
+    &:focus,
+    &:hover,
+    &:active {
+      border-color: darken($danger-color, 10);
+      background-color: darken($danger-color, 9);
+      text-decoration-color: transparentize($white, 0.8);
+      color: $white;
+    }
+  }
+
   &[disabled],
   &--disabled {
     cursor: not-allowed;

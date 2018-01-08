@@ -11,36 +11,33 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "base.html" %}
+{% extends "manage_base.html" %}
 
-{% set title = "Manage Your Projects" %}
-
+{% block projects_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
-<section class="horizontal-section">
-  <div class="site-container">
-    <h2>{{ title }}</h2>
-    <div class="package-list">
-      {% if request.user.projects %}
-      {% for project in request.user.projects %}
-      {% set release = project.releases[0] %}
-      <div class="package-snippet">
-        <h3 class="package-snippet__title"><a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}">{{ project.name }}</a></h3>
-        <p class="package-snippet__meta">
-          <em>Last released on {{ release.created|format_date() }}</em>
-        </p>
-        <p class="package-snippet__description">{{ release.summary }}</p>
+{% block main %}
+  <h1>Your Projects</h1>
+  <div class="package-list">
+    {% if request.user.projects %}
+    {% for project in request.user.projects %}
+    {% set release = project.releases[0] %}
+    <div class="package-snippet">
+      <h3 class="package-snippet__title">{{ project.name }}</h3>
+      <p class="package-snippet__meta">
+        <em>Last released on {{ release.created|format_date() }}</em>
+      </p>
+      <p class="package-snippet__description">{{ release.summary }}</p>
+      <div>
+        <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit</a>
+        <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" class="button">Preview</a>
       </div>
-      {% endfor %}
-      {% else %}
-        <div class="callout-block no-top-margin">
-          <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
-        </div>
-      {% endif %}
     </div>
+    {% endfor %}
+    {% else %}
+      <div class="callout-block no-top-margin">
+        <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+      </div>
+    {% endif %}
   </div>
-</section>
-
-
 {% endblock %}

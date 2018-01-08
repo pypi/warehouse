@@ -11,68 +11,98 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "project_settings_base.html" %}
+{% extends "project.html" %}
 
 {% block title %}{{ project.name }}{% endblock %}
+{% set active_page = 'collaborators' %}
 
 {% block main %}
   <h2>Collaborators</h2>
-  <p>
-    There are two possible roles for collaborators:
+  <p class="lede-paragraph">Use this page to control which PyPI users can help you to manage '{{ project.name }}'.</p>
+  <div class="callout-block">
+    <p>There are two possible roles for collaborators:</p>
     <dl>
       <dt>Owner</dt>
       <dd>Owns a package, may add other collaborators for that package, and upload releases for a package.</dd>
       <dt>Maintainer</dt>
       <dd>May upload releases for a package.</dd>
     </dl>
-  </p>
-  <h3>Collaborators for {{ project.name }}</h3>
-  <ul class="collaborator-list">
-  {% for role in roles|sort(attribute="user.username") %}
-    <li class="collaborator">
-      <img src="{{ gravatar(role.user.email, size=64) }}" alt="{{ alt }}" title="{{ alt }}">
-      <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
-        {{ role.user.username }}
-        {% if role.user.name %}
-          ({{ role.user.name }})
-        {% endif %}
-      </a>
-      {{ role.role_name }}
-
-      <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <input type="hidden" name="role_id" value="{{ role.id }}">
-        <button type="submit"
-          {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-            title="Cannot remove yourself as owner"
-            disabled
-          {% else %}
-            title="Remove {{ role.user.username }}'s role as {{ role.role_name }}"
-          {% endif %}
-        >
-          <i class="fa fa-times"></i>
-        </button>
-      </form>
-    </li>
-  {% endfor %}
-  </ul>
-  <h3>Add a new collaborator</h3>
-  <p>
-    Add a new collaborator by entering their exact username.
-  </p>
-  <form method="POST">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    {{ form.username }}
-    {{ form.role_name }}
-    <input type="submit" value="Add collaborator">
-  </form>
-  {% if form.errors %}
-    <ul class="form-errors">
-    {% for field, errors in form.errors|dictsort if errors %}
-      {% for error in errors %}
-      <li>{{ error }}</li>
+  </div>
+  <br/>
+  <table class="table table--light">
+    <thead>
+      <th>User</th>
+      <th>Role</th>
+      <th>Action</th>
+    </thead>
+    <tbody>
+      {% for role in roles|sort(attribute="user.username") %}
+        <tr class="collaborator">
+          <td>
+            <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
+              {{ role.user.username }}
+              {% if role.user.name %}
+                 - {{ role.user.name }}
+              {% endif %}
+            </a>
+          </td>
+          <td>
+            {% if role.user == request.user %}
+              {{ role.role_name }}
+            {% else %}
+              <form>
+                <select name="" id="">
+                  <option value="">Owner</option>
+                  <option value="">Maintainer</option>
+                </select>
+              </form>
+            {% endif %}
+          </td>
+          <td>
+            <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <input type="hidden" name="role_id" value="{{ role.id }}">
+              <button
+                class="button"
+                type="submit"
+                {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
+                  title="Cannot remove yourself as owner"
+                  disabled
+                {% else %}
+                  title="Remove {{ role.user.username }} from this project"
+                {% endif %}
+              >
+                Remove
+              </button>
+            </form>
+          </td>
+        </tr>
       {% endfor %}
-    {% endfor %}
-    </ul>
-  {% endif %}
+      <form method="POST">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <tr>
+          <td>
+            {{ form.username(placeholder="user's exact username") }}
+          </td>
+          <td>{{ form.role_name }}</td>
+          <td><input type="submit" value="Add another" class="button"></td>
+        </tr>
+        {% if form.errors %}
+          <tr class="formset-table__errors">
+            <td colspan="3">
+              <ul class="form-errors">
+              {% for field, errors in form.errors|dictsort if errors %}
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endif %}
+      </form>
+    </tbody>
+  </table>
+  <br/>
+  <button class="button button--highlight">Save Collaborators</button>
 {% endblock %}
