@@ -174,8 +174,8 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(
         settings,
-        "password_recovery.secret",
-        "PASSWORD_RECOVERY_SECRET_KEY"
+        "password_reset.secret",
+        "PASSWORD_RESET_SECRET_KEY"
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")

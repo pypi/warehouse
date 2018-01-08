@@ -150,10 +150,10 @@ class LoginForm(CredentialsMixin, forms.Form):
                 ) from None
 
 
-class RecoverPasswordForm(LoginForm):
+class RequestPasswordResetForm(LoginForm):
 
     def __init__(self, *args, **kwargs):
-        super(RecoverPasswordForm, self).__init__(*args, **kwargs)
+        super(RequestPasswordResetForm, self).__init__(*args, **kwargs)
 
         # Instead of defining username field again, we are using LoginForm
         # to get the username field and poping password field

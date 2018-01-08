@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+    IPasswordResetService, IUserService, TooManyFailedLogins
 )
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
@@ -189,11 +189,11 @@ class DatabaseUserService:
                 email.verified = True
 
 
-@implementer(IPasswordRecoveryService)
-class PasswordRecoveryService:
+@implementer(IPasswordResetService)
+class PasswordResetService:
 
     max_age = 21600  # 21600 seconds == 6 * 60 * 60 == 6 hours
-    salt = "password-recovery"
+    salt = "password-reset"
 
     def __init__(self, secret, user_service):
         self.signer = URLSafeTimedSerializer(secret, self.salt)
@@ -208,7 +208,7 @@ class PasswordRecoveryService:
         #     same for different users.
         #
         # 2. user.last_login:
-        #     After getting recovery key to reset the password, In less than
+        #     After getting reset key to reset the password, In less than
         #     six hours it's possible that user might login with their existing
         #     passwords. In that case last_login time gets updated to new one
         #     and it makes the OTK invalid to use. (It doesn't make any sense to
@@ -270,8 +270,8 @@ def database_login_factory(context, request):
     )
 
 
-def password_recovery_factory(context, request):
-    return PasswordRecoveryService(
-        request.registry.settings["password_recovery.secret"],
+def password_reset_factory(context, request):
+    return PasswordResetService(
+        request.registry.settings["password_reset.secret"],
         request.find_service(IUserService, context=context)
     )

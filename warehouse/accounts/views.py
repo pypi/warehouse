@@ -21,9 +21,11 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts import forms
+from warehouse.accounts.forms import (
+    LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
+)
 from warehouse.accounts.interfaces import (
-    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+    IPasswordResetService, IUserService, TooManyFailedLogins
 )
 from warehouse.accounts.services import InvalidPasswordResetToken
 from warehouse.cache.origin import origin_cache
@@ -32,7 +34,7 @@ from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
 
-PASSWORD_RECOVERY_MESSAGE = """
+PASSWORD_RESET_MESSAGE = """
     Someone, perhaps you, has requested that the password be changed for your
     username, "{name}". If you wish to proceed with the change, please follow
     the link below:
@@ -42,7 +44,7 @@ PASSWORD_RECOVERY_MESSAGE = """
     This will present a form in which you may set your new password.
 """
 
-PASSWORD_RECOVERY_EMAIL_SUBJECT = "PyPI password change request"
+PASSWORD_RESET_EMAIL_SUBJECT = "PyPI password change request"
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -104,7 +106,7 @@ def profile(user, request):
     require_methods=False,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
-          _form_class=forms.LoginForm):
+          _form_class=LoginForm):
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
@@ -216,7 +218,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     require_csrf=True,
     require_methods=False,
 )
-def register(request, _form_class=forms.RegistrationForm):
+def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
 
@@ -250,18 +252,18 @@ def register(request, _form_class=forms.RegistrationForm):
 
 
 @view_config(
-    route_name="accounts.recover-password",
-    renderer="accounts/recover-password.html",
+    route_name="accounts.request-password-reset",
+    renderer="accounts/request-password-reset.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
 )
-def recover_password(request, _form_class=forms.RecoverPasswordForm):
+def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
     # Purpose of this view is to take a valid user-name and send a email
     # along with the password reset link.
 
-    # Password recovery rocess:
+    # Password reset rocess:
     #   Step-1:
     #      Ask for user-name with a GET request.
     #
@@ -276,8 +278,8 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
     #          Generate a new OTK and send it to user via email.
 
     user_service = request.find_service(IUserService, context=None)
-    password_recovery_service = request.find_service(
-        IPasswordRecoveryService, context=None
+    password_reset_service = request.find_service(
+        IPasswordResetService, context=None
     )
     form = _form_class(request.POST, user_service=user_service)
 
@@ -287,15 +289,15 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
         user = user_service.get_user_by_username(username)
 
         # Generate a new OTK.
-        otk = password_recovery_service.generate_otk(user)
+        otk = password_reset_service.generate_otk(user)
         request.task(send_email).delay(
-            PASSWORD_RECOVERY_MESSAGE.format(
+            PASSWORD_RESET_MESSAGE.format(
                 name=username,
                 otk=otk,
                 url=request.application_url
             ),
             [user.email],
-            PASSWORD_RECOVERY_EMAIL_SUBJECT
+            PASSWORD_RESET_EMAIL_SUBJECT
         )
         return {'success': True}
 
@@ -309,10 +311,10 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
     require_csrf=True,
     require_methods=False,
 )
-def reset_password(request, _form_class=forms.ResetPasswordForm):
+def reset_password(request, _form_class=ResetPasswordForm):
 
     # Porpose of this view is to reset the password by using the link
-    # given to the user in recovery phase.
+    # given to the user in reset phase.
 
     # Password reset process:
     #    Step-1:
@@ -336,8 +338,8 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
     #          Render the error page "Invalid password reset token"
 
     user_service = request.find_service(IUserService, context=None)
-    password_recovery_service = request.find_service(
-        IPasswordRecoveryService, context=None
+    password_reset_service = request.find_service(
+        IPasswordResetService, context=None
     )
 
     # otk should be avaiable with both GET and POST.
@@ -348,7 +350,7 @@ def reset_password(request, _form_class=forms.ResetPasswordForm):
     # password page.
 
     try:
-        userid = password_recovery_service.validate_otk(otk)
+        userid = password_reset_service.validate_otk(otk)
     except InvalidPasswordResetToken:
         return {'success': False}
 

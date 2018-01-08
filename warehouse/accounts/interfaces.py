@@ -61,14 +61,14 @@ class IUserService(Interface):
         """
 
 
-class IPasswordRecoveryService(Interface):
+class IPasswordResetService(Interface):
 
     def generate_otk(user):
         """
-        Generate new otk with gven data.
+        Generate new one-time-key for the given user.
         """
 
     def validate_otk(otk):
         """
-        Check for validity of the otk.
+        Validate the one-time-key.
         """

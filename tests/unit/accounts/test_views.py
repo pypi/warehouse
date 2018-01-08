@@ -325,7 +325,7 @@ class TestRegister:
         assert result.headers["Location"] == "/"
 
 
-class TestRecoverPassword:
+class TestRequestPasswordReset:
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -336,10 +336,13 @@ class TestRecoverPassword:
                 merge=lambda _: None,
             )
         )
-        result = views.recover_password(pyramid_request, _form_class=form)
+        result = views.request_password_reset(
+            pyramid_request,
+            _form_class=form,
+        )
         assert result["form"] is form_inst
 
-    def test_recover_password(self, monkeypatch, pyramid_request):
+    def test_request_password_reset(self, monkeypatch, pyramid_request):
         pyramid_request.method = "POST"
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
@@ -369,7 +372,7 @@ class TestRecoverPassword:
         )
         monkeypatch.setattr(views, "send_email", send_email)
 
-        result = views.recover_password(
+        result = views.request_password_reset(
             pyramid_request, _form_class=form_class
         )
         assert result["success"] is True

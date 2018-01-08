@@ -19,7 +19,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+    IPasswordResetService, IUserService, TooManyFailedLogins
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -230,7 +230,7 @@ class TestDatabaseUserService:
         assert found_user is None
 
 
-class TestPasswordRecoveryService:
+class TestPasswordResetService:
 
     secret = "TESTSECRET"
     user = pretend.stub(
@@ -241,11 +241,11 @@ class TestPasswordRecoveryService:
 
     def test_verify_service(self):
         assert verifyClass(
-            IPasswordRecoveryService, services.PasswordRecoveryService
+            IPasswordResetService, services.PasswordResetService
         )
 
     def test_generate_otk(self):
-        password_service = services.PasswordRecoveryService(
+        password_service = services.PasswordResetService(
             secret=self.secret,
             user_service=pretend.stub()
         )
@@ -257,7 +257,7 @@ class TestPasswordRecoveryService:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: self.user)
         )
-        password_service = services.PasswordRecoveryService(
+        password_service = services.PasswordResetService(
             secret=self.secret,
             user_service=user_service
         )
@@ -274,7 +274,7 @@ class TestPasswordRecoveryService:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: None)
         )
-        password_service = services.PasswordRecoveryService(
+        password_service = services.PasswordResetService(
             secret=self.secret,
             user_service=user_service
         )
@@ -292,7 +292,7 @@ class TestPasswordRecoveryService:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: user)
         )
-        password_service = services.PasswordRecoveryService(
+        password_service = services.PasswordResetService(
             secret=self.secret,
             user_service=user_service
         )
@@ -305,7 +305,7 @@ class TestPasswordRecoveryService:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: self.user)
         )
-        password_service = services.PasswordRecoveryService(
+        password_service = services.PasswordResetService(
             secret=self.secret,
             user_service=user_service
         )
@@ -354,19 +354,19 @@ def test_database_login_factory(monkeypatch):
     ]
 
 
-def test_password_recovery_factory(monkeypatch):
+def test_password_reset_factory(monkeypatch):
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(
         lambda secret, user_service: service_obj
     )
-    monkeypatch.setattr(services, "PasswordRecoveryService", service_cls)
+    monkeypatch.setattr(services, "PasswordResetService", service_cls)
 
     context = pretend.stub()
     request = pretend.stub(
-        registry=pretend.stub(settings={"password_recovery.secret": "SECRET"}),
+        registry=pretend.stub(settings={"password_reset.secret": "SECRET"}),
         find_service=pretend.call_recorder(
             lambda user_service, context=context: pretend.stub()
         ),
     )
 
-    assert services.password_recovery_factory(context, request) is service_obj
+    assert services.password_reset_factory(context, request) is service_obj

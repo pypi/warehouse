@@ -16,10 +16,10 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import (
-    IPasswordRecoveryService, IUserService
+    IPasswordResetService, IUserService
 )
 from warehouse.accounts.services import (
-    database_login_factory, password_recovery_factory
+    database_login_factory, password_reset_factory
 )
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
@@ -71,10 +71,10 @@ def includeme(config):
     # Register our login service
     config.register_service_factory(database_login_factory, IUserService)
 
-    # Register password recovery service
+    # Register password reset service
     config.register_service_factory(
-        password_recovery_factory,
-        IPasswordRecoveryService
+        password_reset_factory,
+        IPasswordResetService
     )
 
     # Register our authentication and authorization policies

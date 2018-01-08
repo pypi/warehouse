@@ -116,8 +116,8 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "accounts.recover-password",
-            "/account/recover-password/",
+            "accounts.request-password-reset",
+            "/account/request-password-reset/",
             domain=warehouse,
         ),
         pretend.call(
