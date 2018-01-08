@@ -25,6 +25,7 @@ from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     IPasswordRecoveryService, IUserService, TooManyFailedLogins
 )
+from warehouse.accounts.services import InvalidPasswordResetToken
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
@@ -299,6 +300,74 @@ def recover_password(request, _form_class=forms.RecoverPasswordForm):
         return {'success': True}
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=forms.ResetPasswordForm):
+
+    # Porpose of this view is to reset the password by using the link
+    # given to the user in recovery phase.
+
+    # Password reset process:
+    #    Step-1:
+    #       User tries to GET the password reset form with the given link,
+    #       We'll check for validity of the otk before rendering reset password
+    #       page, so here two cases.
+    #
+    #       if otk is valid:
+    #          Render the password reset page.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+    #
+    #    Step-2:
+    #       After submitting the new password with a POST request, we'll verify
+    #       the validity of the otk embedded inside the form, again two cases.
+    #
+    #       if otk is valid:
+    #          - Reset the password.
+    #          - Perform login just after reset and redirect to default view.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+
+    user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
+
+    # otk should be avaiable with both GET and POST.
+    otk = getattr(request, request.method).get('otk')
+
+    # We'll verify the validity of otk even before rendering reset password
+    # page, so that we can stop unauthorized requests not to access reset
+    # password page.
+
+    try:
+        userid = password_recovery_service.validate_otk(otk)
+    except InvalidPasswordResetToken:
+        return {'success': False}
+
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        userid=userid
+    )
+
+    if request.method == "POST" and form.validate():
+        # Update password.
+        user_service.update_user(userid, password=form.password.data)
+
+        # Perform login just after reset password and redirect to default view.
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, userid)))
+
+    return {"form": form, 'otk': otk}
 
 
 @view_config(
