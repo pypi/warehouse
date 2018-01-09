@@ -25,6 +25,7 @@ from pytest_postgresql.factories import (
 from sqlalchemy import event
 
 from warehouse.config import configure
+from warehouse.accounts import services
 
 from .common.db import Session
 
@@ -142,6 +143,11 @@ def db_session(app_config):
         trans.rollback()
         conn.close()
         engine.dispose()
+
+
+@pytest.yield_fixture
+def user_service(db_session):
+    return services.DatabaseUserService(db_session)
 
 
 class QueryRecorder:
