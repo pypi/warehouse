@@ -65,6 +65,7 @@
     td {
       border: 0;
       background-color: transparent;
+      padding: 10px 0;
     }
 
     th,
@@ -136,6 +137,28 @@
       // Hide "upload date" column
       th:nth-child(2),
       td:nth-child(2) {
+        display: none;
+      }
+    }
+  }
+
+  &--releases {
+    box-sizing: border-box;
+    table-layout: fixed;
+    word-wrap: break-word;
+
+    .table__version,
+    .table__date {
+      width: 130px;
+    }
+
+    .table__options {
+      width: 110px;
+      text-align: right;
+    }
+
+    @media only screen and (max-width: $tablet){
+      .table__summary {
         display: none;
       }
     }

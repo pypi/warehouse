@@ -65,26 +65,26 @@
             {% block main %}
               <h2>Releases ({{ project.releases|length }})</h2>
               {% if project.releases %}
-                <table class="table table--light">
+                <table class="table table--light table--releases">
                   <thead>
-                    <th>Version</th>
-                    <th>Release Date</th>
-                    <th>Summary</th>
-                    <th></th>
+                    <th class="table__version">Version</th>
+                    <th class="table__date">Release Date</th>
+                    <th class="table__summary">Summary</th>
+                    <th class="table__options"></th>
                   </thead>
                   <tbody>
                     {% for release in project.releases %}
                       <tr>
-                        <td><a href="TODO: link to release edit page">{{ release.version }}</a></td>
-                        <td><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
-                        <td>
+                        <td class="table__version"><a href="TODO: link to release edit page">{{ release.version }}</a></td>
+                        <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
+                        <td class="table__summary">
                           {% if release.summary %}
                             {{ release.summary }}
                           {% else %}
                             &mdash;
                           {% endif %}
                           </td>
-                        <td>
+                        <td class="table__options">
                           <div class="dropdown">
                             <button class="dropdown__trigger button">
                               Options
