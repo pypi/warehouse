@@ -23,7 +23,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    IPasswordResetService, IUserService, TooManyFailedLogins
+    InvalidPasswordResetToken, IPasswordResetService, IUserService,
+    TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
@@ -33,10 +34,6 @@ from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
 logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
-
-
-class InvalidPasswordResetToken(Exception):
-    pass
 
 
 @implementer(IUserService)

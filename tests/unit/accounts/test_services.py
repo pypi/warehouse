@@ -19,7 +19,8 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    IPasswordResetService, IUserService, TooManyFailedLogins
+    IPasswordResetService, InvalidPasswordResetToken, IUserService,
+    TooManyFailedLogins,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -267,7 +268,7 @@ class TestPasswordResetService:
         # We are altering max_age for invalid otk check, Since the actual
         # age is 6 hours and this is not possible to make otk invalid.
         password_service.max_age = -1
-        with pytest.raises(services.InvalidPasswordResetToken):
+        with pytest.raises(InvalidPasswordResetToken):
             password_service.validate_otk(otk)
 
     def test_validate_otk_invalid_user(self):
@@ -280,7 +281,7 @@ class TestPasswordResetService:
         )
 
         otk = password_service.generate_otk(self.user)
-        with pytest.raises(services.InvalidPasswordResetToken):
+        with pytest.raises(InvalidPasswordResetToken):
             password_service.validate_otk(otk)
 
     def test_validate_otk_invalid_hash(self):
@@ -298,7 +299,7 @@ class TestPasswordResetService:
         )
 
         otk = password_service.generate_otk(self.user)
-        with pytest.raises(services.InvalidPasswordResetToken):
+        with pytest.raises(InvalidPasswordResetToken):
             password_service.validate_otk(otk)
 
     def test_validate_otk_success(self):

@@ -26,9 +26,9 @@ from warehouse.accounts.forms import (
     LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    IPasswordResetService, IUserService, TooManyFailedLogins
+    InvalidPasswordResetToken, IPasswordResetService, IUserService,
+    TooManyFailedLogins,
 )
-from warehouse.accounts.services import InvalidPasswordResetToken
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release

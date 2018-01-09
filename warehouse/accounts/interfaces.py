@@ -21,6 +21,10 @@ class TooManyFailedLogins(Exception):
         return super().__init__(*args, **kwargs)
 
 
+class InvalidPasswordResetToken(Exception):
+    pass
+
+
 class IUserService(Interface):
 
     def get_user(userid):
