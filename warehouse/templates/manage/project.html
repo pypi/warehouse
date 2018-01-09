@@ -46,7 +46,7 @@
             <div class="package-snippet">
               <h1>{{ project.name }}</h1>
               <div class="dropdown">
-                <button class="dropdown__trigger">
+                <button class="dropdown__trigger button">
                   <i class="fa fa-cog" aria-hidden="true"></i>
                   Project Options
                   <span class="dropdown__trigger-caret">
@@ -56,7 +56,7 @@
                 </button>
                 <div class="dropdown__content">
                   <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">Preview Project</a>
-                  <a href="#" class="dropdown__link">View Latest Package Info</a>
+                  <a href="#" class="dropdown__link">View Package Info</a>
                   <a href="" class="dropdown__link">Delete Project</a>
                   <a href="{{ request.route_path('help')}}#updating-projects" class="dropdown__link">Update Project (help)</a><!-- TODO: add help content -->
                 </div>
@@ -86,7 +86,7 @@
                           </td>
                         <td>
                           <div class="dropdown">
-                            <button class="dropdown__trigger">
+                            <button class="dropdown__trigger button">
                               Options
                               <span class="dropdown__trigger-caret">
                                 <i class="fa fa-caret-down" aria-hidden="true"></i>
