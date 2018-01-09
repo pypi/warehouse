@@ -2,7 +2,7 @@
   "repository": "pypa/warehouse",
   "license": "Apache-2.0",
   "engines": {
-    "node": "8.9.1"
+    "node": "8.9.4"
   },
   "dependencies": {
     "babel-core": "6.26.0",
