@@ -26,8 +26,7 @@ from warehouse.accounts.forms import (
     LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IPasswordResetService, IUserService,
-    TooManyFailedLogins,
+    InvalidPasswordResetToken, IUserService, TooManyFailedLogins,
 )
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email
@@ -267,9 +266,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     #          Generate a new OTK and send it to user via email.
 
     user_service = request.find_service(IUserService, context=None)
-    password_reset_service = request.find_service(
-        IPasswordResetService, context=None
-    )
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
@@ -278,7 +274,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         user = user_service.get_user_by_username(username)
 
         # Generate a new OTK.
-        otk = password_reset_service.generate_otk(user)
+        otk = user_service.generate_otk(user)
 
         subject = render(
             'email/password-reset.subject.txt',
@@ -332,19 +328,12 @@ def reset_password(request, _form_class=ResetPasswordForm):
     #          Render the error page "Invalid password reset token"
 
     user_service = request.find_service(IUserService, context=None)
-    password_reset_service = request.find_service(
-        IPasswordResetService, context=None
-    )
 
     # otk should be avaiable with both GET and POST.
     otk = getattr(request, request.method).get('otk')
 
-    # We'll verify the validity of otk even before rendering reset password
-    # page, so that we can stop unauthorized requests not to access reset
-    # password page.
-
     try:
-        userid = password_reset_service.validate_otk(otk)
+        userid = user_service.validate_otk(otk)
     except InvalidPasswordResetToken:
         return {'success': False}
 

@@ -107,6 +107,7 @@ def app_config(database):
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
+            "password_reset.secret": "insecure secret",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
@@ -146,8 +147,10 @@ def db_session(app_config):
 
 
 @pytest.yield_fixture
-def user_service(db_session):
-    return services.DatabaseUserService(db_session)
+def user_service(db_session, app_config):
+    return services.DatabaseUserService(
+        db_session, app_config.registry.settings
+    )
 
 
 class QueryRecorder:

@@ -64,9 +64,6 @@ class IUserService(Interface):
         verifies the user
         """
 
-
-class IPasswordResetService(Interface):
-
     def generate_otk(user):
         """
         Generate new one-time-key for the given user.

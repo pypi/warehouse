@@ -23,8 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IPasswordResetService, IUserService,
-    TooManyFailedLogins,
+    InvalidPasswordResetToken, IUserService, TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
@@ -39,7 +38,7 @@ PASSWORD_FIELD = "password"
 @implementer(IUserService)
 class DatabaseUserService:
 
-    def __init__(self, session, ratelimiters=None):
+    def __init__(self, session, settings, ratelimiters=None):
         if ratelimiters is None:
             ratelimiters = {}
         ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
@@ -62,6 +61,11 @@ class DatabaseUserService:
             argon2__parallelism=6,
             argon2__time_cost=6,
         )
+        self.serializer = URLSafeTimedSerializer(
+            settings["password_reset.secret"],
+            salt="password-reset",
+        )
+        self.token_max_age = 21600  # 6 hours
 
     @functools.lru_cache()
     def get_user(self, userid):
@@ -185,18 +189,7 @@ class DatabaseUserService:
             if email.email == email_address:
                 email.verified = True
 
-
-@implementer(IPasswordResetService)
-class PasswordResetService:
-
-    max_age = 21600  # 21600 seconds == 6 * 60 * 60 == 6 hours
-    salt = "password-reset"
-
-    def __init__(self, secret, user_service):
-        self.signer = URLSafeTimedSerializer(secret, self.salt)
-        self.user_service = user_service
-
-    def _generate_hash(self, user):
+    def _generate_otk_hash(self, user):
         # We'll be using three attributes to generate hash.
         #
         # 1. user.id:
@@ -225,23 +218,26 @@ class PasswordResetService:
         return hash_key
 
     def generate_otk(self, user):
-        return self.signer.dumps({
+        return self.serializer.dumps({
             "user.id": str(user.id),
-            "user.hash": self._generate_hash(user),
+            "user.hash": self._generate_otk_hash(user),
         })
 
     def validate_otk(self, otk):
         try:
-            data = self.signer.loads(otk, max_age=self.max_age)
+            data = self.serializer.loads(
+                otk,
+                self.token_max_age
+            )
         except BadData:
             raise InvalidPasswordResetToken
 
         # Check whether the user.id is valid or not.
-        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
+        user = self.get_user(uuid.UUID(data.get("user.id")))
         if user is None:
             raise InvalidPasswordResetToken
 
-        user_hash = self._generate_hash(user)
+        user_hash = self._generate_otk_hash(user)
         # Compare user.hash values.
         if not hmac.compare_digest(data.get("user.hash"), user_hash):
             raise InvalidPasswordResetToken
@@ -252,6 +248,7 @@ class PasswordResetService:
 def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
+        request.registry.settings,
         ratelimiters={
             "global": request.find_service(
                 IRateLimiter,
@@ -264,11 +261,4 @@ def database_login_factory(context, request):
                 context=None,
             ),
         },
-    )
-
-
-def password_reset_factory(context, request):
-    return PasswordResetService(
-        request.registry.settings["password_reset.secret"],
-        request.find_service(IUserService, context=context)
     )
