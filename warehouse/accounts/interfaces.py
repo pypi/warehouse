@@ -33,6 +33,11 @@ class IUserService(Interface):
         there is no user for that ID.
         """
 
+    def get_user_by_otk(otk):
+        """
+        Validate the one-time-key and return the user associated with it
+        """
+
     def find_userid(username):
         """
         Find the unique user identifier for the given username or None if there
@@ -67,9 +72,4 @@ class IUserService(Interface):
     def generate_otk(user):
         """
         Generate new one-time-key for the given user.
-        """
-
-    def validate_otk(otk):
-        """
-        Validate the one-time-key.
         """

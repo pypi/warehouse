@@ -74,6 +74,30 @@ class DatabaseUserService:
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
 
+    def get_user_by_otk(self, otk):
+        if not otk:
+            raise InvalidPasswordResetToken
+
+        try:
+            data = self.serializer.loads(
+                otk,
+                self.token_max_age
+            )
+        except BadData:
+            raise InvalidPasswordResetToken
+
+        # Check whether the user.id is valid or not.
+        user = self.get_user(uuid.UUID(data.get("user.id")))
+        if user is None:
+            raise InvalidPasswordResetToken
+
+        user_hash = self._generate_otk_hash(user)
+        # Compare user.hash values.
+        if not hmac.compare_digest(data.get("user.hash"), user_hash):
+            raise InvalidPasswordResetToken
+
+        return user
+
     @functools.lru_cache()
     def get_user_by_username(self, username):
         try:
@@ -222,30 +246,6 @@ class DatabaseUserService:
             "user.id": str(user.id),
             "user.hash": self._generate_otk_hash(user),
         })
-
-    def validate_otk(self, otk):
-        if not otk:
-            raise InvalidPasswordResetToken
-
-        try:
-            data = self.serializer.loads(
-                otk,
-                self.token_max_age
-            )
-        except BadData:
-            raise InvalidPasswordResetToken
-
-        # Check whether the user.id is valid or not.
-        user = self.get_user(uuid.UUID(data.get("user.id")))
-        if user is None:
-            raise InvalidPasswordResetToken
-
-        user_hash = self._generate_otk_hash(user)
-        # Compare user.hash values.
-        if not hmac.compare_digest(data.get("user.hash"), user_hash):
-            raise InvalidPasswordResetToken
-
-        return user.id
 
 
 def database_login_factory(context, request):

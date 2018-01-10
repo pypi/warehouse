@@ -330,7 +330,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
     user_service = request.find_service(IUserService, context=None)
 
     try:
-        userid = user_service.get_user_by_otk(request.params.get('otk'))
+        user = user_service.get_user_by_otk(request.params.get('otk'))
     except InvalidPasswordResetToken:
         request.session.flash("Invalid or expired token", queue="error")
         return HTTPSeeOther(
@@ -341,12 +341,12 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     if request.method == "POST" and form.validate():
         # Update password.
-        user_service.update_user(userid, password=form.password.data)
+        user_service.update_user(user.id, password=form.password.data)
 
         # Perform login just after reset password and redirect to default view.
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, userid))
+            headers=dict(_login_user(request, user.id))
         )
 
     return {"form": form}

@@ -393,7 +393,7 @@ class TestResetPassword:
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
-        def validate_otk(otk):
+        def get_user_by_otk(otk):
             raise InvalidPasswordResetToken()
 
         pyramid_request.GET.update({"otk": "RANDOM_KEY"})
@@ -402,7 +402,7 @@ class TestResetPassword:
                 enabled=False,
                 csp_policy=pretend.stub(),
                 merge=lambda _: None,
-                validate_otk=validate_otk
+                get_user_by_otk=get_user_by_otk,
             )
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -419,28 +419,30 @@ class TestResetPassword:
             pretend.call('Invalid or expired token', queue='error'),
         ]
 
-    def test_get(self, pyramid_request):
+    def test_get(self, db_request):
+        user = UserFactory.create()
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
-        pyramid_request.GET.update({"otk": "RANDOM_KEY"})
-        pyramid_request.find_service = pretend.call_recorder(
+        db_request.GET.update({"otk": "RANDOM_KEY"})
+        db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 enabled=False,
                 csp_policy=pretend.stub(),
                 merge=lambda _: None,
-                validate_otk=pretend.call_recorder(lambda otk: "otk"),
+                get_user_by_otk=pretend.call_recorder(lambda otk: user),
                 check_password=pretend.call_recorder(
                     lambda user_id, password: False
                 )
             )
         )
-        result = views.reset_password(pyramid_request, _form_class=form)
+        result = views.reset_password(db_request, _form_class=form)
         assert result["form"] is form_inst
 
-    def test_reset_password(self, pyramid_request):
-        pyramid_request.method = "POST"
-        pyramid_request.POST.update({"otk": "RANDOM_KEY"})
+    def test_reset_password(self, db_request):
+        user = UserFactory.create()
+        db_request.method = "POST"
+        db_request.POST.update({"otk": "RANDOM_KEY"})
         form_obj = pretend.stub(
             password=pretend.stub(data="password_value"),
             validate=pretend.call_recorder(lambda *args: True)
@@ -448,13 +450,13 @@ class TestResetPassword:
 
         form = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.find_service = pretend.call_recorder(
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 enabled=False,
                 csp_policy=pretend.stub(),
                 merge=lambda _: None,
-                validate_otk=pretend.call_recorder(lambda otk: "otk"),
+                get_user_by_otk=pretend.call_recorder(lambda otk: user),
                 check_password=pretend.call_recorder(
                     lambda user_id, password: False
                 ),
@@ -463,7 +465,7 @@ class TestResetPassword:
                 )
             )
         )
-        result = views.reset_password(pyramid_request, _form_class=form)
+        result = views.reset_password(db_request, _form_class=form)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
 

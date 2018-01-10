@@ -232,11 +232,11 @@ class TestDatabaseUserService:
         assert user_service.generate_otk(user)
 
     @pytest.mark.parametrize('otk', ['', None])
-    def test_validate_otk_token_is_none(self, user_service, otk):
+    def test_get_user_by_token_is_none(self, user_service, otk):
         with pytest.raises(InvalidPasswordResetToken):
-            user_service.validate_otk(otk)
+            user_service.get_user_by_otk(otk)
 
-    def test_validate_otk_token_expired(self, user_service):
+    def test_get_user_by_otk_token_expired(self, user_service):
         user = UserFactory.create()
         otk = user_service.generate_otk(user)
 
@@ -244,9 +244,9 @@ class TestDatabaseUserService:
         # age is 6 hours and this is not possible to make otk invalid.
         user_service.token_max_age = -1
         with pytest.raises(InvalidPasswordResetToken):
-            user_service.validate_otk(otk)
+            user_service.get_user_by_otk(otk)
 
-    def test_validate_otk_invalid_user(self, user_service):
+    def test_get_user_by_otk_invalid_user(self, user_service):
         invalid_user = pretend.stub(
             id="8ad1a4ac-e016-11e6-bf01-fe55135034f3",
             last_login="lastlogintimestamp",
@@ -255,22 +255,22 @@ class TestDatabaseUserService:
 
         otk = user_service.generate_otk(invalid_user)
         with pytest.raises(InvalidPasswordResetToken):
-            user_service.validate_otk(otk)
+            user_service.get_user_by_otk(otk)
 
-    def test_validate_otk_invalid_hash(self, user_service):
+    def test_get_user_by_otk_invalid_hash(self, user_service):
         user = UserFactory.create()
         otk = user_service.generate_otk(user)
         user_service._generate_otk_hash = lambda user: 'badhash'
         with pytest.raises(InvalidPasswordResetToken):
-            user_service.validate_otk(otk)
+            user_service.get_user_by_otk(otk)
 
-    def test_validate_otk_success(self, user_service):
+    def test_get_user_by_otk_success(self, user_service):
         user = UserFactory.create()
         user_service.get_user = pretend.call_recorder(lambda userid: user)
         otk = user_service.generate_otk(user)
-        user_id = user_service.validate_otk(otk)
+        found_user = user_service.get_user_by_otk(otk)
 
-        assert user_id == user.id
+        assert found_user == user
         assert user_service.get_user.calls == [
             pretend.call(user.id),
         ]
