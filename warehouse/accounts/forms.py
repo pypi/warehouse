@@ -178,10 +178,10 @@ class RequestPasswordResetForm(UsernameMixin, forms.Form):
 
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
-    # These fields are here to provide the various
-    # user-defined fields to the PasswordStrengthValidator of
-    # the NewPasswordMixin, to ensure that the newly set
-    # password doesn't contain any of them
+
+    # These fields are here to provide the various user-defined fields to the
+    # PasswordStrengthValidator of the NewPasswordMixin, to ensure that the
+    # newly set password doesn't contain any of them
     full_name = wtforms.StringField()
     username = wtforms.StringField()
     email = wtforms.StringField()

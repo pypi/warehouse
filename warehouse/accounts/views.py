@@ -247,24 +247,6 @@ def register(request, _form_class=RegistrationForm):
     require_methods=False,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
-
-    # Purpose of this view is to take a valid user-name and send a email
-    # along with the password reset link.
-
-    # Password reset rocess:
-    #   Step-1:
-    #      Ask for user-name with a GET request.
-    #
-    #   Step-2:
-    #      On submit user-name with a POST request, we'll verify whether the
-    #      given user-name is a valid one or not, so here two cases.
-    #
-    #      if user-name is not valid:
-    #         show error "Invalid user"
-    #
-    #      else:
-    #          Generate a new OTK and send it to user via email.
-
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
 
@@ -303,35 +285,12 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 )
 def reset_password(request, _form_class=ResetPasswordForm):
 
-    # Porpose of this view is to reset the password by using the link
-    # given to the user in reset phase.
-
-    # Password reset process:
-    #    Step-1:
-    #       User tries to GET the password reset form with the given link,
-    #       We'll check for validity of the otk before rendering reset password
-    #       page, so here two cases.
-    #
-    #       if otk is valid:
-    #          Render the password reset page.
-    #       else:
-    #          Render the error page "Invalid password reset token"
-    #
-    #    Step-2:
-    #       After submitting the new password with a POST request, we'll verify
-    #       the validity of the otk embedded inside the form, again two cases.
-    #
-    #       if otk is valid:
-    #          - Reset the password.
-    #          - Perform login just after reset and redirect to default view.
-    #       else:
-    #          Render the error page "Invalid password reset token"
-
     user_service = request.find_service(IUserService, context=None)
 
     try:
         user = user_service.get_user_by_otk(request.params.get('otk'))
     except InvalidPasswordResetToken:
+        # Fail if the token is invalid for any reason
         request.session.flash("Invalid or expired token", queue="error")
         return HTTPSeeOther(
             request.route_path("accounts.request-password-reset"),

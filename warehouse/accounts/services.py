@@ -86,13 +86,13 @@ class DatabaseUserService:
         except BadData:
             raise InvalidPasswordResetToken
 
-        # Check whether the user.id is valid or not.
+        # Check whether a user with the given user ID exists
         user = self.get_user(uuid.UUID(data.get("user.id")))
         if user is None:
             raise InvalidPasswordResetToken
 
+        # Compare the otk hash values for the user
         user_hash = self._generate_otk_hash(user)
-        # Compare user.hash values.
         if not hmac.compare_digest(data.get("user.hash"), user_hash):
             raise InvalidPasswordResetToken
 
@@ -214,24 +214,26 @@ class DatabaseUserService:
                 email.verified = True
 
     def _generate_otk_hash(self, user):
-        # We'll be using three attributes to generate hash.
-        #
-        # 1. user.id:
-        #     Certainly this is not going to help to invalidate the OTK, but it
-        #     makes hash unique even though last_login and password_date are
-        #     same for different users.
-        #
-        # 2. user.last_login:
-        #     After getting reset key to reset the password, In less than
-        #     six hours it's possible that user might login with their existing
-        #     passwords. In that case last_login time gets updated to new one
-        #     and it makes the OTK invalid to use. (It doesn't make any sense to
-        #     keep OTK valid even after user able to login with existing password)
-        #
-        # 3. user.password_date:
-        #     Once User.password is updated, it make sure that
-        #     User.password_date also gets updated, So that it's easy to
-        #     invalidate the hash.
+        '''
+        We use three attributes to generate hash:
+
+        1. user.id:
+
+           Certainly this is not going to help to invalidate the OTK, but it
+           ensures that the hash is unique even if last_login and password_date
+           are same for different users.
+
+        2. user.last_login:
+
+           This allows us to expire the OTK if the user is able to login
+           without actually performing a password reset, as it doesn't make any
+           sense to let the OTK remain valid.
+
+        3. user.password_date:
+
+           This is what allows us to expire the OTK once it has been
+           successfully used to change a password.
+        '''
 
         hash_key = blake2b(
             "|".join(

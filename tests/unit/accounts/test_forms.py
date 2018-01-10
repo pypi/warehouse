@@ -124,6 +124,7 @@ class TestLoginForm:
 
 
 class TestRegistrationForm:
+
     def test_create(self):
         user_service = pretend.stub()
         recaptcha_service = pretend.stub(enabled=True)
@@ -354,9 +355,6 @@ class TestRegistrationForm:
 
 class TestRequestPasswordResetForm:
 
-    # Even though RequestPasswordResetForm is inheriting from LoginForm, we are
-    # still validating all the features here. So, that any change to LoginForm
-    # that would effect this form will be validated and raised.
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.RequestPasswordResetForm(user_service=user_service)

@@ -277,6 +277,7 @@ class TestLogout:
 
 
 class TestRegister:
+
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -326,6 +327,7 @@ class TestRegister:
 
 
 class TestRequestPasswordReset:
+
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
