@@ -35,7 +35,6 @@
                 <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name)}}" class="vertical-tabs__sub-tab {% if active_page == 'releases' %}vertical-tabs__sub-tab--is-active{% endif %}"/>Releases</a>
                 <a href="{{ request.route_path('manage.project.roles', name=project.normalized_name)}}" class="vertical-tabs__sub-tab {% if active_page == 'collaborators' %}vertical-tabs__sub-tab--is-active{% endif %}" />Collaborators</a>
                 <a href="" class="vertical-tabs__sub-tab">Documentation</a>
-                <a href="" class="vertical-tabs__sub-tab">Project History (journal)</a>
               </nav>
             {% endfor %}
             </nav>
@@ -56,7 +55,6 @@
                 </button>
                 <div class="dropdown__content">
                   <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">Preview Project</a>
-                  <a href="#" class="dropdown__link">View Package Info</a>
                   <a href="" class="dropdown__link">Delete Project</a>
                   <a href="{{ request.route_path('help')}}#updating-projects" class="dropdown__link">Update Project (help)</a><!-- TODO: add help content -->
                 </div>
@@ -94,6 +92,7 @@
                               </span>
                             </button>
                             <div class="dropdown__content">
+                              <a href="" class="dropdown__link">Edit</a><!-- TODO: link to release detail page -->
                               <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">Preview</a>
                               <a href="" class="dropdown__link">Delete</a>
                             </div>
