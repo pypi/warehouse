@@ -337,7 +337,13 @@ def reset_password(request, _form_class=ResetPasswordForm):
             request.route_path("accounts.request-password-reset"),
         )
 
-    form = _form_class(request.params, user_service=user_service)
+    form = _form_class(
+        request.params,
+        username=user.username,
+        full_name=user.name,
+        email=user.email,
+        user_service=user_service
+    )
 
     if request.method == "POST" and form.validate():
         # Update password.
