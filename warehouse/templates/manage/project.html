@@ -18,6 +18,8 @@
 {% set current_project = project %}
 {% set active_page = active_page|default('releases') %}
 
+{% block title %}Manage '{{ project.name }}'{% endblock %}
+
 {% block content %}
   <section class="horizontal-section horizontal-section--thin">
     <div class="site-container">
@@ -71,35 +73,35 @@
                     <th class="table__options"></th>
                   </thead>
                   <tbody>
-                    {% for release in project.releases %}
-                      <tr>
-                        <td class="table__version"><a href="TODO: link to release edit page">{{ release.version }}</a></td>
-                        <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
-                        <td class="table__summary">
-                          {% if release.summary %}
-                            {{ release.summary }}
-                          {% else %}
-                            &mdash;
-                          {% endif %}
-                          </td>
-                        <td class="table__options">
-                          <div class="dropdown">
-                            <button class="dropdown__trigger button">
-                              Options
-                              <span class="dropdown__trigger-caret">
-                                <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                <span class="sr-only">view submenu</span>
-                              </span>
-                            </button>
-                            <div class="dropdown__content">
-                              <a href="" class="dropdown__link">Edit</a><!-- TODO: link to release detail page -->
-                              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">Preview</a>
-                              <a href="" class="dropdown__link">Delete</a>
-                            </div>
-                          </div>
+                  {% for release in project.releases %}
+                    <tr>
+                      <td class="table__version"><a href="TODO: link to release edit page">{{ release.version }}</a></td>
+                      <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
+                      <td class="table__summary">
+                        {% if release.summary %}
+                          {{ release.summary }}
+                        {% else %}
+                          —
+                        {% endif %}
                         </td>
-                      </tr>
-                    {% endfor %}
+                      <td class="table__options">
+                        <div class="dropdown">
+                          <button class="dropdown__trigger button">
+                            Options
+                            <span class="dropdown__trigger-caret">
+                              <i class="fa fa-caret-down" aria-hidden="true"></i>
+                              <span class="sr-only">view submenu</span>
+                            </span>
+                          </button>
+                          <div class="dropdown__content">
+                            <a href="" class="dropdown__link">Edit</a><!-- TODO: link to release detail page -->
+                            <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">Preview</a>
+                            <a href="" class="dropdown__link">Delete</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
                   </tbody>
                 </table>
 

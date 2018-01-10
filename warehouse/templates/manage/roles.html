@@ -28,7 +28,7 @@
       <dd>May upload releases for a package.</dd>
     </dl>
   </div>
-  <br/>
+  <br>
   <table class="table table--light">
     <thead>
       <th>User</th>
@@ -36,48 +36,48 @@
       <th>Action</th>
     </thead>
     <tbody>
-      {% for role in roles|sort(attribute="user.username") %}
-        <tr class="collaborator">
-          <td>
-            <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
-              {{ role.user.username }}
-              {% if role.user.name %}
-                 - {{ role.user.name }}
-              {% endif %}
-            </a>
-          </td>
-          <td>
-            {% if role.user == request.user %}
-              {{ role.role_name }}
-            {% else %}
-              <form>
-                <select name="" id="">
-                  <option value="">Owner</option>
-                  <option value="">Maintainer</option>
-                </select>
-              </form>
+    {% for role in roles|sort(attribute="user.username") %}
+      <tr class="collaborator">
+        <td>
+          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
+            {{ role.user.username }}
+            {% if role.user.name %}
+                - {{ role.user.name }}
             {% endif %}
-          </td>
-          <td>
-            <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <input type="hidden" name="role_id" value="{{ role.id }}">
-              <button
-                class="button"
-                type="submit"
-                {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
-                  title="Cannot remove yourself as owner"
-                  disabled
-                {% else %}
-                  title="Remove {{ role.user.username }} from this project"
-                {% endif %}
-              >
-                Remove
-              </button>
-            </form>
-          </td>
-        </tr>
-      {% endfor %}
+          </a>
+        </td>
+        <td>
+        {% if role.user == request.user %}
+          {{ role.role_name }}
+        {% else %}
+          <form>
+            <select name="" id="">
+              <option value="">Owner</option>
+              <option value="">Maintainer</option>
+            </select>
+          </form>
+        {% endif %}
+        </td>
+        <td>
+          <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <input type="hidden" name="role_id" value="{{ role.id }}">
+            <button
+              class="button"
+              type="submit"
+              {% if (role.role_name == "Owner" and request.user.username == role.user.username) %}
+                title="Cannot remove yourself as owner"
+                disabled
+              {% else %}
+                title="Remove {{ role.user.username }} from this project"
+              {% endif %}
+            >
+              Remove
+            </button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
       <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <tr>
@@ -103,5 +103,5 @@
       </form>
     </tbody>
   </table>
-  <br/>
+  <br>
 {% endblock %}

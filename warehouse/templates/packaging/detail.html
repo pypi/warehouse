@@ -102,11 +102,11 @@
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
     <div class="split-layout split-layout--middle">
-      {% if release.summary %}
-        <p class="package-description">{{ release.summary }}</p>
-      {% endif %}
+    {% if release.summary %}
+      <p class="package-description">{{ release.summary }}</p>
+    {% endif %}
       <!-- todo: if logged in user can edit package -->
-        <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit Project</a>
+      <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit Project</a>
       <!-- end todo -->
     </div>
   </div>
