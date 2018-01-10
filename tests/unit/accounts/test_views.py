@@ -426,7 +426,6 @@ class TestResetPassword:
         )
         result = views.reset_password(pyramid_request, _form_class=form)
         assert result["form"] is form_inst
-        assert result["otk"] == "RANDOM_KEY"
 
     def test_reset_password(self, pyramid_request):
         pyramid_request.method = "POST"

@@ -329,11 +329,8 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     user_service = request.find_service(IUserService, context=None)
 
-    # otk should be avaiable with both GET and POST.
-    otk = getattr(request, request.method).get('otk')
-
     try:
-        userid = user_service.validate_otk(otk)
+        userid = user_service.get_user_by_otk(request.params.get('otk'))
     except InvalidPasswordResetToken:
         return {'success': False}
 
@@ -350,9 +347,10 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Perform login just after reset password and redirect to default view.
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, userid)))
+            headers=dict(_login_user(request, userid))
+        )
 
-    return {"form": form, 'otk': otk}
+    return {"form": form}
 
 
 @view_config(
