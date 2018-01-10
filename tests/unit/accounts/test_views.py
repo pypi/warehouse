@@ -382,7 +382,7 @@ class TestRequestPasswordReset:
         result = views.request_password_reset(
             pyramid_request, _form_class=form_class
         )
-        assert result["success"] is True
+        assert result == {}
         subject_renderer.assert_()
         body_renderer.assert_(otk='OTK', username='username')
 
@@ -405,8 +405,19 @@ class TestResetPassword:
                 validate_otk=validate_otk
             )
         )
-        result = views.reset_password(pyramid_request, _form_class=form)
-        assert result["success"] is False
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request, _form_class=form)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Invalid or expired token', queue='error'),
+        ]
 
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()

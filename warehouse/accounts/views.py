@@ -289,7 +289,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         )
 
         request.task(send_email).delay(body, [user.email], subject)
-        return {'success': True}
+        return {}
 
     return {"form": form}
 
@@ -332,7 +332,10 @@ def reset_password(request, _form_class=ResetPasswordForm):
     try:
         userid = user_service.get_user_by_otk(request.params.get('otk'))
     except InvalidPasswordResetToken:
-        return {'success': False}
+        request.session.flash("Invalid or expired token", queue="error")
+        return HTTPSeeOther(
+            request.route_path("accounts.request-password-reset"),
+        )
 
     form = _form_class(request.params, user_service=user_service)
 
