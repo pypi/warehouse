@@ -231,6 +231,11 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert user_service.generate_otk(user)
 
+    @pytest.mark.parametrize('otk', ['', None])
+    def test_validate_otk_token_is_none(self, user_service, otk):
+        with pytest.raises(InvalidPasswordResetToken):
+            user_service.validate_otk(otk)
+
     def test_validate_otk_token_expired(self, user_service):
         user = UserFactory.create()
         otk = user_service.generate_otk(user)

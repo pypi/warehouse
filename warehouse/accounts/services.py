@@ -224,6 +224,9 @@ class DatabaseUserService:
         })
 
     def validate_otk(self, otk):
+        if not otk:
+            raise InvalidPasswordResetToken
+
         try:
             data = self.serializer.loads(
                 otk,
