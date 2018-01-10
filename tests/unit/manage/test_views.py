@@ -76,8 +76,9 @@ class TestManageProjectRoles:
             pretend.call(db_request.POST, user_service=user_service),
         ]
         assert result == {
+
             "project": project,
-            "roles": [role],
+            "roles_by_user": {user.username: [role]},
             "form": form_obj,
         }
 
@@ -107,7 +108,7 @@ class TestManageProjectRoles:
         assert form_obj.validate.calls == [pretend.call()]
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles_by_user": {user.username: [role]},
             "form": form_obj,
         }
 
@@ -155,7 +156,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles_by_user": {user.username: [role]},
             "form": form_obj,
         }
 
@@ -209,7 +210,7 @@ class TestManageProjectRoles:
 
         assert result == {
             "project": project,
-            "roles": [role],
+            "roles_by_user": {user.username: [role]},
             "form": form_obj,
         }
 
