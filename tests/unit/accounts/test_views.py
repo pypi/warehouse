@@ -328,49 +328,51 @@ class TestRegister:
 
 class TestRequestPasswordReset:
 
-    def test_get(self, pyramid_request):
+    def test_get(self, pyramid_request, user_service):
         form_inst = pretend.stub()
-        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                enabled=False,
-                csp_policy=pretend.stub(),
-                merge=lambda _: None,
-            )
+            lambda *args, **kwargs: user_service
         )
+        pyramid_request.POST = pretend.stub()
         result = views.request_password_reset(
             pyramid_request,
-            _form_class=form,
+            _form_class=form_class,
         )
         assert result["form"] is form_inst
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
 
     def test_request_password_reset(
-            self, monkeypatch, pyramid_request, pyramid_config):
+            self, monkeypatch, pyramid_request, pyramid_config, user_service):
+
+        stub_user = pretend.stub(email="email", username="username_value")
         pyramid_request.method = "POST"
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                csp_policy={},
-                merge=lambda _: {},
-                enabled=False,
-                generate_otk=pretend.call_recorder(lambda _: "OTK"),
-                get_user_by_username=pretend.call_recorder(
-                    lambda _: pretend.stub(email="email")
-                ),
-                verify_response=pretend.call_recorder(lambda _: None),
-                find_userid=pretend.call_recorder(lambda _: None),
-            )
+        user_service.generate_otk = pretend.call_recorder(lambda a: "OTK")
+        user_service.get_user_by_username = pretend.call_recorder(
+            lambda a: stub_user
         )
-        pyramid_request.POST = {"username": "username_value"}
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: user_service
+        )
+        pyramid_request.POST = {"username": stub_user.username}
+
         subject_renderer = pyramid_config.testing_add_renderer(
             'email/password-reset.subject.txt'
         )
+        subject_renderer.string_response = 'Email Subject'
         body_renderer = pyramid_config.testing_add_renderer(
             'email/password-reset.body.txt'
         )
+        body_renderer.string_response = 'Email Body'
 
         form_obj = pretend.stub(
-            username=pretend.stub(data="username"),
-            validate=pretend.call_recorder(lambda *args: True),
+            username=pretend.stub(data=stub_user.username),
+            validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
         send_email = pretend.stub(
@@ -384,36 +386,61 @@ class TestRequestPasswordReset:
         result = views.request_password_reset(
             pyramid_request, _form_class=form_class
         )
+
         assert result == {}
         subject_renderer.assert_()
-        body_renderer.assert_(otk='OTK', username='username')
+        body_renderer.assert_(otk='OTK', username=stub_user.username)
+        assert user_service.generate_otk.calls == [
+            pretend.call(stub_user),
+        ]
+        assert user_service.get_user_by_username.calls == [
+            pretend.call(stub_user.username),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+        assert form_obj.validate.calls == [
+            pretend.call(),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+        ]
 
 
 class TestResetPassword:
 
-    def test_invalid_otk(self, pyramid_request):
+    def test_invalid_otk(self, pyramid_request, user_service):
         form_inst = pretend.stub()
-        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
         def get_user_by_otk(otk):
             raise InvalidPasswordResetToken()
 
         pyramid_request.GET.update({"otk": "RANDOM_KEY"})
+        user_service.get_user_by_otk = pretend.call_recorder(get_user_by_otk)
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                enabled=False,
-                csp_policy=pretend.stub(),
-                merge=lambda _: None,
-                get_user_by_otk=get_user_by_otk,
-            )
+            lambda *args, **kwargs: user_service
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
         pyramid_request.session.flash = pretend.call_recorder(
             lambda *a, **kw: None
         )
 
-        views.reset_password(pyramid_request, _form_class=form)
+        views.reset_password(pyramid_request, _form_class=form_class)
 
+        assert form_class.calls == []
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert user_service.get_user_by_otk.calls == [
+            pretend.call("RANDOM_KEY"),
+        ]
         assert pyramid_request.route_path.calls == [
             pretend.call('accounts.request-password-reset'),
         ]
@@ -421,27 +448,37 @@ class TestResetPassword:
             pretend.call('Invalid or expired token', queue='error'),
         ]
 
-    def test_get(self, db_request):
+    def test_get(self, db_request, user_service):
         user = UserFactory.create()
         form_inst = pretend.stub()
-        form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
         db_request.GET.update({"otk": "RANDOM_KEY"})
+        user_service.get_user_by_otk = pretend.call_recorder(lambda otk: user)
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                enabled=False,
-                csp_policy=pretend.stub(),
-                merge=lambda _: None,
-                get_user_by_otk=pretend.call_recorder(lambda otk: user),
-                check_password=pretend.call_recorder(
-                    lambda user_id, password: False
-                )
-            )
+            lambda *args, **kwargs: user_service
         )
-        result = views.reset_password(db_request, _form_class=form)
-        assert result["form"] is form_inst
 
-    def test_reset_password(self, db_request):
+        result = views.reset_password(db_request, _form_class=form_class)
+
+        assert result["form"] is form_inst
+        assert form_class.calls == [
+            pretend.call(
+                db_request.GET,
+                username=user.username,
+                full_name=user.name,
+                email=user.email,
+                user_service=user_service,
+            )
+        ]
+        assert user_service.get_user_by_otk.calls == [
+            pretend.call("RANDOM_KEY"),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+
+    def test_reset_password(self, db_request, user_service):
         user = UserFactory.create()
         db_request.method = "POST"
         db_request.POST.update({"otk": "RANDOM_KEY"})
@@ -450,26 +487,44 @@ class TestResetPassword:
             validate=pretend.call_recorder(lambda *args: True)
         )
 
-        form = pretend.call_recorder(lambda *args, **kwargs: form_obj)
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/")
+        user_service.get_user_by_otk = pretend.call_recorder(lambda a: user)
+        user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: pretend.stub(
-                enabled=False,
-                csp_policy=pretend.stub(),
-                merge=lambda _: None,
-                get_user_by_otk=pretend.call_recorder(lambda otk: user),
-                check_password=pretend.call_recorder(
-                    lambda user_id, password: False
-                ),
-                update_user=pretend.call_recorder(
-                    lambda *args, **kwargs: None
-                )
-            )
+            lambda *args, **kwargs: user_service
         )
-        result = views.reset_password(db_request, _form_class=form)
+
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now):
+            result = views.reset_password(db_request, _form_class=form_class)
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                username=user.username,
+                full_name=user.name,
+                email=user.email,
+                user_service=user_service
+            ),
+        ]
+        assert db_request.route_path.calls == [pretend.call('index')]
+        assert user_service.get_user_by_otk.calls == [
+            pretend.call('RANDOM_KEY'),
+        ]
+        assert user_service.update_user.calls == [
+            pretend.call(user.id, password=form_obj.password.data),
+            pretend.call(user.id, last_login=now),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(IUserService, context=None),
+        ]
 
 
 class TestClientSideIncludes:
