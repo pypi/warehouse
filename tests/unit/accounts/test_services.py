@@ -10,15 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import uuid
-
 import pretend
 import pytest
+import uuid
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+)
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import UserFactory, EmailFactory
@@ -211,6 +212,108 @@ class TestDatabaseUserService:
         assert user.id is not None
         assert not service.check_password(user.id, "bad_password")
 
+    def test_get_user_by_username(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        user = UserFactory.create()
+        found_user = service.get_user_by_username(user.username)
+        db_session.flush()
+
+        assert user.username == found_user.username
+
+    def test_get_user_by_username_failure(self, db_session):
+        service = services.DatabaseUserService(db_session)
+        UserFactory.create()
+        found_user = service.get_user_by_username("UNKNOWNTOTHEWORLD")
+        db_session.flush()
+
+        assert found_user is None
+
+
+class TestPasswordRecoveryService:
+
+    secret = "TESTSECRET"
+    user = pretend.stub(
+        id="8ad1a4ac-e016-11e6-bf01-fe55135034f3",
+        last_login="lastlogintimestamp",
+        password_date="passworddate"
+    )
+
+    def test_verify_service(self):
+        assert verifyClass(
+            IPasswordRecoveryService, services.PasswordRecoveryService
+        )
+
+    def test_generate_otk(self):
+        password_service = services.PasswordRecoveryService(
+            secret=self.secret,
+            user_service=pretend.stub()
+        )
+
+        otk = password_service.generate_otk(self.user)
+        assert otk
+
+    def test_validate_otk_token_expired(self):
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: self.user)
+        )
+        password_service = services.PasswordRecoveryService(
+            secret=self.secret,
+            user_service=user_service
+        )
+
+        otk = password_service.generate_otk(self.user)
+
+        # We are altering max_age for invalid otk check, Since the actual
+        # age is 6 hours and this is not possible to make otk invalid.
+        password_service.max_age = -1
+        with pytest.raises(services.InvalidPasswordResetToken):
+            password_service.validate_otk(otk)
+
+    def test_validate_otk_invalid_user(self):
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: None)
+        )
+        password_service = services.PasswordRecoveryService(
+            secret=self.secret,
+            user_service=user_service
+        )
+
+        otk = password_service.generate_otk(self.user)
+        with pytest.raises(services.InvalidPasswordResetToken):
+            password_service.validate_otk(otk)
+
+    def test_validate_otk_invalid_hash(self):
+        user = pretend.stub(
+            id="8ad1a4ac-e016-11e6-bf01-fe55135034f3",
+            last_login="lastlogin-updated",
+            password_date="passworddate"
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user)
+        )
+        password_service = services.PasswordRecoveryService(
+            secret=self.secret,
+            user_service=user_service
+        )
+
+        otk = password_service.generate_otk(self.user)
+        with pytest.raises(services.InvalidPasswordResetToken):
+            password_service.validate_otk(otk)
+
+    def test_validate_otk_success(self):
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: self.user)
+        )
+        password_service = services.PasswordRecoveryService(
+            secret=self.secret,
+            user_service=user_service
+        )
+
+        otk = password_service.generate_otk(self.user)
+        user_id = password_service.validate_otk(otk)
+
+        assert user_id == self.user.id
+
 
 def test_database_login_factory(monkeypatch):
     service_obj = pretend.stub()
@@ -248,3 +351,21 @@ def test_database_login_factory(monkeypatch):
             },
         ),
     ]
+
+
+def test_password_recovery_factory(monkeypatch):
+    service_obj = pretend.stub()
+    service_cls = pretend.call_recorder(
+        lambda secret, user_service: service_obj
+    )
+    monkeypatch.setattr(services, "PasswordRecoveryService", service_cls)
+
+    context = pretend.stub()
+    request = pretend.stub(
+        registry=pretend.stub(settings={"password_recovery.secret": "SECRET"}),
+        find_service=pretend.call_recorder(
+            lambda user_service, context=context: pretend.stub()
+        ),
+    )
+
+    assert services.password_recovery_factory(context, request) is service_obj

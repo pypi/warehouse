@@ -116,6 +116,16 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "accounts.recover-password",
+            "/account/recover-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.reset-password",
+            "/account/reset-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "accounts.edit_gravatar",
             "/user/{username}/edit_gravatar/",
             factory="warehouse.accounts.models:UserFactory",

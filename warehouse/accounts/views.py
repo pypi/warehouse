@@ -22,11 +22,27 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService, TooManyFailedLogins
+)
+from warehouse.accounts.services import InvalidPasswordResetToken
 from warehouse.cache.origin import origin_cache
+from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
+
+PASSWORD_RECOVERY_MESSAGE = """
+    Someone, perhaps you, has requested that the password be changed for your
+    username, "{name}". If you wish to proceed with the change, please follow
+    the link below:
+
+      {url}/account/reset-password/?otk={otk}
+
+    This will present a form in which you may set your new password.
+"""
+
+PASSWORD_RECOVERY_EMAIL_SUBJECT = "PyPI password change request"
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 
@@ -231,6 +247,127 @@ def register(request, _form_class=forms.RegistrationForm):
             headers=dict(_login_user(request, user.id)))
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.recover-password",
+    renderer="accounts/recover-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def recover_password(request, _form_class=forms.RecoverPasswordForm):
+
+    # Purpose of this view is to take a valid user-name and send a email
+    # along with the password reset link.
+
+    # Password recovery rocess:
+    #   Step-1:
+    #      Ask for user-name with a GET request.
+    #
+    #   Step-2:
+    #      On submit user-name with a POST request, we'll verify whether the
+    #      given user-name is a valid one or not, so here two cases.
+    #
+    #      if user-name is not valid:
+    #         show error "Invalid user"
+    #
+    #      else:
+    #          Generate a new OTK and send it to user via email.
+
+    user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        # Get the user object by using username.
+        user = user_service.get_user_by_username(username)
+
+        # Generate a new OTK.
+        otk = password_recovery_service.generate_otk(user)
+        request.task(send_email).delay(
+            PASSWORD_RECOVERY_MESSAGE.format(
+                name=username,
+                otk=otk,
+                url=request.application_url
+            ),
+            [user.email],
+            PASSWORD_RECOVERY_EMAIL_SUBJECT
+        )
+        return {'success': True}
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=forms.ResetPasswordForm):
+
+    # Porpose of this view is to reset the password by using the link
+    # given to the user in recovery phase.
+
+    # Password reset process:
+    #    Step-1:
+    #       User tries to GET the password reset form with the given link,
+    #       We'll check for validity of the otk before rendering reset password
+    #       page, so here two cases.
+    #
+    #       if otk is valid:
+    #          Render the password reset page.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+    #
+    #    Step-2:
+    #       After submitting the new password with a POST request, we'll verify
+    #       the validity of the otk embedded inside the form, again two cases.
+    #
+    #       if otk is valid:
+    #          - Reset the password.
+    #          - Perform login just after reset and redirect to default view.
+    #       else:
+    #          Render the error page "Invalid password reset token"
+
+    user_service = request.find_service(IUserService, context=None)
+    password_recovery_service = request.find_service(
+        IPasswordRecoveryService, context=None
+    )
+
+    # otk should be avaiable with both GET and POST.
+    otk = getattr(request, request.method).get('otk')
+
+    # We'll verify the validity of otk even before rendering reset password
+    # page, so that we can stop unauthorized requests not to access reset
+    # password page.
+
+    try:
+        userid = password_recovery_service.validate_otk(otk)
+    except InvalidPasswordResetToken:
+        return {'success': False}
+
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        userid=userid
+    )
+
+    if request.method == "POST" and form.validate():
+        # Update password.
+        user_service.update_user(userid, password=form.password.data)
+
+        # Perform login just after reset password and redirect to default view.
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, userid)))
+
+    return {"form": form, 'otk': otk}
 
 
 @view_config(

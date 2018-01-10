@@ -350,3 +350,156 @@ class TestRegistrationForm:
             )
             form.validate()
             assert (len(form.password.errors) == 0) == valid
+
+
+class TestRecoverPasswordForm:
+
+    # Even though, RecoveryPasswordForm is inheriting from LoginForm, we are
+    # still validating all the features here. So, that any change to LoginForm
+    # that would effect Recovery form will be validated and raised.
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.RecoverPasswordForm(user_service=user_service)
+        assert form.user_service is user_service
+
+    def test_no_password_field(self):
+        user_service = pretend.stub()
+        form = forms.RecoverPasswordForm(user_service=user_service)
+        assert 'password' not in form._fields
+
+    def test_validate_username_with_no_user(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
+        )
+        form = forms.RecoverPasswordForm(user_service=user_service)
+        field = pretend.stub(data="my_username")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_username(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+
+    def test_validate_username_with_user(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+        )
+        form = forms.RecoverPasswordForm(user_service=user_service)
+        field = pretend.stub(data="my_username")
+
+        form.validate_username(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+
+
+class TestResetPasswordForm:
+
+    def test_creation(self):
+        userid = 'foo'
+        user_service = pretend.stub()
+        form = forms.ResetPasswordForm(
+            userid=userid,
+            user_service=user_service
+        )
+
+        assert form.user_service is user_service
+        assert form.userid == userid
+
+    def test_password_confirm_required_error(self):
+        form = forms.ResetPasswordForm(
+            data={"password_confirm": ""},
+            userid='foo',
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(
+                    lambda _: pretend.stub()
+                ),
+            )
+        )
+
+        assert not form.validate()
+        assert form.password_confirm.errors.pop() == "This field is required."
+
+    def test_passwords_mismatch_error(self):
+        user_service = pretend.stub(
+            find_userid_by_email=pretend.call_recorder(
+                lambda _: pretend.stub()
+            ),
+            check_password=pretend.call_recorder(
+                lambda _, i: i
+            )
+        )
+        form = forms.ResetPasswordForm(
+            userid="foo",
+            data={
+                "password": "password",
+                "password_confirm": "mismatch",
+            },
+            user_service=user_service
+        )
+
+        assert not form.validate()
+        assert (
+            form.password_confirm.errors.pop() ==
+            "Your passwords do not match. Please try again."
+        )
+
+    def test_password_strength(self):
+        cases = (
+            ("foobar", False),
+            ("somethingalittlebetter9", True),
+            ("1aDeCent!1", True),
+        )
+        for pwd, valid in cases:
+            form = forms.ResetPasswordForm(
+                userid=None,
+                data={"password": pwd, "password_confirm": pwd},
+                user_service=pretend.stub(),
+            )
+            form.validate()
+            assert (len(form.password.errors) == 0) == valid
+
+    def test_password_match_with_old_password(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda i, j: True
+            ),
+            find_userid_by_email=pretend.call_recorder(
+                lambda _: pretend.stub()
+            ),
+        )
+        form = forms.ResetPasswordForm(
+            userid="foo",
+            data={
+                "password": "MyStr0ng!shPassword",
+                "password_confirm": "MyStr0ng!shPassword",
+            },
+            user_service=user_service
+        )
+
+        form.validate()
+        assert len(form.password.errors) == 1
+        assert (
+            form.password.errors.pop() ==
+            "Password shouldn't match with previous one."
+        )
+
+    def test_passwords_match_success(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda i, j: False
+            ),
+            find_userid_by_email=pretend.call_recorder(
+                lambda _: pretend.stub()
+            ),
+        )
+        form = forms.ResetPasswordForm(
+            userid="foo",
+            data={
+                "password": "MyStr0ng!shPassword",
+                "password_confirm": "MyStr0ng!shPassword",
+            },
+            user_service=user_service
+        )
+
+        form.validate()
+        assert len(form.password.errors) == 0
+        assert len(form.password_confirm.errors) == 0

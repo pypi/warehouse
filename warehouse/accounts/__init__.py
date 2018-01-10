@@ -15,8 +15,12 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.services import database_login_factory
+from warehouse.accounts.interfaces import (
+    IPasswordRecoveryService, IUserService
+)
+from warehouse.accounts.services import (
+    database_login_factory, password_recovery_factory
+)
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
 )
@@ -66,6 +70,12 @@ def _user(request):
 def includeme(config):
     # Register our login service
     config.register_service_factory(database_login_factory, IUserService)
+
+    # Register password recovery service
+    config.register_service_factory(
+        password_recovery_factory,
+        IPasswordRecoveryService
+    )
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(

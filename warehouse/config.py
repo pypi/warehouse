@@ -172,6 +172,11 @@ def configure(settings=None):
     maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
+    maybe_set(
+        settings,
+        "password_recovery.secret",
+        "PASSWORD_RECOVERY_SECRET_KEY"
+    )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 

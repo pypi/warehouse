@@ -148,3 +148,43 @@ class LoginForm(CredentialsMixin, forms.Form):
                     "There have been too many unsuccessful login attempts, "
                     "please try again later."
                 ) from None
+
+
+class RecoverPasswordForm(LoginForm):
+
+    def __init__(self, *args, **kwargs):
+        super(RecoverPasswordForm, self).__init__(*args, **kwargs)
+
+        # Instead of defining username field again, we are using LoginForm
+        # to get the username field and poping password field
+        self._fields.pop('password')
+
+
+class ResetPasswordForm(forms.Form):
+
+    password = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            forms.PasswordStrengthValidator(),
+        ],
+    )
+
+    password_confirm = wtforms.PasswordField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.EqualTo(
+                "password", "Your passwords do not match. Please try again."
+            ),
+        ],
+    )
+
+    def __init__(self, *args, userid, user_service, **kwargs):
+        super(ResetPasswordForm, self).__init__(*args, **kwargs)
+        self.userid = userid
+        self.user_service = user_service
+
+    def validate_password(self, field):
+        if self.userid is not None:
+            if self.user_service.check_password(self.userid, field.data):
+                raise wtforms.validators.ValidationError(
+                    "Password shouldn't match with previous one.")
