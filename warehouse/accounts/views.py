@@ -334,11 +334,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
     except InvalidPasswordResetToken:
         return {'success': False}
 
-    form = _form_class(
-        request.POST,
-        user_service=user_service,
-        userid=userid
-    )
+    form = _form_class(request.params, user_service=user_service)
 
     if request.method == "POST" and form.validate():
         # Update password.

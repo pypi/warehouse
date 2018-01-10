@@ -177,14 +177,3 @@ class ResetPasswordForm(forms.Form):
             ),
         ],
     )
-
-    def __init__(self, *args, userid, user_service, **kwargs):
-        super(ResetPasswordForm, self).__init__(*args, **kwargs)
-        self.userid = userid
-        self.user_service = user_service
-
-    def validate_password(self, field):
-        if self.userid is not None:
-            if self.user_service.check_password(self.userid, field.data):
-                raise wtforms.validators.ValidationError(
-                    "Password shouldn't match with previous one.")
