@@ -1,4 +1,4 @@
-Database Migrations
+Database migrations
 ===================
 
 Modifying database schemata will need database migrations (even for adding and

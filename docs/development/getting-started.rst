@@ -66,7 +66,7 @@ Check that Docker is installed: ``docker -v``
 Install Docker Compose
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Install Docker Compose using the Docker provided
+Install Docker Compose using the Docker-provided
 `installation instructions <https://docs.docker.com/compose/install/>`_.
 
 .. note::
@@ -88,6 +88,8 @@ Once you have Docker and Docker Compose installed, run:
 .. code-block:: console
 
     $ make build
+
+in the repository root directory.
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
@@ -114,7 +116,7 @@ Next, you will:
 * run migrations, and
 * load some example data from `Test PyPI <https://testpypi.python.org/>`_
 
-In a second terminal, separate from the make serve command above, run:
+In a second terminal, separate from the `make serve` command above, run:
 
 .. code-block:: console
 
@@ -131,7 +133,14 @@ highly likely on Mac OS X and Windows.
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Web container is listening on port 80. It's accessible at
+Once the terminal running the `make serve` command has logged that a
+`web` service has started a reactor:
+
+.. code-block:: console
+
+    [twisted.application.runner._runner.Runner#info] Starting reactor...
+
+the web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
 
 .. note::
@@ -140,6 +149,18 @@ Web container is listening on port 80. It's accessible at
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+
+Stopping Warehouse and other services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the terminal where `make serve` is running, you can use `Control-C`
+to gracefully stop all Docker containers, and thus the one running the
+Warehouse application.
+
+Or, from another terminal, use ``make stop`` in the Warehouse
+repository root; that'll stop all the Docker processes with
+`warehouse` in the name.
 
 
 What did we just do and what is happening behind the scenes?
@@ -153,6 +174,20 @@ The example data located in ``dev/example.sql.xz`` is taken from
 `Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
 anything private. The password for every account has been set to the string
 ``password``.
+
+
+Running your developer environment after initial setup
+------------------------------------------------------
+
+You won't have to initialize the database after the first time you do
+so, and you will rarely have to re-run `make build`. Ordinarily, to
+access your developer environment, you'll:
+
+.. code-block:: console
+
+    $ make serve
+
+View Warehouse in the browser at ``http://localhost:80/``.
 
 
 Troubleshooting
