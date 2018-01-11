@@ -651,10 +651,10 @@ def file_upload(request):
 
         raise _exc_with_message(
             HTTPBadRequest,
-            "{value} is an invalid value for {field}.\n".format(
+            "{value!r} is an invalid value for {field}.\n".format(
                 value=form[field_name].data,
                 field=form[field_name].name) +
-            "Error: {},\n".format(form.errors[field_name]) +
+            "Error: {},\n".format(form.errors[field_name][0]) +
             "see https://packaging.python.org/specifications/core-metadata/",
         )
 
