@@ -139,6 +139,11 @@
   color: $danger-color;
 }
 
+// Adjust size of h1s on standalone pages
+.page-title {
+  @include h2;
+}
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.

@@ -18,7 +18,7 @@
 {% block content %}
   <section class="horizontal-section">
     <div class="site-container">
-      <h2>Login to PyPI</h2>
+      <h1 class="page-title">Login to PyPI</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -64,8 +64,14 @@
           {% endif %}
         </div>
 
-        <input type="submit" value="Login" class="button button--highlight">
-        <a href="{{request.route_url('accounts.request-password-reset')}}">Forgot Password?</a>
+        <div class="form-group">
+          <div class="split-layout split-layout--table">
+            <input type="submit" value="Login" class="button button--highlight">
+            <span>
+              <a href="{{request.route_url('accounts.request-password-reset')}}">Forgot Password?</a>
+            </span>
+          </div>
+        </div>
       </form>
     </div>
   </section>
