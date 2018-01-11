@@ -230,8 +230,8 @@ msgpack==0.5.0 \
 packaging==16.8 \
     --hash=sha256:5d50835fdf0a7edf0b55e311b7c887786504efea1177abd7e69329a8e5ea619e \
     --hash=sha256:99276dc6e3a7851f32027a68f1095cd3f77c148091b092ea867a351811cfe388
-paginate-sqlalchemy==0.2.0 \
-    --hash=sha256:93b3fc0565d53e309870a96dc7943e9a8713b3cd47ef904d0954ea824f9d71d5
+paginate-sqlalchemy==0.3.0 \
+    --hash=sha256:88d46abdab3de93d1993b83e27388a16353f93c6d991e7d6aa5eac1adeca7f93
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d
 passlib==1.7.1 \
