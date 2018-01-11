@@ -1396,7 +1396,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 File too large."
+        expected_msg = "400 File too large. Limit for project {} is {}MB"
+        expected_msg = expected_msg.format(project.name,
+                                           legacy.MAX_FILESIZE // (1024**2))
+        assert resp.status == expected_msg
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config,
                                                    db_request):

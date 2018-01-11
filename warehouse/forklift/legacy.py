@@ -877,10 +877,10 @@ def file_upload(request):
                 if file_size > file_size_limit:
                     raise _exc_with_message(
                         HTTPBadRequest,
-                        "File too large." +
-                        "Limit for project {name} is {limit}MB".format(
+                        "File too large. " +
+                        "Limit for project {name!r} is {limit}MB".format(
                             name=project.name,
-                            limit=file_size_limit,
+                            limit=file_size_limit // (1024 * 1024),
                         ))
                 fp.write(chunk)
                 for hasher in file_hashes.values():
