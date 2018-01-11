@@ -1396,7 +1396,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        expected_msg = "400 File too large. Limit for project {} is {}MB"
+        expected_msg = "400 File too large. Limit for project {!r} is {}MB"
         expected_msg = expected_msg.format(project.name,
                                            legacy.MAX_FILESIZE // (1024**2))
         assert resp.status == expected_msg
