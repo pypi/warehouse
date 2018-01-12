@@ -36,7 +36,8 @@
     "webpack": "3.10.0",
     "webpack-stream": "4.0.0",
     "whatwg-fetch": "2.0.3",
-    "youtube-iframe": "1.0.3"
+    "youtube-iframe": "1.0.3",
+    "zopflipng-bin": "4.0.0"
   },
   "devDependencies": {
     "eslint": "4.12.1",
