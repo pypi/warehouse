@@ -17,7 +17,7 @@ RUN set -x \
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
 # static container prior to actually installing the npm dependencies.
-COPY package.json .babelrc /opt/warehouse/src/
+COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
