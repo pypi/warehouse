@@ -1372,7 +1372,7 @@ class TestFileUpload:
 
         user = UserFactory.create(
             name='foobar',
-            upload_limit=upload_limit=60 * 1024 * 1024,  # 60MB
+            upload_limit=upload_limit=(60 * 1024 * 1024),  # 60MB
         )
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
