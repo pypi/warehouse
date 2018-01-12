@@ -67,7 +67,7 @@ ifeq ($(IPYTHON),"yes")
 	.state/env/bin/python -m pip install -r requirements/ipython.txt
 endif
 
-.state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
+.state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
 	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
 	docker-compose build worker
