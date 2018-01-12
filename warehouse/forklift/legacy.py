@@ -274,6 +274,7 @@ class MetadataForm(forms.Form):
 
     # Metadata version
     metadata_version = wtforms.StringField(
+        label="Metadata-Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
@@ -288,6 +289,7 @@ class MetadataForm(forms.Form):
 
     # Identity Project and Release
     name = wtforms.StringField(
+        label="Name",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -301,6 +303,7 @@ class MetadataForm(forms.Form):
         ],
     )
     version = wtforms.StringField(
+        label="Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -313,6 +316,7 @@ class MetadataForm(forms.Form):
 
     # Additional Release metadata
     summary = wtforms.StringField(
+        label="Summary",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Length(max=512),
@@ -323,37 +327,57 @@ class MetadataForm(forms.Form):
         ],
     )
     description = wtforms.StringField(
+        label="Description",
         validators=[wtforms.validators.Optional()],
     )
-    author = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    author = wtforms.StringField(
+        label="Author",
+        validators=[wtforms.validators.Optional()],
+    )
     author_email = wtforms.StringField(
+        label="Author-email",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Email(),
         ],
     )
     maintainer = wtforms.StringField(
+        label="Maintainer",
         validators=[wtforms.validators.Optional()],
     )
     maintainer_email = wtforms.StringField(
+        label="Maintainer-email",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Email(),
         ],
     )
-    license = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    keywords = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    classifiers = wtforms.fields.SelectMultipleField()
-    platform = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    license = wtforms.StringField(
+        label="License",
+        validators=[wtforms.validators.Optional()],
+    )
+    keywords = wtforms.StringField(
+        label="Keywords",
+        validators=[wtforms.validators.Optional()],
+    )
+    classifiers = wtforms.fields.SelectMultipleField(
+        label="Classifier",
+    )
+    platform = wtforms.StringField(
+        label="Platform",
+        validators=[wtforms.validators.Optional()],
+    )
 
     # URLs
     home_page = wtforms.StringField(
+        label="Home-Page",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
         ],
     )
     download_url = wtforms.StringField(
+        label="Download-URL",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
@@ -362,6 +386,7 @@ class MetadataForm(forms.Form):
 
     # Dependency Information
     requires_python = wtforms.StringField(
+        label="Requires-Python",
         validators=[
             wtforms.validators.Optional(),
             _validate_pep440_specifier_field,
@@ -370,9 +395,11 @@ class MetadataForm(forms.Form):
 
     # File information
     pyversion = wtforms.StringField(
+        label="PyVersion",
         validators=[wtforms.validators.Optional()],
     )
     filetype = wtforms.StringField(
+        label="Filetype",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
@@ -384,13 +411,18 @@ class MetadataForm(forms.Form):
             ),
         ]
     )
-    comment = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    comment = wtforms.StringField(
+        label="Comment",
+        validators=[wtforms.validators.Optional()],
+    )
     md5_digest = wtforms.StringField(
+        label="MD5-Digest",
         validators=[
             wtforms.validators.Optional(),
         ],
     )
     sha256_digest = wtforms.StringField(
+        label="SHA256-Digest",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Regexp(
@@ -398,9 +430,10 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, SHA256 message digest.",
             ),
-        ]
+        ],
     )
     blake2_256_digest = wtforms.StringField(
+        label="blake2-Digest",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Regexp(
@@ -408,23 +441,26 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, blake2 message digest.",
             ),
-        ]
+        ],
     )
 
     # Legacy dependency information
     requires = ListField(
+        label="Requires",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
-        ]
+        ],
     )
     provides = ListField(
+        label="Provides",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
         ],
     )
     obsoletes = ListField(
+        label="Obsoletes",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
@@ -433,24 +469,28 @@ class MetadataForm(forms.Form):
 
     # Newer dependency information
     requires_dist = ListField(
+        label="Requires-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     provides_dist = ListField(
+        label="Provides-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     obsoletes_dist = ListField(
+        label="Obsoletes-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     requires_external = ListField(
+        label="Requires-External",
         validators=[
             wtforms.validators.Optional(),
             _validate_requires_external_list,
@@ -459,6 +499,7 @@ class MetadataForm(forms.Form):
 
     # Newer metadata information
     project_urls = ListField(
+        label="Project-URL",
         validators=[
             wtforms.validators.Optional(),
             _validate_project_url_list,
@@ -653,7 +694,7 @@ def file_upload(request):
             HTTPBadRequest,
             "{value!r} is an invalid value for {field}.\n".format(
                 value=form[field_name].data,
-                field=form[field_name].name) +
+                field=form[field_name].label) +
             "Error: {},\n".format(form.errors[field_name][0]) +
             "see https://packaging.python.org/specifications/core-metadata/",
         )
