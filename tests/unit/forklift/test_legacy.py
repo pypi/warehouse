@@ -1370,11 +1370,11 @@ class TestFileUpload:
                                               db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
-        user = UserFactory.create(
+        user = UserFactory.create()
+        project = ProjectFactory.create(
             name='foobar',
-            upload_limit=upload_limit=(60 * 1024 * 1024),  # 60MB
+            upload_limit=(60 * 1024 * 1024),  # 60MB
         )
-        project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
