@@ -118,9 +118,13 @@
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <tr>
           <td>
-            {{ form.username(placeholder="user's exact username") }}
+            <label for="username" class="sr-only">User's exact username</label>
+            {{ form.username(placeholder="User's exact username") }}
           </td>
-          <td>{{ form.role_name }}</td>
+          <td>
+            <label for="role_name" class="sr-only">Role name</label>
+            {{ form.role_name }}
+          </td>
           <td><input type="submit" value="Add" class="button button--highlight"></td>
         </tr>
         {% if form.errors %}
