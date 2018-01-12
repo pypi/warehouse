@@ -1371,7 +1371,10 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(
+            name='foobar',
+            upload_limit=(60 * 1024 * 1024),  # 60MB
+        )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
@@ -1385,7 +1388,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (project.upload_limit + 1)),
                 type="application/tar",
             ),
         })
@@ -1396,7 +1399,9 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 File too large."
+        assert resp.status == (
+            "400 File too large. Limit for project 'foobar' is 60MB"
+        )
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config,
                                                    db_request):
