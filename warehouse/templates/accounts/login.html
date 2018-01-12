@@ -13,12 +13,12 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Log In{% endblock %}
 
 {% block content %}
   <section class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Login to PyPI</h1>
+      <h1 class="page-title">Log In to PyPI</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -66,7 +66,7 @@
 
         <div class="form-group">
           <div class="split-layout split-layout--table">
-            <input type="submit" value="Login" class="button button--highlight">
+            <input type="submit" value="Log In" class="button button--highlight">
             <span>
               <a href="{{request.route_url('accounts.request-password-reset')}}">Forgot Password?</a>
             </span>
