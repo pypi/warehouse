@@ -308,6 +308,11 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Update password.
         user_service.update_user(user.id, password=form.password.data)
 
+        # Flash a success message
+        request.session.flash(
+            "You have successfully reset your password", queue="success"
+        )
+
         # Perform login just after reset password and redirect to default view.
         return HTTPSeeOther(
             request.route_path("index"),

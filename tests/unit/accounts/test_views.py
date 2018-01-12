@@ -495,6 +495,9 @@ class TestResetPassword:
         db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: user_service
         )
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
 
         now = datetime.datetime.utcnow()
 
@@ -520,6 +523,11 @@ class TestResetPassword:
         assert user_service.update_user.calls == [
             pretend.call(user.id, password=form_obj.password.data),
             pretend.call(user.id, last_login=now),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "You have successfully reset your password", queue="success"
+            ),
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
