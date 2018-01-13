@@ -129,27 +129,19 @@ def delete_project_role(project, request):
         )
         .all()
     )
-    if not roles:
-        request.session.flash("Could not find role", queue="error")
-        return HTTPSeeOther(
-            request.route_path('manage.project.roles', name=project.name)
-        )
-
     removing_self = any(
         role.role_name == "Owner" and role.user == request.user
         for role in roles
     )
-    if removing_self:
-        request.session.flash(
-            "Cannot remove yourself as Owner", queue="error"
-        )
-        return HTTPSeeOther(
-            request.route_path('manage.project.roles', name=project.name)
-        )
 
-    for role in roles:
-        request.db.delete(role)
-    request.session.flash("Successfully removed role", queue="success")
+    if not roles:
+        request.session.flash("Could not find role", queue="error")
+    elif removing_self:
+        request.session.flash("Cannot remove yourself as Owner", queue="error")
+    else:
+        for role in roles:
+            request.db.delete(role)
+        request.session.flash("Successfully removed role", queue="success")
 
     return HTTPSeeOther(
         request.route_path('manage.project.roles', name=project.name)
