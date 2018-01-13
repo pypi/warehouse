@@ -694,7 +694,7 @@ def file_upload(request):
             HTTPBadRequest,
             "{value!r} is an invalid value for {field}.\n".format(
                 value=form[field_name].data,
-                field=form[field_name].label) +
+                field=form[field_name].label.text) +
             "Error: {},\n".format(form.errors[field_name][0]) +
             "see https://packaging.python.org/specifications/core-metadata/",
         )
