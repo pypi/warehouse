@@ -15,10 +15,11 @@ from collections import defaultdict
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.security import Authenticated
 from pyramid.view import view_config
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
-from warehouse.manage.forms import CreateRoleForm
+from warehouse.manage.forms import CreateRoleForm, ChangeRoleForm
 from warehouse.packaging.models import Role
 
 
@@ -109,6 +110,66 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         "roles_by_user": roles_by_user,
         "form": form,
     }
+
+
+@view_config(
+    route_name="manage.project.change_role",
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage",
+)
+def change_project_role(project, request, _form_class=ChangeRoleForm):
+    # This view was modified to handle deleting multiple roles for a single
+    # user and should be updated when fixing GH-2745
+
+    form = _form_class(request.POST)
+
+    if form.validate():
+        role_ids = request.POST.getall('role_id')
+
+        if len(role_ids) > 1:
+            # This user has more than one role, so just delete all the ones
+            # that aren't what we want.
+            #
+            # This should be removed when fixing GH-2745.
+            (
+                request.db.query(Role)
+                .filter(
+                    Role.id.in_(role_ids),
+                    Role.project == project,
+                    Role.role_name != form.role_name.data
+                )
+                .delete(synchronize_session="fetch")
+            )
+            request.session.flash(
+                'Successfully changed role', queue="success"
+            )
+        else:
+            # This user only has one role, so get it and change the type.
+            try:
+                role = (
+                    request.db.query(Role)
+                    .filter(
+                        Role.id == request.POST.get('role_id'),
+                        Role.project == project,
+                    )
+                    .one()
+                )
+                if role.role_name == "Owner" and role.user == request.user:
+                    request.session.flash(
+                        "Cannot remove yourself as Owner", queue="error"
+                    )
+                else:
+                    role.role_name = form.role_name.data
+                    request.session.flash(
+                        'Successfully changed role', queue="success"
+                    )
+            except NoResultFound:
+                request.session.flash("Could not find role", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path('manage.project.roles', name=project.name)
+    )
 
 
 @view_config(

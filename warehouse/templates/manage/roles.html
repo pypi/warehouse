@@ -60,11 +60,26 @@
         {% if role.user == request.user %}
           {{ role.role_name }}
         {% else %}
-          <form>
-            <select name="" id="">
-              <option value="">Owner</option>
-              <option value="">Maintainer</option>
+          <form class="changeRole" method="POST" action="{{ request.route_path('manage.project.change_role', name=project.name) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            {% for role in roles %}
+              <input type="hidden" name="role_id" value="{{ role.id }}">
+            {% endfor %}
+
+            <select class="change-field" name="role_name" data-original="{{ role.role_name }}">
+            {% for role_name in ['Owner', 'Maintainer'] %}
+            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name else '' }}>
+              {{ role_name }}
+            </option>
+            {% endfor %}
             </select>
+            <button
+              class="button change-button"
+              type="submit"
+              title="Save this new role"
+            >
+              Save
+            </button>
           </form>
         {% endif %}
         </td>

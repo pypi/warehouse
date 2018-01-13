@@ -215,6 +215,152 @@ class TestManageProjectRoles:
         }
 
 
+class TestChangeProjectRoles:
+
+    def test_change_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        new_role_name = "Maintainer"
+
+        db_request.method = "POST"
+        db_request.user = pretend.stub()
+        db_request.POST = MultiDict({
+            "role_id": role.id,
+            "role_name": new_role_name,
+        })
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_project_role(project, db_request)
+
+        assert role.role_name == new_role_name
+        assert db_request.route_path.calls == [
+            pretend.call('manage.project.roles', name=project.name),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Successfully changed role", queue="success"),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_role_invalid_role_name(self, pyramid_request):
+        project = pretend.stub(name="foobar")
+
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict({
+            "role_id": str(uuid.uuid4()),
+            "role_name": "Invalid Role Name",
+        })
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_project_role(project, pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.project.roles', name=project.name),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_role_when_multiple(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner_role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        maintainer_role = RoleFactory.create(
+            user=user, project=project, role_name="Maintainer"
+        )
+        new_role_name = "Maintainer"
+
+        db_request.method = "POST"
+        db_request.user = pretend.stub()
+        db_request.POST = MultiDict([
+            ("role_id", owner_role.id),
+            ("role_id", maintainer_role.id),
+            ("role_name", new_role_name),
+        ])
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_project_role(project, db_request)
+
+        assert db_request.db.query(Role).all() == [maintainer_role]
+        assert db_request.route_path.calls == [
+            pretend.call('manage.project.roles', name=project.name),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Successfully changed role", queue="success"),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_missing_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        missing_role_id = str(uuid.uuid4())
+
+        db_request.method = "POST"
+        db_request.user = pretend.stub()
+        db_request.POST = MultiDict({
+            "role_id": missing_role_id,
+            "role_name": 'Owner',
+        })
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_project_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find role", queue="error"),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_change_own_owner_role(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict({
+            "role_id": role.id,
+            "role_name": "Maintainer",
+        })
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        result = views.change_project_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Cannot remove yourself as Owner", queue="error"),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
 class TestDeleteProjectRoles:
 
     def test_delete_role(self, db_request):
