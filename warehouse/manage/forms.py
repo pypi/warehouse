@@ -15,12 +15,7 @@ import wtforms
 from warehouse import forms
 
 
-class CreateRoleForm(forms.Form):
-    username = wtforms.StringField(
-        validators=[
-            wtforms.validators.DataRequired(message="Must specify a username"),
-        ]
-    )
+class RoleNameMixin:
 
     role_name = wtforms.SelectField(
         'Select a role',
@@ -33,6 +28,15 @@ class CreateRoleForm(forms.Form):
         ]
     )
 
+
+class UsernameMixin:
+
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(message="Must specify a username"),
+        ]
+    )
+
     def validate_username(self, field):
         userid = self.user_service.find_userid(field.data)
 
@@ -40,6 +44,9 @@ class CreateRoleForm(forms.Form):
             raise wtforms.validators.ValidationError(
                 "No user found with that username. Please try again."
             )
+
+
+class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
