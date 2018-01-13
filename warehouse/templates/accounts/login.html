@@ -54,7 +54,7 @@
               <input id="show-password" type="checkbox">&nbsp;Show password
             </label>
           </div>
-          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input", autocomplete="current-password") }}
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}

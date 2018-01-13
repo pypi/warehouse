@@ -51,7 +51,7 @@
       </div>
 
       <div class="form-group{% if form.password.errors %} has-error{% endif %}">
-        {{ form.password(class="form-control", placeholder="Password") }}
+        {{ form.password(class="form-control", placeholder="Password", autocomplete="current-password") }}
 
         {% if form.password.errors %}
         <span class="help-block">
