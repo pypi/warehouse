@@ -14,7 +14,7 @@ cp -t warehouse/static/dist -n -r $PYPI_THEME/*
 rm -rf dev docs requirements requirements.txt tests
 rm -rf .bowerrc .coveragerc .dockerignore .gitignore .travis.yml babel.cfg
 rm -rf bower.json CONTRIBUTING.rst docker-compose.yml Dockerfile Gulpfile.js
-rm -rf package.json README.rst runtime.txt setup.cfg
+rm -rf package.json package-lock.json README.rst runtime.txt setup.cfg
 
 # We don't need Node installed at runtime, so we'll remove it
 rm -rf .heroku/node node_modules

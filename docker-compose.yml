@@ -73,7 +73,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.static
-    command: gulp watch
+    command: bash -c "node --trace-warnings `which gulp` watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
