@@ -48,7 +48,7 @@
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Email Address</label>
-          {{ form.email(placeholder="Your email address", required="required", class_="form-group__input") }}
+          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
           {% if form.email.errors %}
           <ul class="form-errors">
             {% for error in form.email.errors %}
@@ -60,7 +60,7 @@
 
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
+          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input") }}
           {% if form.username.errors %}
           <ul class="form-errors">
             {% for error in form.username.errors %}
@@ -77,7 +77,7 @@
               <input id="show-password" type="checkbox">&nbsp;Show passwords
             </label>
           </div>
-          {{ form.password(placeholder="Select a password", required="required", class_="form-group__input") }}
+          {{ form.password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password") }}
           <p class="form-group__help-text">
             Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
           </p>
