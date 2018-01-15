@@ -1,4 +1,5 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
+
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -20,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.manage.forms import CreateRoleForm, ChangeRoleForm
-from warehouse.packaging.models import Role
+from warehouse.packaging.models import JournalEntry, Role
 
 
 @view_config(
@@ -86,6 +87,14 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             request.db.add(
                 Role(user=user, project=project, role_name=form.role_name.data)
             )
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"add {role_name} {username}",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
+                ),
+            )
             request.session.flash(
                 f"Added collaborator '{form.username.data}'",
                 queue="success"
@@ -131,19 +140,38 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # This user has more than one role, so just delete all the ones
             # that aren't what we want.
             #
-            # This should be removed when fixing GH-2745.
-            (
+            # This branch should be removed when fixing GH-2745.
+            roles = (
                 request.db.query(Role)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
                     Role.role_name != form.role_name.data
                 )
-                .delete(synchronize_session="fetch")
+                .all()
             )
-            request.session.flash(
-                'Successfully changed role', queue="success"
+            removing_self = any(
+                role.role_name == "Owner" and role.user == request.user
+                for role in roles
             )
+            if removing_self:
+                request.session.flash(
+                    "Cannot remove yourself as Owner", queue="error"
+                )
+            else:
+                for role in roles:
+                    request.db.delete(role)
+                    request.db.add(
+                        JournalEntry(
+                            name=project.name,
+                            action=f"remove {role.role_name} {role.user_name}",
+                            submitted_by=request.user,
+                            submitted_from=request.remote_addr,
+                        ),
+                    )
+                request.session.flash(
+                    'Successfully changed role', queue="success"
+                )
         else:
             # This user only has one role, so get it and change the type.
             try:
@@ -160,6 +188,18 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         "Cannot remove yourself as Owner", queue="error"
                     )
                 else:
+                    request.db.add(
+                        JournalEntry(
+                            name=project.name,
+                            action="change {} {} to {}".format(
+                                role.role_name,
+                                role.user_name,
+                                form.role_name.data,
+                            ),
+                            submitted_by=request.user,
+                            submitted_from=request.remote_addr,
+                        ),
+                    )
                     role.role_name = form.role_name.data
                     request.session.flash(
                         'Successfully changed role', queue="success"
@@ -202,6 +242,14 @@ def delete_project_role(project, request):
     else:
         for role in roles:
             request.db.delete(role)
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action=f"remove {role.role_name} {role.user_name}",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
+                ),
+            )
         request.session.flash("Successfully removed role", queue="success")
 
     return HTTPSeeOther(
