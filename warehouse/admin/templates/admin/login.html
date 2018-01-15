@@ -39,7 +39,7 @@
       {% endif %}
 
       <div class="form-group{% if form.username.errors %} has-error{% endif %}">
-        {{ form.username(class="form-control", placeholder="Username", autocorrect="off", autocapitalize="off", spellcheck="false") }}
+        {{ form.username(class="form-control", placeholder="Username", autocorrect="off", autocapitalize="off", autocomplete="username", required="required", spellcheck="false") }}
 
         {% if form.username.errors %}
         <span class="help-block">
@@ -51,7 +51,7 @@
       </div>
 
       <div class="form-group{% if form.password.errors %} has-error{% endif %}">
-        {{ form.password(class="form-control", placeholder="Password", autocomplete="current-password") }}
+        {{ form.password(class="form-control", placeholder="Password", required="required", autocomplete="current-password") }}
 
         {% if form.password.errors %}
         <span class="help-block">
