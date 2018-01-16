@@ -12,13 +12,12 @@ Quickstart for Developers with Docker experience
 ------------------------------------------------
 .. code-block:: console
 
-    $ git clone git@github.com:pypa/warehouse.git
-    $ cd warehouse
-    $ make serve
-    $ make initdb
+    git clone git@github.com:pypa/warehouse.git
+    cd warehouse
+    make serve
+    make initdb
 
 View Warehouse in the browser at ``http://localhost:80/``.
-
 
 Detailed Installation Instructions
 ----------------------------------
@@ -29,7 +28,7 @@ Clone the warehouse repository from GitHub:
 
 .. code-block:: console
 
-    $ git clone git@github.com:pypa/warehouse.git
+    git clone git@github.com:pypa/warehouse.git
 
 
 Configure the development environment
@@ -87,7 +86,7 @@ Once you have Docker and Docker Compose installed, run:
 
 .. code-block:: console
 
-    $ make build
+    make build
 
 in the repository root directory.
 
@@ -107,7 +106,7 @@ one terminal run the command:
 
 .. code-block:: console
 
-    $ make serve
+    make serve
 
 Next, you will:
 
@@ -116,14 +115,14 @@ Next, you will:
 * run migrations, and
 * load some example data from `Test PyPI <https://testpypi.python.org/>`_
 
-In a second terminal, separate from the `make serve` command above, run:
+In a second terminal, separate from the ``make serve`` command above, run:
 
 .. code-block:: console
 
-    $ make initdb
+    make initdb
 
-If you get an error about xz, you may need to install the `xz` utility. This is
-highly likely on Mac OS X and Windows.
+If you get an error about xz, you may need to install the ``xz`` utility. This
+is highly likely on Mac OS X and Windows.
 
 .. note:: reCaptcha is featured in authentication and registration pages. To
           enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
@@ -133,8 +132,8 @@ highly likely on Mac OS X and Windows.
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the terminal running the `make serve` command has logged that a
-`web` service has started a reactor:
+Once the terminal running the ``make serve`` command has logged that a
+``web`` service has started a reactor:
 
 .. code-block:: console
 
@@ -154,13 +153,13 @@ the web container is listening on port 80. It's accessible at
 Stopping Warehouse and other services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the terminal where `make serve` is running, you can use `Control-C`
+In the terminal where ``make serve`` is running, you can use ``Control-C``
 to gracefully stop all Docker containers, and thus the one running the
 Warehouse application.
 
 Or, from another terminal, use ``make stop`` in the Warehouse
 repository root; that'll stop all the Docker processes with
-`warehouse` in the name.
+``warehouse`` in the name.
 
 
 What did we just do and what is happening behind the scenes?
@@ -180,12 +179,12 @@ Running your developer environment after initial setup
 ------------------------------------------------------
 
 You won't have to initialize the database after the first time you do
-so, and you will rarely have to re-run `make build`. Ordinarily, to
+so, and you will rarely have to re-run ``make build``. Ordinarily, to
 access your developer environment, you'll:
 
 .. code-block:: console
 
-    $ make serve
+    make serve
 
 View Warehouse in the browser at ``http://localhost:80/``.
 
@@ -243,7 +242,7 @@ To run the interactive shell, simply run:
 
 .. code-block:: console
 
-    $ make shell
+    make shell
 
 The interactive shell will have the following variables defined in it:
 
@@ -260,7 +259,7 @@ the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
 
 .. code-block:: console
 
-    $ export WAREHOUSE_IPYTHON_SHELL=1
+    export WAREHOUSE_IPYTHON_SHELL=1
 
 Now you will be able to run the ``make shell`` command to get the IPython
 shell.
@@ -277,7 +276,7 @@ To run all tests, all you have to do is:
 
 .. code-block:: console
 
-    $ make tests
+    make tests
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
@@ -286,13 +285,13 @@ If you want to run a specific test, you can use the ``T`` variable:
 
 .. code-block:: console
 
-    $ T=tests/unit/i18n/test_filters.py make tests
+    T=tests/unit/i18n/test_filters.py make tests
 
 You can run linters, programs that check the code, with:
 
 .. code-block:: console
 
-    $ make lint
+    make lint
 
 
 Building documentation
@@ -301,11 +300,11 @@ Building documentation
 The Warehouse documentation is stored in the ``docs/`` directory. It is written
 in `reStructured Text`_ and rendered using `Sphinx`_.
 
-Use `make` to build the documentation. For example:
+Use ``make`` to build the documentation. For example:
 
 .. code-block:: console
 
-    $ make docs
+    make docs
 
 The HTML documentation index can now be found at
 ``docs/_build/html/index.html``.
