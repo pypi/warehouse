@@ -394,7 +394,7 @@ class TestRequestPasswordReset:
             pyramid_request, _form_class=form_class
         )
 
-        assert result == {}
+        assert result == {"n_hours": token_service.token_max_age // 60 // 60}
         subject_renderer.assert_()
         body_renderer.assert_(token="TOK", username=stub_user.username)
         assert token_service.generate_token.calls == [

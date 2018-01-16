@@ -256,6 +256,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         username = form.username.data
         user = user_service.get_user_by_username(username)
         token = user_token_service.generate_token(user)
+        n_hours = user_token_service.token_max_age // 60 // 60
 
         subject = render(
             'email/password-reset.subject.txt',
@@ -265,12 +266,12 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         body = render(
             'email/password-reset.body.txt',
-            {'token': token, 'username': username},
+            {'token': token, 'username': username, 'n_hours': n_hours},
             request=request,
         )
 
         request.task(send_email).delay(body, [user.email], subject)
-        return {}
+        return {"n_hours": n_hours}
 
     return {"form": form}
 
