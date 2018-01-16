@@ -33,6 +33,12 @@ class IUserService(Interface):
         there is no user for that ID.
         """
 
+    def get_user_by_username(username):
+        """
+        Return the user object corresponding with the given username, or None
+        if there is no user with that username.
+        """
+
     def get_user_by_otk(otk):
         """
         Validate the one-time-key and return the user associated with it

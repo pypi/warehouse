@@ -100,15 +100,8 @@ class DatabaseUserService:
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
-        try:
-            user = (
-                self.db.query(User)
-                    .filter(User.username == username)
-                    .one()
-            )
-        except NoResultFound:
-            return
-        return user
+        user_id = self.find_userid(username)
+        return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
     def find_userid(self, username):
