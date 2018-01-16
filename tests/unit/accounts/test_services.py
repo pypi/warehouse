@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import uuid
 
+import freezegun
 import pretend
 import pytest
 
@@ -19,7 +21,8 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, TooManyFailedLogins,
+    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    TooManyFailedLogins,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -38,22 +41,9 @@ class TestDatabaseUserService:
         )
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
-        serializer_obj = pretend.stub()
-        serializer_cls = pretend.call_recorder(lambda *a, **kw: serializer_obj)
-        monkeypatch.setattr(services, "URLSafeTimedSerializer", serializer_cls)
-
         session = pretend.stub()
-        secret = pretend.stub()
-        settings = {'password_reset.secret': secret}
-        ratelimiter = pretend.stub()
-        ratelimiters = {'testing': ratelimiter}
-        service = services.DatabaseUserService(
-            session,
-            settings,
-            ratelimiters=ratelimiters
-        )
+        service = services.DatabaseUserService(session)
 
-        assert service.ratelimiters['testing'] == ratelimiter
         assert service.db is session
         assert service.hasher is crypt_context_obj
         assert crypt_context_cls.calls == [
@@ -71,10 +61,6 @@ class TestDatabaseUserService:
                 argon2__parallelism=6,
                 argon2__time_cost=6,
             ),
-        ]
-        assert service.serializer == serializer_obj
-        assert serializer_cls.calls == [
-            pretend.call(secret, salt="password-reset")
         ]
 
     def test_find_userid_nonexistant_user(self, user_service):
@@ -227,59 +213,103 @@ class TestDatabaseUserService:
 
         assert found_user is None
 
-    def test_generate_otk(self, user_service):
+
+class TestUserTokenService:
+
+    def test_verify_service(self):
+        assert verifyClass(IUserTokenService, services.UserTokenService)
+
+    def test_service_creation(self, monkeypatch):
+        serializer_obj = pretend.stub()
+        serializer_cls = pretend.call_recorder(lambda *a, **kw: serializer_obj)
+        monkeypatch.setattr(services, "URLSafeTimedSerializer", serializer_cls)
+
+        secret = pretend.stub()
+        max_age = pretend.stub()
+        settings = {
+            "password_reset.secret": secret,
+            "password_reset.token_max_age": max_age,
+        }
+        user_service = pretend.stub()
+        service = services.UserTokenService(user_service, settings)
+
+        assert service.serializer == serializer_obj
+        assert service.token_max_age == max_age
+        assert serializer_cls.calls == [
+            pretend.call(secret, salt="password-reset")
+        ]
+
+    def test_generate_token(self, token_service):
         user = UserFactory.create()
-        assert user_service.generate_otk(user)
+        assert token_service.generate_token(user)
 
-    @pytest.mark.parametrize('otk', ['', None])
-    def test_get_user_by_token_is_none(self, user_service, otk):
-        with pytest.raises(InvalidPasswordResetToken):
-            user_service.get_user_by_otk(otk)
+    @pytest.mark.parametrize('token', ['', None])
+    def test_get_user_by_token_is_none(self, token_service, token):
+        with pytest.raises(InvalidPasswordResetToken) as e:
+            token_service.get_user_by_token(token)
+        assert e.value.message == "Invalid token"
 
-    def test_get_user_by_otk_token_expired(self, user_service):
+    def test_get_user_by_token_invalid(self, token_service):
+        with pytest.raises(InvalidPasswordResetToken) as e:
+            token_service.get_user_by_token("definitely not valid")
+        assert e.value.message == "Invalid token"
+
+    def test_get_user_by_token_is_expired(self, token_service):
         user = UserFactory.create()
-        otk = user_service.generate_otk(user)
+        now = datetime.datetime.utcnow()
 
-        # We are altering max_age for invalid otk check, Since the actual
-        # age is 6 hours and this is not possible to make otk invalid.
-        user_service.token_max_age = -1
-        with pytest.raises(InvalidPasswordResetToken):
-            user_service.get_user_by_otk(otk)
+        with freezegun.freeze_time(now) as frozen_time:
+            token = token_service.generate_token(user)
 
-    def test_get_user_by_otk_invalid_user(self, user_service):
+            frozen_time.tick(
+                delta=datetime.timedelta(
+                    seconds=token_service.token_max_age + 1,
+                )
+            )
+
+            with pytest.raises(InvalidPasswordResetToken) as e:
+                token_service.get_user_by_token(token)
+            assert e.value.message == "Expired token"
+
+    def test_get_user_by_token_invalid_user(self, token_service):
         invalid_user = pretend.stub(
             id="8ad1a4ac-e016-11e6-bf01-fe55135034f3",
             last_login="lastlogintimestamp",
             password_date="passworddate"
         )
 
-        otk = user_service.generate_otk(invalid_user)
-        with pytest.raises(InvalidPasswordResetToken):
-            user_service.get_user_by_otk(otk)
+        token = token_service.generate_token(invalid_user)
+        with pytest.raises(InvalidPasswordResetToken) as e:
+            token_service.get_user_by_token(token)
+        assert e.value.message == "User not found"
 
-    def test_get_user_by_otk_invalid_hash(self, user_service):
+    def test_get_user_by_token_last_login_changed(self, token_service):
         user = UserFactory.create()
-        otk = user_service.generate_otk(user)
-        user_service._generate_otk_hash = lambda user: 'badhash'
-        with pytest.raises(InvalidPasswordResetToken):
-            user_service.get_user_by_otk(otk)
+        token = token_service.generate_token(user)
+        user.last_login = datetime.datetime.now()
+        with pytest.raises(InvalidPasswordResetToken) as e:
+            token_service.get_user_by_token(token)
+        assert e.value.message == "User has already logged in"
 
-    def test_get_user_by_otk_success(self, user_service):
+    def test_get_user_by_token_password_date_changed(self, token_service):
         user = UserFactory.create()
-        user_service.get_user = pretend.call_recorder(lambda userid: user)
-        otk = user_service.generate_otk(user)
-        found_user = user_service.get_user_by_otk(otk)
+        token = token_service.generate_token(user)
+        user.password_date = datetime.datetime.now()
+        with pytest.raises(InvalidPasswordResetToken) as e:
+            token_service.get_user_by_token(token)
+        assert e.value.message == "User has already reset password"
 
-        assert found_user == user
-        assert user_service.get_user.calls == [
-            pretend.call(user.id),
-        ]
+    def test_get_user_by_token_success(self, token_service):
+        user = UserFactory.create()
+        token = token_service.generate_token(user)
+
+        assert token_service.get_user_by_token(token) == user
 
 
 def test_database_login_factory(monkeypatch):
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(
-        lambda session, settings, ratelimiters: service_obj,
+        lambda session, ratelimiters: service_obj,
     )
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
 
@@ -300,17 +330,37 @@ def test_database_login_factory(monkeypatch):
     request = pretend.stub(
         db=pretend.stub(),
         find_service=find_service,
-        registry=pretend.stub(settings=pretend.stub())
     )
 
     assert services.database_login_factory(context, request) is service_obj
     assert service_cls.calls == [
         pretend.call(
             request.db,
-            request.registry.settings,
             ratelimiters={
                 "global": global_ratelimiter,
                 "user": user_ratelimiter,
             },
         ),
+    ]
+
+
+def test_user_token_factory(monkeypatch):
+    service_obj = pretend.stub()
+    service_cls = pretend.call_recorder(lambda session, settings: service_obj)
+    monkeypatch.setattr(services, "UserTokenService", service_cls)
+    user_service = pretend.stub()
+
+    def find_service(iface):
+        assert iface is IUserService
+        return user_service
+
+    context = pretend.stub()
+    request = pretend.stub(
+        find_service=find_service,
+        registry=pretend.stub(settings=pretend.stub())
+    )
+
+    assert services.user_token_factory(context, request) is service_obj
+    assert service_cls.calls == [
+        pretend.call(user_service, request.registry.settings),
     ]

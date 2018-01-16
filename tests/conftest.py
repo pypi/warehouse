@@ -153,6 +153,13 @@ def user_service(db_session, app_config):
     )
 
 
+@pytest.yield_fixture
+def token_service(app_config, user_service):
+    return services.UserTokenService(
+        user_service, app_config.registry.settings
+    )
+
+
 class QueryRecorder:
 
     def __init__(self):

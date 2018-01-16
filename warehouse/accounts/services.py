@@ -11,23 +11,24 @@
 # limitations under the License.
 
 import collections
-import datetime
 import functools
 import hmac
 import logging
 import uuid
 
 from passlib.context import CryptContext
-from pyblake2 import blake2b
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, TooManyFailedLogins,
+    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
-from warehouse.utils.crypto import BadData, URLSafeTimedSerializer
+from warehouse.utils.crypto import (
+    BadData, SignatureExpired, URLSafeTimedSerializer,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,7 @@ PASSWORD_FIELD = "password"
 @implementer(IUserService)
 class DatabaseUserService:
 
-    def __init__(self, session, settings, ratelimiters=None):
+    def __init__(self, session, ratelimiters=None):
         if ratelimiters is None:
             ratelimiters = {}
         ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
@@ -61,11 +62,7 @@ class DatabaseUserService:
             argon2__parallelism=6,
             argon2__time_cost=6,
         )
-        self.serializer = URLSafeTimedSerializer(
-            settings["password_reset.secret"],
-            salt="password-reset",
-        )
-        self.token_max_age = 21600  # 6 hours
+
 
     @functools.lru_cache()
     def get_user(self, userid):
@@ -73,30 +70,6 @@ class DatabaseUserService:
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
-
-    def get_user_by_otk(self, otk):
-        if not otk:
-            raise InvalidPasswordResetToken
-
-        try:
-            data = self.serializer.loads(
-                otk,
-                self.token_max_age
-            )
-        except BadData:
-            raise InvalidPasswordResetToken
-
-        # Check whether a user with the given user ID exists
-        user = self.get_user(uuid.UUID(data.get("user.id")))
-        if user is None:
-            raise InvalidPasswordResetToken
-
-        # Compare the otk hash values for the user
-        user_hash = self._generate_otk_hash(user)
-        if not hmac.compare_digest(data.get("user.hash"), user_hash):
-            raise InvalidPasswordResetToken
-
-        return user
 
     @functools.lru_cache()
     def get_user_by_username(self, username):
@@ -206,47 +179,54 @@ class DatabaseUserService:
             if email.email == email_address:
                 email.verified = True
 
-    def _generate_otk_hash(self, user):
-        '''
-        We use three attributes to generate hash:
 
-        1. user.id:
+@implementer(IUserTokenService)
+class UserTokenService:
+    def __init__(self, user_service, settings):
+        self.user_service = user_service
+        self.serializer = URLSafeTimedSerializer(
+            settings["password_reset.secret"],
+            salt="password-reset",
+        )
+        self.token_max_age = settings["password_reset.token_max_age"]
 
-           Certainly this is not going to help to invalidate the OTK, but it
-           ensures that the hash is unique even if last_login and password_date
-           are same for different users.
-
-        2. user.last_login:
-
-           This allows us to expire the OTK if the user is able to login
-           without actually performing a password reset, as it doesn't make any
-           sense to let the OTK remain valid.
-
-        3. user.password_date:
-
-           This is what allows us to expire the OTK once it has been
-           successfully used to change a password.
-        '''
-
-        hash_key = blake2b(
-            "|".join(
-                map(str, [user.id, user.last_login, user.password_date])
-            ).encode("utf8")
-        ).hexdigest()
-
-        return hash_key
-
-    def generate_otk(self, user):
+    def generate_token(self, user):
         return self.serializer.dumps({
             "user.id": str(user.id),
-            "user.hash": self._generate_otk_hash(user),
+            "user.last_login": str(user.last_login),
+            "user.password_date": str(user.password_date),
         })
+
+    def get_user_by_token(self, token):
+        if not token:
+            raise InvalidPasswordResetToken("Invalid token")
+
+        try:
+            data = self.serializer.loads(token, max_age=self.token_max_age)
+        except SignatureExpired:
+            raise InvalidPasswordResetToken("Expired token")
+        except BadData: #  Catch all other exceptions
+            raise InvalidPasswordResetToken("Invalid token")
+
+        # Check whether a user with the given user ID exists
+        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
+        if user is None:
+            raise InvalidPasswordResetToken("User not found")
+
+        last_login = data.get("user.last_login")
+        if str(user.last_login) > last_login:
+            raise InvalidPasswordResetToken("User has already logged in")
+
+        password_date = data.get("user.password_date")
+        if str(user.password_date) > password_date:
+            raise InvalidPasswordResetToken("User has already reset password")
+
+        return user
 
 
 def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
-        request.registry.settings,
         ratelimiters={
             "global": request.find_service(
                 IRateLimiter,
@@ -259,4 +239,11 @@ def database_login_factory(context, request):
                 context=None,
             ),
         },
+    )
+
+
+def user_token_factory(context, request):
+    return UserTokenService(
+        request.find_service(IUserService),
+        request.registry.settings
     )

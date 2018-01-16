@@ -26,7 +26,8 @@ from warehouse.accounts.forms import (
     LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, TooManyFailedLogins,
+    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    TooManyFailedLogins,
 )
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_email
@@ -248,15 +249,13 @@ def register(request, _form_class=RegistrationForm):
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
+    user_token_service = request.find_service(IUserTokenService, context=None)
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
         username = form.username.data
-        # Get the user object by using username.
         user = user_service.get_user_by_username(username)
-
-        # Generate a new OTK.
-        otk = user_service.generate_otk(user)
+        token = user_token_service.generate_token(user)
 
         subject = render(
             'email/password-reset.subject.txt',
@@ -266,7 +265,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         body = render(
             'email/password-reset.body.txt',
-            {'otk': otk, 'username': username},
+            {'token': token, 'username': username},
             request=request,
         )
 
@@ -284,14 +283,15 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     require_methods=False,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
-
     user_service = request.find_service(IUserService, context=None)
+    user_token_service = request.find_service(IUserTokenService, context=None)
 
     try:
-        user = user_service.get_user_by_otk(request.params.get('otk'))
-    except InvalidPasswordResetToken:
+        token = request.params.get('token')
+        user = user_token_service.get_user_by_token(token)
+    except InvalidPasswordResetToken as e:
         # Fail if the token is invalid for any reason
-        request.session.flash("Invalid or expired token", queue="error")
+        request.session.flash(e.message, queue="error")
         return HTTPSeeOther(
             request.route_path("accounts.request-password-reset"),
         )

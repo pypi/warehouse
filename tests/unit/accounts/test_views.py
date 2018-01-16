@@ -20,7 +20,9 @@ import pytest
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.accounts import views
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IUserService, IUserTokenService, TooManyFailedLogins
+)
 from warehouse.accounts.services import InvalidPasswordResetToken
 
 from ...common.db.accounts import UserFactory
@@ -345,19 +347,24 @@ class TestRequestPasswordReset:
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IUserTokenService, context=None),
         ]
 
     def test_request_password_reset(
-            self, monkeypatch, pyramid_request, pyramid_config, user_service):
+            self, monkeypatch, pyramid_request, pyramid_config, user_service,
+            token_service):
 
         stub_user = pretend.stub(email="email", username="username_value")
         pyramid_request.method = "POST"
-        user_service.generate_otk = pretend.call_recorder(lambda a: "OTK")
+        token_service.generate_token = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(
             lambda a: stub_user
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: user_service
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                IUserTokenService: token_service,
+            }[interface]
         )
         pyramid_request.POST = {"username": stub_user.username}
 
@@ -389,8 +396,8 @@ class TestRequestPasswordReset:
 
         assert result == {}
         subject_renderer.assert_()
-        body_renderer.assert_(otk='OTK', username=stub_user.username)
-        assert user_service.generate_otk.calls == [
+        body_renderer.assert_(token="TOK", username=stub_user.username)
+        assert token_service.generate_token.calls == [
             pretend.call(stub_user),
         ]
         assert user_service.get_user_by_username.calls == [
@@ -398,6 +405,7 @@ class TestRequestPasswordReset:
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IUserTokenService, context=None),
         ]
         assert form_obj.validate.calls == [
             pretend.call(),
@@ -415,17 +423,22 @@ class TestRequestPasswordReset:
 
 class TestResetPassword:
 
-    def test_invalid_otk(self, pyramid_request, user_service):
+    def test_invalid_token(self, pyramid_request, user_service, token_service):
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
-        def get_user_by_otk(otk):
-            raise InvalidPasswordResetToken()
+        def get_user_by_token(token):
+            raise InvalidPasswordResetToken('message')
 
-        pyramid_request.GET.update({"otk": "RANDOM_KEY"})
-        user_service.get_user_by_otk = pretend.call_recorder(get_user_by_otk)
+        pyramid_request.GET.update({"token": "RANDOM_KEY"})
+        token_service.get_user_by_token = pretend.call_recorder(
+            get_user_by_token
+        )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: user_service
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                IUserTokenService: token_service,
+            }[interface]
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
         pyramid_request.session.flash = pretend.call_recorder(
@@ -436,27 +449,33 @@ class TestResetPassword:
 
         assert form_class.calls == []
         assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None)
+            pretend.call(IUserService, context=None),
+            pretend.call(IUserTokenService, context=None),
         ]
-        assert user_service.get_user_by_otk.calls == [
+        assert token_service.get_user_by_token.calls == [
             pretend.call("RANDOM_KEY"),
         ]
         assert pyramid_request.route_path.calls == [
             pretend.call('accounts.request-password-reset'),
         ]
         assert pyramid_request.session.flash.calls == [
-            pretend.call('Invalid or expired token', queue='error'),
+            pretend.call('message', queue='error'),
         ]
 
-    def test_get(self, db_request, user_service):
+    def test_get(self, db_request, user_service, token_service):
         user = UserFactory.create()
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
-        db_request.GET.update({"otk": "RANDOM_KEY"})
-        user_service.get_user_by_otk = pretend.call_recorder(lambda otk: user)
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        token_service.get_user_by_token = pretend.call_recorder(
+            lambda token: user
+        )
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: user_service
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                IUserTokenService: token_service,
+            }[interface]
         )
 
         result = views.reset_password(db_request, _form_class=form_class)
@@ -471,17 +490,18 @@ class TestResetPassword:
                 user_service=user_service,
             )
         ]
-        assert user_service.get_user_by_otk.calls == [
+        assert token_service.get_user_by_token.calls == [
             pretend.call("RANDOM_KEY"),
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IUserTokenService, context=None),
         ]
 
-    def test_reset_password(self, db_request, user_service):
+    def test_reset_password(self, db_request, user_service, token_service):
         user = UserFactory.create()
         db_request.method = "POST"
-        db_request.POST.update({"otk": "RANDOM_KEY"})
+        db_request.POST.update({"token": "RANDOM_KEY"})
         form_obj = pretend.stub(
             password=pretend.stub(data="password_value"),
             validate=pretend.call_recorder(lambda *args: True)
@@ -490,10 +510,13 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        user_service.get_user_by_otk = pretend.call_recorder(lambda a: user)
+        token_service.get_user_by_token = pretend.call_recorder(lambda a: user)
         user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
         db_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: user_service
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                IUserTokenService: token_service,
+            }[interface]
         )
         db_request.session.flash = pretend.call_recorder(
             lambda *a, **kw: None
@@ -517,7 +540,7 @@ class TestResetPassword:
             ),
         ]
         assert db_request.route_path.calls == [pretend.call('index')]
-        assert user_service.get_user_by_otk.calls == [
+        assert token_service.get_user_by_token.calls == [
             pretend.call('RANDOM_KEY'),
         ]
         assert user_service.update_user.calls == [
@@ -531,6 +554,7 @@ class TestResetPassword:
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IUserTokenService, context=None),
             pretend.call(IUserService, context=None),
         ]
 

@@ -22,7 +22,10 @@ class TooManyFailedLogins(Exception):
 
 
 class InvalidPasswordResetToken(Exception):
-    pass
+    def __init__(self, message, *args, **kwargs):
+        self.message = message
+
+        return super().__init__(*args, **kwargs)
 
 
 class IUserService(Interface):
@@ -37,11 +40,6 @@ class IUserService(Interface):
         """
         Return the user object corresponding with the given username, or None
         if there is no user with that username.
-        """
-
-    def get_user_by_otk(otk):
-        """
-        Validate the one-time-key and return the user associated with it
         """
 
     def find_userid(username):
@@ -75,7 +73,15 @@ class IUserService(Interface):
         verifies the user
         """
 
-    def generate_otk(user):
+
+class IUserTokenService(Interface):
+
+    def generate_token(user):
         """
-        Generate new one-time-key for the given user.
+        Generates a unique token based on user attributes
+        """
+
+    def get_user_by_token(token):
+        """
+        Gets the user corresponding to the token provided
         """
