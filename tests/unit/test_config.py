@@ -255,7 +255,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": None,
         "site.name": "Warehouse",
-        "mail.ssl": True
+        "mail.ssl": True,
+        'password_reset.token_max_age': 21600,
     }
 
     if environment == config.Environment.development:
