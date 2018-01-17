@@ -64,7 +64,7 @@ class Role(db.Model):
         Temporary hack to allow us to only display the 'highest' role when
         there are multiple for a given user
 
-        This should be removed when fixing GH-2745.
+        TODO: This should be removed when fixing GH-2745.
         '''
         order = ['Maintainer', 'Owner']  # from lowest to highest
         return order.index(self.role_name) > order.index(other.role_name)

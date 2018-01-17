@@ -108,8 +108,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         .all()
     )
 
-    # The following lines are a hack to handle multiple roles for a single user
-    # and should be removed when fixing GH-2745
+    # TODO: The following lines are a hack to handle multiple roles for a
+    # single user and should be removed when fixing GH-2745
     roles_by_user = defaultdict(list)
     for role in roles:
         roles_by_user[role.user.username].append(role)
@@ -128,8 +128,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     permission="manage",
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
-    # This view was modified to handle deleting multiple roles for a single
-    # user and should be updated when fixing GH-2745
+    # TODO: This view was modified to handle deleting multiple roles for a
+    # single user and should be updated when fixing GH-2745
 
     form = _form_class(request.POST)
 
@@ -140,7 +140,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # This user has more than one role, so just delete all the ones
             # that aren't what we want.
             #
-            # This branch should be removed when fixing GH-2745.
+            # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
                 .filter(
@@ -219,8 +219,8 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     permission="manage",
 )
 def delete_project_role(project, request):
-    # This view was modified to handle deleting multiple roles for a single
-    # user and should be updated when fixing GH-2745
+    # TODO: This view was modified to handle deleting multiple roles for a
+    # single user and should be updated when fixing GH-2745
 
     roles = (
         request.db.query(Role)
