@@ -395,11 +395,9 @@ class MetadataForm(forms.Form):
 
     # File information
     pyversion = wtforms.StringField(
-        label="PyVersion",
         validators=[wtforms.validators.Optional()],
     )
     filetype = wtforms.StringField(
-        label="Filetype",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
@@ -412,17 +410,14 @@ class MetadataForm(forms.Form):
         ]
     )
     comment = wtforms.StringField(
-        label="Comment",
         validators=[wtforms.validators.Optional()],
     )
     md5_digest = wtforms.StringField(
-        label="MD5-Digest",
         validators=[
             wtforms.validators.Optional(),
         ],
     )
     sha256_digest = wtforms.StringField(
-        label="SHA256-Digest",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Regexp(
@@ -433,7 +428,6 @@ class MetadataForm(forms.Form):
         ],
     )
     blake2_256_digest = wtforms.StringField(
-        label="blake2-Digest",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Regexp(
@@ -446,21 +440,18 @@ class MetadataForm(forms.Form):
 
     # Legacy dependency information
     requires = ListField(
-        label="Requires",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
         ],
     )
     provides = ListField(
-        label="Provides",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
         ],
     )
     obsoletes = ListField(
-        label="Obsoletes",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
@@ -690,20 +681,27 @@ def file_upload(request):
         else:
             field_name = sorted(form.errors.keys())[0]
 
-        if field_name in form and form[field_name].label.text:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "{value!r} is an invalid value for {field}.\n".format(
-                    value=form[field_name].data,
-                    field=form[field_name].label.text) +
-                "Error: {}\n".format(form.errors[field_name][0]) +
-                "see https://packaging.python.org/specifications/core-metadata/",
-            )
+        if field_name in form:
+            if form[field_name].label.text:
+                error_message = (
+                    "{value!r} is an invalid value for {field}.\n".format(
+                        value=form[field_name].data,
+                        field=form[field_name].label.text) +
+                    "Error: {}\n".format(form.errors[field_name][0]) +
+                    "see https://packaging.python.org/specifications/core-metadata/"
+                )
+            else:
+                error_message = "{field}: {msgs[0]}".format(
+                    field=field_name,
+                    msgs=form.errors[field_name],
+                )
         else:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "Error: {}".format(form.errors[field_name][0])
-            )
+            error_message = "Error: {}".format(form.errors[field_name][0])
+
+        raise _exc_with_message(
+            HTTPBadRequest,
+            error_message,
+        )
 
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
