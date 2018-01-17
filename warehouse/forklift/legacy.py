@@ -690,14 +690,23 @@ def file_upload(request):
         else:
             field_name = sorted(form.errors.keys())[0]
 
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "{value!r} is an invalid value for {field}.\n".format(
-                value=form[field_name].data,
-                field=form[field_name].label.text) +
-            "Error: {},\n".format(form.errors[field_name][0]) +
-            "see https://packaging.python.org/specifications/core-metadata/",
-        )
+        if field_name in form:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "{value!r} is an invalid value for {field}.\n".format(
+                    value=form[field_name].data,
+                    field=form[field_name].label.text) +
+                "Error: {}\n".format(form.errors[field_name][0]) +
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
+            )
+        else:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                "Error: {}\n".format(form.errors[field_name][0]) +
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
+            )
 
     # Ensure that we have file data in the request.
     if "content" not in request.POST:

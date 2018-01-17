@@ -708,7 +708,10 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "filetype: This field is required.",
+                "'' is an invalid value for Filetype.\n"
+                "Error: This field is required.\n"
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
             ),
             (
                 {
@@ -717,8 +720,10 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "bdist_wat",
                 },
-                "__all__: Python version is required for binary distribution "
-                "uploads.",
+                "Error: Python version is required for binary distribution "
+                "uploads.\n"
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
             ),
             (
                 {
@@ -742,8 +747,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "__all__: The only valid Python version for a sdist is "
-                "'source'.",
+                "Error: The only valid Python version for a sdist is "
+                "'source'.\n"
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
             ),
 
             # digest errors.
@@ -754,7 +761,9 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "sdist",
                 },
-                "__all__: Must include at least one message digest.",
+                "Error: Must include at least one message digest.\n"
+                "see "
+                "https://packaging.python.org/specifications/core-metadata/",
             ),
 
             # summary errors
