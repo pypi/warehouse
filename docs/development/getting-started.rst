@@ -309,6 +309,15 @@ Use ``make`` to build the documentation. For example:
 The HTML documentation index can now be found at
 ``docs/_build/html/index.html``.
 
+Building the docs requires Python 3.6. If it is not installed, the ``make``
+command will give the following error message:
+
+.. code-block:: console
+
+  make: python3.6: Command not found
+  Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
+  make: *** [.state/env/pyvenv.cfg] Error 127
+
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`sphinx`: https://pypi.python.org/pypi/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
