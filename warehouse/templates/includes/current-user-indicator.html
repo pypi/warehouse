@@ -43,9 +43,9 @@
         </a>
         <form method="POST" action="{{ request.route_path('accounts.logout') }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <button type="submit" value="sign out" class="dropdown__link">
+          <button type="submit" value="log out" class="dropdown__link">
             <i class="fa fa-sign-out" aria-hidden="true"></i>
-            Sign Out
+            Log Out
           </button>
         </form>
       </div>
@@ -55,7 +55,7 @@
   <nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
     <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
     <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Login</a>
+    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log In</a>
     <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
   </nav>
   {% endif %}

@@ -16,14 +16,21 @@ import hashlib
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
+from pyramid.renderers import render
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.forms import (
+    LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
+)
+from warehouse.accounts.interfaces import (
+    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    TooManyFailedLogins,
+)
 from warehouse.cache.origin import origin_cache
+from warehouse.email import send_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -88,7 +95,7 @@ def profile(user, request):
     require_methods=False,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
-          _form_class=forms.LoginForm):
+          _form_class=LoginForm):
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
@@ -200,7 +207,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     require_csrf=True,
     require_methods=False,
 )
-def register(request, _form_class=forms.RegistrationForm):
+def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
 
@@ -229,6 +236,89 @@ def register(request, _form_class=forms.RegistrationForm):
         return HTTPSeeOther(
             request.route_path("index"),
             headers=dict(_login_user(request, user.id)))
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.request-password-reset",
+    renderer="accounts/request-password-reset.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def request_password_reset(request, _form_class=RequestPasswordResetForm):
+    user_service = request.find_service(IUserService, context=None)
+    user_token_service = request.find_service(IUserTokenService, context=None)
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        username = form.username.data
+        user = user_service.get_user_by_username(username)
+        token = user_token_service.generate_token(user)
+        n_hours = user_token_service.token_max_age // 60 // 60
+
+        subject = render(
+            'email/password-reset.subject.txt',
+            {},
+            request=request,
+        )
+
+        body = render(
+            'email/password-reset.body.txt',
+            {'token': token, 'username': username, 'n_hours': n_hours},
+            request=request,
+        )
+
+        request.task(send_email).delay(body, [user.email], subject)
+        return {"n_hours": n_hours}
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=ResetPasswordForm):
+    user_service = request.find_service(IUserService, context=None)
+    user_token_service = request.find_service(IUserTokenService, context=None)
+
+    try:
+        token = request.params.get('token')
+        user = user_token_service.get_user_by_token(token)
+    except InvalidPasswordResetToken as e:
+        # Fail if the token is invalid for any reason
+        request.session.flash(e.message, queue="error")
+        return HTTPSeeOther(
+            request.route_path("accounts.request-password-reset"),
+        )
+
+    form = _form_class(
+        request.params,
+        username=user.username,
+        full_name=user.name,
+        email=user.email,
+        user_service=user_service
+    )
+
+    if request.method == "POST" and form.validate():
+        # Update password.
+        user_service.update_user(user.id, password=form.password.data)
+
+        # Flash a success message
+        request.session.flash(
+            "You have successfully reset your password", queue="success"
+        )
+
+        # Perform login just after reset password and redirect to default view.
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, user.id))
+        )
 
     return {"form": form}
 

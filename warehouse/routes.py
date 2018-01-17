@@ -88,6 +88,16 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "accounts.request-password-reset",
+        "/account/request-password-reset/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.reset-password",
+        "/account/reset-password/",
+        domain=warehouse,
+    )
+    config.add_route(
         "accounts.edit_gravatar",
         "/user/{username}/edit_gravatar/",
         factory="warehouse.accounts.models:UserFactory",
