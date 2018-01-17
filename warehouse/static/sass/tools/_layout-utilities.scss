@@ -31,11 +31,16 @@
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+
+  > :first-child {
+    padding-right: $spacing-unit;
+  }
 }
 
 @mixin split-table-layout {
   display: table;
   width: 100%;
+  table-layout: fixed;
 
   > :first-child,
   > :last-child {

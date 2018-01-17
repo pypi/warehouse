@@ -91,30 +91,6 @@
     }
   }
 
-  &__sub-menu {
-    display: none;
-    list-style-type: none;
-    margin: 5px 0 5px 25px;
-    padding: 0;
-  }
-
-  &__sub-tab {
-    display: block;
-    padding: $spacing-unit / 4;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: none;
-      color: darken($brand-color, 10)
-    }
-
-    &--is-active,
-    &--is-active:hover {
-      background: mix($border-color, #fff, 50);
-      color: $text-color;
-    }
-  }
-
   &__panel {
     @include span-columns(9);
 
@@ -130,8 +106,4 @@
       padding: $spacing-unit ($spacing-unit / 2);
     }
   }
-}
-
-.vertical-tabs__tab--is-active + .vertical-tabs__sub-menu {
-  display: block;
 }

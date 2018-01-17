@@ -25,3 +25,15 @@
     cursor: pointer;
   }
 }
+
+@mixin overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: transparentize($black, 0.5);
+  z-index: index($z-index-scale, "dark-overlay");
+  pointer-events: none;
+  transition: opacity 0.3s;
+}

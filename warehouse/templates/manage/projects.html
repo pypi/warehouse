@@ -17,20 +17,24 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block main %}
-  <h1>Your Projects</h1>
+  <h1 class="page-title">Your Projects ({{ request.user.projects|length }})</h1>
   <div class="package-list">
     {% if request.user.projects %}
     {% for project in request.user.projects %}
     {% set release = project.releases[0] %}
     <div class="package-snippet">
-      <h3 class="package-snippet__title">{{ project.name }}</h3>
-      <p class="package-snippet__meta">
-        <em>Last released on {{ release.created|format_date() }}</em>
-      </p>
-      <p class="package-snippet__description">{{ release.summary }}</p>
-      <div>
-        <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit</a>
-        <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" class="button">Preview</a>
+      <div class="split-layout split-layout--table">
+        <div>
+          <h3 class="package-snippet__title">{{ project.name }}</h3>
+          <p class="package-snippet__meta">
+            <em>Last released on {{ release.created|format_date() }}</em>
+          </p>
+          <p class="package-snippet__description">{{ release.summary }}</p>
+        </div>
+        <div class="package-snippet__buttons">
+          <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit</a>
+          <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" class="button">Preview</a>
+        </div>
       </div>
     </div>
     {% endfor %}

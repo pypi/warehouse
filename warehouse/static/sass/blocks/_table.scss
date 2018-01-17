@@ -72,6 +72,10 @@
     td {
       border-bottom: 1px solid $base-grey;
     }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
   }
 
   &--downloads {

@@ -59,4 +59,8 @@
       background-color: $success-color;
     }
   }
+
+  &--bottom-margin {
+    margin-bottom: $spacing-unit / 2;
+  }
 }

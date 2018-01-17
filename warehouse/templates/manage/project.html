@@ -16,7 +16,7 @@
 {% set user = request.user %}
 {% set projects = user.projects %}
 {% set current_project = project %}
-{% set active_page = active_page|default('releases') %}
+{% set active_tab = active_tab|default('releases') %}
 
 {% block title %}Manage '{{ project.name }}'{% endblock %}
 
@@ -33,11 +33,6 @@
                 <i class="fa fa-cube" aria-hidden="true"></i>
                 {{ project.name }}
               </a>
-              <nav class="vertical-tabs__sub-menu">
-                <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name)}}" class="vertical-tabs__sub-tab {% if active_page == 'releases' %}vertical-tabs__sub-tab--is-active{% endif %}"/>Releases</a>
-                <a href="{{ request.route_path('manage.project.roles', name=project.normalized_name)}}" class="vertical-tabs__sub-tab {% if active_page == 'collaborators' %}vertical-tabs__sub-tab--is-active{% endif %}" />Collaborators</a>
-                <a href="" class="vertical-tabs__sub-tab">Documentation</a>
-              </nav>
             {% endfor %}
             </nav>
           </div>
@@ -45,23 +40,46 @@
         <div class="vertical-tabs__panel">
           <div class="vertical-tabs__content">
             <div class="package-snippet">
-              <h1>{{ project.name }}</h1>
-              <div class="dropdown">
-                <button class="dropdown__trigger button">
-                  <i class="fa fa-cog" aria-hidden="true"></i>
-                  Project Options
-                  <span class="dropdown__trigger-caret">
-                    <i class="fa fa-caret-down" aria-hidden="true"></i>
-                    <span class="sr-only">view submenu</span>
-                  </span>
-                </button>
-                <div class="dropdown__content">
-                  <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">Preview Project</a>
-                  <a href="" class="dropdown__link">Delete Project</a>
-                  <a href="{{ request.route_path('help')}}#updating-projects" class="dropdown__link">Update Project (help)</a><!-- TODO: add help content -->
+              <div class="split-layout split-layout--table">
+                <div>
+                  <h1 class="package-snippet__title page-title">{{ project.name }}</h1>
+                  {% set release = project.releases[0] %}
+                  {% if release.summary %}
+                    <p class="package-snippet__description">{{ release.summary }}</p>
+                  {% endif %}
+                </div>
+                <div class="dropdown dropdown--with-icons">
+                  <button class="dropdown__trigger button button--highlight">
+                    Project Options
+                    <span class="dropdown__trigger-caret">
+                      <i class="fa fa-caret-down" aria-hidden="true"></i>
+                      <span class="sr-only">view submenu</span>
+                    </span>
+                  </button>
+                  <div class="dropdown__content">
+                    <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">
+                      <i class="fa fa-eye" aria-hidden="true"></i>
+                      Preview Project
+                    </a>
+                    <a href="#delete-project-modal" class="dropdown__link">
+                      <i class="fa fa-trash" aria-hidden="true"></i>
+                      Delete Project
+                    </a>
+                    <a href="{{ request.route_path('help')}}#updating-projects" class="dropdown__link">
+                      <i class="fa fa-pencil" aria-hidden="true"></i>
+                      Update Project (help)
+                    </a><!-- TODO: add help content -->
+                  </div>
                 </div>
               </div>
             </div>
+
+            <nav class="tabs">
+              <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'releases' %}tabs__tab--is-active{% endif %}">Releases</a>
+              <a href="{{ request.route_path('manage.project.roles', name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'collaborators' %}tabs__tab--is-active{% endif %}">Collaborators</a>
+              <a href="#" class="tabs__tab">Documentation</a>
+            </nav>
+
             {% block main %}
               <h2>Releases ({{ project.releases|length }})</h2>
               {% if project.releases %}
@@ -85,6 +103,31 @@
                         {% endif %}
                         </td>
                       <td class="table__options">
+                        <div class="dropdown dropdown--with-icons">
+                          <button class="dropdown__trigger button">
+                            Options
+                            <span class="dropdown__trigger-caret">
+                              <i class="fa fa-caret-down" aria-hidden="true"></i>
+                              <span class="sr-only">view submenu</span>
+                            </span>
+                          </button>
+                          <div class="dropdown__content">
+                            <a href="" class="dropdown__link">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                              Edit
+                            </a><!-- TODO: link to release detail page -->
+                            <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+                              <i class="fa fa-eye" aria-hidden="true"></i>
+                              Preview
+                            </a>
+                            <a href="#delete-release-modal-{{ loop.index }}" class="dropdown__link">
+                              <i class="fa fa-trash" aria-hidden="true"></i>
+                              Delete
+                            </a>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="table__options">
                         <div class="dropdown">
                           <button class="dropdown__trigger button">
                             Options
@@ -104,14 +147,81 @@
                   {% endfor %}
                   </tbody>
                 </table>
-
+                <br>
+                <div class="callout-block">
+                  <h3>Creating a New Release</h3>
+                  <p>TODO: Some help text here</p>
+                </div>
               {% else %}
-                No releases yet!
+                <h2>No releases</h2>
+                <!-- TODO: link to instructions on how to create a release -->
               {% endif %}
             {% endblock %}
           </div>
         </div>
       </div>
+      <!-- delete modals -->
+      <div id="delete-project-modal" class="modal">
+        <div class="modal__content" role="dialog">
+          <a href="#modal-close" title="Close" class="modal__close">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="sr-only">close</span>
+          </a>
+          <div class="modal__body">
+            <h3 class="modal__title">Delete {{ project.name }}?</h3>
+            <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+              <p>Warning: This action cannot be undone!</p>
+            </div>
+            <p>Confirm the project name and enter your password to continue.</p>
+            <form class="modal__form">
+              <label for="project-name">Project Name</label>
+              <input type="text" id="project-name" placeholder="Confirm project name">
+              <div class="split-layout">
+                <label for="project">Password</label>
+                <label for="show-password" class="show-password">
+                  <input id="show-password" type="checkbox">&nbsp;Show password
+                </label>
+              </div>
+              <input type="password" id="project" placeholder="Your password">
+            </form>
+          </div>
+          <div class="modal__footer">
+            <a href="#modal-close" class="button modal__action">Cancel</a>
+            <button class="button button--highlight modal__action">Delete Project</button>
+          </div>
+        </div>
+      </div>
+
+      {% for release in project.releases %}
+        <div id="delete-release-modal-{{ loop.index }}" class="modal">
+          <div class="modal__content" role="dialog">
+            <a href="#modal-close" title="Close" class="modal__close">
+              <i class="fa fa-times" aria-hidden="true"></i>
+              <span class="sr-only">close</span>
+            </a>
+            <div class="modal__body">
+              <h3 class="modal__title">Delete {{ project.name }} - release {{ release.version }}?</h3>
+              <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+                <p>Warning: This action cannot be undone!</p>
+              </div>
+              <p>Enter your password to continue.</p>
+              <form class="modal__form">
+                <div class="split-layout">
+                  <label for="password">Password</label>
+                  <label for="show-password" class="show-password">
+                    <input id="show-password" type="checkbox">&nbsp;Show password
+                  </label>
+                </div>
+                <input type="password" id="password" placeholder="Your password">
+              </form>
+            </div>
+            <div class="modal__footer">
+              <a href="#modal-close" class="button modal__action">Cancel</a>
+              <button class="button button--highlight modal__action">Delete Release</button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
     </div>
   </section>
 {% endblock %}
