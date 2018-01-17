@@ -2,8 +2,7 @@ Reviewing and merging patches
 =============================
 
 Everyone is encouraged to review open pull requests. We only ask that you try
-and think carefully, ask questions and are `excellent to one another`_. Code
-review is our opportunity to share knowledge, design ideas and make friends.
+and think carefully, ask questions and are `excellent to one another`_. When engaging in code review, please remember that you are bound by the `Code of Conduct`_. Code review is our opportunity to share knowledge, design ideas and make friends.
 
 When reviewing a patch try to keep each of these concepts in mind:
 
@@ -50,3 +49,6 @@ Merge requirements
   ``.po`` files must be updated.
 
 .. _`excellent to one another`: https://speakerdeck.com/ohrite/better-code-review
+
+.. _`Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
+

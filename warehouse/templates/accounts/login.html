@@ -37,7 +37,7 @@
 
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
+          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input") }}
           {% if form.username.errors %}
           <ul class="form-errors">
             {% for error in form.username.errors %}
@@ -54,7 +54,7 @@
               <input id="show-password" type="checkbox">&nbsp;Show password
             </label>
           </div>
-          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input", autocomplete="current-password") }}
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
