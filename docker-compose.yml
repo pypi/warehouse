@@ -28,6 +28,7 @@ services:
       context: .
       args:
         DEVEL: "yes"
+        IPYTHON: "no"
     command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
     env_file: dev/environment
     volumes:
@@ -66,13 +67,24 @@ services:
       - redis
       - rabbitmq
       - elasticsearch
+      - smtp
 
   static:
     build:
       context: .
       dockerfile: Dockerfile.static
-    command: gulp watch
+    command: bash -c "node --trace-warnings `which gulp` watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+
+  smtp:
+    build:
+      context: .
+    command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
+    ports:
+      - "2525:2525"
+    volumes:
+      - ./dev/smtp.py:/opt/warehouse/dev/smtp.py

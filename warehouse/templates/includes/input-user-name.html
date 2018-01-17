@@ -11,17 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "base.html" %}
-
-{% block title %}Sign out{% endblock %}
-
-{% block content %}
-  <h1>Sign out of {{ request.user.username }}</h1>
-  <form method="POST" action="{{ request.current_route_path() }}">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    {% if redirect.data %}
-    <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-    {% endif %}
-    <input type="submit" value="Log Out">
-  </form>
-{% endblock %}
+{{ form.username(placeholder="Your username", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input") }}
+{% if form.username.errors %}
+  <ul class="form-errors">
+    {% for error in form.username.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

@@ -85,6 +85,7 @@ class TestIsValidURI:
             "javascript:alert(0)",
             "UNKNOWN",
             "ftp://example.com/",
+            "",
         ],
     )
     def test_invalid(self, uri):

@@ -1,7 +1,15 @@
 BINDIR = $(PWD)/.state/env/bin
+TRAVIS := $(shell echo "$${TRAVIS:-false}")
 PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
+IPYTHON := no
+
+# set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
+# needed in development environment
+ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
+    IPYTHON = yes
+endif
 
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
@@ -41,7 +49,7 @@ default:
 	@echo "Must call a specific subcommand"
 	@exit 1
 
-.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt
+.state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
 	# Create our Python 3.5 virtual environment
 	rm -rf .state/env
 	python3.6 -m venv .state/env
@@ -54,19 +62,25 @@ default:
 	.state/env/bin/python -m pip install -r requirements/docs.txt
 	.state/env/bin/python -m pip install -r requirements/lint.txt
 
-	# Install our node requirements
-	npm install
+	# install ipython if enabled
+ifeq ($(IPYTHON),"yes")
+	.state/env/bin/python -m pip install -r requirements/ipython.txt
+endif
 
-.state/docker-build: Dockerfile package.json requirements/main.txt requirements/deploy.txt
+.state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
 	# Build our docker containers for this project.
-	docker-compose build
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
+	docker-compose build worker
+	docker-compose build static
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build
 
 build:
-	docker-compose build
+	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
+	docker-compose build worker
+	docker-compose build static
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
@@ -90,9 +104,15 @@ lint: .state/env/pyvenv.cfg
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
 	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
-
-	./node_modules/.bin/eslint 'warehouse/static/js/**'
+ifneq ($(TRAVIS), false)
+	# We're on Travis, so we can lint static files locally
+	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
 	./node_modules/.bin/sass-lint --verbose
+else
+	# We're not on Travis, so we should lint static files inside the static container
+	docker-compose run --rm static ./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js'
+	docker-compose run --rm static ./node_modules/.bin/sass-lint --verbose
+endif
 
 docs: .state/env/pyvenv.cfg
 	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build"

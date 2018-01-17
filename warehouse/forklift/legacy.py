@@ -17,6 +17,7 @@ import re
 import tempfile
 import zipfile
 
+from cgi import FieldStorage
 from itertools import chain
 
 import packaging.specifiers
@@ -263,7 +264,7 @@ def _construct_dependencies(form, types):
 class ListField(wtforms.Field):
 
     def process_formdata(self, valuelist):
-        self.data = [v.strip() for v in valuelist]
+        self.data = [v.strip() for v in valuelist if v.strip()]
 
 
 # TODO: Eventually this whole validation thing should move to the packaging
@@ -628,6 +629,16 @@ def file_upload(request):
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
+
+    # Check if the classifiers were supplied as a tuple
+    # ref: https://github.com/pypa/warehouse/issues/2185
+    classifiers = request.POST.getall('classifiers')
+    if any(isinstance(classifier, FieldStorage) for classifier in classifiers):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "classifiers: Must be a list, not tuple.",
+        )
+
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers
     ]
@@ -864,7 +875,13 @@ def file_upload(request):
                     lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
-                    raise _exc_with_message(HTTPBadRequest, "File too large.")
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "File too large. " +
+                        "Limit for project {name!r} is {limit}MB".format(
+                            name=project.name,
+                            limit=file_size_limit // (1024 * 1024),
+                        ))
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)

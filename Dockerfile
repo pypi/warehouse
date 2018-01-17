@@ -2,7 +2,7 @@
 # our static assets with. It is important that the steps in this remain the
 # same as the steps in Dockerfile.static, EXCEPT this may include additional
 # steps appended onto the end.
-FROM node:6.11.1 as static
+FROM node:8.9.4 as static
 
 WORKDIR /opt/warehouse/src/
 
@@ -17,7 +17,7 @@ RUN set -x \
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
 # static container prior to actually installing the npm dependencies.
-COPY package.json .babelrc /opt/warehouse/src/
+COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
@@ -49,6 +49,11 @@ FROM python:3.6.3-slim-stretch as build
 # generally be used to control whether or not we install our development and
 # test dependencies.
 ARG DEVEL=no
+
+# To enable Ipython in the development environment set to yes (for using ipython
+# as the warehouse shell interpreter,
+# i.e. 'docker-compose run --rm web python -m warehouse shell --type=ipython')
+ARG IPYTHON=no
 
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
@@ -90,6 +95,9 @@ COPY requirements /tmp/requirements
 # otherwise this will do nothing.
 RUN set -x \
     && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+
+RUN set -x \
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
