@@ -199,27 +199,40 @@ class UserTokenService:
 
     def get_user_by_token(self, token):
         if not token:
-            raise InvalidPasswordResetToken("Invalid token")
+            raise InvalidPasswordResetToken(
+                "Invalid token - No token supplied"
+            )
 
         try:
             data = self.serializer.loads(token, max_age=self.token_max_age)
         except SignatureExpired:
-            raise InvalidPasswordResetToken("Expired token")
+            raise InvalidPasswordResetToken(
+                "Expired token - Token is expired, request a new password "
+                "reset link"
+            )
         except BadData: #  Catch all other exceptions
-            raise InvalidPasswordResetToken("Invalid token")
+            raise InvalidPasswordResetToken(
+                "Invalid token - Request a new password reset link"
+            )
 
         # Check whether a user with the given user ID exists
         user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
         if user is None:
-            raise InvalidPasswordResetToken("User not found")
+            raise InvalidPasswordResetToken("Invalid token - User not found")
 
         last_login = data.get("user.last_login")
         if str(user.last_login) > last_login:
-            raise InvalidPasswordResetToken("User has already logged in")
+            raise InvalidPasswordResetToken(
+                "Invalid token - User has logged in since this token was "
+                "requested"
+            )  # TODO: track and audit this, seems alertable
 
         password_date = data.get("user.password_date")
         if str(user.password_date) > password_date:
-            raise InvalidPasswordResetToken("User has already reset password")
+            raise InvalidPasswordResetToken(
+                "Invalid token - Another password reset has been completed "
+                "since this token was requested"
+            )
 
         return user
 

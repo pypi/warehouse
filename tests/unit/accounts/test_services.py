@@ -247,12 +247,13 @@ class TestUserTokenService:
     def test_get_user_by_token_is_none(self, token_service, token):
         with pytest.raises(InvalidPasswordResetToken) as e:
             token_service.get_user_by_token(token)
-        assert e.value.message == "Invalid token"
+        assert e.value.message == "Invalid token - No token supplied"
 
     def test_get_user_by_token_invalid(self, token_service):
         with pytest.raises(InvalidPasswordResetToken) as e:
             token_service.get_user_by_token("definitely not valid")
-        assert e.value.message == "Invalid token"
+        assert e.value.message == ("Invalid token - Request a new password "
+                                   "reset link")
 
     def test_get_user_by_token_is_expired(self, token_service):
         user = UserFactory.create()
@@ -269,7 +270,8 @@ class TestUserTokenService:
 
             with pytest.raises(InvalidPasswordResetToken) as e:
                 token_service.get_user_by_token(token)
-            assert e.value.message == "Expired token"
+            assert e.value.message == ("Expired token - Token is expired, "
+                                       "request a new password reset link")
 
     def test_get_user_by_token_invalid_user(self, token_service):
         invalid_user = pretend.stub(
@@ -281,7 +283,7 @@ class TestUserTokenService:
         token = token_service.generate_token(invalid_user)
         with pytest.raises(InvalidPasswordResetToken) as e:
             token_service.get_user_by_token(token)
-        assert e.value.message == "User not found"
+        assert e.value.message == "Invalid token - User not found"
 
     def test_get_user_by_token_last_login_changed(self, token_service):
         user = UserFactory.create()
@@ -289,7 +291,8 @@ class TestUserTokenService:
         user.last_login = datetime.datetime.now()
         with pytest.raises(InvalidPasswordResetToken) as e:
             token_service.get_user_by_token(token)
-        assert e.value.message == "User has already logged in"
+        assert e.value.message == ("Invalid token - User has logged in since "
+                                   "this token was requested")
 
     def test_get_user_by_token_password_date_changed(self, token_service):
         user = UserFactory.create()
@@ -297,7 +300,9 @@ class TestUserTokenService:
         user.password_date = datetime.datetime.now()
         with pytest.raises(InvalidPasswordResetToken) as e:
             token_service.get_user_by_token(token)
-        assert e.value.message == "User has already reset password"
+        assert e.value.message == ("Invalid token - Another password reset "
+                                   "has been completed since this token was "
+                                   "requested")
 
     def test_get_user_by_token_success(self, token_service):
         user = UserFactory.create()
