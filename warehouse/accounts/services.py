@@ -230,8 +230,8 @@ class UserTokenService:
         password_date = data.get("user.password_date")
         if str(user.password_date) > password_date:
             raise InvalidPasswordResetToken(
-                "Invalid token - Another password reset has been completed "
-                "since this token was requested"
+                "Invalid token - Password has already been changed since this "
+                "token was requested"
             )
 
         return user
