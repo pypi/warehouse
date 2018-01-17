@@ -649,43 +649,43 @@ class TestFileUpload:
             # metadata_version errors.
             (
                 {},
-                "None is an invalid value for Metadata-Version.\n"
-                "Error: This field is required.\n"
+                "None is an invalid value for Metadata-Version. "
+                "Error: This field is required. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {"metadata_version": "-1"},
-                "'-1' is an invalid value for Metadata-Version.\n"
-                "Error: Unknown Metadata Version\n"
+                "'-1' is an invalid value for Metadata-Version. "
+                "Error: Unknown Metadata Version "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # name errors.
             (
                 {"metadata_version": "1.2"},
-                "'' is an invalid value for Name.\n"
-                "Error: This field is required.\n"
+                "'' is an invalid value for Name. "
+                "Error: This field is required. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name.\n"
+                "'foo-' is an invalid value for Name. "
                 "Error: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'.\n"
+                "contain only ascii numeric and '.', '_' and '-'. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # version errors.
             (
                 {"metadata_version": "1.2", "name": "example"},
-                "'' is an invalid value for Version.\n"
-                "Error: This field is required.\n"
+                "'' is an invalid value for Version. "
+                "Error: This field is required. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -693,11 +693,11 @@ class TestFileUpload:
                     "name": "example",
                     "version": "dog",
                 },
-                "'dog' is an invalid value for Version.\n"
+                "'dog' is an invalid value for Version. "
                 "Error: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'.\n"
+                "contain only ascii numeric and '.', '_' and '-'. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # filetype/pyversion errors.
@@ -708,10 +708,10 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "'' is an invalid value for Filetype.\n"
-                "Error: This field is required.\n"
+                "'' is an invalid value for Filetype. "
+                "Error: This field is required. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -732,10 +732,10 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "'bdist_wat' is an invalid value for Filetype.\n"
-                "Error: Unknown type of file.\n"
+                "'bdist_wat' is an invalid value for Filetype. "
+                "Error: Unknown type of file. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -770,10 +770,10 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'" + "A" * 513 + "' is an invalid value for Summary.\n"
-                "Error: Field cannot be longer than 512 characters.\n"
+                "'" + "A" * 513 + "' is an invalid value for Summary. "
+                "Error: Field cannot be longer than 512 characters. "
                 "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -784,10 +784,10 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                ("{!r} is an invalid value for Summary.\n".format('A\nB') +
-                 "Error: Multiple lines are not allowed.\n"
+                ("{!r} is an invalid value for Summary. ".format('A\nB') +
+                 "Error: Multiple lines are not allowed. "
                  "see "
-                 "https://packaging.python.org/specifications/core-metadata/"),
+                 "https://packaging.python.org/specifications/core-metadata"),
             ),
 
             # classifiers are a FieldStorage
@@ -1300,10 +1300,10 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 ['Environment :: Other Environment'] "
-            "is an invalid value for Classifier.\n"
+            "is an invalid value for Classifier. "
             "Error: 'Environment :: Other Environment' is not a valid choice "
-            "for this field\n"
-            "see https://packaging.python.org/specifications/core-metadata/"
+            "for this field "
+            "see https://packaging.python.org/specifications/core-metadata"
         )
 
     @pytest.mark.parametrize(

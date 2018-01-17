@@ -684,11 +684,12 @@ def file_upload(request):
         if field_name in form:
             if form[field_name].label.text:
                 error_message = (
-                    "{value!r} is an invalid value for {field}.\n".format(
+                    "{value!r} is an invalid value for {field}. ".format(
                         value=form[field_name].data,
                         field=form[field_name].label.text) +
-                    "Error: {}\n".format(form.errors[field_name][0]) +
-                    "see https://packaging.python.org/specifications/core-metadata/"
+                    "Error: {} ".format(form.errors[field_name][0]) +
+                    "see "
+                    "https://packaging.python.org/specifications/core-metadata"
                 )
             else:
                 error_message = "{field}: {msgs[0]}".format(
