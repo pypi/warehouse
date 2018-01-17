@@ -721,9 +721,7 @@ class TestFileUpload:
                     "filetype": "bdist_wat",
                 },
                 "Error: Python version is required for binary distribution "
-                "uploads.\n"
-                "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "uploads."
             ),
             (
                 {
@@ -748,9 +746,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                 },
                 "Error: The only valid Python version for a sdist is "
-                "'source'.\n"
-                "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "'source'."
             ),
 
             # digest errors.
@@ -761,9 +757,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "sdist",
                 },
-                "Error: Must include at least one message digest.\n"
-                "see "
-                "https://packaging.python.org/specifications/core-metadata/",
+                "Error: Must include at least one message digest."
             ),
 
             # summary errors
