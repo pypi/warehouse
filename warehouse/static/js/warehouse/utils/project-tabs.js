@@ -13,6 +13,9 @@
  
 export default () => {
   const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
+  if (mobileBtn === null) {
+    return;
+  }
   const styleProps = getComputedStyle(mobileBtn, null);
   const inMobileState = (styleProps.getPropertyValue("display") === "block");
   const btnClassName = inMobileState ? ".-js-vertical-tab-mobile-heading" : ".-js-vertical-tab";
