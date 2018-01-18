@@ -59,7 +59,7 @@
                   <div class="dropdown__content">
                     <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">
                       <i class="fa fa-eye" aria-hidden="true"></i>
-                      Preview Project
+                      View Project
                     </a>
                     {# TODO: https://github.com/pypa/warehouse/issues/2805
                       <a href="#delete-project-modal" class="dropdown__link">
@@ -127,7 +127,7 @@
                                #}
                               <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
-                                Preview
+                                View
                               </a>
                               {# TODO: https://github.com/pypa/warehouse/issues/2808
                                 <a href="#delete-release-modal-{{ loop.index }}" class="dropdown__link">
