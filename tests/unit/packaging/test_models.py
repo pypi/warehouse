@@ -160,6 +160,14 @@ class TestRelease:
                 ]),
             ),
             (
+                None,
+                None,
+                ["Source Code, https://example.com/source-code/"],
+                OrderedDict([
+                    ("Source Code", "https://example.com/source-code/"),
+                ]),
+            ),
+            (
                 "https://example.com/home/",
                 "https://example.com/download/",
                 ["Source Code,https://example.com/source-code/"],
