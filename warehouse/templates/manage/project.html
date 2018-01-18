@@ -95,54 +95,54 @@
                     <th class="table__options"></th>
                   </thead>
                   <tbody>
-                    {% for release in project.releases %}
-                      <tr>
-                        <td class="table__version">
-                          {# TODO: https://github.com/pypa/warehouse/issues/2807 <a href="">{{ release.version }}</a> #}
-                          {{ release.version }}
+                  {% for release in project.releases %}
+                    <tr>
+                      <td class="table__version">
+                        {# TODO: https://github.com/pypa/warehouse/issues/2807 <a href="">{{ release.version }}</a> #}
+                        {{ release.version }}
+                      </td>
+                      <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
+                      <td class="table__summary">
+                        {% if release.summary %}
+                          {{ release.summary }}
+                        {% else %}
+                          —
+                        {% endif %}
                         </td>
-                        <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
-                        <td class="table__summary">
-                          {% if release.summary %}
-                            {{ release.summary }}
-                          {% else %}
-                            &mdash;
-                          {% endif %}
-                          </td>
-                        <td class="table__options">
-                          <div class="dropdown dropdown--with-icons">
-                            <button class="dropdown__trigger button">
-                              Options
-                              <span class="dropdown__trigger-caret">
-                                <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                <span class="sr-only">view submenu</span>
-                              </span>
-                            </button>
-                            <div class="dropdown__content">
-                              {# TODO: https://github.com/pypa/warehouse/issues/2807
-                                <a href="" class="dropdown__link">
-                                  <i class="fa fa-pencil" aria-hidden="true"></i>
-                                  Edit
-                                </a>
-                               #}
-                              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
-                                <i class="fa fa-eye" aria-hidden="true"></i>
-                                View
-                              </a>
-                              {# TODO: https://github.com/pypa/warehouse/issues/2808
-                                <a href="#delete-release-modal-{{ loop.index }}" class="dropdown__link">
-                                  <i class="fa fa-trash" aria-hidden="true"></i>
-                                  Delete
-                                </a>
-                              #}
-                            </div>
+                      <td class="table__options">
+                        <div class="dropdown dropdown--with-icons">
+                          <button class="dropdown__trigger button">
+                            Options
+                            <span class="dropdown__trigger-caret">
+                              <i class="fa fa-caret-down" aria-hidden="true"></i>
+                              <span class="sr-only">view submenu</span>
+                            </span>
+                          </button>
+                          <div class="dropdown__content">
+                            {# TODO: https://github.com/pypa/warehouse/issues/2807
+                            <a href="" class="dropdown__link">
+                              <i class="fa fa-pencil" aria-hidden="true"></i>
+                              Edit
+                            </a>
+                            #}
+                            <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+                              <i class="fa fa-eye" aria-hidden="true"></i>
+                              View
+                            </a>
+                            {# TODO: https://github.com/pypa/warehouse/issues/2808
+                            <a href="#delete-release-modal-{{ loop.index }}" class="dropdown__link">
+                              <i class="fa fa-trash" aria-hidden="true"></i>
+                              Delete
+                            </a>
+                            #}
                           </div>
-                        </td>
-                      </tr>
-                    {% endfor %}
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
                   </tbody>
                 </table>
-                <br/>
+                <br>
               {% else %}
                 <h2>No releases</h2>
               {% endif %}
