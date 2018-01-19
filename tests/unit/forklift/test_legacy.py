@@ -708,10 +708,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "'' is an invalid value for Filetype. "
-                "Error: This field is required. "
-                "see "
-                "https://packaging.python.org/specifications/core-metadata",
+                "filetype: This field is required.",
             ),
             (
                 {
@@ -732,10 +729,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "'bdist_wat' is an invalid value for Filetype. "
-                "Error: Unknown type of file. "
-                "see "
-                "https://packaging.python.org/specifications/core-metadata",
+                "filetype: Unknown type of file.",
             ),
             (
                 {
@@ -758,6 +752,17 @@ class TestFileUpload:
                     "filetype": "sdist",
                 },
                 "Error: Must include at least one message digest."
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "sha256_digest": "an invalid sha256 digest",
+                },
+                "sha256_digest: "
+                "Must be a valid, hex encoded, SHA256 message digest."
             ),
 
             # summary errors
