@@ -74,7 +74,7 @@
     line-height: 28px;
   }
 
-  &--highlight {
+  &--primary {
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
@@ -126,7 +126,6 @@
     }
   }
 }
-
 
 .change-button {
   visibility: hidden;

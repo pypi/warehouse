@@ -106,7 +106,7 @@
       <p class="package-description">{{ release.summary }}</p>
     {% endif %}
     {# TODO: https://github.com/pypa/warehouse/issues/2810 (if logged in user can edit package)
-    <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit Project</a>
+    <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--primary">Edit Project</a>
     #}
     </div>
   </div>
