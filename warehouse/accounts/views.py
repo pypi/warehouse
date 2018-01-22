@@ -323,15 +323,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
     return {"form": form}
 
 
-@view_config(
-    route_name="accounts.edit_gravatar",
-    renderer="accounts/csi/edit_gravatar.csi.html",
-    uses_session=True,
-)
-def edit_gravatar_csi(user, request):
-    return {"user": user}
-
-
 def _login_user(request, userid):
         # We have a session factory associated with this request, so in order
         # to protect against session fixation attacks we're going to make sure

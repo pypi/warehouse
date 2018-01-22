@@ -31,6 +31,10 @@
     text-align: right;
   }
 
+  &--middle {
+    align-items: center;
+  }
+
   &--table {
     @include split-table-layout;
   }

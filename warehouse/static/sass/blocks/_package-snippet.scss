@@ -42,6 +42,7 @@
 
   &__title {
     @include ellipsis;
+    @include h3;
     padding-bottom: 0;
     display: block;
   }
@@ -60,5 +61,18 @@
     clear: both;
     font-size: 1rem;
     font-style: italic;
+  }
+
+  &__buttons {
+    width: 165px;
+
+    .button {
+      display: inline-block;
+      float: left;
+    }
+
+    .button--highlight {
+      margin-right: 5px;
+    }
   }
 }
