@@ -98,11 +98,15 @@ mounted inside of the docker container at ``/opt/warehouse/src/``.
 Running the Warehouse Container and Services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After building the Docker container, you'll need to create a Postgres database
-and run all of the data migrations.
+You have to start the Docker services that make up the Warehouse
+application. These need ~4 GB of RAM dedicated to Docker to work. This is more
+than the default setting of the Docker Engine of 2 GB. Thus, you need to
+increase the memory allocated to Docker in
+`Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
+or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+(on Windows) by moving the slider to 4 GB in the GUI.
 
-First start the Docker services that make up the Warehouse application.  In
-one terminal run the command:
+Then, in one terminal run the command:
 
 .. code-block:: console
 

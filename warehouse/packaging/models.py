@@ -350,7 +350,7 @@ class Release(db.ModelBase):
             _urls["Homepage"] = self.home_page
 
         for urlspec in self.project_urls:
-            name, url = urlspec.split(",", 1)
+            name, url = [x.strip() for x in urlspec.split(",", 1)]
             _urls[name] = url
 
         if self.download_url and "Download" not in _urls:
