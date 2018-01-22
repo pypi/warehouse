@@ -219,7 +219,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 request.session.flash("Could not find role", queue="error")
 
     return HTTPSeeOther(
-        request.route_path('manage.project.roles', name=project.name)
+        request.route_path('manage.project.roles', project_name=project.name)
     )
 
 
@@ -264,5 +264,5 @@ def delete_project_role(project, request):
         request.session.flash("Successfully removed role", queue="success")
 
     return HTTPSeeOther(
-        request.route_path('manage.project.roles', name=project.name)
+        request.route_path('manage.project.roles', project_name=project.name)
     )

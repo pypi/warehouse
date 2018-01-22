@@ -18,7 +18,7 @@ from warehouse.packaging.models import (
 )
 
 
-def confirm_project(project, request):
+def confirm_project(project, request, fail_route):
     confirm = request.POST.get("confirm")
     project_name = project.normalized_name
     if not confirm:
@@ -27,10 +27,7 @@ def confirm_project(project, request):
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
@@ -38,10 +35,7 @@ def confirm_project(project, request):
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
 
 

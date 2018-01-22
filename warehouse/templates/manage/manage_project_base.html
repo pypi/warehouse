@@ -29,7 +29,7 @@
             <h3 class="sidebar-section__title"><a href="{{ request.route_path('manage.projects') }}">Your Projects</a> ({{ projects|length }})</h3>
             <nav>
             {% for project in request.user.projects %}
-              <a class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if project == current_project %}vertical-tabs__tab--is-active{% endif %}" href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}">
+              <a class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if project == current_project %}vertical-tabs__tab--is-active{% endif %}" href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}">
                 <i class="fa fa-cube" aria-hidden="true"></i>
                 {{ project.name }}
               </a>
@@ -78,9 +78,9 @@
               </div>
             </div>
             <nav class="tabs">
-              <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'settings' %}tabs__tab--is-active{% endif %}">Options</a>
-              <a href="{{ request.route_path('manage.project.releases', name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'releases' %}tabs__tab--is-active{% endif %}">Releases</a>
-              <a href="{{ request.route_path('manage.project.roles', name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'collaborators' %}tabs__tab--is-active{% endif %}">Collaborators</a>
+              <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'settings' %}tabs__tab--is-active{% endif %}">Options</a>
+              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'releases' %}tabs__tab--is-active{% endif %}">Releases</a>
+              <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'collaborators' %}tabs__tab--is-active{% endif %}">Collaborators</a>
               {# TODO: https://github.com/pypa/warehouse/issues/582
                 <a href="#" class="tabs__tab">Documentation</a>
               #}

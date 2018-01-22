@@ -263,7 +263,7 @@ class TestChangeProjectRoles:
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Successfully changed role", queue="success"),
@@ -293,7 +293,7 @@ class TestChangeProjectRoles:
         result = views.change_project_role(project, pyramid_request)
 
         assert pyramid_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -328,7 +328,7 @@ class TestChangeProjectRoles:
 
         assert db_request.db.query(Role).all() == [maintainer_role]
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Successfully changed role", queue="success"),
@@ -452,7 +452,7 @@ class TestDeleteProjectRoles:
         result = views.delete_project_role(project, db_request)
 
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.db.query(Role).all() == []
         assert db_request.session.flash.calls == [
