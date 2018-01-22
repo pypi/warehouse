@@ -21,19 +21,23 @@
   <div class="package-list">
     {% if request.user.projects %}
     {% for project in request.user.projects %}
-    {% set release = project.releases[0] %}
+    {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
       <div class="split-layout split-layout--table">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}</h3>
+          {% if release %}
           <p class="package-snippet__meta">
             <em>Last released on {{ release.created|format_date() }}</em>
           </p>
-          <p class="package-snippet__description">{{ release.summary }}</p>
+          <p class="package-snippet__description">
+            {{ release.summary }}
+          </p>
+          {% endif %}
         </div>
         <div class="package-snippet__buttons">
           <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit</a>
-          <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}" class="button">View</a>
+          <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">View</a>
         </div>
       </div>
     </div>
