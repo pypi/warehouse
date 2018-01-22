@@ -68,6 +68,13 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.edit-project-button",
+        "/_includes/edit-project-button/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
