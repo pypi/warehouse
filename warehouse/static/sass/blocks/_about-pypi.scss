@@ -28,6 +28,7 @@
 .about-pypi {
   @include split-table-layout;
   @include site-container;
+  table-layout: auto;
   max-width: 1000px;
   margin: 0 auto;
 

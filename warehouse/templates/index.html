@@ -27,9 +27,11 @@
 
 
 {% block brand %}
-<a class="site-header__logo" href="{{ request.route_path('index') }}">
-  <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-</a>
+<div>
+  <a class="site-header__logo" href="{{ request.route_path('index') }}">
+    <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+  </a>
+</div>
 {% endblock %}
 
 
