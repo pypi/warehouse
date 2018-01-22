@@ -74,20 +74,6 @@
     line-height: 28px;
   }
 
-  &--dark {
-    border-color: darken($brand-color, 16);
-    background-color: darken($brand-color, 15);
-    color: $white;
-
-    &:focus,
-    &:hover,
-    &:active {
-      border-color: darken($brand-color, 21);
-      background-color: darken($brand-color, 20);
-      color: $white;
-    }
-  }
-
   &--highlight {
     border-color: $brand-color;
     background-color: $brand-color;
