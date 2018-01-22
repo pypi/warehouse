@@ -22,6 +22,7 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.manage.forms import CreateRoleForm, ChangeRoleForm
 from warehouse.packaging.models import JournalEntry, Role
+from warehouse.utils.project import confirm_project, remove_project
 
 
 @view_config(
@@ -53,6 +54,19 @@ def manage_projects(request):
 )
 def manage_project_settings(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="manage.project.delete_project",
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage",
+)
+def delete_project(project, request):
+    confirm_project(project, request, fail_route="manage.project.settings")
+    remove_project(project, request)
+
+    return HTTPSeeOther(request.route_path('manage.projects'))
 
 
 @view_config(
