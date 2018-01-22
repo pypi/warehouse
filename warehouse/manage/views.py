@@ -46,12 +46,23 @@ def manage_projects(request):
 
 @view_config(
     route_name="manage.project.settings",
-    renderer="manage/project.html",
+    renderer="manage/settings.html",
     uses_session=True,
     permission="manage",
     effective_principals=Authenticated,
 )
 def manage_project_settings(project, request):
+    return {"project": project}
+
+
+@view_config(
+    route_name="manage.project.releases",
+    renderer="manage/releases.html",
+    uses_session=True,
+    permission="manage",
+    effective_principals=Authenticated,
+)
+def manage_project_releases(project, request):
     return {"project": project}
 
 

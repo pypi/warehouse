@@ -51,6 +51,17 @@ class TestManageProjectSettings:
         }
 
 
+class TestManageProjectReleases:
+
+    def test_manage_project_releases(self):
+        request = pretend.stub()
+        project = pretend.stub()
+
+        assert views.manage_project_releases(project, request) == {
+            "project": project,
+        }
+
+
 class TestManageProjectRoles:
 
     def test_get_manage_project_roles(self, db_request):
