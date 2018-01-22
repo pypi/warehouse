@@ -98,10 +98,17 @@
   </div>
 </section>
 
-{% if release.summary %}
+{% if release.summary %}{# TODO: https://github.com/pypa/warehouse/issues/2810 - add "or logged in user can edit package" #}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
-    <p class="package-description">{{ release.summary }}</p>
+    <div class="split-layout split-layout--middle">
+    {% if release.summary %}
+      <p class="package-description">{{ release.summary }}</p>
+    {% endif %}
+    {# TODO: https://github.com/pypa/warehouse/issues/2810 (if logged in user can edit package)
+    <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit Project</a>
+    #}
+    </div>
   </div>
 </section>
 {% endif %}
@@ -258,7 +265,7 @@
             <h2>Download Files</h2>
             <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
 
-            <table class="downloads-table">
+            <table class="table table--downloads">
               <thead>
                 <tr>
                   <th class="downloads-table__filename">

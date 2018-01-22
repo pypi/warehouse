@@ -59,6 +59,16 @@ class Role(db.Model):
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
 
+    def __gt__(self, other):
+        '''
+        Temporary hack to allow us to only display the 'highest' role when
+        there are multiple for a given user
+
+        TODO: This should be removed when fixing GH-2745.
+        '''
+        order = ['Maintainer', 'Owner']  # from lowest to highest
+        return order.index(self.role_name) > order.index(other.role_name)
+
 
 class ProjectFactory:
 
@@ -147,8 +157,10 @@ class Project(SitemapMixin, db.ModelBase):
         for role in sorted(
                 query.all(),
                 key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
-            acls.append((Allow, role.user.id, ["upload"]))
-
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
     @property

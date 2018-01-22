@@ -1,0 +1,116 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  A pure HTML/CSS modal, with a background overlay.
+
+  <div class="modal">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close" title="Close" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">close</span>
+      </a>
+      <div class="modal__body">
+        <h3 class="modal__title">Modal Title</h3>
+        <!-- content -->
+      </div>
+      <div class="modal__footer">
+        <a href="#modal-close" class="button modal__action">Cancel</a>
+        <button class="button button--highlight modal__action">Action Button</button>
+      </div>
+    </div>
+  </div>
+*/
+
+
+.modal {
+  @include overlay;
+  opacity: 0;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:target {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  &__content {
+    width: 400px;
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 3px;
+    overflow: auto;
+    background: $white;
+    position: relative;
+  }
+
+  &__body {
+    padding: $spacing-unit;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+  }
+
+  &__footer {
+    border-top: 1px solid $border-color;
+    padding: $spacing-unit / 2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  &__action {
+    margin-left: 5px;
+  }
+
+  &__close {
+    line-height: 35px;
+    width: 35px;
+    font-size: 80%;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    text-decoration: none;
+    border-radius: 0 3px 0 4px;
+    color: $border-color;
+  }
+
+  // Styles for inline forms
+  &__form {
+    label{
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      margin: 5px 0 20px 0;
+    }
+
+    input:last-child {
+      margin-bottom: 0;
+    }
+
+    .show-password,
+    .show-password input {
+      font-weight: normal;
+      width: auto;
+      margin: 0;
+    }
+  }
+}

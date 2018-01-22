@@ -362,6 +362,9 @@ def configure(settings=None):
     # Register our authentication support.
     config.include(".accounts")
 
+    # Register logged-in views
+    config.include(".manage")
+
     # Allow the packaging app to register any services it has.
     config.include(".packaging")
 

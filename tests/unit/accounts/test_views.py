@@ -559,15 +559,6 @@ class TestResetPassword:
         ]
 
 
-class TestClientSideIncludes:
-
-    def test_edit_gravatar_csi_returns_user(self, db_request):
-        user = UserFactory.create()
-        assert views.edit_gravatar_csi(user, db_request) == {
-            "user": user,
-        }
-
-
 class TestProfileCallout:
 
     def test_profile_callout_returns_user(self):

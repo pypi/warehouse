@@ -27,6 +27,21 @@ from ...common.db.packaging import (
 )
 
 
+class TestRole:
+
+    def test_role_ordering(self, db_request):
+        project = DBProjectFactory.create()
+        owner_role = DBRoleFactory.create(
+            project=project,
+            role_name="Owner",
+        )
+        maintainer_role = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        assert max([maintainer_role, owner_role]) == owner_role
+
+
 class TestProjectFactory:
 
     @pytest.mark.parametrize(
@@ -95,10 +110,10 @@ class TestProject:
 
         assert project.__acl__() == [
             (Allow, "group:admins", "admin"),
-            (Allow, owner1.user.id, ["upload"]),
-            (Allow, owner2.user.id, ["upload"]),
-            (Allow, maintainer1.user.id, ["upload"]),
-            (Allow, maintainer2.user.id, ["upload"]),
+            (Allow, str(owner1.user.id), ["manage", "upload"]),
+            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(maintainer1.user.id), ["upload"]),
+            (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
 
