@@ -24,9 +24,7 @@
         <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
         <div class="author-profile__meta">
-          {% if user.name %}
           <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
-          {% endif %}
           {% if user.date_joined %}
           <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
           {% endif %}
