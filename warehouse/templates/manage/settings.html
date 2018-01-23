@@ -22,7 +22,9 @@
 
   <h3>Delete project</h3>
 
-  <p>Deleting will irreversibly delete this project along with
+  <p>
+  {% if project.releases %}
+    Deleting will irreversibly delete this project along with
     <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">
       {{ project.releases|length() }}
       {% trans count=project.releases|length %}
@@ -31,6 +33,9 @@
         releases.
       {% endtrans %}
     </a>
+  {% else %}
+    Deleting will irreversibly delete this project.
+  {% endif %}
   </p>
 
   <a href="#delete-project-modal" class="button button--highlight">Delete</a>
