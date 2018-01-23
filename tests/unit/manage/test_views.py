@@ -33,6 +33,77 @@ class TestManageProfile:
         assert views.manage_profile(request) == {}
 
 
+class TestSaveProfile:
+
+    def test_save_profile(self, pyramid_request):
+        pyramid_request.POST = {'name': 'new name'}
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        update_user = pretend.call_recorder(lambda *a, **kw: None)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda iface, context: pretend.stub(update_user=update_user)
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        form_obj = pretend.stub(
+            validate=lambda: True,
+            data=pyramid_request.POST,
+        )
+        form_class = pretend.call_recorder(lambda d: form_obj)
+
+        result = views.save_profile(pyramid_request, form_class)
+
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Public profile updated.', queue='success'),
+        ]
+        assert update_user.calls == [
+            pretend.call(pyramid_request.user.id, **pyramid_request.POST)
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+    def test_save_profile_validation_fails(self, pyramid_request):
+        pyramid_request.POST = {'name': 'new name'}
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        update_user = pretend.call_recorder(lambda *a, **kw: None)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda iface, context: pretend.stub(update_user=update_user)
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        form_obj = pretend.stub(
+            validate=lambda: False,
+            data=pyramid_request.POST,
+        )
+        form_class = pretend.call_recorder(lambda d: form_obj)
+
+        result = views.save_profile(pyramid_request, form_class)
+
+        assert pyramid_request.session.flash.calls == []
+        assert update_user.calls == []
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+
 class TestManageProjects:
 
     def test_manage_projects(self):

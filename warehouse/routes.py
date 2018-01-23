@@ -107,6 +107,11 @@ def includeme(config):
 
     # Management (views for logged-in users)
     config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
+    config.add_route(
+        "manage.profile.save-profile",
+        "/manage/profile/save-profile",
+        domain=warehouse,
+    )
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

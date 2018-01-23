@@ -20,7 +20,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
-from warehouse.manage.forms import CreateRoleForm, ChangeRoleForm
+from warehouse.manage.forms import (
+    CreateRoleForm, ChangeRoleForm, SaveProfileForm
+)
 from warehouse.packaging.models import JournalEntry, Role
 from warehouse.utils.project import confirm_project, remove_project
 
@@ -33,6 +35,25 @@ from warehouse.utils.project import confirm_project, remove_project
 )
 def manage_profile(request):
     return {}
+
+
+@view_config(
+    route_name="manage.profile.save-profile",
+    uses_session=True,
+    require_methods=["POST"],
+    effective_principals=Authenticated,
+)
+def save_profile(request, _form_class=SaveProfileForm):
+    form = _form_class(request.POST)
+
+    if form.validate():
+        user_service = request.find_service(IUserService, context=None)
+        user_service.update_user(request.user.id, **form.data)
+        request.session.flash('Public profile updated.', queue='success')
+
+    return HTTPSeeOther(
+        request.route_path('manage.profile')
+    )
 
 
 @view_config(

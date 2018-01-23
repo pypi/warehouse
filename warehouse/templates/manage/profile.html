@@ -23,17 +23,19 @@
 
 {% block main %}
   <h1>{{ title }}</h1>
-  <div class="author-profile">
+  <h2>Public Profile</h2>
+  <div>
+    <label>Profile picture</label>
     {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
     <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
     <a href="{{ gravatar_profile(user.email) }}">Change this image</a>
-    <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
-    <div class="author-profile__meta">
-      {% if user.name %}
-      <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
-      {% endif %}
-      {% if user.date_joined %}
-      <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
-      {% endif %}
+  </div>
+  <form method="POST" action="{{ request.route_path('manage.profile.save-profile') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="form-group">
+      <label class="form-group__label" for="name">Full name</label>
+      <input class="form-group__input" name="name" placeholder="No name set" value="{{ user.name }}">
     </div>
+    <input value="Update profile" class="button button--highlight" type="submit">
+  </form>
 {% endblock %}

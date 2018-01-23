@@ -55,3 +55,8 @@ class CreateRoleForm(RoleNameMixin, UsernameMixin, forms.Form):
 
 class ChangeRoleForm(RoleNameMixin, forms.Form):
     pass
+
+
+class SaveProfileForm(forms.Form):
+
+    name = wtforms.StringField()
