@@ -26,14 +26,17 @@
       <div class="vertical-tabs">
         <div class="vertical-tabs__tabs">
           <div class="sidebar-section">
-            <h3 class="sidebar-section__title"><a href="{{ request.route_path('manage.projects') }}">Your Projects</a> ({{ projects|length }})</h3>
+            <h3 class="sidebar-section__title">
+              <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;
+              <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
+            </h3>
             <nav>
-            {% for project in request.user.projects %}
-              <a class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if project == current_project %}vertical-tabs__tab--is-active{% endif %}" href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}">
-                <i class="fa fa-cube" aria-hidden="true"></i>
-                {{ project.name }}
-              </a>
-            {% endfor %}
+              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">Releases</a>
+              <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">Collaborators</a>
+              <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">Settings</a>
+              {# TODO: https://github.com/pypa/warehouse/issues/582
+                <a href="#" class="tabs__tab">Documentation</a>
+              #}
             </nav>
           </div>
         </div>
@@ -48,115 +51,17 @@
                     <p class="package-snippet__description">{{ release.summary }}</p>
                   {% endif %}
                 </div>
-                <div class="dropdown dropdown--with-icons">
-                  <button class="dropdown__trigger button button--primary">
-                    Project Options
-                    <span class="dropdown__trigger-caret">
-                      <i class="fa fa-caret-down" aria-hidden="true"></i>
-                      <span class="sr-only">view submenu</span>
-                    </span>
-                  </button>
-                  <div class="dropdown__content">
-                    <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="dropdown__link">
-                      <i class="fa fa-eye" aria-hidden="true"></i>
-                      View Project
-                    </a>
-                    {# TODO: https://github.com/pypa/warehouse/issues/2805
-                      <a href="#delete-project-modal" class="dropdown__link">
-                        <i class="fa fa-trash" aria-hidden="true"></i>
-                        Delete Project
-                      </a>
-                    #}
-                    {# https://github.com/pypa/warehouse/issues/2806
-                      <a href="{{ request.route_path('help')}}#updating-projects" class="dropdown__link">
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                        Update Project (help)
-                      </a>
-                    #}
-                  </div>
+                <div>
+                  <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button button--highlight pull-right">
+                    View Project
+                  </a>
                 </div>
               </div>
             </div>
-            <nav class="tabs">
-              <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'settings' %}tabs__tab--is-active{% endif %}">Options</a>
-              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'releases' %}tabs__tab--is-active{% endif %}">Releases</a>
-              <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="tabs__tab {% if active_tab == 'collaborators' %}tabs__tab--is-active{% endif %}">Collaborators</a>
-              {# TODO: https://github.com/pypa/warehouse/issues/582
-                <a href="#" class="tabs__tab">Documentation</a>
-              #}
-            </nav>
             {% block main %}{% endblock %}
           </div>
         </div>
       </div>
-
-      <!-- delete modals -->
-      {# TODO: https://github.com/pypa/warehouse/issues/2805
-        <div id="delete-project-modal" class="modal">
-          <div class="modal__content" role="dialog">
-            <a href="#modal-close" title="Close" class="modal__close">
-              <i class="fa fa-times" aria-hidden="true"></i>
-              <span class="sr-only">close</span>
-            </a>
-            <div class="modal__body">
-              <h3 class="modal__title">Delete {{ project.name }}?</h3>
-              <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-                <p>Warning: This action cannot be undone!</p>
-              </div>
-              <p>Confirm the project name and enter your password to continue.</p>
-              <form class="modal__form">
-                <label for="project-name">Project Name</label>
-                <input type="text" id="project-name" placeholder="Confirm project name">
-                <div class="split-layout">
-                  <label for="project">Password</label>
-                  <label for="show-password" class="show-password">
-                    <input id="show-password" type="checkbox">&nbsp;Show password
-                  </label>
-                </div>
-                <input type="password" id="project" placeholder="Your password">
-              </form>
-            </div>
-            <div class="modal__footer">
-              <a href="#modal-close" class="button modal__action">Cancel</a>
-              <button class="button button--primary modal__action">Delete Project</button>
-            </div>
-          </div>
-        </div>
-      #}
-
-      {# TODO: https://github.com/pypa/warehouse/issues/2808
-        {% for release in project.releases %}
-          <div id="delete-release-modal-{{ loop.index }}" class="modal">
-            <div class="modal__content" role="dialog">
-              <a href="#modal-close" title="Close" class="modal__close">
-                <i class="fa fa-times" aria-hidden="true"></i>
-                <span class="sr-only">close</span>
-              </a>
-              <div class="modal__body">
-                <h3 class="modal__title">Delete {{ project.name }} - release {{ release.version }}?</h3>
-                <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-                  <p>Warning: This action cannot be undone!</p>
-                </div>
-                <p>Enter your password to continue.</p>
-                <form class="modal__form">
-                  <div class="split-layout">
-                    <label for="password">Password</label>
-                    <label for="show-password" class="show-password">
-                      <input id="show-password" type="checkbox">&nbsp;Show password
-                    </label>
-                  </div>
-                  <input type="password" id="password" placeholder="Your password">
-                </form>
-              </div>
-              <div class="modal__footer">
-                <a href="#modal-close" class="button modal__action">Cancel</a>
-                <button class="button button--primary modal__action">Delete Release</button>
-              </div>
-            </div>
-          </div>
-        {% endfor %}
-      #}
-
     </div>
   </section>
 {% endblock %}

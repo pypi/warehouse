@@ -19,21 +19,8 @@
 
 {% block main %}
   <h2>Settings</h2>
+
   <h3>Delete project</h3>
-  {% set project_name = project.normalized_name %}
-  <form method="POST" action="{{ request.route_path('manage.project.delete_project', project_name=project_name) }}">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <p>
-      Deleting will irreversibly delete this project along with
-      <a href="{{ request.route_path('manage.project.releases', project_name=project_name) }}">
-        {{ project.releases|length() }}
-        {% trans count=project.releases|length %}
-          release.
-        {% pluralize %}
-          releases.
-        {% endtrans %}
-      </a>
-    </p>
 
   <p>Deleting will irreversibly delete this project along with
     <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">
