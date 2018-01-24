@@ -1,11 +1,25 @@
+.. _getting-started:
+
 Getting started
 ===============
 
 We're pleased that you are interested in working on Warehouse.
 
+Your first pull request
+-----------------------
+
+After you set up your development environment and ensure you can run
+the tests and build the documentation (using the instructions in this
+document), please look at our `open issues that are labelled "good
+first issue"`_, find one you want to work on, comment on it to say
+you're working on it, then submit a pull request. Use our
+:doc:`submitting-patches` documentation to help.
+
 Setting up a development environment to work on Warehouse should be a
-straightforward process. If you have any difficulty, please contact us so
-we can improve the process.
+straightforward process. If you have any difficulty, please contact us
+so we can improve the process. You can find us via a `GitHub`_ issue,
+``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the `pypa-dev mailing
+list`_, to ask questions or get involved.
 
 
 Quickstart for Developers with Docker experience
@@ -22,9 +36,9 @@ View Warehouse in the browser at ``http://localhost:80/``.
 Detailed Installation Instructions
 ----------------------------------
 
-Getting the warehouse source code
+Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the warehouse repository from GitHub:
+Clone the Warehouse repository from `GitHub`_:
 
 .. code-block:: console
 
@@ -92,7 +106,7 @@ in the repository root directory.
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the docker container at ``/opt/warehouse/src/``.
+mounted inside of the Docker container at ``/opt/warehouse/src/``.
 
 
 Running the Warehouse Container and Services
@@ -222,7 +236,7 @@ into the message "no space left on device", try running the following command
    docker volume rm $(docker volume ls -qf dangling=true)
 
 .. note:: This will delete orphaned volumes as well as directories that are not
-   volumes in /var/lib/docker/volumes
+   volumes in ``/var/lib/docker/volumes``
 
 (Solution found and further details available at
 https://github.com/chadoe/docker-cleanup-volumes)
@@ -231,8 +245,9 @@ https://github.com/chadoe/docker-cleanup-volumes)
 Building Styles
 ---------------
 
-Styles are written in the scss variant of Sass and compiled using Gulp. They
-will be automatically built when changed when ``make serve`` is running.
+Styles are written in the scss variant of Sass and compiled using
+``gulp``. They will be automatically built when changed when ``make
+serve`` is running.
 
 
 Running the Interactive Shell
@@ -271,7 +286,7 @@ shell.
 Running tests and linters
 -------------------------
 
-.. note:: PostgreSQL 9.4 is required because of pgcrypto extension
+.. note:: PostgreSQL 9.4 is required because of ``pgcrypto`` extension
 
 The Warehouse tests are found in the ``tests/`` directory and are designed to
 be run using make.
@@ -325,3 +340,7 @@ command will give the following error message:
 .. _`pip`: https://pypi.python.org/pypi/pip
 .. _`sphinx`: https://pypi.python.org/pypi/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
+.. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+.. _`GitHub`: https://github.com/pypa/warehouse
+.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
+.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev

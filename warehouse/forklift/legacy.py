@@ -274,6 +274,7 @@ class MetadataForm(forms.Form):
 
     # Metadata version
     metadata_version = wtforms.StringField(
+        description="Metadata-Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
@@ -288,6 +289,7 @@ class MetadataForm(forms.Form):
 
     # Identity Project and Release
     name = wtforms.StringField(
+        description="Name",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -301,6 +303,7 @@ class MetadataForm(forms.Form):
         ],
     )
     version = wtforms.StringField(
+        description="Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -313,6 +316,7 @@ class MetadataForm(forms.Form):
 
     # Additional Release metadata
     summary = wtforms.StringField(
+        description="Summary",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Length(max=512),
@@ -323,37 +327,57 @@ class MetadataForm(forms.Form):
         ],
     )
     description = wtforms.StringField(
+        description="Description",
         validators=[wtforms.validators.Optional()],
     )
-    author = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    author = wtforms.StringField(
+        description="Author",
+        validators=[wtforms.validators.Optional()],
+    )
     author_email = wtforms.StringField(
+        description="Author-email",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Email(),
         ],
     )
     maintainer = wtforms.StringField(
+        description="Maintainer",
         validators=[wtforms.validators.Optional()],
     )
     maintainer_email = wtforms.StringField(
+        description="Maintainer-email",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Email(),
         ],
     )
-    license = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    keywords = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    classifiers = wtforms.fields.SelectMultipleField()
-    platform = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    license = wtforms.StringField(
+        description="License",
+        validators=[wtforms.validators.Optional()],
+    )
+    keywords = wtforms.StringField(
+        description="Keywords",
+        validators=[wtforms.validators.Optional()],
+    )
+    classifiers = wtforms.fields.SelectMultipleField(
+        description="Classifier",
+    )
+    platform = wtforms.StringField(
+        description="Platform",
+        validators=[wtforms.validators.Optional()],
+    )
 
     # URLs
     home_page = wtforms.StringField(
+        description="Home-Page",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
         ],
     )
     download_url = wtforms.StringField(
+        description="Download-URL",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
@@ -362,6 +386,7 @@ class MetadataForm(forms.Form):
 
     # Dependency Information
     requires_python = wtforms.StringField(
+        description="Requires-Python",
         validators=[
             wtforms.validators.Optional(),
             _validate_pep440_specifier_field,
@@ -384,7 +409,9 @@ class MetadataForm(forms.Form):
             ),
         ]
     )
-    comment = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    comment = wtforms.StringField(
+        validators=[wtforms.validators.Optional()],
+    )
     md5_digest = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -398,7 +425,7 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, SHA256 message digest.",
             ),
-        ]
+        ],
     )
     blake2_256_digest = wtforms.StringField(
         validators=[
@@ -408,7 +435,7 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, blake2 message digest.",
             ),
-        ]
+        ],
     )
 
     # Legacy dependency information
@@ -416,7 +443,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
-        ]
+        ],
     )
     provides = ListField(
         validators=[
@@ -433,24 +460,28 @@ class MetadataForm(forms.Form):
 
     # Newer dependency information
     requires_dist = ListField(
+        description="Requires-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     provides_dist = ListField(
+        description="Provides-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     obsoletes_dist = ListField(
+        description="Obsoletes-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     requires_external = ListField(
+        description="Requires-External",
         validators=[
             wtforms.validators.Optional(),
             _validate_requires_external_list,
@@ -459,6 +490,7 @@ class MetadataForm(forms.Form):
 
     # Newer metadata information
     project_urls = ListField(
+        description="Project-URL",
         validators=[
             wtforms.validators.Optional(),
             _validate_project_url_list,
@@ -649,12 +681,27 @@ def file_upload(request):
         else:
             field_name = sorted(form.errors.keys())[0]
 
+        if field_name in form:
+            if form[field_name].description:
+                error_message = (
+                    "{value!r} is an invalid value for {field}. ".format(
+                        value=form[field_name].data,
+                        field=form[field_name].description) +
+                    "Error: {} ".format(form.errors[field_name][0]) +
+                    "see "
+                    "https://packaging.python.org/specifications/core-metadata"
+                )
+            else:
+                error_message = "{field}: {msgs[0]}".format(
+                    field=field_name,
+                    msgs=form.errors[field_name],
+                )
+        else:
+            error_message = "Error: {}".format(form.errors[field_name][0])
+
         raise _exc_with_message(
             HTTPBadRequest,
-            "{field}: {msgs[0]}".format(
-                field=field_name,
-                msgs=form.errors[field_name],
-            ),
+            error_message,
         )
 
     # Ensure that we have file data in the request.
