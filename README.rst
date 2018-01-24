@@ -1,9 +1,11 @@
 Warehouse
 =========
 
-Warehouse is a next-generation Python Package Repository designed to replace
-the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
-(whose source code `lives on GitHub <https://github.com/pypa/pypi-legacy/>`_).
+Warehouse is a next-generation Python Package Repository designed to
+replace the legacy code base that currently powers `PyPI
+<https://pypi.python.org/>`_ (whose source code `lives on GitHub
+<https://github.com/pypa/pypi-legacy/>`_). See `our development
+roadmap`_.
 
 You can find more information in the `documentation`_.
 
@@ -24,7 +26,7 @@ If you run into bugs, you can file them in our `issue tracker`_.
 You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
 `pypa-dev mailing list`_, to ask questions or get involved.
 
-
+.. _`our development roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
 .. _`documentation`: https://warehouse.readthedocs.io/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
