@@ -57,6 +57,114 @@ Important information should be documented with prose in the ``docs`` section.
 To ensure it builds and passes `doc8`_ style checks you can run
 ``make docs`` and ``make lint`` respectively.
 
+Keeping your local branch updated
+---------------------------------
+
+As you work, you will need to keep your local ``master`` branch up-to-date with
+the ``master`` branch in the main Warehouse repository, which moves forward as
+the maintainers merge pull requests. Most people working on the project use
+the following workflow.
+
+The following documentation assumes that you have git configured so that when
+you run the following command:
+
+.. code-block:: console
+
+  git remote -v
+
+Your output looks like this:
+
+.. code-block:: console
+
+  origin  https://github.com/username/warehouse.git (fetch)
+  origin  https://github.com/username/warehouse.git (push)
+  upstream  https://github.com/pypa/warehouse.git (fetch)
+  upstream  https://github.com/pypa/warehouse.git (push)
+
+
+In the example above, ``<username>`` is your username on GitHub.
+
+First, fetch the latest changes from the main Warehouse repository,
+``upstream``:
+
+.. code-block:: console
+
+  git fetch upstream
+
+Then, check out your local ``master`` branch, and rebase the changes on top of
+it:
+
+.. code-block:: console
+
+  git checkout master
+  git rebase upstream/master
+
+Next, push the updates you have just made to your local ``master`` branch to
+your ``origin`` repository on GitHub:
+
+.. code-block:: console
+
+  git checkout master
+  git push origin master
+
+Now your local ``master`` branch and the ``master`` branch in your ``origin``
+repo have been updated with the most recent changes from the main Warehouse
+repository.
+
+To keep your feature branches updated, the process is similar:
+
+.. code-block:: console
+
+   git checkout awesome-feature
+   git fetch upstream
+   git rebase upstream/master
+
+Now your feature branch has been updated with the latest changes from the
+``master`` branch on the upstream Warehouse repository.
+
+It's good practice to back up your feature branches by pushing them to your
+``origin`` on GitHub as you are working on them. To push a feature branch,
+run this command:
+
+.. code-block:: console
+
+    git push origin awesome-feature
+
+In this example, ``<awesome-feature>`` is the name of your feature branch. This
+will push the feature branch you are working on to GitHub, but will not
+create a PR.
+
+Once you have pushed your feature branch to your ``origin``, if you need to
+update it again, you will have to force push your changes by running the
+following command:
+
+.. code-block:: console
+
+    git push -f origin awesome-feature
+
+The ``-f`` (or ``--force``) flag after ``push`` forces updates from your local
+branch to update your ``origin`` feature branch. If you have a PR open on your
+feature branch, force pushing will update your PR. (This is a useful command
+when someone requests changes on a PR.)
+
+If you get an error message like this:
+
+.. code-block:: console
+
+    ! [rejected]        awesome-feature -> awesome-feature (non-fast-forward)
+    error: failed to push some refs to 'https://github.com/USERNAME/warehouse.git'
+    hint: Updates were rejected because the tip of your current branch is behind
+    hint: its remote counterpart. Integrate the remote changes (e.g.
+    hint: 'git pull ...') before pushing again.
+    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+Try force-pushing your feature branch with ``push -f``.
+
+The ``master`` branch in the main Warehouse repository gets updated frequently
+as dependency upgrades are merged, so you will probably have to update your
+feature branch at least once while you are working on it.
+
+
 .. _`Write comments as complete sentences.`: http://nedbatchelder.com/blog/201401/comments_should_be_sentences.html
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
 .. _`Studies have shown`: https://smartbear.com/smartbear/media/pdfs/wp-cc-11-best-practices-of-peer-code-review.pdf
