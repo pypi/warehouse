@@ -88,10 +88,45 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "accounts.edit_gravatar",
-        "/user/{username}/edit_gravatar/",
-        factory="warehouse.accounts.models:UserFactory",
-        traverse="/{username}",
+        "accounts.request-password-reset",
+        "/account/request-password-reset/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.reset-password",
+        "/account/reset-password/",
+        domain=warehouse,
+    )
+
+    # Management (views for logged-in users)
+    config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
+    config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
+    config.add_route(
+        "manage.project.settings",
+        "/manage/project/{name}/settings/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.roles",
+        "/manage/project/{name}/collaboration/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.change_role",
+        "/manage/project/{name}/collaboration/change/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_role",
+        "/manage/project/{name}/collaboration/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
         domain=warehouse,
     )
 

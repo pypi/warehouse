@@ -172,6 +172,18 @@ def configure(settings=None):
     maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
+    maybe_set(
+        settings,
+        "password_reset.secret",
+        "PASSWORD_RESET_SECRET_KEY"
+    )
+    maybe_set(
+        settings,
+        "password_reset.token_max_age",
+        "PASSWORD_RESET_TOKEN_MAX_AGE",
+        coercer=int,
+        default=21600,  # 6 hours
+    )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
@@ -349,6 +361,9 @@ def configure(settings=None):
 
     # Register our authentication support.
     config.include(".accounts")
+
+    # Register logged-in views
+    config.include(".manage")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")

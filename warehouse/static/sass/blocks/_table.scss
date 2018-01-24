@@ -1,0 +1,170 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// TABLE
+
+.table {
+  @include card;
+  @include border-width(1px null);
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+  margin: 25px 0 0 0;
+  font-size: $small-font-size;
+  width: 100%;
+
+  tr {
+    border-bottom: 1px solid $border-color;
+  }
+
+  th,
+  td {
+    margin: 0;
+    border: 0;
+    padding: 10px 7px;
+    border-right: 1px solid $border-color;
+  }
+
+  thead tr {
+    background-color: $white;
+
+    th {
+      vertical-align: bottom;
+      font-weight: $bold-font-weight;
+    }
+  }
+
+  tbody {
+    tr {
+      background-color: darken($background-color, 0.75);
+    }
+    tr:nth-child(even) {
+      background-color: darken($background-color, 2);
+    }
+  }
+
+  &--light {
+    border: 0;
+    font-size: $base-font-size;
+    box-shadow: none;
+
+    tbody tr,
+    tbody tr:nth-child(2n),
+    th,
+    td {
+      border: 0;
+      background-color: transparent;
+      padding: 10px 0;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid $base-grey;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  &--downloads {
+    box-sizing: border-box;
+    table-layout: fixed;
+    word-wrap: break-word;
+    margin-top: ($spacing-unit / 2);
+    margin-bottom: 10px;
+
+    &__filename {
+      width: 65%;
+    }
+
+    &__version {
+      width: 9%;
+    }
+
+    &__type,
+    &__upload-date {
+      width: 13%;
+    }
+
+    &__sha256-link {
+      margin-left: 5px;
+    }
+
+    @media only screen and (max-width: $large-desktop){
+      // Hide "file type" column
+      th:nth-child(3),
+      td:nth-child(3) {
+        display: none;
+      }
+    }
+
+    @media only screen and (max-width: $desktop){
+      // Hide "version" column
+      th:nth-child(5),
+      td:nth-child(5) {
+        display: none;
+      }
+    }
+
+    @media only screen and (max-width: $tablet){
+      // Hide "upload date" column
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+
+      // Hide "upload date" column
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 20%;
+      }
+
+      th:first,
+      td:first {
+        width: 80%;
+      }
+    }
+
+    @media only screen and (max-width: $mobile){
+      // Hide "upload date" column
+      th:nth-child(2),
+      td:nth-child(2) {
+        display: none;
+      }
+    }
+  }
+
+  &--releases {
+    box-sizing: border-box;
+    table-layout: fixed;
+    word-wrap: break-word;
+
+    .table__version,
+    .table__date {
+      width: 130px;
+    }
+
+    .table__options {
+      width: 110px;
+      text-align: right;
+    }
+
+    @media only screen and (max-width: $tablet){
+      .table__summary {
+        display: none;
+      }
+    }
+  }
+}

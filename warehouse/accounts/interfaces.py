@@ -21,12 +21,25 @@ class TooManyFailedLogins(Exception):
         return super().__init__(*args, **kwargs)
 
 
+class InvalidPasswordResetToken(Exception):
+    def __init__(self, message, *args, **kwargs):
+        self.message = message
+
+        return super().__init__(*args, **kwargs)
+
+
 class IUserService(Interface):
 
     def get_user(userid):
         """
         Return the user object that represents the given userid, or None if
         there is no user for that ID.
+        """
+
+    def get_user_by_username(username):
+        """
+        Return the user object corresponding with the given username, or None
+        if there is no user with that username.
         """
 
     def find_userid(username):
@@ -58,4 +71,17 @@ class IUserService(Interface):
     def verify_email(user_id, email_address):
         """
         verifies the user
+        """
+
+
+class IUserTokenService(Interface):
+
+    def generate_token(user):
+        """
+        Generates a unique token based on user attributes
+        """
+
+    def get_user_by_token(token):
+        """
+        Gets the user corresponding to the token provided
         """

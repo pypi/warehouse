@@ -11,17 +11,24 @@
 # limitations under the License.
 
 import collections
-import datetime
 import functools
+import hmac
 import logging
+import uuid
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
+from warehouse.utils.crypto import (
+    BadData, SignatureExpired, URLSafeTimedSerializer,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -56,12 +63,18 @@ class DatabaseUserService:
             argon2__time_cost=6,
         )
 
+
     @functools.lru_cache()
     def get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
+
+    @functools.lru_cache()
+    def get_user_by_username(self, username):
+        user_id = self.find_userid(username)
+        return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
     def find_userid(self, username):
@@ -167,6 +180,63 @@ class DatabaseUserService:
                 email.verified = True
 
 
+@implementer(IUserTokenService)
+class UserTokenService:
+    def __init__(self, user_service, settings):
+        self.user_service = user_service
+        self.serializer = URLSafeTimedSerializer(
+            settings["password_reset.secret"],
+            salt="password-reset",
+        )
+        self.token_max_age = settings["password_reset.token_max_age"]
+
+    def generate_token(self, user):
+        return self.serializer.dumps({
+            "user.id": str(user.id),
+            "user.last_login": str(user.last_login),
+            "user.password_date": str(user.password_date),
+        })
+
+    def get_user_by_token(self, token):
+        if not token:
+            raise InvalidPasswordResetToken(
+                "Invalid token - No token supplied"
+            )
+
+        try:
+            data = self.serializer.loads(token, max_age=self.token_max_age)
+        except SignatureExpired:
+            raise InvalidPasswordResetToken(
+                "Expired token - Token is expired, request a new password "
+                "reset link"
+            )
+        except BadData: #  Catch all other exceptions
+            raise InvalidPasswordResetToken(
+                "Invalid token - Request a new password reset link"
+            )
+
+        # Check whether a user with the given user ID exists
+        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
+        if user is None:
+            raise InvalidPasswordResetToken("Invalid token - User not found")
+
+        last_login = data.get("user.last_login")
+        if str(user.last_login) > last_login:
+            raise InvalidPasswordResetToken(
+                "Invalid token - User has logged in since this token was "
+                "requested"
+            )  # TODO: track and audit this, seems alertable
+
+        password_date = data.get("user.password_date")
+        if str(user.password_date) > password_date:
+            raise InvalidPasswordResetToken(
+                "Invalid token - Password has already been changed since this "
+                "token was requested"
+            )
+
+        return user
+
+
 def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
@@ -182,4 +252,11 @@ def database_login_factory(context, request):
                 context=None,
             ),
         },
+    )
+
+
+def user_token_factory(context, request):
+    return UserTokenService(
+        request.find_service(IUserService),
+        request.registry.settings
     )

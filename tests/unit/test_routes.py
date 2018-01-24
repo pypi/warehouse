@@ -116,10 +116,51 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "accounts.edit_gravatar",
-            "/user/{username}/edit_gravatar/",
-            factory="warehouse.accounts.models:UserFactory",
-            traverse="/{username}",
+            "accounts.request-password-reset",
+            "/account/request-password-reset/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.reset-password",
+            "/account/reset-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.profile",
+            "/manage/profile/",
+            domain=warehouse
+        ),
+        pretend.call(
+            "manage.projects",
+            "/manage/projects/",
+            domain=warehouse
+        ),
+        pretend.call(
+            "manage.project.settings",
+            "/manage/project/{name}/settings/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.roles",
+            "/manage/project/{name}/collaboration/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.change_role",
+            "/manage/project/{name}/collaboration/change/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.delete_role",
+            "/manage/project/{name}/collaboration/delete/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
             domain=warehouse,
         ),
         pretend.call(

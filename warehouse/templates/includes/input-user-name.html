@@ -11,7 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% set own_profile = request.user and request.user.username == user.username %}
-{% if own_profile %}
-<a href="{{ gravatar_profile(user.email) }}">Change this image</a>
+{{ form.username(placeholder="Your username", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input") }}
+{% if form.username.errors %}
+  <ul class="form-errors">
+    {% for error in form.username.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
 {% endif %}

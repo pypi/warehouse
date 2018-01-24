@@ -28,7 +28,9 @@ RECAPTCHA_SECRET_KEY
 
 MAIL_HOST=smtp
 MAIL_PORT=2525
-MAIL_SENDER=noreply@pypi.org
+MAIL_SENDER=admin@mail.pypi.org
 MAIL_SSL=false
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
+
+PASSWORD_RESET_SECRET_KEY="an insecure password reset secret key"

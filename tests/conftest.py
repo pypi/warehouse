@@ -25,6 +25,7 @@ from pytest_postgresql.factories import (
 from sqlalchemy import event
 
 from warehouse.config import configure
+from warehouse.accounts import services
 
 from .common.db import Session
 
@@ -106,6 +107,7 @@ def app_config(database):
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
+            "password_reset.secret": "insecure secret",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
@@ -142,6 +144,20 @@ def db_session(app_config):
         trans.rollback()
         conn.close()
         engine.dispose()
+
+
+@pytest.yield_fixture
+def user_service(db_session, app_config):
+    return services.DatabaseUserService(
+        db_session, app_config.registry.settings
+    )
+
+
+@pytest.yield_fixture
+def token_service(app_config, user_service):
+    return services.UserTokenService(
+        user_service, app_config.registry.settings
+    )
 
 
 class QueryRecorder:
