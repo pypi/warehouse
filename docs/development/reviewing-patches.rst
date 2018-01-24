@@ -50,12 +50,12 @@ Has this output:
 
 .. code-block:: console
 
-  origin  https://github.com/USERNAME/warehouse.git (fetch)
-  origin  https://github.com/USERNAME/warehouse.git (push)
+  origin  https://github.com/<username>/warehouse.git (fetch)
+  origin  https://github.com/<username>/warehouse.git (push)
   upstream  https://github.com/pypa/warehouse.git (fetch)
   upstream  https://github.com/pypa/warehouse.git (push)
 
-In the output above, ``USERNAME`` is your GitHub username. If you do not have
+In the output above, ``<username>`` is your GitHub username. If you do not have
 an ``upstream`` branch configured, you can add one by running the following
 command:
 
@@ -68,20 +68,20 @@ Pull down the PR branch by running the following commands:
 .. code-block:: console
 
    git checkout master
-   git fetch upstream pull/ID/head:BRANCHNAME
+   git fetch upstream pull/<id>/head:<branchname>
 
 In this example, ``upstream`` refers to the Warehouse repository on GitHub.
-``ID`` refers to the sequence of digits after the pull request's title.
-``BRANCHNAME`` creates a new branch on your machine which has the pull request
-on it. If you create a branch in your local repository with the name
-``BRANCHNAME`` before pulling down the PR branch, this command will fail.
+``<id>`` refers to the sequence of digits after the pull request's title.
+``<branchname>`` creates a new branch on your machine which has the pull
+request on it. If you create a branch in your local repository with the name
+``<branchname>`` before pulling down the PR branch, this command will fail.
 
 In order to test the branch, first switch to the new branch with the PR on
 it that you have pulled down:
 
 .. code-block:: console
 
-   git checkout BRANCHNAME
+   git checkout <branchname>
 
 Once you are on the PR branch, it's probably best to rebase the changes
 against the current master branch. The older the PR is, the more important
@@ -91,7 +91,7 @@ in testing the changes in the PR branch.
 
 .. code-block:: console
 
-   git checkout BRANCHNAME
+   git checkout <branchname>
    git fetch upstream
    git rebase upstream/master
 
@@ -101,6 +101,32 @@ Once you have completed these steps, you are ready to test the PR branch.
 If you have found any bugs in the course of your testing, you can leave a
 brief comment describing the issue you encountered on GitHub in the comments
 under the issue.
+
+Testing with twine
+------------------
+If you are testing Warehouse locally, you may want to use `twine`_ to try
+uploading a test package. First, checkout the branch you would like to test.
+Then, start up the development environment (as described in :ref:`getting-started`).
+Once you have the Warehouse site working on ``localhost:80``, you can upload a
+package to the version of Warehouse running in your development environment
+with Twine using the following command:
+
+.. code-block:: console
+
+  twine upload --repository-url http://localhost/legacy/ -u <username> -p password <path to distribution>
+
+In the command above,
+
+-   ``<path to distribution>`` should be a path to a distribution file (or
+    directory of distribution files) of the package you would like to test,
+    likely created by running ``python setup.py``.
+
+-   ``<username>`` is the username of the account you would like to test with.
+    Note that your current PyPI username may not exist in the development
+    environment.
+
+-   ``password`` is the literal string "password". All passwords in the
+    development environment have been set to this value.
 
 Merge requirements
 ------------------
@@ -121,3 +147,6 @@ Merge requirements
 
 .. _`Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
 
+.. _`twine`: https://github.com/pypa/twine
+
+.. _`TestPyPI`: https://testpypi.python.org/
