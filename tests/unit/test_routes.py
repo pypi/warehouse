@@ -100,6 +100,13 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.edit-project-button",
+            "/_includes/edit-project-button/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",

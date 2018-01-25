@@ -19,9 +19,17 @@
 */
 
 .package-description {
-  font-size: 1.1rem;
-  font-style: italic;
-  margin: 0;
-  padding: 0;
-  line-height: 42px;
+  min-height: 58px;
+  margin-top: -10px;
+
+  &__summary {
+    font-size: 1.1rem;
+    font-style: italic;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  &__edit-button {
+    margin-top: 10px;
+  }
 }
