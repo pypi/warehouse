@@ -63,9 +63,7 @@
 
   <body>
     {% block body %}
-    <div class="sr-only">
-      <a href="#content">Skip to main content</a>
-    </div>
+    <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
@@ -95,16 +93,21 @@
         <div class="split-layout">
           {% block brand %}
           <div class="split-layout">
-            <a class="site-header__logo" href="{{ request.route_path('index') }}">
-              <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-            </a>
+            <div>
+              <a class="site-header__logo" href="{{ request.route_path('index') }}">
+                <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+              </a>
+            </div>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
               <div role="search">
                 <label for="search" class="sr-only">Search PyPI</label>
                 <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-                {%- block search_form_extra_inputs %}{% endblock %}
-                <input class="search-form__button button button--dark" type="submit" value="Search">
+                {% block search_form_extra_inputs %}{% endblock %}
+                <button type="submit" class="search-form__button">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                  <span class="sr-only">Search</span>
+                </button>
               </div>
             </form>
           </div>
@@ -123,12 +126,10 @@
           <label for="mobile-search" class="sr-only">Search PyPI</label>
           <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
           {{ self.search_form_extra_inputs() }}
-          <button class="search-form__button button button--dark" type="submit">
-            <span class="button__icon">
-              <i class="fa fa-search" aria-hidden="true"></i>
-              <span class="sr-only">Search</span>
-            </span>
-            <span class="button__text">Search</span>
+          <button type="submit" class="search-form__button">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <span class="sr-only">Search</span>
+          </button>
           </button>
         </div>
       </form>
