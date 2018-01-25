@@ -98,19 +98,19 @@
   </div>
 </section>
 
-{% if release.summary %}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
-    <div class="split-layout split-layout--middle">
+    <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
-      <p class="package-description">{{ release.summary }}</p>
+      <p class="package-description__summary">{{ release.summary }}</p>
+    {% else %}
+      <p class="package-description__summary">No project description provided.</p>
     {% endif %}
     {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
     {% endcsi %}
     </div>
   </div>
 </section>
-{% endif %}
 
 
 <section>
