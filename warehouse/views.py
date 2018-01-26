@@ -125,6 +125,14 @@ def forbidden(exc, request, redirect_to="accounts.login"):
     return httpexception_view(exc, request)
 
 
+@forbidden_view_config(path_info=r"^/_includes/")
+@exception_view_config(PredicateMismatch, path_info=r"^/_includes/")
+def forbidden_include(exc, request):
+    # If the forbidden error is for a client-side-include, just return an empty
+    # response instead of redirecting
+    return Response()
+
+
 @view_config(
     route_name="robots.txt",
     renderer="robots.txt",
