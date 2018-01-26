@@ -21,47 +21,74 @@
 {% block title %}Manage '{{ project.name }}'{% endblock %}
 
 {% block content %}
-  <section class="horizontal-section horizontal-section--thin">
-    <div class="site-container">
-      <div class="vertical-tabs">
-        <div class="vertical-tabs__tabs">
-          <div class="sidebar-section">
-            <h3 class="sidebar-section__title">
-              <i class="fa fa-cube" aria-hidden="true"></i>&nbsp;
-              <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
-            </h3>
-            <nav>
-              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">Releases</a>
-              <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">Collaborators</a>
-              <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">Settings</a>
-              {# TODO: https://github.com/pypa/warehouse/issues/582
-                <a href="#" class="tabs__tab">Documentation</a>
-              #}
-            </nav>
-          </div>
-        </div>
-        <div class="vertical-tabs__panel">
-          <div class="vertical-tabs__content">
-            <div class="package-snippet">
-              <div class="split-layout split-layout--table">
-                <div>
-                  <h1 class="package-snippet__title page-title">{{ project.name }}</h1>
-                  {% set release = project.releases[0] if project.releases else None %}
-                  {% if release %}
-                    <p class="package-snippet__description">{{ release.summary }}</p>
-                  {% endif %}
-                </div>
-                <div>
-                  <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button button--highlight pull-right">
-                    View Project
-                  </a>
-                </div>
-              </div>
-            </div>
-            {% block main %}{% endblock %}
-          </div>
+  <div class="tabs-container">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">
+            <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
+          </h3>
+          <nav>
+            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-cube" aria-hidden="true"></i>
+              Releases
+            </a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-group" aria-hidden="true"></i>
+              Collaborators
+            </a>
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-wrench" aria-hidden="true"></i>
+              Settings
+            </a>
+          </nav>
         </div>
       </div>
+      <div class="vertical-tabs__panel">
+        <!-- mobile nav -->
+        <nav>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            Back to Projects
+          </a>
+        </nav>
+        <div class="vertical-tabs__content">
+          <div class="package-snippet package-snippet--margin-bottom">
+            <div class="split-layout split-layout--table">
+              <div>
+                <h1 class="package-snippet__title page-title">{{ project.name }}</h1>
+                {% set release = project.releases[0] if project.releases else None %}
+                {% if release %}
+                  <p class="package-snippet__description">{{ release.summary }}</p>
+                {% endif %}
+              </div>
+              <div>
+                <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button button--primary pull-right">
+                  View Project
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- mobile nav -->
+          <nav>
+            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-cube" aria-hidden="true"></i>
+              Releases
+            </a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-group" aria-hidden="true"></i>
+              Collaborators
+            </a>
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-wrench" aria-hidden="true"></i>
+              Settings
+            </a>
+          </nav>
+
+          {% block main %}{% endblock %}
+        </div>
+        {% block mobile_tabs_bottom %}{% endblock %}
+      </div>
     </div>
-  </section>
+  </div>
 {% endblock %}

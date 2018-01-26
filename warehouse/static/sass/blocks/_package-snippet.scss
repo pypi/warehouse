@@ -71,8 +71,16 @@
       float: left;
     }
 
-    .button--highlight {
+    .button--primary {
       margin-right: 5px;
+    }
+  }
+
+  &--margin-bottom {
+    margin-bottom: 0;
+
+    @media only screen and (max-width: $tablet) {
+      margin-bottom: 30px;
     }
   }
 }

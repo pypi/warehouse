@@ -142,7 +142,6 @@
 
 // Adjust size of h1s on standalone pages
 .page-title {
-  @include h2;
   @include h1-title;
 }
 
