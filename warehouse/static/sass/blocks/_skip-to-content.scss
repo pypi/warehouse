@@ -12,24 +12,26 @@
  * limitations under the License.
  */
 
-/*
-  The  description on the package detail page.
+ /*
+  Skip to content link for keyboard users.
+  Must be the first item inside the page body.
+  <a href="#content" class="skip-to-content">Skip to main content</a>
+ */
 
-  <p class="package-description"></p>
-*/
+.skip-to-content {
+  position: absolute;
+  top: auto;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 
-.package-description {
-  min-height: 58px;
-  margin-top: -10px;
-
-  &__summary {
-    font-size: 1.1rem;
-    font-style: italic;
-    padding: 0;
-    margin-top: 10px;
-  }
-
-  &__edit-button {
-    margin-top: 10px;
+  &:focus {
+    top: 7px;
+    left: 7px;
+    width: auto;
+    height: 41px;
+    line-height: 41px;
+    padding: 0 ($spacing-unit / 2);
   }
 }

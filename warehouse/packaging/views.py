@@ -126,3 +126,13 @@ def release_detail(release, request):
         "maintainers": maintainers,
         "license": license,
     }
+
+
+@view_config(
+    route_name="includes.edit-project-button",
+    renderer="includes/edit-project-button.html",
+    uses_session=True,
+    permission="manage",
+)
+def edit_project_button(project, request):
+    return {'project': project}

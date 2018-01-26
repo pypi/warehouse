@@ -98,20 +98,19 @@
   </div>
 </section>
 
-{% if release.summary %}{# TODO: https://github.com/pypa/warehouse/issues/2810 - add "or logged in user can edit package" #}
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
-    <div class="split-layout split-layout--middle">
+    <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
-      <p class="package-description">{{ release.summary }}</p>
+      <p class="package-description__summary">{{ release.summary }}</p>
+    {% else %}
+      <p class="package-description__summary">No project description provided.</p>
     {% endif %}
-    {# TODO: https://github.com/pypa/warehouse/issues/2810 (if logged in user can edit package)
-    <a href="{{ request.route_path('manage.project.settings', name=project.normalized_name) }}" class="button button--highlight">Edit Project</a>
-    #}
+    {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+    {% endcsi %}
     </div>
   </div>
 </section>
-{% endif %}
 
 
 <section>
