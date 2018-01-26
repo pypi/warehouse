@@ -64,8 +64,22 @@ def remove_project(project, request):
     (request.db.execute(release_classifiers.delete()
                         .where(release_classifiers.c.name ==
                                project.name)))
-    request.db.query(Release).filter(Release.name == project.name).delete()
-    request.db.query(Project).filter(Project.name == project.name).delete()
+
+    # Load the following objects into the session and individually delete them
+    # so they are included in `session.deleted` and their cache keys are purged
+
+    # Delete releases first, otherwise they will get cascade-deleted by the
+    # project deletion and won't be purged
+    for release in (
+            request.db.query(Release)
+            .filter(Release.name == project.name)
+            .all()):
+        request.db.delete(release)
+
+    # Finally, delete the project
+    request.db.delete(
+        request.db.query(Project).filter(Project.name == project.name).one()
+    )
 
     request.session.flash(
         f"Successfully deleted the project {project.name!r}.",
