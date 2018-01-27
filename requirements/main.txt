@@ -404,9 +404,9 @@ sqlalchemy==1.2.2 \
 stdlib-list==0.4.0 \
     --hash=sha256:18a0bd3a89a53d2a3dfb57c0af0b0b86243eb59a570992bc9f6fde1b8019f53d \
     --hash=sha256:3f6cafd9a2e86b22d475a52433d95143c1ee64c02b73d403c6ef6df38ce3f8fd
-structlog==17.2.0 \
-    --hash=sha256:9947d12d904529e6133384e52091ce92d0541472a722460cfcb4bcc8d02340b0 \
-    --hash=sha256:6980001045abd235fa12582222627c19b89109e58b85eb77d5a5abc778df6e20
+structlog==18.1.0 \
+    --hash=sha256:0b0d9b2e34c82d33f540252b9c8853c50521ccf7d7b5e2f30172a0850cba77dd \
+    --hash=sha256:ff1e7aae015b346060c03b1cc4a1f29d428de7d858eaf06ea93ee35ac51071a0
 transaction==2.1.2 \
     --hash=sha256:994ba6b5d0bb9aeb573624ff55e6ca286128decec3ecaa4cb02e864e60ccfe63 \
     --hash=sha256:b9bc365e7dba3877e0f6fdee32aa029b8c0c1eb4fe227f524bffd5fc46064bd5
