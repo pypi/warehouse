@@ -54,7 +54,7 @@
         </nav>
         <div class="vertical-tabs__content">
           <div class="package-snippet package-snippet--margin-bottom">
-            <div class="split-layout split-layout--table">
+            <div class="split-layout split-layout--middle split-layout--spaced">
               <div>
                 <h1 class="package-snippet__title page-title">{{ project.name }}</h1>
                 {% set release = project.releases[0] if project.releases else None %}
@@ -63,7 +63,7 @@
                 {% endif %}
               </div>
               <div>
-                <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button button--primary pull-right">
+                <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">
                   View Project
                 </a>
               </div>

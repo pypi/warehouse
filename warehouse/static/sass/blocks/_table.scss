@@ -152,8 +152,18 @@
     word-wrap: break-word;
 
     .table__version,
+    .table__date,
+    .table__summary {
+      padding-right: 20px;
+    }
+
+    .table__version,
     .table__date {
       width: 130px;
+    }
+
+    .table__version {
+      font-weight: bold;
     }
 
     .table__options {
@@ -161,9 +171,56 @@
       text-align: right;
     }
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       .table__summary {
         display: none;
+      }
+
+      .table__version,
+      .table__date,
+      .table__options {
+        width: auto;
+      }
+    }
+
+    @media only screen and (max-width: $mobile) and (min-width: 0px) {
+      thead {
+        display: none;
+      }
+
+      tbody tr {
+        padding: 10px;
+      }
+
+      .table__version,
+      .table__date,
+      .table__options {
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+        padding: 2px 0;
+      }
+
+      .table__version {
+        padding-top: 10px;
+      }
+
+      .table__options {
+        padding-bottom: 10px;
+        border-bottom: 1px solid $base-grey;
+
+        .dropdown {
+          display: block;
+
+          .button {
+            display: block;
+            width: 100%;
+          }
+
+          .dropdown__content {
+            width: 100%;
+          }
+        }
       }
     }
   }
