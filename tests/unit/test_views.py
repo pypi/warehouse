@@ -155,7 +155,7 @@ class TestForbiddenIncludeView:
 
         resp = forbidden_include(exc, request)
 
-        assert resp.status_code == 200
+        assert resp.status_code == 403
         assert resp.content_type == 'text/html'
         assert resp.content_length == 0
 

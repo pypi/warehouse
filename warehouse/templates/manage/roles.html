@@ -11,10 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "project.html" %}
+{% extends "manage_project_base.html" %}
 
-{% block title %}{{ project.name }}{% endblock %}
 {% set active_tab = 'collaborators' %}
+
+{% block title %}Manage '{{ project.name }}' collaboration{% endblock %}
 
 {% block main %}
   <h2>Collaborators</h2>
@@ -28,7 +29,6 @@
       <dd>May upload releases for a package.</dd>
     </dl>
   </div>
-  <br>
   <table class="table table--light">
     <thead>
       <th>User</th>
@@ -60,7 +60,7 @@
         {% if role.user == request.user %}
           {{ role.role_name }}
         {% else %}
-          <form class="changeRole" method="POST" action="{{ request.route_path('manage.project.change_role', name=project.name) }}">
+          <form class="changeRole" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             {% for role in roles %}
               <input type="hidden" name="role_id" value="{{ role.id }}">
@@ -84,7 +84,7 @@
         {% endif %}
         </td>
         <td>
-          <form method="POST" action="{{ request.route_path('manage.project.delete_role', name=project.name) }}">
+          <form method="POST" action="{{ request.route_path('manage.project.delete_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             {#
             The following three lines are added to handle multiple roles for a

@@ -130,7 +130,7 @@ def forbidden(exc, request, redirect_to="accounts.login"):
 def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
-    return Response()
+    return Response(status=403)
 
 
 @view_config(

@@ -13,13 +13,14 @@
 import uuid
 
 import pretend
+import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
-from warehouse.packaging.models import JournalEntry, Role
+from warehouse.packaging.models import JournalEntry, Project, Role
 
 from ...common.db.packaging import ProjectFactory, RoleFactory, UserFactory
 
@@ -50,6 +51,84 @@ class TestManageProjectSettings:
             "project": project,
         }
 
+    def test_delete_project_no_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Must confirm the request.", queue="error"),
+        ]
+
+    def test_delete_project_wrong_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={"confirm": "bar"},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_project(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+        ]
+
+    def test_delete_project(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.POST["confirm"] = project.normalized_name
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        result = views.delete_project(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully deleted the project 'foo'.",
+                queue="success"
+            ),
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call('manage.projects'),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert not (db_request.db.query(Project)
+                                 .filter(Project.name == "foo").count())
+
+
+class TestManageProjectReleases:
+
+    def test_manage_project_releases(self):
+        request = pretend.stub()
+        project = pretend.stub()
+
+        assert views.manage_project_releases(project, request) == {
+            "project": project,
+        }
+
 
 class TestManageProjectRoles:
 
@@ -76,7 +155,6 @@ class TestManageProjectRoles:
             pretend.call(db_request.POST, user_service=user_service),
         ]
         assert result == {
-
             "project": project,
             "roles_by_user": {user.username: [role]},
             "form": form_obj,
@@ -252,7 +330,7 @@ class TestChangeProjectRoles:
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Successfully changed role", queue="success"),
@@ -282,7 +360,7 @@ class TestChangeProjectRoles:
         result = views.change_project_role(project, pyramid_request)
 
         assert pyramid_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -317,7 +395,7 @@ class TestChangeProjectRoles:
 
         assert db_request.db.query(Role).all() == [maintainer_role]
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Successfully changed role", queue="success"),
@@ -441,7 +519,7 @@ class TestDeleteProjectRoles:
         result = views.delete_project_role(project, db_request)
 
         assert db_request.route_path.calls == [
-            pretend.call('manage.project.roles', name=project.name),
+            pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.db.query(Role).all() == []
         assert db_request.session.flash.calls == [
