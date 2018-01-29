@@ -39,10 +39,14 @@
   overflow: hidden;
   margin: $spacing-unit 0;
 
+  @media only screen and (max-width: $tablet) {
+    margin: 0;
+  }
+
   &__tabs {
     @include span-columns(3);
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       display: none;
     }
   }
@@ -59,14 +63,19 @@
 
     &--mobile {
       display: none;
-
-      @media only screen and (max-width: $tablet){
+      @media only screen and (max-width: $tablet) {
         display: block;
         border-top: 1px solid $border-color;
 
         &:last-of-type {
           border-bottom: 1px solid $border-color;
         }
+      }
+    }
+
+    &--no-top-border {
+      @media only screen and (max-width: $tablet) {
+        border-top: 0;
       }
     }
 
@@ -94,7 +103,7 @@
   &__panel {
     @include span-columns(9);
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       width: 100%;
     }
   }
@@ -102,8 +111,8 @@
   &__content {
     padding-left: $spacing-unit;
 
-    @media only screen and (max-width: $tablet){
-      padding: $spacing-unit ($spacing-unit / 2);
+    @media only screen and (max-width: $tablet) {
+      padding: 25px 10px 10px 10px;
     }
   }
 }
