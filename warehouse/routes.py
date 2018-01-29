@@ -135,6 +135,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.release",
+        "/manage/project/{project_name}/{version}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.roles",
         "/manage/project/{project_name}/collaboration/",
         factory="warehouse.packaging.models:ProjectFactory",

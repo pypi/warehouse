@@ -110,6 +110,21 @@ def manage_project_releases(project, request):
 
 
 @view_config(
+    route_name="manage.project.release",
+    renderer="manage/release.html",
+    uses_session=True,
+    permission="manage",
+    effective_principals=Authenticated,
+)
+def manage_project_release(release, request):
+    project = release.project
+    return {
+        "project": project,
+        "release": release,
+    }
+
+
+@view_config(
     route_name="manage.project.roles",
     renderer="manage/roles.html",
     uses_session=True,

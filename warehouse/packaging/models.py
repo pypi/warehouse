@@ -342,6 +342,25 @@ class Release(db.ModelBase):
         viewonly=True,
     )
 
+    def __acl__(self):
+        session = orm.object_session(self)
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
+
+        # Get all of the users for this project.
+        query = session.query(Role).filter(Role.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.joinedload("user").lazyload("emails"))
+        for role in sorted(
+                query.all(),
+                key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
+        return acls
+
     @property
     def urls(self):
         _urls = OrderedDict()
