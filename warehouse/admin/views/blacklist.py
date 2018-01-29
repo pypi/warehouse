@@ -20,12 +20,12 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.admin.utils import remove_project
 from warehouse.packaging.models import (
     Project, Release, File, Role, BlacklistedProject
 )
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import remove_project
 
 
 @view_config(

@@ -33,7 +33,6 @@
   </div>
 */
 
-
 .modal {
   @include overlay;
   opacity: 0;
@@ -41,6 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-grow: 1;
 
   &:target {
     opacity: 1;
@@ -56,10 +56,17 @@
     overflow: auto;
     background: $white;
     position: relative;
+    margin: auto;
   }
 
   &__body {
     padding: $spacing-unit;
+  }
+
+  @media screen and (max-width: $tablet) {
+    &__body {
+      padding: $spacing-unit / 2;
+    }
   }
 
   &__title {
@@ -99,6 +106,7 @@
 
     input {
       width: 100%;
+      min-width: 100%;
       margin: 5px 0 20px 0;
     }
 

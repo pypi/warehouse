@@ -22,9 +22,9 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 
 from warehouse.accounts.models import User
-from warehouse.admin.utils import confirm_project, remove_project
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import confirm_project, remove_project
 from warehouse.forklift.legacy import MAX_FILESIZE
 
 ONE_MB = 1024 * 1024  # bytes
@@ -265,7 +265,7 @@ def set_upload_limit(project, request):
     require_methods=False,
 )
 def delete_project(project, request):
-    confirm_project(project, request)
+    confirm_project(project, request, fail_route="admin.project.detail")
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path('admin.project.list'))
