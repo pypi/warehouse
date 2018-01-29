@@ -22,6 +22,18 @@
 }
 
 /*
+  Container for vertical tabs
+*/
+
+.tabs-container {
+  @include site-container;
+
+  @media only screen and (max-width: $tablet){
+    padding: 5px;
+  }
+}
+
+/*
   Narrow container for text only pages:
   <div class="narrow-container"></div>
 */

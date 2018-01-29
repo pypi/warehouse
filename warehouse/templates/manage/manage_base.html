@@ -16,28 +16,38 @@
 {% block title %}Manage{% endblock %}
 
 {% block content %}
-  <section class="horizontal-section horizontal-section--thin">
-    <div class="site-container">
-      <div class="vertical-tabs">
-        <div class="vertical-tabs__tabs">
-          <div class="sidebar-section">
-            <h3 class="sidebar-section__title">Your Account</h3>
-            <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
-              <i class="fa fa-cube" aria-hidden="true"></i>
-              Your Projects
-            </a>
-            <a href="{{ request.route_path('manage.profile') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block profile_active %}{% endblock %}">
-              <i class="fa fa-user" aria-hidden="true"></i>
-              Your Profile
-            </a>
-          </div>
+  <div class="tabs-container">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Your Account</h3>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+            Your Projects
+          </a>
+          <a href="{{ request.route_path('manage.profile') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block profile_active %}{% endblock %}">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            Your Profile
+          </a>
         </div>
-        <div class="vertical-tabs__panel">
-          <div class="vertical-tabs__content">
-            {% block main %}{% endblock %}
-          </div>
+      </div>
+      <div class="vertical-tabs__panel">
+        <!-- mobile nav -->
+        <nav>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+            Your Projects
+          </a>
+          <a href="{{ request.route_path('manage.profile') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block profile_mobile_active %}{% endblock %}">
+            <i class="fa fa-user" aria-hidden="true"></i>
+            Your Profile
+          </a>
+        </nav>
+
+        <div class="vertical-tabs__content">
+          {% block main %}{% endblock %}
         </div>
       </div>
     </div>
-  </section>
+  </div>
 {% endblock %}

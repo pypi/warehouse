@@ -102,7 +102,6 @@
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
 @import "blocks/table";
-@import "blocks/tabs";
 @import "blocks/tooltip";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
@@ -143,7 +142,6 @@
 
 // Adjust size of h1s on standalone pages
 .page-title {
-  @include h2;
   @include h1-title;
 }
 
