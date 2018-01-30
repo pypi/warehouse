@@ -15,7 +15,10 @@
 
 {% set user = request.user %}
 {% set title = "Manage Your Profile" %}
+
 {% block profile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block profile_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+
 {% block title %}{{ title }}{% endblock %}
 
 {% block main %}
