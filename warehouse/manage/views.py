@@ -121,6 +121,7 @@ def manage_project_release(release, request):
     return {
         "project": project,
         "release": release,
+        "files": release.files.all(),
     }
 
 
