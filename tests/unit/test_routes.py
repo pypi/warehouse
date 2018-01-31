@@ -138,11 +138,6 @@ def test_routes(warehouse):
             domain=warehouse
         ),
         pretend.call(
-            "manage.profile.save-profile",
-            "/manage/profile/save-profile",
-            domain=warehouse,
-        ),
-        pretend.call(
             "manage.projects",
             "/manage/projects/",
             domain=warehouse

@@ -27,81 +27,85 @@ from ...common.db.packaging import ProjectFactory, RoleFactory, UserFactory
 
 class TestManageProfile:
 
-    def test_manage_profile(self):
-        request = pretend.stub()
+    def test_manage_profile(self, monkeypatch):
+        user_service = pretend.stub()
+        name = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(name=name),
+        )
+        save_profile_obj = pretend.stub()
+        save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
 
-        assert views.manage_profile(request) == {}
+        assert view_class.manage_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert view_class.request == request
+        assert view_class.user_service == user_service
+        assert save_profile_cls.calls == [
+            pretend.call(name=name),
+        ]
 
-
-class TestSaveProfile:
-
-    def test_save_profile(self, pyramid_request):
-        pyramid_request.POST = {'name': 'new name'}
-        pyramid_request.user = pretend.stub(id=pretend.stub())
+    def test_save_profile(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: pretend.stub(update_user=update_user)
+        request = pretend.stub(
+            POST={'name': 'new name'},
+            user=pretend.stub(id=pretend.stub()),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=pretend.call_recorder(
+                lambda iface, context: pretend.stub(update_user=update_user)
+            ),
         )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        form_obj = pretend.stub(
+        save_profile_obj = pretend.stub(
             validate=lambda: True,
-            data=pyramid_request.POST,
+            data=request.POST,
         )
-        form_class = pretend.call_recorder(lambda d: form_obj)
+        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
 
-        result = views.save_profile(pyramid_request, form_class)
-
-        assert pyramid_request.session.flash.calls == [
+        assert view_class.save_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert request.session.flash.calls == [
             pretend.call('Public profile updated.', queue='success'),
         ]
         assert update_user.calls == [
-            pretend.call(pyramid_request.user.id, **pyramid_request.POST)
+            pretend.call(request.user.id, **request.POST)
         ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call('manage.profile'),
+        assert save_profile_cls.calls == [
+            pretend.call(request.POST),
         ]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST),
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
 
-    def test_save_profile_validation_fails(self, pyramid_request):
-        pyramid_request.POST = {'name': 'new name'}
-        pyramid_request.user = pretend.stub(id=pretend.stub())
+    def test_save_profile_validation_fails(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda iface, context: pretend.stub(update_user=update_user)
+        request = pretend.stub(
+            POST={'name': 'new name'},
+            user=pretend.stub(id=pretend.stub()),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=pretend.call_recorder(
+                lambda iface, context: pretend.stub(update_user=update_user)
+            ),
         )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        pyramid_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/the-redirect"
-        )
-        form_obj = pretend.stub(
-            validate=lambda: False,
-            data=pyramid_request.POST,
-        )
-        form_class = pretend.call_recorder(lambda d: form_obj)
+        save_profile_obj = pretend.stub(validate=lambda: False)
+        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
 
-        result = views.save_profile(pyramid_request, form_class)
-
-        assert pyramid_request.session.flash.calls == []
+        assert view_class.save_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert request.session.flash.calls == []
         assert update_user.calls == []
-        assert pyramid_request.route_path.calls == [
-            pretend.call('manage.profile'),
+        assert save_profile_cls.calls == [
+            pretend.call(request.POST),
         ]
-        assert form_class.calls == [
-            pretend.call(pyramid_request.POST),
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
 
 
 class TestManageProjects:

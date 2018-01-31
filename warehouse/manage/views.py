@@ -15,7 +15,7 @@ from collections import defaultdict
 
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.security import Authenticated
-from pyramid.view import view_config
+from pyramid.view import view_config, view_defaults
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
@@ -27,33 +27,41 @@ from warehouse.packaging.models import JournalEntry, Role
 from warehouse.utils.project import confirm_project, remove_project
 
 
-@view_config(
+@view_defaults(
     route_name="manage.profile",
     renderer="manage/profile.html",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
     effective_principals=Authenticated,
 )
-def manage_profile(request):
-    return {}
+class ManageProfileViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
 
+    @view_config(request_method="GET")
+    def manage_profile(self):
+        return {
+            'save_profile_form': SaveProfileForm(name=self.request.user.name),
+        }
 
-@view_config(
-    route_name="manage.profile.save-profile",
-    uses_session=True,
-    require_methods=["POST"],
-    effective_principals=Authenticated,
-)
-def save_profile(request, _form_class=SaveProfileForm):
-    form = _form_class(request.POST)
-
-    if form.validate():
-        user_service = request.find_service(IUserService, context=None)
-        user_service.update_user(request.user.id, **form.data)
-        request.session.flash('Public profile updated.', queue='success')
-
-    return HTTPSeeOther(
-        request.route_path('manage.profile')
+    @view_config(
+        request_method="POST",
+        request_param=SaveProfileForm.__params__,
     )
+    def save_profile(self):
+        form = SaveProfileForm(self.request.POST)
+
+        if form.validate():
+            self.user_service.update_user(self.request.user.id, **form.data)
+            self.request.session.flash(
+                'Public profile updated.', queue='success'
+            )
+
+        return {
+            'save_profile_form': form,
+        }
 
 
 @view_config(

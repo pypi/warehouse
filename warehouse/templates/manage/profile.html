@@ -45,7 +45,7 @@
     <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>. Cannot be changed.</p>
   </div>
 
-  <form method="POST" action="{{ request.route_path('manage.profile.save-profile') }}">
+  <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
       <label class="form-group__label" for="name">Full Name</label>
