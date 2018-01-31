@@ -22,7 +22,7 @@
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
         <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-        <div>
+        <div class="author-profile__info">
           {% if user.name %}
           <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}

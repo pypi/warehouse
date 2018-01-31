@@ -17,15 +17,17 @@
 
   <div class="author-profile">
     // Avatar here (no class required)
-    <h1 class="author-profile__name">
-      // Username
-    </h1>
-    <div class="author-profile__meta"
-      <p>
-        // Meta
-      </p>
+    <div class="author-progile__info">
+      <h1 class="author-profile__name">
+        // Username
+      </h1>
+      <div class="author-profile__meta"
+        <p>
+          // Meta
+        </p>
+      </div>
+      <a class="author-profile__edit-button">Edit Profile</a>
     </div>
-    <a class="author-profile__edit-button">Edit Profile</a>
   </div>
 */
 
@@ -54,11 +56,15 @@
     }
   }
 
-  h1.author-profile__name {
+  &__info {
+    padding-top: $spacing-unit;
+  }
+
+  &__name {
     @include h2;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: $spacing-unit 0 $spacing-unit / 2;
+    padding: 0 0 $spacing-unit / 2;
 
     @media only screen and (max-width: $desktop){
       border-top: 0;
