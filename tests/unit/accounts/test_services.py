@@ -234,34 +234,34 @@ class TestTokenService:
             pretend.call(secret, salt=salt)
         ]
 
-    def test_generate_token(self, token_service):
-        assert token_service.generate_token({'foo': 'bar'})
+    def test_dumps(self, token_service):
+        assert token_service.dumps({'foo': 'bar'})
 
-    def test_extract_data(self, token_service):
-        token = token_service.generate_token({'foo': 'bar'})
-        assert token_service.extract_data(token) == {'foo': 'bar'}
+    def test_loads(self, token_service):
+        token = token_service.dumps({'foo': 'bar'})
+        assert token_service.loads(token) == {'foo': 'bar'}
 
     @pytest.mark.parametrize('token', ['', None])
-    def test_extract_data_token_is_none(self, token_service, token):
+    def test_loads_token_is_none(self, token_service, token):
         with pytest.raises(TokenMissing):
-            token_service.extract_data(token)
+            token_service.loads(token)
 
-    def test_extract_data_token_is_expired(self, token_service):
+    def test_loads_token_is_expired(self, token_service):
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now) as frozen_time:
-            token = token_service.generate_token({'foo': 'bar'})
+            token = token_service.dumps({'foo': 'bar'})
 
             frozen_time.tick(
                 delta=datetime.timedelta(seconds=token_service.max_age + 1),
             )
 
             with pytest.raises(TokenExpired):
-                token_service.extract_data(token)
+                token_service.loads(token)
 
-    def test_extract_data_token_is_invalid(self, token_service):
+    def test_loads_token_is_invalid(self, token_service):
         with pytest.raises(TokenInvalid):
-            token_service.extract_data("invalid")
+            token_service.loads("invalid")
 
 
 def test_database_login_factory(monkeypatch):

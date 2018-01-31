@@ -256,7 +256,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.method == "POST" and form.validate():
         username = form.username.data
         user = user_service.get_user_by_username(username)
-        token = token_service.generate_token({
+        token = token_service.dumps({
             "action": "password-reset",
             "user.id": str(user.id),
             "user.last_login": str(user.last_login),
@@ -301,7 +301,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     try:
         token = request.params.get('token')
-        data = token_service.extract_data(token)
+        data = token_service.loads(token)
     except TokenExpired:
         return _error("Expired token - Request a new password reset link")
     except TokenInvalid:

@@ -362,7 +362,7 @@ class TestRequestPasswordReset:
             password_date="password_date",
         )
         pyramid_request.method = "POST"
-        token_service.generate_token = pretend.call_recorder(lambda a: "TOK")
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(
             lambda a: stub_user
         )
@@ -403,7 +403,7 @@ class TestRequestPasswordReset:
         assert result == {"n_hours": token_service.max_age // 60 // 60}
         subject_renderer.assert_()
         body_renderer.assert_(token="TOK", username=stub_user.username)
-        assert token_service.generate_token.calls == [
+        assert token_service.dumps.calls == [
             pretend.call({
                 "action": "password-reset",
                 "user.id": str(stub_user.id),
@@ -440,7 +440,7 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
         db_request.GET.update({"token": "RANDOM_KEY"})
-        token_service.extract_data = pretend.call_recorder(
+        token_service.loads = pretend.call_recorder(
             lambda token: {
                 'action': 'password-reset',
                 'user.id': str(user.id),
@@ -467,7 +467,7 @@ class TestResetPassword:
                 user_service=user_service,
             )
         ]
-        assert token_service.extract_data.calls == [
+        assert token_service.loads.calls == [
             pretend.call("RANDOM_KEY"),
         ]
         assert db_request.find_service.calls == [
@@ -487,7 +487,7 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        token_service.extract_data = pretend.call_recorder(
+        token_service.loads = pretend.call_recorder(
             lambda token: {
                 'action': 'password-reset',
                 'user.id': str(user.id),
@@ -524,7 +524,7 @@ class TestResetPassword:
             ),
         ]
         assert db_request.route_path.calls == [pretend.call('index')]
-        assert token_service.extract_data.calls == [
+        assert token_service.loads.calls == [
             pretend.call('RANDOM_KEY'),
         ]
         assert user_service.update_user.calls == [
@@ -557,15 +557,15 @@ class TestResetPassword:
             ),
         ],
     )
-    def test_reset_password_extract_data_failure(
+    def test_reset_password_loads_failure(
             self, pyramid_request, exception, message):
 
-        def extract_data(token):
+        def loads(token):
             raise exception
 
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: pretend.stub(),
-            ITokenService: pretend.stub(extract_data=extract_data),
+            ITokenService: pretend.stub(loads=loads),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -587,7 +587,7 @@ class TestResetPassword:
             'action': 'invalid-action',
         }
         token_service = pretend.stub(
-            extract_data=pretend.call_recorder(lambda token: data),
+            loads=pretend.call_recorder(lambda token: data),
         )
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: pretend.stub(),
@@ -616,7 +616,7 @@ class TestResetPassword:
             'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
         }
         token_service = pretend.stub(
-            extract_data=pretend.call_recorder(lambda token: data),
+            loads=pretend.call_recorder(lambda token: data),
         )
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda userid: None),
@@ -654,7 +654,7 @@ class TestResetPassword:
             'user.last_login': str(now),
         }
         token_service = pretend.stub(
-            extract_data=pretend.call_recorder(lambda token: data),
+            loads=pretend.call_recorder(lambda token: data),
         )
         user = pretend.stub(last_login=later)
         user_service = pretend.stub(
@@ -693,7 +693,7 @@ class TestResetPassword:
             'user.password_date': str(now),
         }
         token_service = pretend.stub(
-            extract_data=pretend.call_recorder(lambda token: data),
+            loads=pretend.call_recorder(lambda token: data),
         )
         user = pretend.stub(last_login=now, password_date=later)
         user_service = pretend.stub(

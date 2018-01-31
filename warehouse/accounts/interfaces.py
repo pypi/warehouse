@@ -81,12 +81,12 @@ class IUserService(Interface):
 
 class ITokenService(Interface):
 
-    def generate_token(data):
+    def dumps(data):
         """
         Generates a unique token based on the data provided
         """
 
-    def extract_data(token):
+    def loads(token):
         """
         Gets the data corresponding to the token provided
         """

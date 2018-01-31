@@ -186,13 +186,13 @@ class TokenService:
         self.serializer = URLSafeTimedSerializer(secret, salt=salt)
         self.max_age = max_age
 
-    def generate_token(self, data):
+    def dumps(self, data):
         return self.serializer.dumps({
             key: str(value)
             for key, value in data.items()
         })
 
-    def extract_data(self, token):
+    def loads(self, token):
         if not token:
             raise TokenMissing
 
