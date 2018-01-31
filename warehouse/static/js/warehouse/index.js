@@ -145,7 +145,7 @@ docReady(() => {
 });
 
 docReady(() => {
-  let changeRoleForms = document.querySelectorAll("form.changeRole");
+  let changeRoleForms = document.querySelectorAll("form.change-role");
 
   if (changeRoleForms) {
     for (let form of changeRoleForms) {
@@ -154,9 +154,9 @@ docReady(() => {
 
       changeSelect.addEventListener("change", function (event) {
         if (event.target.value === changeSelect.dataset.original) {
-          changeButton.style.visibility = "hidden";
+          changeButton.style.display = "none";
         } else {
-          changeButton.style.visibility = "visible";
+          changeButton.style.display = "inline-block";
         }
       });
     }

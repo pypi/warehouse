@@ -224,4 +224,82 @@
       }
     }
   }
+
+  &--collaborators {
+
+    .table__user {
+      padding-right: 20px;
+    }
+
+    .change-role {
+      width: 330px;
+    }
+
+    .change-field {
+      float: left;
+    }
+
+    .change-button {
+      display: none;
+      float: left;
+      margin-left: 5px;
+    }
+
+    .table__action {
+      width: 100px;
+    }
+
+    @media only screen and (max-width: 1120px) {
+      input[type=text],
+      select {
+        min-width: 160px;
+        width: 160px;
+      }
+
+      .change-role {
+        width: 235px;
+      }
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 10px;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      tbody tr td,
+      .table__user {
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+        padding: 4px 0;
+      }
+
+      input[type=text],
+      select,
+      .table__action,
+      .button,
+      .change-role,
+      .change-field,
+      .change-button {
+        float: none;
+        width: 100%;
+        margin: 0;
+      }
+
+      .change-button {
+        margin-top: 8px;
+      }
+    }
+  }
 }
