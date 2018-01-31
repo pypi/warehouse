@@ -23,7 +23,9 @@
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
         <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         <div>
-          <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
+          {% if user.name %}
+          <h1 class="author-profile__name">{{ user.name }}</h1>
+          {% endif %}
           <div class="author-profile__meta">
             <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
             {% if user.date_joined %}
