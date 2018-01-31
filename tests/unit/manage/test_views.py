@@ -27,10 +27,85 @@ from ...common.db.packaging import ProjectFactory, RoleFactory, UserFactory
 
 class TestManageProfile:
 
-    def test_manage_profile(self):
-        request = pretend.stub()
+    def test_manage_profile(self, monkeypatch):
+        user_service = pretend.stub()
+        name = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(name=name),
+        )
+        save_profile_obj = pretend.stub()
+        save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
 
-        assert views.manage_profile(request) == {}
+        assert view_class.manage_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert view_class.request == request
+        assert view_class.user_service == user_service
+        assert save_profile_cls.calls == [
+            pretend.call(name=name),
+        ]
+
+    def test_save_profile(self, monkeypatch):
+        update_user = pretend.call_recorder(lambda *a, **kw: None)
+        request = pretend.stub(
+            POST={'name': 'new name'},
+            user=pretend.stub(id=pretend.stub()),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=pretend.call_recorder(
+                lambda iface, context: pretend.stub(update_user=update_user)
+            ),
+        )
+        save_profile_obj = pretend.stub(
+            validate=lambda: True,
+            data=request.POST,
+        )
+        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
+
+        assert view_class.save_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert request.session.flash.calls == [
+            pretend.call('Public profile updated.', queue='success'),
+        ]
+        assert update_user.calls == [
+            pretend.call(request.user.id, **request.POST)
+        ]
+        assert save_profile_cls.calls == [
+            pretend.call(request.POST),
+        ]
+
+    def test_save_profile_validation_fails(self, monkeypatch):
+        update_user = pretend.call_recorder(lambda *a, **kw: None)
+        request = pretend.stub(
+            POST={'name': 'new name'},
+            user=pretend.stub(id=pretend.stub()),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=pretend.call_recorder(
+                lambda iface, context: pretend.stub(update_user=update_user)
+            ),
+        )
+        save_profile_obj = pretend.stub(validate=lambda: False)
+        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
+        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        view_class = views.ManageProfileViews(request)
+
+        assert view_class.save_profile() == {
+            'save_profile_form': save_profile_obj,
+        }
+        assert request.session.flash.calls == []
+        assert update_user.calls == []
+        assert save_profile_cls.calls == [
+            pretend.call(request.POST),
+        ]
 
 
 class TestManageProjects:

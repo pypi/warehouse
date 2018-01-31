@@ -15,40 +15,36 @@
 /*
   A form field, with label, input, and help text.
 
-  <div class="form-group">
-    <label class="form-group__label" for="myinput">Label here</label>
-    <input class="form-group__input" id="myinput" />
-    <p class="form-group__help-text">Some help text here</p>
+  <div class="gravatar-form">
+    <img class="gravatar-form__image"/>
+    <div class="gravatar-form__content">
+      content here
+    </div>
   </div>
 */
 
-.form-group {
-  margin-bottom: 20px;
-  max-width: 350px;
+.gravatar-form {
+  display: flex;
+  align-items: center;
 
-  &__label {
+  &__image {
+    margin-right: $spacing-unit / 2;
+  }
+
+  &__content {
+    max-width: 400px;
+  }
+
+  @media screen and (max-width: $small-tablet) {
     display: block;
-    font-weight: bold;
-    margin-bottom: 7px;
-  }
 
-  &__input {
-    display: block;
-    width: 350px;
-    max-width: 100%;
-  }
+    &__image {
+      margin-right: 0;
+    }
 
-  &__text {
-    font-size: 20px;
-    padding: 4px 0 8px;
-  }
-
-  &__help-text {
-    padding: 0;
-    margin-top: 5px;
-    width: 350px;
-    max-width: 100%;
-    font-size: $small-font-size;
-    font-style: italic;
+    &__content {
+      max-width: 100%;
+      margin-top: 15px;
+    }
   }
 }

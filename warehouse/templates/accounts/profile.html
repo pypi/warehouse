@@ -22,14 +22,18 @@
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
         <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-        <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
-        <div class="author-profile__meta">
+        <div class="author-profile__info">
           {% if user.name %}
-          <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+          <h1 class="author-profile__name">{{ user.name }}</h1>
           {% endif %}
-          {% if user.date_joined %}
-          <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
-          {% endif %}
+          <div class="author-profile__meta">
+            <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
+            {% if user.date_joined %}
+            <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
+            {% endif %}
+          </div>
+          {% csi request.route_path("includes.edit-profile-button") %}
+          {% endcsi %}
         </div>
       </div>
     </div>

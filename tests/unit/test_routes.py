@@ -107,6 +107,11 @@ def test_routes(warehouse):
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.edit-profile-button",
+            "/_includes/edit-profile-button/",
+            domain=warehouse,
+        ),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",
