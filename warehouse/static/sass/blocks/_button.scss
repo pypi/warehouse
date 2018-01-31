@@ -19,19 +19,9 @@
   <input type="submit" class="button">Button</a>
   <button class="button">Button</button>
 
-  The button can optionally contain an 'icon' and 'text' that will replace
-  each other on small screens, e.g.
-
-  <button class="button">
-    <i class="button__icon"></i> // I will show on mobile, but not on desktop
-    <span class="text">Text</span> // I will show on desktop, but not on mobile
-  </button>
-
   Modifiers:
-    - Large: Makes button large. Matches large inputs.
     - Small: Makes button small.
-    - Dark: Makes button dark blue. Good against blue backgrounds.
-    - Highlight: Makes button bright blue.
+    - Primary: Makes button bright blue.
 */
 
 .button {
@@ -43,7 +33,7 @@
   padding: 0 ($spacing-unit / 2);
   background-color: transparent;
   color: lighten($text-color, 10);
-  height: 41px;
+  height: 40px;
   line-height: 35px;
   border: 2px solid darken($base-grey, 10);
   border-radius: 3px;
@@ -104,26 +94,4 @@
       outline: none;
     }
   }
-
-  &__icon {
-    display: none;
-  }
-}
-
-
-// Toggle icons / text on mobile devices
-@media only screen and (max-width: $mobile){
-  .button {
-    &__icon {
-      display: inline-block;
-    }
-
-    &__text {
-      display: none;
-    }
-  }
-}
-
-.change-button {
-  visibility: hidden;
 }

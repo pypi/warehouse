@@ -29,11 +29,11 @@
       <dd>May upload releases for a package.</dd>
     </dl>
   </div>
-  <table class="table table--light">
+  <table class="table table--light table--collaborators">
     <thead>
-      <th>User</th>
-      <th>Role</th>
-      <th>Action</th>
+      <th class="table__user">User</th>
+      <th class="table__role">Role</th>
+      <th class="table__action">Action</th>
     </thead>
     <tbody>
     {#
@@ -48,7 +48,7 @@
       {% set role = roles|max %}
 
       <tr class="collaborator">
-        <td>
+        <td class="table__user">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
             {{ role.user.username }}
             {% if role.user.name %}
@@ -56,11 +56,11 @@
             {% endif %}
           </a>
         </td>
-        <td>
+        <td class="table__role">
         {% if role.user == request.user %}
           {{ role.role_name }}
         {% else %}
-          <form class="changeRole" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
+          <form class="change-role" method="POST" action="{{ request.route_path('manage.project.change_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             {% for role in roles %}
               <input type="hidden" name="role_id" value="{{ role.id }}">
@@ -73,17 +73,13 @@
             </option>
             {% endfor %}
             </select>
-            <button
-              class="button change-button"
-              type="submit"
-              title="Save this new role"
-            >
+            <button class="button button--primary change-button" type="submit" title="Save this new role">
               Save
             </button>
           </form>
         {% endif %}
         </td>
-        <td>
+        <td class="table__action">
           <form method="POST" action="{{ request.route_path('manage.project.delete_role', project_name=project.name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             {#
@@ -117,20 +113,22 @@
       <form method="POST">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <tr>
-          <td>
-            <label for="username" class="sr-only">User's exact username</label>
-            {{ form.username(placeholder="User's exact username") }}
+          <td class="table__user">
+            <label for="username" class="sr-only">User's username</label>
+            {{ form.username(placeholder="User's username") }}
           </td>
-          <td>
+          <td class="table__role">
             <label for="role_name" class="sr-only">Role name</label>
             {{ form.role_name }}
           </td>
-          <td><input type="submit" value="Add" class="button button--primary"></td>
+          <td class="table__action">
+            <input type="submit" value="Add" class="button button--primary">
+          </td>
         </tr>
         {% if form.errors %}
           <tr class="formset-table__errors">
             <td colspan="3">
-              <ul class="form-errors">
+              <ul class="form-errors form-errors--full-width">
               {% for field, errors in form.errors|dictsort if errors %}
                 {% for error in errors %}
                 <li>{{ error }}</li>

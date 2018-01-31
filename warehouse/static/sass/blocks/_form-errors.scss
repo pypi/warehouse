@@ -37,4 +37,10 @@
       color: $danger-color;
     }
   }
+
+  &--full-width {
+    li {
+      max-width: 100%;
+    }
+  }
 }

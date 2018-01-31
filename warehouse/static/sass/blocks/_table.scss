@@ -152,8 +152,18 @@
     word-wrap: break-word;
 
     .table__version,
+    .table__date,
+    .table__summary {
+      padding-right: 20px;
+    }
+
+    .table__version,
     .table__date {
       width: 130px;
+    }
+
+    .table__version {
+      font-weight: bold;
     }
 
     .table__options {
@@ -161,9 +171,134 @@
       text-align: right;
     }
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       .table__summary {
         display: none;
+      }
+
+      .table__version,
+      .table__date,
+      .table__options {
+        width: auto;
+      }
+    }
+
+    @media only screen and (max-width: $mobile) and (min-width: 0px) {
+      thead {
+        display: none;
+      }
+
+      tbody tr {
+        padding: 10px;
+      }
+
+      .table__version,
+      .table__date,
+      .table__options {
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+        padding: 2px 0;
+      }
+
+      .table__version {
+        padding-top: 10px;
+      }
+
+      .table__options {
+        padding-bottom: 10px;
+        border-bottom: 1px solid $base-grey;
+
+        .dropdown {
+          display: block;
+
+          .button {
+            display: block;
+            width: 100%;
+          }
+
+          .dropdown__content {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  &--collaborators {
+
+    .table__user {
+      padding-right: 20px;
+    }
+
+    .change-role {
+      width: 330px;
+    }
+
+    .change-field {
+      float: left;
+    }
+
+    .change-button {
+      display: none;
+      float: left;
+      margin-left: 5px;
+    }
+
+    .table__action {
+      width: 100px;
+    }
+
+    @media only screen and (max-width: 1120px) {
+      input[type=text],
+      select {
+        min-width: 160px;
+        width: 160px;
+      }
+
+      .change-role {
+        width: 235px;
+      }
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 10px;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      tbody tr td,
+      .table__user {
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+        padding: 4px 0;
+      }
+
+      input[type=text],
+      select,
+      .table__action,
+      .button,
+      .change-role,
+      .change-field,
+      .change-button {
+        float: none;
+        width: 100%;
+        margin: 0;
+      }
+
+      .change-button {
+        margin-top: 8px;
       }
     }
   }

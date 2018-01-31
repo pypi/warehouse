@@ -27,6 +27,10 @@
 .split-layout {
   @include split-layout;
 
+  > * {
+    max-width: 100%;
+  }
+
   > :last-child {
     text-align: right;
   }
@@ -35,7 +39,28 @@
     align-items: center;
   }
 
+  &--spaced {
+    margin-top: -5px;
+
+    > * {
+      margin-top: 5px;
+    }
+  }
+
   &--table {
     @include split-table-layout;
+  }
+
+  &--wrap-on-mobile {
+    @media only screen and (max-width: $tablet) {
+      > :first-child,
+      > :last-child {
+        display: block;
+      }
+
+      > :last-child {
+        margin-top: 10px;
+      }
+    }
   }
 }
