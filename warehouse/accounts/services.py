@@ -232,7 +232,7 @@ class TokenServiceFactory:
 
     def __call__(self, context, request):
         secret = request.registry.settings[f"token.{self.name}.secret"]
-        salt = self.name
+        salt = self.name  # Use the service name as the unique salt
         max_age = request.registry.settings.get(
             f"token.{self.name}.max_age",
             request.registry.settings["token.default.max_age"],
