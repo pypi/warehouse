@@ -39,7 +39,11 @@
   border-radius: 3px;
   display: inline-block;
   white-space: nowrap;
-  vertical-align: center;
+
+  i.fa {
+    position: relative;
+    top: 2px;
+  }
 
   &:focus,
   &:hover,

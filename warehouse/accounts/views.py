@@ -371,3 +371,12 @@ def _login_user(request, userid):
 )
 def profile_callout(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="includes.edit-profile-button",
+    renderer="includes/accounts/edit-profile-button.html",
+    uses_session=True,
+)
+def edit_profile_button(request):
+    return {}

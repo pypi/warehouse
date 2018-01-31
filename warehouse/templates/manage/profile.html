@@ -22,18 +22,41 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block main %}
-  <h1>{{ title }}</h1>
-  <div class="author-profile">
-    {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
-    <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
-    <a href="{{ gravatar_profile(user.email) }}">Change this image</a>
-    <h1 class="author-profile__name">{{ user.name|default(user.username, true) }}</h1>
-    <div class="author-profile__meta">
-      {% if user.name %}
-      <p><i class="fa fa-user-circle" aria-hidden="true"></i>&nbsp;&nbsp;{{ user.username }}</p>
-      {% endif %}
-      {% if user.date_joined %}
-      <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
-      {% endif %}
+  <h1 class="page-title">{{ title }}</h1>
+  <h2>Profile Picture</h2>
+  {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
+  <div class="gravatar-form">
+    <img src="{{ gravatar(user.email, size=125) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
+    <div class="gravatar-form__content">
+      <p>
+      We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address, which is:
+      </p>
+      <p>
+        <code>{{ user.email }}</code>
+      </p>
+      <a href="{{ gravatar_profile(user.email) }}" target="_blank" class="button">
+        Change image on gravatar.com
+        <i class="fa fa-external-link" aria-hidden="true"></i>
+        <span class="sr-only">Opens in new window</span>
+      </a>
     </div>
+  </div>
+
+  <h2>Account Details</h2>
+
+  <div class="form-group">
+    <span class="form-group__label">Username</span>
+    <p class="form-group__text">{{ user.username }}</p>
+    <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>. Cannot be changed.</p>
+  </div>
+
+  <form method="POST">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="form-group">
+      <label class="form-group__label" for="name">Full Name</label>
+      <input class="form-group__input" name="name" placeholder="No name set" value="{{ user.name }}">
+      <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
+    </div>
+    <input value="Update Profile" class="button button--primary" type="submit">
+  </form>
 {% endblock %}
