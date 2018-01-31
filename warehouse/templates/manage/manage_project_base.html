@@ -20,6 +20,9 @@
 
 {% block title %}Manage '{{ project.name }}'{% endblock %}
 
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
 {% block content %}
   <div class="tabs-container">
     <div class="vertical-tabs">
