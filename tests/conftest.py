@@ -154,7 +154,11 @@ def user_service(db_session, app_config):
 
 @pytest.yield_fixture
 def token_service(app_config):
-    return services.TokenService("secret", "salt", 21600)
+    return services.TokenService(
+        secret="secret",
+        salt="salt",
+        max_age=21600,
+    )
 
 
 class QueryRecorder:
