@@ -27,7 +27,6 @@
   position: relative;
   z-index: index($z-index-scale, "callout-block");
   border-radius: 4px;
-  overflow: hidden;
 
   &__heading {
     @include h3;
@@ -42,6 +41,7 @@
     left: -2px;
     height: calc(100% + 2px);
     z-index: index($z-index-scale, "callout-block-border");
+    border-radius: 3px 0 0 3px;
   }
 
   &--danger {
