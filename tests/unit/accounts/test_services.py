@@ -21,7 +21,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -214,10 +214,10 @@ class TestDatabaseUserService:
         assert found_user is None
 
 
-class TestUserTokenService:
+class TestTokenService:
 
     def test_verify_service(self):
-        assert verifyClass(IUserTokenService, services.UserTokenService)
+        assert verifyClass(ITokenService, services.TokenService)
 
     def test_service_creation(self, monkeypatch):
         serializer_obj = pretend.stub()
@@ -225,95 +225,43 @@ class TestUserTokenService:
         monkeypatch.setattr(services, "URLSafeTimedSerializer", serializer_cls)
 
         secret = pretend.stub()
+        salt = pretend.stub()
         max_age = pretend.stub()
-        settings = {
-            "password_reset.secret": secret,
-            "password_reset.token_max_age": max_age,
-        }
-        user_service = pretend.stub()
-        service = services.UserTokenService(user_service, settings)
+        service = services.TokenService(secret, salt, max_age)
 
         assert service.serializer == serializer_obj
-        assert service.token_max_age == max_age
         assert serializer_cls.calls == [
-            pretend.call(secret, salt="password-reset")
+            pretend.call(secret, salt=salt)
         ]
 
     def test_generate_token(self, token_service):
-        user = UserFactory.create()
-        assert token_service.generate_token(user)
+        assert token_service.generate_token({'foo': 'bar'})
+
+    def test_extract_data(self, token_service):
+        token = token_service.generate_token({'foo': 'bar'})
+        assert token_service.extract_data(token) == {'foo': 'bar'}
 
     @pytest.mark.parametrize('token', ['', None])
-    def test_get_user_by_token_is_none(self, token_service, token):
-        with pytest.raises(InvalidPasswordResetToken) as e:
-            token_service.get_user_by_token(token)
-        assert e.value.message == "Invalid token - No token supplied"
+    def test_extract_data_token_is_none(self, token_service, token):
+        with pytest.raises(TokenMissing):
+            token_service.extract_data(token)
 
-    def test_get_user_by_token_invalid(self, token_service):
-        with pytest.raises(InvalidPasswordResetToken) as e:
-            token_service.get_user_by_token("definitely not valid")
-        assert e.value.message == (
-            "Invalid token - Request a new password reset link"
-        )
-
-    def test_get_user_by_token_is_expired(self, token_service):
-        user = UserFactory.create()
+    def test_extract_data_token_is_expired(self, token_service):
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now) as frozen_time:
-            token = token_service.generate_token(user)
+            token = token_service.generate_token({'foo': 'bar'})
 
             frozen_time.tick(
-                delta=datetime.timedelta(
-                    seconds=token_service.token_max_age + 1,
-                )
+                delta=datetime.timedelta(seconds=token_service.max_age + 1),
             )
 
-            with pytest.raises(InvalidPasswordResetToken) as e:
-                token_service.get_user_by_token(token)
-            assert e.value.message == (
-                "Expired token - Token is expired, request a new password "
-                "reset link"
-            )
+            with pytest.raises(TokenExpired):
+                token_service.extract_data(token)
 
-    def test_get_user_by_token_invalid_user(self, token_service):
-        invalid_user = pretend.stub(
-            id="8ad1a4ac-e016-11e6-bf01-fe55135034f3",
-            last_login="lastlogintimestamp",
-            password_date="passworddate"
-        )
-
-        token = token_service.generate_token(invalid_user)
-        with pytest.raises(InvalidPasswordResetToken) as e:
-            token_service.get_user_by_token(token)
-        assert e.value.message == "Invalid token - User not found"
-
-    def test_get_user_by_token_last_login_changed(self, token_service):
-        user = UserFactory.create()
-        token = token_service.generate_token(user)
-        user.last_login = datetime.datetime.now()
-        with pytest.raises(InvalidPasswordResetToken) as e:
-            token_service.get_user_by_token(token)
-        assert e.value.message == (
-            "Invalid token - User has logged in since this token was requested"
-        )
-
-    def test_get_user_by_token_password_date_changed(self, token_service):
-        user = UserFactory.create()
-        token = token_service.generate_token(user)
-        user.password_date = datetime.datetime.now()
-        with pytest.raises(InvalidPasswordResetToken) as e:
-            token_service.get_user_by_token(token)
-        assert e.value.message == (
-            "Invalid token - Password has already been changed since this "
-            "token was requested"
-        )
-
-    def test_get_user_by_token_success(self, token_service):
-        user = UserFactory.create()
-        token = token_service.generate_token(user)
-
-        assert token_service.get_user_by_token(token) == user
+    def test_extract_data_token_is_invalid(self, token_service):
+        with pytest.raises(TokenInvalid):
+            token_service.extract_data("invalid")
 
 
 def test_database_login_factory(monkeypatch):
@@ -354,23 +302,55 @@ def test_database_login_factory(monkeypatch):
     ]
 
 
-def test_user_token_factory(monkeypatch):
+def test_token_service_factory_default_max_age(monkeypatch):
+    name = 'name'
     service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda session, settings: service_obj)
-    monkeypatch.setattr(services, "UserTokenService", service_cls)
-    user_service = pretend.stub()
+    service_cls = pretend.call_recorder(lambda *args: service_obj)
 
-    def find_service(iface):
-        assert iface is IUserService
-        return user_service
+    service_factory = services.TokenServiceFactory(name, service_cls)
+
+    assert service_factory.name == name
+    assert service_factory.service_class == service_cls
 
     context = pretend.stub()
+    secret = pretend.stub()
+    default_max_age = pretend.stub()
     request = pretend.stub(
-        find_service=find_service,
-        registry=pretend.stub(settings=pretend.stub())
+        registry=pretend.stub(settings={
+            'token.name.secret': secret,
+            'token.default.max_age': default_max_age,
+        })
     )
 
-    assert services.user_token_factory(context, request) is service_obj
+    assert service_factory(context, request) is service_obj
     assert service_cls.calls == [
-        pretend.call(user_service, request.registry.settings),
+        pretend.call(secret, name, default_max_age),
+    ]
+
+
+def test_token_service_factory_custom_max_age(monkeypatch):
+    name = 'name'
+    service_obj = pretend.stub()
+    service_cls = pretend.call_recorder(lambda *args: service_obj)
+
+    service_factory = services.TokenServiceFactory(name, service_cls)
+
+    assert service_factory.name == name
+    assert service_factory.service_class == service_cls
+
+    context = pretend.stub()
+    secret = pretend.stub()
+    default_max_age = pretend.stub()
+    custom_max_age = pretend.stub()
+    request = pretend.stub(
+        registry=pretend.stub(settings={
+            'token.name.secret': secret,
+            'token.default.max_age': default_max_age,
+            'token.name.max_age': custom_max_age,
+        })
+    )
+
+    assert service_factory(context, request) is service_obj
+    assert service_cls.calls == [
+        pretend.call(secret, name, custom_max_age),
     ]

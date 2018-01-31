@@ -21,11 +21,16 @@ class TooManyFailedLogins(Exception):
         return super().__init__(*args, **kwargs)
 
 
-class InvalidPasswordResetToken(Exception):
-    def __init__(self, message, *args, **kwargs):
-        self.message = message
+class TokenExpired(Exception):
+    pass
 
-        return super().__init__(*args, **kwargs)
+
+class TokenInvalid(Exception):
+    pass
+
+
+class TokenMissing(Exception):
+    pass
 
 
 class IUserService(Interface):
@@ -74,14 +79,14 @@ class IUserService(Interface):
         """
 
 
-class IUserTokenService(Interface):
+class ITokenService(Interface):
 
-    def generate_token(user):
+    def generate_token(data):
         """
-        Generates a unique token based on user attributes
+        Generates a unique token based on the data provided
         """
 
-    def get_user_by_token(token):
+    def extract_data(token):
         """
-        Gets the user corresponding to the token provided
+        Gets the data corresponding to the token provided
         """

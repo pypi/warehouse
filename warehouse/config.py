@@ -172,15 +172,17 @@ def configure(settings=None):
     maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
+    maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(
         settings,
-        "password_reset.secret",
-        "PASSWORD_RESET_SECRET_KEY"
+        "token.password.max_age",
+        "TOKEN_PASSWORD_MAX_AGE",
+        coercer=int,
     )
     maybe_set(
         settings,
-        "password_reset.token_max_age",
-        "PASSWORD_RESET_TOKEN_MAX_AGE",
+        "token.default.max_age",
+        "TOKEN_DEFAULT_MAX_AGE",
         coercer=int,
         default=21600,  # 6 hours
     )
