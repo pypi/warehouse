@@ -28,6 +28,11 @@
       <p class="release__version-date"></p>
     </div>
   </div>
+
+  Modifiers:
+    - current: adds grey background to current release
+    - latest: prevents release__line from showing above
+    - oldest: precents release__line from showing below
 */
 
 .release {

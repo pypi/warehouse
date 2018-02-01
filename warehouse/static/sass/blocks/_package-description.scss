@@ -15,7 +15,10 @@
 /*
   The  description on the package detail page.
 
-  <p class="package-description"></p>
+  <div class="package-description">
+    <p class="package-description__summary">Summary here</p>
+    <a class="package-description__edit-button">Optional edit button for package maintainers</a>
+  </div>
 */
 
 .package-description {

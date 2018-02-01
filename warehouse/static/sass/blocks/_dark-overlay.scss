@@ -19,7 +19,7 @@
   <div class="dark-overlay"></div>
 */
 
-@media only screen and (max-width: $desktop){
+@media only screen and (max-width: $desktop) {
   .dark-overlay {
     display: none;
     @include overlay;

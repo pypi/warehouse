@@ -21,7 +21,7 @@
   </div>
 
   Modifiers:
-    - Maintainers: Custom layout for maintainers section on package detail page.
+    - maintainers: Custom layout for maintainers section on package detail page.
 */
 
 .sidebar-section {
@@ -52,7 +52,7 @@
     }
 
     img {
-      @media only screen and (max-width: $desktop){
+      @media only screen and (max-width: $desktop) {
         max-width: 40px;
         max-height: 40px;
       }

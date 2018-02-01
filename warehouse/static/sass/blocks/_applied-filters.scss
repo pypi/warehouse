@@ -31,7 +31,7 @@
   &__add-button {
     display: none;
 
-    @media only screen and (max-width: $desktop){
+    @media only screen and (max-width: $desktop) {
       display: inline-block;
       float: left;
     }

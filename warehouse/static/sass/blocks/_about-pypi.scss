@@ -36,7 +36,7 @@
     padding-top: 10px;
     padding-right: 50px;
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       padding: 0;
     }
 
@@ -45,7 +45,7 @@
       max-width: 100%;
       margin: -($spacing-unit / 2) 50px 0 0;
 
-      @media only screen and (max-width: $small-tablet){
+      @media only screen and (max-width: $small-tablet) {
         display: none;
       }
     }
@@ -54,7 +54,7 @@
   &__text {
     text-align: left;
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       display: block;
       width: 100%;
       margin-bottom: -10px;

@@ -21,9 +21,9 @@
   </a>
 
   Modifiers:
-    - Unknown: Adds a question mark icon to the badge
-    - Good: Adds a tick icon to the badge. Makes it green.
-    - Bad: Adds a warning icon to the badge. Makes it red.
+    - unknown: Adds a question mark icon to the badge
+    - good: Adds a tick icon to the badge. Makes it green.
+    - bad: Adds a warning icon to the badge. Makes it red.
 
 */
 
@@ -97,7 +97,7 @@
     }
   }
 
-  @media only screen and (max-width: $mobile){
+  @media only screen and (max-width: $mobile) {
      font-size: 14px;
   }
 }

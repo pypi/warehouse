@@ -54,7 +54,7 @@
   ul {
     margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) $spacing-unit;
 
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
       margin-left: $spacing-unit / 2;
     }
 
@@ -62,7 +62,7 @@
     ol {
       margin: 0 0 0 $spacing-unit;
 
-      @media only screen and (max-width: $mobile){
+      @media only screen and (max-width: $mobile) {
         margin-left: $spacing-unit / 2;
       }
     }

@@ -36,7 +36,7 @@
     margin: 0 auto;
     padding: 0 20px 40px 20px;
 
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
        padding: 0 10px $spacing-unit 10px;
     }
   }

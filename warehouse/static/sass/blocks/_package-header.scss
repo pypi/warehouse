@@ -93,12 +93,12 @@
       border: 1px dotted $transparent-white;
       line-height: $spacing-unit;
 
-      @media only screen and (max-width: $tablet){
+      @media only screen and (max-width: $tablet) {
          font-size: 20px;
          line-height: 25px;
       }
 
-      @media only screen and (max-width: $mobile){
+      @media only screen and (max-width: $mobile) {
          font-size: 18px;
          line-height: 22px;
       }
@@ -119,12 +119,12 @@
         background-color: transparentize($black, 0.8);
       }
 
-      @media only screen and (max-width: $tablet){
+      @media only screen and (max-width: $tablet) {
          line-height: 25px;
          padding: 10px;
       }
 
-      @media only screen and (max-width: $mobile){
+      @media only screen and (max-width: $mobile) {
          display: none;
       }
     }

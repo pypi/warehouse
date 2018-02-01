@@ -12,6 +12,34 @@
  * limitations under the License.
  */
 
+ /*
+   Tables for displaying data about a project, release or file.
+
+  <table>
+    <thead>
+      <tr>
+        <th>Heading</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Data</td>
+      </tr>
+    </tbody>
+  </table>
+
+  Note:
+    Elements applied to this component will differ based on the table.
+    e.g. the downloads table will contain 'table__upload-date' to represent the
+    upload column on that table.
+
+   Modifiers:
+     - light: removes borders and backgrounds from table - maintains only horizontal borders
+     - downloads: specific styles for downloads table on project detail page
+     - releases: specific styles for releases table on manage project page
+     - collaborators: specific styles for managing a project's collaborators
+ */
+
 // TABLE
 
 .table {
@@ -49,6 +77,7 @@
     tr {
       background-color: darken($background-color, 0.75);
     }
+
     tr:nth-child(even) {
       background-color: darken($background-color, 2);
     }
@@ -102,7 +131,7 @@
       margin-left: 5px;
     }
 
-    @media only screen and (max-width: $large-desktop){
+    @media only screen and (max-width: $large-desktop) {
       // Hide "file type" column
       th:nth-child(3),
       td:nth-child(3) {
@@ -110,7 +139,7 @@
       }
     }
 
-    @media only screen and (max-width: $desktop){
+    @media only screen and (max-width: $desktop) {
       // Hide "version" column
       th:nth-child(5),
       td:nth-child(5) {
@@ -118,7 +147,7 @@
       }
     }
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       // Hide "upload date" column
       th:nth-child(4),
       td:nth-child(4) {
@@ -137,7 +166,7 @@
       }
     }
 
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
       // Hide "upload date" column
       th:nth-child(2),
       td:nth-child(2) {
@@ -226,7 +255,6 @@
   }
 
   &--collaborators {
-
     .table__user {
       padding-right: 20px;
     }
