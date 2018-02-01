@@ -76,15 +76,16 @@
       </tbody>
     </table>
     <br>
-  {% else %}
-    <h2>No releases</h2>
   {% endif %}
-  {# TODO: https://github.com/pypa/warehouse/issues/2809
-    <div class="callout-block">
-      <h3>Creating a New Release</h3>
-      <p>TODO: Some help text here</p>
-    </div>
-  #}
+
+  <div class="callout-block">
+    {% if project.releases %}
+        <h3>Creating a New Release</h3>
+      {% else %}
+        <h3>No Releases Found</h3>
+    {% endif %}
+    <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/#id77">Python Packaging User Guide</a></p>
+  </div>
 
   {# TODO: https://github.com/pypa/warehouse/issues/2808
     {% for release in project.releases %}
