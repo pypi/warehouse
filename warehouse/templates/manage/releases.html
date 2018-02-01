@@ -80,43 +80,43 @@
 
   <div class="callout-block">
     {% if project.releases %}
-        <h3>Creating a New Release</h3>
-      {% else %}
-        <h3>No Releases Found</h3>
+    <h3>Creating a New Release</h3>
+    {% else %}
+    <h3>No Releases Found</h3>
     {% endif %}
     <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/#id77">Python Packaging User Guide</a></p>
   </div>
 
   {# TODO: https://github.com/pypa/warehouse/issues/2808
-    {% for release in project.releases %}
-      <div id="delete-release-modal-{{ loop.index }}" class="modal">
-        <div class="modal__content" role="dialog">
-          <a href="#modal-close" title="Close" class="modal__close">
-            <i class="fa fa-times" aria-hidden="true"></i>
-            <span class="sr-only">close</span>
-          </a>
-          <div class="modal__body">
-            <h3 class="modal__title">Delete {{ project.name }} - release {{ release.version }}?</h3>
-            <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-              <p>Warning: This action cannot be undone!</p>
-            </div>
-            <p>Enter your password to continue.</p>
-            <form class="modal__form">
-              <div class="split-layout">
-                <label for="password">Password</label>
-                <label for="show-password" class="show-password">
-                  <input id="show-password" type="checkbox">&nbsp;Show password
-                </label>
-              </div>
-              <input type="password" id="password" placeholder="Your password">
-            </form>
-          </div>
-          <div class="modal__footer">
-            <a href="#modal-close" class="button modal__action">Cancel</a>
-            <button class="button button--highlight modal__action">Delete Release</button>
-          </div>
+  {% for release in project.releases %}
+  <div id="delete-release-modal-{{ loop.index }}" class="modal">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close" title="Close" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">close</span>
+      </a>
+      <div class="modal__body">
+        <h3 class="modal__title">Delete {{ project.name }} - release {{ release.version }}?</h3>
+        <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+          <p>Warning: This action cannot be undone!</p>
         </div>
+        <p>Enter your password to continue.</p>
+        <form class="modal__form">
+          <div class="split-layout">
+            <label for="password">Password</label>
+            <label for="show-password" class="show-password">
+              <input id="show-password" type="checkbox">&nbsp;Show password
+            </label>
+          </div>
+          <input type="password" id="password" placeholder="Your password">
+        </form>
       </div>
-    {% endfor %}
+      <div class="modal__footer">
+        <a href="#modal-close" class="button modal__action">Cancel</a>
+        <button class="button button--highlight modal__action">Delete Release</button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
   #}
 {% endblock %}
