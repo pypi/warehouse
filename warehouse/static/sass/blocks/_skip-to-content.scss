@@ -25,6 +25,7 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
+  z-index: index($z-index-scale, "skip-to-content");
 
   &:focus {
     top: 7px;
