@@ -25,6 +25,7 @@ rules:
   declarations-before-nesting: 2
   empty-args: 2
   empty-line-between-blocks: 2
+  extends-before-declarations: 2
   function-name-format: 2
   id-name-format:
     - 2
