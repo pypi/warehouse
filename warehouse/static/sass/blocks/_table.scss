@@ -278,7 +278,7 @@
     }
 
     @media only screen and (max-width: 1120px) {
-      input[type=text],
+      input[type="text"],
       select {
         min-width: 160px;
         width: 160px;
@@ -313,7 +313,7 @@
         padding: 4px 0;
       }
 
-      input[type=text],
+      input[type="text"],
       select,
       .table__action,
       .button,

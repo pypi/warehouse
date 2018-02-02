@@ -9,6 +9,7 @@ options:
   merge-default-rules: false
 
 rules:
+  attribute-quotes: 2
   bem-depth: 2
   border-zero:
     - 2
