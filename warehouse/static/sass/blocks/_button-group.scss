@@ -20,12 +20,14 @@
     <a class="button-group__button">First Button</a>
     <a class="button-group__button">Second Button</a>
   </div>
+
+  Modifiers:
+   - pagination: adds top margin for pagination button groups
 */
 
 .button-group {
   display: block;
-  margin: 0 0 25px;
-
+  
   &::after {
     clear: both;
     content: "";
@@ -47,5 +49,9 @@
 
   &__button:last-child {
     border-radius: 0 3px 3px 0;
+  }
+
+  &--pagination {
+    margin-top: 40px;
   }
 }

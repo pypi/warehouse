@@ -33,6 +33,7 @@
 @mixin h1-title {
   font-size: 1.5rem;
   font-weight: $bold-font-weight;
+  padding-bottom: $spacing-unit;
 }
 
 @mixin h2 {
