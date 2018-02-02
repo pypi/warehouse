@@ -24,6 +24,7 @@ rules:
   clean-import-paths: 2
   declarations-before-nesting: 2
   empty-args: 2
+  empty-line-between-blocks: 2
   function-name-format: 2
   id-name-format:
     - 2
