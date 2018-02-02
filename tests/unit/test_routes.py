@@ -100,6 +100,18 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.edit-project-button",
+            "/_includes/edit-project-button/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "includes.edit-profile-button",
+            "/_includes/edit-profile-button/",
+            domain=warehouse,
+        ),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call(
             "accounts.profile",
@@ -116,10 +128,65 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "accounts.edit_gravatar",
-            "/user/{username}/edit_gravatar/",
-            factory="warehouse.accounts.models:UserFactory",
-            traverse="/{username}",
+            "accounts.request-password-reset",
+            "/account/request-password-reset/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.reset-password",
+            "/account/reset-password/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.profile",
+            "/manage/profile/",
+            domain=warehouse
+        ),
+        pretend.call(
+            "manage.projects",
+            "/manage/projects/",
+            domain=warehouse
+        ),
+        pretend.call(
+            "manage.project.settings",
+            "/manage/project/{project_name}/settings/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.delete_project",
+            "/manage/project/{project_name}/delete_project/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.releases",
+            "/manage/project/{project_name}/releases/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.roles",
+            "/manage/project/{project_name}/collaboration/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.change_role",
+            "/manage/project/{project_name}/collaboration/change/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.delete_role",
+            "/manage/project/{project_name}/collaboration/delete/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call(

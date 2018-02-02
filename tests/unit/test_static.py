@@ -182,8 +182,8 @@ class TestWhitenoiseTween:
         assert resp.status_code == 200
         assert resp.headers["Content-Type"] == "application/json"
         assert (
-            set(i.strip() for i in resp.headers["Cache-Control"].split(","))
-            == {"public", "max-age=60"}
+            set(i.strip() for i in resp.headers["Cache-Control"].split(",")) ==
+            {"public", "max-age=60"}
         )
         assert resp.headers["Vary"] == "Accept-Encoding"
 
@@ -272,6 +272,7 @@ def test_includeme():
             ],
             under=[
                 "warehouse.csp.content_security_policy_tween_factory",
+                "warehouse.referrer_policy.referrer_policy_tween_factory",
                 "warehouse.config.require_https_tween_factory",
                 INGRESS,
             ],

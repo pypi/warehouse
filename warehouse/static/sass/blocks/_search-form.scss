@@ -17,7 +17,10 @@
 
   <div class="search-form">
     <input class="search-form__search">
-    <input type="submit" class="search-form__button">
+    <button type="submit" class="search-form__button">
+      <i class="fa fa-search" aria-hidden="true"></i>
+      <span class="sr-only">Search</span>
+    </button>
   </div>
 
   Modifiers:
@@ -27,16 +30,23 @@
 */
 
 .search-form {
-  @include clearfix;
-
-  &__search,
-  &__button{
-    display: inline;
-    float: left;
-  }
+  position: relative;
 
   &__search {
-    margin-right: 5px;
+    display: inline;
+    padding-right: 28px;
+  }
+
+  &__button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 38px;
+    width: 38px;
+    border: 0;
+    background-color: transparent;
+    color: mix($text-color, $border-color, 50);
+    font-size: 18px;
   }
 
   &--primary {
@@ -60,17 +70,22 @@
     width: 650px;
     max-width: 100%;
     margin: 0 auto;
+
+    .search-form__search {
+      padding-right: 50px;
+    }
+
+    .search-form__button {
+      height: 50px;
+      width: 50px;
+      right: 20px;
+      font-size: 20px;
+    }
   }
 
   &--fullwidth {
     .search-form__search {
-      width: 79%;
-      margin-right: 1%;
-    }
-
-    .search-form__button {
-      width: 20%;
-      padding: 0;
+      width: 100%;
     }
   }
 }

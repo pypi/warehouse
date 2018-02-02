@@ -19,19 +19,9 @@
   <input type="submit" class="button">Button</a>
   <button class="button">Button</button>
 
-  The button can optionally contain an 'icon' and 'text' that will replace
-  each other on small screens, e.g.
-
-  <button class="button">
-    <i class="button__icon"></i> // I will show on mobile, but not on desktop
-    <span class="text">Text</span> // I will show on desktop, but not on mobile
-  </button>
-
   Modifiers:
-    - Large: Makes button large. Matches large inputs.
     - Small: Makes button small.
-    - Dark: Makes button dark blue. Good against blue backgrounds.
-    - Highlight: Makes button bright blue.
+    - Primary: Makes button bright blue.
 */
 
 .button {
@@ -41,15 +31,19 @@
   cursor: pointer;
   text-decoration: none;
   padding: 0 ($spacing-unit / 2);
+  background-color: transparent;
   color: lighten($text-color, 10);
-  height: 41px;
+  height: 40px;
   line-height: 35px;
   border: 2px solid darken($base-grey, 10);
   border-radius: 3px;
   display: inline-block;
   white-space: nowrap;
-  vertical-align: center;
-  overflow: hidden;
+
+  i.fa {
+    position: relative;
+    top: 2px;
+  }
 
   &:focus,
   &:hover,
@@ -57,14 +51,8 @@
     border-color: $brand-color;
     color: darken($brand-color, 10);
     text-decoration: none;
-    z-index: index($z-index-scale, 'active-button');
+    z-index: index($z-index-scale, "active-button");
     outline: none;
-  }
-
-  &--large {
-    font-size: $button-font-size * 1.2;
-    height: 50px;
-    line-height: 43px;
   }
 
   &--small {
@@ -73,30 +61,17 @@
     line-height: 28px;
   }
 
-  &--dark {
-    border-color: darken($brand-color, 16);
-    background-color: darken($brand-color, 15);
-    color: $white;
-
-    &:focus,
-    &:hover,
-    &:active {
-      border-color: darken($brand-color, 21);
-      background-color: darken($brand-color, 20);
-      color: $white;
-    }
-  }
-
-  &--highlight {
+  &--primary {
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
-    z-index: index($z-index-scale, 'highlight-button');
+    z-index: index($z-index-scale, "highlight-button");
 
     &:focus,
     &:hover,
     &:active {
-      background-color: darken($brand-color, 2);
+      border-color: darken($brand-color, 10);
+      background-color: darken($brand-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
@@ -117,24 +92,6 @@
       border: 2px solid darken($background-color, 5%);
       color: darken($background-color, 12%);
       outline: none;
-    }
-  }
-
-  &__icon {
-    display: none;
-  }
-}
-
-
-// Toggle icons / text on mobile devices
-@media only screen and (max-width: $mobile){
-  .button {
-    &__icon {
-      display: inline-block;
-    }
-
-    &__text {
-      display: none;
     }
   }
 }

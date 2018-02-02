@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import uuid
 
 from pyramid import authentication
 from pyramid.interfaces import IAuthenticationPolicy
@@ -74,7 +75,7 @@ class TestBasicAuthAuthenticationPolicy:
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(auth_policy, "add_vary_callback", add_vary_cb)
 
-        userid = pretend.stub()
+        userid = uuid.uuid4()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: userid),
         )
@@ -83,7 +84,7 @@ class TestBasicAuthAuthenticationPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
         )
 
-        assert policy.unauthenticated_userid(request) is userid
+        assert policy.unauthenticated_userid(request) == str(userid)
         assert extract_http_basic_credentials.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IUserService, context=None),

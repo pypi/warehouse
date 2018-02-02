@@ -28,20 +28,19 @@
 }
 
 @mixin split-layout {
-  @include clearfix;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 
   > :first-child {
-    float: left;
-  }
-
-  > :last-child {
-    float: right;
+    padding-right: $spacing-unit;
   }
 }
 
 @mixin split-table-layout {
   display: table;
   width: 100%;
+  table-layout: fixed;
 
   > :first-child,
   > :last-child {

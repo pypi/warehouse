@@ -1,0 +1,35 @@
+files:
+  include:
+    - 'warehouse/static/sass/**/*'
+  ignore:
+    - 'warehouse/static/sass/tools/bourbon/**/*'
+    - 'warehouse/static/sass/tools/neat/**/*'
+
+options:
+  merge-default-rules: false
+
+rules:
+  bem-depth: 2
+  border-zero:
+    - 2
+    - convention: '0'
+  brace-style:
+    - 2
+    - allow-single-line: false
+  class-name-format:
+    - 2
+    - convention: ^(?!js-).*
+      convention-explanation: should not be written in the form js-*
+  function-name-format: 2
+  id-name-format:
+    - 2
+    - convention: hyphenatedbem
+  mixin-name-format: 2
+  no-extends: 2
+  placeholder-name-format:
+    - 2
+    - convention: hyphenatedbem
+  quotes:
+    - 2
+    - style: double
+  variable-name-format: 2

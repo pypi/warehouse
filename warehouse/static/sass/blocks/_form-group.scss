@@ -24,6 +24,7 @@
 
 .form-group {
   margin-bottom: 20px;
+  max-width: 350px;
 
   &__label {
     display: block;
@@ -35,6 +36,11 @@
     display: block;
     width: 350px;
     max-width: 100%;
+  }
+
+  &__text {
+    font-size: 20px;
+    padding: 4px 0 8px;
   }
 
   &__help-text {

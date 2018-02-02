@@ -14,8 +14,8 @@
 
 // SETTINGS - FONTS
 
-$base-font-family: 'Source Sans Pro', 'Helvetica', Arial, sans-serif;
-$code-font: 'Source Code Pro', monospace;
+$base-font-family: "Source Sans Pro", "Helvetica", Arial, sans-serif;
+$code-font: "Source Code Pro", monospace;
 
 
 /*
@@ -27,9 +27,9 @@ $code-font: 'Source Code Pro', monospace;
 
 $em-base:          17px;
 $base-font-size:   17px;
-$small-font-size:  $base-font-size * .8;
+$small-font-size:  $base-font-size * 0.9;
 $button-font-size: $base-font-size;
-$input-font-size:  $base-font-size *1.1;
+$input-font-size:  $base-font-size * 1.1;
 
 $base-line-height: 1.4;
 $base-font-weight: 300;

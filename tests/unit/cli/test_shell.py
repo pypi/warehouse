@@ -34,7 +34,8 @@ class TestAutoDetection:
         monkeypatch.setitem(sys.modules, "IPython", pretend.stub())
         assert shell.autodetect() == "ipython"
 
-    def test_plain(self):
+    def test_plain(self, monkeypatch):
+        monkeypatch.setitem(sys.modules, "plain", pretend.stub())
         assert shell.autodetect() == "plain"
 
 

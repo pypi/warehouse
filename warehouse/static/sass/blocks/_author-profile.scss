@@ -17,34 +17,54 @@
 
   <div class="author-profile">
     // Avatar here (no class required)
-    <h1 class="author-profile__name">
-      // Username
-    </h1>
-    <div class="author-profile__meta"
-      <p>
-        // Meta
-      </p>
+    <div class="author-progile__info">
+      <h1 class="author-profile__name">
+        // Username
+      </h1>
+      <div class="author-profile__meta"
+        <p>
+          // Meta
+        </p>
+      </div>
+      <a class="author-profile__edit-button">Edit Profile</a>
     </div>
   </div>
 */
 
 .author-profile {
-  padding-right: $spacing-unit;
+  padding-bottom: $spacing-unit;
 
-  @media only screen and (max-width: $desktop){
+  @media only screen and (min-width: $desktop) {
+    padding-right: $spacing-unit;
+  }
+
+  @media only screen and (max-width: $desktop) and (min-width: $mobile) {
     padding: 0 0 ($spacing-unit * 1.5) 0;
+    display: flex;
+    align-items: center;
 
-    img  {
-      display: none;
+    img {
+      height: 175px;
+      margin-right: $spacing-unit;
     }
   }
 
-  h1.author-profile__name {
-    padding: 10px 0;
-    border-top: 2px solid $border-color;
-    border-bottom: 2px solid $border-color;
-    margin: 20px 0;
-    word-break: break-all;
+  @media only screen and (max-width: $mobile) {
+    img {
+      display: none;
+      margin-right: 0;
+    }
+  }
+
+  &__info {
+    padding-top: $spacing-unit;
+  }
+
+  &__name {
+    @include h2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 0 $spacing-unit / 2;
 
     @media only screen and (max-width: $desktop){
       border-top: 0;
@@ -55,5 +75,11 @@
 
   &__meta {
     font-style: italic;
+  }
+
+  &__edit-button {
+    margin-top: $spacing-unit;
+    width: 100%;
+    text-align: center;
   }
 }

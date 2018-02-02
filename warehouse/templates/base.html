@@ -64,13 +64,17 @@
 
   <body>
     {% block body %}
+    <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--warning">
-        <span class="notification-bar__icon"><i class="fa fa-exclamation-triangle"></i></span>
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
@@ -82,7 +86,7 @@
     {% endblock %}
 
     <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.io">Donate today!</a></span>
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
     <header class="site-header">
@@ -90,14 +94,22 @@
         <div class="split-layout">
           {% block brand %}
           <div class="split-layout">
-            <a class="site-header__logo" href="{{ request.route_path('index') }}">
-              <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-            </a>
+            <div>
+              <a class="site-header__logo" href="{{ request.route_path('index') }}">
+                <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+              </a>
+            </div>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
-              <label for="search" class="sr-only">Search PyPI</label>
-              <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-              <input class="search-form__button button button--dark" type="submit" value="Search">
+              <div role="search">
+                <label for="search" class="sr-only">Search PyPI</label>
+                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                {% block search_form_extra_inputs %}{% endblock %}
+                <button type="submit" class="search-form__button">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                  <span class="sr-only">Search</span>
+                </button>
+              </div>
             </form>
           </div>
           {% endblock %}
@@ -111,20 +123,24 @@
     {% block mobile_search %}
     <section class="mobile-search">
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
-        <label for="mobile-search" class="sr-only">Search PyPI</label>
-        <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects">
-        <button class="search-form__button button button--dark" type="submit">
-          <span class="button__icon">
-            <i class="fa fa-search"></i>
-          </span>
-          <span class="button__text">Search</span>
-        </button>
+        <div role="search">
+          <label for="mobile-search" class="sr-only">Search PyPI</label>
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+          {{ self.search_form_extra_inputs() }}
+          <button type="submit" class="search-form__button">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <span class="sr-only">Search</span>
+          </button>
+          </button>
+        </div>
       </form>
     </section>
     {% endblock mobile_search %}
 
-    {% block content %}
-    {% endblock content %}
+    <main id="content">
+      {% block content %}
+      {% endblock content %}
+    </main>
 
     <footer class="footer" role="contentinfo">
       <div class="footer__logo">
@@ -155,6 +171,7 @@
             <h3>Contributing to PyPI</h3>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
+          <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development Roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
         </ul>
@@ -166,7 +183,7 @@
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>
-          <a href="https://donate.pypi.io">Donate Today!</a>
+          <a href="https://donate.pypi.org">Donate Today!</a>
         </p>
         <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
       </div>

@@ -19,7 +19,7 @@ Jinja2>=2.8
 limits
 lxml
 mistune
-msgpack-python
+msgpack
 packaging>=15.2
 paginate>=0.5.2
 paginate_sqlalchemy
@@ -41,6 +41,7 @@ rfc3986
 setuptools
 sqlalchemy>=0.9
 sqlalchemy-citext
+stdlib-list
 structlog
 transaction
 whitenoise

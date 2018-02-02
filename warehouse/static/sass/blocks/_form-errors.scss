@@ -31,10 +31,16 @@
     max-width: 350px;
 
     &:before {
-      font-family: 'FontAwesome';
+      font-family: "FontAwesome";
       content: "\f06a";
       margin-right: 5px;
       color: $danger-color;
+    }
+  }
+
+  &--full-width {
+    li {
+      max-width: 100%;
     }
   }
 }

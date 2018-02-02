@@ -9,14 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from .base import PageObject
-
-
-class IndexPage(PageObject):
-
-    path = "/"
-
-    def is_browser_on_page(self):
-        return self.browser.title == \
-            "PyPI - the Python Package Index · Warehouse"

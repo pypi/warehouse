@@ -106,7 +106,6 @@ docReady(() => {
   window.addEventListener("resize", onResize, false);
 });
 
-
 docReady(() => {
   if (document.querySelector(".-js-autoplay-when-visible")) {
     YouTubeIframeLoader.load((YT) => {
@@ -119,5 +118,47 @@ docReady(() => {
         },
       });
     });
+  }
+});
+
+docReady(() => {
+  let passwordFields = document.querySelectorAll("#password, #password_confirm");
+  let showPasswordCheck = document.querySelector("#show-password");
+
+  if (passwordFields && showPasswordCheck) {
+    // Reset these so they don't persist between page reloads
+    for (let field of passwordFields) {
+      field.type = "password";
+      showPasswordCheck.checked = false;
+    }
+
+    showPasswordCheck.addEventListener("click", function () {
+      for (let field of passwordFields) {
+        if (showPasswordCheck.checked) {
+          field.type = "text";
+        } else {
+          field.type = "password";
+        }
+      }
+    });
+  }
+});
+
+docReady(() => {
+  let changeRoleForms = document.querySelectorAll("form.change-role");
+
+  if (changeRoleForms) {
+    for (let form of changeRoleForms) {
+      let changeButton = form.querySelector("button.change-button");
+      let changeSelect = form.querySelector("select.change-field");
+
+      changeSelect.addEventListener("change", function (event) {
+        if (event.target.value === changeSelect.dataset.original) {
+          changeButton.style.display = "none";
+        } else {
+          changeButton.style.display = "inline-block";
+        }
+      });
+    }
   }
 });

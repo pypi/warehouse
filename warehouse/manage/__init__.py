@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .index import IndexPage
 
-
-__all__ = ["IndexPage"]
+def includeme(config):
+    pass

@@ -124,6 +124,7 @@ class TestLoginForm:
 
 
 class TestRegistrationForm:
+
     def test_create(self):
         user_service = pretend.stub()
         recaptcha_service = pretend.stub(enabled=True)
@@ -311,6 +312,28 @@ class TestRegistrationForm:
             "Please choose a different username."
         )
 
+    @pytest.mark.parametrize("username", ['_foo', 'bar_', 'foo^bar'])
+    def test_username_is_valid(self, username):
+        form = forms.RegistrationForm(
+            data={"username": username},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None),
+            ),
+            recaptcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        assert (
+            form.username.errors.pop() ==
+            "The username is invalid. Usernames "
+            "must be composed of letters, numbers, "
+            "dots, hyphens and underscores. And must "
+            "also start and finish with a letter or number. "
+            "Please choose a different username."
+        )
+
     def test_password_strength(self):
         cases = (
             ("foobar", False),
@@ -328,3 +351,83 @@ class TestRegistrationForm:
             )
             form.validate()
             assert (len(form.password.errors) == 0) == valid
+
+
+class TestRequestPasswordResetForm:
+
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        assert form.user_service is user_service
+
+    def test_no_password_field(self):
+        user_service = pretend.stub()
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        assert 'password' not in form._fields
+
+    def test_validate_username_with_no_user(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
+        )
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        field = pretend.stub(data="my_username")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_username(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+
+    def test_validate_username_with_user(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+        )
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        field = pretend.stub(data="my_username")
+
+        form.validate_username(field)
+
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+
+
+class TestResetPasswordForm:
+
+    def test_password_confirm_required_error(self):
+        form = forms.ResetPasswordForm(data={"password_confirm": ""})
+
+        assert not form.validate()
+        assert form.password_confirm.errors.pop() == "This field is required."
+
+    def test_passwords_mismatch_error(self):
+        form = forms.ResetPasswordForm(
+            data={
+                "password": "password",
+                "password_confirm": "mismatch",
+            },
+        )
+
+        assert not form.validate()
+        assert (
+            form.password_confirm.errors.pop() ==
+            "Your passwords do not match. Please try again."
+        )
+
+    @pytest.mark.parametrize(("password", "expected"), [
+        ("foobar", False),
+        ("somethingalittlebetter9", True),
+        ("1aDeCent!1", True),
+    ])
+    def test_password_strength(self, password, expected):
+        form = forms.ResetPasswordForm(
+            data={"password": password, "password_confirm": password},
+        )
+        assert form.validate() == expected
+
+    def test_passwords_match_success(self):
+        form = forms.ResetPasswordForm(
+            data={
+                "password": "MyStr0ng!shPassword",
+                "password_confirm": "MyStr0ng!shPassword",
+            },
+        )
+
+        assert form.validate()

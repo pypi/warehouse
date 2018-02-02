@@ -1,0 +1,23 @@
+FROM node:8.9.4 as static
+
+WORKDIR /opt/warehouse/src/
+
+# The list of C packages we need are almost never going to change, so installing
+# them first, right off the bat lets us cache that and having node.js level
+# dependency changes not trigger a reinstall.
+RUN set -x \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        libjpeg-dev
+
+# However, we do want to trigger a reinstall of our node.js dependencies anytime
+# our package.json changes, so we'll ensure that we're copying that into our
+# static container prior to actually installing the npm dependencies.
+COPY package.json package-lock.json .babelrc /opt/warehouse/src/
+
+# Installing npm dependencies is done as a distinct step and *prior* to copying
+# over our static files so that, you guessed it, we don't invalidate the cache
+# of installed dependencies just because files have been modified.
+RUN set -x \
+    && npm install -g gulp-cli \
+    && npm install

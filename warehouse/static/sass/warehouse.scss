@@ -49,7 +49,6 @@
 @import "base/typography";
 @import "base/images-figures";
 @import "base/lists";
-@import "base/tables";
 @import "base/forms";
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
@@ -73,34 +72,37 @@
 @import "blocks/common-question";
 @import "blocks/dark-overlay";
 @import "blocks/download-graph";
-@import "blocks/downloads-table";
 @import "blocks/dropdown";
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
 @import "blocks/footer";
 @import "blocks/form-errors";
 @import "blocks/form-group";
+@import "blocks/gravatar-form";
 @import "blocks/heading-wsubtitle";
-@import "blocks/release";
-@import "blocks/release-timeline";
 @import "blocks/homepage-banner";
 @import "blocks/horizontal-menu";
 @import "blocks/horizontal-section";
 @import "blocks/large-input";
 @import "blocks/lede-paragraph";
 @import "blocks/mobile-search-bar";
+@import "blocks/modal";
 @import "blocks/notification-bar";
 @import "blocks/package-description";
 @import "blocks/package-header";
 @import "blocks/package-list";
 @import "blocks/package-snippet";
 @import "blocks/project-description";
+@import "blocks/release";
+@import "blocks/release-timeline";
 @import "blocks/search-form";
 @import "blocks/sidebar-section";
 @import "blocks/site-header";
+@import "blocks/skip-to-content";
 @import "blocks/sponsors";
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
+@import "blocks/table";
 @import "blocks/tooltip";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
@@ -137,6 +139,11 @@
 // Make text or icons red to draw attention
 .danger {
   color: $danger-color;
+}
+
+// Adjust size of h1s on standalone pages
+.page-title {
+  @include h1-title;
 }
 
 /*

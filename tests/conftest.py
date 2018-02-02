@@ -11,10 +11,7 @@
 # limitations under the License.
 
 import os.path
-import threading
 import xmlrpc.client
-
-from wsgiref.simple_server import make_server
 
 import alembic.command
 import click.testing
@@ -22,46 +19,15 @@ import pyramid.testing
 import pytest
 import webtest as _webtest
 
-import bok_choy.browser
-
-from bok_choy.browser import browser as _browser
-from needle.driver import NeedleWebDriverMixin, NeedleOpera
 from pytest_postgresql.factories import (
     init_postgresql_database, drop_postgresql_database, get_config,
 )
-from selenium.webdriver.edge.webdriver import WebDriver as MicrosoftEdge
 from sqlalchemy import event
 
 from warehouse.config import configure
+from warehouse.accounts import services
 
 from .common.db import Session
-
-
-# Needle doesn't have a driver for Edge, so we'll have to create one now.
-class NeedleMicrosoftEdge(NeedleWebDriverMixin, MicrosoftEdge):
-    pass
-
-
-# bok_choy needs to be told about some of these other kinds of browsers that
-# it doesn't already know about.
-# TODO: Contribute this back upstream.
-bok_choy.browser.BROWSERS["MicrosoftEdge"] = NeedleMicrosoftEdge
-bok_choy.browser.BROWSERS["opera"] = NeedleOpera
-
-
-# We need to be able to pass the Sauce Labs tunnel identifier as a capability
-# so that Sauce Labs can associate it with our test run. However, bok_choy
-# doesn't expose a way of doing this, so we'll need to hack it in.
-# TODO: Contribute this back upstream.
-def __capabilities_dict(envs, tags):  # noqa
-    caps = __capabilities_dict._real_implementation(envs, tags)
-    if "SAUCELABS_TUNNEL" in os.environ:
-        caps.setdefault("tunnelIdentifier", os.environ["SAUCELABS_TUNNEL"])
-    return caps
-
-
-__capabilities_dict._real_implementation = bok_choy.browser._capabilities_dict
-bok_choy.browser._capabilities_dict = __capabilities_dict
 
 
 def pytest_collection_modifyitems(items):
@@ -141,6 +107,7 @@ def app_config(database):
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
+            "password_reset.secret": "insecure secret",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
@@ -177,6 +144,20 @@ def db_session(app_config):
         trans.rollback()
         conn.close()
         engine.dispose()
+
+
+@pytest.yield_fixture
+def user_service(db_session, app_config):
+    return services.DatabaseUserService(
+        db_session, app_config.registry.settings
+    )
+
+
+@pytest.yield_fixture
+def token_service(app_config, user_service):
+    return services.UserTokenService(
+        user_service, app_config.registry.settings
+    )
 
 
 class QueryRecorder:
@@ -247,76 +228,6 @@ def webtest(app_config):
         app_config.registry["sqlalchemy.engine"].dispose()
 
 
-class LiveServerThread(threading.Thread):
-
-    def __init__(self, app, *args, **kwargs):
-        self.app = app
-        self.is_ready = threading.Event()
-        self.error = None
-        super().__init__(*args, **kwargs)
-
-    def run(self):
-        try:
-            self.httpd = make_server("localhost", 0, self.app)
-            self.is_ready.set()
-            self.httpd.serve_forever()
-        except Exception as exc:
-            self.error = exc
-            self.is_ready.set()
-
-    def terminate(self):
-        if hasattr(self, "httpd"):
-            # Stop the WSGI server
-            self.httpd.shutdown()
-            self.httpd.server_close()
-
-
-@pytest.yield_fixture
-def server_thread(app_config, webtest):
-    # We need to allow unsafe-eval in our test suite, because otherwise we
-    # cannot execute some javascript in the context of our page inside of our
-    # selenium tests.
-    app_config.get_settings()["csp"]["script-src"].append("'unsafe-eval'")
-
-    # Spin up Warehouse in a thread
-    _server_thread = LiveServerThread(webtest.app)
-    _server_thread.daemon = True
-    _server_thread.start()
-    _server_thread.is_ready.wait()
-
-    try:
-        if _server_thread.error:
-            raise _server_thread.error
-
-        yield _server_thread
-    finally:
-        _server_thread.terminate()
-        _server_thread.join()
-
-
-@pytest.fixture
-def server_url(pytestconfig, server_thread):
-    hostname, port = server_thread.httpd.server_address
-    if pytestconfig.option.liveserver_host:
-        hostname = pytestconfig.option.liveserver_host
-
-    return "http://{}:{}/".format(hostname, port)
-
-
-@pytest.yield_fixture
-def browser():
-    selenium = _browser()
-
-    # Opera currently doesn't support maximize_window()
-    if selenium.desired_capabilities["browserName"] not in {"opera"}:
-        selenium.maximize_window()
-
-    try:
-        yield selenium
-    finally:
-        selenium.quit()
-
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
@@ -337,7 +248,3 @@ def pytest_runtest_makereport(item, call):
                     rep.sections.append(
                         ("Captured {} log".format(log_type), data)
                     )
-
-
-def pytest_addoption(parser):
-    parser.addoption("--liveserver-host", dest="liveserver_host")

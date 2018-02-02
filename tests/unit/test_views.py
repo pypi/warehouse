@@ -25,6 +25,7 @@ from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
+    flash_messages, forbidden_include
 )
 
 from ..common.db.accounts import UserFactory
@@ -146,6 +147,19 @@ class TestForbiddenView:
             "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
 
+class TestForbiddenIncludeView:
+
+    def test_forbidden_include(self):
+        exc = pretend.stub()
+        request = pretend.stub()
+
+        resp = forbidden_include(exc, request)
+
+        assert resp.status_code == 403
+        assert resp.content_type == 'text/html'
+        assert resp.content_length == 0
+
+
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
@@ -185,6 +199,10 @@ class TestIndex:
 
 def test_esi_current_user_indicator():
     assert current_user_indicator(pretend.stub()) == {}
+
+
+def test_esi_flash_messages():
+    assert flash_messages(pretend.stub()) == {}
 
 
 class TestSearch:
@@ -446,7 +464,8 @@ class TestSearch:
             ),
         ]
         assert es_query.filter.calls == [
-            pretend.call('terms', classifiers=['foo :: bar', 'fiz :: buz'])
+            pretend.call('terms', classifiers=['foo :: bar']),
+            pretend.call('terms', classifiers=['fiz :: buz'])
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])

@@ -22,6 +22,7 @@ from sqlalchemy import (
     Boolean, DateTime, Integer, Float, Table, Text,
 )
 from sqlalchemy import func, orm, sql
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -57,6 +58,16 @@ class Role(db.Model):
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+    def __gt__(self, other):
+        '''
+        Temporary hack to allow us to only display the 'highest' role when
+        there are multiple for a given user
+
+        TODO: This should be removed when fixing GH-2745.
+        '''
+        order = ['Maintainer', 'Owner']  # from lowest to highest
+        return order.index(self.role_name) > order.index(other.role_name)
 
 
 class ProjectFactory:
@@ -135,7 +146,9 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __acl__(self):
         session = orm.object_session(self)
-        acls = []
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -144,8 +157,10 @@ class Project(SitemapMixin, db.ModelBase):
         for role in sorted(
                 query.all(),
                 key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
-            acls.append((Allow, role.user.id, ["upload"]))
-
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
     @property
@@ -335,7 +350,7 @@ class Release(db.ModelBase):
             _urls["Homepage"] = self.home_page
 
         for urlspec in self.project_urls:
-            name, url = urlspec.split(",", 1)
+            name, url = [x.strip() for x in urlspec.split(",", 1)]
             _urls[name] = url
 
         if self.download_url and "Download" not in _urls:
@@ -402,7 +417,6 @@ class File(db.Model):
     md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
-    downloads = Column(Integer, server_default=sql.text("0"))
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
@@ -412,6 +426,10 @@ class File(db.Model):
         nullable=False,
         server_default=sql.false(),
     )
+
+    # TODO: Once Legacy PyPI is gone, then we should remove this column
+    #       completely as we no longer use it.
+    downloads = Column(Integer, server_default=sql.text("0"))
 
     @hybrid_property
     def pgp_path(self):
@@ -497,3 +515,30 @@ class JournalEntry(db.ModelBase):
     )
     submitted_by = orm.relationship(User)
     submitted_from = Column(Text)
+
+
+class BlacklistedProject(db.Model):
+
+    __tablename__ = "blacklist"
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="blacklist_valid_name",
+        ),
+    )
+
+    __repr__ = make_repr("name")
+
+    created = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+    )
+    name = Column(Text, unique=True, nullable=False)
+    _blacklisted_by = Column(
+        "blacklisted_by",
+        UUID(as_uuid=True),
+        ForeignKey("accounts_user.id"),
+    )
+    blacklisted_by = orm.relationship(User)
+    comment = Column(Text, nullable=False, server_default="")

@@ -1,0 +1,97 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% set user = request.user %}
+{% set projects = user.projects %}
+{% set current_project = project %}
+{% set active_tab = active_tab|default('releases') %}
+
+{% block title %}Manage '{{ project.name }}'{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block content %}
+  <div class="tabs-container">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">
+            <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
+          </h3>
+          <nav>
+            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-cube" aria-hidden="true"></i>
+              Releases
+            </a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-group" aria-hidden="true"></i>
+              Collaborators
+            </a>
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-wrench" aria-hidden="true"></i>
+              Settings
+            </a>
+          </nav>
+        </div>
+      </div>
+      <div class="vertical-tabs__panel">
+        <!-- mobile nav -->
+        <nav>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            Back to Projects
+          </a>
+        </nav>
+        <div class="vertical-tabs__content">
+          <div class="package-snippet package-snippet--margin-bottom">
+            <div class="split-layout split-layout--middle split-layout--spaced">
+              <div>
+                <h1 class="package-snippet__title page-title">{{ project.name }}</h1>
+                {% set release = project.releases[0] if project.releases else None %}
+                {% if release %}
+                  <p class="package-snippet__description">{{ release.summary }}</p>
+                {% endif %}
+              </div>
+              <div>
+                <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">
+                  View Project
+                </a>
+              </div>
+            </div>
+          </div>
+          <!-- mobile nav -->
+          <nav>
+            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-cube" aria-hidden="true"></i>
+              Releases
+            </a>
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-group" aria-hidden="true"></i>
+              Collaborators
+            </a>
+            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-wrench" aria-hidden="true"></i>
+              Settings
+            </a>
+          </nav>
+
+          {% block main %}{% endblock %}
+        </div>
+        {% block mobile_tabs_bottom %}{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
