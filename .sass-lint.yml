@@ -28,6 +28,7 @@ rules:
     - 2
     - size: 2
   mixin-name-format: 2
+  no-duplicate-properties: 2
   no-extends: 2
   one-declaration-per-line: 2
   placeholder-name-format:
