@@ -169,6 +169,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.release",
+            "/manage/project/{project_name}/release/{version}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.roles",
             "/manage/project/{project_name}/collaboration/",
             factory="warehouse.packaging.models:ProjectFactory",
