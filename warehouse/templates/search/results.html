@@ -46,7 +46,7 @@
 {% macro pagination(page) -%}
 {% if page.items and page.page_count > 1 %}
   {% set map = page.link_map() %}
-  <div class="button-group">
+  <div class="button-group button-group--pagination">
     {# previous button #}
     {% if map.current_page.value == map.first_page.number %}
     <a class="button button-group__button button--disabled">Previous</a>

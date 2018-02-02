@@ -32,10 +32,18 @@
   }
 
   &__content {
-    max-width: 400px;
+    max-width: 500px;
   }
 
   @media screen and (max-width: $small-tablet) {
+    align-items: start;
+
+    &__image {
+      max-width: 90px;
+    }
+  }
+
+  @media screen and (max-width: $mobile) {
     display: block;
 
     &__image {

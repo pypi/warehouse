@@ -20,8 +20,8 @@
   <button class="button">Button</button>
 
   Modifiers:
-    - Small: Makes button small.
-    - Primary: Makes button bright blue.
+    - small: Makes button small.
+    - primary: Makes button bright blue.
 */
 
 .button {
@@ -65,7 +65,7 @@
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
-    z-index: index($z-index-scale, "highlight-button");
+    z-index: index($z-index-scale, "primary-button");
 
     &:focus,
     &:hover,

@@ -21,7 +21,10 @@
   </div>
 
   Modifiers:
+    - middle: will align contents in the middle vertically
+    - spaced: will add vertical spacing when the layout wraps
     - table: will use a table layout and align contents in the middle vertically
+    - wrap-on-tablet: will wrap children once resolution is at tablet size
 */
 
 .split-layout {
@@ -51,7 +54,7 @@
     @include split-table-layout;
   }
 
-  &--wrap-on-mobile {
+  &--wrap-on-tablet {
     @media only screen and (max-width: $tablet) {
       > :first-child,
       > :last-child {

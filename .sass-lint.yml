@@ -9,6 +9,7 @@ options:
   merge-default-rules: false
 
 rules:
+  attribute-quotes: 2
   bem-depth: 2
   border-zero:
     - 2
@@ -20,16 +21,34 @@ rules:
     - 2
     - convention: ^(?!js-).*
       convention-explanation: should not be written in the form js-*
+  clean-import-paths: 2
+  declarations-before-nesting: 2
+  empty-args: 2
+  empty-line-between-blocks: 2
+  extends-before-declarations: 2
+  extends-before-mixins: 2
+  final-newline: 2
   function-name-format: 2
   id-name-format:
     - 2
     - convention: hyphenatedbem
+  indentation:
+    - 2
+    - size: 2
   mixin-name-format: 2
+  no-duplicate-properties: 2
+  no-empty-rulesets: 2
   no-extends: 2
+  no-misspelled-properties: 2
+  one-declaration-per-line: 2
   placeholder-name-format:
     - 2
     - convention: hyphenatedbem
   quotes:
     - 2
     - style: double
+  single-line-per-selector: 2
+  space-after-comma: 2
+  space-after-colon: 2
+  space-before-brace: 2
   variable-name-format: 2

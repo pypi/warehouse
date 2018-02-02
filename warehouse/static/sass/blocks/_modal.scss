@@ -23,11 +23,11 @@
       </a>
       <div class="modal__body">
         <h3 class="modal__title">Modal Title</h3>
-        <!-- content -->
+        <!-- content, may include modal__form -->
       </div>
       <div class="modal__footer">
         <a href="#modal-close" class="button modal__action">Cancel</a>
-        <button class="button button--highlight modal__action">Action Button</button>
+        <button class="button button--primary modal__action">Action Button</button>
       </div>
     </div>
   </div>
@@ -100,7 +100,7 @@
 
   // Styles for inline forms
   &__form {
-    label{
+    label {
       font-weight: bold;
     }
 

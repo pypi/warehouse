@@ -25,7 +25,7 @@
     {% for project in request.user.projects %}
     {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
-      <div class="split-layout split-layout--table split-layout--wrap-on-mobile">
+      <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
         <div>
           <h3 class="package-snippet__title">{{ project.name }}</h3>
           {% if release %}

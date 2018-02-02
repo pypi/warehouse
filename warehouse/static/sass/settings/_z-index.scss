@@ -23,6 +23,8 @@
   See: https://www.smashingmagazine.com/2014/06/sassy-z-index-management-for-complex-layouts/
 */
 
+// sass-lint:disable indentation
+
 $z-index-scale: "tabs-border",
                 "history-line",
                 "history-node",
@@ -30,7 +32,7 @@ $z-index-scale: "tabs-border",
                 "callout-block-border",
                 "button",
                 "active-button",
-                "highlight-button",
+                "primary-button",
                 "dropdown",
                 "sticky-top",
                 "dark-overlay",

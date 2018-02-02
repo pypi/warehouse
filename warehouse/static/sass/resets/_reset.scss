@@ -11,15 +11,30 @@
 */
 
 body,
-h1, h2, h3, h4, h5, h6,
-p, blockquote, pre,
-dl, dd, ol, ul,
-form, fieldset, legend,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+dl,
+dd,
+ol,
+ul,
+form,
+fieldset,
+legend,
 figure,
-table, th, td, caption,
+table,
+th,
+td,
+caption,
 hr {
-    margin:  0;
-    padding: 0;
+  margin:  0;
+  padding: 0;
 }
 
 
@@ -31,7 +46,7 @@ hr {
 */
 abbr[title],
 dfn[title] {
-    cursor: help;
+  cursor: help;
 }
 
 
@@ -43,7 +58,7 @@ dfn[title] {
  */
 u,
 ins {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 
@@ -54,5 +69,5 @@ ins {
  * Apply faux underlines to inserted text via `border-bottom`.
  */
 ins {
-    border-bottom: 1px solid;
+  border-bottom: 1px solid;
 }

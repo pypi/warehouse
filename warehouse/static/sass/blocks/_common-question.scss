@@ -20,6 +20,8 @@
 */
 
 .common-question {
+  @include h2;
+
   &:before {
     font-family: "FontAwesome";
     content: "\f059";

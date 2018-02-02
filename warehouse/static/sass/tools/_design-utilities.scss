@@ -20,8 +20,8 @@
 
 @mixin link-focus {
   &:focus {
-    background-color: $highlight-color;
-    color: darken($highlight-color, 50);
+    background-color: $primary-color;
+    color: darken($primary-color, 50);
     cursor: pointer;
   }
 }

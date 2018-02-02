@@ -113,7 +113,7 @@ a {
 
 @include selection {
   color: darken($brand-color, 15);
-  background: $highlight-color;
+  background: $primary-color;
 }
 
 

@@ -54,7 +54,7 @@
   ul {
     margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) $spacing-unit;
 
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
       margin-left: $spacing-unit / 2;
     }
 
@@ -62,7 +62,7 @@
     ol {
       margin: 0 0 0 $spacing-unit;
 
-      @media only screen and (max-width: $mobile){
+      @media only screen and (max-width: $mobile) {
         margin-left: $spacing-unit / 2;
       }
     }
@@ -141,15 +141,17 @@ $black:         #000;
   }
 
   .k { /* Keyword */
-    color: $green; font-weight: bold;
-
+    color: $green;
+    font-weight: bold;
   }
+
   .cm { /* Comment.Multiline */
     color: $light-grey;
   }
 
   .cp { /* Comment.Preproc */
-    color: $dark-red; font-weight: bold;
+    color: $dark-red;
+    font-weight: bold;
   }
 
   .c1 {/* Comment.Single */
@@ -157,7 +159,8 @@ $black:         #000;
   }
 
   .cs { /* Comment.Special */
-    color: $dark-red; font-weight: bold;
+    color: $dark-red;
+    font-weight: bold;
   }
 
   .gd { /* Generic.Deleted */

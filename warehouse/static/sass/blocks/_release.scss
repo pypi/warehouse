@@ -28,6 +28,11 @@
       <p class="release__version-date"></p>
     </div>
   </div>
+
+  Modifiers:
+    - current: adds grey background to current release
+    - latest: prevents release__line from showing above
+    - oldest: precents release__line from showing below
 */
 
 .release {
@@ -83,7 +88,6 @@
   }
 
   &__card {
-    background-color: #f5f5f5;
     border: 1px solid darken(#ececec, 5);
     background-color: $white;
     box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
