@@ -110,9 +110,9 @@
   </div>
 
   <div id="delete-release-modal" class="modal">
-    {% set project_name = project.normalized_name %}
     <div class="modal__content" role="dialog">
-      <form method="POST" action="" class="modal__form">
+      <form method="POST" class="modal__form">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <a href="#modal-close" title="Close" class="modal__close">
           <i class="fa fa-times" aria-hidden="true"></i>
           <span class="sr-only">close</span>
@@ -122,10 +122,9 @@
           <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
             <p>Warning: This action cannot be undone!</p>
           </div>
-          <p>Confirm the project name to continue.</p>
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <label for="project-name">Project Name</label>
-          <input name="confirm" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <p>Confirm the release version to continue.</p>
+          <label for="confirm-version">Release version</label>
+          <input name="confirm-version" type="text" placeholder="Confirm version" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
           <a href="#modal-close" class="button modal__action">Cancel</a>
@@ -152,7 +151,7 @@
             </div>
             <p>Confirm the project name to continue.</p>
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <label for="project-name">Project Name</label>
+            <label for="confirm">Project Name</label>
             <input name="confirm" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
           </div>
           <div class="modal__footer">

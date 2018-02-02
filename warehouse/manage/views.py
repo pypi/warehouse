@@ -109,20 +109,82 @@ def manage_project_releases(project, request):
     return {"project": project}
 
 
-@view_config(
+@view_defaults(
     route_name="manage.project.release",
     renderer="manage/release.html",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
     permission="manage",
     effective_principals=Authenticated,
 )
-def manage_project_release(release, request):
-    project = release.project
-    return {
-        "project": project,
-        "release": release,
-        "files": release.files.all(),
-    }
+class ManageProjectRelease:
+    def __init__(self, release, request):
+        self.release = release
+        self.request = request
+
+    @view_config(request_method="GET")
+    def manage_project_release(self):
+        return {
+            "project": self.release.project,
+            "release": self.release,
+            "files": self.release.files.all(),
+        }
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm-version"]
+    )
+    def delete_project_release(self):
+        version = self.request.POST.get('confirm-version')
+        if not version:
+            self.request.session.flash(
+                "Must confirm the request.", queue='error'
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    'manage.project.release',
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if version != self.release.version:
+            self.request.session.flash(
+                f"{version!r} is not the same as {self.release.version!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    'manage.project.release',
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action="remove",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            ),
+        )
+
+        self.request.db.delete(self.release)
+
+        self.request.session.flash(
+            f"Successfully deleted release {self.release.version!r}.",
+            queue="success",
+        )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                'manage.project.releases',
+                project_name=self.release.project.name,
+            )
+        )
 
 
 @view_config(
