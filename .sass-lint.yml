@@ -31,6 +31,7 @@ rules:
   no-duplicate-properties: 2
   no-empty-rulesets: 2
   no-extends: 2
+  no-misspelled-properties: 2
   one-declaration-per-line: 2
   placeholder-name-format:
     - 2
