@@ -94,13 +94,13 @@
       line-height: $spacing-unit;
 
       @media only screen and (max-width: $tablet) {
-         font-size: 20px;
-         line-height: 25px;
+        font-size: 20px;
+        line-height: 25px;
       }
 
       @media only screen and (max-width: $mobile) {
-         font-size: 18px;
-         line-height: 22px;
+        font-size: 18px;
+        line-height: 22px;
       }
     }
 
@@ -120,12 +120,12 @@
       }
 
       @media only screen and (max-width: $tablet) {
-         line-height: 25px;
-         padding: 10px;
+        line-height: 25px;
+        padding: 10px;
       }
 
       @media only screen and (max-width: $mobile) {
-         display: none;
+        display: none;
       }
     }
   }

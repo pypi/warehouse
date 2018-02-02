@@ -24,6 +24,9 @@ rules:
   id-name-format:
     - 2
     - convention: hyphenatedbem
+  indentation:
+    - 2
+    - size: 2
   mixin-name-format: 2
   no-extends: 2
   one-declaration-per-line: 2
