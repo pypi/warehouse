@@ -26,6 +26,7 @@ rules:
     - convention: hyphenatedbem
   mixin-name-format: 2
   no-extends: 2
+  one-declaration-per-line: 2
   placeholder-name-format:
     - 2
     - convention: hyphenatedbem
