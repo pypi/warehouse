@@ -21,6 +21,7 @@ rules:
     - 2
     - convention: ^(?!js-).*
       convention-explanation: should not be written in the form js-*
+  clean-import-paths: 2
   function-name-format: 2
   id-name-format:
     - 2
