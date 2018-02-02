@@ -32,4 +32,5 @@ rules:
   quotes:
     - 2
     - style: double
+  space-before-brace: 2
   variable-name-format: 2
