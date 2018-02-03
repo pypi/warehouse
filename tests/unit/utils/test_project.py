@@ -76,7 +76,10 @@ def test_confirm_incorrect_input():
         call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
-        call("'bizbaz' is not the same as 'foobar'", queue='error')
+        call(
+            "Could not delete project - 'bizbaz' is not the same as 'foobar'",
+            queue='error'
+        )
     ]
 
 
