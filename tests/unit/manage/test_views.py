@@ -161,7 +161,10 @@ class TestManageProjectSettings:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+            pretend.call(
+                "Could not delete project - 'bar' is not the same as 'foo'",
+                queue="error"
+            ),
         ]
 
     def test_delete_project(self, db_request):

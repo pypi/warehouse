@@ -31,6 +31,7 @@ def confirm_project(project, request, fail_route):
         )
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
+            "Could not delete project - " +
             f"{confirm!r} is not the same as {project.normalized_name!r}",
             queue="error",
         )
