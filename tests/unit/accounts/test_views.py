@@ -21,9 +21,9 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
-    IUserService, IUserTokenService, TooManyFailedLogins
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    TooManyFailedLogins
 )
-from warehouse.accounts.services import InvalidPasswordResetToken
 
 from ...common.db.accounts import UserFactory
 
@@ -347,65 +347,44 @@ class TestRequestPasswordReset:
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
-            pretend.call(IUserTokenService, context=None),
         ]
 
     def test_request_password_reset(
             self, monkeypatch, pyramid_request, pyramid_config, user_service,
             token_service):
 
-        stub_user = pretend.stub(email="email", username="username_value")
+        stub_user = pretend.stub(username=pretend.stub())
         pyramid_request.method = "POST"
-        token_service.generate_token = pretend.call_recorder(lambda a: "TOK")
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(
             lambda a: stub_user
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kwargs: {
-                IUserService: user_service,
-                IUserTokenService: token_service,
-            }[interface]
+            lambda *a, **kw: user_service,
         )
-        pyramid_request.POST = {"username": stub_user.username}
-
-        subject_renderer = pyramid_config.testing_add_renderer(
-            'email/password-reset.subject.txt'
-        )
-        subject_renderer.string_response = 'Email Subject'
-        body_renderer = pyramid_config.testing_add_renderer(
-            'email/password-reset.body.txt'
-        )
-        body_renderer.string_response = 'Email Body'
-
         form_obj = pretend.stub(
             username=pretend.stub(data=stub_user.username),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        send_email = pretend.stub(
-            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        n_hours = pretend.stub()
+        send_password_reset_email = pretend.call_recorder(
+            lambda *args, **kwargs: {'n_hours': n_hours},
         )
-        pyramid_request.task = pretend.call_recorder(
-            lambda *args, **kwargs: send_email
+        monkeypatch.setattr(
+            views, 'send_password_reset_email', send_password_reset_email
         )
-        monkeypatch.setattr(views, "send_email", send_email)
 
         result = views.request_password_reset(
             pyramid_request, _form_class=form_class
         )
 
-        assert result == {"n_hours": token_service.token_max_age // 60 // 60}
-        subject_renderer.assert_()
-        body_renderer.assert_(token="TOK", username=stub_user.username)
-        assert token_service.generate_token.calls == [
-            pretend.call(stub_user),
-        ]
+        assert result == {'n_hours': n_hours}
         assert user_service.get_user_by_username.calls == [
             pretend.call(stub_user.username),
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
-            pretend.call(IUserTokenService, context=None),
         ]
         assert form_obj.validate.calls == [
             pretend.call(),
@@ -413,54 +392,12 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service),
         ]
-        assert pyramid_request.task.calls == [
-            pretend.call(send_email),
-        ]
-        assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, stub_user),
         ]
 
 
 class TestResetPassword:
-
-    def test_invalid_token(self, pyramid_request, user_service, token_service):
-        form_inst = pretend.stub()
-        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
-
-        def get_user_by_token(token):
-            raise InvalidPasswordResetToken('message')
-
-        pyramid_request.GET.update({"token": "RANDOM_KEY"})
-        token_service.get_user_by_token = pretend.call_recorder(
-            get_user_by_token
-        )
-        pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kwargs: {
-                IUserService: user_service,
-                IUserTokenService: token_service,
-            }[interface]
-        )
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(
-            lambda *a, **kw: None
-        )
-
-        views.reset_password(pyramid_request, _form_class=form_class)
-
-        assert form_class.calls == []
-        assert pyramid_request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-            pretend.call(IUserTokenService, context=None),
-        ]
-        assert token_service.get_user_by_token.calls == [
-            pretend.call("RANDOM_KEY"),
-        ]
-        assert pyramid_request.route_path.calls == [
-            pretend.call('accounts.request-password-reset'),
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call('message', queue='error'),
-        ]
 
     def test_get(self, db_request, user_service, token_service):
         user = UserFactory.create()
@@ -468,13 +405,18 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
         db_request.GET.update({"token": "RANDOM_KEY"})
-        token_service.get_user_by_token = pretend.call_recorder(
-            lambda token: user
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'password-reset',
+                'user.id': str(user.id),
+                'user.last_login': str(user.last_login),
+                'user.password_date': str(user.password_date),
+            }
         )
         db_request.find_service = pretend.call_recorder(
             lambda interface, **kwargs: {
                 IUserService: user_service,
-                IUserTokenService: token_service,
+                ITokenService: token_service,
             }[interface]
         )
 
@@ -490,12 +432,12 @@ class TestResetPassword:
                 user_service=user_service,
             )
         ]
-        assert token_service.get_user_by_token.calls == [
+        assert token_service.loads.calls == [
             pretend.call("RANDOM_KEY"),
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
-            pretend.call(IUserTokenService, context=None),
+            pretend.call(ITokenService, name="password"),
         ]
 
     def test_reset_password(self, db_request, user_service, token_service):
@@ -510,12 +452,19 @@ class TestResetPassword:
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        token_service.get_user_by_token = pretend.call_recorder(lambda a: user)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'password-reset',
+                'user.id': str(user.id),
+                'user.last_login': str(user.last_login),
+                'user.password_date': str(user.password_date),
+            }
+        )
         user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
         db_request.find_service = pretend.call_recorder(
             lambda interface, **kwargs: {
                 IUserService: user_service,
-                IUserTokenService: token_service,
+                ITokenService: token_service,
             }[interface]
         )
         db_request.session.flash = pretend.call_recorder(
@@ -540,7 +489,7 @@ class TestResetPassword:
             ),
         ]
         assert db_request.route_path.calls == [pretend.call('index')]
-        assert token_service.get_user_by_token.calls == [
+        assert token_service.loads.calls == [
             pretend.call('RANDOM_KEY'),
         ]
         assert user_service.update_user.calls == [
@@ -554,8 +503,188 @@ class TestResetPassword:
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
-            pretend.call(IUserTokenService, context=None),
+            pretend.call(ITokenService, name="password"),
             pretend.call(IUserService, context=None),
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (
+                TokenInvalid,
+                "Invalid token - Request a new password reset link",
+            ), (
+                TokenExpired,
+                "Expired token - Request a new password reset link",
+            ), (
+                TokenMissing,
+                "Invalid token - No token supplied"
+            ),
+        ],
+    )
+    def test_reset_password_loads_failure(
+            self, pyramid_request, exception, message):
+
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: pretend.stub(),
+            ITokenService: pretend.stub(loads=loads),
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue='error'),
+        ]
+
+    def test_reset_password_invalid_action(self, pyramid_request):
+        data = {
+            'action': 'invalid-action',
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: pretend.stub(),
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Not a password reset token", queue='error'
+            ),
+        ]
+
+    def test_reset_password_invalid_user(self, pyramid_request):
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: None),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - User not found", queue='error'
+            ),
+        ]
+        assert user_service.get_user.calls == [
+            pretend.call(uuid.UUID(data['user.id'])),
+        ]
+
+    def test_reset_password_last_login_changed(self, pyramid_request):
+        now = datetime.datetime.utcnow()
+        later = now + datetime.timedelta(hours=1)
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+            'user.last_login': str(now),
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user = pretend.stub(last_login=later)
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - User has logged in since this token was "
+                "requested",
+                queue='error',
+            ),
+        ]
+
+    def test_reset_password_password_date_changed(self, pyramid_request):
+        now = datetime.datetime.utcnow()
+        later = now + datetime.timedelta(hours=1)
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+            'user.last_login': str(now),
+            'user.password_date': str(now),
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user = pretend.stub(last_login=now, password_date=later)
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Password has already been changed since this "
+                "token was requested",
+                queue='error',
+            ),
         ]
 
 
