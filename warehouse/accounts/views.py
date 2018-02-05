@@ -17,7 +17,6 @@ import uuid
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
-from pyramid.renderers import render
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
@@ -31,7 +30,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email
+from warehouse.email import send_password_reset_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -250,34 +249,12 @@ def register(request, _form_class=RegistrationForm):
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
-    token_service = request.find_service(ITokenService, name="password")
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
-        username = form.username.data
-        user = user_service.get_user_by_username(username)
-        token = token_service.dumps({
-            "action": "password-reset",
-            "user.id": str(user.id),
-            "user.last_login": str(user.last_login),
-            "user.password_date": str(user.password_date),
-        })
-        n_hours = token_service.max_age // 60 // 60
-
-        subject = render(
-            'email/password-reset.subject.txt',
-            {},
-            request=request,
-        )
-
-        body = render(
-            'email/password-reset.body.txt',
-            {'token': token, 'username': username, 'n_hours': n_hours},
-            request=request,
-        )
-
-        request.task(send_email).delay(body, [user.email], subject)
-        return {"n_hours": n_hours}
+        user = user_service.get_user_by_username(form.username.data)
+        fields = send_password_reset_email(request, user)
+        return {'n_hours': fields['n_hours']}
 
     return {"form": form}
 
