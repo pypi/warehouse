@@ -40,6 +40,10 @@
               <i class="fa fa-group" aria-hidden="true"></i>
               Collaborators
             </a>
+            <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %}">
+              <i class="fa fa-history" aria-hidden="true"></i>
+              History
+            </a>
             <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
               <i class="fa fa-wrench" aria-hidden="true"></i>
               Settings
