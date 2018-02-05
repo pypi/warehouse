@@ -12,11 +12,11 @@
 
 import datetime
 import hashlib
+import uuid
 
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
-from pyramid.renderers import render
 from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
@@ -26,11 +26,11 @@ from warehouse.accounts.forms import (
     LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email
+from warehouse.email import send_password_reset_email
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -249,29 +249,12 @@ def register(request, _form_class=RegistrationForm):
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
-    user_token_service = request.find_service(IUserTokenService, context=None)
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
-        username = form.username.data
-        user = user_service.get_user_by_username(username)
-        token = user_token_service.generate_token(user)
-        n_hours = user_token_service.token_max_age // 60 // 60
-
-        subject = render(
-            'email/password-reset.subject.txt',
-            {},
-            request=request,
-        )
-
-        body = render(
-            'email/password-reset.body.txt',
-            {'token': token, 'username': username, 'n_hours': n_hours},
-            request=request,
-        )
-
-        request.task(send_email).delay(body, [user.email], subject)
-        return {"n_hours": n_hours}
+        user = user_service.get_user_by_username(form.username.data)
+        fields = send_password_reset_email(request, user)
+        return {'n_hours': fields['n_hours']}
 
     return {"form": form}
 
@@ -285,16 +268,47 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 )
 def reset_password(request, _form_class=ResetPasswordForm):
     user_service = request.find_service(IUserService, context=None)
-    user_token_service = request.find_service(IUserTokenService, context=None)
+    token_service = request.find_service(ITokenService, name="password")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(
+            request.route_path("accounts.request-password-reset"),
+        )
 
     try:
         token = request.params.get('token')
-        user = user_token_service.get_user_by_token(token)
-    except InvalidPasswordResetToken as e:
-        # Fail if the token is invalid for any reason
-        request.session.flash(e.message, queue="error")
-        return HTTPSeeOther(
-            request.route_path("accounts.request-password-reset"),
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new password reset link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new password reset link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "password-reset":
+        return _error("Invalid token - Not a password reset token")
+
+    # Check whether a user with the given user ID exists
+    user = user_service.get_user(uuid.UUID(data.get("user.id")))
+    if user is None:
+        return _error("Invalid token - User not found")
+
+    # Check whether the user has logged in since the token was created
+    last_login = data.get("user.last_login")
+    if str(user.last_login) > last_login:
+        # TODO: track and audit this, seems alertable
+        return _error(
+            "Invalid token - User has logged in since this token was requested"
+        )
+
+    # Check whether the password has been changed since the token was created
+    password_date = data.get("user.password_date")
+    if str(user.password_date) > password_date:
+        return _error(
+            "Invalid token - Password has already been changed since this "
+            "token was requested"
         )
 
     form = _form_class(
