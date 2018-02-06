@@ -28,29 +28,35 @@
   </div>
 
   {% if files %}
-  <table class="table table--light">
+  <table class="table table--light table--files">
     <thead>
       <tr>
-        <th>Filename, Size</th>
-        <th>Type</th>
-        <th>Py Version</th>
-        <th>Upload Date</th>
-        <th>Comment</th>
+        <th class="table__name">Filename, Size</th>
+        <th class="table__type">Type</th>
+        <th class="table__version">Py Version</th>
+        <th class="table__upload">Upload Date</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
     {% for file in files %}
       <tr>
-        <td>
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
+        <td class="table__name">
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}"
+            {% if file.comment_text %}
+              class="tooltipped tooltipped-e"
+              aria-label="{{ file.comment_text|truncate(60, True) }}"
+              data-original-label="{{ file.comment_text|truncate(60, True) }}"
+            {% endif %}
+          >
+            {{ file.filename }}
+          </a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </td>
-        <td>{{ file.packagetype|format_package_type }}</td>
-        <td>{{ file.requires_python }}</td>
-        <td>{{ file.upload_time|format_date() }}</td>
-        <td>{% if file.comment_text %}{{ file.comment_text }}{% else %}-{% endif %}</td>
-        <td>
+        <td class="table__type">{{ file.packagetype|format_package_type }}</td>
+        <td class="table__version">{{ file.requires_python }}</td>
+        <td class="table__upload">{{ file.upload_time|format_date() }}</td>
+        <td class="table__options">
           <div class="dropdown dropdown--with-icons pull-right">
             <button class="dropdown__trigger button button--primary">
               Options
@@ -87,7 +93,7 @@
     {% else %}
     <h3>No Files Found</h3>
     {% endif %}
-<p>Learn how to upload files on the <a href="TODO">Python Packaging User Guide</a></p>
+    <p>Learn how to upload files on the <a href="TODO">Python Packaging User Guide</a></p>
   </div>
 
   <h3>Release Settings</h3>
@@ -106,7 +112,7 @@
       Deleting will irreversibly delete this release.
     {% endif %}
     </p>
-    <a href="#delete-release-modal" class="button button--primary pull-left">Delete</a>
+    <a href="#delete-release-modal" class="button button--primary">Delete</a>
   </div>
 
   <div id="delete-release-modal" class="modal">
@@ -142,7 +148,6 @@
         <form method="POST" class="modal__form">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           <input name="file_id" type="hidden" value="{{ file.id }}">
-          {{ file.id }}
           <a href="#modal-close" title="Close" class="modal__close">
             <i class="fa fa-times" aria-hidden="true"></i>
             <span class="sr-only">close</span>
