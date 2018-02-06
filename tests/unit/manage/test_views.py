@@ -351,6 +351,151 @@ class TestManageProjectRelease:
             )
         ]
 
+    def test_delete_project_release_file(self, monkeypatch):
+        release_file = pretend.stub(
+            filename='foo-bar.tar.gz',
+            id=str(uuid.uuid4()),
+        )
+        release = pretend.stub(
+            version='1.2.3',
+            project=pretend.stub(name='foobar'),
+        )
+        request = pretend.stub(
+            POST={
+                'confirm_filename': release_file.filename,
+                'file_id': release_file.id,
+            },
+            method="POST",
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda a: None),
+                add=pretend.call_recorder(lambda a: None),
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: release_file),
+                ),
+            ),
+            route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            user=pretend.stub(),
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+        monkeypatch.setattr(views, 'JournalEntry', journal_cls)
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                f"Successfully deleted file {release_file.filename!r}.",
+                queue="success",
+            )
+        ]
+        assert request.db.delete.calls == [pretend.call(release_file)]
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action=f"remove file {release_file.filename}",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            ),
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                'manage.project.release',
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_no_confirm(self):
+        release = pretend.stub(
+            version='1.2.3',
+            project=pretend.stub(name='foobar'),
+        )
+        request = pretend.stub(
+            POST={'confirm_filename': ''},
+            method="POST",
+            db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.db.delete.calls == []
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Must confirm the request.", queue='error'
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                'manage.project.release',
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_bad_confirm(self):
+        release_file = pretend.stub(
+            filename='foo-bar.tar.gz',
+            id=str(uuid.uuid4()),
+        )
+        release = pretend.stub(
+            version='1.2.3',
+            project=pretend.stub(name='foobar'),
+        )
+        request = pretend.stub(
+            POST={'confirm_filename': 'invalid'},
+            method="POST",
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda a: None),
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: release_file),
+                ),
+            ),
+            route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.db.delete.calls == []
+        assert request.session.flash.calls == [
+            pretend.call(
+                f"'invalid' is not the same as {release_file.filename!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                'manage.project.release',
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
 
 class TestManageProjectRoles:
 

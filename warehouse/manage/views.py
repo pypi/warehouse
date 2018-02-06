@@ -23,7 +23,7 @@ from warehouse.accounts.models import User
 from warehouse.manage.forms import (
     CreateRoleForm, ChangeRoleForm, SaveProfileForm
 )
-from warehouse.packaging.models import JournalEntry, Role
+from warehouse.packaging.models import JournalEntry, Role, File
 from warehouse.utils.project import confirm_project, remove_project
 
 
@@ -183,6 +183,71 @@ class ManageProjectRelease:
             self.request.route_path(
                 'manage.project.releases',
                 project_name=self.release.project.name,
+            )
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_filename", "file_id"]
+    )
+    def delete_project_release_file(self):
+        filename = self.request.POST.get('confirm_filename')
+        if not filename:
+            self.request.session.flash(
+                "Must confirm the request.", queue='error'
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    'manage.project.release',
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        release_file = (
+            self.request.db.query(File)
+            .filter(
+                File.name == self.release.project.name,
+                File.id == self.request.POST.get('file_id'),
+            )
+            .one()
+        )
+
+        if filename != release_file.filename:
+            self.request.session.flash(
+                f"{filename!r} is not the same as {release_file.filename!r}",
+                queue="error",
+            )
+            return HTTPSeeOther(
+                self.request.route_path(
+                    'manage.project.release',
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        self.request.db.add(
+            JournalEntry(
+                name=self.release.project.name,
+                action=f"remove file {release_file.filename}",
+                version=self.release.version,
+                submitted_by=self.request.user,
+                submitted_from=self.request.remote_addr,
+            ),
+        )
+
+        self.request.db.delete(release_file)
+
+        self.request.session.flash(
+            f"Successfully deleted file {release_file.filename!r}.",
+            queue="success",
+        )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                'manage.project.release',
+                project_name=self.release.project.name,
+                version=self.release.version,
             )
         )
 

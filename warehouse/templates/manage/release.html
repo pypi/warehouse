@@ -139,7 +139,10 @@
     <div id="delete-file-modal-{{ loop.index }}" class="modal">
       {% set project_name = project.normalized_name %}
       <div class="modal__content" role="dialog">
-        <form method="POST" action="" class="modal__form">
+        <form method="POST" class="modal__form">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <input name="file_id" type="hidden" value="{{ file.id }}">
+          {{ file.id }}
           <a href="#modal-close" title="Close" class="modal__close">
             <i class="fa fa-times" aria-hidden="true"></i>
             <span class="sr-only">close</span>
@@ -150,9 +153,8 @@
               <p>Warning: This action cannot be undone!</p>
             </div>
             <p>Confirm the project name to continue.</p>
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <label for="confirm">Project Name</label>
-            <input name="confirm" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
+            <label for="confirm_filename">File name</label>
+            <input name="confirm_filename" type="text" placeholder="Confirm file name" autocomplete="off" autocorrect="off" autocapitalize="off">
           </div>
           <div class="modal__footer">
             <a href="#modal-close" class="button modal__action">Cancel</a>
