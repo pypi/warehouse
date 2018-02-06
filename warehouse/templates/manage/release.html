@@ -117,7 +117,7 @@
 
   <div id="delete-release-modal" class="modal">
     <div class="modal__content" role="dialog">
-      <form method="POST" class="modal__form">
+      <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <a href="#modal-close" title="Close" class="modal__close">
           <i class="fa fa-times" aria-hidden="true"></i>
@@ -145,7 +145,7 @@
     <div id="delete-file-modal-{{ loop.index }}" class="modal">
       {% set project_name = project.normalized_name %}
       <div class="modal__content" role="dialog">
-        <form method="POST" class="modal__form">
+        <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           <input name="file_id" type="hidden" value="{{ file.id }}">
           <a href="#modal-close" title="Close" class="modal__close">
