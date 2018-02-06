@@ -29,6 +29,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_password_reset_email
 from warehouse.packaging.models import Project, Release
@@ -335,6 +336,47 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.verify-email",
+    uses_session=True,
+)
+def verify_email(request):
+    token_service = request.find_service(ITokenService, name="email")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.profile"))
+
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new verification link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new verification link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "email-verify":
+        return _error("Invalid token - Not an email verification token")
+
+    email = request.db.query(Email).get(data['email.id'])
+
+    if not email:
+        return _error("Email not found")
+
+    if email.verified:
+        return _error("Email already verified")
+
+    email.verified = True
+
+    request.session.flash(
+        f'Email address {email.email} verified.', queue='success'
+    )
+    return HTTPSeeOther(request.route_path("manage.profile"))
 
 
 def _login_user(request, userid):
