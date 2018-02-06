@@ -49,10 +49,26 @@
 
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {% if save_profile_form.errors.__all__ %}
+      <ul class="form-errors">
+        {% for error in save_profile_form.errors.__all__ %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
     <div class="form-group">
       <label class="form-group__label" for="name">Full Name</label>
-      <input class="form-group__input" name="name" placeholder="No name set" value="{{ user.name }}">
+      {{ save_profile_form.name(placeholder="No name set", class_="form-group__input") }}
       <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
+      {% if save_profile_form.name.errors %}
+      <ul class="form-errors">
+        {% for error in save_profile_form.name.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
     </div>
     <input value="Update Profile" class="button button--primary" type="submit">
   </form>
