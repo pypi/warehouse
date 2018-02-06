@@ -151,6 +151,7 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
+                "Could not delete release - " +
                 f"{version!r} is not the same as {self.release.version!r}",
                 queue="error",
             )
@@ -215,6 +216,7 @@ class ManageProjectRelease:
 
         if filename != release_file.filename:
             self.request.session.flash(
+                "Could not delete file - " +
                 f"{filename!r} is not the same as {release_file.filename!r}",
                 queue="error",
             )

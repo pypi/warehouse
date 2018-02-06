@@ -339,6 +339,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
+                "Could not delete release - " +
                 f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
@@ -484,6 +485,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
+                "Could not delete file - " +
                 f"'invalid' is not the same as {release_file.filename!r}",
                 queue="error",
             )
