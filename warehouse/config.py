@@ -173,10 +173,17 @@ def configure(settings=None):
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
+    maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(
         settings,
         "token.password.max_age",
         "TOKEN_PASSWORD_MAX_AGE",
+        coercer=int,
+    )
+    maybe_set(
+        settings,
+        "token.email.max_age",
+        "TOKEN_EMAIL_MAX_AGE",
         coercer=int,
     )
     maybe_set(
