@@ -100,9 +100,7 @@ class NewPasswordMixin:
     )
 
 
-class RegistrationForm(NewPasswordMixin, NewUsernameMixin, forms.Form):
-
-    full_name = wtforms.StringField()
+class NewEmailMixin:
 
     email = wtforms.fields.html5.EmailField(
         validators=[
@@ -116,13 +114,6 @@ class RegistrationForm(NewPasswordMixin, NewUsernameMixin, forms.Form):
         ],
     )
 
-    g_recaptcha_response = wtforms.StringField()
-
-    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
-        self.recaptcha_service = recaptcha_service
-
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError(
@@ -135,6 +126,18 @@ class RegistrationForm(NewPasswordMixin, NewUsernameMixin, forms.Form):
                 "Sorry, you cannot create an account with an email address "
                 "from this domain. Please use a different email."
             )
+
+
+class RegistrationForm(
+        NewPasswordMixin, NewUsernameMixin, NewEmailMixin, forms.Form):
+
+    full_name = wtforms.StringField()
+    g_recaptcha_response = wtforms.StringField()
+
+    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.recaptcha_service = recaptcha_service
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
