@@ -19,7 +19,8 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.models import User, Email
+from warehouse.email import send_email_verification_email
 from warehouse.manage.forms import (
     AddEmailForm, CreateRoleForm, ChangeRoleForm, SaveProfileForm
 )
@@ -68,6 +69,124 @@ class ManageProfileViews:
             **self.default_response,
             'save_profile_form': form,
         }
+
+    @view_config(
+        request_method="POST",
+        request_param=AddEmailForm.__params__,
+    )
+    def add_email(self):
+        form = AddEmailForm(self.request.POST, user_service=self.user_service)
+
+        if form.validate():
+            email = Email(
+                email=form.email.data,
+                user_id=self.request.user.id,
+                primary=False,
+                verified=False,
+            )
+            self.request.user.emails.append(email)
+            self.request.db.flush()  # To get the new ID
+
+            send_email_verification_email(self.request, email)
+
+            self.request.session.flash(
+                f'Email {email.email} added and verification email sent.',
+                queue='success',
+            )
+            return self.default_response
+
+        return {
+            **self.default_response,
+            'add_email_form': form,
+        }
+
+    @view_config(
+        request_method="POST",
+        request_param=["delete_email_id"],
+    )
+    def delete_email(self):
+        try:
+            email = self.request.db.query(Email).filter(
+                Email.id == self.request.POST['delete_email_id'],
+                Email.user_id == self.request.user.id,
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        if email.primary:
+            self.request.session.flash(
+                'Cannot delete primary email address.', queue='error'
+            )
+        else:
+            self.request.user.emails.remove(email)
+            self.request.session.flash(
+                f'Email address {email.email} deleted.', queue='success'
+            )
+        return self.default_response
+
+    @view_config(
+        request_method="POST",
+        request_param=["primary_email_id"],
+    )
+    def change_primary_email(self):
+        try:
+            new_primary_email = self.request.db.query(Email).filter(
+                Email.user_id == self.request.user.id,
+                Email.id == self.request.POST['primary_email_id'],
+                Email.verified.is_(True),
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        self.request.db.query(Email).filter(
+            Email.user_id == self.request.user.id,
+            Email.primary.is_(True),
+        ).update(values={'primary': False})
+
+        new_primary_email.primary = True
+
+        self.request.session.flash(
+            f'Email address {new_primary_email.email} set as primary.',
+            queue='success',
+        )
+
+        return self.default_response
+
+    @view_config(
+        request_method="POST",
+        request_param=['reverify_email_id'],
+    )
+    def reverify_email(self):
+        try:
+            email = self.request.db.query(Email).filter(
+                Email.id == self.request.POST['reverify_email_id'],
+                Email.user_id == self.request.user.id,
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        if email.verified:
+            self.request.session.flash(
+                'Email is already verified.', queue='error'
+            )
+        else:
+            send_email_verification_email(self.request, email)
+
+            self.request.session.flash(
+                f'Verification email for {email.email} resent.',
+                queue='success',
+            )
+
+        return self.default_response
 
 
 @view_config(
