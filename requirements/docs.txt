@@ -50,9 +50,9 @@ snowballstemmer==1.2.1 \
 sphinx-rtd-theme==0.2.4 \
     --hash=sha256:62ee4752716e698bad7de8a18906f42d33664128eea06c46b718fc7fbd1a9f5c \
     --hash=sha256:2df74b8ff6fae6965c527e97cca6c6c944886aae474b490e17f92adfbe843417
-Sphinx==1.6.6 \
-    --hash=sha256:b8baed19394af85b21755c68c7ec4eac57e8a482ed89cd01cd5d5ff72200fe0f \
-    --hash=sha256:c39a6fa41bd3ec6fc10064329a664ed3a3ca2e27640a823dc520c682e4433cdb
+Sphinx==1.6.7 \
+    --hash=sha256:d5b91b4dad56ffc9f19425ebaa7bc23290a0a2e9035781d5bc54822384663277 \
+    --hash=sha256:832bed0dc6099c2abca957d90ff55bc1a6ec4425c13fc144adbae68a970e3775
 sphinxcontrib-httpdomain==1.6.0 \
     --hash=sha256:50fe30014a08f39ffe80da99697c8a86ee7848e3269ffa5fe5514d38aa9497d6 \
     --hash=sha256:1f1efec788f3441697e638dae1800ec41203b8982ded07c8e0b10108c69de152
