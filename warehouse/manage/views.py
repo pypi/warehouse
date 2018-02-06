@@ -133,10 +133,10 @@ class ManageProjectRelease:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm-version"]
+        request_param=["confirm_version"]
     )
     def delete_project_release(self):
-        version = self.request.POST.get('confirm-version')
+        version = self.request.POST.get('confirm_version')
         if not version:
             self.request.session.flash(
                 "Must confirm the request.", queue='error'

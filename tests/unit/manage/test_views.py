@@ -232,7 +232,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm-version': release.version},
+            POST={'confirm_version': release.version},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -286,7 +286,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm-version': ''},
+            POST={'confirm_version': ''},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
@@ -321,7 +321,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm-version': 'invalid'},
+            POST={'confirm_version': 'invalid'},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
