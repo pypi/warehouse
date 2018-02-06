@@ -25,7 +25,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins
 )
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestFailedLoginView:
@@ -686,6 +686,163 @@ class TestResetPassword:
                 queue='error',
             ),
         ]
+
+
+class TestVerifyEmail:
+
+    def test_verify_email(self, db_request, user_service, token_service):
+        email = EmailFactory(verified=False)
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'email-verify',
+                'email.id': str(email.id),
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda *a, **kwargs: token_service,
+        )
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        result = views.verify_email(db_request)
+
+        db_request.db.flush()
+        assert email.verified
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [pretend.call('manage.profile')]
+        assert token_service.loads.calls == [pretend.call('RANDOM_KEY')]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Email address {email.email} verified.", queue="success"
+            ),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(ITokenService, name="email"),
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (
+                TokenInvalid,
+                "Invalid token - Request a new verification link",
+            ), (
+                TokenExpired,
+                "Expired token - Request a new verification link",
+            ), (
+                TokenMissing,
+                "Invalid token - No token supplied"
+            ),
+        ],
+    )
+    def test_verify_email_loads_failure(
+            self, pyramid_request, exception, message):
+
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=loads)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue='error'),
+        ]
+
+    def test_verify_email_invalid_action(self, pyramid_request):
+        data = {
+            'action': 'invalid-action',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Not an email verification token",
+                queue='error',
+            ),
+        ]
+
+    def test_verify_email_invalid_email(self, pyramid_request):
+        data = {
+            'action': 'email-verify',
+            'email.id': 'invalid',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        get = pretend.call_recorder(lambda a: None)
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(get=get)
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Email not found', queue='error')
+        ]
+        assert get.calls == [pretend.call(data['email.id'])]
+
+    def test_verify_email_already_verified(self, pyramid_request):
+        data = {
+            'action': 'email-verify',
+            'email.id': 'valid',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+        get = pretend.call_recorder(lambda a: pretend.stub(verified=True))
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(get=get)
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Email already verified', queue='error')
+        ]
+        assert get.calls == [pretend.call(data['email.id'])]
 
 
 class TestProfileCallout:
