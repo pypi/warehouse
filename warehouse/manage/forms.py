@@ -13,6 +13,7 @@
 import wtforms
 
 from warehouse import forms
+from warehouse.accounts.forms import NewEmailMixin
 
 
 class RoleNameMixin:
@@ -62,3 +63,12 @@ class SaveProfileForm(forms.Form):
     __params__ = ['name']
 
     name = wtforms.StringField()
+
+
+class AddEmailForm(NewEmailMixin, forms.Form):
+
+    __params__ = ['email']
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
