@@ -21,6 +21,32 @@
 
 {% block title %}{{ title }}{% endblock %}
 
+{% macro form_error_anchor(form) %}
+  {% if form.errors %}
+  <div id="errors"></div>
+  {% endif %}
+{% endmacro %}
+
+{% macro form_errors(form) %}
+  {% if form.errors.__all__ %}
+  <ul class="form-errors">
+    {% for error in form.errors.__all__ %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+{% endmacro %}
+
+{% macro field_errors(field) %}
+  {% if field.errors %}
+  <ul class="form-errors">
+    {% for error in field.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+{% endmacro %}
+
 {% macro email_row(email) -%}
   <tr>
     <td class="table__email">
@@ -94,6 +120,7 @@
 
   <hr>
 
+  {{ form_error_anchor(save_profile_form) }}
   <h2>Account Details</h2>
 
   <div class="form-group">
@@ -104,32 +131,19 @@
 
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-
-    {% if save_profile_form.errors.__all__ %}
-    <ul class="form-errors">
-      {% for error in save_profile_form.errors.__all__ %}
-      <li>{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
+    {{ form_errors(save_profile_form) }}
     <div class="form-group">
       <label class="form-group__label" for="name">Full Name</label>
       {{ save_profile_form.name(placeholder="No name set", class_="form-group__input") }}
+      {{ field_errors(save_profile_form.name) }}
       <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
-      {% if save_profile_form.name.errors %}
-      <ul class="form-errors">
-        {% for error in save_profile_form.name.errors %}
-        <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
     </div>
     <input value="Update Profile" class="button button--primary" type="submit">
   </form>
 
   <hr>
 
+  {{ form_error_anchor(add_email_form) }}
   <h2>Account Emails</h2>
   <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your primary email will receive notifications.</p>
 
@@ -185,13 +199,7 @@
       <div class="form-group__horizontal">
         <div class="form-group__horizontal-left">
           {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
-          {% if add_email_form.email.errors %}
-          <ul class="form-errors">
-            {% for error in add_email_form.email.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
+          {{ field_errors(add_email_form.email) }}
         </div>
         <div class="form-group__horizontal-right">
           <input value="Add" class="button button--primary" type="submit">
