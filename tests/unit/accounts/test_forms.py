@@ -402,6 +402,9 @@ class TestResetPasswordForm:
             data={
                 "new_password": "password",
                 "password_confirm": "mismatch",
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
             },
         )
 
@@ -418,8 +421,15 @@ class TestResetPasswordForm:
     ])
     def test_password_strength(self, password, expected):
         form = forms.ResetPasswordForm(
-            data={"new_password": password, "password_confirm": password},
+            data={
+                "new_password": password,
+                "password_confirm": password,
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
+            },
         )
+
         assert form.validate() == expected
 
     def test_passwords_match_success(self):
@@ -427,6 +437,9 @@ class TestResetPasswordForm:
             data={
                 "new_password": "MyStr0ng!shPassword",
                 "password_confirm": "MyStr0ng!shPassword",
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
             },
         )
 
