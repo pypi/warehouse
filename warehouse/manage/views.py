@@ -21,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.manage.forms import (
-    CreateRoleForm, ChangeRoleForm, SaveProfileForm
+    AddEmailForm, CreateRoleForm, ChangeRoleForm, SaveProfileForm
 )
 from warehouse.packaging.models import JournalEntry, Role, File
 from warehouse.utils.project import confirm_project, remove_project
@@ -40,11 +40,16 @@ class ManageProfileViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
 
-    @view_config(request_method="GET")
-    def manage_profile(self):
+    @property
+    def default_response(self):
         return {
             'save_profile_form': SaveProfileForm(name=self.request.user.name),
+            'add_email_form': AddEmailForm(user_service=self.user_service),
         }
+
+    @view_config(request_method="GET")
+    def manage_profile(self):
+        return self.default_response
 
     @view_config(
         request_method="POST",
@@ -60,6 +65,7 @@ class ManageProfileViews:
             )
 
         return {
+            **self.default_response,
             'save_profile_form': form,
         }
 
