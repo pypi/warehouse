@@ -16,18 +16,20 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
 from warehouse.packaging.models import JournalEntry, Project, Role
 
+from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import ProjectFactory, RoleFactory, UserFactory
 
 
 class TestManageProfile:
 
-    def test_manage_profile(self, monkeypatch):
+    def test_default_response(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
@@ -37,38 +39,64 @@ class TestManageProfile:
         save_profile_obj = pretend.stub()
         save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
         monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        add_email_obj = pretend.stub()
+        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
+        monkeypatch.setattr(views, 'AddEmailForm', add_email_cls)
+        view = views.ManageProfileViews(request)
 
-        assert view_class.manage_profile() == {
+        assert view.default_response == {
             'save_profile_form': save_profile_obj,
+            'add_email_form': add_email_obj,
         }
-        assert view_class.request == request
-        assert view_class.user_service == user_service
+        assert view.request == request
+        assert view.user_service == user_service
         assert save_profile_cls.calls == [
             pretend.call(name=name),
         ]
+        assert add_email_cls.calls == [
+            pretend.call(user_service=user_service),
+        ]
+
+    def test_manage_profile(self, monkeypatch):
+        user_service = pretend.stub()
+        name = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(name=name),
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.manage_profile() == view.default_response
+        assert view.request == request
+        assert view.user_service == user_service
 
     def test_save_profile(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
             POST={'name': 'new name'},
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
-            find_service=pretend.call_recorder(
-                lambda iface, context: pretend.stub(update_user=update_user)
-            ),
+            find_service=lambda *a, **kw: user_service,
         )
         save_profile_obj = pretend.stub(
-            validate=lambda: True,
-            data=request.POST,
+            validate=lambda: True, data=request.POST
         )
-        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
-        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        monkeypatch.setattr(
+            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
 
-        assert view_class.save_profile() == {
+        assert view.save_profile() == {
+            **view.default_response,
             'save_profile_form': save_profile_obj,
         }
         assert request.session.flash.calls == [
@@ -77,35 +105,33 @@ class TestManageProfile:
         assert update_user.calls == [
             pretend.call(request.user.id, **request.POST)
         ]
-        assert save_profile_cls.calls == [
-            pretend.call(request.POST),
-        ]
 
     def test_save_profile_validation_fails(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
             POST={'name': 'new name'},
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
-            find_service=pretend.call_recorder(
-                lambda iface, context: pretend.stub(update_user=update_user)
-            ),
+            find_service=lambda *a, **kw: user_service,
         )
         save_profile_obj = pretend.stub(validate=lambda: False)
-        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
-        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        monkeypatch.setattr(
+            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
 
-        assert view_class.save_profile() == {
+        assert view.save_profile() == {
+            **view.default_response,
             'save_profile_form': save_profile_obj,
         }
         assert request.session.flash.calls == []
         assert update_user.calls == []
-        assert save_profile_cls.calls == [
-            pretend.call(request.POST),
-        ]
 
 
 class TestManageProjects:
