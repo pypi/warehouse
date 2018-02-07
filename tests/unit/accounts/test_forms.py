@@ -158,7 +158,7 @@ class TestRegistrationForm:
         )
         form = forms.RegistrationForm(
             data={
-                "password": "password",
+                "new_password": "password",
                 "password_confirm": "mismatch",
             },
             user_service=user_service,
@@ -179,7 +179,7 @@ class TestRegistrationForm:
         )
         form = forms.RegistrationForm(
             data={
-                "password": "MyStr0ng!shPassword",
+                "new_password": "MyStr0ng!shPassword",
                 "password_confirm": "MyStr0ng!shPassword",
             },
             user_service=user_service,
@@ -187,7 +187,7 @@ class TestRegistrationForm:
         )
 
         form.validate()
-        assert len(form.password.errors) == 0
+        assert len(form.new_password.errors) == 0
         assert len(form.password_confirm.errors) == 0
 
     def test_email_required_error(self):
@@ -342,7 +342,7 @@ class TestRegistrationForm:
         )
         for pwd, valid in cases:
             form = forms.RegistrationForm(
-                data={"password": pwd, "password_confirm": pwd},
+                data={"new_password": pwd, "password_confirm": pwd},
                 user_service=pretend.stub(),
                 recaptcha_service=pretend.stub(
                     enabled=False,
@@ -350,7 +350,7 @@ class TestRegistrationForm:
                 ),
             )
             form.validate()
-            assert (len(form.password.errors) == 0) == valid
+            assert (len(form.new_password.errors) == 0) == valid
 
 
 class TestRequestPasswordResetForm:
@@ -400,7 +400,7 @@ class TestResetPasswordForm:
     def test_passwords_mismatch_error(self):
         form = forms.ResetPasswordForm(
             data={
-                "password": "password",
+                "new_password": "password",
                 "password_confirm": "mismatch",
             },
         )
@@ -418,14 +418,14 @@ class TestResetPasswordForm:
     ])
     def test_password_strength(self, password, expected):
         form = forms.ResetPasswordForm(
-            data={"password": password, "password_confirm": password},
+            data={"new_password": password, "password_confirm": password},
         )
         assert form.validate() == expected
 
     def test_passwords_match_success(self):
         form = forms.ResetPasswordForm(
             data={
-                "password": "MyStr0ng!shPassword",
+                "new_password": "MyStr0ng!shPassword",
                 "password_confirm": "MyStr0ng!shPassword",
             },
         )

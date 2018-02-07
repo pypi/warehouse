@@ -233,7 +233,7 @@ def register(request, _form_class=RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.password.data
+            form.username.data, form.full_name.data, form.new_password.data,
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
@@ -328,7 +328,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     if request.method == "POST" and form.validate():
         # Update password.
-        user_service.update_user(user.id, password=form.password.data)
+        user_service.update_user(user.id, password=form.new_password.data)
 
         # Flash a success message
         request.session.flash(

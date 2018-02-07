@@ -329,7 +329,7 @@ class TestRegister:
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
         pyramid_request.POST.update({
             "username": "username_value",
-            "password": "MyStr0ng!shP455w0rd",
+            "new_password": "MyStr0ng!shP455w0rd",
             "password_confirm": "MyStr0ng!shP455w0rd",
             "email": "foo@bar.com",
             "full_name": "full_name",
@@ -467,7 +467,7 @@ class TestResetPassword:
         db_request.method = "POST"
         db_request.POST.update({"token": "RANDOM_KEY"})
         form_obj = pretend.stub(
-            password=pretend.stub(data="password_value"),
+            new_password=pretend.stub(data="password_value"),
             validate=pretend.call_recorder(lambda *args: True)
         )
 
@@ -515,7 +515,7 @@ class TestResetPassword:
             pretend.call('RANDOM_KEY'),
         ]
         assert user_service.update_user.calls == [
-            pretend.call(user.id, password=form_obj.password.data),
+            pretend.call(user.id, password=form_obj.new_password.data),
             pretend.call(user.id, last_login=now),
         ]
         assert db_request.session.flash.calls == [

@@ -81,7 +81,7 @@ class PasswordMixin:
 
 class NewPasswordMixin:
 
-    password = wtforms.PasswordField(
+    new_password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
             forms.PasswordStrengthValidator(
@@ -94,7 +94,8 @@ class NewPasswordMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "password", "Your passwords do not match. Please try again."
+                "new_password",
+                "Your passwords do not match. Please try again."
             ),
         ],
     )
