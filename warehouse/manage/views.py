@@ -20,9 +20,12 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
-from warehouse.email import send_email_verification_email
+from warehouse.email import (
+    send_email_verification_email, send_password_change_email,
+)
 from warehouse.manage.forms import (
-    AddEmailForm, CreateRoleForm, ChangeRoleForm, SaveProfileForm
+    AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
+    SaveProfileForm,
 )
 from warehouse.packaging.models import JournalEntry, Role, File
 from warehouse.utils.project import confirm_project, remove_project
@@ -46,6 +49,9 @@ class ManageProfileViews:
         return {
             'save_profile_form': SaveProfileForm(name=self.request.user.name),
             'add_email_form': AddEmailForm(user_service=self.user_service),
+            'change_password_form': ChangePasswordForm(
+                user_service=self.user_service
+            ),
         }
 
     @view_config(request_method="GET")
@@ -183,6 +189,34 @@ class ManageProfileViews:
             )
 
         return self.default_response
+
+    @view_config(
+        request_method='POST',
+        request_param=ChangePasswordForm.__params__,
+    )
+    def change_password(self):
+        form = ChangePasswordForm(
+            **self.request.POST,
+            username=self.request.user.username,
+            full_name=self.request.user.name,
+            email=self.request.user.email,
+            user_service=self.user_service,
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id,
+                password=form.new_password.data,
+            )
+            send_password_change_email(self.request, self.request.user)
+            self.request.session.flash(
+                'Password updated.', queue='success'
+            )
+
+        return {
+            **self.default_response,
+            'change_password_form': form,
+        }
 
 
 @view_config(

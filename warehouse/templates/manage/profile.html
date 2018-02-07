@@ -207,4 +207,26 @@
       </div>
     </div>
   </form>
+
+  {{ form_error_anchor(change_password_form) }}
+  <h2>Change password</h2>
+  <form method="POST" action="#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(change_password_form) }}
+    <div class="form-group">
+      <label class="form-group__label" for="name">Old password</label>
+      {{ change_password_form.password }}
+      {{ field_errors(change_password_form.password) }}
+      <label class="form-group__label" for="name">New password</label>
+      {{ change_password_form.new_password }}
+      {{ field_errors(change_password_form.new_password) }}
+      <label class="form-group__label" for="name">Confirm new password</label>
+      {{ change_password_form.password_confirm }}
+      {{ field_errors(change_password_form.password_confirm) }}
+    </div>
+    <input value="Update password" class="button button--primary" type="submit">
+    <a href="{{ request.route_path("accounts.request-password-reset") }}">
+      I forgot my password
+    </a>
+  </form>
 {% endblock %}
