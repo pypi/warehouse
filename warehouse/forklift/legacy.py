@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import email
 import hashlib
 import hmac
 import os.path
@@ -255,6 +256,14 @@ def _validate_project_url_list(form, field):
         _validate_project_url(datum)
 
 
+def _validate_rfc822_email_field(form, field):
+    email_validator = wtforms.validators.Email(message='Invalid email address')
+    addresses = email.utils.getaddresses([field.data])
+
+    for real_name, address in addresses:
+        email_validator(form, type('field', (), {'data': address}))
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -338,7 +347,7 @@ class MetadataForm(forms.Form):
         description="Author-email",
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.Email(),
+            _validate_rfc822_email_field,
         ],
     )
     maintainer = wtforms.StringField(
@@ -349,7 +358,7 @@ class MetadataForm(forms.Form):
         description="Maintainer-email",
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.Email(),
+            _validate_rfc822_email_field,
         ],
     )
     license = wtforms.StringField(

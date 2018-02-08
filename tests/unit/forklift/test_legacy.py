@@ -266,6 +266,37 @@ class TestValidation:
 
         assert validator.calls == [pretend.call(datum) for datum in data]
 
+    @pytest.mark.parametrize(
+        'data',
+        [
+            (''),
+            ('foo@bar.com'),
+            ('foo@bar.com,'),
+            ('foo@bar.com, biz@baz.com'),
+            ('"C. Schultz" <cschultz@example.com>'),
+            ('"C. Schultz" <cschultz@example.com>, snoopy@peanuts.com'),
+        ]
+    )
+    def test_validate_rfc822_email_field(self, data):
+        form, field = pretend.stub(), pretend.stub(data=data)
+        legacy._validate_rfc822_email_field(form, field)
+
+    @pytest.mark.parametrize(
+        'data',
+        [
+            ('foo'),
+            ('foo@'),
+            ('@bar.com'),
+            ('foo@bar'),
+            ('foo AT bar DOT com'),
+            ('foo@bar.com, foo'),
+        ]
+    )
+    def test_validate_rfc822_email_field_raises(self, data):
+        form, field = pretend.stub(), pretend.stub(data=data)
+        with pytest.raises(ValidationError):
+            legacy._validate_rfc822_email_field(form, field)
+
 
 def test_construct_dependencies():
     types = {
