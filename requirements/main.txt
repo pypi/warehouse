@@ -136,9 +136,9 @@ first==2.0.1 \
 google-api-core==0.1.4 \
     --hash=sha256:1698e4af4edd2a8ec22d678fd9abe99c926c3a154b2232f32807946ca49e3da1 \
     --hash=sha256:0144d467083ed54d2e8ccb4212d42c3724fe0b844b7d3a0ff85aea54b7ae8347
-google-cloud-bigquery==0.29.0 \
-    --hash=sha256:7f9b7dfcf02aa7403e428dc23a2af3aebca80bfcdc0dd4afa5f70b8d5a69bf96 \
-    --hash=sha256:98d7f169cd4b64c8a5ff5cca9b0c6234997a3e4fca4be3e51e22e66ef2f1618a
+google-cloud-bigquery==0.30.0 \
+    --hash=sha256:1eaec885c2db2ac5463f13f852bb48b3c3f5b4da043baca858ae03d8eead5c6e \
+    --hash=sha256:a95415d3d99449cf2cdc51be73a640de5d088e67f5b46af7da4ee64f36560d2d
 google-auth==1.3.0 \
     --hash=sha256:5601c86d6fb07e87a3fbc6d1fcdab560c1bdd8c163604ce90ec3245d6c508bb2 \
     --hash=sha256:d119b5954393d81c4a986ab420cf2c8129fc95ff5c4c6bb8ab5c8f3e6446394f
@@ -387,9 +387,9 @@ rsa==3.4.2 \
 s3transfer==0.1.12 \
     --hash=sha256:23c156ca4d64b022476c92c44bf938bef71af9ce0dcd8fd6585e7bce52f66e47 \
     --hash=sha256:10891b246296e0049071d56c32953af05cea614dca425a601e4c0be35990121e
-setuptools==38.5.0 \
-    --hash=sha256:8d6cb73008693d835da37865657d52335e3cf778fa6ba7fcfa8aecdeaec9fe55 \
-    --hash=sha256:03e6327065f73e312cd485d7ddcf172d676999c493af70eb2ec9f2ff9d4d9266
+setuptools==38.5.1 \
+    --hash=sha256:7ffe771abfae419fd104f93400b61c935b5af10bfe4dfeec7a1bd495694eea35 \
+    --hash=sha256:6425484c08e99a98a42209c25c3d325f749230b55284d66192784f941a7e6628
 six==1.11.0 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
