@@ -305,10 +305,13 @@
               <tbody>
                 {% for file in files %}
                 <tr>
-                  <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
-                    {{ file.filename }}</a>
+                  <td>
+                    <a href="{{ request.route_url('packaging.file', path=file.path) }}">
+                      {{ file.filename }}
+                    </a>
+                    <br>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="-js-copy-sha256-link table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                    <a class="-js-copy-checksum table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>
                       <span class="sr-only">Copy SHA256 Checksum</span>
                       SHA256

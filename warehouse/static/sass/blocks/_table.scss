@@ -330,6 +330,87 @@
     }
   }
 
+  &--checksums {
+    margin-top: $spacing-unit / 2;
+
+    .table__algorithm,
+    .table__checksum {
+      padding-right: 20px;
+    }
+
+    td.table__algorithm {
+      font-weight: 600;
+    }
+
+    td.table__checksum {
+      word-break: break-all;
+    }
+
+    .table__copy {
+      width: 75px;
+      text-align: right;
+    }
+
+    @media only screen and (max-width: $mobile) {
+      margin-top: 0;
+
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 0;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      .table__algorithm,
+      .table__checksum,
+      .table__copy {
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+        padding: 4px 0;
+      }
+
+      .table__copy {
+        width: 100%;
+
+        .button {
+          display: block;
+          text-align: center;
+
+          // Change direction of the copy tooltip on mobile
+          $tooltip-background-color: transparentize($black, 0.3) !default;
+
+          &::after {
+            top: 100%;
+            right: 50%;
+            margin-top: 5px;
+            margin-right: auto;
+            bottom: auto;
+            transform: translate(50%, 0);
+          }
+
+          &::before {
+            top: auto;
+            left: auto;
+            right: 50%;
+            bottom: -5px;
+            margin-right: -5px;
+            border-color: transparent;
+            border-bottom-color: $tooltip-background-color;
+          }
+        }
+      }
+    }
+  }
+
   &--collaborators {
     .table__user {
       padding-right: 20px;
