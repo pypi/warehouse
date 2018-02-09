@@ -111,9 +111,33 @@ class TestManageProfile:
 class TestManageProjects:
 
     def test_manage_projects(self):
-        request = pretend.stub()
+        project_with_older_release = pretend.stub(
+            releases=[pretend.stub(created=0)]
+        )
+        project_with_newer_release = pretend.stub(
+            releases=[pretend.stub(created=2)]
+        )
+        older_project_with_no_releases = pretend.stub(releases=[], created=1)
+        newer_project_with_no_releases = pretend.stub(releases=[], created=3)
+        request = pretend.stub(
+            user=pretend.stub(
+                projects=[
+                    project_with_older_release,
+                    project_with_newer_release,
+                    newer_project_with_no_releases,
+                    older_project_with_no_releases,
+                ],
+            ),
+        )
 
-        assert views.manage_projects(request) == {}
+        assert views.manage_projects(request) == {
+            'projects': [
+                newer_project_with_no_releases,
+                project_with_newer_release,
+                older_project_with_no_releases,
+                project_with_older_release,
+            ],
+        }
 
 
 class TestManageProjectSettings:

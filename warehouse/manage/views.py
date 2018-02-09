@@ -71,7 +71,15 @@ class ManageProfileViews:
     effective_principals=Authenticated,
 )
 def manage_projects(request):
-    return {}
+
+    def _key(project):
+        if project.releases:
+            return project.releases[0].created
+        return project.created
+
+    return {
+        'projects': sorted(request.user.projects, key=_key, reverse=True)
+    }
 
 
 @view_config(
