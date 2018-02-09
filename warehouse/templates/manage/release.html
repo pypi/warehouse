@@ -188,7 +188,7 @@
           <tbody>
             <tr>
               <td class="table__algorithm">SHA256</td>
-              <td class="table__checksum">{{ file.sha256_digest }}</td>
+              <td class="table__checksum"><code>{{ file.sha256_digest }}</code></td>
               <td class="table__copy">
                 <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                   Copy
@@ -197,7 +197,7 @@
             </tr>
             <tr>
               <td class="table__algorithm">MD5</td>
-              <td class="table__checksum">{{ file.md5_digest }}</td>
+              <td class="table__checksum"><code>{{ file.md5_digest }}</code></td>
               <td class="table__copy">
                 <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
                   Copy
@@ -206,7 +206,7 @@
             </tr>
             <tr>
               <td class="table__algorithm">BLAKE2-256</td>
-              <td class="table__checksum">{{ file.blake2_256_digest }}</td>
+              <td class="table__checksum"><code>{{ file.blake2_256_digest }}</code></td>
               <td class="table__copy">
                 <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
                   Copy
