@@ -163,7 +163,7 @@
           {% if request.registry.settings.get("statuspage.url") %}
           <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
           {% endif %}
-          <li><a href="https://www.python.org/dev/peps/pep-0541/" class="tooltipped tooltipped-e" aria-label="Package Index Name Retention" data-original-label="Package Index Name Retention">PEP 541</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package Index Name Retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
 
