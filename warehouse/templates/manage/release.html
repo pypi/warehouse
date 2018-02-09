@@ -23,7 +23,7 @@
 
     <ul role="navigation" aria-label="Breadcrumb" class="heading-wsubtitle__subtitle breadcrumbs">
       <li class="breadcrumbs__breadcrumb"><a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}">All {{ project.name}} Releases</a></li>
-      <li class="breadcrumbs__breadcrumb">Release Version {{ release.version }}</li>
+      <li class="breadcrumbs__breadcrumb">Release Version {{ release.version }} - <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}">View Release</a></li>
     </ul>
   </div>
 
