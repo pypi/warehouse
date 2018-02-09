@@ -48,7 +48,16 @@
             title="You are not an owner of this project"
             {% endif %}
             >Edit</a>
-          <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">View</a>
+          <a
+            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+            class="button"
+            {% if project.releases %}
+            title="View this project's public page"
+            {% else %}
+            disabled
+            title="This project has no releases"
+            {% endif %}
+            >View</a>
         </div>
       </div>
     </div>
