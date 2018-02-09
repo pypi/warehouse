@@ -38,7 +38,16 @@
           {% endif %}
         </div>
         <div class="package-snippet__buttons">
-          <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}" class="button button--primary">Edit</a>
+          <a
+            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+            class="button button--primary"
+            {% if request.user in project.owners %}
+            title="Edit this project"
+            {% else %}
+            disabled
+            title="You are not an owner of this project"
+            {% endif %}
+            >Edit</a>
           <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">View</a>
         </div>
       </div>
