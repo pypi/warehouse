@@ -165,14 +165,3 @@ docReady(() => {
     }
   }
 });
-
-// Copy handler for checksum modal on release management page
-
-//docReady(() => {
-//  let setCopiedText = (e) => {
-//    e.trigger.innerHTML = "Copied";
-//    e.clearSelection();
-//  };
-//
-//  new Clipboard(".-js-copy-checksum").on("success", setCopiedText);
-//});
