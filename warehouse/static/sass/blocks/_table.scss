@@ -330,11 +330,11 @@
     }
   }
 
-  &--checksums {
+  &--hashes {
     margin-top: $spacing-unit / 2;
 
     .table__algorithm,
-    .table__checksum {
+    .table__hash {
       padding-right: 20px;
     }
 
@@ -342,7 +342,7 @@
       font-weight: 600;
     }
 
-    td.table__checksum {
+    td.table__hash {
       word-break: break-all;
     }
 
@@ -370,8 +370,8 @@
       }
 
       .table__algorithm,
-      .table__checksum,
-      .table__copy {
+      .table__copy,
+      .table__hash {
         display: block;
         text-align: left;
         border-bottom: 0;

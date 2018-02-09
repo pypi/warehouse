@@ -70,9 +70,9 @@
                 <i class="fa fa-download" aria-hidden="true"></i>
                 Download
               </a>
-              <a href="#copy-checksum-modal-{{ loop.index }}" class="dropdown__link">
+              <a href="#copy-hash-modal-{{ loop.index }}" class="dropdown__link">
                 <i class="fa fa-hashtag" aria-hidden="true"></i>
-                View Checksums
+                View Hashes
               </a>
               <a href="#delete-file-modal-{{ loop.index }}" class="dropdown__link">
                 <i class="fa fa-trash" aria-hidden="true"></i>
@@ -169,46 +169,46 @@
     </div>
   </div>
 
-  <div id="copy-checksum-modal-{{ loop.index }}" class="modal modal--wide">
+  <div id="copy-hash-modal-{{ loop.index }}" class="modal modal--wide">
     <div class="modal__content" role="dialog">
       <a href="#modal-close" title="Close" class="modal__close">
         <i class="fa fa-times" aria-hidden="true"></i>
         <span class="sr-only">close</span>
       </a>
       <div class="modal__body">
-        <h3 class="modal__title">Checksums for {{ file.filename }}</h3>
-        <table class="table table--light table--checksums">
+        <h3 class="modal__title">Hashes for {{ file.filename }}</h3>
+        <table class="table table--light table--hashes">
           <thead>
             <tr>
               <th class="table__algorithm">Algorithm</th>
-              <th class="table__checksum">Checksum</th>
+              <th class="table__hash">Hash Digest</th>
               <th class="table__copy"></th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="table__algorithm">SHA256</td>
-              <td class="table__checksum"><code>{{ file.sha256_digest }}</code></td>
+              <td class="table__hash"><code>{{ file.sha256_digest }}</code></td>
               <td class="table__copy">
-                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                <a class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                   Copy
                 </a>
               </td>
             </tr>
             <tr>
               <td class="table__algorithm">MD5</td>
-              <td class="table__checksum"><code>{{ file.md5_digest }}</code></td>
+              <td class="table__hash"><code>{{ file.md5_digest }}</code></td>
               <td class="table__copy">
-                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
+                <a class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
                   Copy
                 </a>
               </td>
             </tr>
             <tr>
               <td class="table__algorithm">BLAKE2-256</td>
-              <td class="table__checksum"><code>{{ file.blake2_256_digest }}</code></td>
+              <td class="table__hash"><code>{{ file.blake2_256_digest }}</code></td>
               <td class="table__copy">
-                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
+                <a class="button button--primary -js-copy-hash tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
                   Copy
                 </a>
               </td>
