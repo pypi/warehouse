@@ -291,10 +291,10 @@
               <thead>
                 <tr>
                   <th class="table__filename">
-                    File Name &amp; Checksum
+                    File Name &amp; Hash
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
-                      <span class="sr-only">SHA256 Checksum Help</span>
+                      <span class="sr-only">SHA256 Hash Help</span>
                     </a>
                   </th>
                   <th class="table__version">Version</th>
@@ -305,12 +305,15 @@
               <tbody>
                 {% for file in files %}
                 <tr>
-                  <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">
-                    {{ file.filename }}</a>
+                  <td>
+                    <a href="{{ request.route_url('packaging.file', path=file.path) }}">
+                      {{ file.filename }}
+                    </a>
+                    <br>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                    <a class="-js-copy-sha256-link table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                    <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>
-                      <span class="sr-only">Copy SHA256 Checksum</span>
+                      <span class="sr-only">Copy SHA256 Hash</span>
                       SHA256
                     </a>
                   </td>

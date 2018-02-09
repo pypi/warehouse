@@ -31,8 +31,9 @@
       {% for release in project.releases %}
         <tr>
           <td class="table__version">
-            {# TODO: https://github.com/pypa/warehouse/issues/2807 <a href="">{{ release.version }}</a> #}
-            {{ release.version }}
+            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}">
+              {{ release.version }}
+            </a>
           </td>
           <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
           <td class="table__summary">
@@ -52,12 +53,10 @@
                 </span>
               </button>
               <div class="dropdown__content">
-                {# TODO: https://github.com/pypa/warehouse/issues/2807
-                <a href="" class="dropdown__link">
+                <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                   Edit
                 </a>
-                #}
                 <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-eye" aria-hidden="true"></i>
                   View

@@ -65,7 +65,10 @@ docReady(formUtils.submitTriggers);
 
 docReady(Statuspage);
 
-// Copy handler for the pip command on package detail page
+// Copy handler for
+//   - the pip command on package detail page
+//   - the copy hash on package detail page
+//   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
     e.trigger.setAttribute("aria-label", "Copied!");
@@ -73,7 +76,7 @@ docReady(() => {
   };
 
   new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
-  new Clipboard(".-js-copy-sha256-link").on("success", setCopiedTooltip);
+  new Clipboard(".-js-copy-hash").on("success", setCopiedTooltip);
 
   // Get all elements with class "tooltipped" and bind to focousout and
   // mouseout events. Change the "aria-label" to "original-label" attribute

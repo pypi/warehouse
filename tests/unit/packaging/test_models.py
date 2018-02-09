@@ -254,6 +254,28 @@ class TestRelease:
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
 
+    def test_acl(self, db_session):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        maintainer2 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        release = DBReleaseFactory.create(project=project)
+
+        assert release.__acl__() == [
+            (Allow, "group:admins", "admin"),
+            (Allow, str(owner1.user.id), ["manage", "upload"]),
+            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(maintainer1.user.id), ["upload"]),
+            (Allow, str(maintainer2.user.id), ["upload"]),
+        ]
+
 
 class TestFile:
 
