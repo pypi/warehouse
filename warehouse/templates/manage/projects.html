@@ -35,6 +35,10 @@
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
+          {% else %}
+          <p class="package-snippet__meta">
+            <em>Created on {{ project.created|format_date() }}</em>
+          </p>
           {% endif %}
         </div>
         <div class="package-snippet__buttons">
