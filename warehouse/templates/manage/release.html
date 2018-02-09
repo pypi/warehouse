@@ -141,87 +141,86 @@
   </div>
 
   {% if files %}
-    {% for file in files %}
-      <div id="delete-file-modal-{{ loop.index }}" class="modal">
-        {% set project_name = project.normalized_name %}
-        <div class="modal__content" role="dialog">
-          <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="file_id" type="hidden" value="{{ file.id }}">
-            <a href="#modal-close" title="Close" class="modal__close">
-              <i class="fa fa-times" aria-hidden="true"></i>
-              <span class="sr-only">close</span>
-            </a>
-            <div class="modal__body">
-              <h3 class="modal__title">Delete {{ file.filename }}?</h3>
-              <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-                <p>Warning: This action cannot be undone!</p>
-              </div>
-              <p>Confirm the project name to continue.</p>
-              <label for="confirm_filename">File name</label>
-              <input name="confirm_filename" type="text" placeholder="Confirm file name" autocomplete="off" autocorrect="off" autocapitalize="off">
-            </div>
-            <div class="modal__footer">
-              <a href="#modal-close" class="button modal__action">Cancel</a>
-              <button class="button button--primary modal__action" type="submit">Delete File</button>
-            </div>
-          </form>
+  {% for file in files %}
+  <div id="delete-file-modal-{{ loop.index }}" class="modal">
+    {% set project_name = project.normalized_name %}
+    <div class="modal__content" role="dialog">
+      <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <input name="file_id" type="hidden" value="{{ file.id }}">
+        <a href="#modal-close" title="Close" class="modal__close">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <span class="sr-only">close</span>
+        </a>
+        <div class="modal__body">
+          <h3 class="modal__title">Delete {{ file.filename }}?</h3>
+          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+            <p>Warning: This action cannot be undone!</p>
+          </div>
+          <p>Confirm the project name to continue.</p>
+          <label for="confirm_filename">File name</label>
+          <input name="confirm_filename" type="text" placeholder="Confirm file name" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
-      </div>
+        <div class="modal__footer">
+          <a href="#modal-close" class="button modal__action">Cancel</a>
+          <button class="button button--primary modal__action" type="submit">Delete File</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-      <div id="copy-checksum-modal-{{ loop.index }}" class="modal modal--wide">
-        <div class="modal__content" role="dialog">
-            <a href="#modal-close" title="Close" class="modal__close">
-              <i class="fa fa-times" aria-hidden="true"></i>
-              <span class="sr-only">close</span>
-            </a>
-            <div class="modal__body">
-              <h3 class="modal__title">Checksums for {{ file.filename }}</h3>
-              <table class="table table--light table--checksums">
-                <thead>
-                  <tr>
-                    <th class="table__algorithm">Algorithm</th>
-                    <th class="table__checksum">Checksum</th>
-                    <th class="table__copy"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="table__algorithm">SHA256</td>
-                    <td class="table__checksum">{{ file.sha256_digest }}</td>
-                    <td class="table__copy">
-                      <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
-                        Copy
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="table__algorithm">MD5</td>
-                    <td class="table__checksum">{{ file.md5_digest }}</td>
-                    <td class="table__copy">
-                      <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
-                        Copy
-                      </a>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="table__algorithm">BLAKE2-256</td>
-                    <td class="table__checksum">{{ file.blake2_256_digest }}</td>
-                    <td class="table__copy">
-                      <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
-                        Copy
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal__footer">
-              <a href="#modal-close" class="button button--primary modal__action">Ok</a>
-            </div>
-          </form>
-        </div>
+  <div id="copy-checksum-modal-{{ loop.index }}" class="modal modal--wide">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close" title="Close" class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">close</span>
+      </a>
+      <div class="modal__body">
+        <h3 class="modal__title">Checksums for {{ file.filename }}</h3>
+        <table class="table table--light table--checksums">
+          <thead>
+            <tr>
+              <th class="table__algorithm">Algorithm</th>
+              <th class="table__checksum">Checksum</th>
+              <th class="table__copy"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="table__algorithm">SHA256</td>
+              <td class="table__checksum">{{ file.sha256_digest }}</td>
+              <td class="table__copy">
+                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
+                  Copy
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="table__algorithm">MD5</td>
+              <td class="table__checksum">{{ file.md5_digest }}</td>
+              <td class="table__copy">
+                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.md5_digest }}">
+                  Copy
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="table__algorithm">BLAKE2-256</td>
+              <td class="table__checksum">{{ file.blake2_256_digest }}</td>
+              <td class="table__copy">
+                <a class="button button--primary -js-copy-checksum tooltipped tooltipped-w" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.blake2_256_digest }}">
+                  Copy
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    {% endfor %}
+      <div class="modal__footer">
+        <a href="#modal-close" class="button button--primary modal__action">Ok</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
   {% endif %}
 {% endblock %}
