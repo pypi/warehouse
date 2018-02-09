@@ -17,9 +17,10 @@ import uuid
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
-from pyramid.security import remember, forget
+from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -341,6 +342,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 @view_config(
     route_name="accounts.verify-email",
     uses_session=True,
+    effective_principals=Authenticated,
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
@@ -363,9 +365,13 @@ def verify_email(request):
     if data.get('action') != "email-verify":
         return _error("Invalid token - Not an email verification token")
 
-    email = request.db.query(Email).get(data['email.id'])
-
-    if not email:
+    try:
+        email = (
+            request.db.query(Email)
+            .filter(Email.id == data['email.id'], Email.user == request.user)
+            .one()
+        )
+    except NoResultFound:
         return _error("Email not found")
 
     if email.verified:
