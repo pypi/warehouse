@@ -18,6 +18,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
@@ -698,7 +699,9 @@ class TestResetPassword:
 class TestVerifyEmail:
 
     def test_verify_email(self, db_request, user_service, token_service):
-        email = EmailFactory(verified=False)
+        user = UserFactory()
+        email = EmailFactory(user=user, verified=False)
+        db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         token_service.loads = pretend.call_recorder(
@@ -795,7 +798,7 @@ class TestVerifyEmail:
             ),
         ]
 
-    def test_verify_email_invalid_email(self, pyramid_request):
+    def test_verify_email_not_found(self, pyramid_request):
         data = {
             'action': 'email-verify',
             'email.id': 'invalid',
@@ -808,10 +811,11 @@ class TestVerifyEmail:
         pyramid_request.session.flash = pretend.call_recorder(
             lambda *a, **kw: None
         )
-        get = pretend.call_recorder(lambda a: None)
-        pyramid_request.db = pretend.stub(
-            query=lambda a: pretend.stub(get=get)
-        )
+
+        def raise_no_result(*a):
+            raise NoResultFound
+
+        pyramid_request.db = pretend.stub(query=raise_no_result)
 
         views.verify_email(pyramid_request)
 
@@ -821,35 +825,32 @@ class TestVerifyEmail:
         assert pyramid_request.session.flash.calls == [
             pretend.call('Email not found', queue='error')
         ]
-        assert get.calls == [pretend.call(data['email.id'])]
 
-    def test_verify_email_already_verified(self, pyramid_request):
+    def test_verify_email_already_verified(self, db_request):
+        user = UserFactory()
+        email = EmailFactory(user=user, verified=True)
         data = {
             'action': 'email-verify',
-            'email.id': 'valid',
+            'email.id': email.id,
         }
-        pyramid_request.find_service = (
+        db_request.user = user
+        db_request.find_service = (
             lambda *a, **kw: pretend.stub(loads=lambda a: data)
         )
-        pyramid_request.params = {"token": "RANDOM_KEY"}
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.session.flash = pretend.call_recorder(
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(
             lambda *a, **kw: None
         )
-        get = pretend.call_recorder(lambda a: pretend.stub(verified=True))
-        pyramid_request.db = pretend.stub(
-            query=lambda a: pretend.stub(get=get)
-        )
 
-        views.verify_email(pyramid_request)
+        views.verify_email(db_request)
 
-        assert pyramid_request.route_path.calls == [
+        assert db_request.route_path.calls == [
             pretend.call('manage.profile'),
         ]
-        assert pyramid_request.session.flash.calls == [
+        assert db_request.session.flash.calls == [
             pretend.call('Email already verified', queue='error')
         ]
-        assert get.calls == [pretend.call(data['email.id'])]
 
 
 class TestProfileCallout:
