@@ -19,10 +19,10 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block main %}
-  <h1 class="page-title">Your Projects ({{ request.user.projects|length }})</h1>
+  <h1 class="page-title">Your Projects ({{ projects|length }})</h1>
   <div class="package-list">
-    {% if request.user.projects %}
-    {% for project in request.user.projects %}
+    {% if projects %}
+    {% for project in projects %}
     {% set release = project.releases[0] if project.releases else None %}
     <div class="package-snippet">
       <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
