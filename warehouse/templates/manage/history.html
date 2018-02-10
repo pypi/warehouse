@@ -19,7 +19,34 @@
 
 {% block main %}
   <h2>History</h2>
-  {% for journal in journals %}
-    {{ journal }}<br>
-  {% endfor %}
+
+  <p>Each time you or your collaborators update this project, the action is recorded and displayed here.</p>
+
+  <table class="table table--history">
+    <thead>
+      <tr>
+        <th>Action</th>
+        <th>Date</th>
+        <th>User</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for journal in journals %}
+      <tr>
+        <td class="table__action">
+          {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
+        </td>
+        <td>
+          <time class="-js-relative-time" datetime="{{ journal.submitted_date|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">
+            {{ journal.submitted_date|format_datetime() }}
+          </time>
+        </td>
+        <td>
+          {{ journal.submitted_by.username }}
+          <span class="table__ip">from {{ journal.submitted_from }}</span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

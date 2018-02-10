@@ -31,24 +31,7 @@
           <h3 class="sidebar-section__title">
             <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
           </h3>
-          <nav>
-            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-cube" aria-hidden="true"></i>
-              Releases
-            </a>
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-group" aria-hidden="true"></i>
-              Collaborators
-            </a>
-            <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-history" aria-hidden="true"></i>
-              History
-            </a>
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-wrench" aria-hidden="true"></i>
-              Settings
-            </a>
-          </nav>
+          {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
         </div>
       </div>
       <div class="vertical-tabs__panel">
@@ -77,20 +60,9 @@
             </div>
           </div>
           <!-- mobile nav -->
-          <nav>
-            <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-cube" aria-hidden="true"></i>
-              Releases
-            </a>
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-group" aria-hidden="true"></i>
-              Collaborators
-            </a>
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %}">
-              <i class="fa fa-wrench" aria-hidden="true"></i>
-              Settings
-            </a>
-          </nav>
+          {% with mode="mobile" %}
+            {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
+          {% endwith %}
 
           {% block main %}{% endblock %}
         </div>
