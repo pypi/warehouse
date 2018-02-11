@@ -170,7 +170,7 @@ class TestLogin:
 
         assert isinstance(result, HTTPSeeOther)
 
-        assert result.headers["Location"] == "/"
+        assert result.headers["Location"] == "/manage/projects"
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -202,7 +202,7 @@ class TestLogin:
         ("expected_next_url, observed_next_url"),
         [
             ("/security/", "/security/"),
-            ("http://example.com", "/"),
+            ("http://example.com", "/manage/projects"),
         ],
     )
     def test_post_validate_no_redirects(self, pyramid_request,
