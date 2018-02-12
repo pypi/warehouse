@@ -37,9 +37,7 @@
           {% if journal.version %} Release {{ journal.version }}: {% endif %}{{ journal.action }}
         </td>
         <td>
-          <time class="-js-relative-time" datetime="{{ journal.submitted_date|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">
-            {{ journal.submitted_date|format_datetime() }}
-          </time>
+          {{ journal.submitted_date|format_datetime() }}
         </td>
         <td>
           {{ journal.submitted_by.username }}
