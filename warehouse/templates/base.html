@@ -11,6 +11,13 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+
+{% macro humanize(timestamp) -%}
+<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">
+  {{ timestamp|format_date()}}
+</time>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
