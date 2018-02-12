@@ -224,7 +224,7 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        pyramid_request.route_path = pretend.call_recorder(lambda a: observed_next_url)
+        pyramid_request.route_path = pretend.call_recorder(lambda a: '/the-redirect')
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
