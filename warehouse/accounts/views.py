@@ -116,7 +116,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # the index instead.
         if (not redirect_to or
                 not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = "/"
+            redirect_to = request.route_path('manage.projects')
 
         # Actually perform the login routine for our user.
         headers = _login_user(request, userid)
