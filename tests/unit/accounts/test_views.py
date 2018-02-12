@@ -26,9 +26,7 @@ from warehouse.accounts.interfaces import (
 )
 
 from ...common.db.accounts import UserFactory
-import logging
 
-logger = logging.getLogger(__name__)
 
 class TestFailedLoginView:
     exc = TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
