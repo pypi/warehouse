@@ -174,6 +174,17 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
 
 
 class RequestPasswordResetForm(UsernameMixin, forms.Form):
+    email = wtforms.fields.html5.EmailField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Email(
+                message=(
+                    "The email address you have chosen is not a valid "
+                    "format. Please try again."
+                )
+            ),
+        ],
+    )
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
