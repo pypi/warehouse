@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 const enumerateTime = (timestampString) => {
   const now = new Date(),
     timestamp = new Date(timestampString),
@@ -38,7 +38,7 @@ const convertToReadableText = (time) => {
     numMinutes = numMinutes > 1 ? `${numMinutes} minutes` : "a minute";
     return `About ${numMinutes} ago.`;
   } else {
-    return "Just Now.";
+    return "Just now.";
   }
 };
 
