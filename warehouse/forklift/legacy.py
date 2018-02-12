@@ -614,6 +614,19 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
+def _blake2_matches(db_session, blake2_hash):
+    """
+    Check to see if a file with the same blake2 hash already exists
+    """
+    file_ = (
+        db_session.query(File)
+                  .filter(File.blake2_256_digest == blake2_hash)
+                  .first()
+    )
+
+    return file_ is not None
+
+
 def _is_duplicate_file(db_session, filename, hashes):
     """
     Check to see if file already exists, and if it's content matches
@@ -631,9 +644,13 @@ def _is_duplicate_file(db_session, filename, hashes):
     )
 
     if file_ is not None:
-        return (file_.sha256_digest == hashes["sha256"] and
-                file_.md5_digest == hashes["md5"] and
-                file_.blake2_256_digest == hashes["blake2_256"])
+        content_matches = (
+            file_.sha256_digest == hashes["sha256"] and
+            file_.md5_digest == hashes["md5"] and
+            file_.blake2_256_digest == hashes["blake2_256"]
+        )
+        return (content_matches or
+                _blake2_matches(db_session, hashes["blake2_256"]))
 
     return None
 

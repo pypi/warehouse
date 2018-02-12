@@ -1654,6 +1654,56 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 File already exists."
 
+    def test_upload_fails_with_diff_filename_same_blake2(self,
+                                                         pyramid_config,
+                                                         db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+            "content": pretend.stub(
+                filename="{}-fake.tar.gz".format(project.name),
+                file=file_content,
+                type="application/tar",
+            ),
+        })
+
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
+                sha256_digest=hashlib.sha256(
+                    file_content.getvalue()
+                ).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    file_content.getvalue(),
+                    digest_size=256 // 8
+                ).hexdigest(),
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 400
+        assert resp.status == "400 File already exists."
+
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):
         pyramid_config.testing_securitypolicy(userid=1)
