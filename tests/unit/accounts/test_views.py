@@ -163,7 +163,9 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
-        pyramid_request.route_path = pretend.call_recorder(lambda a: '/the-redirect')
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
 
         now = datetime.datetime.utcnow()
 
@@ -171,7 +173,9 @@ class TestLogin:
             result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call('manage.projects')]
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.projects')
+        ]
         assert result.headers["Location"] == "/the-redirect"
         assert result.headers["foo"] == "bar"
 
@@ -224,7 +228,9 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        pyramid_request.route_path = pretend.call_recorder(lambda a: '/the-redirect')
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
