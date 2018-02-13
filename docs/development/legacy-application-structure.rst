@@ -1,11 +1,9 @@
-Application Structure
-=====================
+Legacy Application URL Structure
+================================
 
-Note: this is a brain dump and its contents may be moved to a more
-appropriate location eventually.
+Note: this is a brain dump, mostly written by Donald Stufft in early 2015.
 
-At the moment it *just* lists the legacy structure and none of the intended
-new structure.
+It *just* lists the legacy structure and none of the intended new structure.
 
 The following documents the current URLs in the legacy PyPI application.
 
