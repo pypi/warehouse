@@ -53,10 +53,15 @@ class TestManageProfile:
 
         view = views.ManageProfileViews(request)
 
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'active_projects', pretend.stub()
+        )
+
         assert view.default_response == {
             'save_profile_form': save_profile_obj,
             'add_email_form': add_email_obj,
             'change_password_form': change_pass_obj,
+            'active_projects': view.active_projects,
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -69,6 +74,44 @@ class TestManageProfile:
         assert change_pass_cls.calls == [
             pretend.call(user_service=user_service),
         ]
+
+    def test_active_projects(self, db_request):
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        # A project with a sole owner that is the user
+        with_sole_owner = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=with_sole_owner, role_name='Owner'
+        )
+        RoleFactory.create(
+            user=another_user, project=with_sole_owner, role_name='Maintainer'
+        )
+
+        # A project with multiple owners, including the user
+        with_multiple_owners = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=with_multiple_owners, role_name='Owner'
+        )
+        RoleFactory.create(
+            user=another_user, project=with_multiple_owners, role_name='Owner'
+        )
+
+        # A project with a sole owner that is not the user
+        not_an_owner = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=not_an_owner, role_name='Maintatiner'
+        )
+        RoleFactory.create(
+            user=another_user, project=not_an_owner, role_name='Owner'
+        )
+
+        view = views.ManageProfileViews(db_request)
+
+        assert view.active_projects == [with_sole_owner]
 
     def test_manage_profile(self, monkeypatch):
         user_service = pretend.stub()

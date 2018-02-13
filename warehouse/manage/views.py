@@ -1,5 +1,4 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
-
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -16,6 +15,7 @@ from collections import defaultdict
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.security import Authenticated
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
@@ -27,7 +27,7 @@ from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
     SaveProfileForm,
 )
-from warehouse.packaging.models import JournalEntry, Role, File
+from warehouse.packaging.models import File, JournalEntry, Project, Role
 from warehouse.utils.project import confirm_project, remove_project
 
 
@@ -45,6 +45,32 @@ class ManageProfileViews:
         self.user_service = request.find_service(IUserService, context=None)
 
     @property
+    def active_projects(self):
+        ''' Return all the projects for with the user is a sole owner '''
+        projects_owned = (
+            self.request.db.query(Project)
+            .join(Role.project)
+            .filter(Role.role_name == 'Owner', Role.user == self.request.user)
+            .subquery()
+        )
+
+        with_sole_owner = (
+            self.request.db.query(Role.package_name)
+            .join(projects_owned)
+            .filter(Role.role_name == 'Owner')
+            .group_by(Role.package_name)
+            .having(func.count(Role.package_name) == 1)
+            .subquery()
+        )
+
+        return (
+            self.request.db.query(Project)
+            .join(with_sole_owner)
+            .order_by(Project.name)
+            .all()
+        )
+
+    @property
     def default_response(self):
         return {
             'save_profile_form': SaveProfileForm(name=self.request.user.name),
@@ -52,6 +78,7 @@ class ManageProfileViews:
             'change_password_form': ChangePasswordForm(
                 user_service=self.user_service
             ),
+            'active_projects': self.active_projects,
         }
 
     @view_config(request_method="GET")
