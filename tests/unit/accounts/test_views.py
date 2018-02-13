@@ -163,14 +163,20 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
-        assert result.headers["Location"] == "/"
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.projects')
+        ]
+        assert result.headers["Location"] == "/the-redirect"
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -202,7 +208,7 @@ class TestLogin:
         ("expected_next_url, observed_next_url"),
         [
             ("/security/", "/security/"),
-            ("http://example.com", "/"),
+            ("http://example.com", "/the-redirect"),
         ],
     )
     def test_post_validate_no_redirects(self, pyramid_request,
@@ -222,11 +228,12 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
         assert result.headers["Location"] == observed_next_url
 
 
