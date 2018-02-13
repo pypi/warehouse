@@ -18,7 +18,7 @@ URL           Purpose
 /security     Page giving contact and other information regarding site security
 /id           OpenID endpoint
 /oauth        OAuth endpoint
-/simple       Simple API as given in :doc:`api-reference/legacy`
+/simple       Simple API as given in :doc:`../api-reference/legacy`
 /packages     Serve up a package file
 /mirrors      Page listing legacy mirrors (not to be retained)
 /serversig    Legacy mirroring support (no-one uses it: not to be retained)

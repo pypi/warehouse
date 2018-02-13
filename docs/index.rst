@@ -7,7 +7,6 @@ Contents:
    :maxdepth: 2
 
    development/index
-   application
    api-reference/index
    ui-principles
    security
