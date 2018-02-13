@@ -35,7 +35,7 @@
               {{ release.version }}
             </a>
           </td>
-          <td class="table__date"><time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time></td>
+          <td class="table__date">{{ humanize(release.created) }}</time></td>
           <td class="table__summary">
             {% if release.summary %}
               {{ release.summary }}

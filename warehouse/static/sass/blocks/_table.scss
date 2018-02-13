@@ -491,4 +491,41 @@
       }
     }
   }
+
+  &--history {
+    margin-top: 10px;
+
+    .table__ip {
+      display: block;
+      font-style: italic;
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 10px;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      td {
+        display: block;
+        text-align: left;
+        padding: 2px 0;
+        border: 0;
+      }
+
+      .table__action {
+        font-weight: 600;
+      }
+
+      .table__ip {
+        display: inline;
+      }
+    }
+  }
 }
