@@ -20,8 +20,10 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
+from warehouse.accounts.views import logout
 from warehouse.email import (
-    send_email_verification_email, send_password_change_email,
+    send_account_deletion_email, send_email_verification_email,
+    send_password_change_email,
 )
 from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
@@ -244,6 +246,58 @@ class ManageProfileViews:
             **self.default_response,
             'change_password_form': form,
         }
+
+    @view_config(
+        request_method='POST',
+        request_param=['confirm_username']
+    )
+    def delete_account(self):
+        username = self.request.params.get('confirm_username')
+
+        if not username:
+            self.request.session.flash(
+                "Must confirm the request.", queue='error'
+            )
+            return self.default_response
+
+        if username != self.request.user.username:
+            self.request.session.flash(
+                f"Could not delete account - {username!r} is not the same as "
+                f"{self.request.user.username!r}",
+                queue='error'
+            )
+            return self.default_response
+
+        if self.active_projects:
+            self.request.session.flash(
+                "Cannot delete account with active project ownerships.",
+                queue='error',
+            )
+            return self.default_response
+
+        # Update all journals to point to `deleted-user` instead
+        deleted_user = (
+            self.request.db.query(User)
+            .filter(User.username == 'deleted-user')
+            .one()
+        )
+
+        journals = (
+            self.request.db.query(JournalEntry)
+            .filter(JournalEntry.submitted_by == self.request.user)
+            .all()
+        )
+
+        for journal in journals:
+            journal.submitted_by = deleted_user
+
+        # Send a notification email
+        send_account_deletion_email(self.request, self.request.user)
+
+        # Actually delete the user
+        self.request.db.delete(self.request.user)
+
+        return logout(self.request)
 
 
 @view_config(

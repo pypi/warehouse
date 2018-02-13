@@ -22,7 +22,7 @@ from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
-from warehouse.packaging.models import JournalEntry, Project, Role
+from warehouse.packaging.models import JournalEntry, Project, Role, User
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
@@ -602,6 +602,105 @@ class TestManageProfile:
         assert request.session.flash.calls == []
         assert send_email.calls == []
         assert user_service.update_user.calls == []
+
+    def test_delete_account(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        deleted_user = UserFactory.create(username='deleted-user')
+        journal = JournalEntryFactory(submitted_by=user)
+
+        db_request.user = user
+        db_request.params = {'confirm_username': user.username}
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+        monkeypatch.setattr(views.ManageProfileViews, 'active_projects', [])
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_account_deletion_email', send_email)
+        logout_response = pretend.stub()
+        logout = pretend.call_recorder(lambda *a: logout_response)
+        monkeypatch.setattr(views, 'logout', logout)
+
+        view = views.ManageProfileViews(db_request)
+
+        assert view.delete_account() == logout_response
+        assert journal.submitted_by == deleted_user
+        assert db_request.db.query(User).all() == [deleted_user]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert logout.calls == [pretend.call(db_request)]
+
+    def test_delete_account_no_confirm(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': ''},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call('Must confirm the request.', queue='error')
+        ]
+
+    def test_delete_account_wrong_confirm(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': 'invalid'},
+            user=pretend.stub(username='username'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not delete account - 'invalid' is not the same as "
+                "'username'",
+                queue='error',
+            )
+        ]
+
+    def test_delete_account_has_active_projects(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': 'username'},
+            user=pretend.stub(username='username'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'active_projects', [pretend.stub()]
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Cannot delete account with active project ownerships.",
+                queue='error',
+            )
+        ]
 
 
 class TestManageProjects:
