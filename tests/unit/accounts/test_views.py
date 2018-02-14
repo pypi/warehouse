@@ -699,7 +699,7 @@ class TestResetPassword:
 class TestVerifyEmail:
 
     def test_verify_email(self, db_request, user_service, token_service):
-        user = UserFactory()
+        user = UserFactory(is_active=False)
         email = EmailFactory(user=user, verified=False)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
@@ -721,6 +721,7 @@ class TestVerifyEmail:
 
         db_request.db.flush()
         assert email.verified
+        assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [pretend.call('manage.profile')]

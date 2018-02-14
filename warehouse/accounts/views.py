@@ -378,6 +378,7 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
+    request.user.is_active = True
 
     request.session.flash(
         f'Email address {email.email} verified.', queue='success'
