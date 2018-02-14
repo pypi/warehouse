@@ -35,7 +35,7 @@ class TokenMissing(Exception):
 
 class IUserService(Interface):
 
-    def get_user(userid):
+    def get_user(user_id):
         """
         Return the user object that represents the given userid, or None if
         there is no user for that ID.
@@ -53,19 +53,25 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(userid, password):
+    def check_password(user_id, password):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
         """
 
-    def create_user(username, name, password, email,
-                    is_active=False, is_staff=False, is_superuser=False):
+    def create_user(
+            username, name, password,
+            is_active=False, is_staff=False, is_superuser=False):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.
 
         A UserAlreadyExists Exception is raised if the user already exists.
+        """
+
+    def add_email(user_id, email_address, primary=False, verified=False):
+        """
+        Adds an email for the provided user_id
         """
 
     def update_user(user_id, **changes):

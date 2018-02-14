@@ -140,18 +140,26 @@ class TestDatabaseUserService:
 
     def test_create_user(self, user_service):
         user = UserFactory.build()
-        email = "foo@example.com"
         new_user = user_service.create_user(
             username=user.username,
             name=user.name,
             password=user.password,
-            email=email
         )
         user_service.db.flush()
         user_from_db = user_service.get_user(new_user.id)
+
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
-        assert user_from_db.email == email
+
+    def test_add_email(self, user_service):
+        user = UserFactory.create()
+        email = "foo@example.com"
+        new_email = user_service.add_email(user.id, email)
+
+        assert new_email.email == email
+        assert new_email.user == user
+        assert not new_email.primary
+        assert not new_email.verified
 
     def test_update_user(self, user_service):
         user = UserFactory.create()
@@ -176,7 +184,8 @@ class TestDatabaseUserService:
 
     def test_create_login_success(self, user_service):
         user = user_service.create_user(
-            "test_user", "test_name", "test_password", "test_email")
+            "test_user", "test_name", "test_password",
+        )
 
         assert user.id is not None
         # now make sure that we can log in as that user
@@ -184,7 +193,8 @@ class TestDatabaseUserService:
 
     def test_create_login_error(self, user_service):
         user = user_service.create_user(
-            "test_user", "test_name", "test_password", "test_email")
+            "test_user", "test_name", "test_password",
+        )
 
         assert user.id is not None
         assert not user_service.check_password(user.id, "bad_password")

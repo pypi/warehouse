@@ -231,13 +231,14 @@ def register(request, _form_class=RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.password.data,
-            form.email.data
+            form.username.data, form.full_name.data, form.password.data
         )
+        user_service.add_email(user.id, form.email.data, primary=True)
 
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, user.id)))
+            headers=dict(_login_user(request, user.id))
+        )
 
     return {"form": form}
 

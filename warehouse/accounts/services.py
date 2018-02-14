@@ -148,8 +148,9 @@ class DatabaseUserService:
 
         return False
 
-    def create_user(self, username, name, password, email,
-                    is_active=False, is_staff=False, is_superuser=False):
+    def create_user(
+            self, username, name, password,
+            is_active=False, is_staff=False, is_superuser=False):
 
         user = User(username=username,
                     name=name,
@@ -158,12 +159,19 @@ class DatabaseUserService:
                     is_staff=is_staff,
                     is_superuser=is_superuser)
         self.db.add(user)
-        email_object = Email(email=email, user=user,
-                             primary=True, verified=False)
-        self.db.add(email_object)
-        # flush the db now so user.id is available
-        self.db.flush()
+        self.db.flush()  # flush the db now so user.id is available
+
         return user
+
+    def add_email(self, user_id, email_address, primary=False, verified=False):
+        user = self.get_user(user_id)
+        email= Email(
+            email=email_address, user=user, primary=primary, verified=verified,
+        )
+        self.db.add(email)
+        self.db.flush()  # flush the db now so email.id is available
+
+        return email
 
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
