@@ -882,6 +882,8 @@ class TestFileUpload:
                                       "main", "future", "al", "uU", "test",
                                       "encodings.utf_8_sig",
                                       "distutils.command.build_clib",
+                                      "xmlrpc", "xmlrpc.server",
+                                      "encodings.idna", "encodings",
                                       "CGIHTTPServer", "cgihttpserver"])
     def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
         pyramid_config.testing_securitypolicy(userid=1)
