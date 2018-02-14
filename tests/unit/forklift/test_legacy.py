@@ -883,6 +883,9 @@ class TestFileUpload:
                                       "encodings.utf_8_sig",
                                       "distutils.command.build_clib",
                                       "xmlrpc", "xmlrpc.server",
+                                      "xml.etree", "xml.etree.ElementTree",
+                                      "xml.parsers", "xml.parsers.expat",
+                                      "xml.parsers.expat.errors",
                                       "encodings.idna", "encodings",
                                       "CGIHTTPServer", "cgihttpserver"])
     def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
