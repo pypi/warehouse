@@ -138,7 +138,10 @@ class TestManageProfile:
 
     def test_add_email(self, monkeypatch, pyramid_config):
         email_address = "test@example.com"
-        user_service = pretend.stub()
+        email = pretend.stub(id=pretend.stub(), email=email_address)
+        user_service = pretend.stub(
+            add_email=pretend.call_recorder(lambda *a, **kw: email)
+        )
         request = pretend.stub(
             POST={'email': email_address},
             db=pretend.stub(flush=lambda: None),
@@ -158,10 +161,6 @@ class TestManageProfile:
             )
         )
 
-        email_obj = pretend.stub(id=pretend.stub(), email=email_address)
-        email_cls = pretend.call_recorder(lambda **kw: email_obj)
-        monkeypatch.setattr(views, 'Email', email_cls)
-
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
@@ -171,14 +170,8 @@ class TestManageProfile:
         view = views.ManageProfileViews(request)
 
         assert view.add_email() == view.default_response
-        assert request.user.emails == [email_obj]
-        assert email_cls.calls == [
-            pretend.call(
-                email=email_address,
-                user_id=request.user.id,
-                primary=False,
-                verified=False,
-            ),
+        assert user_service.add_email.calls == [
+            pretend.call(request.user.id, email_address)
         ]
         assert request.session.flash.calls == [
             pretend.call(
@@ -188,7 +181,7 @@ class TestManageProfile:
             ),
         ]
         assert send_email.calls == [
-            pretend.call(request, email_obj),
+            pretend.call(request, email),
         ]
 
     def test_add_email_validation_fails(self, monkeypatch):
