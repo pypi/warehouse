@@ -32,7 +32,9 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_password_reset_email
+from warehouse.email import (
+    send_password_reset_email, send_email_verification_email,
+)
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -233,7 +235,9 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.password.data
         )
-        user_service.add_email(user.id, form.email.data, primary=True)
+        email = user_service.add_email(user.id, form.email.data, primary=True)
+
+        send_email_verification_email(request, email)
 
         return HTTPSeeOther(
             request.route_path("index"),

@@ -306,7 +306,7 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
 
-    def test_register_redirect(self, pyramid_request):
+    def test_register_redirect(self, pyramid_request, monkeypatch):
         pyramid_request.method = "POST"
 
         user = pretend.stub(id=pretend.stub())
@@ -334,6 +334,8 @@ class TestRegister:
             "email": "foo@bar.com",
             "full_name": "full_name",
         })
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
         result = views.register(pyramid_request)
 
@@ -345,6 +347,7 @@ class TestRegister:
         assert add_email.calls == [
             pretend.call(user.id, 'foo@bar.com', primary=True),
         ]
+        assert send_email.calls == [pretend.call(pyramid_request, email)]
 
 
 class TestRequestPasswordReset:
