@@ -52,10 +52,19 @@ MAX_SIGSIZE = 8 * 1024           # 8K
 
 PATH_HASHER = "blake2_256"
 
+
+def namespace_stdlib_list(module_list):
+    for module_name in module_list:
+        parts = module_name.split('.')
+        for i, part in enumerate(parts):
+            yield '.'.join(parts[:i + 1])
+
+
 STDLIB_PROHIBITTED = {
     packaging.utils.canonicalize_name(s.rstrip('-_.').lstrip('-_.'))
-    for s in chain.from_iterable(stdlib_list.stdlib_list(version)
-                                 for version in stdlib_list.short_versions)
+    for s in chain.from_iterable(
+        namespace_stdlib_list(stdlib_list.stdlib_list(version))
+        for version in stdlib_list.short_versions)
 }
 
 # Wheel platform checking
