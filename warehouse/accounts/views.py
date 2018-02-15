@@ -262,8 +262,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         user = user_service.get_user_by_username(form.username_or_email.data)
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
-        fields = send_password_reset_email(request, user)
-        return {'n_hours': fields['n_hours']}
+        if user is not None:
+            fields = send_password_reset_email(request, user)
+            return {'n_hours': fields['n_hours']}
 
     return {"form": form}
 

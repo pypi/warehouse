@@ -418,6 +418,53 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request, stub_user),
         ]
 
+    def test_request_password_reset_with_email(
+            self, monkeypatch, pyramid_request, pyramid_config, user_service,
+            token_service):
+
+        stub_user = pretend.stub(email=pretend.stub())
+        pyramid_request.method = "POST"
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
+        user_service.get_user_by_email = pretend.call_recorder(
+            lambda a: stub_user
+        )
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *a, **kw: user_service,
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data=stub_user.email),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = pretend.stub()
+        send_password_reset_email = pretend.call_recorder(
+            lambda *args, **kwargs: {'n_hours': n_hours},
+        )
+        monkeypatch.setattr(
+            views, 'send_password_reset_email', send_password_reset_email
+        )
+
+        result = views.request_password_reset(
+            pyramid_request, _form_class=form_class
+        )
+
+        assert result == {'n_hours': n_hours}
+        assert user_service.get_user_by_email.calls == [
+            pretend.call(stub_user.email),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+        assert form_obj.validate.calls == [
+            pretend.call(),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, stub_user),
+        ]
+
 
 class TestResetPassword:
 
