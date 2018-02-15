@@ -216,9 +216,17 @@ class ManageProjectRelease:
         if not filename:
             return _error("Must confirm the request.")
 
+        try:
+            release_file = (
+                self.request.db.query(File)
+                .filter(
+                    File.name == self.release.project.name,
+                    File.id == self.request.POST.get('file_id'),
+                )
+                .one()
             )
-            .one()
-        )
+        except NoResultFound:
+            return _error('Could not find file.')
 
         if filename != release_file.filename:
             return _error(
