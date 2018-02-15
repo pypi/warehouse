@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import uuid
 
 import pretend
@@ -22,7 +23,9 @@ from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
 from warehouse.packaging.models import JournalEntry, Project, Role
 
-from ...common.db.packaging import ProjectFactory, RoleFactory, UserFactory
+from ...common.db.packaging import (
+    JournalEntryFactory, ProjectFactory, RoleFactory, UserFactory,
+)
 
 
 class TestManageProfile:
@@ -974,3 +977,22 @@ class TestDeleteProjectRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+
+class TestManageProjectHistory:
+
+    def test_get(self, db_request):
+        project = ProjectFactory.create()
+        older_journal = JournalEntryFactory.create(
+            name=project.name,
+            submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462634),
+        )
+        newer_journal = JournalEntryFactory.create(
+            name=project.name,
+            submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462634),
+        )
+
+        assert views.manage_project_history(project, db_request) == {
+            'project': project,
+            'journals': [newer_journal, older_journal],
+        }

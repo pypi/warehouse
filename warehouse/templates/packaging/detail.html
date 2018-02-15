@@ -91,9 +91,7 @@
       {% else %}
       <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
       {% endif %}
-      <p class="package-header__date">
-        <time class="-js-relative-time" datetime="{{ release.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ release.created|format_date()}}</time>
-      </p>
+      <p class="package-header__date">{{ humanize(release.created) }}</p>
     </div>
   </div>
 </section>
@@ -272,9 +270,7 @@
 
               <div class="card release__card">
                 <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
-                <p class="release__version-date">
-                  <time class="-js-relative-time" datetime="{{ hrelease.created|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ hrelease.created|format_date()}}</time>
-                </span>
+                <p class="release__version-date">{{ humanize(hrelease.created) }}</p>
               </div>
             </div>
             {% endfor %}

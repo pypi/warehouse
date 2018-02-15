@@ -54,8 +54,6 @@ def test_templates_for_empty_titles():
             continue
 
         for file_name in files:
-            if file_name == "macros.html":
-                continue
             if file_name.endswith(".csi.html"):
                 continue
             if file_name.endswith(".html"):
