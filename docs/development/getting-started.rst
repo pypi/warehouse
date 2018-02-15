@@ -241,6 +241,32 @@ into the message "no space left on device", try running the following command
 (Solution found and further details available at
 https://github.com/chadoe/docker-cleanup-volumes)
 
+"``rm: cannot remove``" errors when running ``make clean``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you've accidentally run a build step with ``sudo`` (like ``make
+serve`` or ``docker-compose build static``), you might create an
+unnecessary ``warehouse/static/dist/`` directory and then get an error
+when you ``make clean``:
+
+.. code-block:: console
+
+   $ make clean
+   rm -rf warehouse/static/components
+   rm -rf warehouse/static/dist
+   rm: cannot remove 'warehouse/static/dist/manifest.json.br': Permission denied
+   ...
+   rm: cannot remove 'warehouse/static/dist/js/warehouse.js.2932ed70.map.gz': Permission denied
+   Makefile:156: recipe for target 'clean' failed
+   make: *** [clean] Error 1
+
+If you get this error, look in ``warehouse/static`` and see if you
+have a ``dist/`` subdirectory; if you do, it will probably be owned by
+``root``. Delete it. You should be able to ``sudo rm -rf
+warehouse/static/dist`` to remove that directory, and then ``make
+clean`` and ``make purge`` should work as expected.
+
+(Solution from `#2943 <https://github.com/pypa/warehouse/issues/2943>`_.)
 
 Building Styles
 ---------------
