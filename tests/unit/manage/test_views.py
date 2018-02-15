@@ -17,6 +17,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
@@ -469,6 +470,50 @@ class TestManageProjectRelease:
         assert request.session.flash.calls == [
             pretend.call(
                 "Must confirm the request.", queue='error'
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                'manage.project.release',
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_not_found(self):
+        release = pretend.stub(
+            version='1.2.3',
+            project=pretend.stub(name='foobar'),
+        )
+
+        def no_result_found():
+            raise NoResultFound
+
+        request = pretend.stub(
+            POST={'confirm_filename': 'whatever'},
+            method="POST",
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda a: None),
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=no_result_found),
+                ),
+            ),
+            route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.db.delete.calls == []
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not find file.", queue='error'
             )
         ]
         assert request.route_path.calls == [
