@@ -200,11 +200,9 @@ class ManageProjectRelease:
         request_param=["confirm_filename", "file_id"]
     )
     def delete_project_release_file(self):
-        filename = self.request.POST.get('confirm_filename')
-        if not filename:
-            self.request.session.flash(
-                "Must confirm the request.", queue='error'
-            )
+
+        def _error(message):
+            self.request.session.flash(message, queue='error')
             return HTTPSeeOther(
                 self.request.route_path(
                     'manage.project.release',
@@ -213,27 +211,19 @@ class ManageProjectRelease:
                 )
             )
 
-        release_file = (
-            self.request.db.query(File)
-            .filter(
-                File.name == self.release.project.name,
-                File.id == self.request.POST.get('file_id'),
+        filename = self.request.POST.get('confirm_filename')
+
+        if not filename:
+            return _error("Must confirm the request.")
+
             )
             .one()
         )
 
         if filename != release_file.filename:
-            self.request.session.flash(
+            return _error(
                 "Could not delete file - " +
                 f"{filename!r} is not the same as {release_file.filename!r}",
-                queue="error",
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    'manage.project.release',
-                    project_name=self.release.project.name,
-                    version=self.release.version,
-                )
             )
 
         self.request.db.add(
