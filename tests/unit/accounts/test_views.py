@@ -385,7 +385,7 @@ class TestRequestPasswordReset:
             lambda *a, **kw: user_service,
         )
         form_obj = pretend.stub(
-            username=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data=stub_user.username),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
