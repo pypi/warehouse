@@ -17,9 +17,9 @@ docutils==0.14 \
 idna==2.6 \
     --hash=sha256:8c7309c718f94b3a625cb648ace320157ad16ff131ae0af362c9f21b80ef6ec4 \
     --hash=sha256:2c6a5de3089009e3da7c5dde64a141dbc8551d5b7f6cf4ed7c2568d0cc520a8f
-imagesize==0.7.1 \
-    --hash=sha256:6ebdc9e0ad188f9d1b2cdd9bc59cbe42bf931875e829e7a595e6b3abdc05cdfb \
-    --hash=sha256:0ab2c62b87987e3252f89d30b7cedbec12a01af9274af9ffa48108f2c13c6062
+imagesize==1.0.0 \
+    --hash=sha256:3620cc0cadba3f7475f9940d22431fc4d407269f1be59ec9b8edcca26440cf18 \
+    --hash=sha256:5b326e4678b6925158ccc66a9fa3122b6106d7c876ee32d7de6ce59385b96315
 Jinja2==2.10 \
     --hash=sha256:74c935a1b8bb9a3947c50a54766a969d4846290e1e788ea44c1392163723c3bd \
     --hash=sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4

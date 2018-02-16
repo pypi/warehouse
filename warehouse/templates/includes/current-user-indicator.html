@@ -16,7 +16,7 @@
   <div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
     <div class="dropdown dropdown--on-menu dropdown--with-icons">
       <button class="horizontal-menu__link dropdown__trigger">
-        Welcome back, {{ request.user.username }}
+        <span class="hide-on-mobile">Welcome back, </span>{{ request.user.username }}
         <span class="dropdown__trigger-caret">
           <i class="fa fa-caret-down" aria-hidden="true"></i>
           <span class="sr-only">view submenu</span>

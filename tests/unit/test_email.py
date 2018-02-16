@@ -156,3 +156,64 @@ class TestSendPasswordResetEmail:
         assert send_email.delay.calls == [
             pretend.call('Email Body', [stub_user.email], 'Email Subject'),
         ]
+
+
+class TestEmailVerificationEmail:
+
+    def test_email_verification_email(
+            self, pyramid_request, pyramid_config, token_service, monkeypatch):
+
+        stub_email = pretend.stub(
+            id='id',
+            email='email',
+        )
+        pyramid_request.method = 'POST'
+        token_service.dumps = pretend.call_recorder(lambda a: 'TOKEN')
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *a, **kw: token_service
+        )
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/verify-email.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/verify-email.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_email_verification_email(
+            pyramid_request,
+            email=stub_email,
+        )
+
+        assert result == {
+            'token': 'TOKEN',
+            'email_address': stub_email.email,
+            'n_hours': token_service.max_age // 60 // 60,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(token='TOKEN', email_address=stub_email.email)
+        assert token_service.dumps.calls == [
+            pretend.call({
+                'action': 'email-verify',
+                'email.id': str(stub_email.id),
+            }),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(ITokenService, name='email'),
+        ]
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call('Email Body', [stub_email.email], 'Email Subject'),
+        ]

@@ -162,16 +162,6 @@ class TestDatabaseUserService:
         assert password != user_from_db.password
         assert user_service.hasher.verify(password, user_from_db.password)
 
-    def test_verify_email(self, user_service):
-        user = UserFactory.create()
-        EmailFactory.create(user=user, primary=True,
-                            verified=False)
-        EmailFactory.create(user=user, primary=False,
-                            verified=False)
-        user_service.verify_email(user.id, user.emails[0].email)
-        assert user.emails[0].verified
-        assert not user.emails[1].verified
-
     def test_find_by_email(self, user_service):
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True, verified=False)

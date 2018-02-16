@@ -75,6 +75,11 @@ def includeme(config):
         ITokenService,
         name="password",
     )
+    config.register_service_factory(
+        TokenServiceFactory(name="email"),
+        ITokenService,
+        name="email",
+    )
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(
