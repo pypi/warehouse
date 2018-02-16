@@ -69,3 +69,12 @@ class TestCreateRoleForm:
 
         assert not form.validate()
         assert form.role_name.errors == [expected]
+
+
+class TestAddEmailForm:
+
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.AddEmailForm(user_service=user_service)
+
+        assert form.user_service is user_service

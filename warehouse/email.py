@@ -67,3 +67,34 @@ def send_password_reset_email(request, user):
     # Return the fields we used, in case we need to show any of them to the
     # user
     return fields
+
+
+def send_email_verification_email(request, email):
+    token_service = request.find_service(ITokenService, name='email')
+
+    token = token_service.dumps({
+        "action": "email-verify",
+        "email.id": email.id,
+    })
+
+    fields = {
+        'token': token,
+        'email_address': email.email,
+        'n_hours': token_service.max_age // 60 // 60,
+    }
+
+    subject = render(
+        'email/verify-email.subject.txt',
+        fields,
+        request=request,
+    )
+
+    body = render(
+        'email/verify-email.body.txt',
+        fields,
+        request=request,
+    )
+
+    request.task(send_email).delay(body, [email.email], subject)
+
+    return fields

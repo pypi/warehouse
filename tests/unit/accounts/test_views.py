@@ -18,6 +18,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
@@ -25,7 +26,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins
 )
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestFailedLoginView:
@@ -692,6 +693,166 @@ class TestResetPassword:
                 "token was requested",
                 queue='error',
             ),
+        ]
+
+
+class TestVerifyEmail:
+
+    def test_verify_email(self, db_request, user_service, token_service):
+        user = UserFactory(is_active=False)
+        email = EmailFactory(user=user, verified=False)
+        db_request.user = user
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'email-verify',
+                'email.id': str(email.id),
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda *a, **kwargs: token_service,
+        )
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        result = views.verify_email(db_request)
+
+        db_request.db.flush()
+        assert email.verified
+        assert user.is_active
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [pretend.call('manage.profile')]
+        assert token_service.loads.calls == [pretend.call('RANDOM_KEY')]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Email address {email.email} verified. " +
+                "You can now set this email as your primary address.",
+                queue="success"
+            ),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(ITokenService, name="email"),
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (
+                TokenInvalid,
+                "Invalid token - Request a new verification link",
+            ), (
+                TokenExpired,
+                "Expired token - Request a new verification link",
+            ), (
+                TokenMissing,
+                "Invalid token - No token supplied"
+            ),
+        ],
+    )
+    def test_verify_email_loads_failure(
+            self, pyramid_request, exception, message):
+
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=loads)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue='error'),
+        ]
+
+    def test_verify_email_invalid_action(self, pyramid_request):
+        data = {
+            'action': 'invalid-action',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Not an email verification token",
+                queue='error',
+            ),
+        ]
+
+    def test_verify_email_not_found(self, pyramid_request):
+        data = {
+            'action': 'email-verify',
+            'email.id': 'invalid',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        def raise_no_result(*a):
+            raise NoResultFound
+
+        pyramid_request.db = pretend.stub(query=raise_no_result)
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Email not found', queue='error')
+        ]
+
+    def test_verify_email_already_verified(self, db_request):
+        user = UserFactory()
+        email = EmailFactory(user=user, verified=True)
+        data = {
+            'action': 'email-verify',
+            'email.id': email.id,
+        }
+        db_request.user = user
+        db_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call('Email already verified', queue='error')
         ]
 
 

@@ -109,6 +109,11 @@ def includeme(config):
         "/account/reset-password/",
         domain=warehouse,
     )
+    config.add_route(
+        "accounts.verify-email",
+        "/account/verify-email/",
+        domain=warehouse,
+    )
 
     # Management (views for logged-in users)
     config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
