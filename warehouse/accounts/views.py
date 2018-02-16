@@ -380,7 +380,9 @@ def verify_email(request):
     email.verified = True
 
     request.session.flash(
-        f'Email address {email.email} verified.', queue='success'
+        f'Email address {email.email} verified. ' +
+         'You can now set this email as your primary address.',
+        queue='success'
     )
     return HTTPSeeOther(request.route_path("manage.profile"))
 

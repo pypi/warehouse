@@ -49,6 +49,7 @@
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
     z-index: index($z-index-scale, "dropdown");
     border: 1px solid $border-color;
+    border-bottom: 0; // Each link has a bottom border, so we don't need one here
     display: none;
   }
 
@@ -64,6 +65,7 @@
   button.dropdown__link {
     display: block;
     padding: 15px 15px 15px 15px;
+    border: 0; // Remove default border on buttons
     border-bottom: 1px solid $border-color;
     background-color: $white;
     min-width: 175px;
@@ -71,10 +73,6 @@
     cursor: pointer;
     text-align: left;
     position: relative;
-
-    &:last-child {
-      border-bottom: 0;
-    }
 
     &:hover {
       background-color: $base-grey;
@@ -121,6 +119,13 @@
     .dropdown__link,
     button.dropdown__link {
       padding: 15px 15px 15px 40px;
+    }
+  }
+
+  &--wide {
+    .dropdown__link,
+    button.dropdown__link {
+      min-width: 200px;
     }
   }
 }

@@ -720,7 +720,9 @@ class TestVerifyEmail:
         assert token_service.loads.calls == [pretend.call('RANDOM_KEY')]
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"Email address {email.email} verified.", queue="success"
+                f"Email address {email.email} verified. " +
+                 "You can now set this email as your primary address.",
+                queue="success"
             ),
         ]
         assert db_request.find_service.calls == [

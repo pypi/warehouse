@@ -22,35 +22,56 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% macro email_row(email) -%}
-  <div>
-    <code>{{ email.email }}</code>
-    {% if email.primary %}
-    <span>Primary</span>
-    {% endif %}
-    {% if email.verified %}
-    <span>Verified</span>
-    {% else %}
-    <span>Unverified</span>
-    {% endif %}
-    {% if user.emails|length > 1 and not email.primary %}
-    <form method="POST">
-      <input hidden name="delete_email_id" value="{{ email.id }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <button type="submit" title="Delete this email address">
-        <i class="fa fa-trash" aria-hidden="true"></i>
-      </button>
-    </form>
-    {% endif %}
-    {% if not email.verified %}
-    <form method="POST">
-      <input hidden name="reverify_email_id" value="{{ email.id }}">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <button type="submit" title="Resend verification email">
-        Resend verification email
-      </button>
-    </form>
-    {% endif %}
-  </div>
+  <tr>
+    <td class="table__email">
+      {{ email.email }}
+    </td>
+    <td class="table__status">
+      {% if email.primary %}
+      <span class="badge">Primary</span>
+      {% endif %}
+      {% if email.verified %}
+      <span class="badge badge--success">Verified</span>
+      {% else %}
+      <span class="badge badge--danger">Unverified</span>
+      {% endif %}
+    </td>
+    <td class="table__action">
+      {% if not email.verified or user.emails|length > 1 and not email.primary%}
+        <div class="dropdown dropdown--with-icons dropdown--wide">
+          <button class="dropdown__trigger button button--primary">
+            Options
+            <span class="dropdown__trigger-caret">
+              <i class="fa fa-caret-down" aria-hidden="true"></i>
+              <span class="sr-only">view submenu</span>
+            </span>
+          </button>
+          <div class="dropdown__content">
+            {% if not email.verified %}
+            <form method="POST">
+              <input hidden name="reverify_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button class="dropdown__link" type="submit" title="Resend verification email">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                Resend Verification Email
+              </button>
+            </form>
+            {% endif %}
+            {% if user.emails|length > 1 and not email.primary %}
+            <form method="POST">
+              <input hidden name="delete_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button class="dropdown__link" type="submit" title="Remove this email address">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                Remove Email
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </td>
+  </tr>
 {%- endmacro %}
 
 {% block main %}
@@ -70,6 +91,8 @@
       </a>
     </div>
   </div>
+
+  <hr>
 
   <h2>Account Details</h2>
 
@@ -100,51 +123,78 @@
         {% endfor %}
       </ul>
       {% endif %}
-
     </div>
     <input value="Update Profile" class="button button--primary" type="submit">
   </form>
 
-  <h2>Emails</h2>
+  <hr>
+
+  <h2>Account Emails</h2>
+  <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your primary email will receive notifications.</p>
+
   {# Sort the emails as follows:
      * Primary email
      * Verified emails, sorted alphabetically
      * Unverified emails, sorted alphabetically
   #}
   {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
-  {% for email in sorted_emails %}
-    {{ email_row(email) }}
-  {% endfor %}
+    <table class="table table--light table--emails">
+      <thead>
+        <tr>
+          <th>Email Address</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in sorted_emails %}
+          {{ email_row(email) }}
+        {% endfor %}
+      </tbody>
+    </table>
+
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
-        <label class="form-group__label" for="email">Add email address</label>
-        {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
-        {% if add_email_form.email.errors %}
-        <ul class="form-errors">
-          {% for error in add_email_form.email.errors %}
-          <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-        <input value="Add" class="button button--primary" type="submit">
+        <label class="form-group__label" for="primary_email">Primary Email</label>
+        <div class="form-group__horizontal">
+          <div class="form-group__horizontal-left">
+            <select class="form-group__input" name="primary_email_id">
+            {% for email in sorted_emails %}
+              <option
+                value="{{ email.id }}"
+                {{ 'selected' if email.primary else '' }}
+                {{ '' if email.verified else 'disabled' }}>
+                {{ email.email }}{{ '' if email.verified else ' (unverified)' }}
+              </option>
+            {% endfor %}
+            </select>
+          </div>
+          <div class="form-group__horizontal-right">
+            <input value="Save" class="button button--primary" type="submit">
+          </div>
+        </div>
       </div>
     </form>
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
-        <label class="form-group__label" for="primary_email">Primary email address</label>
-        <select class="form-group__input" name="primary_email_id">
-        {% for email in sorted_emails %}
-          <option
-            value="{{ email.id }}"
-            {{ 'selected' if email.primary else '' }}
-            {{ '' if email.verified else 'disabled' }}>
-            {{ email.email }}{{ '' if email.verified else ' (not confirmed)' }}
-          </option>
-        {% endfor %}
-        </select>
-        <input value="Save" class="button button--primary" type="submit">
+        <label class="form-group__label" for="email">Add Email</label>
+        <div class="form-group__horizontal">
+          <div class="form-group__horizontal-left">
+            {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
+            {% if add_email_form.email.errors %}
+            <ul class="form-errors">
+              {% for error in add_email_form.email.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+          <div class="form-group__horizontal-right">
+            <input value="Add" class="button button--primary" type="submit">
+          </div>
+        </div>
       </div>
     </form>
 {% endblock %}

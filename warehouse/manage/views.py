@@ -90,7 +90,8 @@ class ManageProfileViews:
             send_email_verification_email(self.request, email)
 
             self.request.session.flash(
-                f'Email {email.email} added and verification email sent.',
+                f'Email {email.email} added - check your email for ' +
+                 'a verification link.',
                 queue='success',
             )
             return self.default_response
@@ -118,12 +119,12 @@ class ManageProfileViews:
 
         if email.primary:
             self.request.session.flash(
-                'Cannot delete primary email address.', queue='error'
+                'Cannot remove primary email address.', queue='error'
             )
         else:
             self.request.user.emails.remove(email)
             self.request.session.flash(
-                f'Email address {email.email} deleted.', queue='success'
+                f'Email address {email.email} removed.', queue='success'
             )
         return self.default_response
 

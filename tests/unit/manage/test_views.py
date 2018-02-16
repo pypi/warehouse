@@ -179,7 +179,8 @@ class TestManageProfile:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                f'Email {email_address} added and verification email sent.',
+                f'Email {email_address} added - check your email for ' +
+                 'a verification link.',
                 queue='success',
             ),
         ]
@@ -252,7 +253,7 @@ class TestManageProfile:
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                f'Email address {email.email} deleted.', queue='success'
+                f'Email address {email.email} removed.', queue='success'
             )
         ]
         assert request.user.emails == [some_other_email]
@@ -319,7 +320,7 @@ class TestManageProfile:
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                'Cannot delete primary email address.', queue='error'
+                'Cannot remove primary email address.', queue='error'
             ),
         ]
         assert request.user.emails == [email]

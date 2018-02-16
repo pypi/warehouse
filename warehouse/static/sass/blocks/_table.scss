@@ -242,7 +242,8 @@
             width: 100%;
           }
 
-          .dropdown__content {
+          .dropdown__content,
+          .dropdown__link {
             width: 100%;
           }
         }
@@ -322,7 +323,8 @@
             width: 100%;
           }
 
-          .dropdown__content {
+          .dropdown__content,
+          .dropdown__link {
             width: 100%;
           }
         }
@@ -488,6 +490,85 @@
 
       .change-button {
         margin-top: 8px;
+      }
+    }
+  }
+
+  &--emails {
+    margin: 0 0 $spacing-unit;
+
+    tr td {
+      padding-right: 20px;
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+    }
+
+    .table__email {
+      padding: 20px 20px 20px 0;
+      word-wrap: break-word;
+      word-break: break-all;
+      font-family: $code-font;
+      font-size: 90%;
+    }
+
+    .table__status {
+      width: 190px;
+    }
+
+    .table__action {
+      width: 100px;
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      thead {
+        display: none;
+      }
+
+      tbody tr,
+      tbody tr:nth-child(2n) {
+        display: block;
+        padding: 20px 0;
+        border-bottom: 1px solid $base-grey;
+      }
+
+      tbody tr:last-of-type {
+        border-bottom: 0;
+      }
+
+      .table__email,
+      .table__status,
+      .table__action {
+        width: 100%;
+        display: block;
+        text-align: left;
+        border-bottom: 0;
+      }
+
+      .table__email,
+      .table__status {
+        padding: 4px 0;
+      }
+
+      .table__action {
+        padding: 0;
+
+        .dropdown {
+          display: block;
+          float: none;
+          margin: 8px 0 4px 0;
+
+          .button {
+            display: block;
+            width: 100%;
+          }
+
+          .dropdown__content,
+          .dropdown__link {
+            width: 100%;
+          }
+        }
       }
     }
   }
