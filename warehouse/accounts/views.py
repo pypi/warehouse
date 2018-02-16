@@ -263,7 +263,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
         if user:
-            fields = send_password_reset_email(request, user)
+            send_password_reset_email(request, user)
 
         token_service = request.find_service(ITokenService, name='password')
         n_hours = token_service.max_age // 60 // 60
