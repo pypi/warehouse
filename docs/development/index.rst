@@ -27,6 +27,7 @@ You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
     database-migrations
     submitting-patches
     reviewing-patches
+    legacy-application-structure
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report

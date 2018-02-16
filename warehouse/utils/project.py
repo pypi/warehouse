@@ -14,7 +14,7 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.packaging.models import (
-    Project, Release, Dependency, File, Role, JournalEntry, release_classifiers
+    Release, Dependency, File, Role, JournalEntry, release_classifiers
 )
 
 
@@ -67,14 +67,12 @@ def remove_project(project, request):
     # project deletion and won't be purged
     for release in (
             request.db.query(Release)
-            .filter(Release.name == project.name)
+            .filter(Release.project == project)
             .all()):
         request.db.delete(release)
 
     # Finally, delete the project
-    request.db.delete(
-        request.db.query(Project).filter(Project.name == project.name).one()
-    )
+    request.db.delete(project)
 
     request.session.flash(
         f"Successfully deleted the project {project.name!r}.",
