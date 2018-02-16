@@ -32,6 +32,9 @@
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
+{% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
+{% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
+{% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 
 {% block title %}Help{% endblock %}
 
@@ -53,6 +56,9 @@
         <li><a href="#feedback">{{ feedback() }}</a></li>
         <li><a href="#contributing">{{ contributing() }}</a></li>
         <li><a href="#sponsors">{{ sponsors() }}</a></li>
+        <li><a href="#availability">{{ availability() }}</a></li>
+        <li><a href="#mirroring">{{ mirroring() }}</a></li>
+        <li><a href="#private-indices">{{ private_indices() }}</a></li>
       </ul>
 
       <section id="packages" class="common-question">
@@ -207,6 +213,26 @@
         <h2>{{ sponsors() }}</h2>
         <p>
           PyPI is powered by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.
+        </p>
+      </section>
+
+      <section id="availability" class="common-question">
+        <h2>{{ availability() }}</h2>
+        <p>
+          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/">Fastly</a> and thus is generally available globally. However, as could be expected for a giant distributed system, things can and sometimes do go wrong. If you have high availability requirements for your package index, consider either a <a href="#mirror">mirror</a> or a <a href="#private-indices">private index</a>.
+        </p>
+      </section>
+
+      <section id="mirroring" class="common-question">
+        <h2>{{ mirroring() }}</h2>
+        <p>
+          If you need to run your own mirror of PyPI, the <a href="https://pypi.org/project/bandersnatch/">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!
+      </section>
+
+      <section id="private-indices" class="common-question">
+        <h2>{{ private_indices() }}</h2>
+        <p>
+          PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="https://pypi.org/project/devpi/">devpi project</a>.
         </p>
       </section>
     </div>
