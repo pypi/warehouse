@@ -2253,6 +2253,52 @@ class TestFileUpload:
             ),
         ]
 
+    def test_equivalent_version_one_release(self, pyramid_config, db_request):
+        '''
+        Test that if a release with a version like '1.0' exists, that a future
+        upload with an equivalent version like '1.0.0' will not make a second
+        release
+        '''
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": "1.0.0",
+            "summary": "This is my summary!",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        releases = (
+            db_request.db.query(Release)
+            .filter(Release.project == project)
+            .all()
+        )
+
+        # Asset that only one release has been created
+        assert releases == [release]
+
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 

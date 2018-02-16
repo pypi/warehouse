@@ -811,53 +811,69 @@ def file_upload(request):
                             (Release.version == form.version.data)).one()
         )
     except NoResultFound:
-        release = Release(
-            project=project,
-            _classifiers=[
-                c for c in all_classifiers
-                if c.classifier in form.classifiers.data
-            ],
-            _pypi_hidden=False,
-            dependencies=list(_construct_dependencies(
-                form,
-                {
-                    "requires": DependencyKind.requires,
-                    "provides": DependencyKind.provides,
-                    "obsoletes": DependencyKind.obsoletes,
-                    "requires_dist": DependencyKind.requires_dist,
-                    "provides_dist": DependencyKind.provides_dist,
-                    "obsoletes_dist": DependencyKind.obsoletes_dist,
-                    "requires_external": DependencyKind.requires_external,
-                    "project_urls": DependencyKind.project_url,
-                }
-            )),
-            **{
-                k: getattr(form, k).data
-                for k in {
-                    # This is a list of all the fields in the form that we
-                    # should pull off and insert into our new release.
-                    "version",
-                    "summary", "description", "license",
-                    "author", "author_email", "maintainer", "maintainer_email",
-                    "keywords", "platform",
-                    "home_page", "download_url",
-                    "requires_python",
-                }
-            }
+        # We didn't find a release with the exact version string, try and see
+        # if one exists with an equivalent parsed version
+        releases = (
+            request.db.query(Release)
+            .filter(Release.project == project)
+            .all()
         )
-        request.db.add(release)
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="new release",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            ),
-        )
+        versions = {
+            packaging.version.parse(release.version): release
+            for release in releases
+        }
+
+        try:
+            release = versions[packaging.version.parse(form.version.data)]
+        except KeyError:
+            release = Release(
+                project=project,
+                _classifiers=[
+                    c for c in all_classifiers
+                    if c.classifier in form.classifiers.data
+                ],
+                _pypi_hidden=False,
+                dependencies=list(_construct_dependencies(
+                    form,
+                    {
+                        "requires": DependencyKind.requires,
+                        "provides": DependencyKind.provides,
+                        "obsoletes": DependencyKind.obsoletes,
+                        "requires_dist": DependencyKind.requires_dist,
+                        "provides_dist": DependencyKind.provides_dist,
+                        "obsoletes_dist": DependencyKind.obsoletes_dist,
+                        "requires_external": DependencyKind.requires_external,
+                        "project_urls": DependencyKind.project_url,
+                    }
+                )),
+                **{
+                    k: getattr(form, k).data
+                    for k in {
+                        # This is a list of all the fields in the form that we
+                        # should pull off and insert into our new release.
+                        "version",
+                        "summary", "description", "license",
+                        "author", "author_email",
+                        "maintainer", "maintainer_email",
+                        "keywords", "platform",
+                        "home_page", "download_url",
+                        "requires_python",
+                    }
+                }
+            )
+            request.db.add(release)
+            # TODO: This should be handled by some sort of database trigger or
+            #       a SQLAlchemy hook or the like instead of doing it inline in
+            #       this view.
+            request.db.add(
+                JournalEntry(
+                    name=release.project.name,
+                    version=release.version,
+                    action="new release",
+                    submitted_by=request.user,
+                    submitted_from=request.remote_addr,
+                ),
+            )
 
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
