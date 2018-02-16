@@ -2,34 +2,31 @@ The Warehouse codebase
 ======================
 
 Warehouse uses the
-`Pyramid <https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html>`__
-web framework, the
+`Pyramid`_ web framework, the
 `SQLAlchemy <https://docs.sqlalchemy.org/en/latest/>`__ ORM, and
 `Postgres <https://www.postgresql.org/docs/>`__ for its database.
-Warehouse's front end uses Jinja2 templates.
+Warehouse's front end uses `Jinja2 <http://jinja.pocoo.org/>`__ templates.
 
 The production deployment for Warehouse is in progress and currently
-doesn't use any containers, although we may change that in the
-future. In the development environment, we use several `Docker
-<https://docs.docker.com/>`__ containers, and use `Docker Compose
-<https://docs.docker.com/compose/overview/>`__ to `manage
-<https://github.com/pypa/warehouse/blob/master/docker-compose.yml#L3>`__
+does not use any containers, although we may change that in the
+future. In the development environment, we use several `Docker`_  containers, and use `Docker Compose <https://docs.docker.com/compose/overview/>`__ to `manage <https://github.com/pypa/warehouse/blob/master/docker-compose.yml#L3>`__
 running the containers and the connections between them. In the future
 we will probably reduce that number to two containers, one of which
 contains static files for the website, and the other which contains
 the Python web application code running in a virtual environment and
 the database.
 
-Since Warehouse was built on top of a pre-existing database and
+Since Warehouse was built on top of an existing database and
 developers had to fit our ORM to the existing tables, some of the code
-in the ORM may not look like code from SQLAlchemy’s documentation. There
+in the ORM may not look like code from the SQLAlchemy documentation. There
 are some places where joins are done using name-based logic instead of a
 foreign key (but this may change in the future).
 
-Warehouse also uses `Pyramid's hybrid URL traversal and dispatch
-<https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html>`__.
-Using factory classes, resources are provided directly to the views
-based on the URL pattern.
+Warehouse also uses `hybrid URL traversal and dispatch`_. Using
+factory classes, resources are provided directly to the views based on the URL
+pattern. This method of handling URLs may be unfamiliar to developers used to
+other web frameworks, such as Django or Flask. `This article`_ has a helpful
+discussion of the differences between URL dispatch and traversal in Pyramid.
 
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible. This is a big reason
@@ -78,3 +75,8 @@ Directories within the repository:
         rss/ - RSS feeds
         sitemap/ - site maps
         utils/ - various utilities Warehouse uses
+
+.. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
+.. _Docker: https://docs.docker.com/
+.. _hybrid URL traversal and dispatch: https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html
+.. _This article: https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/muchadoabouttraversal.html

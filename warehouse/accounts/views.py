@@ -17,9 +17,10 @@ import uuid
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
-from pyramid.security import remember, forget
+from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -29,6 +30,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_password_reset_email
 from warehouse.packaging.models import Project, Release
@@ -335,6 +337,55 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     return {"form": form}
+
+
+@view_config(
+    route_name="accounts.verify-email",
+    uses_session=True,
+    effective_principals=Authenticated,
+)
+def verify_email(request):
+    token_service = request.find_service(ITokenService, name="email")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.profile"))
+
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new verification link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new verification link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "email-verify":
+        return _error("Invalid token - Not an email verification token")
+
+    try:
+        email = (
+            request.db.query(Email)
+            .filter(Email.id == data['email.id'], Email.user == request.user)
+            .one()
+        )
+    except NoResultFound:
+        return _error("Email not found")
+
+    if email.verified:
+        return _error("Email already verified")
+
+    email.verified = True
+    request.user.is_active = True
+
+    request.session.flash(
+        f'Email address {email.email} verified. ' +
+        'You can now set this email as your primary address.',
+        queue='success'
+    )
+    return HTTPSeeOther(request.route_path("manage.profile"))
 
 
 def _login_user(request, userid):

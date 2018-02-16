@@ -73,11 +73,6 @@ class IUserService(Interface):
         Updates the user object
         """
 
-    def verify_email(user_id, email_address):
-        """
-        verifies the user
-        """
-
 
 class ITokenService(Interface):
 

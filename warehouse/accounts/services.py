@@ -173,12 +173,6 @@ class DatabaseUserService:
             setattr(user, attr, value)
         return user
 
-    def verify_email(self, user_id, email_address):
-        user = self.get_user(user_id)
-        for email in user.emails:
-            if email.email == email_address:
-                email.verified = True
-
 
 @implementer(ITokenService)
 class TokenService:
