@@ -352,14 +352,11 @@ class TestRegister:
 
 class TestRequestPasswordReset:
 
-    def test_get(self, pyramid_request, user_service, token_service):
+    def test_get(self, pyramid_request, user_service):
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
         pyramid_request.find_service = pretend.call_recorder(
-            lambda interface, **kw: {
-                IUserService: user_service,
-                ITokenService: token_service,
-            }[interface],
+            lambda *a, **kw: user_service,
         )
         pyramid_request.POST = pretend.stub()
         result = views.request_password_reset(
@@ -372,7 +369,6 @@ class TestRequestPasswordReset:
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
-            pretend.call(ITokenService, name='password'),
         ]
 
     def test_request_password_reset(
