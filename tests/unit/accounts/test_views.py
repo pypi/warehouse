@@ -306,8 +306,13 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
 
-    def test_register_redirect(self, pyramid_request):
+    def test_register_redirect(self, pyramid_request, monkeypatch):
         pyramid_request.method = "POST"
+
+        user = pretend.stub(id=pretend.stub())
+        email = pretend.stub()
+        create_user = pretend.call_recorder(lambda *args, **kwargs: user)
+        add_email = pretend.call_recorder(lambda *args, **kwargs: email)
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
@@ -316,10 +321,9 @@ class TestRegister:
                 verify_response=pretend.call_recorder(lambda _: None),
                 find_userid=pretend.call_recorder(lambda _: None),
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
-                create_user=pretend.call_recorder(
-                    lambda *args, **kwargs: pretend.stub(id=1),
-                ),
                 update_user=lambda *args, **kwargs: None,
+                create_user=create_user,
+                add_email=add_email,
             )
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -330,10 +334,20 @@ class TestRegister:
             "email": "foo@bar.com",
             "full_name": "full_name",
         })
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
         result = views.register(pyramid_request)
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert create_user.calls == [
+            pretend.call('username_value', 'full_name', 'MyStr0ng!shP455w0rd'),
+        ]
+        assert add_email.calls == [
+            pretend.call(user.id, 'foo@bar.com', primary=True),
+        ]
+        assert send_email.calls == [pretend.call(pyramid_request, email)]
 
 
 class TestRequestPasswordReset:

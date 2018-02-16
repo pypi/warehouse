@@ -78,14 +78,9 @@ class ManageProfileViews:
         form = AddEmailForm(self.request.POST, user_service=self.user_service)
 
         if form.validate():
-            email = Email(
-                email=form.email.data,
-                user_id=self.request.user.id,
-                primary=False,
-                verified=False,
+            email = self.user_service.add_email(
+                self.request.user.id, form.email.data,
             )
-            self.request.user.emails.append(email)
-            self.request.db.flush()  # To get the new ID
 
             send_email_verification_email(self.request, email)
 
