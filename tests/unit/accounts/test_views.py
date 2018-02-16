@@ -164,14 +164,20 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
-        assert result.headers["Location"] == "/"
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.projects')
+        ]
+        assert result.headers["Location"] == "/the-redirect"
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -203,7 +209,7 @@ class TestLogin:
         ("expected_next_url, observed_next_url"),
         [
             ("/security/", "/security/"),
-            ("http://example.com", "/"),
+            ("http://example.com", "/the-redirect"),
         ],
     )
     def test_post_validate_no_redirects(self, pyramid_request,
@@ -223,11 +229,12 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
         assert result.headers["Location"] == observed_next_url
 
 
@@ -692,7 +699,7 @@ class TestResetPassword:
 class TestVerifyEmail:
 
     def test_verify_email(self, db_request, user_service, token_service):
-        user = UserFactory()
+        user = UserFactory(is_active=False)
         email = EmailFactory(user=user, verified=False)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
@@ -714,6 +721,7 @@ class TestVerifyEmail:
 
         db_request.db.flush()
         assert email.verified
+        assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [pretend.call('manage.profile')]
@@ -721,7 +729,7 @@ class TestVerifyEmail:
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " +
-                 "You can now set this email as your primary address.",
+                "You can now set this email as your primary address.",
                 queue="success"
             ),
         ]

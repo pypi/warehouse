@@ -91,7 +91,7 @@ class ManageProfileViews:
 
             self.request.session.flash(
                 f'Email {email.email} added - check your email for ' +
-                 'a verification link.',
+                'a verification link.',
                 queue='success',
             )
             return self.default_response
@@ -588,3 +588,22 @@ def delete_project_role(project, request):
     return HTTPSeeOther(
         request.route_path('manage.project.roles', project_name=project.name)
     )
+
+
+@view_config(
+    route_name="manage.project.history",
+    renderer="manage/history.html",
+    uses_session=True,
+    permission="manage",
+)
+def manage_project_history(project, request):
+    journals = (
+        request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .order_by(JournalEntry.submitted_date.desc())
+        .all()
+    )
+    return {
+        'project': project,
+        'journals': journals,
+    }

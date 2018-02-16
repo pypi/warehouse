@@ -34,10 +34,9 @@ import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 
-// timestamps for project histories set for 1 minute intervals
+// Human-readable timestamps for project histories
 docReady(() => {
-  const timeElements = document.querySelectorAll("time");
-  if (timeElements.length > 0) setInterval(timeAgo, 1000 * 60);
+  timeAgo();
 });
 
 // project detail tabs

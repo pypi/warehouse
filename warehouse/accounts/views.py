@@ -118,7 +118,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # the index instead.
         if (not redirect_to or
                 not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = "/"
+            redirect_to = request.route_path('manage.projects')
 
         # Actually perform the login routine for our user.
         headers = _login_user(request, userid)
@@ -378,10 +378,11 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
+    request.user.is_active = True
 
     request.session.flash(
         f'Email address {email.email} verified. ' +
-         'You can now set this email as your primary address.',
+        'You can now set this email as your primary address.',
         queue='success'
     )
     return HTTPSeeOther(request.route_path("manage.profile"))
