@@ -57,12 +57,12 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": "foo"}},
+                    {"term": {"name": "foo"}},
                     {
                         "bool": {
                             "should": [
-                                {"match": {"summary": "one"}},
-                                {"match": {"summary": "two"}},
+                                {"term": {"summary": "one"}},
+                                {"term": {"summary": "two"}},
                             ],
                         },
                     },
@@ -94,6 +94,53 @@ class TestSearch:
             {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
         ]
 
+    def test_default_search_operator_with_spaces_in_values(self):
+        class FakeQuery:
+            def __init__(self, type, must):
+                self.type = type
+                self.must = must
+
+            def __getitem__(self, name):
+                self.offset = name.start
+                self.limit = name.stop
+                self.step = name.step
+                return self
+
+            def execute(self):
+                assert self.type == "bool"
+                assert [q.to_dict() for q in self.must] == [
+                    {'bool': {'should': [
+                        {'term': {'summary': 'fix code'}},
+                        {'term': {'summary': 'like this'}}
+                    ]}}
+                ]
+                assert self.offset is None
+                assert self.limit == 1000
+                assert self.step is None
+                return [
+                    pretend.stub(
+                        name="foo",
+                        summary="fix code",
+                        version=["1.0"],
+                    ),
+                    pretend.stub(
+                        name="foo-bar",
+                        summary="like this",
+                        version=["2.0", "1.0"],
+                    ),
+                ]
+
+        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        results = xmlrpc.search(
+            request,
+            {"summary": ["fix code", "like this"]},
+        )
+        assert results == [
+            {"name": "foo", "summary": "fix code", "version": "1.0"},
+            {"name": "foo-bar", "summary": "like this", "version": "2.0"},
+            {"name": "foo-bar", "summary": "like this", "version": "1.0"},
+        ]
+
     def test_searches_with_and(self):
         class FakeQuery:
             def __init__(self, type, must):
@@ -109,12 +156,12 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": "foo"}},
+                    {"term": {"name": "foo"}},
                     {
                         "bool": {
                             "should": [
-                                {"match": {"summary": "one"}},
-                                {"match": {"summary": "two"}},
+                                {"term": {"summary": "one"}},
+                                {"term": {"summary": "two"}},
                             ],
                         },
                     },
@@ -162,12 +209,12 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.should] == [
-                    {"match": {"name": "foo"}},
+                    {"term": {"name": "foo"}},
                     {
                         "bool": {
                             "should": [
-                                {"match": {"summary": "one"}},
-                                {"match": {"summary": "two"}},
+                                {"term": {"summary": "one"}},
+                                {"term": {"summary": "two"}},
                             ],
                         },
                     },

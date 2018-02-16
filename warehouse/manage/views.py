@@ -19,9 +19,10 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.models import User, Email
+from warehouse.email import send_email_verification_email
 from warehouse.manage.forms import (
-    CreateRoleForm, ChangeRoleForm, SaveProfileForm
+    AddEmailForm, CreateRoleForm, ChangeRoleForm, SaveProfileForm
 )
 from warehouse.packaging.models import JournalEntry, Role, File
 from warehouse.utils.project import confirm_project, remove_project
@@ -40,11 +41,16 @@ class ManageProfileViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
 
-    @view_config(request_method="GET")
-    def manage_profile(self):
+    @property
+    def default_response(self):
         return {
             'save_profile_form': SaveProfileForm(name=self.request.user.name),
+            'add_email_form': AddEmailForm(user_service=self.user_service),
         }
+
+    @view_config(request_method="GET")
+    def manage_profile(self):
+        return self.default_response
 
     @view_config(
         request_method="POST",
@@ -60,8 +66,128 @@ class ManageProfileViews:
             )
 
         return {
+            **self.default_response,
             'save_profile_form': form,
         }
+
+    @view_config(
+        request_method="POST",
+        request_param=AddEmailForm.__params__,
+    )
+    def add_email(self):
+        form = AddEmailForm(self.request.POST, user_service=self.user_service)
+
+        if form.validate():
+            email = Email(
+                email=form.email.data,
+                user_id=self.request.user.id,
+                primary=False,
+                verified=False,
+            )
+            self.request.user.emails.append(email)
+            self.request.db.flush()  # To get the new ID
+
+            send_email_verification_email(self.request, email)
+
+            self.request.session.flash(
+                f'Email {email.email} added - check your email for ' +
+                'a verification link.',
+                queue='success',
+            )
+            return self.default_response
+
+        return {
+            **self.default_response,
+            'add_email_form': form,
+        }
+
+    @view_config(
+        request_method="POST",
+        request_param=["delete_email_id"],
+    )
+    def delete_email(self):
+        try:
+            email = self.request.db.query(Email).filter(
+                Email.id == self.request.POST['delete_email_id'],
+                Email.user_id == self.request.user.id,
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        if email.primary:
+            self.request.session.flash(
+                'Cannot remove primary email address.', queue='error'
+            )
+        else:
+            self.request.user.emails.remove(email)
+            self.request.session.flash(
+                f'Email address {email.email} removed.', queue='success'
+            )
+        return self.default_response
+
+    @view_config(
+        request_method="POST",
+        request_param=["primary_email_id"],
+    )
+    def change_primary_email(self):
+        try:
+            new_primary_email = self.request.db.query(Email).filter(
+                Email.user_id == self.request.user.id,
+                Email.id == self.request.POST['primary_email_id'],
+                Email.verified.is_(True),
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        self.request.db.query(Email).filter(
+            Email.user_id == self.request.user.id,
+            Email.primary.is_(True),
+        ).update(values={'primary': False})
+
+        new_primary_email.primary = True
+
+        self.request.session.flash(
+            f'Email address {new_primary_email.email} set as primary.',
+            queue='success',
+        )
+
+        return self.default_response
+
+    @view_config(
+        request_method="POST",
+        request_param=['reverify_email_id'],
+    )
+    def reverify_email(self):
+        try:
+            email = self.request.db.query(Email).filter(
+                Email.id == self.request.POST['reverify_email_id'],
+                Email.user_id == self.request.user.id,
+            ).one()
+        except NoResultFound:
+            self.request.session.flash(
+                'Email address not found.', queue='error'
+            )
+            return self.default_response
+
+        if email.verified:
+            self.request.session.flash(
+                'Email is already verified.', queue='error'
+            )
+        else:
+            send_email_verification_email(self.request, email)
+
+            self.request.session.flash(
+                f'Verification email for {email.email} resent.',
+                queue='success',
+            )
+
+        return self.default_response
 
 
 @view_config(
@@ -200,11 +326,9 @@ class ManageProjectRelease:
         request_param=["confirm_filename", "file_id"]
     )
     def delete_project_release_file(self):
-        filename = self.request.POST.get('confirm_filename')
-        if not filename:
-            self.request.session.flash(
-                "Must confirm the request.", queue='error'
-            )
+
+        def _error(message):
+            self.request.session.flash(message, queue='error')
             return HTTPSeeOther(
                 self.request.route_path(
                     'manage.project.release',
@@ -213,27 +337,27 @@ class ManageProjectRelease:
                 )
             )
 
-        release_file = (
-            self.request.db.query(File)
-            .filter(
-                File.name == self.release.project.name,
-                File.id == self.request.POST.get('file_id'),
+        filename = self.request.POST.get('confirm_filename')
+
+        if not filename:
+            return _error("Must confirm the request.")
+
+        try:
+            release_file = (
+                self.request.db.query(File)
+                .filter(
+                    File.name == self.release.project.name,
+                    File.id == self.request.POST.get('file_id'),
+                )
+                .one()
             )
-            .one()
-        )
+        except NoResultFound:
+            return _error('Could not find file.')
 
         if filename != release_file.filename:
-            self.request.session.flash(
+            return _error(
                 "Could not delete file - " +
                 f"{filename!r} is not the same as {release_file.filename!r}",
-                queue="error",
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    'manage.project.release',
-                    project_name=self.release.project.name,
-                    version=self.release.version,
-                )
             )
 
         self.request.db.add(

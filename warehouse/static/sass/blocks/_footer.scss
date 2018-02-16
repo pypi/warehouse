@@ -94,6 +94,8 @@
     border: 1px solid transparentize($footer-faded-color, 0.3);
     margin: 0 auto $spacing-unit;
     width: 200px;
+    background: none;
+    height: 0;
   }
 
   &__text {

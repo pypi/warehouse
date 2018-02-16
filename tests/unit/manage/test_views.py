@@ -17,12 +17,14 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
 from warehouse.packaging.models import JournalEntry, Project, Role
 
+from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
     JournalEntryFactory, ProjectFactory, RoleFactory, UserFactory,
 )
@@ -30,7 +32,7 @@ from ...common.db.packaging import (
 
 class TestManageProfile:
 
-    def test_manage_profile(self, monkeypatch):
+    def test_default_response(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
@@ -40,38 +42,64 @@ class TestManageProfile:
         save_profile_obj = pretend.stub()
         save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
         monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        add_email_obj = pretend.stub()
+        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
+        monkeypatch.setattr(views, 'AddEmailForm', add_email_cls)
+        view = views.ManageProfileViews(request)
 
-        assert view_class.manage_profile() == {
+        assert view.default_response == {
             'save_profile_form': save_profile_obj,
+            'add_email_form': add_email_obj,
         }
-        assert view_class.request == request
-        assert view_class.user_service == user_service
+        assert view.request == request
+        assert view.user_service == user_service
         assert save_profile_cls.calls == [
             pretend.call(name=name),
         ]
+        assert add_email_cls.calls == [
+            pretend.call(user_service=user_service),
+        ]
+
+    def test_manage_profile(self, monkeypatch):
+        user_service = pretend.stub()
+        name = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(name=name),
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.manage_profile() == view.default_response
+        assert view.request == request
+        assert view.user_service == user_service
 
     def test_save_profile(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
             POST={'name': 'new name'},
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
-            find_service=pretend.call_recorder(
-                lambda iface, context: pretend.stub(update_user=update_user)
-            ),
+            find_service=lambda *a, **kw: user_service,
         )
         save_profile_obj = pretend.stub(
-            validate=lambda: True,
-            data=request.POST,
+            validate=lambda: True, data=request.POST
         )
-        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
-        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        monkeypatch.setattr(
+            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
 
-        assert view_class.save_profile() == {
+        assert view.save_profile() == {
+            **view.default_response,
             'save_profile_form': save_profile_obj,
         }
         assert request.session.flash.calls == [
@@ -80,35 +108,360 @@ class TestManageProfile:
         assert update_user.calls == [
             pretend.call(request.user.id, **request.POST)
         ]
-        assert save_profile_cls.calls == [
-            pretend.call(request.POST),
-        ]
 
     def test_save_profile_validation_fails(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
             POST={'name': 'new name'},
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), name=pretend.stub()),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
-            find_service=pretend.call_recorder(
-                lambda iface, context: pretend.stub(update_user=update_user)
-            ),
+            find_service=lambda *a, **kw: user_service,
         )
         save_profile_obj = pretend.stub(validate=lambda: False)
-        save_profile_cls = pretend.call_recorder(lambda d: save_profile_obj)
-        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
-        view_class = views.ManageProfileViews(request)
+        monkeypatch.setattr(
+            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
 
-        assert view_class.save_profile() == {
+        assert view.save_profile() == {
+            **view.default_response,
             'save_profile_form': save_profile_obj,
         }
         assert request.session.flash.calls == []
         assert update_user.calls == []
-        assert save_profile_cls.calls == [
-            pretend.call(request.POST),
+
+    def test_add_email(self, monkeypatch, pyramid_config):
+        email_address = "test@example.com"
+        user_service = pretend.stub()
+        request = pretend.stub(
+            POST={'email': email_address},
+            db=pretend.stub(flush=lambda: None),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda a, **kw: user_service,
+            user=pretend.stub(
+                emails=[], name=pretend.stub(), id=pretend.stub()
+            ),
+            task=pretend.call_recorder(lambda *args, **kwargs: send_email),
+        )
+        monkeypatch.setattr(
+            views, 'AddEmailForm', lambda *a, **kw: pretend.stub(
+                validate=lambda: True,
+                email=pretend.stub(data=email_address),
+            )
+        )
+
+        email_obj = pretend.stub(id=pretend.stub(), email=email_address)
+        email_cls = pretend.call_recorder(lambda **kw: email_obj)
+        monkeypatch.setattr(views, 'Email', email_cls)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.add_email() == view.default_response
+        assert request.user.emails == [email_obj]
+        assert email_cls.calls == [
+            pretend.call(
+                email=email_address,
+                user_id=request.user.id,
+                primary=False,
+                verified=False,
+            ),
         ]
+        assert request.session.flash.calls == [
+            pretend.call(
+                f'Email {email_address} added - check your email for ' +
+                'a verification link.',
+                queue='success',
+            ),
+        ]
+        assert send_email.calls == [
+            pretend.call(request, email_obj),
+        ]
+
+    def test_add_email_validation_fails(self, monkeypatch):
+        email_address = "test@example.com"
+        request = pretend.stub(
+            POST={'email': email_address},
+            db=pretend.stub(flush=lambda: None),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda a, **kw: pretend.stub(),
+            user=pretend.stub(emails=[], name=pretend.stub()),
+        )
+        add_email_obj = pretend.stub(
+            validate=lambda: False,
+            email=pretend.stub(data=email_address),
+        )
+        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
+        monkeypatch.setattr(views, 'AddEmailForm', add_email_cls)
+
+        email_obj = pretend.stub(id=pretend.stub(), email=email_address)
+        email_cls = pretend.call_recorder(lambda **kw: email_obj)
+        monkeypatch.setattr(views, 'Email', email_cls)
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.add_email() == {
+            **view.default_response,
+            'add_email_form': add_email_obj,
+        }
+        assert request.user.emails == []
+        assert email_cls.calls == []
+        assert request.session.flash.calls == []
+
+    def test_delete_email(self, monkeypatch):
+        email = pretend.stub(
+            id=pretend.stub(), primary=False, email=pretend.stub(),
+        )
+        some_other_email = pretend.stub()
+        request = pretend.stub(
+            POST={'delete_email_id': email.id},
+            user=pretend.stub(
+                id=pretend.stub(),
+                emails=[email, some_other_email],
+                name=pretend.stub(),
+            ),
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                ),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            )
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                f'Email address {email.email} removed.', queue='success'
+            )
+        ]
+        assert request.user.emails == [some_other_email]
+
+    def test_delete_email_not_found(self, monkeypatch):
+        email = pretend.stub()
+
+        def raise_no_result():
+            raise NoResultFound
+
+        request = pretend.stub(
+            POST={'delete_email_id': 'missing_id'},
+            user=pretend.stub(
+                id=pretend.stub(),
+                emails=[email],
+                name=pretend.stub(),
+            ),
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=raise_no_result)
+                ),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            )
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call('Email address not found.', queue='error'),
+        ]
+        assert request.user.emails == [email]
+
+    def test_delete_email_is_primary(self, monkeypatch):
+        email = pretend.stub(primary=True)
+
+        request = pretend.stub(
+            POST={'delete_email_id': 'missing_id'},
+            user=pretend.stub(
+                id=pretend.stub(),
+                emails=[email],
+                name=pretend.stub(),
+            ),
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                ),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            )
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                'Cannot remove primary email address.', queue='error'
+            ),
+        ]
+        assert request.user.emails == [email]
+
+    def test_change_primary_email(self, monkeypatch, db_request):
+        user = UserFactory()
+        old_primary = EmailFactory(primary=True, user=user)
+        new_primary = EmailFactory(primary=False, verified=True, user=user)
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        db_request.POST = {'primary_email_id': new_primary.id}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(db_request)
+
+        assert view.change_primary_email() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f'Email address {new_primary.email} set as primary.',
+                queue='success',
+            )
+        ]
+        assert not old_primary.primary
+        assert new_primary.primary
+
+    def test_change_primary_email_not_found(self, monkeypatch, db_request):
+        user = UserFactory()
+        old_primary = EmailFactory(primary=True, user=user)
+        missing_email_id = 9999
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        db_request.POST = {'primary_email_id': missing_email_id}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(db_request)
+
+        assert view.change_primary_email() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(f'Email address not found.', queue='error')
+        ]
+        assert old_primary.primary
+
+    def test_reverify_email(self, monkeypatch):
+        email = pretend.stub(verified=False, email='email_address')
+
+        request = pretend.stub(
+            POST={'reverify_email_id': pretend.stub()},
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                ),
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            user=pretend.stub(id=pretend.stub),
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.reverify_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                'Verification email for email_address resent.',
+                queue='success',
+            ),
+        ]
+        assert send_email.calls == [pretend.call(request, email)]
+
+    def test_reverify_email_not_found(self, monkeypatch):
+        def raise_no_result():
+            raise NoResultFound
+
+        request = pretend.stub(
+            POST={'reverify_email_id': pretend.stub()},
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=raise_no_result)
+                ),
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            user=pretend.stub(id=pretend.stub),
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.reverify_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call('Email address not found.', queue='error'),
+        ]
+        assert send_email.calls == []
+
+    def test_reverify_email_already_verified(self, monkeypatch):
+        email = pretend.stub(verified=True, email='email_address')
+
+        request = pretend.stub(
+            POST={'reverify_email_id': pretend.stub()},
+            db=pretend.stub(
+                query=lambda *a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=lambda: email)
+                ),
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            user=pretend.stub(id=pretend.stub),
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.reverify_email() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call('Email is already verified.', queue='error'),
+        ]
+        assert send_email.calls == []
 
 
 class TestManageProjects:
@@ -469,6 +822,50 @@ class TestManageProjectRelease:
         assert request.session.flash.calls == [
             pretend.call(
                 "Must confirm the request.", queue='error'
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                'manage.project.release',
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_delete_project_release_file_not_found(self):
+        release = pretend.stub(
+            version='1.2.3',
+            project=pretend.stub(name='foobar'),
+        )
+
+        def no_result_found():
+            raise NoResultFound
+
+        request = pretend.stub(
+            POST={'confirm_filename': 'whatever'},
+            method="POST",
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda a: None),
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(one=no_result_found),
+                ),
+            ),
+            route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.delete_project_release_file()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert request.db.delete.calls == []
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not find file.", queue='error'
             )
         ]
         assert request.route_path.calls == [
