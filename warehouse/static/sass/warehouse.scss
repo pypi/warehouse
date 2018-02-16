@@ -145,6 +145,22 @@
   @include h1-title;
 }
 
+// Visibility helpers
+.hidden {
+  display: none;
+}
+
+// Mobile specific visibility
+@media screen and (max-width: $mobile) {
+  .hide-on-mobile {
+    display: none;
+  }
+
+  .break-on-mobile {
+    word-break: break-all;
+  }
+}
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.
@@ -158,8 +174,4 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-}
-
-.hidden {
-  display: none;
 }
