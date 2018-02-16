@@ -173,7 +173,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 ) from None
 
 
-class RequestPasswordResetForm(UsernameMixin, forms.Form):
+class RequestPasswordResetForm(forms.Form):
     username_or_email = wtforms.StringField(
         validators=[wtforms.validators.DataRequired()]
     )
