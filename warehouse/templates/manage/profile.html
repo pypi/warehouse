@@ -208,25 +208,43 @@
     </div>
   </form>
 
+  <hr>
+
+  <h2>Change Password</h2>
   {{ form_error_anchor(change_password_form) }}
-  <h2>Change password</h2>
   <form method="POST" action="#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     {{ form_errors(change_password_form) }}
     <div class="form-group">
-      <label class="form-group__label" for="name">Old password</label>
-      {{ change_password_form.password }}
+
+      <div class="split-layout">
+        <label class="form-group__label" for="name">Old Password</label>
+        <label for="show-password">
+          <input id="show-password" type="checkbox" tabindex="4">&nbsp;Show passwords
+        </label>
+      </div>
+      {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input") }}
       {{ field_errors(change_password_form.password) }}
-      <label class="form-group__label" for="name">New password</label>
-      {{ change_password_form.new_password }}
+    </div>
+    <div class="form-group">
+      <label class="form-group__label" for="name">New Password</label>
+      {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input") }}
       {{ field_errors(change_password_form.new_password) }}
-      <label class="form-group__label" for="name">Confirm new password</label>
-      {{ change_password_form.password_confirm }}
+    </div>
+    <div class="form-group">
+      <label class="form-group__label" for="name">Confirm New Password</label>
+      {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input") }}
       {{ field_errors(change_password_form.password_confirm) }}
     </div>
-    <input value="Update password" class="button button--primary" type="submit">
-    <a href="{{ request.route_path("accounts.request-password-reset") }}">
-      I forgot my password
-    </a>
+    <div class="form-group">
+      <div class="split-layout split-layout--table">
+        <div>
+          <input value="Update Password" class="button button--primary" type="submit">
+        </div>
+        <span>
+          <a href="{{request.route_url('accounts.request-password-reset')}}">Forgot Password?</a>
+        </span>
+      </div>
+    </div>
   </form>
 {% endblock %}
