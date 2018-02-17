@@ -19,6 +19,7 @@ import zipfile
 from cgi import FieldStorage
 from unittest import mock
 
+import freezegun
 import pkg_resources
 import pretend
 import pytest
@@ -2598,6 +2599,13 @@ class TestFileUpload:
         assert len(other_releases)
         for r in other_releases:
             assert r._pypi_hidden == previous_releases[r.version]._pypi_hidden
+
+
+class TestRateLimits:
+
+    def test_default_limit(self, pyramid_config, pyramid_request):
+        with freezegun.freeze_time(now) as frozen_time:
+            pass
 
 
 @pytest.mark.parametrize("status", [True, False])

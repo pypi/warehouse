@@ -69,6 +69,11 @@ class User(SitemapMixin, db.Model):
         nullable=False,
         server_default=sql.func.now(),
     )
+    limit_new_project_registration = Column(
+        Integer,
+        nullable=True,
+        server_default="1",
+    )
 
     emails = orm.relationship(
         "Email",
