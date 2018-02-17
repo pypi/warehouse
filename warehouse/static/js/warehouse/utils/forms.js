@@ -92,7 +92,7 @@ const createTooltip  = (field, message) => {
   let exclamationMark = `<i class="fa fa-exclamation-circle" aria-hidden="true"></i>${message}`;
   tooltip.innerHTML = exclamationMark;
   let rect = field.getBoundingClientRect();
-  tooltip.setAttribute("style", `top: ${rect.bottom + 10}px; left: ${rect.right - 150}px`);
+  tooltip.setAttribute("style", `top: ${window.scrollY + rect.bottom + 10}px; left: ${window.scrollX + rect.right - 150}px`);
   field.parentElement.appendChild(tooltip);
 };
 
