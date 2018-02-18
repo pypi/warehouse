@@ -18,8 +18,8 @@ from ...common.db.utils import AdminFlagFactory as DBAdminFlagFactory
 class TestAdminFlag:
 
     def test_default(self, db_session):
-        assert(False == AdminFlag.is_enabled(db_session, 'not-a-real-flag'))
+        assert not AdminFlag.is_enabled(db_session, 'not-a-real-flag')
 
     def test_enabled(self, db_session):
-        flag = DBAdminFlagFactory.create(id='this-flag-is-enabled', enabled=True)
-        assert(True == AdminFlag.is_enabled(db_session, 'this-flag-is-enabled'))
+        DBAdminFlagFactory.create(id='this-flag-is-enabled', enabled=True)
+        assert AdminFlag.is_enabled(db_session, 'this-flag-is-enabled')

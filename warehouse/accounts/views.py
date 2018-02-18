@@ -15,7 +15,7 @@ import hashlib
 import uuid
 
 from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests, HTTPForbidden
 )
 from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
@@ -36,6 +36,7 @@ from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
 )
 from warehouse.packaging.models import Project, Release
+from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 
@@ -214,6 +215,13 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
+
+    if AdminFlag().is_enabled(request.db, 'disallow-new-user-registration'):
+        request.session.flash(
+            "User Registration Temporarily Disabled",
+            queue="error",
+        )
+        raise HTTPForbidden()
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
