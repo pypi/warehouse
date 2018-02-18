@@ -37,7 +37,7 @@ from warehouse.packaging.models import (
     JournalEntry,
 )
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
@@ -544,6 +544,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -579,6 +580,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -618,6 +620,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -856,6 +859,10 @@ class TestFileUpload:
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
+
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": name,
@@ -890,6 +897,9 @@ class TestFileUpload:
                                       "encodings.idna", "encodings",
                                       "CGIHTTPServer", "cgihttpserver"])
     def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
@@ -1030,6 +1040,7 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1164,6 +1175,7 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1203,6 +1215,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1235,6 +1248,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1269,6 +1283,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         FileFactory.create(
@@ -1307,6 +1322,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1343,6 +1359,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1417,6 +1434,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1451,6 +1469,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1483,6 +1502,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name='foobar',
             upload_limit=(60 * 1024 * 1024),  # 60MB
@@ -1520,6 +1540,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1556,6 +1577,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1595,6 +1617,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1644,6 +1667,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1696,6 +1720,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1733,6 +1758,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1769,6 +1795,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1804,7 +1831,9 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1, permissive=False)
 
         user1 = UserFactory.create()
+        EmailFactory.create(user=user1)
         user2 = UserFactory.create()
+        EmailFactory.create(user=user2)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user1, project=project)
@@ -1845,6 +1874,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1948,6 +1978,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         FileFactory.create(
@@ -2054,6 +2085,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(allow_legacy_files=True)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2099,6 +2131,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(allow_legacy_files=True)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2144,6 +2177,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2188,6 +2222,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
 
@@ -2294,6 +2329,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2335,6 +2371,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2420,11 +2457,67 @@ class TestFileUpload:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        ("emails_verified", "expected_success"),
+        [
+            ((True,), True),
+            ((False,), False),
+            ((True, True), True),
+            ((True, False), True),
+            ((False, False), False),
+        ],
+    )
+    def test_upload_requires_verified_email(self, pyramid_config, db_request,
+                                            emails_verified, expected_success):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        for verified in emails_verified:
+            EmailFactory.create(user=user, verified=verified)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "example",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+        db_request.remote_addr = "10.10.10.10"
+
+        if expected_success:
+            resp = legacy.file_upload(db_request)
+            assert resp.status_code == 200
+        else:
+            with pytest.raises(HTTPBadRequest) as excinfo:
+                legacy.file_upload(db_request)
+            resp = excinfo.value
+            assert resp.status_code == 400
+            assert resp.status == (
+                ("400 User {!r} has no verified email "
+                 "addresses, please verify at least one "
+                 "address before registering a new project "
+                 "on PyPI. See "
+                 "https://pypi.org/help/#verified-email "
+                 "for more information.").format(user.username)
+            )
+
     def test_upload_purges_legacy(self, pyramid_config, db_request,
                                   monkeypatch):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2481,6 +2574,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(autohide=True)
         ReleaseFactory.create(
             project=project,
@@ -2554,6 +2648,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(autohide=False)
         previous_releases = {
             "0.5": ReleaseFactory.create(

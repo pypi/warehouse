@@ -751,6 +751,19 @@ def file_upload(request):
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "
                  "See https://pypi.org/help#admin-intervention for details"),
+
+        # Ensure that user has at least one verified email address. This should
+        # reduce the ease of spam account creation and activity.
+        # TODO: Once legacy is shutdown consider the condition here, perhaps
+        # move to user.is_active or some other boolean
+        if not any(email.verified for email in request.user.emails):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("User {!r} has no verified email addresses, please verify "
+                 "at least one address before registering a new project on "
+                 "PyPI. See https://pypi.org/help/#verified-email "
+                 "for more information.")
+                .format(request.user.username),
             ) from None
 
         # Before we create the project, we're going to check our blacklist to
