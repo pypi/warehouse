@@ -65,9 +65,16 @@ Installing Docker
 
 * Install `Docker Engine <https://docs.docker.com/engine/installation/>`_
 
+The best experience for building Warehouse on Windows 10 is to use the
+`Windows Subsystem for Linux`_ (WSL) in combination with both
+`Docker for Windows`_ and `Docker for Linux`_. Follow the instructions
+for both platforms, and see `Docker and Windows Subsystem
+for Linux Quirks`_ for extra configuration instructions.
+
 .. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
 .. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
 .. _Docker for Linux: https://docs.docker.com/engine/installation/linux/
+.. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
 
 Verifying Docker Installation
@@ -240,6 +247,42 @@ into the message "no space left on device", try running the following command
 
 (Solution found and further details available at
 https://github.com/chadoe/docker-cleanup-volumes)
+
+
+``make initdb`` is slow or appears to make no progress
+------------------------------------------------------
+
+This typically occur when Docker is not allocated enough memory to perform the
+migrations. Try modifying your Docker configuration to allow more RAM for each
+container and run ``make initdb`` again.
+
+
+Docker and Windows Subsystem for Linux Quirks
+---------------------------------------------
+
+Once you have installed Docker for Windows, the Windows Subsystem for
+Linux, and Docker and Docker Compose in WSL, there are some extra
+configuration steps to deal with current quirks in WSL.
+`Nick Janetakis`_ has a detailed blog post on these steps, including
+installation, but this is a summary of the required steps:
+
+1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
+to mount your root drive at ``/c`` (or whichever drive you are using).
+You should clone into this mount and run ``docker-compose``
+from within it, to ensure that when volumes are linked into the
+container they can be found by Hyper-V.
+
+2. In Windows, configure Docker to enable "Expose daemon on
+``tcp://localhost:2375`` without TLS". Note that this may expose your
+machine to certain remote code execution attacks, so use with
+caution.
+
+3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your ``.bashrc``
+file in WSL, and/or run it directly to enable for the current session.
+Without this, the `docker` command in WSL will not be able to find the
+daemon running in Windows.
+
+.. _Nick Janetakis: https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
 
 
 Building Styles
