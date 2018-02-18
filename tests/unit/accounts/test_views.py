@@ -25,9 +25,9 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins
 )
+from warehouse.utils.admin_flags import AdminFlag
 
 from ...common.db.accounts import EmailFactory, UserFactory
-from ...common.db.utils import AdminFlagFactory
 
 
 class TestFailedLoginView:
@@ -351,10 +351,12 @@ class TestRegister:
         assert send_email.calls == [pretend.call(db_request, email)]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
-        AdminFlagFactory.create(
-            id='disallow-new-user-registration',
-            enabled=True,
-        )
+        admin_flag = (db_request.db.query(AdminFlag)
+                      .filter(
+                          AdminFlag.id == 'disallow-new-user-registration'
+                      )
+                      .first())
+        admin_flag.enabled = True
         db_request.method = "POST"
 
         db_request.POST.update({

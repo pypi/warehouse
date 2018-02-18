@@ -36,13 +36,12 @@ from warehouse.packaging.models import (
     File, Filename, Dependency, DependencyKind, Release, Project, Role,
     JournalEntry,
 )
+from warehouse.utils.admin_flags import AdminFlag
 
 from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
-from ...common.db.utils import AdminFlagFactory
-
 
 def test_exc_with_message():
     exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
@@ -926,10 +925,12 @@ class TestFileUpload:
                                 "for more information.").format(name))
 
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
-        AdminFlagFactory.create(
-            id='disallow-new-project-registration',
-            enabled=True,
-        )
+        admin_flag = (db_request.db.query(AdminFlag)
+                      .filter(
+                          AdminFlag.id == 'disallow-new-project-registration'
+                      )
+                      .first())
+        admin_flag.enabled = True
         pyramid_config.testing_securitypolicy(userid=1)
         name = 'fails-with-admin-flag'
         db_request.POST = MultiDict({

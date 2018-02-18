@@ -21,7 +21,7 @@ class AdminFlag(db.Model):
 
     id = Column(Text, primary_key=True, nullable=False)
     description = Column(Text, nullable=False)
-    enabled = Column(Boolean)
+    enabled = Column(Boolean, nullable=False)
 
     @classmethod
     def is_enabled(cls, session, flag_name):
