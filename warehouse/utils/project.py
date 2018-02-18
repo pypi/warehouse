@@ -74,6 +74,8 @@ def remove_project(project, request, flash=True):
     # Finally, delete the project
     request.db.delete(project)
 
+    # Flush so we can repeat this multiple times if necessary
+    request.db.flush()
 
     if flash:
         request.session.flash(
