@@ -353,8 +353,7 @@ class TestRegister:
     def test_register_fails_with_admin_flag_set(self, db_request):
         admin_flag = (db_request.db.query(AdminFlag)
                       .filter(
-                          AdminFlag.id == 'disallow-new-user-registration'
-                      )
+                          AdminFlag.id == 'disallow-new-user-registration')
                       .first())
         admin_flag.enabled = True
         db_request.method = "POST"

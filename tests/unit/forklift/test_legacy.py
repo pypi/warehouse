@@ -43,6 +43,7 @@ from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
 
+
 def test_exc_with_message():
     exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
     assert isinstance(exc, HTTPBadRequest)
@@ -927,8 +928,7 @@ class TestFileUpload:
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
         admin_flag = (db_request.db.query(AdminFlag)
                       .filter(
-                          AdminFlag.id == 'disallow-new-project-registration'
-                      )
+                          AdminFlag.id == 'disallow-new-project-registration')
                       .first())
         admin_flag.enabled = True
         pyramid_config.testing_securitypolicy(userid=1)
