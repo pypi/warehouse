@@ -15,7 +15,7 @@ import hashlib
 import uuid
 
 from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests, HTTPForbidden
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests
 )
 from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
@@ -218,10 +218,11 @@ def register(request, _form_class=RegistrationForm):
 
     if AdminFlag().is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
-            "User Registration Temporarily Disabled",
+            ("New User Registration Temporarily Disabled "
+             "See https://pypi.org/help#admin-intervention for details"),
             queue="error",
         )
-        raise HTTPForbidden()
+        return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")

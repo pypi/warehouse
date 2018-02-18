@@ -17,11 +17,7 @@ import freezegun
 import pretend
 import pytest
 
-from pyramid.httpexceptions import (
-    HTTPMovedPermanently,
-    HTTPSeeOther,
-    HTTPForbidden,
-)
+from pyramid.httpexceptions import (HTTPMovedPermanently, HTTPSeeOther)
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
@@ -369,12 +365,22 @@ class TestRegister:
             "full_name": "full_name",
         })
 
-        with pytest.raises(HTTPForbidden) as excinfo:
-            views.register(db_request)
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
 
-        resp = excinfo.value
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
 
-        assert resp.status_code == 403
+        result = views.register(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                ("New User Registration Temporarily Disabled "
+                 "See https://pypi.org/help#admin-intervention for details"),
+                queue="error"
+            ),
+        ]
 
 
 class TestRequestPasswordReset:
