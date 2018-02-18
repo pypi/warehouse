@@ -25,8 +25,8 @@ class AdminFlag(db.Model):
 
     @classmethod
     def is_enabled(cls, session, flag_name):
-        flag = (session.query(AdminFlag)
-                       .filter(AdminFlag.id == flag_name)
+        flag = (session.query(cls)
+                       .filter(cls.id == flag_name)
                        .first())
         if flag is None:
             return False

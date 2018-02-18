@@ -216,7 +216,7 @@ def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
 
-    if AdminFlag().is_enabled(request.db, 'disallow-new-user-registration'):
+    if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
             ("New User Registration Temporarily Disabled "
              "See https://pypi.org/help#admin-intervention for details"),

@@ -744,13 +744,14 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if AdminFlag().is_enabled(
+        if AdminFlag.is_enabled(
                 request.db,
                 'disallow-new-project-registration'):
             raise _exc_with_message(
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "
                  "See https://pypi.org/help#admin-intervention for details"),
+            ) from None
 
         # Ensure that user has at least one verified email address. This should
         # reduce the ease of spam account creation and activity.
