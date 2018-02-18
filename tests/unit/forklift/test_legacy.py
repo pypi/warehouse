@@ -36,6 +36,7 @@ from warehouse.packaging.models import (
     File, Filename, Dependency, DependencyKind, Release, Project, Role,
     JournalEntry,
 )
+from warehouse.utils.admin_flags import AdminFlag
 
 from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
@@ -923,6 +924,38 @@ class TestFileUpload:
                                 "with Python Standard Library module name). "
                                 "See https://pypi.org/help/#project-name "
                                 "for more information.").format(name))
+
+    def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
+        admin_flag = (db_request.db.query(AdminFlag)
+                      .filter(
+                          AdminFlag.id == 'disallow-new-project-registration')
+                      .first())
+        admin_flag.enabled = True
+        pyramid_config.testing_securitypolicy(userid=1)
+        name = 'fails-with-admin-flag'
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": name,
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename=f"{name}-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == ("403 New Project Registration Temporarily "
+                               "Disabled See "
+                               "https://pypi.org/help#admin-intervention for "
+                               "details")
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
