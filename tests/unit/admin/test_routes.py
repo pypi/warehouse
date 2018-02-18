@@ -16,15 +16,82 @@ from warehouse.admin.routes import includeme
 
 
 def test_includeme():
+    warehouse = "w.local"
     config = pretend.stub(
         add_route=pretend.call_recorder(lambda *a, **k: None),
-        get_settings=lambda: {"warehouse.domain": "w.local"},
+        get_settings=lambda: {"warehouse.domain": warehouse},
     )
 
     includeme(config)
 
-    config.add_route.calls == [
-        pretend.call("admin.dashboard", "/admin/", domain="w.local"),
-        pretend.call("admin.login", "/admin/login/", domain="w.local"),
-        pretend.call("admin.logout", "/admin/logout/", domain="w.local"),
+    assert config.add_route.calls == [
+        pretend.call("admin.dashboard", "/admin/", domain=warehouse),
+        pretend.call("admin.login", "/admin/login/", domain=warehouse),
+        pretend.call("admin.logout", "/admin/logout/", domain=warehouse),
+        pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
+        pretend.call(
+            "admin.user.detail",
+            "/admin/users/{user_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.list",
+            "/admin/projects/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.detail",
+            "/admin/projects/{project_name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.releases",
+            "/admin/projects/{project_name}/releases/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.journals",
+            "/admin/projects/{project_name}/journals/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.set_upload_limit",
+            "/admin/projects/{project_name}/set_upload_limit/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.delete",
+            "/admin/projects/{project_name}/delete/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.journals.list",
+            "/admin/journals/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.blacklist.list",
+            "/admin/blacklist/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.blacklist.add",
+            "/admin/blacklist/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.blacklist.remove",
+            "/admin/blacklist/remove/",
+            domain=warehouse,
+        ),
     ]
