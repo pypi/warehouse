@@ -742,6 +742,8 @@ def file_upload(request):
     except NoResultFound:
         # Ensure that user has at least one verified email address. This should
         # reduce the ease of spam account creation and activity.
+        # TODO: Once legacy is shutdown consider the condition here, perhaps
+        # move to user.is_active or some other boolean
         if not any(email.verified for email in request.user.emails):
             raise _exc_with_message(
                 HTTPBadRequest,
