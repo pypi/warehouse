@@ -11,17 +11,24 @@
 # limitations under the License.
 
 import collections
-import datetime
 import functools
+import hmac
 import logging
+import uuid
 
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    TooManyFailedLogins,
+)
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
+from warehouse.utils.crypto import (
+    BadData, SignatureExpired, URLSafeTimedSerializer,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -56,12 +63,18 @@ class DatabaseUserService:
             argon2__time_cost=6,
         )
 
+
     @functools.lru_cache()
     def get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
         return self.db.query(User).get(userid)
+
+    @functools.lru_cache()
+    def get_user_by_username(self, username):
+        user_id = self.find_userid(username)
+        return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
     def find_userid(self, username):
@@ -135,8 +148,9 @@ class DatabaseUserService:
 
         return False
 
-    def create_user(self, username, name, password, email,
-                    is_active=False, is_staff=False, is_superuser=False):
+    def create_user(
+            self, username, name, password,
+            is_active=False, is_staff=False, is_superuser=False):
 
         user = User(username=username,
                     name=name,
@@ -145,12 +159,19 @@ class DatabaseUserService:
                     is_staff=is_staff,
                     is_superuser=is_superuser)
         self.db.add(user)
-        email_object = Email(email=email, user=user,
-                             primary=True, verified=False)
-        self.db.add(email_object)
-        # flush the db now so user.id is available
-        self.db.flush()
+        self.db.flush()  # flush the db now so user.id is available
+
         return user
+
+    def add_email(self, user_id, email_address, primary=False, verified=False):
+        user = self.get_user(user_id)
+        email= Email(
+            email=email_address, user=user, primary=primary, verified=verified,
+        )
+        self.db.add(email)
+        self.db.flush()  # flush the db now so email.id is available
+
+        return email
 
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
@@ -160,11 +181,31 @@ class DatabaseUserService:
             setattr(user, attr, value)
         return user
 
-    def verify_email(self, user_id, email_address):
-        user = self.get_user(user_id)
-        for email in user.emails:
-            if email.email == email_address:
-                email.verified = True
+
+@implementer(ITokenService)
+class TokenService:
+    def __init__(self, secret, salt, max_age):
+        self.serializer = URLSafeTimedSerializer(secret, salt=salt)
+        self.max_age = max_age
+
+    def dumps(self, data):
+        return self.serializer.dumps({
+            key: str(value)
+            for key, value in data.items()
+        })
+
+    def loads(self, token):
+        if not token:
+            raise TokenMissing
+
+        try:
+            data = self.serializer.loads(token, max_age=self.max_age)
+        except SignatureExpired:
+            raise TokenExpired
+        except BadData: #  Catch all other exceptions
+            raise TokenInvalid
+
+        return data
 
 
 def database_login_factory(context, request):
@@ -183,3 +224,20 @@ def database_login_factory(context, request):
             ),
         },
     )
+
+
+class TokenServiceFactory:
+
+    def __init__(self, name, service_class=TokenService):
+        self.name = name
+        self.service_class = service_class
+
+    def __call__(self, context, request):
+        secret = request.registry.settings[f"token.{self.name}.secret"]
+        salt = self.name  # Use the service name as the unique salt
+        max_age = request.registry.settings.get(
+            f"token.{self.name}.max_age",
+            request.registry.settings["token.default.max_age"],
+        )
+
+        return self.service_class(secret, salt, max_age)

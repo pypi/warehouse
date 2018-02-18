@@ -10,11 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 export default () => {
   const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
-  const styleProps = getComputedStyle(mobileBtn, null);
-  const inMobileState = (styleProps.getPropertyValue("display") === "block");
+  let inMobileState = false;
+  if (mobileBtn) {
+    const styleProps = getComputedStyle(mobileBtn, null);
+    inMobileState = (styleProps.getPropertyValue("display") === "block");
+  }
   const btnClassName = inMobileState ? ".-js-vertical-tab-mobile-heading" : ".-js-vertical-tab";
   const activeClass = "vertical-tabs__tab--is-active";
   const getBtnByHref = (id) => document.querySelector(`${btnClassName}[href="#${id}"]`);

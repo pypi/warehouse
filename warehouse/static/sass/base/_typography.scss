@@ -88,7 +88,13 @@ h2:first-child,
 h3:first-child,
 h4:first-child,
 h5:first-child,
-h6:first-child {
+h6:first-child,
+hr + h1,
+hr + h2,
+hr + h3,
+hr + h4,
+hr + h5,
+hr + h6 {
   padding-top: 0;
 }
 
@@ -113,9 +119,8 @@ a {
 
 @include selection {
   color: darken($brand-color, 15);
-  background: $highlight-color;
+  background: $primary-color;
 }
-
 
 // VERTICAL RHYTHM
 
@@ -143,4 +148,12 @@ ol:last-child,
 dl:last-child,
 figure:last-child {
   padding-bottom: 0;
+}
+
+hr {
+  margin: $spacing-unit 0;
+  border: 0;
+  height: 2px;
+  background: $border-color;
+  background-image: linear-gradient(to right, $border-color, $white);
 }

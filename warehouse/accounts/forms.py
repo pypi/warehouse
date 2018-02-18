@@ -18,7 +18,25 @@ from warehouse import forms, recaptcha
 from warehouse.accounts.interfaces import TooManyFailedLogins
 
 
-class CredentialsMixin:
+class UsernameMixin:
+
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+        ],
+    )
+
+    def validate_username(self, field):
+        userid = self.user_service.find_userid(field.data)
+
+        if userid is None:
+            raise wtforms.validators.ValidationError(
+                "No user found with that username."
+            )
+
+
+class NewUsernameMixin:
+
     username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -44,18 +62,25 @@ class CredentialsMixin:
         ],
     )
 
+    def validate_username(self, field):
+        if self.user_service.find_userid(field.data) is not None:
+            raise wtforms.validators.ValidationError(
+                "This username is already being used by another "
+                "account. Please choose a different username."
+            )
+
+
+class PasswordMixin:
+
     password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
         ],
     )
 
-    def __init__(self, *args, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
 
+class NewPasswordMixin:
 
-class RegistrationForm(CredentialsMixin, forms.Form):
     password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -64,6 +89,7 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             ),
         ],
     )
+
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -73,7 +99,8 @@ class RegistrationForm(CredentialsMixin, forms.Form):
         ],
     )
 
-    full_name = wtforms.StringField()
+
+class NewEmailMixin:
 
     email = wtforms.fields.html5.EmailField(
         validators=[
@@ -86,19 +113,6 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             ),
         ],
     )
-
-    g_recaptcha_response = wtforms.StringField()
-
-    def __init__(self, *args, recaptcha_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.recaptcha_service = recaptcha_service
-
-    def validate_username(self, field):
-        if self.user_service.find_userid(field.data) is not None:
-            raise wtforms.validators.ValidationError(
-                "This username is already being used by another "
-                "account. Please choose a different username."
-            )
 
     def validate_email(self, field):
         if self.user_service.find_userid_by_email(field.data) is not None:
@@ -113,6 +127,18 @@ class RegistrationForm(CredentialsMixin, forms.Form):
                 "from this domain. Please use a different email."
             )
 
+
+class RegistrationForm(
+        NewPasswordMixin, NewUsernameMixin, NewEmailMixin, forms.Form):
+
+    full_name = wtforms.StringField()
+    g_recaptcha_response = wtforms.StringField()
+
+    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.recaptcha_service = recaptcha_service
+
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
         if self.recaptcha_service.enabled and not field.data:
@@ -125,14 +151,11 @@ class RegistrationForm(CredentialsMixin, forms.Form):
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
 
-class LoginForm(CredentialsMixin, forms.Form):
-    def validate_username(self, field):
-        userid = self.user_service.find_userid(field.data)
+class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
 
-        if userid is None:
-            raise wtforms.validators.ValidationError(
-                "No user found with that username. Please try again."
-            )
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
 
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
@@ -148,3 +171,20 @@ class LoginForm(CredentialsMixin, forms.Form):
                     "There have been too many unsuccessful login attempts, "
                     "please try again later."
                 ) from None
+
+
+class RequestPasswordResetForm(UsernameMixin, forms.Form):
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
+class ResetPasswordForm(NewPasswordMixin, forms.Form):
+
+    # These fields are here to provide the various user-defined fields to the
+    # PasswordStrengthValidator of the NewPasswordMixin, to ensure that the
+    # newly set password doesn't contain any of them
+    full_name = wtforms.StringField()
+    username = wtforms.StringField()
+    email = wtforms.StringField()

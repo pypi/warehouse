@@ -21,12 +21,30 @@ class TooManyFailedLogins(Exception):
         return super().__init__(*args, **kwargs)
 
 
+class TokenExpired(Exception):
+    pass
+
+
+class TokenInvalid(Exception):
+    pass
+
+
+class TokenMissing(Exception):
+    pass
+
+
 class IUserService(Interface):
 
-    def get_user(userid):
+    def get_user(user_id):
         """
         Return the user object that represents the given userid, or None if
         there is no user for that ID.
+        """
+
+    def get_user_by_username(username):
+        """
+        Return the user object corresponding with the given username, or None
+        if there is no user with that username.
         """
 
     def find_userid(username):
@@ -35,14 +53,15 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(userid, password):
+    def check_password(user_id, password):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
         """
 
-    def create_user(username, name, password, email,
-                    is_active=False, is_staff=False, is_superuser=False):
+    def create_user(
+            username, name, password,
+            is_active=False, is_staff=False, is_superuser=False):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.
@@ -50,12 +69,25 @@ class IUserService(Interface):
         A UserAlreadyExists Exception is raised if the user already exists.
         """
 
+    def add_email(user_id, email_address, primary=False, verified=False):
+        """
+        Adds an email for the provided user_id
+        """
+
     def update_user(user_id, **changes):
         """
         Updates the user object
         """
 
-    def verify_email(user_id, email_address):
+
+class ITokenService(Interface):
+
+    def dumps(data):
         """
-        verifies the user
+        Generates a unique token based on the data provided
+        """
+
+    def loads(token):
+        """
+        Gets the data corresponding to the token provided
         """

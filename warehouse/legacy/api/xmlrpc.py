@@ -83,9 +83,9 @@ def search(request, spec, operator="and"):
         q = None
         for item in value:
             if q is None:
-                q = Q("match", **{field: item})
+                q = Q("term", **{field: item})
             else:
-                q |= Q("match", **{field: item})
+                q |= Q("term", **{field: item})
         queries.append(q)
 
     if operator == "and":

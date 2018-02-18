@@ -12,18 +12,29 @@
 
 import datetime
 import hashlib
+import uuid
 
 from pyramid.httpexceptions import (
     HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
 )
-from pyramid.security import remember, forget
+from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
-from warehouse.accounts import forms
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.forms import (
+    LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
+)
+from warehouse.accounts.interfaces import (
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    TooManyFailedLogins,
+)
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
+from warehouse.email import (
+    send_password_reset_email, send_email_verification_email,
+)
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -88,7 +99,7 @@ def profile(user, request):
     require_methods=False,
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
-          _form_class=forms.LoginForm):
+          _form_class=LoginForm):
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
@@ -109,7 +120,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
         # the index instead.
         if (not redirect_to or
                 not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = "/"
+            redirect_to = request.route_path('manage.projects')
 
         # Actually perform the login routine for our user.
         headers = _login_user(request, userid)
@@ -200,7 +211,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     require_csrf=True,
     require_methods=False,
 )
-def register(request, _form_class=forms.RegistrationForm):
+def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
 
@@ -222,24 +233,164 @@ def register(request, _form_class=forms.RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.password.data,
-            form.email.data
+            form.username.data, form.full_name.data, form.password.data
         )
+        email = user_service.add_email(user.id, form.email.data, primary=True)
+
+        send_email_verification_email(request, email)
 
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, user.id)))
+            headers=dict(_login_user(request, user.id))
+        )
 
     return {"form": form}
 
 
 @view_config(
-    route_name="accounts.edit_gravatar",
-    renderer="accounts/csi/edit_gravatar.csi.html",
+    route_name="accounts.request-password-reset",
+    renderer="accounts/request-password-reset.html",
     uses_session=True,
+    require_csrf=True,
+    require_methods=False,
 )
-def edit_gravatar_csi(user, request):
-    return {"user": user}
+def request_password_reset(request, _form_class=RequestPasswordResetForm):
+    user_service = request.find_service(IUserService, context=None)
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST" and form.validate():
+        user = user_service.get_user_by_username(form.username.data)
+        fields = send_password_reset_email(request, user)
+        return {'n_hours': fields['n_hours']}
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.reset-password",
+    renderer="accounts/reset-password.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def reset_password(request, _form_class=ResetPasswordForm):
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="password")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(
+            request.route_path("accounts.request-password-reset"),
+        )
+
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new password reset link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new password reset link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "password-reset":
+        return _error("Invalid token - Not a password reset token")
+
+    # Check whether a user with the given user ID exists
+    user = user_service.get_user(uuid.UUID(data.get("user.id")))
+    if user is None:
+        return _error("Invalid token - User not found")
+
+    # Check whether the user has logged in since the token was created
+    last_login = data.get("user.last_login")
+    if str(user.last_login) > last_login:
+        # TODO: track and audit this, seems alertable
+        return _error(
+            "Invalid token - User has logged in since this token was requested"
+        )
+
+    # Check whether the password has been changed since the token was created
+    password_date = data.get("user.password_date")
+    if str(user.password_date) > password_date:
+        return _error(
+            "Invalid token - Password has already been changed since this "
+            "token was requested"
+        )
+
+    form = _form_class(
+        request.params,
+        username=user.username,
+        full_name=user.name,
+        email=user.email,
+        user_service=user_service
+    )
+
+    if request.method == "POST" and form.validate():
+        # Update password.
+        user_service.update_user(user.id, password=form.password.data)
+
+        # Flash a success message
+        request.session.flash(
+            "You have successfully reset your password", queue="success"
+        )
+
+        # Perform login just after reset password and redirect to default view.
+        return HTTPSeeOther(
+            request.route_path("index"),
+            headers=dict(_login_user(request, user.id))
+        )
+
+    return {"form": form}
+
+
+@view_config(
+    route_name="accounts.verify-email",
+    uses_session=True,
+    effective_principals=Authenticated,
+)
+def verify_email(request):
+    token_service = request.find_service(ITokenService, name="email")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.profile"))
+
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new verification link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new verification link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "email-verify":
+        return _error("Invalid token - Not an email verification token")
+
+    try:
+        email = (
+            request.db.query(Email)
+            .filter(Email.id == data['email.id'], Email.user == request.user)
+            .one()
+        )
+    except NoResultFound:
+        return _error("Email not found")
+
+    if email.verified:
+        return _error("Email already verified")
+
+    email.verified = True
+    request.user.is_active = True
+
+    request.session.flash(
+        f'Email address {email.email} verified. ' +
+        'You can now set this email as your primary address.',
+        queue='success'
+    )
+    return HTTPSeeOther(request.route_path("manage.profile"))
 
 
 def _login_user(request, userid):
@@ -290,3 +441,12 @@ def _login_user(request, userid):
 )
 def profile_callout(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="includes.edit-profile-button",
+    renderer="includes/accounts/edit-profile-button.html",
+    uses_session=True,
+)
+def edit_profile_button(request):
+    return {}

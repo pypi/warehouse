@@ -10,15 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import uuid
 
+import freezegun
 import pretend
 import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    TooManyFailedLogins,
+)
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import UserFactory, EmailFactory
@@ -58,158 +63,205 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_find_userid_nonexistant_user(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        assert service.find_userid("my_username") is None
+    def test_find_userid_nonexistant_user(self, user_service):
+        assert user_service.find_userid("my_username") is None
 
-    def test_find_userid_existing_user(self, db_session):
+    def test_find_userid_existing_user(self, user_service):
         user = UserFactory.create()
-        service = services.DatabaseUserService(db_session)
-        assert service.find_userid(user.username) == user.id
+        assert user_service.find_userid(user.username) == user.id
 
-    def test_check_password_global_rate_limited(self):
+    def test_check_password_global_rate_limited(self, user_service):
         resets = pretend.stub()
         limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        service = services.DatabaseUserService(
-            pretend.stub(),
-            ratelimiters={"global": limiter},
-        )
+        user_service.ratelimiters["global"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            service.check_password(uuid.uuid4(), None)
+            user_service.check_password(uuid.uuid4(), None)
 
         assert excinfo.value.resets_in is resets
 
-    def test_check_password_nonexistant_user(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        assert not service.check_password(uuid.uuid4(), None)
+    def test_check_password_nonexistant_user(self, user_service):
+        assert not user_service.check_password(uuid.uuid4(), None)
 
-    def test_check_password_user_rate_limited(self, db_session):
+    def test_check_password_user_rate_limited(self, user_service):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        service = services.DatabaseUserService(
-            db_session,
-            ratelimiters={"user": limiter},
-        )
+        user_service.ratelimiters["user"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            service.check_password(user.id, None)
+            user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
         assert limiter.test.calls == [pretend.call(user.id)]
         assert limiter.resets_in.calls == [pretend.call(user.id)]
 
-    def test_check_password_invalid(self, db_session):
+    def test_check_password_invalid(self, user_service):
         user = UserFactory.create()
-        service = services.DatabaseUserService(db_session)
-        service.hasher = pretend.stub(
+        user_service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(
                 lambda l, r: (False, None)
             ),
         )
 
-        assert not service.check_password(user.id, "user password")
-        assert service.hasher.verify_and_update.calls == [
+        assert not user_service.check_password(user.id, "user password")
+        assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password),
         ]
 
-    def test_check_password_valid(self, db_session):
+    def test_check_password_valid(self, user_service):
         user = UserFactory.create()
-        service = services.DatabaseUserService(db_session)
-        service.hasher = pretend.stub(
+        user_service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(lambda l, r: (True, None)),
         )
 
-        assert service.check_password(user.id, "user password")
-        assert service.hasher.verify_and_update.calls == [
+        assert user_service.check_password(user.id, "user password")
+        assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password),
         ]
 
-    def test_check_password_updates(self, db_session):
+    def test_check_password_updates(self, user_service):
         user = UserFactory.create()
         password = user.password
-        service = services.DatabaseUserService(db_session)
-        service.hasher = pretend.stub(
+        user_service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(
                 lambda l, r: (True, "new password")
             ),
         )
 
-        assert service.check_password(user.id, "user password")
-        assert service.hasher.verify_and_update.calls == [
+        assert user_service.check_password(user.id, "user password")
+        assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", password),
         ]
         assert user.password == "new password"
 
-    def test_create_user(self, db_session):
+    def test_create_user(self, user_service):
         user = UserFactory.build()
-        email = "foo@example.com"
-        service = services.DatabaseUserService(db_session)
-        new_user = service.create_user(username=user.username,
-                                       name=user.name,
-                                       password=user.password,
-                                       email=email)
-        db_session.flush()
-        user_from_db = service.get_user(new_user.id)
+        new_user = user_service.create_user(
+            username=user.username,
+            name=user.name,
+            password=user.password,
+        )
+        user_service.db.flush()
+        user_from_db = user_service.get_user(new_user.id)
+
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
-        assert user_from_db.email == email
 
-    def test_update_user(self, db_session):
+    def test_add_email(self, user_service):
         user = UserFactory.create()
-        service = services.DatabaseUserService(db_session)
+        email = "foo@example.com"
+        new_email = user_service.add_email(user.id, email)
+
+        assert new_email.email == email
+        assert new_email.user == user
+        assert not new_email.primary
+        assert not new_email.verified
+
+    def test_update_user(self, user_service):
+        user = UserFactory.create()
         new_name, password = "new username", "TestPa@@w0rd"
-        service.update_user(user.id, username=new_name, password=password)
-        user_from_db = service.get_user(user.id)
+        user_service.update_user(user.id, username=new_name, password=password)
+        user_from_db = user_service.get_user(user.id)
         assert user_from_db.username == user.username
         assert password != user_from_db.password
-        assert service.hasher.verify(password, user_from_db.password)
+        assert user_service.hasher.verify(password, user_from_db.password)
 
-    def test_verify_email(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        user = UserFactory.create()
-        EmailFactory.create(user=user, primary=True,
-                            verified=False)
-        EmailFactory.create(user=user, primary=False,
-                            verified=False)
-        service.verify_email(user.id, user.emails[0].email)
-        assert user.emails[0].verified
-        assert not user.emails[1].verified
-
-    def test_find_by_email(self, db_session):
-        service = services.DatabaseUserService(db_session)
+    def test_find_by_email(self, user_service):
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True, verified=False)
 
-        found_userid = service.find_userid_by_email(user.emails[0].email)
-        db_session.flush()
+        found_userid = user_service.find_userid_by_email(user.emails[0].email)
+        user_service.db.flush()
 
         assert user.id == found_userid
 
-    def test_find_by_email_not_found(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        assert service.find_userid_by_email("something") is None
+    def test_find_by_email_not_found(self, user_service):
+        assert user_service.find_userid_by_email("something") is None
 
-    def test_create_login_success(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        user = service.create_user(
-            "test_user", "test_name", "test_password", "test_email")
+    def test_create_login_success(self, user_service):
+        user = user_service.create_user(
+            "test_user", "test_name", "test_password",
+        )
 
         assert user.id is not None
         # now make sure that we can log in as that user
-        assert service.check_password(user.id, "test_password")
+        assert user_service.check_password(user.id, "test_password")
 
-    def test_create_login_error(self, db_session):
-        service = services.DatabaseUserService(db_session)
-        user = service.create_user(
-            "test_user", "test_name", "test_password", "test_email")
+    def test_create_login_error(self, user_service):
+        user = user_service.create_user(
+            "test_user", "test_name", "test_password",
+        )
 
         assert user.id is not None
-        assert not service.check_password(user.id, "bad_password")
+        assert not user_service.check_password(user.id, "bad_password")
+
+    def test_get_user_by_username(self, user_service):
+        user = UserFactory.create()
+        found_user = user_service.get_user_by_username(user.username)
+        user_service.db.flush()
+
+        assert user.username == found_user.username
+
+    def test_get_user_by_username_failure(self, user_service):
+        UserFactory.create()
+        found_user = user_service.get_user_by_username("UNKNOWNTOTHEWORLD")
+        user_service.db.flush()
+
+        assert found_user is None
+
+
+class TestTokenService:
+
+    def test_verify_service(self):
+        assert verifyClass(ITokenService, services.TokenService)
+
+    def test_service_creation(self, monkeypatch):
+        serializer_obj = pretend.stub()
+        serializer_cls = pretend.call_recorder(lambda *a, **kw: serializer_obj)
+        monkeypatch.setattr(services, "URLSafeTimedSerializer", serializer_cls)
+
+        secret = pretend.stub()
+        salt = pretend.stub()
+        max_age = pretend.stub()
+        service = services.TokenService(secret, salt, max_age)
+
+        assert service.serializer == serializer_obj
+        assert serializer_cls.calls == [
+            pretend.call(secret, salt=salt)
+        ]
+
+    def test_dumps(self, token_service):
+        assert token_service.dumps({'foo': 'bar'})
+
+    def test_loads(self, token_service):
+        token = token_service.dumps({'foo': 'bar'})
+        assert token_service.loads(token) == {'foo': 'bar'}
+
+    @pytest.mark.parametrize('token', ['', None])
+    def test_loads_token_is_none(self, token_service, token):
+        with pytest.raises(TokenMissing):
+            token_service.loads(token)
+
+    def test_loads_token_is_expired(self, token_service):
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now) as frozen_time:
+            token = token_service.dumps({'foo': 'bar'})
+
+            frozen_time.tick(
+                delta=datetime.timedelta(seconds=token_service.max_age + 1),
+            )
+
+            with pytest.raises(TokenExpired):
+                token_service.loads(token)
+
+    def test_loads_token_is_invalid(self, token_service):
+        with pytest.raises(TokenInvalid):
+            token_service.loads("invalid")
 
 
 def test_database_login_factory(monkeypatch):
@@ -247,4 +299,58 @@ def test_database_login_factory(monkeypatch):
                 "user": user_ratelimiter,
             },
         ),
+    ]
+
+
+def test_token_service_factory_default_max_age(monkeypatch):
+    name = 'name'
+    service_obj = pretend.stub()
+    service_cls = pretend.call_recorder(lambda *args: service_obj)
+
+    service_factory = services.TokenServiceFactory(name, service_cls)
+
+    assert service_factory.name == name
+    assert service_factory.service_class == service_cls
+
+    context = pretend.stub()
+    secret = pretend.stub()
+    default_max_age = pretend.stub()
+    request = pretend.stub(
+        registry=pretend.stub(settings={
+            'token.name.secret': secret,
+            'token.default.max_age': default_max_age,
+        })
+    )
+
+    assert service_factory(context, request) is service_obj
+    assert service_cls.calls == [
+        pretend.call(secret, name, default_max_age),
+    ]
+
+
+def test_token_service_factory_custom_max_age(monkeypatch):
+    name = 'name'
+    service_obj = pretend.stub()
+    service_cls = pretend.call_recorder(lambda *args: service_obj)
+
+    service_factory = services.TokenServiceFactory(name, service_cls)
+
+    assert service_factory.name == name
+    assert service_factory.service_class == service_cls
+
+    context = pretend.stub()
+    secret = pretend.stub()
+    default_max_age = pretend.stub()
+    custom_max_age = pretend.stub()
+    request = pretend.stub(
+        registry=pretend.stub(settings={
+            'token.name.secret': secret,
+            'token.default.max_age': default_max_age,
+            'token.name.max_age': custom_max_age,
+        })
+    )
+
+    assert service_factory(context, request) is service_obj
+    assert service_cls.calls == [
+        pretend.call(secret, name, custom_max_age),
     ]

@@ -15,11 +15,24 @@
 /*
   The  description on the package detail page.
 
-  <p class="package-description"></p>
+  <div class="package-description">
+    <p class="package-description__summary">Summary here</p>
+    <a class="package-description__edit-button">Optional edit button for package maintainers</a>
+  </div>
 */
 
 .package-description {
-  font-size: 1.1rem;
-  font-style: italic;
-  margin: 5px 0;
+  min-height: 58px;
+  margin-top: -10px;
+
+  &__summary {
+    font-size: 1.1rem;
+    font-style: italic;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  &__edit-button {
+    margin-top: 10px;
+  }
 }

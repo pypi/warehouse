@@ -18,11 +18,15 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
-from warehouse.accounts.interfaces import IUserService, TooManyFailedLogins
+from warehouse.accounts.interfaces import (
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    TooManyFailedLogins
+)
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory
 
 
 class TestFailedLoginView:
@@ -160,14 +164,20 @@ class TestLogin:
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
-        assert result.headers["Location"] == "/"
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.projects')
+        ]
+        assert result.headers["Location"] == "/the-redirect"
         assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
@@ -199,7 +209,7 @@ class TestLogin:
         ("expected_next_url, observed_next_url"),
         [
             ("/security/", "/security/"),
-            ("http://example.com", "/"),
+            ("http://example.com", "/the-redirect"),
         ],
     )
     def test_post_validate_no_redirects(self, pyramid_request,
@@ -219,11 +229,12 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
         result = views.login(pyramid_request, _form_class=form_class)
 
         assert isinstance(result, HTTPSeeOther)
-
         assert result.headers["Location"] == observed_next_url
 
 
@@ -276,6 +287,7 @@ class TestLogout:
 
 
 class TestRegister:
+
     def test_get(self, pyramid_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -294,8 +306,13 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
 
-    def test_register_redirect(self, pyramid_request):
+    def test_register_redirect(self, pyramid_request, monkeypatch):
         pyramid_request.method = "POST"
+
+        user = pretend.stub(id=pretend.stub())
+        email = pretend.stub()
+        create_user = pretend.call_recorder(lambda *args, **kwargs: user)
+        add_email = pretend.call_recorder(lambda *args, **kwargs: email)
         pyramid_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
@@ -304,10 +321,9 @@ class TestRegister:
                 verify_response=pretend.call_recorder(lambda _: None),
                 find_userid=pretend.call_recorder(lambda _: None),
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
-                create_user=pretend.call_recorder(
-                    lambda *args, **kwargs: pretend.stub(id=1),
-                ),
                 update_user=lambda *args, **kwargs: None,
+                create_user=create_user,
+                add_email=add_email,
             )
         )
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -318,19 +334,540 @@ class TestRegister:
             "email": "foo@bar.com",
             "full_name": "full_name",
         })
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
         result = views.register(pyramid_request)
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
+        assert create_user.calls == [
+            pretend.call('username_value', 'full_name', 'MyStr0ng!shP455w0rd'),
+        ]
+        assert add_email.calls == [
+            pretend.call(user.id, 'foo@bar.com', primary=True),
+        ]
+        assert send_email.calls == [pretend.call(pyramid_request, email)]
 
 
-class TestClientSideIncludes:
+class TestRequestPasswordReset:
 
-    def test_edit_gravatar_csi_returns_user(self, db_request):
+    def test_get(self, pyramid_request, user_service):
+        form_inst = pretend.stub()
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *args, **kwargs: user_service
+        )
+        pyramid_request.POST = pretend.stub()
+        result = views.request_password_reset(
+            pyramid_request,
+            _form_class=form_class,
+        )
+        assert result["form"] is form_inst
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+
+    def test_request_password_reset(
+            self, monkeypatch, pyramid_request, pyramid_config, user_service,
+            token_service):
+
+        stub_user = pretend.stub(username=pretend.stub())
+        pyramid_request.method = "POST"
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
+        user_service.get_user_by_username = pretend.call_recorder(
+            lambda a: stub_user
+        )
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda *a, **kw: user_service,
+        )
+        form_obj = pretend.stub(
+            username=pretend.stub(data=stub_user.username),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = pretend.stub()
+        send_password_reset_email = pretend.call_recorder(
+            lambda *args, **kwargs: {'n_hours': n_hours},
+        )
+        monkeypatch.setattr(
+            views, 'send_password_reset_email', send_password_reset_email
+        )
+
+        result = views.request_password_reset(
+            pyramid_request, _form_class=form_class
+        )
+
+        assert result == {'n_hours': n_hours}
+        assert user_service.get_user_by_username.calls == [
+            pretend.call(stub_user.username),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+        ]
+        assert form_obj.validate.calls == [
+            pretend.call(),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, stub_user),
+        ]
+
+
+class TestResetPassword:
+
+    def test_get(self, db_request, user_service, token_service):
         user = UserFactory.create()
-        assert views.edit_gravatar_csi(user, db_request) == {
-            "user": user,
+        form_inst = pretend.stub()
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
+
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'password-reset',
+                'user.id': str(user.id),
+                'user.last_login': str(user.last_login),
+                'user.password_date': str(user.password_date),
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface]
+        )
+
+        result = views.reset_password(db_request, _form_class=form_class)
+
+        assert result["form"] is form_inst
+        assert form_class.calls == [
+            pretend.call(
+                db_request.GET,
+                username=user.username,
+                full_name=user.name,
+                email=user.email,
+                user_service=user_service,
+            )
+        ]
+        assert token_service.loads.calls == [
+            pretend.call("RANDOM_KEY"),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="password"),
+        ]
+
+    def test_reset_password(self, db_request, user_service, token_service):
+        user = UserFactory.create()
+        db_request.method = "POST"
+        db_request.POST.update({"token": "RANDOM_KEY"})
+        form_obj = pretend.stub(
+            password=pretend.stub(data="password_value"),
+            validate=pretend.call_recorder(lambda *args: True)
+        )
+
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
+
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'password-reset',
+                'user.id': str(user.id),
+                'user.last_login': str(user.last_login),
+                'user.password_date': str(user.password_date),
+            }
+        )
+        user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.find_service = pretend.call_recorder(
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface]
+        )
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        now = datetime.datetime.utcnow()
+
+        with freezegun.freeze_time(now):
+            result = views.reset_password(db_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                username=user.username,
+                full_name=user.name,
+                email=user.email,
+                user_service=user_service
+            ),
+        ]
+        assert db_request.route_path.calls == [pretend.call('index')]
+        assert token_service.loads.calls == [
+            pretend.call('RANDOM_KEY'),
+        ]
+        assert user_service.update_user.calls == [
+            pretend.call(user.id, password=form_obj.password.data),
+            pretend.call(user.id, last_login=now),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "You have successfully reset your password", queue="success"
+            ),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name="password"),
+            pretend.call(IUserService, context=None),
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (
+                TokenInvalid,
+                "Invalid token - Request a new password reset link",
+            ), (
+                TokenExpired,
+                "Expired token - Request a new password reset link",
+            ), (
+                TokenMissing,
+                "Invalid token - No token supplied"
+            ),
+        ],
+    )
+    def test_reset_password_loads_failure(
+            self, pyramid_request, exception, message):
+
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: pretend.stub(),
+            ITokenService: pretend.stub(loads=loads),
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue='error'),
+        ]
+
+    def test_reset_password_invalid_action(self, pyramid_request):
+        data = {
+            'action': 'invalid-action',
         }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: pretend.stub(),
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Not a password reset token", queue='error'
+            ),
+        ]
+
+    def test_reset_password_invalid_user(self, pyramid_request):
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: None),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - User not found", queue='error'
+            ),
+        ]
+        assert user_service.get_user.calls == [
+            pretend.call(uuid.UUID(data['user.id'])),
+        ]
+
+    def test_reset_password_last_login_changed(self, pyramid_request):
+        now = datetime.datetime.utcnow()
+        later = now + datetime.timedelta(hours=1)
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+            'user.last_login': str(now),
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user = pretend.stub(last_login=later)
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - User has logged in since this token was "
+                "requested",
+                queue='error',
+            ),
+        ]
+
+    def test_reset_password_password_date_changed(self, pyramid_request):
+        now = datetime.datetime.utcnow()
+        later = now + datetime.timedelta(hours=1)
+        data = {
+            'action': 'password-reset',
+            'user.id': '8ad1a4ac-e016-11e6-bf01-fe55135034f3',
+            'user.last_login': str(now),
+            'user.password_date': str(now),
+        }
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(lambda token: data),
+        )
+        user = pretend.stub(last_login=now, password_date=later)
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            IUserService: user_service,
+            ITokenService: token_service,
+        }[interface]
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.reset_password(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('accounts.request-password-reset'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Password has already been changed since this "
+                "token was requested",
+                queue='error',
+            ),
+        ]
+
+
+class TestVerifyEmail:
+
+    def test_verify_email(self, db_request, user_service, token_service):
+        user = UserFactory(is_active=False)
+        email = EmailFactory(user=user, verified=False)
+        db_request.user = user
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                'action': 'email-verify',
+                'email.id': str(email.id),
+            }
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda *a, **kwargs: token_service,
+        )
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        result = views.verify_email(db_request)
+
+        db_request.db.flush()
+        assert email.verified
+        assert user.is_active
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [pretend.call('manage.profile')]
+        assert token_service.loads.calls == [pretend.call('RANDOM_KEY')]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Email address {email.email} verified. " +
+                "You can now set this email as your primary address.",
+                queue="success"
+            ),
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(ITokenService, name="email"),
+        ]
+
+    @pytest.mark.parametrize(
+        ("exception", "message"),
+        [
+            (
+                TokenInvalid,
+                "Invalid token - Request a new verification link",
+            ), (
+                TokenExpired,
+                "Expired token - Request a new verification link",
+            ), (
+                TokenMissing,
+                "Invalid token - No token supplied"
+            ),
+        ],
+    )
+    def test_verify_email_loads_failure(
+            self, pyramid_request, exception, message):
+
+        def loads(token):
+            raise exception
+
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=loads)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(message, queue='error'),
+        ]
+
+    def test_verify_email_invalid_action(self, pyramid_request):
+        data = {
+            'action': 'invalid-action',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Invalid token - Not an email verification token",
+                queue='error',
+            ),
+        ]
+
+    def test_verify_email_not_found(self, pyramid_request):
+        data = {
+            'action': 'email-verify',
+            'email.id': 'invalid',
+        }
+        pyramid_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        pyramid_request.params = {"token": "RANDOM_KEY"}
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        def raise_no_result(*a):
+            raise NoResultFound
+
+        pyramid_request.db = pretend.stub(query=raise_no_result)
+
+        views.verify_email(pyramid_request)
+
+        assert pyramid_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call('Email not found', queue='error')
+        ]
+
+    def test_verify_email_already_verified(self, db_request):
+        user = UserFactory()
+        email = EmailFactory(user=user, verified=True)
+        data = {
+            'action': 'email-verify',
+            'email.id': email.id,
+        }
+        db_request.user = user
+        db_request.find_service = (
+            lambda *a, **kw: pretend.stub(loads=lambda a: data)
+        )
+        db_request.params = {"token": "RANDOM_KEY"}
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        views.verify_email(db_request)
+
+        assert db_request.route_path.calls == [
+            pretend.call('manage.profile'),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call('Email already verified', queue='error')
+        ]
 
 
 class TestProfileCallout:
@@ -340,3 +877,11 @@ class TestProfileCallout:
         request = pretend.stub()
 
         assert views.profile_callout(user, request) == {"user": user}
+
+
+class TestEditProfileButton:
+
+    def test_edit_profile_button(self):
+        request = pretend.stub()
+
+        assert views.edit_profile_button(request) == {}

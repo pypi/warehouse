@@ -16,10 +16,12 @@ from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
     HTTPBadRequest, exception_response,
 )
+from pyramid.exceptions import PredicateMismatch
 from pyramid.renderers import render_to_response
 from pyramid.response import Response
 from pyramid.view import (
-    notfound_view_config, forbidden_view_config, view_config,
+    notfound_view_config, forbidden_view_config, exception_view_config,
+    view_config,
 )
 from elasticsearch_dsl import Q
 from sqlalchemy import func
@@ -107,6 +109,7 @@ def httpexception_view(exc, request):
 
 
 @forbidden_view_config()
+@exception_view_config(PredicateMismatch)
 def forbidden(exc, request, redirect_to="accounts.login"):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
@@ -120,6 +123,14 @@ def forbidden(exc, request, redirect_to="accounts.login"):
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.
     return httpexception_view(exc, request)
+
+
+@forbidden_view_config(path_info=r"^/_includes/")
+@exception_view_config(PredicateMismatch, path_info=r"^/_includes/")
+def forbidden_include(exc, request):
+    # If the forbidden error is for a client-side-include, just return an empty
+    # response instead of redirecting
+    return Response(status=403)
 
 
 @view_config(

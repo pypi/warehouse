@@ -49,7 +49,6 @@
 @import "base/typography";
 @import "base/images-figures";
 @import "base/lists";
-@import "base/tables";
 @import "base/forms";
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
@@ -66,41 +65,43 @@
 @import "blocks/applied-filters";
 @import "blocks/author-profile";
 @import "blocks/badge";
+@import "blocks/breadcrumbs";
 @import "blocks/button";
 @import "blocks/button-group";
 @import "blocks/callout-block";
 @import "blocks/checkbox-tree";
 @import "blocks/common-question";
 @import "blocks/dark-overlay";
-@import "blocks/download-graph";
-@import "blocks/downloads-table";
 @import "blocks/dropdown";
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
 @import "blocks/footer";
 @import "blocks/form-errors";
 @import "blocks/form-group";
+@import "blocks/gravatar-form";
 @import "blocks/heading-wsubtitle";
-@import "blocks/release";
-@import "blocks/release-timeline";
 @import "blocks/homepage-banner";
 @import "blocks/horizontal-menu";
 @import "blocks/horizontal-section";
 @import "blocks/large-input";
 @import "blocks/lede-paragraph";
 @import "blocks/mobile-search-bar";
+@import "blocks/modal";
 @import "blocks/notification-bar";
 @import "blocks/package-description";
 @import "blocks/package-header";
-@import "blocks/package-list";
 @import "blocks/package-snippet";
 @import "blocks/project-description";
+@import "blocks/release";
+@import "blocks/release-timeline";
 @import "blocks/search-form";
 @import "blocks/sidebar-section";
 @import "blocks/site-header";
+@import "blocks/skip-to-content";
 @import "blocks/sponsors";
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
+@import "blocks/table";
 @import "blocks/tooltip";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
@@ -139,6 +140,27 @@
   color: $danger-color;
 }
 
+// Adjust size of h1s on standalone pages
+.page-title {
+  @include h1-title;
+}
+
+// Visibility helpers
+.hidden {
+  display: none;
+}
+
+// Mobile specific visibility
+@media screen and (max-width: $mobile) {
+  .hide-on-mobile {
+    display: none;
+  }
+
+  .break-on-mobile {
+    word-break: break-all;
+  }
+}
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.
@@ -152,8 +174,4 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
-}
-
-.hidden {
-  display: none;
 }

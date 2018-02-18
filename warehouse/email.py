@@ -10,10 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.renderers import render
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
 from warehouse import tasks
+from warehouse.accounts.interfaces import ITokenService
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -30,3 +32,69 @@ def send_email(task, request, body, recipients, subject):
         mailer.send_immediately(message)
     except Exception as exc:
         task.retry(exc=exc)
+
+
+def send_password_reset_email(request, user):
+    token_service = request.find_service(ITokenService, name='password')
+
+    token = token_service.dumps({
+        'action': 'password-reset',
+        'user.id': str(user.id),
+        'user.last_login': str(user.last_login),
+        'user.password_date': str(user.password_date),
+    })
+
+    fields = {
+        'token': token,
+        'username': user.username,
+        'n_hours': token_service.max_age // 60 // 60,
+    }
+
+    subject = render(
+        'email/password-reset.subject.txt',
+        fields,
+        request=request,
+    )
+
+    body = render(
+        'email/password-reset.body.txt',
+        fields,
+        request=request,
+    )
+
+    request.task(send_email).delay(body, [user.email], subject)
+
+    # Return the fields we used, in case we need to show any of them to the
+    # user
+    return fields
+
+
+def send_email_verification_email(request, email):
+    token_service = request.find_service(ITokenService, name='email')
+
+    token = token_service.dumps({
+        "action": "email-verify",
+        "email.id": email.id,
+    })
+
+    fields = {
+        'token': token,
+        'email_address': email.email,
+        'n_hours': token_service.max_age // 60 // 60,
+    }
+
+    subject = render(
+        'email/verify-email.subject.txt',
+        fields,
+        request=request,
+    )
+
+    body = render(
+        'email/verify-email.body.txt',
+        fields,
+        request=request,
+    )
+
+    request.task(send_email).delay(body, [email.email], subject)
+
+    return fields

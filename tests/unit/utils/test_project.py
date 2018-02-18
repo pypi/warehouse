@@ -14,10 +14,10 @@ import pytest
 from pretend import call, call_recorder, stub
 from pyramid.httpexceptions import HTTPSeeOther
 
-from warehouse.admin.utils import confirm_project, remove_project
 from warehouse.packaging.models import (
     Project, Release, Dependency, File, Role, JournalEntry
 )
+from warehouse.utils.project import confirm_project, remove_project
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -34,7 +34,7 @@ def test_confirm():
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
 
-    confirm_project(project, request)
+    confirm_project(project, request, fail_route='fail_route')
 
     assert request.route_path.calls == []
     assert request.session.flash.calls == []
@@ -49,11 +49,11 @@ def test_confirm_no_input():
     )
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request)
+        confirm_project(project, request, fail_route='fail_route')
         assert err.value == '/the-redirect'
 
     assert request.route_path.calls == [
-        call('admin.project.detail', project_name='foobar')
+        call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
         call('Must confirm the request.', queue='error')
@@ -69,14 +69,17 @@ def test_confirm_incorrect_input():
     )
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request)
+        confirm_project(project, request, fail_route='fail_route')
         assert err.value == '/the-redirect'
 
     assert request.route_path.calls == [
-        call('admin.project.detail', project_name='foobar')
+        call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
-        call("'bizbaz' is not the same as 'foobar'", queue='error')
+        call(
+            "Could not delete project - 'bizbaz' is not the same as 'foobar'",
+            queue='error'
+        )
     ]
 
 

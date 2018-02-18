@@ -14,11 +14,11 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.packaging.models import (
-    Project, Release, Dependency, File, Role, JournalEntry, release_classifiers
+    Release, Dependency, File, Role, JournalEntry, release_classifiers
 )
 
 
-def confirm_project(project, request):
+def confirm_project(project, request, fail_route):
     confirm = request.POST.get("confirm")
     project_name = project.normalized_name
     if not confirm:
@@ -27,21 +27,16 @@ def confirm_project(project, request):
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
+            "Could not delete project - " +
             f"{confirm!r} is not the same as {project.normalized_name!r}",
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
 
 
@@ -64,8 +59,20 @@ def remove_project(project, request):
     (request.db.execute(release_classifiers.delete()
                         .where(release_classifiers.c.name ==
                                project.name)))
-    request.db.query(Release).filter(Release.name == project.name).delete()
-    request.db.query(Project).filter(Project.name == project.name).delete()
+
+    # Load the following objects into the session and individually delete them
+    # so they are included in `session.deleted` and their cache keys are purged
+
+    # Delete releases first, otherwise they will get cascade-deleted by the
+    # project deletion and won't be purged
+    for release in (
+            request.db.query(Release)
+            .filter(Release.project == project)
+            .all()):
+        request.db.delete(release)
+
+    # Finally, delete the project
+    request.db.delete(project)
 
     request.session.flash(
         f"Successfully deleted the project {project.name!r}.",

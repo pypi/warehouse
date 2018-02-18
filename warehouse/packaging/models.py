@@ -59,6 +59,16 @@ class Role(db.Model):
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
 
+    def __gt__(self, other):
+        '''
+        Temporary hack to allow us to only display the 'highest' role when
+        there are multiple for a given user
+
+        TODO: This should be removed when fixing GH-2745.
+        '''
+        order = ['Maintainer', 'Owner']  # from lowest to highest
+        return order.index(self.role_name) > order.index(other.role_name)
+
 
 class ProjectFactory:
 
@@ -147,8 +157,10 @@ class Project(SitemapMixin, db.ModelBase):
         for role in sorted(
                 query.all(),
                 key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
-            acls.append((Allow, role.user.id, ["upload"]))
-
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
     @property
@@ -162,6 +174,16 @@ class Project(SitemapMixin, db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+    @property
+    def owners(self):
+        return (
+            orm.object_session(self)
+            .query(User)
+            .join(Role.user)
+            .filter(Role.project == self, Role.role_name == 'Owner')
+            .all()
+        )
 
 
 class DependencyKind(enum.IntEnum):
@@ -330,6 +352,25 @@ class Release(db.ModelBase):
         viewonly=True,
     )
 
+    def __acl__(self):
+        session = orm.object_session(self)
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
+
+        # Get all of the users for this project.
+        query = session.query(Role).filter(Role.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.joinedload("user").lazyload("emails"))
+        for role in sorted(
+                query.all(),
+                key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
+        return acls
+
     @property
     def urls(self):
         _urls = OrderedDict()
@@ -338,7 +379,7 @@ class Release(db.ModelBase):
             _urls["Homepage"] = self.home_page
 
         for urlspec in self.project_urls:
-            name, url = urlspec.split(",", 1)
+            name, url = [x.strip() for x in urlspec.split(",", 1)]
             _urls[name] = url
 
         if self.download_url and "Download" not in _urls:

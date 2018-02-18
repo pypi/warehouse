@@ -25,7 +25,7 @@ from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
-    flash_messages
+    flash_messages, forbidden_include
 )
 
 from ..common.db.accounts import UserFactory
@@ -145,6 +145,19 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == \
             "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
+
+
+class TestForbiddenIncludeView:
+
+    def test_forbidden_include(self):
+        exc = pretend.stub()
+        request = pretend.stub()
+
+        resp = forbidden_include(exc, request)
+
+        assert resp.status_code == 403
+        assert resp.content_type == 'text/html'
+        assert resp.content_length == 0
 
 
 def test_robotstxt(pyramid_request):

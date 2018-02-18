@@ -21,20 +21,20 @@
   <section class="horizontal-section"></section>
 
   Modifiers:
-    - Grey: Makes the background color grey. Adds two grey borders as separators.
-    - Medium: Reduces the standard padding
-    - Thin: Dramatically reduces the standard padding
-    - Statistics: Specific to the statistics bar on the homepage.
+    - grey: Makes the background color grey. Adds two grey borders as separators.
+    - medium: Reduces the standard padding
+    - thin: Dramatically reduces the standard padding
+    - statistics: Specific to the statistics bar on the homepage.
 */
 
 .horizontal-section {
   padding: 70px 0;
 
-  @media only screen and (max-width: $tablet){
+  @media only screen and (max-width: $tablet) {
     padding: 50px 0;
   }
 
-  @media only screen and (max-width: $mobile){
+  @media only screen and (max-width: $mobile) {
     padding: 40px 0;
   }
 
@@ -53,7 +53,7 @@
   }
 
   &--statistics {
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
       display: none;
     }
   }

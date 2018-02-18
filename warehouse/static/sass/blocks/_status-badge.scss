@@ -21,9 +21,9 @@
   </a>
 
   Modifiers:
-    - Unknown: Adds a question mark icon to the badge
-    - Good: Adds a tick icon to the badge. Makes it green.
-    - Bad: Adds a warning icon to the badge. Makes it red.
+    - unknown: Adds a question mark icon to the badge
+    - good: Adds a tick icon to the badge. Makes it green.
+    - bad: Adds a warning icon to the badge. Makes it red.
 
 */
 
@@ -44,7 +44,6 @@
   &:before {
     content: "\f05a"; // Info icon
     font-family: "FontAwesome";
-    margin-right: 3px;
     display: inline-block;
     padding: 8px 12px;
     width: 40px;
@@ -97,7 +96,7 @@
     }
   }
 
-  @media only screen and (max-width: $mobile){
-     font-size: 14px;
+  @media only screen and (max-width: $mobile) {
+    font-size: 14px;
   }
 }

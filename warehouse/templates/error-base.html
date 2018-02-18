@@ -18,7 +18,9 @@
 {% block body %}
 <div class="viewport-section viewport-section--dark">
   <div class="viewport-section__content">
-    <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+    <a href="/">
+      <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+    </a>
     <h2 class="viewport-section__heading">{% block error_heading %}{% endblock %}</h2>
 
     {% block error_search %}{% endblock error_search %}

@@ -231,3 +231,12 @@ class TestReleaseDetail:
         result = views.release_detail(release, db_request)
 
         assert result["license"] == "BSD License, MIT License"
+
+
+class TestEditProjectButton:
+
+    def test_edit_project_button_returns_project(self):
+        project = pretend.stub()
+        assert views.edit_project_button(project, pretend.stub()) == {
+            'project': project
+        }

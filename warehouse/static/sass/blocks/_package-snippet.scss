@@ -27,7 +27,7 @@
 .package-snippet {
   @include card;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
-  margin: 5px 0 15px;
+  margin: 0 0 20px;
   // Use png fallback
   background: $white url("../images/white-cube.png") no-repeat 0 50%;
   // Or svg if the browser supports it
@@ -42,8 +42,14 @@
 
   &__title {
     @include ellipsis;
+    @include h3;
     padding-bottom: 0;
     display: block;
+
+    &--page-title {
+      @include h1-title;
+      padding-bottom: 5px;
+    }
   }
 
   &__meta {
@@ -60,5 +66,26 @@
     clear: both;
     font-size: 1rem;
     font-style: italic;
+  }
+
+  &__buttons {
+    width: 140px;
+
+    .button {
+      display: inline-block;
+      float: left;
+    }
+
+    .button--primary {
+      margin-right: 5px;
+    }
+  }
+
+  &--margin-bottom {
+    margin-bottom: 0;
+
+    @media only screen and (max-width: $tablet) {
+      margin-bottom: 30px;
+    }
   }
 }

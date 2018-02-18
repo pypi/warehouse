@@ -1,0 +1,19 @@
+.breadcrumbs {
+  margin: 0;
+  padding: 0;
+  @include clearfix;
+
+  &__breadcrumb {
+    list-style-type: none;
+    display: inline-block;
+    float: left;
+
+    &:not(:last-child):after {
+      content: "\f054";
+      font-family: "FontAwesome";
+      margin: 0 5px;
+      color: $light-grey;
+      font-size: 12px;
+    }
+  }
+}

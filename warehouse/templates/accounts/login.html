@@ -13,12 +13,12 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Log In{% endblock %}
 
 {% block content %}
   <section class="horizontal-section">
     <div class="site-container">
-      <h2>Login to PyPI</h2>
+      <h1 class="page-title">Log In to PyPI</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -37,7 +37,7 @@
 
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input") }}
+          {{ form.username(placeholder="Your Username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
           {% if form.username.errors %}
           <ul class="form-errors">
             {% for error in form.username.errors %}
@@ -48,8 +48,13 @@
         </div>
 
         <div class="form-group">
-          <label for="password" class="form-group__label">Password</label>
-          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input") }}
+          <div class="split-layout">
+            <label for="password" class="form-group__label">Password</label>
+            <label for="show-password">
+              <input id="show-password" type="checkbox" tabindex="4">&nbsp;Show password
+            </label>
+          </div>
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input", autocomplete="current-password", tabindex="2") }}
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
@@ -59,7 +64,16 @@
           {% endif %}
         </div>
 
-        <input type="submit" value="Login" class="button button--highlight">
+        <div class="form-group">
+          <div class="split-layout split-layout--table">
+            <div>
+              <input type="submit" value="Log In" class="button button--primary" tabindex="3">
+            </div>
+            <span>
+              <a href="{{request.route_url('accounts.request-password-reset')}}" tabindex="5">Forgot Password?</a>
+            </span>
+          </div>
+        </div>
       </form>
     </div>
   </section>

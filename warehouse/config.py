@@ -164,17 +164,37 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "mail.host", "MAL_HOST")
+    maybe_set(settings, "mail.host", "MAIL_HOST")
     maybe_set(settings, "mail.port", "MAIL_PORT")
     maybe_set(settings, "mail.username", "MAIL_USERNAME")
     maybe_set(settings, "mail.password", "MAIL_PASSWORD")
     maybe_set(settings, "mail.sender", "MAIL_SENDER")
+    maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
+    maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
+    maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(
+        settings,
+        "token.password.max_age",
+        "TOKEN_PASSWORD_MAX_AGE",
+        coercer=int,
+    )
+    maybe_set(
+        settings,
+        "token.email.max_age",
+        "TOKEN_EMAIL_MAX_AGE",
+        coercer=int,
+    )
+    maybe_set(
+        settings,
+        "token.default.max_age",
+        "TOKEN_DEFAULT_MAX_AGE",
+        coercer=int,
+        default=21600,  # 6 hours
+    )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
-
-    settings.setdefault("mail.ssl", True)
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -225,12 +245,7 @@ def configure(settings=None):
     config.include("pyramid_jinja2")
 
     # Including pyramid_mailer for sending emails through SMTP.
-    # Lower environments (< prod) shouldn't send the actual email's, so we are
-    # adding pyramid_mailer.debug to route the email's to disk.
-    if config.registry.settings["warehouse.env"] == Environment.production:
-        config.include("pyramid_mailer")
-    else:
-        config.include("pyramid_mailer.debug")
+    config.include("pyramid_mailer")
 
     # We want to use newstyle gettext
     config.add_settings({"jinja2.newstyle": True})
@@ -355,6 +370,9 @@ def configure(settings=None):
 
     # Register our authentication support.
     config.include(".accounts")
+
+    # Register logged-in views
+    config.include(".manage")
 
     # Allow the packaging app to register any services it has.
     config.include(".packaging")

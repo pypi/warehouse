@@ -68,6 +68,18 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.edit-project-button",
+        "/_includes/edit-project-button/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "includes.edit-profile-button",
+        "/_includes/edit-profile-button/",
+        domain=warehouse,
+    )
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
@@ -88,10 +100,78 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "accounts.edit_gravatar",
-        "/user/{username}/edit_gravatar/",
-        factory="warehouse.accounts.models:UserFactory",
-        traverse="/{username}",
+        "accounts.request-password-reset",
+        "/account/request-password-reset/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.reset-password",
+        "/account/reset-password/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "accounts.verify-email",
+        "/account/verify-email/",
+        domain=warehouse,
+    )
+
+    # Management (views for logged-in users)
+    config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
+    config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
+    config.add_route(
+        "manage.project.settings",
+        "/manage/project/{project_name}/settings/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_project",
+        "/manage/project/{project_name}/delete_project/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.releases",
+        "/manage/project/{project_name}/releases/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.release",
+        "/manage/project/{project_name}/release/{version}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.roles",
+        "/manage/project/{project_name}/collaboration/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.change_role",
+        "/manage/project/{project_name}/collaboration/change/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.delete_role",
+        "/manage/project/{project_name}/collaboration/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.history",
+        "/manage/project/{project_name}/history/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
         domain=warehouse,
     )
 

@@ -16,6 +16,7 @@ import re
 import tempfile
 import zipfile
 
+from cgi import FieldStorage
 from unittest import mock
 
 import pkg_resources
@@ -25,6 +26,7 @@ import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from webob.multidict import MultiDict
+from wtforms.form import Form
 from wtforms.validators import ValidationError
 
 from warehouse.classifiers.models import Classifier
@@ -35,7 +37,7 @@ from warehouse.packaging.models import (
     JournalEntry,
 )
 
-from ...common.db.accounts import UserFactory
+from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
 )
@@ -216,11 +218,43 @@ class TestValidation:
             ("A" * 33) + ", https://example.com/",
             "Home, I am a banana",
             "Home, ssh://foobar",
+            "",
         ],
     )
     def test_validate_project_url_invalid(self, project_url):
         with pytest.raises(ValidationError):
             legacy._validate_project_url(project_url)
+
+    @pytest.mark.parametrize(
+        "project_urls",
+        [
+            [
+                "Home, https://pypi.python.org/",
+                ("A" * 32) + ", https://example.com/",
+            ],
+        ]
+    )
+    def test_all_valid_project_url_list(self, project_urls):
+        form, field = pretend.stub(), pretend.stub(data=project_urls)
+        legacy._validate_project_url_list(form, field)
+
+    @pytest.mark.parametrize(
+        "project_urls",
+        [
+            [
+                "Home, https://pypi.python.org/",  # Valid
+                "",  # Invalid
+            ],
+            [
+                ("A" * 32) + ", https://example.com/",  # Valid
+                ("A" * 33) + ", https://example.com/",  # Invalid
+            ],
+        ]
+    )
+    def test_invalid_member_project_url_list(self, project_urls):
+        form, field = pretend.stub(), pretend.stub(data=project_urls)
+        with pytest.raises(ValidationError):
+            legacy._validate_project_url_list(form, field)
 
     def test_validate_project_url_list(self, monkeypatch):
         validator = pretend.call_recorder(lambda datum: None)
@@ -231,6 +265,37 @@ class TestValidation:
         legacy._validate_project_url_list(form, field)
 
         assert validator.calls == [pretend.call(datum) for datum in data]
+
+    @pytest.mark.parametrize(
+        'data',
+        [
+            (''),
+            ('foo@bar.com'),
+            ('foo@bar.com,'),
+            ('foo@bar.com, biz@baz.com'),
+            ('"C. Schultz" <cschultz@example.com>'),
+            ('"C. Schultz" <cschultz@example.com>, snoopy@peanuts.com'),
+        ]
+    )
+    def test_validate_rfc822_email_field(self, data):
+        form, field = pretend.stub(), pretend.stub(data=data)
+        legacy._validate_rfc822_email_field(form, field)
+
+    @pytest.mark.parametrize(
+        'data',
+        [
+            ('foo'),
+            ('foo@'),
+            ('@bar.com'),
+            ('foo@bar'),
+            ('foo AT bar DOT com'),
+            ('foo@bar.com, foo'),
+        ]
+    )
+    def test_validate_rfc822_email_field_raises(self, data):
+        form, field = pretend.stub(), pretend.stub(data=data)
+        with pytest.raises(ValidationError):
+            legacy._validate_rfc822_email_field(form, field)
 
 
 def test_construct_dependencies():
@@ -263,6 +328,8 @@ class TestListField:
             (["foo", "bar"], ["foo", "bar"]),
             (["  foo"], ["foo"]),
             (["f oo  "], ["f oo"]),
+            ('', []),
+            (' ', []),
         ],
     )
     def test_processes_form_data(self, data, expected):
@@ -270,6 +337,21 @@ class TestListField:
         field = field.bind(pretend.stub(meta=pretend.stub()), "formname")
         field.process_formdata(data)
         assert field.data == expected
+
+    @pytest.mark.parametrize(
+        ("value", "expected"),
+        [
+            ("", []),
+            ("wutang", ["wutang"]),
+        ]
+    )
+    def test_coerce_string_into_list(self, value, expected):
+        class MyForm(Form):
+            test = legacy.ListField()
+
+        form = MyForm(MultiDict({'test': value}))
+
+        assert form.test.data == expected
 
 
 class TestMetadataForm:
@@ -461,6 +543,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -496,6 +579,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -535,6 +619,7 @@ class TestIsDuplicateFile:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -596,24 +681,45 @@ class TestFileUpload:
         ("post_data", "message"),
         [
             # metadata_version errors.
-            ({}, "metadata_version: This field is required."),
+            (
+                {},
+                "None is an invalid value for Metadata-Version. "
+                "Error: This field is required. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
+            ),
             (
                 {"metadata_version": "-1"},
-                "metadata_version: Unknown Metadata Version",
+                "'-1' is an invalid value for Metadata-Version. "
+                "Error: Unknown Metadata Version "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # name errors.
-            ({"metadata_version": "1.2"}, "name: This field is required."),
+            (
+                {"metadata_version": "1.2"},
+                "'' is an invalid value for Name. "
+                "Error: This field is required. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
+            ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
-                "name: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'.",
+                "'foo-' is an invalid value for Name. "
+                "Error: Must start and end with a letter or numeral and "
+                "contain only ascii numeric and '.', '_' and '-'. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # version errors.
             (
                 {"metadata_version": "1.2", "name": "example"},
-                "version: This field is required.",
+                "'' is an invalid value for Version. "
+                "Error: This field is required. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -621,8 +727,11 @@ class TestFileUpload:
                     "name": "example",
                     "version": "dog",
                 },
-                "version: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'.",
+                "'dog' is an invalid value for Version. "
+                "Error: Must start and end with a letter or numeral and "
+                "contain only ascii numeric and '.', '_' and '-'. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
             ),
 
             # filetype/pyversion errors.
@@ -642,8 +751,8 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "bdist_wat",
                 },
-                "__all__: Python version is required for binary distribution "
-                "uploads.",
+                "Error: Python version is required for binary distribution "
+                "uploads."
             ),
             (
                 {
@@ -664,8 +773,8 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "__all__: The only valid Python version for a sdist is "
-                "'source'.",
+                "Error: The only valid Python version for a sdist is "
+                "'source'."
             ),
 
             # digest errors.
@@ -676,7 +785,18 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "sdist",
                 },
-                "__all__: Must include at least one message digest.",
+                "Error: Must include at least one message digest."
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "sha256_digest": "an invalid sha256 digest",
+                },
+                "sha256_digest: "
+                "Must be a valid, hex encoded, SHA256 message digest."
             ),
 
             # summary errors
@@ -689,7 +809,10 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "summary: Field cannot be longer than 512 characters.",
+                "'" + "A" * 513 + "' is an invalid value for Summary. "
+                "Error: Field cannot be longer than 512 characters. "
+                "see "
+                "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {
@@ -700,7 +823,22 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "summary: Multiple lines are not allowed.",
+                ("{!r} is an invalid value for Summary. ".format('A\nB') +
+                 "Error: Multiple lines are not allowed. "
+                 "see "
+                 "https://packaging.python.org/specifications/core-metadata"),
+            ),
+
+            # classifiers are a FieldStorage
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "classifiers": FieldStorage(),
+                },
+                "classifiers: Must be a list, not tuple.",
             ),
         ],
     )
@@ -720,6 +858,10 @@ class TestFileUpload:
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
+
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": name,
@@ -747,8 +889,16 @@ class TestFileUpload:
                                       "main", "future", "al", "uU", "test",
                                       "encodings.utf_8_sig",
                                       "distutils.command.build_clib",
+                                      "xmlrpc", "xmlrpc.server",
+                                      "xml.etree", "xml.etree.ElementTree",
+                                      "xml.parsers", "xml.parsers.expat",
+                                      "xml.parsers.expat.errors",
+                                      "encodings.idna", "encodings",
                                       "CGIHTTPServer", "cgihttpserver"])
     def test_fails_with_stdlib_names(self, pyramid_config, db_request, name):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
@@ -858,6 +1008,7 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -992,6 +1143,7 @@ class TestFileUpload:
 
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1031,6 +1183,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1063,6 +1216,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1097,6 +1251,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         FileFactory.create(
@@ -1135,6 +1290,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1171,6 +1327,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1200,8 +1357,11 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 classifiers: 'Environment :: Other Environment' is not a "
-            "valid choice for this field"
+            "400 ['Environment :: Other Environment'] "
+            "is an invalid value for Classifier. "
+            "Error: 'Environment :: Other Environment' is not a valid choice "
+            "for this field "
+            "see https://packaging.python.org/specifications/core-metadata"
         )
 
     @pytest.mark.parametrize(
@@ -1242,6 +1402,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1276,6 +1437,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1308,7 +1470,11 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
-        project = ProjectFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(
+            name='foobar',
+            upload_limit=(60 * 1024 * 1024),  # 60MB
+        )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
@@ -1322,7 +1488,7 @@ class TestFileUpload:
             "md5_digest": "nope!",
             "content": pretend.stub(
                 filename=filename,
-                file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                file=io.BytesIO(b"a" * (project.upload_limit + 1)),
                 type="application/tar",
             ),
         })
@@ -1333,13 +1499,16 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 File too large."
+        assert resp.status == (
+            "400 File too large. Limit for project 'foobar' is 60MB"
+        )
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config,
                                                    db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1376,6 +1545,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1415,6 +1585,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1464,6 +1635,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1516,6 +1688,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1553,6 +1726,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1589,6 +1763,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1624,7 +1799,9 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1, permissive=False)
 
         user1 = UserFactory.create()
+        EmailFactory.create(user=user1)
         user2 = UserFactory.create()
+        EmailFactory.create(user=user2)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user1, project=project)
@@ -1665,6 +1842,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1768,6 +1946,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         FileFactory.create(
@@ -1874,6 +2053,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(allow_legacy_files=True)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1919,6 +2099,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(allow_legacy_files=True)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1964,6 +2145,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2008,6 +2190,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
 
@@ -2105,10 +2288,58 @@ class TestFileUpload:
             ),
         ]
 
+    def test_equivalent_version_one_release(self, pyramid_config, db_request):
+        '''
+        Test that if a release with a version like '1.0' exists, that a future
+        upload with an equivalent version like '1.0.0' will not make a second
+        release
+        '''
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": "1.0.0",
+            "summary": "This is my summary!",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        releases = (
+            db_request.db.query(Release)
+            .filter(Release.project == project)
+            .all()
+        )
+
+        # Asset that only one release has been created
+        assert releases == [release]
+
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2194,11 +2425,67 @@ class TestFileUpload:
             ),
         ]
 
+    @pytest.mark.parametrize(
+        ("emails_verified", "expected_success"),
+        [
+            ((True,), True),
+            ((False,), False),
+            ((True, True), True),
+            ((True, False), True),
+            ((False, False), False),
+        ],
+    )
+    def test_upload_requires_verified_email(self, pyramid_config, db_request,
+                                            emails_verified, expected_success):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        for verified in emails_verified:
+            EmailFactory.create(user=user, verified=verified)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "example",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename=filename,
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+        db_request.remote_addr = "10.10.10.10"
+
+        if expected_success:
+            resp = legacy.file_upload(db_request)
+            assert resp.status_code == 200
+        else:
+            with pytest.raises(HTTPBadRequest) as excinfo:
+                legacy.file_upload(db_request)
+            resp = excinfo.value
+            assert resp.status_code == 400
+            assert resp.status == (
+                ("400 User {!r} has no verified email "
+                 "addresses, please verify at least one "
+                 "address before registering a new project "
+                 "on PyPI. See "
+                 "https://pypi.org/help/#verified-email "
+                 "for more information.").format(user.username)
+            )
+
     def test_upload_purges_legacy(self, pyramid_config, db_request,
                                   monkeypatch):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2255,6 +2542,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(autohide=True)
         ReleaseFactory.create(
             project=project,
@@ -2328,6 +2616,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        EmailFactory.create(user=user)
         project = ProjectFactory.create(autohide=False)
         previous_releases = {
             "0.5": ReleaseFactory.create(
