@@ -20,12 +20,14 @@
 */
 
 .common-question {
-  @include h2;
+  h2 {
+    padding-top: 30px;
 
-  &:before {
-    font-family: "FontAwesome";
-    content: "\f059";
-    margin-right: 5px;
-    color: $brand-color;
+    &:before {
+      font-family: "FontAwesome";
+      content: "\f059";
+      margin-right: 5px;
+      color: $brand-color;
+    }
   }
 }
