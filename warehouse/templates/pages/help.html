@@ -30,6 +30,7 @@
 {% macro preproduction() %}What does pre-production mean?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro verified_email() %}Why do I need a verified email address to register a new project?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
@@ -51,6 +52,7 @@
         <li><a href="#preproduction">{{ preproduction() }}</a></li>
         <li><a href="#project-name">{{ project_name() }}</a></li>
         <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+        <li><a href="#verified-email">{{ verified_email() }}</a></li>
         <li><a href="#maintainers">{{ maintainers() }}</a></li>
         <li><a href="#accessibility">{{ accessibility() }}</a></li>
         <li><a href="#feedback">{{ feedback() }}</a></li>
@@ -144,6 +146,25 @@
         </p>
         <p>
           When <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> is accepted, the project will create a workflow, to be documented here.
+        </p>
+      </section>
+
+      <section id="verified-email" class="common-question">
+        <h2>{{ verified_email() }}</h2>
+        <p>
+          Currently, PyPI requires a verified email address to perform the following operations:
+        </p>
+        <ul>
+          <li>Register a new Project</li>
+        </ul>
+        <p>
+          The list of activities that require a verified email address is likely to grow over time.
+        </p>
+        <p>
+          This policy will allow us to enforce a key policy of <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> (once accepted) regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.
+        </p>
+        <p>
+          You can manage your Account's email addresses in your <a href="{{ request.route_path('manage.profile') }}">Profile</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.
         </p>
       </section>
 
