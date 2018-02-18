@@ -767,7 +767,7 @@ def file_upload(request):
             ) from None
 
         # Check rate at which user is submitting packages.
-        lookback = datetime.datetime.now() - datetime.timedelta(days = 1)
+        lookback = datetime.datetime.now() - datetime.timedelta(days=1)
         recent = (request.db.query(JournalEntry)
                             .filter(JournalEntry.submitted_by == request.user)
                             .filter(JournalEntry.action == 'create')

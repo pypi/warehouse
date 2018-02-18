@@ -2616,7 +2616,8 @@ class TestRateLimits:
             "filetype": "sdist",
             "md5_digest": hashlib.md5(file_value).hexdigest(),
             "sha256_digest": hashlib.sha256(file_value).hexdigest(),
-            "blake2_256_digest": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "blake2_256_digest": hashlib.blake2b(
+                file_value, digest_size=256 // 8).hexdigest(),
             "content": pretend.stub(
                 filename=filename,
                 file=file_content,
@@ -2647,16 +2648,18 @@ class TestRateLimits:
         next_day = start_of_day + datetime.timedelta(hours=24, seconds=1)
 
         for i in range(limit):
-            db_request.POST = self.create_sdist_request(f"rate-limited-package-{i}")
+            db_request.POST = self.create_sdist_request(
+                f"rate-limited-package-{i}")
 
-            with freezegun.freeze_time(start_of_day) as frozen_time:
+            with freezegun.freeze_time(start_of_day):
                 # Creation should succeed
                 resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
 
-        db_request.POST = self.create_sdist_request(f"rate-limited-package-{limit}")
+        db_request.POST = self.create_sdist_request(
+            f"rate-limited-package-{limit}")
 
-        with freezegun.freeze_time(end_of_day) as frozen_time:
+        with freezegun.freeze_time(end_of_day):
             # Creation should fail
             with pytest.raises(HTTPBadRequest) as excinfo:
                 legacy.file_upload(db_request)
@@ -2665,16 +2668,17 @@ class TestRateLimits:
 
         assert resp.status_code == 400
         assert resp.status == ((
-            "400 Registrations are limited to {0.limit_new_project_registration} "
-            "per day for user {0.username}See "
-            "https://pypi.org/help/#rate-limits for more information."
+            "400 Registrations are limited to "
+            "{0.limit_new_project_registration} per day for user {0.username}"
+            "See https://pypi.org/help/#rate-limits for more information."
         ).format(user))
 
         if limit > 0:
-            with freezegun.freeze_time(next_day) as frozen_time:
+            with freezegun.freeze_time(next_day):
                 # Creation should succeed again
                 resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
+
 
 @pytest.mark.parametrize("status", [True, False])
 def test_legacy_purge(monkeypatch, status):
