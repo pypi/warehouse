@@ -30,8 +30,13 @@
 {% macro preproduction() %}What does pre-production mean?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
+{% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
+{% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
+{% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
+{% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 
 {% block title %}Help{% endblock %}
 
@@ -48,103 +53,221 @@
         <li><a href="#preproduction">{{ preproduction() }}</a></li>
         <li><a href="#project-name">{{ project_name() }}</a></li>
         <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+        <li><a href="#verified-email">{{ verified_email() }}</a></li>
         <li><a href="#maintainers">{{ maintainers() }}</a></li>
         <li><a href="#accessibility">{{ accessibility() }}</a></li>
         <li><a href="#feedback">{{ feedback() }}</a></li>
         <li><a href="#contributing">{{ contributing() }}</a></li>
         <li><a href="#sponsors">{{ sponsors() }}</a></li>
+        <li><a href="#availability">{{ availability() }}</a></li>
+        <li><a href="#mirroring">{{ mirroring() }}</a></li>
+        <li><a href="#private-indices">{{ private_indices() }}</a></li>
+        <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
       </ul>
 
-      <h3 id="packages" class="common-question">{{ packages() }}</h3>
+      <section id="packages" class="common-question">
+        <h2>{{ packages() }}</h2>
+        <p>
+          We use a number of terms to describe software available on PyPI, like <em>project</em>, <em>release</em>, <em>file</em>, and <em>package</em>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:
+        </p>
+        <p>
+          A <em>project</em> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.
+        </p>
+        <p>
+          A <em>release</em> on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests</a> project has many releases, like <em>requests 2.10</em> and <em>requests 1.2.1</em>. A release consists of one or more <em>files</em>.
+        </p>
+        <p>
+          A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.
+        </p>
+      </section>
 
-      <p>We use a number of terms to describe software available on PyPI, like <em>project</em>, <em>release</em>, <em>file</em>, and <em>package</em>. Sometimes those terms are confusing because they're used to describe different things in other contexts. Here's how we use them on PyPI:</p>
+      <section id="installing" class="common-question">
+        <h2>{{ installing() }}</h2>
+        <p>
+          To learn how to install a file from PyPI, visit the <a href="https://packaging.python.org/installing/">installation tutorial</a> on the <a href="https://packaging.python.org/">Python Packaging User Guide</a>.
+        </p>
+      </section>
 
-      <p>A <em>project</em> on PyPI is the name of a collection of releases and files, and information about them. Projects on PyPI are made and shared by other members of the Python community so that you can use them.</p>
+      <section id="publishing" class="common-question">
+        <h2 class="common-question">{{ publishing() }}</h2>
+        <p>
+          For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="https://packaging.python.org/distributing/">packaging tutorial</a> on the <a href="https://packaging.python.org">Python Packaging User Guide</a>.
+        </p>
+      </section>
 
-      <p>A <em>release</em> on PyPI is a specific version of a project. For example, the <a href="https://pypi.org/project/requests/">requests</a> project has many releases, like <em>requests 2.10</em> and <em>requests 1.2.1</em>. A release consists of one or more <em>files</em>.</p>
+      <section id="uploading" class="common-question">
+        <h2 class="common-question">{{ uploading() }}</h2>
+        <p>
+          This feature was deprecated with the new version of PyPI - we instead recommend that you <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi">use twine to upload your project to PyPI</a>.
+        </p>
+      </section>
 
-      <p>A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.</p>
+      <section id="preproduction" class="common-question">
+        <h2 class="common-question">{{ preproduction() }}</h2>
+        <p>
+          'Pre-production' indicates that you are using a version of this software that is not fully tested and 'production ready'. This means:
+        </p>
+        <ul>
+          <li>The UI may return unusual or erroneous results</li>
+          <li>Performance may not yet be optimised</li>
+          <li>Some features that you use on the old interface may be missing</li>
+        </ul>
+        <p>
+          While we are in pre-production, our infrastructure cannot yet support all of the traffic generated by our users running <code>pip install</code>. We therefore ask that you do not use this version of PyPI for production codebases.
+        </p>
+        <p>
+          On the other hand, uploads are working well and project maintainers and owners should use this version of PyPI over the legacy site, which no longer supports this function.
+        </p>
+        <p>
+          Please see <a href="https://wiki.python.org/psf/WarehouseRoadmap">our development roadmap</a> to understand what features will be available next.
+        </p>
+      </section>
 
-      <h3 id="installing" class="common-question">{{ installing() }}</h3>
+      <section id="project-name" class="common-question">
+        <h2 class="common-question">{{ project_name() }}</h2>
+        <p>
+          When creating a new Project on PyPI, you may recieve an error from your publishing tool which indicates that a project is not able to be created with your desired name. In addition you may find that there are no associated project or release on pypi.org, currently there are three primary reasons this may occur:
+        </p>
+        <ul>
+          <li>
+            The project name conflicts with a <a href="https://docs.python.org/3/library/index.html">Python Standard Library</a> module from any major version from 2.5 to present.
+          </li>
+          <li>
+            The project name has been explicitly prohibitted by the PyPI administrators, for example <code>pip install requirements.txt</code> is a common typo for <code>pip install -r requirements.txt</code>, and should not surprise the user with a malicious package.
+          </li>
+          <li>
+            The project name has been registered by another user, but no releases have been created.
+          </li>
+        </ul>
+      </section>
 
-      <p>To learn how to install a file from PyPI, visit the <a href="https://packaging.python.org/installing/">installation tutorial</a> on the <a href="https://packaging.python.org/">Python Packaging User Guide</a>.</p>
+      <section id="project-name-claim" class="common-question">
+        <h2>{{ project_name_claim() }}</h2>
+        <p>
+          There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development with <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a>.
+        </p>
+        <p>
+          When <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> is accepted, the project will create a workflow, to be documented here.
+        </p>
+      </section>
 
-      <h3 id="publishing" class="common-question">{{ publishing() }}</h3>
+      <section id="verified-email" class="common-question">
+        <h2>{{ verified_email() }}</h2>
+        <p>
+          Currently, PyPI requires a verified email address to perform the following operations:
+        </p>
+        <ul>
+          <li>Register a new Project</li>
+        </ul>
+        <p>
+          The list of activities that require a verified email address is likely to grow over time.
+        </p>
+        <p>
+          This policy will allow us to enforce a key policy of <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> (once accepted) regarding maintainer reachability. It also reduces the viability of spam attacks to create many accounts in an automated fashion.
+        </p>
+        <p>
+          You can manage your Account's email addresses in your <a href="{{ request.route_path('manage.profile') }}">Profile</a>. This also allows for sending a new confirmation email for users who signed up in the past, before we began enforcing this policy.
+        </p>
+      </section>
 
-      <p>For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="https://packaging.python.org/distributing/">packaging tutorial</a> on the <a href="https://packaging.python.org">Python Packaging User Guide</a>.</p>
+      <section id="maintainers" class="common-question">
+        <h2>{{ maintainers() }}</h2>
+        <p>
+          The new PyPI is powered by the Warehouse project; Warehouse is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
+        </p>
+        <p>
+          The <a href="https://www.pypa.io/en/latest/">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
+        </p>
+        <p>
+          The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html">secured a grant from Mozilla</a> whose funding currently enables Warehouse maintainers to work on the new PyPI.
+        </p>
+      </section>
 
-      <h3 id="uploading" class="common-question">{{ uploading() }}</h3>
+      <section id="accessibility" class="common-question">
+        <h2>{{ accessibility() }}</h2>
+        <p>
+          We take <a href="https://en.wikipedia.org/wiki/Web_accessibility">accessibility</a> very seriously and want to make the website easy to use for everyone.
+        </p>
+        <p>
+          If you are experiencing an accessibility problem, please <a href="https://github.com/pypa/warehouse/issues">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
+        </p>
+      </section>
 
-      <p>This feature was deprecated with the new version of PyPI - we instead recommend that you <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi">use twine to upload your project to PyPI</a>.</p>
+      <section id="feedback" class="common-question">
+        <h2>{{ feedback() }}</h2>
+        <p>
+          We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues">issue tracker</a>. Before writing a new issue, please first check that a similar issue does not already exist.
+        </p>
+        <p>
+          If you report a bug, please provide as much detail as you can. For example:
+        </p>
+        <ul>
+          <li>Your operating system</li>
+          <li>Your browser and browser version</li>
+          <li>Whether you can reproduce the bug (does it always happen, or just sometimes after certain actions?)</li>
+          <li>Steps to reproduce (if applicable)</li>
+          <li>Warning or error messages (if applicable)</li>
+          <li>What you expected to happen or your suggested fix (if you have one)</li>
+        </ul>
+        {{ code_of_conduct() }}
+      </section>
 
-      <h3 id="preproduction" class="common-question">{{ preproduction() }}</h3>
+      <section id="contributing" class="common-question">
+        <h2>{{ contributing() }}</h2>
+        <p>
+          We have a huge amount of work to do to continue to maintain and improve PyPI (also known as the Warehouse project), and would love to see some new faces working on the project.
+        </p>
+        <p>
+          You <strong>do not</strong> need to be an experienced open-source developer to make a contribution - in fact, we'd love to help you make your first open source pull request!
+        </p>
+        <p>
+          If you have skills in Python, HTML, SCSS, or JavaScript, then please take a look at the <a href="https://github.com/pypa/warehouse/issues">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">'Good first issue'</a> label - we recommend you start here.
+        </p>
+        <p>
+          Issues are grouped into <a href="https://github.com/pypa/warehouse/milestones">milestones</a>; working on issues in the current milestone is a great way to help push the project forward. If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.
+        </p>
+        <p>
+          You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">Distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev">PyPA Dev message group</a>.
+        </p>
+        {{ code_of_conduct() }}
+      </section>
 
-      <p>'Pre-production' indicates that you are using a version of this software that is not fully tested and 'production ready'. This means:
-      <ul>
-        <li>The UI may return unusual or erroneous results</li>
-        <li>Performance may not yet be optimised</li>
-        <li>Some features that you use on the old interface may be missing</li>
-      </ul>
+      <section id="sponsors" class="common-question">
+        <h2>{{ sponsors() }}</h2>
+        <p>
+          PyPI is powered by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.
+        </p>
+      </section>
 
-      <p>While we are in pre-production, our infrastructure cannot yet support all of the traffic generated by our users running <code>pip install</code>. We therefore ask that you do not use this version of PyPI for production codebases.</p>
-      <p>On the other hand, uploads are working well and project maintainers and owners should use this version of PyPI over the legacy site, which no longer supports this function.</p>
-      <p>Please see <a href="https://wiki.python.org/psf/WarehouseRoadmap">our development roadmap</a> to understand what features will be available next.</p>
+      <section id="availability" class="common-question">
+        <h2>{{ availability() }}</h2>
+        <p>
+          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/">Fastly</a> and thus is generally available globally. However, as could be expected for a giant distributed system, things can and sometimes do go wrong. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
+        </p>
+      </section>
 
-      <h3 id="project-name" class="common-question">{{ project_name() }}</h3>
+      <section id="mirroring" class="common-question">
+        <h2>{{ mirroring() }}</h2>
+        <p>
+          If you need to run your own mirror of PyPI, the <a href="https://pypi.org/project/bandersnatch/">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!
+      </section>
 
-      <p>When creating a new Project on PyPI, you may recieve an error from your publishing tool which indicates that a project is not able to be created with your desired name. In addition you may find that there are no associated project or release on pypi.org, currently there are three primary reasons this may occur:</p>
-      <ul>
-        <li>The project name conflicts with a <a href="https://docs.python.org/3/library/index.html">Python Standard Library</a> module from any major version from 2.5 to present.</li>
-        <li>The project name has been explicitly prohibitted by the PyPI administrators, for example <code>pip install requirements.txt</code> is a common typo for <code>pip install -r requirements.txt</code>, and should not surprise the user with a malicious package.</li>
-        <li>The project name has been registered by another user, but no releases have been created.</li>
-      </ul>
+      <section id="private-indices" class="common-question">
+        <h2>{{ private_indices() }}</h2>
+        <p>
+          PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the <a href="https://pypi.org/project/devpi/">devpi project</a>.
+        </p>
+      </section>
 
-      <h3 id="project-name-claim" class="common-question">{{ project_name_claim() }}</h3>
-
-      <p>There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development with <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a>.</p>
-
-      <p>When <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> is accepted, the project will create a workflow, to be documented here.</p>
-
-      <h3 id="maintainers" class="common-question">{{ maintainers() }}</h3>
-
-      <p>The new PyPI is powered by the Warehouse project; Warehouse is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).</p>
-      <p>The <a href="https://www.pypa.io/en/latest/">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.</p>
-      <p>The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html">secured a grant from Mozilla</a> whose funding currently enables Warehouse maintainers to work on the new PyPI.</p>
-
-      <h3 id="accessibility" class="common-question">{{ accessibility() }}</h3>
-
-      <p>We take <a href="https://en.wikipedia.org/wiki/Web_accessibility">accessibility</a> very seriously and want to make the website easy to use for everyone.</p>
-      <p>If you are experiencing an accessibility problem, please <a href="https://github.com/pypa/warehouse/issues">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.</p>
-
-      <h3 id="feedback" class="common-question">{{ feedback() }}</h3>
-
-      <p>We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues">issue tracker</a>. Before writing a new issue, please first check that a similar issue does not already exist.</p>
-      <p>If you report a bug, please provide as much detail as you can. For example:</p>
-
-      <ul>
-        <li>Your operating system</li>
-        <li>Your browser and browser version</li>
-        <li>Whether you can reproduce the bug (does it always happen, or just sometimes after certain actions?)</li>
-        <li>Steps to reproduce (if applicable)</li>
-        <li>Warning or error messages (if applicable)</li>
-        <li>What you expected to happen or your suggested fix (if you have one)</li>
-      </ul>
-
-      {{ code_of_conduct() }}
-
-      <h3 id="contributing" class="common-question">{{ contributing() }}</h3>
-
-      <p>We have a huge amount of work to do to continue to maintain and improve PyPI (also known as the Warehouse project), and would love to see some new faces working on the project.</p>
-      <p>You <strong>do not</strong> need to be an experienced open-source developer to make a contribution - in fact, we'd love to help you make your first open source pull request!</p>
-      <p>If you have skills in Python, HTML, SCSS, or JavaScript, then please take a look at the <a href="https://github.com/pypa/warehouse/issues">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22">'Good first issue'</a> label - we recommend you start here.</p>
-      <p>Issues are grouped into <a href="https://github.com/pypa/warehouse/milestones">milestones</a>; working on issues in the current milestone is a great way to help push the project forward. If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.</p>
-      <p>You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">Distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev">PyPA Dev message group</a>.</p>
-
-      {{ code_of_conduct() }}
-
-      <h3 id="sponsors" class="common-question">{{ sponsors() }}</h3>
-
-      <p>PyPI is powered by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.</p>
+      <section id="admin-intervention" class="common-question">
+        <h2>{{ admin_intervention() }}</h2>
+        <p>
+          Spammers return to PyPI on some regularity hoping to place their Search Engine Optimized phishing, scam, and click-farming content on the site. Since PyPI allows for indexing of the Long Description and other data related to projects and has a generally solid search reputation it is a prime target.
+        </p>
+        <p>
+          When the PyPI Administrators are overwhelmed by spam <b>or</b> determine that there is some other threat to PyPI, new user registration and/or new project registration may be disabled. Check <a href="https://status.python.org">our status page</a> for more details, as we'll likely have updated it with reasoning for the intervention.
+        </p>
+      </section>
     </div>
   </section>
 

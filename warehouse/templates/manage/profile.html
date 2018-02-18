@@ -110,7 +110,7 @@
       <p>
       We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
       </p>
-      <a href="{{ gravatar_profile(user.email) }}" target="_blank" class="button">
+      <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button">
         Change image<span class="hide-on-mobile"> on gravatar.com</span>
         <i class="fa fa-external-link" aria-hidden="true"></i>
         <span class="sr-only">Opens in new window</span>
