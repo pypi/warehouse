@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import hashlib
 import io
 import re
@@ -2602,11 +2603,78 @@ class TestFileUpload:
 
 
 class TestRateLimits:
+    @classmethod
+    def create_sdist_request(cls, name, version="1.0", metadata_version="1.2"):
+        filename = "{}-{}.tar.gz".format(name, version)
+        file_content = io.BytesIO(b"A fake file named %s" % name.encode())
+        file_value = file_content.getvalue()
 
-    def test_default_limit(self, pyramid_config, pyramid_request):
-        with freezegun.freeze_time(now) as frozen_time:
+        return MultiDict({
+            "metadata_version": metadata_version,
+            "name": name,
+            "version": version,
+            "filetype": "sdist",
+            "md5_digest": hashlib.md5(file_value).hexdigest(),
+            "sha256_digest": hashlib.sha256(file_value).hexdigest(),
+            "blake2_256_digest": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
+            "content": pretend.stub(
+                filename=filename,
+                file=file_content,
+                type="application/tar",
+            ),
+        })
+
+    @pytest.mark.parametrize("limit", [0, 1, 10, 50])
+    def test_default_limit(self, pyramid_config, db_request, limit):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        user.limit_new_project_registration = limit
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+
+        def storage_service_store(path, file_path, *, meta):
             pass
 
+        storage_service = pretend.stub(store=storage_service_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc: storage_service
+        )
+
+        start_of_day = datetime.datetime.now()
+        end_of_day = start_of_day + datetime.timedelta(hours=24, seconds=-1)
+        next_day = start_of_day + datetime.timedelta(hours=24, seconds=1)
+
+        for i in range(limit):
+            db_request.POST = self.create_sdist_request(f"rate-limited-package-{i}")
+
+            with freezegun.freeze_time(start_of_day) as frozen_time:
+                # Creation should succeed
+                resp = legacy.file_upload(db_request)
+            assert resp.status_code == 200
+
+        db_request.POST = self.create_sdist_request(f"rate-limited-package-{limit}")
+
+        with freezegun.freeze_time(end_of_day) as frozen_time:
+            # Creation should fail
+            with pytest.raises(HTTPBadRequest) as excinfo:
+                legacy.file_upload(db_request)
+
+            resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == ((
+            "400 Registrations are limited to {0.limit_new_project_registration} "
+            "per day for user {0.username}See "
+            "https://pypi.org/help/#rate-limits for more information."
+        ).format(user))
+
+        if limit > 0:
+            with freezegun.freeze_time(next_day) as frozen_time:
+                # Creation should succeed again
+                resp = legacy.file_upload(db_request)
+            assert resp.status_code == 200
 
 @pytest.mark.parametrize("status", [True, False])
 def test_legacy_purge(monkeypatch, status):
