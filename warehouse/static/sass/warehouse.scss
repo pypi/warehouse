@@ -145,6 +145,11 @@
   @include h1-title;
 }
 
+// Add extra padding to subtitles
+.sub-title {
+  padding-bottom: 25px;
+}
+
 // Visibility helpers
 .hidden {
   display: none;
