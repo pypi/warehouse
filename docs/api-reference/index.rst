@@ -4,5 +4,6 @@ API Reference
 .. toctree::
     :maxdepth: 1
 
-    xml-rpc
+    feeds
     legacy
+    xml-rpc
