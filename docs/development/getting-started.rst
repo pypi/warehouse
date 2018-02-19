@@ -175,6 +175,17 @@ the web container is listening on port 80. It's accessible at
     docker container with ``docker-machine env``
 
 
+Logging in to Warehouse
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In the development environment, the password for every account has been set to
+the string ``password``. You can log in as any account at
+``http://localhost:80/account/login/``.
+
+To log in as an admin user, log in as ``ewdurbin`` with the password
+``password`` at ``http://localhost:80/admin/login/``.
+
+
 Stopping Warehouse and other services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -196,8 +207,7 @@ any changes made to the code.
 
 The example data located in ``dev/example.sql.xz`` is taken from
 `Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
-anything private. The password for every account has been set to the string
-``password``.
+anything private.
 
 
 Running your developer environment after initial setup
