@@ -303,9 +303,13 @@ class TestRegister:
         assert result["form"] is form_inst
 
     def test_redirect_authenticated_user(self):
-        result = views.register(pretend.stub(authenticated_userid=1))
+        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+        result = views.register(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/"
+        assert result.headers["Location"] == "/the-redirect"
 
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
