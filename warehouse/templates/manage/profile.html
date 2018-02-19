@@ -248,33 +248,52 @@
     </div>
   </form>
 
-  <h2>Delete account</h2>
-  {% if active_projects %}
-  <p>
-    Your account is currently the sole owner of these projects:
-  </p>
-  <ul>
-    {% for project in active_projects %}
-    <li>
-      <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">
-        {{ project.name }}
+  <hr>
+
+  <h2>Delete Account</h2>
+  <div class="callout-block">
+    {% if active_projects %}
+    <h3>Cannot Delete Account</h3>
+    <p>
+      Your account is currently the <strong>sole owner</strong> of {{ active_projects|length }}
+      {% trans count=active_projects|length %}
+        project.
+      {% pluralize %}
+        projects.
+      {% endtrans %}
+      You must transfer ownership or delete
+      {% trans count=active_projects|length %}
+        this project
+      {% pluralize %}
+        these projects
+      {% endtrans %}
+      before you can delete your account.
+    </p>
+    <ul class="no-bottom-margin">
+      {% for project in active_projects %}
+      <li>
+        <strong>{{ project.name }}</strong> -
+        <a href="{{ request.route_path('manage.project.roles', project_name=project.name) }}">
+          transfer ownership
+        </a>
+        or
+        <a href="{{ request.route_path('manage.project.settings', project_name=project.name) }}">
+          delete
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <h3>Proceed with caution!</h3>
+    <p>You will not be able to recover your account after you delete it.</p>
+    <form>
+      <a href="#delete-account-modal" class="button button--primary">
+        Delete Account
       </a>
-    </li>
-    {% endfor %}
-  </ul>
-  <p>
-    You must transfer ownership or delete these projects before you can delete your account.
-  </p>
-  {% endif %}
-  <form>
-    <a
-      href="#delete-account-modal"
-      class="button button--primary"
-      {{ 'disabled' if active_projects else '' }}
-    >
-      Delete your account
-    </a>
-  </form>
+    </form>
+    {% endif %}
+  </div>
+
   <div id="delete-account-modal" class="modal">
     <div class="modal__content" role="dialog">
       <form method="POST" action="{{ request.current_route_path() }}" class="modal__form">
