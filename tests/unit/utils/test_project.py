@@ -83,7 +83,11 @@ def test_confirm_incorrect_input():
     ]
 
 
-def test_remove_project(db_request):
+@pytest.mark.parametrize(
+    'flash',
+    [True, False]
+)
+def test_remove_project(db_request, flash):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     release = ReleaseFactory.create(project=project)
@@ -99,14 +103,17 @@ def test_remove_project(db_request):
     db_request.remote_addr = "192.168.1.1"
     db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
 
-    remove_project(project, db_request)
+    remove_project(project, db_request, flash=flash)
 
-    assert db_request.session.flash.calls == [
-        call(
-            "Successfully deleted the project 'foo'.",
-            queue="success"
-        ),
-    ]
+    if flash:
+        assert db_request.session.flash.calls == [
+            call(
+                "Successfully deleted the project 'foo'.",
+                queue="success"
+            ),
+        ]
+    else:
+        assert db_request.session.flash.calls == []
 
     assert not (db_request.db.query(Role)
                              .filter(Role.project == project).count())
