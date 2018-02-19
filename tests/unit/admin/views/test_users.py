@@ -20,7 +20,9 @@ from webob.multidict import MultiDict
 from warehouse.admin.views import users as views
 
 from ....common.db.accounts import User, UserFactory, EmailFactory
-from ....common.db.packaging import ProjectFactory, RoleFactory
+from ....common.db.packaging import (
+    JournalEntryFactory, ProjectFactory, RoleFactory,
+)
 
 
 class TestUserList:
@@ -176,7 +178,9 @@ class TestUserDelete:
     def test_deletes_user(self, db_request, monkeypatch):
         user = UserFactory.create()
         project = ProjectFactory.create()
+        journal = JournalEntryFactory(submitted_by=user)
         RoleFactory(project=project, user=user, role_name='Owner')
+        deleted_user = UserFactory.create(username="deleted-user")
 
         db_request.matchdict['user_id'] = str(user.id)
         db_request.params = {'username': user.username}
@@ -198,6 +202,7 @@ class TestUserDelete:
         assert db_request.route_path.calls == [pretend.call('admin.user.list')]
         assert result.status_code == 303
         assert result.location == '/foobar'
+        assert journal.submitted_by == deleted_user
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()

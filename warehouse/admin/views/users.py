@@ -150,6 +150,23 @@ def user_delete(request):
     for project in user.projects:
         remove_project(project, request, flash=False)
 
+    # Update all journals to point to `deleted-user` instead
+    deleted_user = (
+        request.db.query(User)
+        .filter(User.username == 'deleted-user')
+        .one()
+    )
+
+    journals = (
+        request.db.query(JournalEntry)
+        .filter(JournalEntry.submitted_by == user)
+        .all()
+    )
+
+    for journal in journals:
+        journal.submitted_by = deleted_user
+
+    # Delete the user
     request.db.delete(user)
     request.db.add(
         JournalEntry(
