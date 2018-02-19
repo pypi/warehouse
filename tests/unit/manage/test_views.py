@@ -42,14 +42,21 @@ class TestManageProfile:
         save_profile_obj = pretend.stub()
         save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
         monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+
         add_email_obj = pretend.stub()
-        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
+        add_email_cls = pretend.call_recorder(lambda **kw: add_email_obj)
         monkeypatch.setattr(views, 'AddEmailForm', add_email_cls)
+
+        change_pass_obj = pretend.stub()
+        change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pass_cls)
+
         view = views.ManageProfileViews(request)
 
         assert view.default_response == {
             'save_profile_form': save_profile_obj,
             'add_email_form': add_email_obj,
+            'change_password_form': change_pass_obj,
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -57,6 +64,9 @@ class TestManageProfile:
             pretend.call(name=name),
         ]
         assert add_email_cls.calls == [
+            pretend.call(user_service=user_service),
+        ]
+        assert change_pass_cls.calls == [
             pretend.call(user_service=user_service),
         ]
 
@@ -379,7 +389,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -412,7 +422,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -441,7 +451,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -455,6 +465,100 @@ class TestManageProfile:
             pretend.call('Email is already verified.', queue='error'),
         ]
         assert send_email.calls == []
+
+    def test_change_password(self, monkeypatch):
+        old_password = '0ld_p455w0rd'
+        new_password = 'n3w_p455w0rd'
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                'password': old_password,
+                'new_password': new_password,
+                'password_confirm': new_password,
+            },
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+        )
+        change_pwd_obj = pretend.stub(
+            validate=lambda: True,
+            new_password=pretend.stub(data=new_password),
+        )
+        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pwd_cls)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_password_change_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.change_password() == {
+            **view.default_response,
+            'change_password_form': change_pwd_obj,
+        }
+        assert request.session.flash.calls == [
+            pretend.call('Password updated.', queue='success'),
+        ]
+        assert send_email.calls == [pretend.call(request, request.user)]
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, password=new_password),
+        ]
+
+    def test_change_password_validation_fails(self, monkeypatch):
+        old_password = '0ld_p455w0rd'
+        new_password = 'n3w_p455w0rd'
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                'password': old_password,
+                'new_password': new_password,
+                'password_confirm': new_password,
+            },
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+        )
+        change_pwd_obj = pretend.stub(
+            validate=lambda: False,
+            new_password=pretend.stub(data=new_password),
+        )
+        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pwd_cls)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_password_change_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.change_password() == {
+            **view.default_response,
+            'change_password_form': change_pwd_obj,
+        }
+        assert request.session.flash.calls == []
+        assert send_email.calls == []
+        assert user_service.update_user.calls == []
 
 
 class TestManageProjects:

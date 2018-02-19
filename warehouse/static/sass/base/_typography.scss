@@ -151,7 +151,7 @@ figure:last-child {
 }
 
 hr {
-  margin: $spacing-unit 0;
+  margin: ($spacing-unit * 1.5) 0;
   border: 0;
   height: 2px;
   background: $border-color;

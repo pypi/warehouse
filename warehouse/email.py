@@ -51,15 +51,11 @@ def send_password_reset_email(request, user):
     }
 
     subject = render(
-        'email/password-reset.subject.txt',
-        fields,
-        request=request,
+        'email/password-reset.subject.txt', fields, request=request
     )
 
     body = render(
-        'email/password-reset.body.txt',
-        fields,
-        request=request,
+        'email/password-reset.body.txt', fields, request=request
     )
 
     request.task(send_email).delay(body, [user.email], subject)
@@ -84,17 +80,31 @@ def send_email_verification_email(request, email):
     }
 
     subject = render(
-        'email/verify-email.subject.txt',
-        fields,
-        request=request,
+        'email/verify-email.subject.txt', fields, request=request
     )
 
     body = render(
-        'email/verify-email.body.txt',
-        fields,
-        request=request,
+        'email/verify-email.body.txt', fields, request=request
     )
 
     request.task(send_email).delay(body, [email.email], subject)
+
+    return fields
+
+
+def send_password_change_email(request, user):
+    fields = {
+        'username': user.username,
+    }
+
+    subject = render(
+        'email/password-change.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/password-change.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, [user.email], subject)
 
     return fields

@@ -13,7 +13,9 @@
 import wtforms
 
 from warehouse import forms
-from warehouse.accounts.forms import NewEmailMixin
+from warehouse.accounts.forms import (
+    NewEmailMixin, NewPasswordMixin, PasswordMixin,
+)
 
 
 class RoleNameMixin:
@@ -68,6 +70,15 @@ class SaveProfileForm(forms.Form):
 class AddEmailForm(NewEmailMixin, forms.Form):
 
     __params__ = ['email']
+
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+
+
+class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
+
+    __params__ = ['password', 'new_password', 'password_confirm']
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
