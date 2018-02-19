@@ -513,8 +513,8 @@
       font-size: 90%;
     }
 
-    .table__status {
-      width: 190px;
+    .table__status-badges {
+      min-width: 160px;
     }
 
     .table__action {
@@ -549,6 +549,10 @@
       .table__email,
       .table__status {
         padding: 4px 0;
+      }
+
+      .table__status-badges {
+        min-width: auto;
       }
 
       .table__action {

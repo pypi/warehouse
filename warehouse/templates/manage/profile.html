@@ -53,14 +53,16 @@
       {{ email.email }}
     </td>
     <td class="table__status">
-      {% if email.primary %}
-      <span class="badge">Primary</span>
-      {% endif %}
-      {% if email.verified %}
-      <span class="badge badge--success">Verified</span>
-      {% else %}
-      <span class="badge badge--danger">Unverified</span>
-      {% endif %}
+      <div class="table__status-badges">
+        {% if email.primary %}
+        <span class="badge">Primary</span>
+        {% endif %}
+        {% if email.verified %}
+        <span class="badge badge--success">Verified</span>
+        {% else %}
+        <span class="badge badge--danger">Unverified</span>
+        {% endif %}
+      </div>
     </td>
     <td class="table__action">
       {% if not email.verified or user.emails|length > 1 and not email.primary%}
@@ -83,6 +85,18 @@
             </button>
           </form>
           {% endif %}
+
+          {% if not email.primary and email.verified %}
+          <form method="POST">
+            <input hidden name="primary_email_id" value="{{ email.id }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <button class="dropdown__link" type="submit" title="Set this email address as primary">
+              <i class="fa fa-cog" aria-hidden="true"></i>
+              Set as Primary
+            </button>
+          </form>
+          {% endif %}
+
           {% if user.emails|length > 1 and not email.primary %}
           <form method="POST">
             <input hidden name="delete_email_id" value="{{ email.id }}">
@@ -102,7 +116,7 @@
 
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
-  <h2 class="no-top-padding">Profile Picture</h2>
+  <h2 class="no-top-padding sub-title">Profile Picture</h2>
   {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
   <div class="gravatar-form">
     <img src="{{ gravatar(user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
@@ -121,7 +135,7 @@
   <hr>
 
   {{ form_error_anchor(save_profile_form) }}
-  <h2>Account Details</h2>
+  <h2 class="sub-title">Account Details</h2>
 
   <div class="form-group">
     <span class="form-group__label">Username</span>
@@ -144,7 +158,7 @@
   <hr>
 
   {{ form_error_anchor(add_email_form) }}
-  <h2>Account Emails</h2>
+  <h2 class="sub-title">Account Emails</h2>
   <p>You can associate several emails with your account. You can use any <strong>verified</strong> email to recover your account, but only your primary email will receive notifications.</p>
 
   {# Sort the emails as follows:
@@ -172,29 +186,6 @@
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
-      <label class="form-group__label" for="primary_email">Primary Email</label>
-      <div class="form-group__horizontal">
-        <div class="form-group__horizontal-left">
-          <select class="form-group__input" name="primary_email_id">
-          {% for email in sorted_emails %}
-            <option
-              value="{{ email.id }}"
-              {{ 'selected' if email.primary else '' }}
-              {{ '' if email.verified else 'disabled' }}>
-              {{ email.email }}{{ '' if email.verified else ' (unverified)' }}
-            </option>
-          {% endfor %}
-          </select>
-        </div>
-        <div class="form-group__horizontal-right">
-          <input value="Save" class="button button--primary" type="submit">
-        </div>
-      </div>
-    </div>
-  </form>
-  <form method="POST">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <div class="form-group">
       <label class="form-group__label" for="email">Add Email</label>
       <div class="form-group__horizontal">
         <div class="form-group__horizontal-left">
@@ -210,7 +201,7 @@
 
   <hr>
 
-  <h2>Change Password</h2>
+  <h2 class="sub-title">Change Password</h2>
   {{ form_error_anchor(change_password_form) }}
   <form method="POST" action="#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">

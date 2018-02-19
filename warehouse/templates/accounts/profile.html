@@ -52,13 +52,13 @@
       </h2>
       <div class="package-list">
         {% if projects %}
-        {% for release in projects %}
+        {% for project in projects %}
         <div class="package-snippet">
-          <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a></h3>
+          <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a></h3>
           <p class="package-snippet__meta">
-            <em>Last released on {{ release.created|format_date() }}</em>
+            <em>Last released on {{ project.releases[0].created|format_date() }}</em>
           </p>
-          <p class="package-snippet__description">{{ release.summary }}</p>
+          <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
         </div>
         {% endfor %}
         {% else %}
