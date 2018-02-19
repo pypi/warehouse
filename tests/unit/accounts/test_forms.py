@@ -158,7 +158,7 @@ class TestRegistrationForm:
         )
         form = forms.RegistrationForm(
             data={
-                "password": "password",
+                "new_password": "password",
                 "password_confirm": "mismatch",
             },
             user_service=user_service,
@@ -179,7 +179,7 @@ class TestRegistrationForm:
         )
         form = forms.RegistrationForm(
             data={
-                "password": "MyStr0ng!shPassword",
+                "new_password": "MyStr0ng!shPassword",
                 "password_confirm": "MyStr0ng!shPassword",
             },
             user_service=user_service,
@@ -187,7 +187,7 @@ class TestRegistrationForm:
         )
 
         form.validate()
-        assert len(form.password.errors) == 0
+        assert len(form.new_password.errors) == 0
         assert len(form.password_confirm.errors) == 0
 
     def test_email_required_error(self):
@@ -342,7 +342,7 @@ class TestRegistrationForm:
         )
         for pwd, valid in cases:
             form = forms.RegistrationForm(
-                data={"password": pwd, "password_confirm": pwd},
+                data={"new_password": pwd, "password_confirm": pwd},
                 user_service=pretend.stub(),
                 recaptcha_service=pretend.stub(
                     enabled=False,
@@ -350,7 +350,7 @@ class TestRegistrationForm:
                 ),
             )
             form.validate()
-            assert (len(form.password.errors) == 0) == valid
+            assert (len(form.new_password.errors) == 0) == valid
 
 
 class TestRequestPasswordResetForm:
@@ -365,29 +365,6 @@ class TestRequestPasswordResetForm:
         form = forms.RequestPasswordResetForm(user_service=user_service)
         assert 'password' not in form._fields
 
-    def test_validate_username_with_no_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
-        )
-        form = forms.RequestPasswordResetForm(user_service=user_service)
-        field = pretend.stub(data="my_username")
-
-        with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_username(field)
-
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
-
-    def test_validate_username_with_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
-        )
-        form = forms.RequestPasswordResetForm(user_service=user_service)
-        field = pretend.stub(data="my_username")
-
-        form.validate_username(field)
-
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
-
 
 class TestResetPasswordForm:
 
@@ -400,8 +377,11 @@ class TestResetPasswordForm:
     def test_passwords_mismatch_error(self):
         form = forms.ResetPasswordForm(
             data={
-                "password": "password",
+                "new_password": "password",
                 "password_confirm": "mismatch",
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
             },
         )
 
@@ -418,15 +398,25 @@ class TestResetPasswordForm:
     ])
     def test_password_strength(self, password, expected):
         form = forms.ResetPasswordForm(
-            data={"password": password, "password_confirm": password},
+            data={
+                "new_password": password,
+                "password_confirm": password,
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
+            },
         )
+
         assert form.validate() == expected
 
     def test_passwords_match_success(self):
         form = forms.ResetPasswordForm(
             data={
-                "password": "MyStr0ng!shPassword",
+                "new_password": "MyStr0ng!shPassword",
                 "password_confirm": "MyStr0ng!shPassword",
+                "username": "username",
+                "full_name": "full_name",
+                "email": "email",
             },
         )
 

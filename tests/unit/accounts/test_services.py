@@ -213,6 +213,20 @@ class TestDatabaseUserService:
 
         assert found_user is None
 
+    def test_get_user_by_email(self, user_service):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, primary=True, verified=False)
+        found_user = user_service.get_user_by_email(user.emails[0].email)
+        user_service.db.flush()
+
+        assert user.id == found_user.id
+
+    def test_get_user_by_email_failure(self, user_service):
+        found_user = user_service.get_user_by_email("example@email.com")
+        user_service.db.flush()
+
+        assert found_user is None
+
 
 class TestTokenService:
 

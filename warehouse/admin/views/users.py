@@ -23,8 +23,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.models import User, Email
-from warehouse.packaging.models import Role
+from warehouse.packaging.models import JournalEntry, Role
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import remove_project
 
 
 @view_config(
@@ -125,3 +126,55 @@ def user_detail(request):
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"user": user, "form": form, "roles": roles}
+
+
+@view_config(
+    route_name='admin.user.delete',
+    require_methods=['POST'],
+    permission='admin',
+    uses_session=True,
+    require_csrf=True,
+)
+def user_delete(request):
+    user = request.db.query(User).get(request.matchdict['user_id'])
+
+    if user.username != request.params.get('username'):
+        print(user.username)
+        print(request.params.get('username'))
+        request.session.flash(f'Wrong confirmation input.', queue='error')
+        return HTTPSeeOther(
+            request.route_path('admin.user.detail', user_id=user.id)
+        )
+
+    # Delete projects one by one so they are purged from the cache
+    for project in user.projects:
+        remove_project(project, request, flash=False)
+
+    # Update all journals to point to `deleted-user` instead
+    deleted_user = (
+        request.db.query(User)
+        .filter(User.username == 'deleted-user')
+        .one()
+    )
+
+    journals = (
+        request.db.query(JournalEntry)
+        .filter(JournalEntry.submitted_by == user)
+        .all()
+    )
+
+    for journal in journals:
+        journal.submitted_by = deleted_user
+
+    # Delete the user
+    request.db.delete(user)
+    request.db.add(
+        JournalEntry(
+            name=f'user:{user.username}',
+            action=f'nuke user',
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+    request.session.flash(f'Nuked user {user.username!r}.', queue='success')
+    return HTTPSeeOther(request.route_path('admin.user.list'))

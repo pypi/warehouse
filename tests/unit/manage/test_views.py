@@ -22,7 +22,7 @@ from webob.multidict import MultiDict
 
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
-from warehouse.packaging.models import JournalEntry, Project, Role
+from warehouse.packaging.models import JournalEntry, Project, Role, User
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
@@ -42,14 +42,26 @@ class TestManageProfile:
         save_profile_obj = pretend.stub()
         save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
         monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+
         add_email_obj = pretend.stub()
-        add_email_cls = pretend.call_recorder(lambda *a, **kw: add_email_obj)
+        add_email_cls = pretend.call_recorder(lambda **kw: add_email_obj)
         monkeypatch.setattr(views, 'AddEmailForm', add_email_cls)
+
+        change_pass_obj = pretend.stub()
+        change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pass_cls)
+
         view = views.ManageProfileViews(request)
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'active_projects', pretend.stub()
+        )
 
         assert view.default_response == {
             'save_profile_form': save_profile_obj,
             'add_email_form': add_email_obj,
+            'change_password_form': change_pass_obj,
+            'active_projects': view.active_projects,
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -59,6 +71,47 @@ class TestManageProfile:
         assert add_email_cls.calls == [
             pretend.call(user_service=user_service),
         ]
+        assert change_pass_cls.calls == [
+            pretend.call(user_service=user_service),
+        ]
+
+    def test_active_projects(self, db_request):
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        # A project with a sole owner that is the user
+        with_sole_owner = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=with_sole_owner, role_name='Owner'
+        )
+        RoleFactory.create(
+            user=another_user, project=with_sole_owner, role_name='Maintainer'
+        )
+
+        # A project with multiple owners, including the user
+        with_multiple_owners = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=with_multiple_owners, role_name='Owner'
+        )
+        RoleFactory.create(
+            user=another_user, project=with_multiple_owners, role_name='Owner'
+        )
+
+        # A project with a sole owner that is not the user
+        not_an_owner = ProjectFactory.create()
+        RoleFactory.create(
+            user=user, project=not_an_owner, role_name='Maintatiner'
+        )
+        RoleFactory.create(
+            user=another_user, project=not_an_owner, role_name='Owner'
+        )
+
+        view = views.ManageProfileViews(db_request)
+
+        assert view.active_projects == [with_sole_owner]
 
     def test_manage_profile(self, monkeypatch):
         user_service = pretend.stub()
@@ -379,7 +432,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -412,7 +465,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -441,7 +494,7 @@ class TestManageProfile:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub),
+            user=pretend.stub(id=pretend.stub()),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -455,6 +508,199 @@ class TestManageProfile:
             pretend.call('Email is already verified.', queue='error'),
         ]
         assert send_email.calls == []
+
+    def test_change_password(self, monkeypatch):
+        old_password = '0ld_p455w0rd'
+        new_password = 'n3w_p455w0rd'
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                'password': old_password,
+                'new_password': new_password,
+                'password_confirm': new_password,
+            },
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+        )
+        change_pwd_obj = pretend.stub(
+            validate=lambda: True,
+            new_password=pretend.stub(data=new_password),
+        )
+        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pwd_cls)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_password_change_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.change_password() == {
+            **view.default_response,
+            'change_password_form': change_pwd_obj,
+        }
+        assert request.session.flash.calls == [
+            pretend.call('Password updated.', queue='success'),
+        ]
+        assert send_email.calls == [pretend.call(request, request.user)]
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, password=new_password),
+        ]
+
+    def test_change_password_validation_fails(self, monkeypatch):
+        old_password = '0ld_p455w0rd'
+        new_password = 'n3w_p455w0rd'
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                'password': old_password,
+                'new_password': new_password,
+                'password_confirm': new_password,
+            },
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+            ),
+        )
+        change_pwd_obj = pretend.stub(
+            validate=lambda: False,
+            new_password=pretend.stub(data=new_password),
+        )
+        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
+        monkeypatch.setattr(views, 'ChangePasswordForm', change_pwd_cls)
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_password_change_email', send_email)
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+        )
+        view = views.ManageProfileViews(request)
+
+        assert view.change_password() == {
+            **view.default_response,
+            'change_password_form': change_pwd_obj,
+        }
+        assert request.session.flash.calls == []
+        assert send_email.calls == []
+        assert user_service.update_user.calls == []
+
+    def test_delete_account(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        deleted_user = UserFactory.create(username='deleted-user')
+        journal = JournalEntryFactory(submitted_by=user)
+
+        db_request.user = user
+        db_request.params = {'confirm_username': user.username}
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+        monkeypatch.setattr(views.ManageProfileViews, 'active_projects', [])
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_account_deletion_email', send_email)
+        logout_response = pretend.stub()
+        logout = pretend.call_recorder(lambda *a: logout_response)
+        monkeypatch.setattr(views, 'logout', logout)
+
+        view = views.ManageProfileViews(db_request)
+
+        assert view.delete_account() == logout_response
+        assert journal.submitted_by == deleted_user
+        assert db_request.db.query(User).all() == [deleted_user]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert logout.calls == [pretend.call(db_request)]
+
+    def test_delete_account_no_confirm(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': ''},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call('Must confirm the request.', queue='error')
+        ]
+
+    def test_delete_account_wrong_confirm(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': 'invalid'},
+            user=pretend.stub(username='username'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not delete account - 'invalid' is not the same as "
+                "'username'",
+                queue='error',
+            )
+        ]
+
+    def test_delete_account_has_active_projects(self, monkeypatch):
+        request = pretend.stub(
+            params={'confirm_username': 'username'},
+            user=pretend.stub(username='username'),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'default_response', pretend.stub()
+        )
+        monkeypatch.setattr(
+            views.ManageProfileViews, 'active_projects', [pretend.stub()]
+        )
+
+        view = views.ManageProfileViews(request)
+
+        assert view.delete_account() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Cannot delete account with active project ownerships.",
+                queue='error',
+            )
+        ]
 
 
 class TestManageProjects:
