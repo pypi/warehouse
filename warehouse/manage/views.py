@@ -1,5 +1,4 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
-
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -16,18 +15,21 @@ from collections import defaultdict
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.security import Authenticated
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
+from warehouse.accounts.views import logout
 from warehouse.email import (
-    send_email_verification_email, send_password_change_email,
+    send_account_deletion_email, send_email_verification_email,
+    send_password_change_email,
 )
 from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
     SaveProfileForm,
 )
-from warehouse.packaging.models import JournalEntry, Role, File
+from warehouse.packaging.models import File, JournalEntry, Project, Role
 from warehouse.utils.project import confirm_project, remove_project
 
 
@@ -45,6 +47,32 @@ class ManageProfileViews:
         self.user_service = request.find_service(IUserService, context=None)
 
     @property
+    def active_projects(self):
+        ''' Return all the projects for with the user is a sole owner '''
+        projects_owned = (
+            self.request.db.query(Project)
+            .join(Role.project)
+            .filter(Role.role_name == 'Owner', Role.user == self.request.user)
+            .subquery()
+        )
+
+        with_sole_owner = (
+            self.request.db.query(Role.package_name)
+            .join(projects_owned)
+            .filter(Role.role_name == 'Owner')
+            .group_by(Role.package_name)
+            .having(func.count(Role.package_name) == 1)
+            .subquery()
+        )
+
+        return (
+            self.request.db.query(Project)
+            .join(with_sole_owner)
+            .order_by(Project.name)
+            .all()
+        )
+
+    @property
     def default_response(self):
         return {
             'save_profile_form': SaveProfileForm(name=self.request.user.name),
@@ -52,6 +80,7 @@ class ManageProfileViews:
             'change_password_form': ChangePasswordForm(
                 user_service=self.user_service
             ),
+            'active_projects': self.active_projects,
         }
 
     @view_config(request_method="GET")
@@ -217,6 +246,58 @@ class ManageProfileViews:
             **self.default_response,
             'change_password_form': form,
         }
+
+    @view_config(
+        request_method='POST',
+        request_param=['confirm_username']
+    )
+    def delete_account(self):
+        username = self.request.params.get('confirm_username')
+
+        if not username:
+            self.request.session.flash(
+                "Must confirm the request.", queue='error'
+            )
+            return self.default_response
+
+        if username != self.request.user.username:
+            self.request.session.flash(
+                f"Could not delete account - {username!r} is not the same as "
+                f"{self.request.user.username!r}",
+                queue='error'
+            )
+            return self.default_response
+
+        if self.active_projects:
+            self.request.session.flash(
+                "Cannot delete account with active project ownerships.",
+                queue='error',
+            )
+            return self.default_response
+
+        # Update all journals to point to `deleted-user` instead
+        deleted_user = (
+            self.request.db.query(User)
+            .filter(User.username == 'deleted-user')
+            .one()
+        )
+
+        journals = (
+            self.request.db.query(JournalEntry)
+            .filter(JournalEntry.submitted_by == self.request.user)
+            .all()
+        )
+
+        for journal in journals:
+            journal.submitted_by = deleted_user
+
+        # Send a notification email
+        send_account_deletion_email(self.request, self.request.user)
+
+        # Actually delete the user
+        self.request.db.delete(self.request.user)
+
+        return logout(self.request)
 
 
 @view_config(

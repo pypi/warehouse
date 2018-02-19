@@ -108,3 +108,21 @@ def send_password_change_email(request, user):
     request.task(send_email).delay(body, [user.email], subject)
 
     return fields
+
+
+def send_account_deletion_email(request, user):
+    fields = {
+        'username': user.username,
+    }
+
+    subject = render(
+        'email/account-deleted.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/account-deleted.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, [user.email], subject)
+
+    return fields
