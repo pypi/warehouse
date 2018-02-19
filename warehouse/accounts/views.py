@@ -103,6 +103,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('manage.projects'))
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -213,7 +215,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
-        return HTTPSeeOther("/")
+        return HTTPSeeOther(request.route_path('manage.projects'))
 
     if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
