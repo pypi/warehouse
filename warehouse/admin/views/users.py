@@ -25,6 +25,7 @@ from warehouse import forms
 from warehouse.accounts.models import User, Email
 from warehouse.packaging.models import Role
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import remove_project
 
 
 @view_config(
@@ -125,3 +126,23 @@ def user_detail(request):
         return HTTPSeeOther(location=request.current_route_path())
 
     return {"user": user, "form": form, "roles": roles}
+
+
+@view_config(
+    route_name='admin.user.delete',
+    require_methods=['POST'],
+    permission='admin',
+    uses_session=True,
+    require_csrf=True,
+)
+def user_delete(request):
+    user = request.db.query(User).get(request.matchdict['user_id'])
+
+    # Delete projects one by one so they are purged from the cache
+    for project in user.projects:
+        remove_project(project, request, flash=False)
+
+    request.db.delete(user)
+    request.session.flash(f'Nuked user {user.username!r}.', queue='success')
+
+    return HTTPSeeOther(request.route_path('admin.user.list'))

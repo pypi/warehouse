@@ -29,6 +29,11 @@ def includeme(config):
         "/admin/users/{user_id}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.user.delete",
+        "/admin/users/{user_id}/delete/",
+        domain=warehouse,
+    )
 
     # Project related Admin pages
     config.add_route(

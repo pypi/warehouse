@@ -35,6 +35,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.user.delete",
+            "/admin/users/{user_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.list",
             "/admin/projects/",
             domain=warehouse,
