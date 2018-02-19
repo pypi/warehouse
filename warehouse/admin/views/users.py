@@ -138,11 +138,18 @@ def user_detail(request):
 def user_delete(request):
     user = request.db.query(User).get(request.matchdict['user_id'])
 
+    if user.username != request.params.get('username'):
+        print(user.username)
+        print(request.params.get('username'))
+        request.session.flash(f'Wrong confirmation input.', queue='error')
+        return HTTPSeeOther(
+            request.route_path('admin.user.detail', user_id=user.id)
+        )
+
     # Delete projects one by one so they are purged from the cache
     for project in user.projects:
         remove_project(project, request, flash=False)
 
     request.db.delete(user)
     request.session.flash(f'Nuked user {user.username!r}.', queue='success')
-
     return HTTPSeeOther(request.route_path('admin.user.list'))
