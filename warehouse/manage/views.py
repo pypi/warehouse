@@ -97,7 +97,7 @@ class ManageProfileViews:
         if form.validate():
             self.user_service.update_user(self.request.user.id, **form.data)
             self.request.session.flash(
-                'Public profile updated.', queue='success'
+                'Account details updated.', queue='success'
             )
 
         return {

@@ -156,7 +156,7 @@ class TestManageProfile:
             'save_profile_form': save_profile_obj,
         }
         assert request.session.flash.calls == [
-            pretend.call('Public profile updated.', queue='success'),
+            pretend.call('Account details updated.', queue='success'),
         ]
         assert update_user.calls == [
             pretend.call(request.user.id, **request.POST)

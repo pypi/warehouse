@@ -14,7 +14,7 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Manage Your Profile" %}
+{% set title = "Account Settings" %}
 
 {% block profile_active %}vertical-tabs__tab--is-active{% endblock %}
 {% block profile_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
@@ -152,7 +152,7 @@
       {{ field_errors(save_profile_form.name) }}
       <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
     </div>
-    <input value="Update Profile" class="button button--primary" type="submit">
+    <input value="Update Account" class="button button--primary" type="submit">
   </form>
 
   <hr>

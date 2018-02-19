@@ -144,7 +144,7 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "manage.profile",
-            "/manage/profile/",
+            "/manage/account/",
             domain=warehouse
         ),
         pretend.call(
