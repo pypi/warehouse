@@ -124,7 +124,7 @@ docReady(() => {
 });
 
 docReady(() => {
-  let passwordFields = document.querySelectorAll("#password, #password_confirm");
+  let passwordFields = document.querySelectorAll("#password, #password_confirm, #new_password");
   let showPasswordCheck = document.querySelector("#show-password");
 
   if (passwordFields && showPasswordCheck) {

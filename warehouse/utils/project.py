@@ -40,7 +40,7 @@ def confirm_project(project, request, fail_route):
         )
 
 
-def remove_project(project, request):
+def remove_project(project, request, flash=True):
     # TODO: We don't actually delete files from the data store. We should add
     #       some kind of garbage collection at some point.
 
@@ -74,7 +74,11 @@ def remove_project(project, request):
     # Finally, delete the project
     request.db.delete(project)
 
-    request.session.flash(
-        f"Successfully deleted the project {project.name!r}.",
-        queue="success",
-    )
+    # Flush so we can repeat this multiple times if necessary
+    request.db.flush()
+
+    if flash:
+        request.session.flash(
+            f"Successfully deleted the project {project.name!r}.",
+            queue="success",
+        )

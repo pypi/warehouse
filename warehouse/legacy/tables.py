@@ -193,6 +193,7 @@ description_urls = Table(
         ["name", "version"],
         ["releases.name", "releases.version"],
         onupdate="CASCADE",
+        ondelete="CASCADE",
     ),
 )
 

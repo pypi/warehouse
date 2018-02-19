@@ -1,5 +1,5 @@
-alembic==0.9.7 \
-    --hash=sha256:46f4849c6dce69f54dd5001b3215b6a983dee6b17512efee10e237fa11f20cfa
+alembic==0.9.8 \
+    --hash=sha256:13b8611788acf0d7b617775db5c2ae26554a6d4263c590ef628d448fd05aef56
 amqp==2.2.2 \
     --hash=sha256:4e28d3ea61a64ae61830000c909662cb053642efddbe96503db0e7783a6ee85b \
     --hash=sha256:cba1ace9d4ff6049b190d8b7991f9c1006b443a5238021aca96dd6ad2ac9da22
@@ -66,12 +66,12 @@ billiard==3.5.0.3 \
 bleach==2.1.2 \
     --hash=sha256:cf567e7ed30ea5e05b31231d88ae170af1c5544758b9d7bebbc20590b7c30b1e \
     --hash=sha256:38fc8cbebea4e787d8db55d6f324820c7f74362b70db9142c1ac7920452d1a19
-boto3==1.5.30 \
-    --hash=sha256:9312b3aa24888ab6436fcc41c56e2231dfdd1864879dabaac042256cbe292dbc \
-    --hash=sha256:f773243adc1d2264fe87b75fa2f5e696ab042ac7a9bf0cae8a2045e32e325044
-botocore==1.8.44 \
-    --hash=sha256:2b3761dfe3a2a388859ee2663c8f0183746b83f4ac23e8cdb164012bbbe31f28 \
-    --hash=sha256:02bdae93a167bbbd8053099300f14dea648abaa2031ffd29b4733ed253ed2458
+boto3==1.5.31 \
+    --hash=sha256:ae0ae1c11f4a78bd69a43c8b8a9bdb6569c3b497331f5892cc3cdb95f6f7f42b \
+    --hash=sha256:65d7b85d213b63f4540b259b5a9780db8b0cbdcb5d748545d1eb19992910587b
+botocore==1.8.45 \
+    --hash=sha256:80ccf6d2145a19b2b0354df7522ab7f8ef4e2793b5e187ea10cb5c4d8cbbd6a3 \
+    --hash=sha256:8f91b648a216dc945783d1539c013fc08a9e65ecc4fc5aae017bdd5961fd3468
 cachetools==2.0.1 \
     --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
     --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d
@@ -395,8 +395,8 @@ six==1.11.0 \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
 sqlalchemy-citext==1.3.post0 \
     --hash=sha256:7d7343037a35153d6f94c3c2f6baf391f88a57651c3bde5d6749d216859ae4c5
-sqlalchemy==1.2.2 \
-    --hash=sha256:64b4720f0a8e033db0154d3824f5bf677cf2797e11d44743cf0aebd2a0499d9d
+sqlalchemy==1.2.3 \
+    --hash=sha256:9e9ec143e2e246f385cfb2de8daa89d2fa466279addcb7be9e102988fdf33d24
 stdlib-list==0.4.0 \
     --hash=sha256:18a0bd3a89a53d2a3dfb57c0af0b0b86243eb59a570992bc9f6fde1b8019f53d \
     --hash=sha256:3f6cafd9a2e86b22d475a52433d95143c1ee64c02b73d403c6ef6df38ce3f8fd

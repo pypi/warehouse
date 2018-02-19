@@ -15,7 +15,7 @@ import hashlib
 import uuid
 
 from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests
 )
 from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
@@ -36,6 +36,7 @@ from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
 )
 from warehouse.packaging.models import Project, Release
+from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 
@@ -215,6 +216,14 @@ def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther("/")
 
+    if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
+        request.session.flash(
+            ("New User Registration Temporarily Disabled "
+             "See https://pypi.org/help#admin-intervention for details"),
+            queue="error",
+        )
+        return HTTPSeeOther(request.route_path("index"))
+
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
     request.find_service(name="csp").merge(recaptcha_service.csp_policy)
@@ -233,7 +242,7 @@ def register(request, _form_class=RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.password.data
+            form.username.data, form.full_name.data, form.new_password.data,
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
@@ -325,7 +334,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     form = _form_class(
-        request.params,
+        **request.params,
         username=user.username,
         full_name=user.name,
         email=user.email,
@@ -334,7 +343,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     if request.method == "POST" and form.validate():
         # Update password.
-        user_service.update_user(user.id, password=form.password.data)
+        user_service.update_user(user.id, password=form.new_password.data)
 
         # Flash a success message
         request.session.flash(

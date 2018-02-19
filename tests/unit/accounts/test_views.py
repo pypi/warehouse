@@ -17,7 +17,7 @@ import freezegun
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
+from pyramid.httpexceptions import (HTTPMovedPermanently, HTTPSeeOther)
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import views
@@ -25,6 +25,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins
 )
+from warehouse.utils.admin_flags import AdminFlag
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -288,17 +289,17 @@ class TestLogout:
 
 class TestRegister:
 
-    def test_get(self, pyramid_request):
+    def test_get(self, db_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
-        pyramid_request.find_service = pretend.call_recorder(
+        db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 enabled=False,
                 csp_policy=pretend.stub(),
                 merge=lambda _: None,
             )
         )
-        result = views.register(pyramid_request, _form_class=form)
+        result = views.register(db_request, _form_class=form)
         assert result["form"] is form_inst
 
     def test_redirect_authenticated_user(self):
@@ -306,14 +307,14 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
 
-    def test_register_redirect(self, pyramid_request, monkeypatch):
-        pyramid_request.method = "POST"
+    def test_register_redirect(self, db_request, monkeypatch):
+        db_request.method = "POST"
 
         user = pretend.stub(id=pretend.stub())
         email = pretend.stub()
         create_user = pretend.call_recorder(lambda *args, **kwargs: user)
         add_email = pretend.call_recorder(lambda *args, **kwargs: email)
-        pyramid_request.find_service = pretend.call_recorder(
+        db_request.find_service = pretend.call_recorder(
             lambda *args, **kwargs: pretend.stub(
                 csp_policy={},
                 merge=lambda _: {},
@@ -326,10 +327,10 @@ class TestRegister:
                 add_email=add_email,
             )
         )
-        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.POST.update({
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.POST.update({
             "username": "username_value",
-            "password": "MyStr0ng!shP455w0rd",
+            "new_password": "MyStr0ng!shP455w0rd",
             "password_confirm": "MyStr0ng!shP455w0rd",
             "email": "foo@bar.com",
             "full_name": "full_name",
@@ -337,7 +338,7 @@ class TestRegister:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
-        result = views.register(pyramid_request)
+        result = views.register(db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
@@ -347,7 +348,40 @@ class TestRegister:
         assert add_email.calls == [
             pretend.call(user.id, 'foo@bar.com', primary=True),
         ]
-        assert send_email.calls == [pretend.call(pyramid_request, email)]
+        assert send_email.calls == [pretend.call(db_request, email)]
+
+    def test_register_fails_with_admin_flag_set(self, db_request):
+        admin_flag = (db_request.db.query(AdminFlag)
+                      .filter(
+                          AdminFlag.id == 'disallow-new-user-registration')
+                      .first())
+        admin_flag.enabled = True
+        db_request.method = "POST"
+
+        db_request.POST.update({
+            "username": "username_value",
+            "password": "MyStr0ng!shP455w0rd",
+            "password_confirm": "MyStr0ng!shP455w0rd",
+            "email": "foo@bar.com",
+            "full_name": "full_name",
+        })
+
+        db_request.session.flash = pretend.call_recorder(
+            lambda *a, **kw: None
+        )
+
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+
+        result = views.register(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                ("New User Registration Temporarily Disabled "
+                 "See https://pypi.org/help#admin-intervention for details"),
+                queue="error"
+            ),
+        ]
 
 
 class TestRequestPasswordReset:
@@ -563,7 +597,7 @@ class TestResetPassword:
         assert result["form"] is form_inst
         assert form_class.calls == [
             pretend.call(
-                db_request.GET,
+                token=db_request.params['token'],
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -583,7 +617,7 @@ class TestResetPassword:
         db_request.method = "POST"
         db_request.POST.update({"token": "RANDOM_KEY"})
         form_obj = pretend.stub(
-            password=pretend.stub(data="password_value"),
+            new_password=pretend.stub(data="password_value"),
             validate=pretend.call_recorder(lambda *args: True)
         )
 
@@ -619,7 +653,7 @@ class TestResetPassword:
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(
-                db_request.POST,
+                token=db_request.params['token'],
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -631,7 +665,7 @@ class TestResetPassword:
             pretend.call('RANDOM_KEY'),
         ]
         assert user_service.update_user.calls == [
-            pretend.call(user.id, password=form_obj.password.data),
+            pretend.call(user.id, password=form_obj.new_password.data),
             pretend.call(user.id, last_login=now),
         ]
         assert db_request.session.flash.calls == [

@@ -78,3 +78,12 @@ class TestAddEmailForm:
         form = forms.AddEmailForm(user_service=user_service)
 
         assert form.user_service is user_service
+
+
+class TestChangePasswordForm:
+
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.ChangePasswordForm(user_service=user_service)
+
+        assert form.user_service is user_service
