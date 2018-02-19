@@ -80,12 +80,11 @@ def profile(user, request):
         )
 
     projects = (
-        request.db.query(Release)
-                  .options(joinedload(Release.project))
-                  .join(Project)
-                  .distinct(Project.name)
+        request.db.query(Project)
                   .filter(Project.users.contains(user))
-                  .order_by(Project.name, Release._pypi_ordering.desc())
+                  .options(joinedload(Project.releases))
+                  .join(Release)
+                  .order_by(Release.created.desc())
                   .all()
     )
 
