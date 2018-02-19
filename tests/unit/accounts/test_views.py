@@ -390,7 +390,7 @@ class TestRequestPasswordReset:
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *args, **kwargs: user_service
+            lambda *a, **kw: user_service,
         )
         pyramid_request.POST = pretend.stub()
         result = views.request_password_reset(
@@ -416,14 +416,17 @@ class TestRequestPasswordReset:
             lambda a: stub_user
         )
         pyramid_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: user_service,
+            lambda interface, **kw: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface],
         )
         form_obj = pretend.stub(
-            username=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data=stub_user.username),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
-        n_hours = pretend.stub()
+        n_hours = token_service.max_age // 60 // 60
         send_password_reset_email = pretend.call_recorder(
             lambda *args, **kwargs: {'n_hours': n_hours},
         )
@@ -441,6 +444,7 @@ class TestRequestPasswordReset:
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name='password'),
         ]
         assert form_obj.validate.calls == [
             pretend.call(),
@@ -451,6 +455,118 @@ class TestRequestPasswordReset:
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, stub_user),
         ]
+
+    def test_request_password_reset_with_email(
+            self, monkeypatch, pyramid_request, pyramid_config, user_service,
+            token_service):
+
+        stub_user = pretend.stub(email=pretend.stub())
+        pyramid_request.method = "POST"
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
+        user_service.get_user_by_username = pretend.call_recorder(
+            lambda a: None
+        )
+        user_service.get_user_by_email = pretend.call_recorder(
+            lambda a: stub_user
+        )
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface],
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data=stub_user.email),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = token_service.max_age // 60 // 60
+        send_password_reset_email = pretend.call_recorder(
+            lambda *args, **kwargs: {'n_hours': n_hours},
+        )
+        monkeypatch.setattr(
+            views, 'send_password_reset_email', send_password_reset_email
+        )
+
+        result = views.request_password_reset(
+            pyramid_request, _form_class=form_class
+        )
+
+        assert result == {'n_hours': n_hours}
+        assert user_service.get_user_by_username.calls == [
+            pretend.call(stub_user.email),
+        ]
+        assert user_service.get_user_by_email.calls == [
+            pretend.call(stub_user.email),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name='password'),
+        ]
+        assert form_obj.validate.calls == [
+            pretend.call(),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, stub_user),
+        ]
+
+    def test_request_password_reset_with_wrong_credentials(
+            self, monkeypatch, pyramid_request, pyramid_config, user_service,
+            token_service):
+
+        stub_user = pretend.stub(username=pretend.stub())
+        pyramid_request.method = "POST"
+        token_service.dumps = pretend.call_recorder(lambda a: "TOK")
+        user_service.get_user_by_username = pretend.call_recorder(
+            lambda a: None
+        )
+        user_service.get_user_by_email = pretend.call_recorder(
+            lambda a: None
+        )
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface],
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data=stub_user.username),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = token_service.max_age // 60 // 60
+        send_password_reset_email = pretend.call_recorder(
+            lambda *args, **kwargs: {'n_hours': n_hours},
+        )
+        monkeypatch.setattr(
+            views, 'send_password_reset_email', send_password_reset_email
+        )
+
+        result = views.request_password_reset(
+            pyramid_request, _form_class=form_class
+        )
+
+        assert result == {'n_hours': n_hours}
+        assert user_service.get_user_by_username.calls == [
+            pretend.call(stub_user.username),
+        ]
+        assert user_service.get_user_by_email.calls == [
+            pretend.call(stub_user.username),
+        ]
+        assert pyramid_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(ITokenService, name='password'),
+        ]
+        assert form_obj.validate.calls == [
+            pretend.call(),
+        ]
+        assert form_class.calls == [
+            pretend.call(pyramid_request.POST, user_service=user_service),
+        ]
+        assert send_password_reset_email.calls == []
 
 
 class TestResetPassword:

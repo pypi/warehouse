@@ -77,6 +77,11 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
+    def get_user_by_email(self, email):
+        user_id = self.find_userid_by_email(email)
+        return None if user_id is None else self.get_user(user_id)
+
+    @functools.lru_cache()
     def find_userid(self, username):
         try:
             user = (
