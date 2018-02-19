@@ -238,6 +238,15 @@ class TestLogin:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
 
+    def test_redirect_authenticated_user(self):
+        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+        result = views.login(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
 
 class TestLogout:
 
