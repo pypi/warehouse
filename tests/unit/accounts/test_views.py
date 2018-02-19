@@ -581,6 +581,15 @@ class TestRequestPasswordReset:
         ]
         assert send_password_reset_email.calls == []
 
+    def test_redirect_authenticated_user(self):
+        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+        result = views.request_password_reset(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
 
 class TestResetPassword:
 
@@ -871,6 +880,15 @@ class TestResetPassword:
                 queue='error',
             ),
         ]
+
+    def test_redirect_authenticated_user(self):
+        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a: '/the-redirect'
+        )
+        result = views.reset_password(pyramid_request)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
 
 
 class TestVerifyEmail:
