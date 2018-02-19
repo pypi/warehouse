@@ -23,7 +23,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.models import User, Email
-from warehouse.packaging.models import Role
+from warehouse.packaging.models import JournalEntry, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_project
 
@@ -151,5 +151,13 @@ def user_delete(request):
         remove_project(project, request, flash=False)
 
     request.db.delete(user)
+    request.db.add(
+        JournalEntry(
+            name=f'user:{user.username}',
+            action=f'nuke user',
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
     request.session.flash(f'Nuked user {user.username!r}.', queue='success')
     return HTTPSeeOther(request.route_path('admin.user.list'))
