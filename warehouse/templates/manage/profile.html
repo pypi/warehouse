@@ -83,6 +83,18 @@
             </button>
           </form>
           {% endif %}
+
+          {% if not email.primary and email.verified %}
+          <form method="POST">
+            <input hidden name="primary_email_id" value="{{ email.id }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <button class="dropdown__link" type="submit" title="Set this email address as primary">
+              <i class="fa fa-cog" aria-hidden="true"></i>
+              Set as Primary
+            </button>
+          </form>
+          {% endif %}
+
           {% if user.emails|length > 1 and not email.primary %}
           <form method="POST">
             <input hidden name="delete_email_id" value="{{ email.id }}">
@@ -169,29 +181,6 @@
     </tbody>
   </table>
 
-  <form method="POST">
-    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    <div class="form-group">
-      <label class="form-group__label" for="primary_email">Primary Email</label>
-      <div class="form-group__horizontal">
-        <div class="form-group__horizontal-left">
-          <select class="form-group__input" name="primary_email_id">
-          {% for email in sorted_emails %}
-            <option
-              value="{{ email.id }}"
-              {{ 'selected' if email.primary else '' }}
-              {{ '' if email.verified else 'disabled' }}>
-              {{ email.email }}{{ '' if email.verified else ' (unverified)' }}
-            </option>
-          {% endfor %}
-          </select>
-        </div>
-        <div class="form-group__horizontal-right">
-          <input value="Save" class="button button--primary" type="submit">
-        </div>
-      </div>
-    </div>
-  </form>
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="form-group">
