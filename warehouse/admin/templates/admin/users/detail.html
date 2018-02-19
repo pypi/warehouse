@@ -67,10 +67,47 @@
           </div>
           <div class="box-body">
             <ul class="list-unstyled">
-              {% if not user.is_active %}
-              <li><a href="#TODO">Resend Confirmation Email</a></li>
-              {% endif %}
-              <li><a href="#TODO">Reset Password</a></li>
+              <li>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nukeModal">
+                  <i class="icon fa fa-bomb"></i> Nuke user
+                </button>
+                <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="exampleModalLabel">Nuke user {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will permanently destroy the user and cannot be undone.
+                        </p>
+                        <p>
+                          This will also delete the following projects and their respective releases:
+                        </p>
+                        <ul>
+                        {% for project in user.projects %}
+                          <li>
+                            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                              {{ project.name }}
+                            </a> ({{ project.releases|length }} releases)
+                          </li>
+                        {% endfor %}
+                        </ul>
+                      </div>
+                      <div class="modal-footer">
+                        <form method="POST" action="{{ request.route_path('admin.user.delete', user_id=user.id) }}">
+                          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Nuke 'em</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
