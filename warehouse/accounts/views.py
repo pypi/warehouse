@@ -107,7 +107,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path('manage.projects'))
 
-
     user_service = request.find_service(IUserService, context=None)
 
     redirect_to = request.POST.get(redirect_field_name,
