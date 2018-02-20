@@ -22,7 +22,7 @@ The Simple API implements the HTML-based package index API as specified in `PEP
     .. code:: http
 
         GET /simple/ HTTP/1.1
-        Host: pypi.python.org
+        Host: pypi.org
         Accept: text/html
 
     **Example response**:
@@ -89,7 +89,7 @@ The Simple API implements the HTML-based package index API as specified in `PEP
     .. code:: http
 
         GET /simple/warehouse/ HTTP/1.1
-        Host: pypi.python.org
+        Host: pypi.org
         Accept: text/html
 
     **Example response**:

@@ -6,7 +6,7 @@ Example usage::
 
   >>> import xmlrpclib
   >>> import pprint
-  >>> client = xmlrpclib.ServerProxy('https://pypi.python.org/pypi')
+  >>> client = xmlrpclib.ServerProxy('https://pypi.org/pypi')
   >>> client.package_releases('roundup')
   ['1.4.10']
   >>> pprint.pprint(client.release_urls('roundup', '1.4.10'))
@@ -19,7 +19,7 @@ Example usage::
     'python_version': 'source',
     'size': 876455,
     'upload_time': <DateTime '20060427T06:22:35' at 912fecc>,
-    'url': 'https://pypi.python.org/packages/source/r/roundup/roundup-1.1.2.tar.gz'},
+    'url': 'https://pypi.org/packages/source/r/roundup/roundup-1.1.2.tar.gz'},
    {'comment_text': '',
     'downloads': 2067,
     'filename': 'roundup-1.1.2.win32.exe',
@@ -29,7 +29,7 @@ Example usage::
     'python_version': 'any',
     'size': 614270,
     'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
-    'url': 'https://pypi.python.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
+    'url': 'https://pypi.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
 
 Changes to Legacy API
 ---------------------
