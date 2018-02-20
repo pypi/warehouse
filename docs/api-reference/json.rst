@@ -7,8 +7,9 @@ PyPI offers two JSON endpoints.
 .. http:get:: /pypi/<project_name>/json
 
     Returns metadata (info) about an individual project at the latest version,
-    a list of all releases for that project, and project urls. Releases include
-    the release name, URL, and MD5 and SHA256 hash digests.
+    a list of all releases for that project, and project URLs. Releases include
+    the release name, URL, and MD5 and SHA256 hash digests, and are keyed by
+    the release version string.
 
     **Example Request**:
 
