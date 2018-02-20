@@ -180,3 +180,7 @@ Mirroring Support
 ``list_packages_with_serial()``
   Retrieve a dictionary mapping package names to the last serial for each
   package.
+
+``list_packages_with_version()``
+  Retrieve a dictionary mapping package names to the latest version for each
+  package.

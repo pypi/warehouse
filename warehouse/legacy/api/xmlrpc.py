@@ -115,6 +115,12 @@ def list_packages_with_serial(request):
     return dict((serial[0], serial[1]) for serial in serials)
 
 
+@pypi_xmlrpc(method="list_packages_with_version")
+def list_packages_with_version(request):
+    versions = request.db.query(Project.name, Project.latest_version).all()
+    return dict((version[0], version[1]) for version in versions)
+
+
 @pypi_xmlrpc(method="package_hosting_mode")
 def package_hosting_mode(request, package_name):
     try:
