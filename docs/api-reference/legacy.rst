@@ -1,9 +1,15 @@
 Legacy API
 ==========
 
+The "Legacy API" provides feature parity with `pypi-legacy`_, hence the term
+"legacy".
+
 
 Simple Project API
 ------------------
+
+The Simple API implements the HTML-based package index API as specified in `PEP
+503`_.
 
 .. http:get:: /simple/
 
@@ -16,7 +22,7 @@ Simple Project API
     .. code:: http
 
         GET /simple/ HTTP/1.1
-        Host: pypi.python.org
+        Host: pypi.org
         Accept: text/html
 
     **Example response**:
@@ -83,7 +89,7 @@ Simple Project API
     .. code:: http
 
         GET /simple/warehouse/ HTTP/1.1
-        Host: pypi.python.org
+        Host: pypi.org
         Accept: text/html
 
     **Example response**:
@@ -112,3 +118,7 @@ Simple Project API
     :resheader X-PyPI-Last-Serial: The most recent serial id number for the
                                    project.
     :statuscode 200: no error
+
+
+.. _`pypi-legacy`: https://pypi.python.org/
+.. _`PEP 503`: https://www.python.org/dev/peps/pep-0503/

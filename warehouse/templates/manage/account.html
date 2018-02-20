@@ -14,10 +14,10 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = "Manage Your Profile" %}
+{% set title = "Account Settings" %}
 
-{% block profile_active %}vertical-tabs__tab--is-active{% endblock %}
-{% block profile_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block account_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block account_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -134,7 +134,7 @@
 
   <hr>
 
-  {{ form_error_anchor(save_profile_form) }}
+  {{ form_error_anchor(save_account_form) }}
   <h2 class="sub-title">Account Details</h2>
 
   <div class="form-group">
@@ -145,14 +145,14 @@
 
   <form method="POST">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-    {{ form_errors(save_profile_form) }}
+    {{ form_errors(save_account_form) }}
     <div class="form-group">
       <label class="form-group__label" for="name">Full Name</label>
-      {{ save_profile_form.name(placeholder="No name set", class_="form-group__input") }}
-      {{ field_errors(save_profile_form.name) }}
+      {{ save_account_form.name(placeholder="No name set", class_="form-group__input") }}
+      {{ field_errors(save_account_form.name) }}
       <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
     </div>
-    <input value="Update Profile" class="button button--primary" type="submit">
+    <input value="Update Account" class="button button--primary" type="submit">
   </form>
 
   <hr>

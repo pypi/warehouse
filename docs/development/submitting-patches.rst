@@ -169,4 +169,4 @@ feature branch at least once while you are working on it.
 .. _`syntax`: http://sphinx-doc.org/domains.html#info-field-lists
 .. _`Studies have shown`: https://smartbear.com/smartbear/media/pdfs/wp-cc-11-best-practices-of-peer-code-review.pdf
 .. _`doc8`: https://github.com/stackforge/doc8
-.. _`coverage.py`: https://pypi.python.org/pypi/coverage
+.. _`coverage.py`: https://pypi.org/project/coverage
