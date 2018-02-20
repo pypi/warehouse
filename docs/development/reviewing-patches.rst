@@ -2,7 +2,10 @@ Reviewing and merging patches
 =============================
 
 Everyone is encouraged to review open pull requests. We only ask that you try
-and think carefully, ask questions and are `excellent to one another`_. When engaging in code review, please remember that you are bound by the `Code of Conduct`_. Code review is our opportunity to share knowledge, design ideas and make friends.
+and think carefully, ask questions and are `excellent to one another`_. When
+engaging in code review, please remember that you are bound by the `Code of
+Conduct`_. Code review is our opportunity to share knowledge, design ideas and
+make friends.
 
 When reviewing a patch try to keep each of these concepts in mind:
 
@@ -106,10 +109,10 @@ Testing with twine
 ------------------
 If you are testing Warehouse locally, you may want to use `twine`_ to try
 uploading a test package. First, checkout the branch you would like to test.
-Then, start up the development environment (as described in :ref:`getting-started`).
-Once you have the Warehouse site working on ``localhost:80``, you can upload a
-package to the version of Warehouse running in your development environment
-with Twine using the following command:
+Then, start up the development environment (as described in
+:ref:`getting-started`).  Once you have the Warehouse site working on
+``localhost:80``, you can upload a package to the version of Warehouse running
+in your development environment with Twine using the following command:
 
 .. code-block:: console
 
@@ -148,5 +151,3 @@ Merge requirements
 .. _`Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
 
 .. _`twine`: https://github.com/pypa/twine
-
-.. _`TestPyPI`: https://testpypi.python.org/
