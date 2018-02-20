@@ -370,7 +370,7 @@ def verify_email(request):
 
     def _error(message):
         request.session.flash(message, queue="error")
-        return HTTPSeeOther(request.route_path("manage.profile"))
+        return HTTPSeeOther(request.route_path("manage.account"))
 
     try:
         token = request.params.get('token')
@@ -406,7 +406,7 @@ def verify_email(request):
         'You can now set this email as your primary address.',
         queue='success'
     )
-    return HTTPSeeOther(request.route_path("manage.profile"))
+    return HTTPSeeOther(request.route_path("manage.account"))
 
 
 def _login_user(request, userid):

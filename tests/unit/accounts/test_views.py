@@ -901,7 +901,7 @@ class TestVerifyEmail:
         assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [pretend.call('manage.profile')]
+        assert db_request.route_path.calls == [pretend.call('manage.account')]
         assert token_service.loads.calls == [pretend.call('RANDOM_KEY')]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -947,7 +947,7 @@ class TestVerifyEmail:
         views.verify_email(pyramid_request)
 
         assert pyramid_request.route_path.calls == [
-            pretend.call('manage.profile'),
+            pretend.call('manage.account'),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(message, queue='error'),
@@ -969,7 +969,7 @@ class TestVerifyEmail:
         views.verify_email(pyramid_request)
 
         assert pyramid_request.route_path.calls == [
-            pretend.call('manage.profile'),
+            pretend.call('manage.account'),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -1000,7 +1000,7 @@ class TestVerifyEmail:
         views.verify_email(pyramid_request)
 
         assert pyramid_request.route_path.calls == [
-            pretend.call('manage.profile'),
+            pretend.call('manage.account'),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call('Email not found', queue='error')
@@ -1026,7 +1026,7 @@ class TestVerifyEmail:
         views.verify_email(db_request)
 
         assert db_request.route_path.calls == [
-            pretend.call('manage.profile'),
+            pretend.call('manage.account'),
         ]
         assert db_request.session.flash.calls == [
             pretend.call('Email already verified', queue='error')
