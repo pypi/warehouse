@@ -138,7 +138,7 @@ Next, you will:
 * create a new Postgres database,
 * install example data to the Postgres database,
 * run migrations, and
-* load some example data from `Test PyPI <https://testpypi.python.org/>`_
+* load some example data from `Test PyPI`_
 
 In a second terminal, separate from the ``make serve`` command above, run:
 
@@ -205,9 +205,8 @@ The repository is exposed inside of the web container at
 ``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
 any changes made to the code.
 
-The example data located in ``dev/example.sql.xz`` is taken from
-`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
-anything private.
+The example data located in ``dev/example.sql.xz`` is taken from `Test PyPI`_
+and has been sanitized to remove anything private.
 
 
 Running your developer environment after initial setup
@@ -390,10 +389,11 @@ command will give the following error message:
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
-.. _`pip`: https://pypi.python.org/pypi/pip
-.. _`sphinx`: https://pypi.python.org/pypi/Sphinx
+.. _`pip`: https://pypi.org/project/pip
+.. _`sphinx`: https://pypi.org/project/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
 .. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`Test PyPI`: https://test.pypi.org/

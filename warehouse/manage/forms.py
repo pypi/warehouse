@@ -60,7 +60,7 @@ class ChangeRoleForm(RoleNameMixin, forms.Form):
     pass
 
 
-class SaveProfileForm(forms.Form):
+class SaveAccountForm(forms.Form):
 
     __params__ = ['name']
 

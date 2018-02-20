@@ -30,7 +30,7 @@ from ...common.db.packaging import (
 )
 
 
-class TestManageProfile:
+class TestManageAccount:
 
     def test_default_response(self, monkeypatch):
         user_service = pretend.stub()
@@ -39,9 +39,9 @@ class TestManageProfile:
             find_service=lambda *a, **kw: user_service,
             user=pretend.stub(name=name),
         )
-        save_profile_obj = pretend.stub()
-        save_profile_cls = pretend.call_recorder(lambda **kw: save_profile_obj)
-        monkeypatch.setattr(views, 'SaveProfileForm', save_profile_cls)
+        save_account_obj = pretend.stub()
+        save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
+        monkeypatch.setattr(views, 'SaveAccountForm', save_account_cls)
 
         add_email_obj = pretend.stub()
         add_email_cls = pretend.call_recorder(lambda **kw: add_email_obj)
@@ -51,21 +51,21 @@ class TestManageProfile:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, 'ChangePasswordForm', change_pass_cls)
 
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'active_projects', pretend.stub()
+            views.ManageAccountViews, 'active_projects', pretend.stub()
         )
 
         assert view.default_response == {
-            'save_profile_form': save_profile_obj,
+            'save_account_form': save_account_obj,
             'add_email_form': add_email_obj,
             'change_password_form': change_pass_obj,
             'active_projects': view.active_projects,
         }
         assert view.request == request
         assert view.user_service == user_service
-        assert save_profile_cls.calls == [
+        assert save_account_cls.calls == [
             pretend.call(name=name),
         ]
         assert add_email_cls.calls == [
@@ -109,11 +109,11 @@ class TestManageProfile:
             user=another_user, project=not_an_owner, role_name='Owner'
         )
 
-        view = views.ManageProfileViews(db_request)
+        view = views.ManageAccountViews(db_request)
 
         assert view.active_projects == [with_sole_owner]
 
-    def test_manage_profile(self, monkeypatch):
+    def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
@@ -121,15 +121,15 @@ class TestManageProfile:
             user=pretend.stub(name=name),
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
-        assert view.manage_profile() == view.default_response
+        assert view.manage_account() == view.default_response
         assert view.request == request
         assert view.user_service == user_service
 
-    def test_save_profile(self, monkeypatch):
+    def test_save_account(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
@@ -140,29 +140,29 @@ class TestManageProfile:
             ),
             find_service=lambda *a, **kw: user_service,
         )
-        save_profile_obj = pretend.stub(
+        save_account_obj = pretend.stub(
             validate=lambda: True, data=request.POST
         )
         monkeypatch.setattr(
-            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+            views, 'SaveAccountForm', lambda *a, **kw: save_account_obj
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
-        assert view.save_profile() == {
+        assert view.save_account() == {
             **view.default_response,
-            'save_profile_form': save_profile_obj,
+            'save_account_form': save_account_obj,
         }
         assert request.session.flash.calls == [
-            pretend.call('Public profile updated.', queue='success'),
+            pretend.call('Account details updated.', queue='success'),
         ]
         assert update_user.calls == [
             pretend.call(request.user.id, **request.POST)
         ]
 
-    def test_save_profile_validation_fails(self, monkeypatch):
+    def test_save_account_validation_fails(self, monkeypatch):
         update_user = pretend.call_recorder(lambda *a, **kw: None)
         user_service = pretend.stub(update_user=update_user)
         request = pretend.stub(
@@ -173,18 +173,18 @@ class TestManageProfile:
             ),
             find_service=lambda *a, **kw: user_service,
         )
-        save_profile_obj = pretend.stub(validate=lambda: False)
+        save_account_obj = pretend.stub(validate=lambda: False)
         monkeypatch.setattr(
-            views, 'SaveProfileForm', lambda *a, **kw: save_profile_obj
+            views, 'SaveAccountForm', lambda *a, **kw: save_account_obj
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
-        assert view.save_profile() == {
+        assert view.save_account() == {
             **view.default_response,
-            'save_profile_form': save_profile_obj,
+            'save_account_form': save_account_obj,
         }
         assert request.session.flash.calls == []
         assert update_user.calls == []
@@ -218,9 +218,9 @@ class TestManageProfile:
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.add_email() == view.default_response
         assert user_service.add_email.calls == [
@@ -260,9 +260,9 @@ class TestManageProfile:
         monkeypatch.setattr(views, 'Email', email_cls)
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.add_email() == {
             **view.default_response,
@@ -295,9 +295,9 @@ class TestManageProfile:
             )
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
@@ -331,9 +331,9 @@ class TestManageProfile:
             )
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
@@ -362,9 +362,9 @@ class TestManageProfile:
             )
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
@@ -384,9 +384,9 @@ class TestManageProfile:
         db_request.POST = {'primary_email_id': new_primary.id}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(db_request)
+        view = views.ManageAccountViews(db_request)
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
@@ -408,9 +408,9 @@ class TestManageProfile:
         db_request.POST = {'primary_email_id': missing_email_id}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(db_request)
+        view = views.ManageAccountViews(db_request)
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
@@ -437,9 +437,9 @@ class TestManageProfile:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
@@ -470,9 +470,9 @@ class TestManageProfile:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
@@ -499,9 +499,9 @@ class TestManageProfile:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
@@ -542,9 +542,9 @@ class TestManageProfile:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_password_change_email', send_email)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.change_password() == {
             **view.default_response,
@@ -591,9 +591,9 @@ class TestManageProfile:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_password_change_email', send_email)
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', {'_': pretend.stub()}
+            views.ManageAccountViews, 'default_response', {'_': pretend.stub()}
         )
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.change_password() == {
             **view.default_response,
@@ -613,16 +613,16 @@ class TestManageProfile:
         db_request.find_service = lambda *a, **kw: pretend.stub()
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', pretend.stub()
+            views.ManageAccountViews, 'default_response', pretend.stub()
         )
-        monkeypatch.setattr(views.ManageProfileViews, 'active_projects', [])
+        monkeypatch.setattr(views.ManageAccountViews, 'active_projects', [])
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_account_deletion_email', send_email)
         logout_response = pretend.stub()
         logout = pretend.call_recorder(lambda *a: logout_response)
         monkeypatch.setattr(views, 'logout', logout)
 
-        view = views.ManageProfileViews(db_request)
+        view = views.ManageAccountViews(db_request)
 
         assert view.delete_account() == logout_response
         assert journal.submitted_by == deleted_user
@@ -640,10 +640,10 @@ class TestManageProfile:
         )
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', pretend.stub()
+            views.ManageAccountViews, 'default_response', pretend.stub()
         )
 
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -661,10 +661,10 @@ class TestManageProfile:
         )
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', pretend.stub()
+            views.ManageAccountViews, 'default_response', pretend.stub()
         )
 
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -686,13 +686,13 @@ class TestManageProfile:
         )
 
         monkeypatch.setattr(
-            views.ManageProfileViews, 'default_response', pretend.stub()
+            views.ManageAccountViews, 'default_response', pretend.stub()
         )
         monkeypatch.setattr(
-            views.ManageProfileViews, 'active_projects', [pretend.stub()]
+            views.ManageAccountViews, 'active_projects', [pretend.stub()]
         )
 
-        view = views.ManageProfileViews(request)
+        view = views.ManageAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
