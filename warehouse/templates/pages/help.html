@@ -37,7 +37,7 @@
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
-
+{% macro file_name_reuse() %}Why am I getting "File already exists" error?{% endmacro %}
 {% block title %}Help{% endblock %}
 
 {% block content %}
@@ -63,6 +63,7 @@
         <li><a href="#mirroring">{{ mirroring() }}</a></li>
         <li><a href="#private-indices">{{ private_indices() }}</a></li>
         <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
+        <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
       </ul>
 
       <section id="packages" class="common-question">
@@ -266,6 +267,19 @@
         </p>
         <p>
           When the PyPI Administrators are overwhelmed by spam <b>or</b> determine that there is some other threat to PyPI, new user registration and/or new project registration may be disabled. Check <a href="https://status.python.org">our status page</a> for more details, as we'll likely have updated it with reasoning for the intervention.
+        </p>
+      </section>
+      <section id="file-name-reuse" class="common-question">
+        <h2>{{ file_name_reuse() }}</h2>
+        <p>
+          The error <i>HTTPError: 400 Client Error: File already exists</i> is caused because of one of the below two reasons:
+        </p>
+        <ul>
+          <li>Filename has been used and file exists</li>
+          <li>Filename has been used but file no longer exists</li>
+        </ul>
+        <p>
+          PyPI does not allow for a filename to be reused, even once a project has been deleted and recreated.
         </p>
       </section>
     </div>
