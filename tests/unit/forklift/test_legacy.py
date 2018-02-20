@@ -1609,7 +1609,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename has previously been used, you should use a "
-            "different version."
+            "different version. "
+            "See https://pypi.org/help/#file-name-reuse"
         )
 
     def test_upload_noop_with_existing_filename_same_content(self,
@@ -1714,7 +1715,10 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists."
+        assert resp.status == (
+            "400 File already exists. "
+            "See https://pypi.org/help/#file-name-reuse"
+        )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):
