@@ -24,6 +24,7 @@ services:
   - postgresql
 
 cache:
+  apt: true
   directories:
     - ~/.cache/pip
     - node_modules/
