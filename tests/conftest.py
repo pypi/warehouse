@@ -89,7 +89,7 @@ def database(request):
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app_config(database):
     config = configure(
         settings={
