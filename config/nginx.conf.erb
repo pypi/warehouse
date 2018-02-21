@@ -23,8 +23,8 @@ http {
 	default_type application/octet-stream;
 	sendfile on;
 
-	#Must read the body in 5 seconds.
-	client_body_timeout 5;
+	#Give clients some time for large uploads.
+	client_body_timeout 30;
         client_max_body_size 1024M;
 
 	upstream app_server {
