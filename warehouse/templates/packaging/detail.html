@@ -287,14 +287,14 @@
               <thead>
                 <tr>
                   <th class="table__filename">
-                    File Name &amp; Hash
+                    Filename, Size &amp; Hash
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 Hash Help</span>
                     </a>
                   </th>
-                  <th class="table__version">Version</th>
                   <th class="table__type">File Type</th>
+                  <th class="table__version">Python Version</th>
                   <th class="table__upload-date">Upload Date</th>
                 </tr>
               </thead>
@@ -314,14 +314,14 @@
                     </a>
                   </td>
                   <td>
+                    {{ file.packagetype|format_package_type }}
+                  </td>
+                  <td>
                     {% if file.python_version != "source" %}
                       {{ file.python_version }}
                     {% else %}
-                      –
+                      None
                     {% endif %}
-                  </td>
-                  <td>
-                    {{ file.packagetype|format_package_type }}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
                 </tr>
