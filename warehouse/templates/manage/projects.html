@@ -45,7 +45,7 @@
           <a
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
-            {% if request.user in project.owners %}
+            {% if project.name in projects_owned %}
             title="Edit this project"
             {% else %}
             disabled

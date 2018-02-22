@@ -175,16 +175,6 @@ class Project(SitemapMixin, db.ModelBase):
 
         return request.route_url("legacy.docs", project=self.name)
 
-    @property
-    def owners(self):
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(Role.user)
-            .filter(Role.project == self, Role.role_name == 'Owner')
-            .all()
-        )
-
 
 class DependencyKind(enum.IntEnum):
 
