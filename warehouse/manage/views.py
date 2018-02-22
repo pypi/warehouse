@@ -309,8 +309,8 @@ class ManageAccountViews:
 def manage_projects(request):
 
     def _key(project):
-        if project.releases:
-            return project.releases[0].created
+        if project.latest_release:
+            return project.latest_release.created
         return project.created
 
     projects_owned = set(

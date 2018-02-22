@@ -23,7 +23,7 @@
   <div class="package-list">
     {% if projects %}
     {% for project in projects %}
-    {% set release = project.releases[0] if project.releases else None %}
+    {% set release = project.latest_release %}
     <div class="package-snippet">
       <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
         <div>
@@ -55,7 +55,7 @@
           <a
             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"
-            {% if project.releases %}
+            {% if release %}
             title="View this project's public page"
             {% else %}
             disabled
