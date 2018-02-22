@@ -23,11 +23,11 @@
   <div class="callout-block">
     <h3>Delete Project</h3>
     <p>
-    {% if project.releases %}
+    {% if n_releases %}
       Deleting will irreversibly delete this project along with
       <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">
-        {{ project.releases|length() }}
-        {% trans count=project.releases|length %}
+        {{ n_releaes }}
+        {% trans count=n_releases %}
           release.
         {% pluralize %}
           releases.

@@ -29,7 +29,9 @@ from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Role
+from warehouse.packaging.models import (
+    File, JournalEntry, Project, Release, Role,
+)
 from warehouse.utils.project import confirm_project, remove_project
 
 
@@ -337,7 +339,16 @@ def manage_projects(request):
     effective_principals=Authenticated,
 )
 def manage_project_settings(project, request):
-    return {"project": project}
+    n_releases = (
+        request.db.query(Release)
+        .filter(Release.project == project)
+        .count()
+    )
+
+    return {
+        "n_releases": n_releases,
+        "project": project,
+    }
 
 
 @view_config(
@@ -361,7 +372,16 @@ def delete_project(project, request):
     effective_principals=Authenticated,
 )
 def manage_project_releases(project, request):
-    return {"project": project}
+    releases = (
+        request.db.query(Release.summary, Release.created, Release.version)
+        .filter(Release.project == project)
+        .order_by(Release.created.desc())
+        .all()
+    )
+    return {
+        "project": project,
+        "releases": releases,
+    }
 
 
 @view_defaults(

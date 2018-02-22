@@ -18,8 +18,8 @@
 {% block title %}Manage '{{ project.name }}' releases{% endblock %}
 
 {% block main %}
-  <h2>Releases ({{ project.releases|length }})</h2>
-  {% if project.releases %}
+  <h2>Releases ({{ releases|length }})</h2>
+  {% if releases %}
     <table class="table table--light table--releases no-top-margin">
       <thead>
         <th class="table__version">Version</th>
@@ -28,7 +28,7 @@
         <th class="table__options"></th>
       </thead>
       <tbody>
-      {% for release in project.releases %}
+      {% for release in releases %}
         <tr>
           <td class="table__version">
             <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}">
@@ -57,7 +57,7 @@
                   <i class="fa fa-pencil" aria-hidden="true"></i>
                   Edit
                 </a>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+                <a href="{{ request.route_path('packaging.release', name=project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-eye" aria-hidden="true"></i>
                   View
                 </a>
@@ -78,7 +78,7 @@
   {% endif %}
 
   <div class="callout-block">
-    {% if project.releases %}
+    {% if releases %}
     <h3>Creating a New Release</h3>
     {% else %}
     <h3>No Releases Found</h3>
@@ -87,7 +87,7 @@
   </div>
 
   {# TODO: https://github.com/pypa/warehouse/issues/2808
-  {% for release in project.releases %}
+  {% for release in releases %}
     <div id="delete-release-modal-{{ loop.index }}" class="modal">
       <div class="modal__content" role="dialog">
         <a href="#modal-close" title="Close" class="modal__close">
