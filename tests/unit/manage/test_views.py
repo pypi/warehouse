@@ -26,7 +26,8 @@ from warehouse.packaging.models import JournalEntry, Project, Role, User
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
-    JournalEntryFactory, ProjectFactory, RoleFactory, UserFactory,
+    JournalEntryFactory, ProjectFactory, ReleaseFactory, RoleFactory,
+    UserFactory,
 )
 
 
@@ -705,33 +706,38 @@ class TestManageAccount:
 
 class TestManageProjects:
 
-    def test_manage_projects(self):
-        project_with_older_release = pretend.stub(
-            releases=[pretend.stub(created=0)]
+    def test_manage_projects(self, db_request):
+        older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
+        project_with_older_release = ProjectFactory(releases=[older_release])
+        newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
+        project_with_newer_release = ProjectFactory(releases=[newer_release])
+        older_project_with_no_releases = ProjectFactory(
+            releases=[], created=datetime.datetime(2016, 1, 1)
         )
-        project_with_newer_release = pretend.stub(
-            releases=[pretend.stub(created=2)]
+        newer_project_with_no_releases = ProjectFactory(
+            releases=[], created=datetime.datetime(2018, 1, 1)
         )
-        older_project_with_no_releases = pretend.stub(releases=[], created=1)
-        newer_project_with_no_releases = pretend.stub(releases=[], created=3)
-        request = pretend.stub(
-            user=pretend.stub(
-                projects=[
-                    project_with_older_release,
-                    project_with_newer_release,
-                    newer_project_with_no_releases,
-                    older_project_with_no_releases,
-                ],
-            ),
+        db_request.user = UserFactory(
+            projects=[
+                project_with_older_release,
+                project_with_newer_release,
+                newer_project_with_no_releases,
+                older_project_with_no_releases,
+            ],
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=project_with_newer_release,
         )
 
-        assert views.manage_projects(request) == {
+        assert views.manage_projects(db_request) == {
             'projects': [
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
                 project_with_older_release,
             ],
+            'projects_owned': {project_with_newer_release.name},
         }
 
 

@@ -116,15 +116,6 @@ class TestProject:
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
-    def test_owners(self, db_session):
-        project = DBProjectFactory.create()
-        owner1 = DBRoleFactory.create(project=project)
-        owner2 = DBRoleFactory.create(project=project)
-        DBRoleFactory.create(project=project, role_name="Maintainer")
-        DBRoleFactory.create(project=project, role_name="Maintainer")
-
-        assert set(project.owners) == set([owner1.user, owner2.user])
-
 
 class TestRelease:
 
