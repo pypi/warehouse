@@ -313,8 +313,19 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
+    projects_owned = set(
+        project.name
+        for project in (
+            request.db.query(Project.name)
+            .join(Role.project)
+            .filter(Role.role_name == 'Owner', Role.user == request.user)
+            .all()
+        )
+    )
+
     return {
-        'projects': sorted(request.user.projects, key=_key, reverse=True)
+        'projects': sorted(request.user.projects, key=_key, reverse=True),
+        'projects_owned': projects_owned,
     }
 
 
