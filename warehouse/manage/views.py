@@ -339,14 +339,14 @@ def manage_projects(request):
     effective_principals=Authenticated,
 )
 def manage_project_settings(project, request):
-    n_releases = (
+    release_count = (
         request.db.query(Release)
         .filter(Release.project == project)
         .count()
     )
 
     return {
-        "n_releases": n_releases,
+        "release_count": release_count,
         "project": project,
     }
 

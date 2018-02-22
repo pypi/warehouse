@@ -749,7 +749,7 @@ class TestManageProjectSettings:
 
         assert views.manage_project_settings(project, db_request) == {
             "project": project,
-            "n_releases": 1,
+            "release_count": 1,
         }
 
     def test_delete_project_no_confirm(self):
