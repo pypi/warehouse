@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 from collections import OrderedDict
 
 import pretend
@@ -115,6 +116,23 @@ class TestProject:
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
+
+    def test_latest_release(self, db_session):
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2017, 1, 1),
+        )
+        new = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2018, 1, 1),
+        )
+
+        latest = project.latest_release
+
+        assert latest.name == new.name
+        assert latest.created == new.created
+        assert latest.summary == new.summary
 
 
 class TestRelease:

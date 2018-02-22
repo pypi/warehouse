@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import enum
+import functools
 
 from collections import OrderedDict
 
@@ -174,6 +175,17 @@ class Project(SitemapMixin, db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+    @property
+    @functools.lru_cache()
+    def latest_release(self):
+        return(
+            orm.object_session(self)
+            .query(Release.name, Release.created, Release.summary)
+            .filter(Release.name == self.name)
+            .order_by(Release.created.desc())
+            .first()
+        )
 
 
 class DependencyKind(enum.IntEnum):
