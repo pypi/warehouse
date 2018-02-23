@@ -265,6 +265,10 @@ This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container and run ``make initdb`` again.
 
+``localhost`` displays ``sqlalchemy.exec.OperationalError``
+-----------------------------------------------------------
+shut down Docker conainters, ``control + C``, run ``make serve`` again, run ``make initdb`` in separate terminal window.
+
 
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
