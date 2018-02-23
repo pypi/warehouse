@@ -77,7 +77,9 @@ def includeme(config):
     )
     config.add_route(
         "includes.edit-profile-button",
-        "/_includes/edit-profile-button/",
+        "/_includes/edit-profile-button/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 
