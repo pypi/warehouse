@@ -122,3 +122,14 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 
 .. _`pypi-legacy`: https://pypi.python.org/
 .. _`PEP 503`: https://www.python.org/dev/peps/pep-0503/
+
+Upload API
+----------
+
+The API endpoint served at `upload.pypi.org/legacy/
+<https://upload.pypi.org/legacy/>`_ is Warehouse's emulation of the
+legacy PyPI upload API. This is the endpoint that tools such as `twine
+<http://twine.readthedocs.io/>`_ and `distutils
+<https://docs.python.org/3.6/distutils/packageindex.html#the-upload-command>`_
+use to `upload distributions to PyPI
+<https://packaging.python.org/tutorials/distributing-packages/>`_.
