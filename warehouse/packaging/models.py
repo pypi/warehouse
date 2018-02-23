@@ -163,12 +163,6 @@ class Project(SitemapMixin, db.ModelBase):
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
-    @orm.reconstructor
-    def init_on_load(self):
-        # Can't use None as the 'uninitialized' state here because None is a
-        # valid value for this attribute
-        self._latest_release = False
-
     @property
     def documentation_url(self):
         # TODO: Move this into the database and elimnate the use of the
@@ -180,18 +174,6 @@ class Project(SitemapMixin, db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
-
-    @property
-    def latest_release(self):
-        if self._latest_release is False:
-            self._latest_release = (
-                orm.object_session(self)
-                .query(Release.name, Release.created, Release.summary)
-                .filter(Release.name == self.name)
-                .order_by(Release.created.desc())
-                .first()
-            )
-        return self._latest_release
 
 
 class DependencyKind(enum.IntEnum):
@@ -272,7 +254,6 @@ class Release(db.ModelBase):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -297,6 +278,15 @@ class Release(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
+
+    # We defer this column because it is a very large column (it can be MB in
+    # size) and we very rarely actually want to access it. Typically we only
+    # need it when rendering the page for a single project, but many of our
+    # queries only need to access a few of the attributes of a Release. Instead
+    # of playing whack-a-mole and using load_only() or defer() on each of
+    # those queries, deferring this here makes the default case more
+    # performant.
+    description = orm.deferred(Column(Text))
 
     _classifiers = orm.relationship(
         Classifier,
