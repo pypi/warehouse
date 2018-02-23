@@ -108,7 +108,7 @@ class TestProjectDetail:
 
         assert result["project"] == project
         assert result["maintainers"] == roles
-        assert result["journal"] == journals[:50]
+        assert result["journal"] == journals[:30]
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create()

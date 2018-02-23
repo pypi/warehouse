@@ -87,7 +87,7 @@
                 <th>Hidden</th>
                 <th>Uploader</th>
                 <th>Author Email</th>
-                {% for release in project.releases[:30] %}
+                {% for release in releases %}
                 <tr>
                   <td><a href="{{ request.route_path('packaging.release', name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
                   <td>{{ release.created }}</td>
