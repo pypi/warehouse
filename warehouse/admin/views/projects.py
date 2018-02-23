@@ -20,7 +20,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.view import view_config
 from sqlalchemy import or_
-from sqlalchemy.orm import load_only
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
@@ -83,8 +82,6 @@ def project_detail(project, request):
         )
 
     releases = (request.db.query(Release)
-                .options(load_only('name', 'version', 'created',
-                                   'author_email'))
                 .filter(Release.project == project)
                 .order_by(Release._pypi_ordering.desc())
                 .limit(10).all())
@@ -146,8 +143,6 @@ def releases_list(project, request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     releases_query = (request.db.query(Release)
-                      .options(load_only('name', 'version', 'created',
-                                         'author_email'))
                       .filter(Release.project == project)
                       .order_by(Release._pypi_ordering.desc()))
 
