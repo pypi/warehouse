@@ -240,6 +240,11 @@ Errors when executing ``make serve``
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   ``Dockerfile``.
 
+* If ``sqlalchemy.exec.OperationalError`` is displayed in ``localhost`` after
+  ``make serve`` has been executed, shut down the Docker containers. When the
+  containers have shut down, run ``make serve`` in one terminal window while
+  running ``make initdb`` in a separate terminal window.
+
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -264,11 +269,6 @@ https://github.com/chadoe/docker-cleanup-volumes)
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container and run ``make initdb`` again.
-
-``localhost`` displays ``sqlalchemy.exec.OperationalError``
------------------------------------------------------------
-shut down Docker conainters, ``control + C``, run ``make serve`` again, run ``make initdb`` in separate terminal window.
-
 
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
