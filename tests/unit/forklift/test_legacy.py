@@ -839,7 +839,19 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "classifiers": FieldStorage(),
                 },
-                "classifiers: Must be a list, not tuple.",
+                "classifiers: Should not be a tuple.",
+            ),
+
+            # keywords are a FieldStorage
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "keywords": FieldStorage(),
+                },
+                "keywords: Should not be a tuple.",
             ),
         ],
     )
