@@ -464,5 +464,5 @@ def profile_callout(user, request):
     renderer="includes/accounts/edit-profile-button.html",
     uses_session=True,
 )
-def edit_profile_button(request):
-    return {}
+def edit_profile_button(user, request):
+    return {'user': user}

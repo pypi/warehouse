@@ -32,8 +32,6 @@ class WarehouseFactory(SQLAlchemyModelFactory):
     @classmethod
     def _create(cls, *args, **kwargs):
         r = super()._create(*args, **kwargs)
-        if hasattr(r, 'init_on_load'):
-            r.init_on_load()
         session = cls._meta.sqlalchemy_session
         session.flush()
         return r

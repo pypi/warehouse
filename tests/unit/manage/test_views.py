@@ -743,13 +743,12 @@ class TestManageProjects:
 
 class TestManageProjectSettings:
 
-    def test_manage_project_settings(self, db_request):
-        project = ProjectFactory()
-        ReleaseFactory(project=project)
+    def test_manage_project_settings(self):
+        request = pretend.stub()
+        project = pretend.stub()
 
-        assert views.manage_project_settings(project, db_request) == {
+        assert views.manage_project_settings(project, request) == {
             "project": project,
-            "release_count": 1,
         }
 
     def test_delete_project_no_confirm(self):
@@ -825,13 +824,12 @@ class TestManageProjectSettings:
 
 class TestManageProjectReleases:
 
-    def test_manage_project_releases(self, db_request):
-        project = ProjectFactory()
-        release = ReleaseFactory(project=project)
+    def test_manage_project_releases(self):
+        request = pretend.stub()
+        project = pretend.stub()
 
-        assert views.manage_project_releases(project, db_request) == {
+        assert views.manage_project_releases(project, request) == {
             "project": project,
-            "releases": [(release.summary, release.created, release.version)],
         }
 
 

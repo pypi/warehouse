@@ -675,20 +675,23 @@ def file_upload(request):
     if request.POST.get("protocol_version", "1") != "1":
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
+    # Check if any fields were supplied as a tuple and have become a
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # ref: https://github.com/pypa/warehouse/issues/2185
+    # ref: https://github.com/pypa/warehouse/issues/2491
+    for field in set(request.POST) - {'content'}:
+        values = request.POST.getall(field)
+        if any(isinstance(value, FieldStorage) for value in values):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"{field}: Should not be a tuple.",
+            )
+
     # Look up all of the valid classifiers
     all_classifiers = request.db.query(Classifier).all()
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
-
-    # Check if the classifiers were supplied as a tuple
-    # ref: https://github.com/pypa/warehouse/issues/2185
-    classifiers = request.POST.getall('classifiers')
-    if any(isinstance(classifier, FieldStorage) for classifier in classifiers):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "classifiers: Must be a list, not tuple.",
-        )
 
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers
