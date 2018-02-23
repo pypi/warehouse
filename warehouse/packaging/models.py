@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import enum
-import functools
 
 from collections import OrderedDict
 
@@ -164,6 +163,12 @@ class Project(SitemapMixin, db.ModelBase):
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
+    @orm.reconstructor
+    def init_on_load(self):
+        # Can't use None as the 'uninitialized' state here because None is a
+        # valid value for this attribute
+        self._latest_release = False
+
     @property
     def documentation_url(self):
         # TODO: Move this into the database and elimnate the use of the
@@ -177,15 +182,16 @@ class Project(SitemapMixin, db.ModelBase):
         return request.route_url("legacy.docs", project=self.name)
 
     @property
-    @functools.lru_cache()
     def latest_release(self):
-        return(
-            orm.object_session(self)
-            .query(Release.name, Release.created, Release.summary)
-            .filter(Release.name == self.name)
-            .order_by(Release.created.desc())
-            .first()
-        )
+        if self._latest_release is False:
+            self._latest_release = (
+                orm.object_session(self)
+                .query(Release.name, Release.created, Release.summary)
+                .filter(Release.name == self.name)
+                .order_by(Release.created.desc())
+                .first()
+            )
+        return self._latest_release
 
 
 class DependencyKind(enum.IntEnum):
