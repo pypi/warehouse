@@ -297,7 +297,7 @@ class Release(db.ModelBase):
         server_default=sql.func.now(),
     )
 
-    # We deferr this column because it is a very large column (it can be MB in
+    # We defer this column because it is a very large column (it can be MB in
     # size) and we very rarely actually want to access it. Typically we only
     # need it when rendering the page for a single project, but many of our
     # queries only need to access a few of the attributes of a Release. Instead
