@@ -1,8 +1,11 @@
 API Reference
 =============
 
+Warehouse has several API endpoints. See :doc:`../application` for the
+parts of Warehouse that generate them.
+
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     feeds
     json

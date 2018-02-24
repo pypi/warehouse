@@ -3,6 +3,8 @@ JSON API
 
 PyPI offers two JSON endpoints.
 
+Project
+-------
 
 .. http:get:: /pypi/<project_name>/json
 
@@ -117,6 +119,8 @@ PyPI offers two JSON endpoints.
 
     :statuscode 200: no error
 
+Release
+-------
 
 .. http:get:: /pypi/<project_name>/<version>/json
 
