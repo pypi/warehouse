@@ -55,8 +55,8 @@
           </div>
           <p>Confirm the project name to continue.</p>
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <label for="project-name">Project Name</label>
-          <input name="confirm" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
+          <label for="confirm_project_name">Project Name</label>
+          <input name="confirm_project_name" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
           <a href="#modal-close" class="button modal__action">Cancel</a>

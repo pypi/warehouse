@@ -19,7 +19,7 @@ from warehouse.packaging.models import (
 
 
 def confirm_project(project, request, fail_route):
-    confirm = request.POST.get("confirm")
+    confirm = request.POST.get("confirm_project_name")
     project_name = project.normalized_name
     if not confirm:
         request.session.flash(
