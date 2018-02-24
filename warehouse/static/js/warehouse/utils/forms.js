@@ -52,6 +52,8 @@ export function submitTriggers() {
 
 /* global zxcvbn */
 
+const tooltipClasses = ["tooltipped", "tooltipped-s", "tooltipped-immediate"];
+
 const passwordStrengthValidator = (value) => {
   const zxcvbnResult = zxcvbn(value);
   return zxcvbnResult.score < 2 ?
@@ -64,20 +66,20 @@ const fieldRequiredValidator = (value) => {
 };
 
 const checkPasswordStrength = (event) => {
-  let result = document.querySelector(".pw-strength-guage");
+  let result = document.querySelector(".password-strength__guage");
   if (event.target.value === "") {
-    result.setAttribute("class", "pw-strength-guage");
+    result.setAttribute("class", "password-strength__guage");
   } else {
     // following recommendations on the zxcvbn JS docs
     // the zxcvbn function is available by loading `vendor/zxcvbn.js`
     // in the register page template only
     let zxcvbnResult = zxcvbn(event.target.value);
-    result.setAttribute("class", `pw-strength-guage pw-strength-guage__${zxcvbnResult.score}`);
+    result.setAttribute("class", `password-strength__guage password-strength__guage--${zxcvbnResult.score}`);
   }
 };
 
 const setupPasswordStrengthGauge = () => {
-  let password = document.querySelector("#password");
+  let password = document.querySelector("#new_password");
   if (password === null) return;
   password.addEventListener(
     "input",
@@ -86,20 +88,17 @@ const setupPasswordStrengthGauge = () => {
   );
 };
 
-const createTooltip  = (field, message) => {
-  let tooltip = document.createElement("div");
-  tooltip.setAttribute("class", "form-tooltip");
-  let exclamationMark = `<i class="fa fa-exclamation-circle" aria-hidden="true"></i>${message}`;
-  tooltip.innerHTML = exclamationMark;
-  let rect = field.getBoundingClientRect();
-  tooltip.setAttribute("style", `top: ${window.scrollY + rect.bottom + 10}px; left: ${window.scrollX + rect.right - 150}px`);
-  field.parentElement.appendChild(tooltip);
+const attachTooltip  = (field, message) => {
+  let parentNode = field.parentNode;
+  parentNode.classList.add.apply(parentNode.classList, tooltipClasses);
+  parentNode.setAttribute("aria-label", message);
 };
 
 const removeTooltips = () => {
-  let tooltips = document.querySelectorAll(".form-tooltip");
-  for (let tooltip of tooltips) {
-    tooltip.parentNode.removeChild(tooltip);
+  let tooltippedNodes = document.querySelectorAll(".tooltipped");
+  for (let tooltippedNode of tooltippedNodes) {
+    tooltippedNode.classList.remove.apply(tooltippedNode.classList, tooltipClasses);
+    tooltippedNode.removeAttribute("aria-label");
   }
 };
 
@@ -109,24 +108,24 @@ const validateForm = (event) => {
   for (let inputField of inputFields) {
     let requiredMessage = fieldRequiredValidator(inputField.value);
     if (requiredMessage !== null) {
-      createTooltip(inputField, requiredMessage);
+      attachTooltip(inputField, requiredMessage);
       event.preventDefault();
       return false;
     }
   }
 
-  let password = document.querySelector("#password");
+  let password = document.querySelector("#new_password");
   let passwordConfirm = document.querySelector("#password_confirm");
   if (password.value !== passwordConfirm.value) {
     let message = "Passwords do not match";
-    createTooltip(password, message);
+    attachTooltip(password, message);
     event.preventDefault();
     return false;
   }
 
   let passwordStrengthMessage = passwordStrengthValidator(password.value);
   if (passwordStrengthMessage !== null) {
-    createTooltip(password, passwordStrengthMessage);
+    attachTooltip(password, passwordStrengthMessage);
     event.preventDefault();
     return false;
   }

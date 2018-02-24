@@ -77,10 +77,12 @@
               <input id="show-password" type="checkbox">&nbsp;Show passwords
             </label>
           </div>
-          {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password") }}
+          <div>
+            {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password") }}
+          </div>
           <p class="form-group__help-text">
             Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
-            Password strength: <span class="pw-strength"><span class="pw-strength-guage"></span></span>
+            Password strength: <span class="password-strength"><span class="password-strength__guage"></span></span>
           </p>
           {% if form.new_password.errors %}
           <ul class="form-errors">
