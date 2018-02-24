@@ -277,37 +277,7 @@
     {% else %}
     <h3>Proceed with caution!</h3>
     <p>You will not be able to recover your account after you delete it.</p>
-    <form>
-      <a href="#delete-account-modal" class="button button--primary">
-        Delete Account
-      </a>
-    </form>
+    {{ confirm_button("Delete your PyPI Account", "Username", user.username) }}
     {% endif %}
   </div>
-
-  <div id="delete-account-modal" class="modal">
-    <div class="modal__content" role="dialog">
-      <form method="POST" action="{{ request.current_route_path() }}" class="modal__form">
-        <a href="#modal-close" title="Close" class="modal__close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">close</span>
-        </a>
-        <div class="modal__body">
-          <h3 class="modal__title">Delete your PyPI account?</h3>
-          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-            <p>Warning: This action cannot be undone!</p>
-          </div>
-          <p>Confirm your username to continue.</p>
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <label for="confirm_username">Username</label>
-          <input name="confirm_username" type="text" placeholder="Confirm your username" autocomplete="off" autocorrect="off" autocapitalize="off">
-        </div>
-        <div class="modal__footer">
-          <a href="#modal-close" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" type="submit">Delete Account</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
 {% endblock %}

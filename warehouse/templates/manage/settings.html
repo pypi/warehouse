@@ -37,32 +37,7 @@
       Deleting will irreversibly delete this project.
     {% endif %}
     </p>
-    <a href="#delete-project-modal" class="button button--primary">Delete</a>
-  </div>
-
-  <div id="delete-project-modal" class="modal">
-    {% set project_name = project.normalized_name %}
-    <div class="modal__content" role="dialog">
-      <form method="POST" action="{{ request.route_path('manage.project.delete_project', project_name=project_name) }}" class="modal__form">
-        <a href="#modal-close" title="Close" class="modal__close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">close</span>
-        </a>
-        <div class="modal__body">
-          <h3 class="modal__title">Delete {{ project.name }}?</h3>
-          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-            <p>Warning: This action cannot be undone!</p>
-          </div>
-          <p>Confirm the project name to continue.</p>
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <label for="confirm_project_name">Project Name</label>
-          <input name="confirm_project_name" type="text" placeholder="Confirm project name" autocomplete="off" autocorrect="off" autocapitalize="off">
-        </div>
-        <div class="modal__footer">
-          <a href="#modal-close" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" type="submit">Delete Project</button>
-        </div>
-      </form>
-    </div>
+    {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
+    {{ confirm_button("Delete project", "Project name", project.normalized_name, action=action) }}
   </div>
 {% endblock %}

@@ -74,10 +74,10 @@
                 <i class="fa fa-hashtag" aria-hidden="true"></i>
                 View Hashes
               </a>
-              <a href="#delete-file-modal-{{ loop.index }}" class="dropdown__link">
-                <i class="fa fa-trash" aria-hidden="true"></i>
-                Delete
-              </a>
+              {% set extra_fields %}
+                <input name="file_id" type="hidden" value="{{ file.id }}">
+              {% endset %}
+              {{ confirm_dropdown("Delete File", "Filename", file.filename, index=loop.index, extra_fields=extra_fields) }}
             </div>
           </div>
         </td>
@@ -112,63 +112,11 @@
       Deleting will irreversibly delete this release.
     {% endif %}
     </p>
-    <a href="#delete-release-modal" class="button button--primary">Delete</a>
-  </div>
-
-  <div id="delete-release-modal" class="modal">
-    <div class="modal__content" role="dialog">
-      <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <a href="#modal-close" title="Close" class="modal__close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">close</span>
-        </a>
-        <div class="modal__body">
-          <h3 class="modal__title">Delete Release {{ release.version }}?</h3>
-          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-            <p>Warning: This action cannot be undone!</p>
-          </div>
-          <p>Confirm the release version to continue.</p>
-          <label for="confirm_version">Release version</label>
-          <input name="confirm_version" type="text" placeholder="Confirm version" autocomplete="off" autocorrect="off" autocapitalize="off">
-        </div>
-        <div class="modal__footer">
-          <a href="#modal-close" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" type="submit">Delete Release</button>
-        </div>
-      </form>
-    </div>
+    {{ confirm_button("Delete Release", "Version", release.version) }}
   </div>
 
   {% if files %}
   {% for file in files %}
-  <div id="delete-file-modal-{{ loop.index }}" class="modal">
-    {% set project_name = project.normalized_name %}
-    <div class="modal__content" role="dialog">
-      <form method="POST" class="modal__form" action="{{ request.current_route_path() }}">
-        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-        <input name="file_id" type="hidden" value="{{ file.id }}">
-        <a href="#modal-close" title="Close" class="modal__close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-          <span class="sr-only">close</span>
-        </a>
-        <div class="modal__body">
-          <h3 class="modal__title">Delete {{ file.filename }}?</h3>
-          <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-            <p>Warning: This action cannot be undone!</p>
-          </div>
-          <p>Confirm the file name to continue.</p>
-          <label for="confirm_filename">File name</label>
-          <input name="confirm_filename" type="text" placeholder="Confirm file name" autocomplete="off" autocorrect="off" autocapitalize="off">
-        </div>
-        <div class="modal__footer">
-          <a href="#modal-close" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" type="submit">Delete File</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <div id="copy-hash-modal-{{ loop.index }}" class="modal modal--wide">
     <div class="modal__content" role="dialog">
       <a href="#modal-close" title="Close" class="modal__close">
