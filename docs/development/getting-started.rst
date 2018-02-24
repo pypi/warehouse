@@ -264,7 +264,7 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 
 ``make initdb`` is slow or appears to make no progress
-------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each

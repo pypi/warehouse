@@ -1045,6 +1045,7 @@ class TestProfileCallout:
 class TestEditProfileButton:
 
     def test_edit_profile_button(self):
+        user = pretend.stub()
         request = pretend.stub()
 
-        assert views.edit_profile_button(request) == {}
+        assert views.edit_profile_button(user, request) == {'user': user}

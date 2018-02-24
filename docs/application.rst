@@ -1,5 +1,5 @@
-The Warehouse codebase
-======================
+Warehouse codebase
+==================
 
 Warehouse uses the
 `Pyramid`_ web framework, the
