@@ -16,6 +16,10 @@
 // ensure we have an ES6 like environment.
 import "babel-polyfill";
 
+// Import stimulus
+import { Application } from "stimulus";
+import { definitionsFromContext } from "stimulus/webpack-helpers";
+
 // We'll use docReady as a modern replacement for $(document).ready() which
 // does not require all of jQuery to use. This will let us use it without
 // having to load all of jQuery, which will make things faster.
@@ -164,3 +168,7 @@ docReady(() => {
     }
   }
 });
+
+const application = Application.start();
+const context = require.context("./controllers", true, /\.js$/);
+application.load(definitionsFromContext(context));
