@@ -1609,7 +1609,9 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [pretend.call('help', _anchor='file-name-reuse')]
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-name-reuse')
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename has previously been used, you should use a "
@@ -1720,7 +1722,9 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [pretend.call('help', _anchor='file-name-reuse')]
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-name-reuse')
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 File already exists. "
