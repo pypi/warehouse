@@ -1600,17 +1600,21 @@ class TestFileUpload:
         })
 
         db_request.db.add(Filename(filename=filename))
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [pretend.call('help', _anchor='file-name-reuse')]
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename has previously been used, you should use a "
             "different version. "
-            "See https://pypi.org/help/#file-name-reuse"
+            "See /the/help/url/"
         )
 
     def test_upload_noop_with_existing_filename_same_content(self,
@@ -1708,16 +1712,19 @@ class TestFileUpload:
                 ),
             ),
         )
-
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [pretend.call('help', _anchor='file-name-reuse')]
         assert resp.status_code == 400
         assert resp.status == (
             "400 File already exists. "
-            "See https://pypi.org/help/#file-name-reuse"
+            "See /the/help/url/"
         )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,

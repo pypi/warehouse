@@ -1025,7 +1025,9 @@ def file_upload(request):
         elif is_duplicate is not None:
             raise _exc_with_message(
                 HTTPBadRequest, "File already exists. "
-                                "See https://pypi.org/help/#file-name-reuse"
+                                "See " + request.route_url(
+                    'help', _anchor='file-name-reuse'
+                )
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1037,7 +1039,9 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has previously been used, you should use a "
                 "different version. "
-                "See https://pypi.org/help/#file-name-reuse",
+                "See " + request.route_url(
+                    'help', _anchor='file-name-reuse'
+                ),
             )
 
         # Check to see if uploading this file would create a duplicate sdist
