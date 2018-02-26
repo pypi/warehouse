@@ -29,7 +29,7 @@ from ...common.db.packaging import (
 def test_confirm():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': 'foobar'},
+        POST={'confirm_project_name': 'foobar'},
         route_path=call_recorder(lambda *a, **kw: stub()),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
@@ -43,7 +43,7 @@ def test_confirm():
 def test_confirm_no_input():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': ''},
+        POST={'confirm_project_name': ''},
         route_path=call_recorder(lambda *a, **kw: '/the-redirect'),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
@@ -63,7 +63,7 @@ def test_confirm_no_input():
 def test_confirm_incorrect_input():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': 'bizbaz'},
+        POST={'confirm_project_name': 'bizbaz'},
         route_path=call_recorder(lambda *a, **kw: '/the-redirect'),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )

@@ -773,7 +773,7 @@ class TestManageProjectSettings:
     def test_delete_project_wrong_confirm(self):
         project = pretend.stub(normalized_name='foo')
         request = pretend.stub(
-            POST={"confirm": "bar"},
+            POST={"confirm_project_name": "bar"},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -801,7 +801,7 @@ class TestManageProjectSettings:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
-        db_request.POST["confirm"] = project.normalized_name
+        db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
         db_request.remote_addr = "192.168.1.1"
 

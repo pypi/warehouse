@@ -7,6 +7,7 @@
   "dependencies": {
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
+    "babel-plugin-transform-class-properties": "6.24.1",
     "babel-polyfill": "6.26.0",
     "babel-preset-env": "1.6.1",
     "babel-register": "6.26.0",
@@ -31,6 +32,7 @@
     "gulp-watch": "4.3.11",
     "imports-loader": "0.7.1",
     "jquery": "3.2.1",
+    "stimulus": "1.0.1",
     "uglify-js": "3.2.1",
     "vinyl-named": "1.1.0",
     "webpack": "3.10.0",
@@ -40,15 +42,18 @@
     "zopflipng-bin": "4.0.0"
   },
   "devDependencies": {
+    "babel-eslint": "8.2.2",
     "eslint": "4.12.1",
     "sass-lint": "1.12.1"
   },
   "eslintConfig": {
     "env": {
       "browser": true,
-      "es6": true
+      "es6": true,
+      "amd": true
     },
     "extends": "eslint:recommended",
+    "parser": "babel-eslint",
     "parserOptions": {
       "sourceType": "module"
     },
