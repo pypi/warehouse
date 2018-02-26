@@ -227,15 +227,8 @@
       {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input") }}
       {{ field_errors(change_password_form.password_confirm) }}
     </div>
-    <div class="form-group">
-      <div class="split-layout split-layout--table">
-        <div>
-          <input value="Update Password" class="button button--primary" type="submit">
-        </div>
-        <span>
-          <a href="{{request.route_url('accounts.request-password-reset')}}">Forgot Password?</a>
-        </span>
-      </div>
+    <div>
+      <input value="Update Password" class="button button--primary" type="submit">
     </div>
   </form>
 

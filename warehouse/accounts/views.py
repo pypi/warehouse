@@ -263,6 +263,9 @@ def register(request, _form_class=RegistrationForm):
     require_methods=False,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('index'))
+
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
 
@@ -288,6 +291,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     require_methods=False,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('index'))
+
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="password")
 
