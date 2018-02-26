@@ -839,7 +839,19 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "classifiers": FieldStorage(),
                 },
-                "classifiers: Must be a list, not tuple.",
+                "classifiers: Should not be a tuple.",
+            ),
+
+            # keywords are a FieldStorage
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0",
+                    "filetype": "sdist",
+                    "keywords": FieldStorage(),
+                },
+                "keywords: Should not be a tuple.",
             ),
         ],
     )
@@ -1054,17 +1066,19 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.40"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(b"A fake file.")
+        content.type = "application/tar"
+
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
             "pyversion": "source",
-            "content": pretend.stub(
-                filename=filename,
-                file=io.BytesIO(b"A fake file."),
-                type="application/tar",
-            ),
+            "content": content,
         })
         db_request.POST.extend([
             ("classifiers", "Environment :: Other Environment"),
@@ -1072,13 +1086,14 @@ class TestFileUpload:
         db_request.POST.update(digests)
 
         if has_signature:
-            db_request.POST["gpg_signature"] = pretend.stub(
-                filename=filename + ".asc",
-                file=io.BytesIO(
-                    b"-----BEGIN PGP SIGNATURE-----\n"
-                    b" This is a Fake Signature"
-                ),
+            gpg_signature = FieldStorage()
+            gpg_signature.filename = filename + ".asc"
+            gpg_signature.file = io.BytesIO(
+                b"-----BEGIN PGP SIGNATURE-----\n"
+                b" This is a Fake Signature"
             )
+            db_request.POST["gpg_signature"] = gpg_signature
+            assert isinstance(db_request.POST["gpg_signature"], FieldStorage)
 
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):

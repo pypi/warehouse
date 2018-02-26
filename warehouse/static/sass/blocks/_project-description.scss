@@ -31,7 +31,7 @@
   h4,
   h5,
   h6 {
-    margin: $spacing-unit 0 0;
+    padding: $spacing-unit 0 0;
   }
 
   strong,
@@ -100,6 +100,11 @@
     }
   }
 
+  table {
+    @include table;
+    margin-bottom: $spacing-unit;
+  }
+
   hr {
     margin: ($spacing-unit / 2) 0;
     border: 1px solid $light-grey;
@@ -108,6 +113,22 @@
   // Add a margin at the bottom of commonly included status badges
   > a  {
     margin-bottom: $spacing-unit / 2;
+  }
+
+  // Remove top padding on titles at the top of the description
+  > div:first-child > h1:first-child,
+  > h1:first-child,
+  > div:first-child > h2:first-child,
+  > h2:first-child,
+  > div:first-child > h3:first-child,
+  > h3:first-child,
+  > div:first-child > h4:first-child,
+  > h4:first-child,
+  > div:first-child > h5:first-child,
+  > h5:first-child,
+  > div:first-child > h6:first-child,
+  > h6:first-child {
+    padding-top: 0;
   }
 }
 

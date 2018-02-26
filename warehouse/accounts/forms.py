@@ -185,7 +185,10 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         self.user_service = user_service
 
 
-class RequestPasswordResetForm(UsernameMixin, forms.Form):
+class RequestPasswordResetForm(forms.Form):
+    username_or_email = wtforms.StringField(
+        validators=[wtforms.validators.DataRequired()]
+    )
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)

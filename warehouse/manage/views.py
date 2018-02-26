@@ -27,21 +27,21 @@ from warehouse.email import (
 )
 from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
-    SaveProfileForm,
+    SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Role
 from warehouse.utils.project import confirm_project, remove_project
 
 
 @view_defaults(
-    route_name="manage.profile",
-    renderer="manage/profile.html",
+    route_name="manage.account",
+    renderer="manage/account.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
     effective_principals=Authenticated,
 )
-class ManageProfileViews:
+class ManageAccountViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -75,7 +75,7 @@ class ManageProfileViews:
     @property
     def default_response(self):
         return {
-            'save_profile_form': SaveProfileForm(name=self.request.user.name),
+            'save_account_form': SaveAccountForm(name=self.request.user.name),
             'add_email_form': AddEmailForm(user_service=self.user_service),
             'change_password_form': ChangePasswordForm(
                 user_service=self.user_service
@@ -84,25 +84,25 @@ class ManageProfileViews:
         }
 
     @view_config(request_method="GET")
-    def manage_profile(self):
+    def manage_account(self):
         return self.default_response
 
     @view_config(
         request_method="POST",
-        request_param=SaveProfileForm.__params__,
+        request_param=SaveAccountForm.__params__,
     )
-    def save_profile(self):
-        form = SaveProfileForm(self.request.POST)
+    def save_account(self):
+        form = SaveAccountForm(self.request.POST)
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, **form.data)
             self.request.session.flash(
-                'Public profile updated.', queue='success'
+                'Account details updated.', queue='success'
             )
 
         return {
             **self.default_response,
-            'save_profile_form': form,
+            'save_account_form': form,
         }
 
     @view_config(
@@ -313,8 +313,19 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
+    projects_owned = set(
+        project.name
+        for project in (
+            request.db.query(Project.name)
+            .join(Role.project)
+            .filter(Role.role_name == 'Owner', Role.user == request.user)
+            .all()
+        )
+    )
+
     return {
-        'projects': sorted(request.user.projects, key=_key, reverse=True)
+        'projects': sorted(request.user.projects, key=_key, reverse=True),
+        'projects_owned': projects_owned,
     }
 
 

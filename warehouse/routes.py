@@ -77,7 +77,9 @@ def includeme(config):
     )
     config.add_route(
         "includes.edit-profile-button",
-        "/_includes/edit-profile-button/",
+        "/_includes/edit-profile-button/{username}",
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
         domain=warehouse,
     )
 
@@ -116,7 +118,7 @@ def includeme(config):
     )
 
     # Management (views for logged-in users)
-    config.add_route("manage.profile", "/manage/profile/", domain=warehouse)
+    config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route("manage.projects", "/manage/projects/", domain=warehouse)
     config.add_route(
         "manage.project.settings",

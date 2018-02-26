@@ -25,7 +25,7 @@
       <div class="dropdown__content">
         {% if request.has_permission("admin") %}
         <a class="dropdown__link" href="{{ request.route_path('admin.dashboard') }}">
-          <i class="fa fa-cog" aria-hidden="true"></i>
+          <i class="fa fa-wrench" aria-hidden="true"></i>
           Admin
         </a>
         {% endif %}
@@ -33,9 +33,9 @@
           <i class="fa fa-cube" aria-hidden="true"></i>
           Your Projects
         </a>
-        <a class="dropdown__link" href="{{ request.route_path('manage.profile') }}">
-          <i class="fa fa-user" aria-hidden="true"></i>
-          Your Profile
+        <a class="dropdown__link" href="{{ request.route_path('manage.account') }}">
+          <i class="fa fa-cog" aria-hidden="true"></i>
+          Account Settings
         </a>
         <a class="dropdown__link" href="{{ request.route_path('help') }}">
           <i class="fa fa-question-circle" aria-hidden="true"></i>

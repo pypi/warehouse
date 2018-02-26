@@ -33,7 +33,7 @@
       <tr>
         <th class="table__name">Filename, Size</th>
         <th class="table__type">Type</th>
-        <th class="table__version">Py Version</th>
+        <th class="table__version">Python Version</th>
         <th class="table__upload">Upload Date</th>
         <th></th>
       </tr>
@@ -54,7 +54,7 @@
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </td>
         <td class="table__type">{{ file.packagetype|format_package_type }}</td>
-        <td class="table__version">{{ file.requires_python }}</td>
+        <td class="table__version">{{ file.python_version if file.python_version != 'source' else 'None' }}</td>
         <td class="table__upload">{{ file.upload_time|format_date() }}</td>
         <td class="table__options">
           <div class="dropdown dropdown--with-icons pull-right">

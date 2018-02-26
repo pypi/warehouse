@@ -43,45 +43,7 @@
 // TABLE
 
 .table {
-  @include card;
-  @include border-width(1px null);
-  border-collapse: collapse;
-  border-spacing: 0;
-  text-align: left;
-  margin: 25px 0 0 0;
-  font-size: $small-font-size;
-  width: 100%;
-
-  tr {
-    border-bottom: 1px solid $border-color;
-  }
-
-  th,
-  td {
-    margin: 0;
-    border: 0;
-    padding: 10px 7px;
-    border-right: 1px solid $border-color;
-  }
-
-  thead tr {
-    background-color: $white;
-
-    th {
-      vertical-align: bottom;
-      font-weight: $bold-font-weight;
-    }
-  }
-
-  tbody {
-    tr {
-      background-color: darken($background-color, 0.75);
-    }
-
-    tr:nth-child(even) {
-      background-color: darken($background-color, 2);
-    }
-  }
+  @include table;
 
   &--light {
     border: 0;
@@ -264,7 +226,7 @@
     }
 
     .table__version {
-      width: 110px;
+      width: 140px;
     }
 
     .table__upload {
@@ -513,8 +475,8 @@
       font-size: 90%;
     }
 
-    .table__status {
-      width: 190px;
+    .table__status-badges {
+      min-width: 160px;
     }
 
     .table__action {
@@ -549,6 +511,10 @@
       .table__email,
       .table__status {
         padding: 4px 0;
+      }
+
+      .table__status-badges {
+        min-width: auto;
       }
 
       .table__action {

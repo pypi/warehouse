@@ -109,7 +109,9 @@ def test_routes(warehouse):
         ),
         pretend.call(
             "includes.edit-profile-button",
-            "/_includes/edit-profile-button/",
+            "/_includes/edit-profile-button/{username}",
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call("search", "/search/", domain=warehouse),
@@ -143,8 +145,8 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
-            "manage.profile",
-            "/manage/profile/",
+            "manage.account",
+            "/manage/account/",
             domain=warehouse
         ),
         pretend.call(

@@ -12,6 +12,6 @@
  # limitations under the License.
 -#}
 
-{% if request.user %}
-  <a href="{{ request.route_path('manage.profile') }}" class="button button--primary author-profile__edit-button">Edit Profile</a>
+{% if request.user == user %}
+  <a href="{{ request.route_path('manage.account') }}" class="button button--primary author-profile__edit-button">Edit Profile</a>
 {% endif %}

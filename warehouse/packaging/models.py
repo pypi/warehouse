@@ -175,16 +175,6 @@ class Project(SitemapMixin, db.ModelBase):
 
         return request.route_url("legacy.docs", project=self.name)
 
-    @property
-    def owners(self):
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(Role.user)
-            .filter(Role.project == self, Role.role_name == 'Owner')
-            .all()
-        )
-
 
 class DependencyKind(enum.IntEnum):
 
@@ -264,7 +254,6 @@ class Release(db.ModelBase):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -289,6 +278,15 @@ class Release(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
+
+    # We defer this column because it is a very large column (it can be MB in
+    # size) and we very rarely actually want to access it. Typically we only
+    # need it when rendering the page for a single project, but many of our
+    # queries only need to access a few of the attributes of a Release. Instead
+    # of playing whack-a-mole and using load_only() or defer() on each of
+    # those queries, deferring this here makes the default case more
+    # performant.
+    description = orm.deferred(Column(Text))
 
     _classifiers = orm.relationship(
         Classifier,

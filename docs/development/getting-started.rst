@@ -138,7 +138,7 @@ Next, you will:
 * create a new Postgres database,
 * install example data to the Postgres database,
 * run migrations, and
-* load some example data from `Test PyPI <https://testpypi.python.org/>`_
+* load some example data from `Test PyPI`_
 
 In a second terminal, separate from the ``make serve`` command above, run:
 
@@ -158,11 +158,11 @@ Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started a reactor:
+``web`` service has started:
 
 .. code-block:: console
 
-    [twisted.application.runner._runner.Runner#info] Starting reactor...
+    [INFO] Listening at: http://0.0.0.0:8000
 
 the web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
@@ -173,6 +173,17 @@ the web container is listening on port 80. It's accessible at
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+
+Logging in to Warehouse
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In the development environment, the password for every account has been set to
+the string ``password``. You can log in as any account at
+``http://localhost:80/account/login/``.
+
+To log in as an admin user, log in as ``ewdurbin`` with the password
+``password`` at ``http://localhost:80/admin/login/``.
 
 
 Stopping Warehouse and other services
@@ -194,10 +205,8 @@ The repository is exposed inside of the web container at
 ``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
 any changes made to the code.
 
-The example data located in ``dev/example.sql.xz`` is taken from
-`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
-anything private. The password for every account has been set to the string
-``password``.
+The example data located in ``dev/example.sql.xz`` is taken from `Test PyPI`_
+and has been sanitized to remove anything private.
 
 
 Running your developer environment after initial setup
@@ -231,6 +240,11 @@ Errors when executing ``make serve``
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   ``Dockerfile``.
 
+* If ``sqlalchemy.exec.OperationalError`` is displayed in ``localhost`` after
+  ``make serve`` has been executed, shut down the Docker containers. When the
+  containers have shut down, run ``make serve`` in one terminal window while
+  running ``make initdb`` in a separate terminal window.
+
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -250,12 +264,11 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 
 ``make initdb`` is slow or appears to make no progress
-------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container and run ``make initdb`` again.
-
 
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
@@ -380,10 +393,11 @@ command will give the following error message:
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
-.. _`pip`: https://pypi.python.org/pypi/pip
-.. _`sphinx`: https://pypi.python.org/pypi/Sphinx
+.. _`pip`: https://pypi.org/project/pip
+.. _`sphinx`: https://pypi.org/project/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
 .. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
 .. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`Test PyPI`: https://test.pypi.org/

@@ -248,6 +248,8 @@
           <h2 class="page-title">Release History</h2>
 
           <section class="release-timeline">
+            {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
+            {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
             {% for hrelease in all_releases %}
             {% set is_current = (hrelease.version == release.version) %}
             <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
@@ -262,9 +264,9 @@
                 <div class="release__line"></div>
                 {% endif %}
                 {% if is_current %}
-                <img class="release__node" alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/blue-cube.svg') }}">
+                <img class="release__node" alt="History Node" src="{{ blue_cube }}">
                 {% else %}
-                <img class="release__node" alt="History Node" src="{{ request.static_url('warehouse:static/dist/images/white-cube.svg') }}">
+                <img class="release__node" alt="History Node" src="{{ white_cube }}">
                 {% endif %}
               </div>
 
@@ -287,14 +289,14 @@
               <thead>
                 <tr>
                   <th class="table__filename">
-                    File Name &amp; Hash
+                    Filename, Size &amp; Hash
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 Hash Help</span>
                     </a>
                   </th>
-                  <th class="table__version">Version</th>
                   <th class="table__type">File Type</th>
+                  <th class="table__version">Python Version</th>
                   <th class="table__upload-date">Upload Date</th>
                 </tr>
               </thead>
@@ -314,14 +316,14 @@
                     </a>
                   </td>
                   <td>
+                    {{ file.packagetype|format_package_type }}
+                  </td>
+                  <td>
                     {% if file.python_version != "source" %}
                       {{ file.python_version }}
                     {% else %}
-                      –
+                      None
                     {% endif %}
-                  </td>
-                  <td>
-                    {{ file.packagetype|format_package_type }}
                   </td>
                   <td>{{ file.upload_time|format_date() }}</td>
                 </tr>

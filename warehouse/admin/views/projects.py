@@ -81,6 +81,11 @@ def project_detail(project, request):
             ),
         )
 
+    releases = (request.db.query(Release)
+                .filter(Release.project == project)
+                .order_by(Release._pypi_ordering.desc())
+                .limit(10).all())
+
     maintainers = [
         role
         for role in (
@@ -101,12 +106,13 @@ def project_detail(project, request):
             request.db.query(JournalEntry)
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc())
-            .limit(50)
+            .limit(30)
         )
     ]
 
     return {
         "project": project,
+        "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
         "ONE_MB": ONE_MB,

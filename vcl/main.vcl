@@ -348,6 +348,11 @@ sub vcl_deliver {
         log {"syslog "} req.service_id {" downloads :: "} "2@" now "|" geoip.country_code "|" req.url.path "|" tls.client.protocol "|" tls.client.cipher "|" resp.http.x-amz-meta-project "|" resp.http.x-amz-meta-version "|" resp.http.x-amz-meta-package-type "|" req.http.user-agent;
     }
 
+    # Set X-Robots-Header for everything _but_ prod
+    if (std.tolower(req.http.host) !~ "^pypi.org$") {
+        set resp.http.X-Robots-Header = "noindex";
+    }
+
     # Unset a few headers set by Amazon that we don't really have a need/desire
     # to send to clients.
     unset resp.http.x-amz-replication-status;

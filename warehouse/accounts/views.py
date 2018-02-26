@@ -19,7 +19,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
@@ -80,13 +79,11 @@ def profile(user, request):
         )
 
     projects = (
-        request.db.query(Release)
-                  .options(joinedload(Release.project))
-                  .join(Project)
-                  .distinct(Project.name)
-                  .filter(Project.users.contains(user))
-                  .order_by(Project.name, Release._pypi_ordering.desc())
-                  .all()
+        request.db.query(Project)
+        .filter(Project.users.contains(user))
+        .join(Project.releases)
+        .order_by(Release.created.desc())
+        .all()
     )
 
     return {"user": user, "projects": projects}
@@ -104,6 +101,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('manage.projects'))
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -214,7 +213,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
-        return HTTPSeeOther("/")
+        return HTTPSeeOther(request.route_path('manage.projects'))
 
     if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
@@ -268,9 +267,15 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST" and form.validate():
-        user = user_service.get_user_by_username(form.username.data)
-        fields = send_password_reset_email(request, user)
-        return {'n_hours': fields['n_hours']}
+        user = user_service.get_user_by_username(form.username_or_email.data)
+        if user is None:
+            user = user_service.get_user_by_email(form.username_or_email.data)
+        if user:
+            send_password_reset_email(request, user)
+
+        token_service = request.find_service(ITokenService, name='password')
+        n_hours = token_service.max_age // 60 // 60
+        return {"n_hours": n_hours}
 
     return {"form": form}
 
@@ -363,7 +368,7 @@ def verify_email(request):
 
     def _error(message):
         request.session.flash(message, queue="error")
-        return HTTPSeeOther(request.route_path("manage.profile"))
+        return HTTPSeeOther(request.route_path("manage.account"))
 
     try:
         token = request.params.get('token')
@@ -399,7 +404,7 @@ def verify_email(request):
         'You can now set this email as your primary address.',
         queue='success'
     )
-    return HTTPSeeOther(request.route_path("manage.profile"))
+    return HTTPSeeOther(request.route_path("manage.account"))
 
 
 def _login_user(request, userid):
@@ -457,5 +462,5 @@ def profile_callout(user, request):
     renderer="includes/accounts/edit-profile-button.html",
     uses_session=True,
 )
-def edit_profile_button(request):
-    return {}
+def edit_profile_button(user, request):
+    return {'user': user}

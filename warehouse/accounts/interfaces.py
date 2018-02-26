@@ -47,6 +47,12 @@ class IUserService(Interface):
         if there is no user with that username.
         """
 
+    def get_user_by_email(email):
+        """
+        Return the user object corresponding with the given email, or None
+        if there is no user with that email.
+        """
+
     def find_userid(username):
         """
         Find the unique user identifier for the given username or None if there
