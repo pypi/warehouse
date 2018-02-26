@@ -1,0 +1,7 @@
+Rate limiting in Warehouse is done through the IRateLimiter() class, which takes a variable Interface. The arguments for this interface are test, hit, and resets_in.
+
+test(*identifiers) checks if the rate limit identified by the identifiers has been reached, returning a boolean to indicate whether or not to allow the action.
+
+hit(*identifiers) registers a hit for the rate limit identified by the identifiers. This will return a boolean to indicate whether or not to allow the action for which a hit has been registered.
+
+resets_in(*identifiers) returns a timedelta indicating how long until the rate limit identified by identifiers will reset.
