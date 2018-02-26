@@ -51,7 +51,7 @@
     border-color: $brand-color;
     color: darken($brand-color, 10);
     text-decoration: none;
-    z-index: index($z-index-scale, "active-button");
+    z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }
 
@@ -65,7 +65,7 @@
     border-color: $brand-color;
     background-color: $brand-color;
     color: $white;
-    z-index: index($z-index-scale, "primary-button");
+    z-index: index($z-index-scale, "primary-button"); // Needed for button groups
 
     &:focus,
     &:hover,
