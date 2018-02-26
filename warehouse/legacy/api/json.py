@@ -96,9 +96,9 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
+               .options(Load(Release).load_only('version'))
                .outerjoin(File)
                .filter(Release.project == project)
-               .options(Load(Release).load_only('version'))
                .order_by(Release._pypi_ordering.desc(), File.filename)
                .all()
     )

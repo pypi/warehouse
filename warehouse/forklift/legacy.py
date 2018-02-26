@@ -676,10 +676,11 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
+    # FieldStorage, however.
     # ref: https://github.com/pypa/warehouse/issues/2185
     # ref: https://github.com/pypa/warehouse/issues/2491
-    for field in set(request.POST) - {'content'}:
+    for field in set(request.POST) - {'content', 'gpg_signature'}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(
@@ -1026,7 +1027,13 @@ def file_upload(request):
         if is_duplicate:
             return Response()
         elif is_duplicate is not None:
-            raise _exc_with_message(HTTPBadRequest, "File already exists.")
+            raise _exc_with_message(
+                HTTPBadRequest, "File already exists. "
+                                "See " +
+                                request.route_url(
+                                    'help', _anchor='file-name-reuse'
+                                )
+            )
 
         # Check to see if the file that was uploaded exists in our filename log
         if (request.db.query(
@@ -1036,7 +1043,10 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 "This filename has previously been used, you should use a "
-                "different version.",
+                "different version. "
+                "See " + request.route_url(
+                    'help', _anchor='file-name-reuse'
+                ),
             )
 
         # Check to see if uploading this file would create a duplicate sdist

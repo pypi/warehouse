@@ -19,7 +19,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
-from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
@@ -83,7 +82,6 @@ def profile(user, request):
         request.db.query(Project)
         .filter(Project.users.contains(user))
         .join(Project.releases)
-        .options(Load(Release).load_only('summary', 'created'))
         .order_by(Release.created.desc())
         .all()
     )

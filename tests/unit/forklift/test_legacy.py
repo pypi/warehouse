@@ -1066,17 +1066,19 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.40"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(b"A fake file.")
+        content.type = "application/tar"
+
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
             "name": project.name,
             "version": release.version,
             "filetype": "sdist",
             "pyversion": "source",
-            "content": pretend.stub(
-                filename=filename,
-                file=io.BytesIO(b"A fake file."),
-                type="application/tar",
-            ),
+            "content": content,
         })
         db_request.POST.extend([
             ("classifiers", "Environment :: Other Environment"),
@@ -1084,13 +1086,14 @@ class TestFileUpload:
         db_request.POST.update(digests)
 
         if has_signature:
-            db_request.POST["gpg_signature"] = pretend.stub(
-                filename=filename + ".asc",
-                file=io.BytesIO(
-                    b"-----BEGIN PGP SIGNATURE-----\n"
-                    b" This is a Fake Signature"
-                ),
+            gpg_signature = FieldStorage()
+            gpg_signature.filename = filename + ".asc"
+            gpg_signature.file = io.BytesIO(
+                b"-----BEGIN PGP SIGNATURE-----\n"
+                b" This is a Fake Signature"
             )
+            db_request.POST["gpg_signature"] = gpg_signature
+            assert isinstance(db_request.POST["gpg_signature"], FieldStorage)
 
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
@@ -1612,16 +1615,23 @@ class TestFileUpload:
         })
 
         db_request.db.add(Filename(filename=filename))
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-name-reuse')
+        ]
         assert resp.status_code == 400
         assert resp.status == (
             "400 This filename has previously been used, you should use a "
-            "different version."
+            "different version. "
+            "See /the/help/url/"
         )
 
     def test_upload_noop_with_existing_filename_same_content(self,
@@ -1719,14 +1729,22 @@ class TestFileUpload:
                 ),
             ),
         )
-
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-name-reuse')
+        ]
         assert resp.status_code == 400
-        assert resp.status == "400 File already exists."
+        assert resp.status == (
+            "400 File already exists. "
+            "See /the/help/url/"
+        )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):
