@@ -26,6 +26,9 @@ omit =
     # And again, tiny shim code.
     warehouse/celery.py
 
+    # Vendored library
+    warehouse/datadog/pyramid_datadog.py
+
 
 [report]
 exclude_lines =
