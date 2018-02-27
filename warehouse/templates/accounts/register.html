@@ -82,7 +82,12 @@
           </div>
           <p class="form-group__help-text">
             Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
-            Password strength: <span class="password-strength"><span class="password-strength__guage"></span></span>
+          </p>
+          <p class="form-group__help-text">
+            <strong>Password strength:</strong>
+            <span class="password-strength">
+              <span class="password-strength__guage"></span>
+            </span>
           </p>
           {% if form.new_password.errors %}
           <ul class="form-errors">
