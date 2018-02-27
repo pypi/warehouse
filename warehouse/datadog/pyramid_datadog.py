@@ -100,6 +100,8 @@ def on_before_render(before_render_event):
 
 def on_new_response(new_response_event):
     request = new_response_event.request
+    if not hasattr(request, 'timings'):
+        return
     new_response_time = time_ms()
 
     timings = request.timings
