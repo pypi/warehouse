@@ -397,9 +397,9 @@ stdlib-list==0.4.0 \
 structlog==18.1.0 \
     --hash=sha256:0b0d9b2e34c82d33f540252b9c8853c50521ccf7d7b5e2f30172a0850cba77dd \
     --hash=sha256:ff1e7aae015b346060c03b1cc4a1f29d428de7d858eaf06ea93ee35ac51071a0
-transaction==2.1.2 \
-    --hash=sha256:994ba6b5d0bb9aeb573624ff55e6ca286128decec3ecaa4cb02e864e60ccfe63 \
-    --hash=sha256:b9bc365e7dba3877e0f6fdee32aa029b8c0c1eb4fe227f524bffd5fc46064bd5
+transaction==2.2.0 \
+    --hash=sha256:49db1c301a7d081842d4315389d213d1463f352751136d3128007df3e6e82122 \
+    --hash=sha256:714d6883dfd5f41f454afce716c58bb59ba10af3d23562b5be781cbbd6fb5100
 translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4
