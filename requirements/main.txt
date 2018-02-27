@@ -133,9 +133,9 @@ elasticsearch==5.4.0 \
 first==2.0.1 \
     --hash=sha256:3bb3de3582cb27071cfb514f00ed784dc444b7f96dc21e140de65fe00585c95e \
     --hash=sha256:41d5b64e70507d0c3ca742d68010a76060eea8a3d863e9b5130ab11a4a91aa0e
-google-api-core==0.1.4 \
-    --hash=sha256:1698e4af4edd2a8ec22d678fd9abe99c926c3a154b2232f32807946ca49e3da1 \
-    --hash=sha256:0144d467083ed54d2e8ccb4212d42c3724fe0b844b7d3a0ff85aea54b7ae8347
+google-api-core==1.0.0 \
+    --hash=sha256:5eb574300183096f0a77f934a47e02c532a7bd128bcb8919d6f7099d5584c26c \
+    --hash=sha256:74e11737212e922ce9623b73f714eefe0c9cb18b1f49ce1424aac970f741df8e
 google-cloud-bigquery==0.30.0 \
     --hash=sha256:1eaec885c2db2ac5463f13f852bb48b3c3f5b4da043baca858ae03d8eead5c6e \
     --hash=sha256:a95415d3d99449cf2cdc51be73a640de5d088e67f5b46af7da4ee64f36560d2d
