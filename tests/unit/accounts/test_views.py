@@ -178,6 +178,11 @@ class TestLogin:
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
 
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start', tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.complete', tags=['auth_method:login_form']),
+        ]
+
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [
             pretend.call('manage.projects')
