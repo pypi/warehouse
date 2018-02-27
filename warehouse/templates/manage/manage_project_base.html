@@ -52,11 +52,13 @@
                   <p class="package-snippet__description">{{ release.summary }}</p>
                 {% endif %}
               </div>
-              <div>
-                <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">
-                  View Project
-                </a>
-              </div>
+              {% if release %}
+                <div>
+                  <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}" class="button">
+                    View Project
+                  </a>
+                </div>
+              {% endif %}
             </div>
           </div>
           <!-- mobile nav -->
