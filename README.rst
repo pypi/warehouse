@@ -25,9 +25,8 @@ If you run into bugs, you can file them in our `issue tracker`_.
 
 You can also file specific types of issues:
 
-- `Good First Issue
-  <https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md>`:
-  An easy issue reserved for people who haven't contributed before
+- `Good First Issue`_: An easy issue reserved for people who haven't
+  contributed before
 
 You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
 `pypa-dev mailing list`_, to ask questions or get involved.
@@ -45,4 +44,5 @@ Code of Conduct
 Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
+.. _Good First Issue: https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md
 .. _PyPA Code of Conduct: https://www.pypa.io/en/latest/code-of-conduct/
