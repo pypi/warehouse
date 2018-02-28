@@ -56,5 +56,4 @@ def upgrade():
 
 
 def downgrade():
-    op.alter_column('releases', 'canonical_version', nullable=True)
-    op.get_bind().execute(releases.update().values(canonical_version=None))
+    raise RuntimeError('No such thing as decanonicalization!')
