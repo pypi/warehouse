@@ -25,9 +25,9 @@ Jinja2==2.10 \
     --hash=sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4
 MarkupSafe==1.0 \
     --hash=sha256:a6be69091dac236ea9c6bc7d012beab42010fa914c459791d627dad4910eb665
-packaging==17.0 \
-    --hash=sha256:fd6933093a5462f61eec7e2d7f9bb042c28ee597ff6a93d27fb73bdc43f2684d \
-    --hash=sha256:e9f654a6854321ac39d2e6745b820773ba9efa394e71dea1b387cc717d439f93
+packaging==17.1 \
+    --hash=sha256:e9215d2d2535d3ae866c3d6efc77d5b24a0192cce0ff20e42896cc0664f889c0 \
+    --hash=sha256:f019b770dd64e585a99714f1fd5e01c7a8f11b45635aa953fd41c689a657375b
 Pygments==2.2.0 \
     --hash=sha256:78f3f434bcc5d6ee09020f92ba487f95ba50f1e3ef83ae96b9d5ffa1bab25c5d \
     --hash=sha256:dbae1046def0efb574852fab9e90209b23f556367b5a320c0bcb871c77c3e8cc
