@@ -246,6 +246,7 @@ class Release(db.ModelBase):
         primary_key=True,
     )
     version = Column(Text, primary_key=True)
+    canonical_version = Column(Text)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
     author_email = Column(Text)

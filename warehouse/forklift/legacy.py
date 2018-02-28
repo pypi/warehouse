@@ -877,6 +877,9 @@ def file_upload(request):
                         "project_urls": DependencyKind.project_url,
                     }
                 )),
+                canonical_version=packaging.utils.canonicalize_version(
+                    form.version.data
+                ),
                 **{
                     k: getattr(form, k).data
                     for k in {
