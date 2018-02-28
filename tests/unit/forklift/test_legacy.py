@@ -2249,8 +2249,7 @@ class TestFileUpload:
                         "platform tag .*",
                         resp.status)
 
-    def test_upload_succeeds_creates_release(
-            self, pyramid_config, db_request, monkeypatch):
+    def test_upload_succeeds_creates_release(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
@@ -2295,11 +2294,6 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc: storage_service
 
-        canonicalize = pretend.call_recorder(lambda a: 'canonical-version')
-        monkeypatch.setattr(
-            legacy.packaging.utils, 'canonicalize_version', canonicalize
-        )
-
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
@@ -2320,8 +2314,7 @@ class TestFileUpload:
         assert set(release.project_urls) == {"Test, https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
-        assert release.canonical_version == 'canonical-version'
-        assert canonicalize.calls == [pretend.call(db_request.POST['version'])]
+        assert release.canonical_version == '1'
 
         # Ensure that a File object has been created.
         db_request.db.query(File) \
