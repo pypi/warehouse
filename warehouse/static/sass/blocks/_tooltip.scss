@@ -64,7 +64,8 @@ $tooltip-duration: 0.1s !default;
 // This will indicate when we'll activate the tooltip
 .tooltipped:hover,
 .tooltipped:active,
-.tooltipped:focus {
+.tooltipped:focus,
+.tooltipped-immediate {
   &::before,
   &::after {
     display: inline-block;
