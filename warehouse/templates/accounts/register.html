@@ -86,7 +86,9 @@
           <p class="form-group__help-text">
             <strong>Password strength:</strong>
             <span class="password-strength">
-              <span class="password-strength__gauge"></span>
+              <span class="password-strength__gauge">
+                <span class="sr-only">Password field is empty</span>
+              </span>
             </span>
           </p>
           {% if form.new_password.errors %}

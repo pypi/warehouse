@@ -69,12 +69,17 @@ const checkPasswordStrength = (event) => {
   let result = document.querySelector(".password-strength__gauge");
   if (event.target.value === "") {
     result.setAttribute("class", "password-strength__gauge");
+    // Feedback for screen readers
+    result.querySelector(".sr-only").innerHTML = "Password field is empty";
   } else {
     // following recommendations on the zxcvbn JS docs
     // the zxcvbn function is available by loading `vendor/zxcvbn.js`
     // in the register page template only
     let zxcvbnResult = zxcvbn(event.target.value);
     result.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
+
+    // Feedback for screen readers
+    result.querySelector(".sr-only").innerHTML = zxcvbnResult.feedback.suggestions.join(" ") || "Password is strong";
   }
 };
 
@@ -88,7 +93,7 @@ const setupPasswordStrengthGauge = () => {
   );
 };
 
-const attachTooltip  = (field, message) => {
+const attachTooltip = (field, message) => {
   let parentNode = field.parentNode;
   parentNode.classList.add.apply(parentNode.classList, tooltipClasses);
   parentNode.setAttribute("aria-label", message);
