@@ -66,15 +66,15 @@ const fieldRequiredValidator = (value) => {
 };
 
 const checkPasswordStrength = (event) => {
-  let result = document.querySelector(".password-strength__guage");
+  let result = document.querySelector(".password-strength__gauge");
   if (event.target.value === "") {
-    result.setAttribute("class", "password-strength__guage");
+    result.setAttribute("class", "password-strength__gauge");
   } else {
     // following recommendations on the zxcvbn JS docs
     // the zxcvbn function is available by loading `vendor/zxcvbn.js`
     // in the register page template only
     let zxcvbnResult = zxcvbn(event.target.value);
-    result.setAttribute("class", `password-strength__guage password-strength__guage--${zxcvbnResult.score}`);
+    result.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
   }
 };
 
