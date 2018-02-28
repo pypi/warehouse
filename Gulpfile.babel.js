@@ -175,6 +175,10 @@ gulp.task("dist:manifest", () => {
     path.join(distPath, "js", "*.js"),
     path.join(distPath, "js", "*.map"),
 
+    // Cachebust our vendored JS files and the source maps for them.
+    path.join(distPath, "js", "vendor", "*.js"),
+    path.join(distPath, "js", "vendor", "*.map"),
+
     // Cachebust our Image files.
     path.join(distPath, "images", "*"),
   ];
