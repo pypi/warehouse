@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import re
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
@@ -248,20 +249,36 @@ def classifiers(request):
 def search(request):
 
     q = request.params.get("q", '')
+    q = q.replace("'", '"')
+
+    def filter_query(s):
+        matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
+        result_quoted = [t[0].strip() for t in matches if t[0]]
+        result_unquoted = [t[1].strip() for t in matches if t[1]]
+        return result_quoted, result_unquoted
+
+    def form_query(query_type, query):
+        return Q('multi_match', fields=SEARCH_FIELDS,
+                 query=query, type=query_type
+                 )
 
     if q:
-        should = []
-        for field in SEARCH_FIELDS:
-            kw = {"query": q}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
-            should.append(Q("match", **{field: kw}))
+        quoted_string, unquoted_string = filter_query(q)
+        must = [
+            form_query("phrase", i) for i in quoted_string
+        ] + [
+            form_query("best_fields", i) for i in unquoted_string
+        ]
 
-        # Add a prefix query if ``q`` is longer than one character.
+        bool_query = Q('bool', must=must)
+
+        # Allow to optionally match on prefix
+        # if ``q`` is longer than one character.
         if len(q) > 1:
-            should.append(Q('prefix', normalized_name=q))
+            bool_query = bool_query | Q('prefix', normalized_name=q)
 
-        query = request.es.query("dis_max", queries=should)
+        query = request.es.query('bool', must=bool_query)
+
         query = query.suggest("name_suggestion", q, term={"field": "name"})
     else:
         query = request.es.query()

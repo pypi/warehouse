@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import re
 
 import pretend
 import pytest
@@ -23,9 +24,9 @@ from pyramid.httpexceptions import (
 
 from warehouse import views
 from warehouse.views import (
-    SEARCH_BOOSTS, SEARCH_FIELDS, classifiers, current_user_indicator,
-    forbidden, health, httpexception_view, index, robotstxt, opensearchxml,
-    search, force_status, flash_messages, forbidden_include
+    SEARCH_FIELDS, classifiers, current_user_indicator, forbidden, health,
+    httpexception_view, index, robotstxt, opensearchxml, search, force_status,
+    flash_messages, forbidden_include
 )
 
 from ..common.db.accounts import UserFactory
@@ -207,16 +208,30 @@ def test_esi_flash_messages():
 
 class TestSearch:
 
+    def _filter_query(self, s):
+        matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
+        result_quoted = [t[0].strip() for t in matches if t[0]]
+        result_unquoted = [t[1].strip() for t in matches if t[1]]
+        return result_quoted, result_unquoted
+
+    def _form_query(self, query_type, query):
+        return Q('multi_match', fields=SEARCH_FIELDS,
+                 query=query, type=query_type
+                 )
+
     def _gather_es_queries(self, q):
-        queries = []
-        for field in SEARCH_FIELDS:
-            kw = {"query": q}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
-            queries.append(Q("match", **{field: kw}))
+        quoted_strings, unquoted_strings = self._filter_query(q)
+        queries = [
+            self._form_query("phrase", i) for i in quoted_strings
+        ] + [
+            self._form_query("best_fields", i) for i in unquoted_strings
+        ]
+
+        query = Q('bool', must=queries)
+
         if len(q) > 1:
-            queries.append(Q("prefix", normalized_name=q))
-        return queries
+            query = query | Q("prefix", normalized_name=q)
+        return query
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(self, monkeypatch, db_request, page):
@@ -257,8 +272,59 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
+                "bool",
+                must=self._gather_es_queries(params["q"])
+            )
+        ]
+        assert es_query.suggest.calls == [
+            pretend.call(
+                "name_suggestion",
+                params["q"],
+                term={"field": "name"},
+            ),
+        ]
+
+    @pytest.mark.parametrize("page", [None, 1, 5])
+    def test_with_exact_phrase_query(self, monkeypatch, db_request, page):
+        params = MultiDict({"q": '"foo bar"'})
+        if page is not None:
+            params["page"] = page
+        db_request.params = params
+
+        sort = pretend.stub()
+        suggest = pretend.stub(
+            sort=pretend.call_recorder(lambda *a, **kw: sort),
+        )
+        es_query = pretend.stub(
+            suggest=pretend.call_recorder(lambda *a, **kw: suggest),
+        )
+        db_request.es = pretend.stub(
+            query=pretend.call_recorder(lambda *a, **kw: es_query)
+        )
+
+        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
+        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        assert search(db_request) == {
+            "page": page_obj,
+            "term": params.get("q", ''),
+            "order": params.get("o", ''),
+            "applied_filters": [],
+            "available_filters": [],
+        }
+        assert page_cls.calls == [
+            pretend.call(suggest, url_maker=url_maker, page=page or 1),
+        ]
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert db_request.es.query.calls == [
+            pretend.call(
+                "bool",
+                must=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -308,8 +374,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
+                "bool",
+                must=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -380,8 +446,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
+                "bool",
+                must=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -455,8 +521,8 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "dis_max",
-                queries=self._gather_es_queries(params["q"])
+                "bool",
+                must=self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
