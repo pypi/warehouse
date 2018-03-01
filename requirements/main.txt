@@ -354,9 +354,9 @@ pytz==2018.3 \
     --hash=sha256:5bd55c744e6feaa4d599a6cbd8228b4f8f9ba96de2c38d56f08e534b3c9edf0d \
     --hash=sha256:887ab5e5b32e4d0c86efddd3d055c1f363cbaa583beb8da5e22d2fa2f64d51ef \
     --hash=sha256:410bcd1d6409026fbaa65d9ed33bf6dd8b1e94a499e32168acfc7b332e4095c0
-raven==6.5.0 \
-    --hash=sha256:0adae40e004dfe2181d1f2883aa3d4ca1cf16dbe449ae4b445b011c6eb220a90 \
-    --hash=sha256:84da75114739191bdf2388f296ffd6177e83567a7fbaf2701e034ad6026e4f3b
+raven==6.6.0 \
+    --hash=sha256:738a52019d01955d5b44b49d67c9f2f4cedb1b4f70d4fb0b493931174d00e044 \
+    --hash=sha256:92bf4c4819472ed20f1b9905eeeafe1bc6fe5f273d7c14506fdb8fb3a6ab2074
 readme-renderer==17.2 \
     --hash=sha256:c9637bfcf1ff40f7683b3439f4b97eb0f9a1cffc2a1fad5fa01debd667ddb111 \
     --hash=sha256:9deab442963a63a71ab494bf581b1c844473995a2357f4b3228a1df1c8cba8da
