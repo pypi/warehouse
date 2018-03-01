@@ -15,6 +15,7 @@ import hashlib
 
 import factory
 import factory.fuzzy
+import packaging.utils
 
 from warehouse.packaging.models import (
     BlacklistedProject, Dependency, DependencyKind, File, JournalEntry,
@@ -39,7 +40,9 @@ class ReleaseFactory(WarehouseFactory):
     name = factory.LazyAttribute(lambda o: o.project.name)
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")
-    canonical_version = factory.Sequence(lambda n: str(n) + ".0")
+    canonical_version = factory.LazyAttribute(
+        lambda o: packaging.utils.canonicalize_version(o.version)
+    )
     _pypi_ordering = factory.Sequence(lambda n: n)
 
     uploader = factory.SubFactory(UserFactory)
