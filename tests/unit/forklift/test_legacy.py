@@ -2314,6 +2314,7 @@ class TestFileUpload:
         assert set(release.project_urls) == {"Test, https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
+        assert release.canonical_version == '1'
 
         # Ensure that a File object has been created.
         db_request.db.query(File) \
