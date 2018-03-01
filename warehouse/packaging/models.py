@@ -14,6 +14,7 @@ import enum
 
 from collections import OrderedDict
 
+import packaging.utils
 from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
@@ -133,13 +134,16 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __getitem__(self, version):
         session = orm.object_session(self)
+        canonical_version = packaging.utils.canonicalize_version(version)
 
         try:
             return (
                 session.query(Release)
-                       .filter((Release.project == self) &
-                               (Release.version == version))
-                       .one()
+                .filter(
+                    (Release.project == self) &
+                    (Release.canonical_version == canonical_version)
+                )
+                .one()
             )
         except NoResultFound:
             raise KeyError from None
