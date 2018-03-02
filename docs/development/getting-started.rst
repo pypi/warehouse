@@ -33,6 +33,8 @@ Quickstart for Developers with Docker experience
 
 View Warehouse in the browser at ``http://localhost:80/``.
 
+.. _dev-env-install:
+
 Detailed Installation Instructions
 ----------------------------------
 
@@ -55,7 +57,7 @@ Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
 to automate setting up a "batteries included" development environment.
-The Dockerfile and ``docker-compose.yml`` files include all the required steps
+The Dockerfile and :file:`docker-compose.yml` files include all the required steps
 for installing and configuring all the required external services of the
 development environment.
 
@@ -113,7 +115,7 @@ in the repository root directory.
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the Docker container at ``/opt/warehouse/src/``.
+mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
 Running the Warehouse Container and Services
@@ -202,11 +204,11 @@ What did we just do and what is happening behind the scenes?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The repository is exposed inside of the web container at
-``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
-any changes made to the code.
+:file:`/opt/warehouse/src/` and Warehouse will automatically reload
+when it detects any changes made to the code.
 
-The example data located in ``dev/example.sql.xz`` is taken from `Test PyPI`_
-and has been sanitized to remove anything private.
+The example data located in :file:`dev/example.sql.xz` is taken from
+`Test PyPI`_ and has been sanitized to remove anything private.
 
 
 Running your developer environment after initial setup
@@ -229,16 +231,16 @@ Troubleshooting
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* If the ``Dockerfile`` is edited or new dependencies are added (either by you
-  or a prior pull request), a new container will need to built. A new container
-  can be built by running ``make build``. This should be done before
-  running ``make serve`` again.
+* If the :file:`Dockerfile` is edited or new dependencies are added
+  (either by you or a prior pull request), a new container will need
+  to built. A new container can be built by running ``make
+  build``. This should be done before running ``make serve`` again.
 
 * If ``make serve`` hangs after a new build, you should stop any
   running containers and repeat ``make serve``.
 
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
-  ``Dockerfile``.
+  :file:`Dockerfile`.
 
 * If ``sqlalchemy.exec.OperationalError`` is displayed in ``localhost`` after
   ``make serve`` has been executed, shut down the Docker containers. When the
@@ -248,9 +250,9 @@ Errors when executing ``make serve``
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``docker-compose`` may leave orphaned volumes during teardown. If you run
-into the message "no space left on device", try running the following command
-(assuming Docker >= 1.9):
+:command:`docker-compose` may leave orphaned volumes during
+teardown. If you run into the message "no space left on device", try
+running the following command (assuming Docker >= 1.9):
 
 .. code-block:: console
 
@@ -280,20 +282,20 @@ configuration steps to deal with current quirks in WSL.
 installation, but this is a summary of the required steps:
 
 1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
-to mount your root drive at ``/c`` (or whichever drive you are using).
-You should clone into this mount and run ``docker-compose``
-from within it, to ensure that when volumes are linked into the
-container they can be found by Hyper-V.
+to mount your root drive at :file:`/c` (or whichever drive you are
+using).  You should clone into this mount and run
+:command:`docker-compose` from within it, to ensure that when volumes
+are linked into the container they can be found by Hyper-V.
 
 2. In Windows, configure Docker to enable "Expose daemon on
 ``tcp://localhost:2375`` without TLS". Note that this may expose your
 machine to certain remote code execution attacks, so use with
 caution.
 
-3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your ``.bashrc``
-file in WSL, and/or run it directly to enable for the current session.
-Without this, the `docker` command in WSL will not be able to find the
-daemon running in Windows.
+3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your
+:file:`.bashrc` file in WSL, and/or run it directly to enable for the
+current session.  Without this, the :command:`docker` command in WSL
+will not be able to find the daemon running in Windows.
 
 .. _Nick Janetakis: https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
 
@@ -302,8 +304,8 @@ Building Styles
 ---------------
 
 Styles are written in the scss variant of Sass and compiled using
-``gulp``. They will be automatically built when changed when ``make
-serve`` is running.
+:command:`gulp`. They will be automatically built when changed when
+``make serve`` is running.
 
 
 Running the Interactive Shell
@@ -344,8 +346,8 @@ Running tests and linters
 
 .. note:: PostgreSQL 9.4 is required because of ``pgcrypto`` extension
 
-The Warehouse tests are found in the ``tests/`` directory and are designed to
-be run using make.
+The Warehouse tests are found in the :file:`tests/` directory and are
+designed to be run using make.
 
 To run all tests, all you have to do is:
 
@@ -372,20 +374,21 @@ You can run linters, programs that check the code, with:
 Building documentation
 ----------------------
 
-The Warehouse documentation is stored in the ``docs/`` directory. It is written
-in `reStructured Text`_ and rendered using `Sphinx`_.
+The Warehouse documentation is stored in the :file:`docs/`
+directory. It is written in `reStructured Text`_ and rendered using
+`Sphinx`_.
 
-Use ``make`` to build the documentation. For example:
+Use :command:`make` to build the documentation. For example:
 
 .. code-block:: console
 
     make docs
 
 The HTML documentation index can now be found at
-``docs/_build/html/index.html``.
+:file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.6. If it is not installed, the ``make``
-command will give the following error message:
+Building the docs requires Python 3.6. If it is not installed, the
+:command:`make` command will give the following error message:
 
 .. code-block:: console
 
