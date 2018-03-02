@@ -43,9 +43,9 @@
         </div>
         <div class="package-snippet__buttons">
           <a
-            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
             {% if project.name in projects_owned %}
+            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             title="Edit this project"
             {% else %}
             disabled
@@ -53,9 +53,9 @@
             {% endif %}
             >Edit</a>
           <a
-            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"
             {% if project.releases %}
+            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             title="View this project's public page"
             {% else %}
             disabled
