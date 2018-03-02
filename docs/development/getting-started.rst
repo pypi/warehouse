@@ -349,7 +349,7 @@ Running tests and linters
 The Warehouse tests are found in the :file:`tests/` directory and are
 designed to be run using make.
 
-To run all tests, all you have to do is:
+To run all tests, in the root of the repository:
 
 .. code-block:: console
 
@@ -357,6 +357,16 @@ To run all tests, all you have to do is:
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
+
+.. tip::
+   Currently, running ``make tests`` from a clean checkout of
+   Warehouse (namely, before trying to compile any static assets) will
+   fail multiple tests because the tests depend on a file
+   (:file:`/app/warehouse/static/dist/manifest.json`) that gets
+   created during deployment. So until we fix `bug 1536
+   <https://github.com/pypa/warehouse/issues/1536>`_, you'll need to
+   install Warehouse in a developer environment and run ``make serve``
+   before running tests; see :ref:`dev-env-install` for instructions.
 
 If you want to run a specific test, you can use the ``T`` variable:
 
