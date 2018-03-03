@@ -25,7 +25,7 @@ from sqlalchemy import (
 from sqlalchemy import func, orm, sql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -142,6 +142,17 @@ class Project(SitemapMixin, db.ModelBase):
                 .filter(
                     (Release.project == self) &
                     (Release.canonical_version == canonical_version)
+                )
+                .one()
+            )
+        except MultipleResultsFound:
+            # There are multiple releases of this project which have the same
+            # canonical version that were uploaded before we checked for
+            # canonical version equivalence, so return the exact match instead
+            return (
+                session.query(Release)
+                .filter(
+                    (Release.project == self) & (Release.version == version)
                 )
                 .one()
             )
