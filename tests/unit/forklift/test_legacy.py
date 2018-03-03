@@ -2399,6 +2399,44 @@ class TestFileUpload:
         # Asset that only one release has been created
         assert releases == [release]
 
+    def test_equivalent_canonical_versions(self, pyramid_config, db_request):
+        '''
+        Test that if more than one release with equivalent canonical versions
+        exists, we use the one that is an exact match
+        '''
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release_a = ReleaseFactory.create(project=project, version="1.0")
+        release_b = ReleaseFactory.create(project=project, version="1.0.0")
+        RoleFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.20"
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": "1.0.0",
+            "summary": "This is my summary!",
+            "filetype": "sdist",
+            "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+            "content": pretend.stub(
+                filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+        })
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc: storage_service
+
+        legacy.file_upload(db_request)
+
+        assert len(release_a.files.all()) == 0
+        assert len(release_b.files.all()) == 1
+
     def test_upload_succeeds_creates_project(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 

@@ -79,6 +79,13 @@ class TestProject:
 
         assert project['1.0.0'] == release
 
+    def test_traversal_finds_canonical_version_if_multiple(self, db_request):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(version='1.0.0', project=project)
+        DBReleaseFactory.create(version='1.0', project=project)
+
+        assert project['1.0.0'] == release
+
     def test_traversal_cant_find(self, db_request):
         project = DBProjectFactory.create()
 
