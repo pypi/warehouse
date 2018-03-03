@@ -114,9 +114,9 @@ class TestReleaseDetail:
         if name == release.project.name:
             name = release.project.name.upper()
 
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": name, "version": release.version}
         db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/3.0/"
+            lambda **kw: "/project/the-redirect/3.0/"
         )
 
         resp = views.release_detail(release, db_request)
@@ -124,7 +124,7 @@ class TestReleaseDetail:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name),
+            pretend.call(name=release.project.name, version=release.version),
         ]
 
     def test_normalizing_version_redirects(self, db_request):
@@ -179,6 +179,10 @@ class TestReleaseDetail:
             role_name="another role",
         )
 
+        db_request.matchdict = {
+            "name": project.name, "version": releases[1].version
+        }
+
         result = views.release_detail(releases[1], db_request)
 
         assert result == {
@@ -207,6 +211,9 @@ class TestReleaseDetail:
         release = ReleaseFactory.create(
             _classifiers=[other_classifier, classifier],
             license="Will not be used")
+        db_request.matchdict = {
+            "name": release.project.name, "version": release.version
+        }
 
         result = views.release_detail(release, db_request)
 
@@ -215,6 +222,9 @@ class TestReleaseDetail:
     def test_license_with_no_classifier(self, db_request):
         """With no classifier, a license is used from metadata."""
         release = ReleaseFactory.create(license="MIT License")
+        db_request.matchdict = {
+            "name": release.project.name, "version": release.version
+        }
 
         result = views.release_detail(release, db_request)
 
@@ -224,6 +234,9 @@ class TestReleaseDetail:
         """When license metadata is longer than one line, the first is used."""
         release = ReleaseFactory.create(
             license="Multiline License\nhow terrible")
+        db_request.matchdict = {
+            "name": release.project.name, "version": release.version
+        }
 
         result = views.release_detail(release, db_request)
 
@@ -232,6 +245,9 @@ class TestReleaseDetail:
     def test_no_license(self, db_request):
         """With no license classifier or metadata, no license is in context."""
         release = ReleaseFactory.create()
+        db_request.matchdict = {
+            "name": release.project.name, "version": release.version
+        }
 
         result = views.release_detail(release, db_request)
 
@@ -244,6 +260,9 @@ class TestReleaseDetail:
         license_2 = ClassifierFactory.create(
             classifier="License :: OSI Approved :: MIT License")
         release = ReleaseFactory.create(_classifiers=[license_1, license_2])
+        db_request.matchdict = {
+            "name": release.project.name, "version": release.version
+        }
 
         result = views.release_detail(release, db_request)
 
