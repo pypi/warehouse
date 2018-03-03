@@ -132,7 +132,7 @@ def release_detail(release, request):
 
 @view_config(
     route_name="includes.edit-project-button",
-    renderer="includes/edit-project-button.html",
+    renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage",
 )
