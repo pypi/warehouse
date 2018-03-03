@@ -106,7 +106,7 @@ class TestProjectDetail:
 
 class TestReleaseDetail:
 
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_name_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
@@ -125,6 +125,23 @@ class TestReleaseDetail:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         assert db_request.current_route_path.calls == [
             pretend.call(name=release.project.name),
+        ]
+
+    def test_normalizing_version_redirects(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
+
+        db_request.matchdict = {"name": project.name, "version": "3.0.0.0.0"}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda **kw: "/project/the-redirect/3.0/"
+        )
+
+        resp = views.release_detail(release, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/project/the-redirect/3.0/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(name=release.project.name, version=release.version),
         ]
 
     def test_detail_renders(self, db_request):
