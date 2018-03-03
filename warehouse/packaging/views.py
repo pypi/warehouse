@@ -67,6 +67,14 @@ def project_detail(project, request):
 def release_detail(release, request):
     project = release.project
 
+    if release.version != request.matchdict.get("version", release.version):
+        return HTTPMovedPermanently(
+            request.current_route_path(
+                name=project.name,
+                version=release.version,
+            ),
+        )
+
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
