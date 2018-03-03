@@ -35,7 +35,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
 from warehouse.classifiers.models import Classifier
@@ -843,6 +843,18 @@ def file_upload(request):
             .filter(
                 (Release.project == project) &
                 (Release.canonical_version == canonical_version)
+            )
+            .one()
+        )
+    except MultipleResultsFound:
+        # There are multiple releases of this project which have the same
+        # canonical version that were uploaded before we checked for
+        # canonical version equivalence, so return the exact match instead
+        release = (
+            request.db.query(Release)
+            .filter(
+                (Release.project == project) &
+                (Release.version == form.version.data)
             )
             .one()
         )
