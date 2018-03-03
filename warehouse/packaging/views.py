@@ -67,11 +67,9 @@ def project_detail(project, request):
 def release_detail(release, request):
     project = release.project
 
-    if not {project.name, release.version} <= set(request.matchdict.values()):
+    if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
-            request.current_route_path(
-                name=project.name, version=release.version,
-            ),
+            request.current_route_path(name=project.name),
         )
 
     # Get all of the registered versions for this Project, in order of newest
