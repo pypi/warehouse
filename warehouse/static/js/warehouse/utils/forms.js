@@ -137,7 +137,7 @@ const validateForm = (event) => {
 };
 
 export function registerFormValidation() {
-  if (document.querySelector("#password_confirm") === null) return;
+  if (document.querySelector(".password-strength") === null) return;
   setupPasswordStrengthGauge();
   const submitButton = document.querySelector("#content input[type='submit']");
   submitButton.addEventListener("click", validateForm, false);
