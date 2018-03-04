@@ -18,10 +18,7 @@
 </time>
 {%- endmacro %}
 
-{% macro add_password_strength(password_field) -%}
-<div>
-  {{ password_field }}
-</div>
+{% macro password_strength_gauge() -%}
 <p class="form-group__help-text">
   Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
 </p>
