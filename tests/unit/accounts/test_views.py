@@ -116,8 +116,10 @@ class TestLogin:
 
         result = views.login(pyramid_request, _form_class=form_class)
         assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call('warehouse.authentication.start', tags=['auth_method:login_form']),
-            pretend.call('warehouse.authentication.failure', tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.failure',
+                         tags=['auth_method:login_form']),
         ]
 
         assert result == {
@@ -179,8 +181,10 @@ class TestLogin:
             result = views.login(pyramid_request, _form_class=form_class)
 
         assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call('warehouse.authentication.start', tags=['auth_method:login_form']),
-            pretend.call('warehouse.authentication.complete', tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.complete',
+                         tags=['auth_method:login_form']),
         ]
 
         assert isinstance(result, HTTPSeeOther)

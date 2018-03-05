@@ -119,8 +119,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
             username = form.username.data
             userid = user_service.find_userid(username)
 
-            # If the user-originating redirection url is not safe, then redirect to
-            # the index instead.
+            # If the user-originating redirection url is not safe, then
+            # redirect to the index instead.
             if (not redirect_to or
                     not is_safe_url(url=redirect_to, host=request.host)):
                 redirect_to = request.route_path('manage.projects')
@@ -128,16 +128,18 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
             # Actually perform the login routine for our user.
             headers = _login_user(request, userid)
 
-            # Now that we're logged in we'll want to redirect the user to either
-            # where they were trying to go originally, or to the default view.
+            # Now that we're logged in we'll want to redirect the user to
+            # either where they were trying to go originally, or to the default
+            # view.
             resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-            # We'll use this cookie so that client side javascript can Determine
-            # the actual user ID (not username, user ID). This is *not* a security
-            # sensitive context and it *MUST* not be used where security matters.
+            # We'll use this cookie so that client side javascript can
+            # Determine the actual user ID (not username, user ID). This is
+            # *not* a security sensitive context and it *MUST* not be used
+            # where security matters.
             #
-            # We'll also hash this value just to avoid leaking the actual User IDs
-            # here, even though it really shouldn't matter.
+            # We'll also hash this value just to avoid leaking the actual User
+            # IDs here, even though it really shouldn't matter.
             resp.set_cookie(
                 USER_ID_INSECURE_COOKIE,
                 hashlib.blake2b(
@@ -146,12 +148,16 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
                 ).hexdigest().lower(),
             )
 
-            request.registry.datadog.increment('warehouse.authentication.complete',
-                                               tags=['auth_method:login_form'])
+            request.registry.datadog.increment(
+                'warehouse.authentication.complete',
+                tags=['auth_method:login_form']
+            )
             return resp
         else:
-            request.registry.datadog.increment('warehouse.authentication.failure',
-                                               tags=['auth_method:login_form'])
+            request.registry.datadog.increment(
+                'warehouse.authentication.failure',
+                tags=['auth_method:login_form']
+            )
 
     return {
         "form": form,
