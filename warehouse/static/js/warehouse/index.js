@@ -139,15 +139,6 @@ docReady(() => {
       showPasswordCheck.checked = false;
     }
 
-    showPasswordCheck.addEventListener("click", function () {
-      for (let field of passwordFields) {
-        if (showPasswordCheck.checked) {
-          field.type = "text";
-        } else {
-          field.type = "password";
-        }
-      }
-    });
   }
 });
 
