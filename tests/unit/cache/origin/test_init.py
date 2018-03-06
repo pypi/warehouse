@@ -203,8 +203,14 @@ class TestKeyMaker:
 
     def test_both_cache_and_purge(self):
         key_maker = origin.key_maker_factory(
-            cache_keys=["foo", "foo/{obj.attr}"],
-            purge_keys=["bar", "bar/{obj.attr}"],
+            cache_keys=[
+                origin.key_factory("foo"),
+                origin.key_factory("foo/{obj.attr}"),
+            ],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{obj.attr}"),
+            ],
         )
         assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
             cache=["foo", "foo/bar"],
@@ -213,7 +219,10 @@ class TestKeyMaker:
 
     def test_only_cache(self):
         key_maker = origin.key_maker_factory(
-            cache_keys=["foo", "foo/{obj.attr}"],
+            cache_keys=[
+                origin.key_factory("foo"),
+                origin.key_factory("foo/{obj.attr}"),
+            ],
             purge_keys=None,
         )
         assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
@@ -224,7 +233,10 @@ class TestKeyMaker:
     def test_only_purge(self):
         key_maker = origin.key_maker_factory(
             cache_keys=None,
-            purge_keys=["bar", "bar/{obj.attr}"],
+            purge_keys=[
+                origin.key_factory("bar"),
+                origin.key_factory("bar/{obj.attr}"),
+            ],
         )
         assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
             cache=[],

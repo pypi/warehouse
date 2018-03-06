@@ -12,6 +12,7 @@
 
 import collections
 import functools
+from itertools import chain
 
 from warehouse import db
 from warehouse.cache.origin.interfaces import IOriginCache
@@ -87,6 +88,14 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
+def key_factory(keystring):
+
+    def generate_key(obj):
+        yield keystring.format(obj=obj)
+
+    return generate_key
+
+
 def key_maker_factory(cache_keys, purge_keys):
     if cache_keys is None:
         cache_keys = []
@@ -96,8 +105,8 @@ def key_maker_factory(cache_keys, purge_keys):
 
     def key_maker(obj):
         return CacheKeys(
-            cache=[k.format(obj=obj) for k in cache_keys],
-            purge=[k.format(obj=obj) for k in purge_keys],
+            cache=list(chain.from_iterable(key(obj) for key in cache_keys)),
+            purge=list(chain.from_iterable(key(obj) for key in purge_keys)),
         )
 
     return key_maker

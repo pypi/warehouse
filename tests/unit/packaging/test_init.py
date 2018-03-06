@@ -33,6 +33,11 @@ def test_includme(monkeypatch, with_trending):
         packaging, "RedisDownloadStatService", download_stat_service_cls,
     )
 
+    def key_factory(keystring):
+        return pretend.call(keystring)
+
+    monkeypatch.setattr(packaging, 'key_factory', key_factory)
+
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
         register_service=pretend.call_recorder(
@@ -71,15 +76,22 @@ def test_includme(monkeypatch, with_trending):
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
             Project,
-            cache_keys=["project/{obj.normalized_name}"],
-            purge_keys=["project/{obj.normalized_name}", "all-projects"],
+            cache_keys=[
+                key_factory("project/{obj.normalized_name}"),
+            ],
+            purge_keys=[
+                key_factory("project/{obj.normalized_name}"),
+                key_factory("all-projects"),
+            ],
         ),
         pretend.call(
             Release,
-            cache_keys=["project/{obj.project.normalized_name}"],
+            cache_keys=[
+                key_factory("project/{obj.project.normalized_name}"),
+            ],
             purge_keys=[
-                "project/{obj.project.normalized_name}",
-                "all-projects",
+                key_factory("project/{obj.project.normalized_name}"),
+                key_factory("all-projects"),
             ],
         ),
     ]
