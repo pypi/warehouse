@@ -12,6 +12,7 @@
 
 import collections
 import functools
+import operator
 from itertools import chain
 
 from warehouse import db
@@ -88,10 +89,14 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
-def key_factory(keystring):
+def key_factory(keystring, iterate_on=None):
 
     def generate_key(obj):
-        yield keystring.format(obj=obj)
+        if iterate_on:
+            for itr in operator.attrgetter(iterate_on)(obj):
+                yield keystring.format(itr=itr, obj=obj)
+        else:
+            yield keystring.format(obj=obj)
 
     return generate_key
 

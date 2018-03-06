@@ -33,8 +33,8 @@ def test_includme(monkeypatch, with_trending):
         packaging, "RedisDownloadStatService", download_stat_service_cls,
     )
 
-    def key_factory(keystring):
-        return pretend.call(keystring)
+    def key_factory(keystring, iterate_on=None):
+        return pretend.call(keystring, iterate_on=None)
 
     monkeypatch.setattr(packaging, 'key_factory', key_factory)
 

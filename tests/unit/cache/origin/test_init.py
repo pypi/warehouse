@@ -243,6 +243,23 @@ class TestKeyMaker:
             purge=["bar", "bar/bar"],
         )
 
+    def test_iterate_on(self):
+        key_maker = origin.key_maker_factory(
+            cache_keys=[
+                origin.key_factory('foo'),
+                origin.key_factory('foo/{itr}', iterate_on='iterate_me'),
+            ],
+            purge_keys=[
+                origin.key_factory('bar'),
+                origin.key_factory('bar/{itr}', iterate_on='iterate_me'),
+            ],
+        )
+        cache_keys = key_maker(pretend.stub(iterate_me=['biz', 'baz']))
+        assert cache_keys == origin.CacheKeys(
+            cache=['foo', 'foo/biz', 'foo/baz'],
+            purge=['bar', 'bar/biz', 'bar/baz'],
+        )
+
 
 def test_register_origin_keys(monkeypatch):
     class Fake1:
