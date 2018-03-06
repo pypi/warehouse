@@ -67,6 +67,22 @@ def project_detail(project, request):
 def release_detail(release, request):
     project = release.project
 
+    # Check if the requested version is equivalent but not exactly the same as
+    # the release's version. Use `.get` because this view is used by
+    # `project_detail` and there may not be a version.
+    #
+    # This also handles the case where both the version and the project name
+    # need adjusted, and handles it in a single redirect.
+    if release.version != request.matchdict.get("version", release.version):
+        return HTTPMovedPermanently(
+            request.current_route_path(
+                name=project.name,
+                version=release.version,
+            ),
+        )
+
+    # It's possible that the requested version was correct (or not provided),
+    # but we still need to adjust the project name.
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
@@ -130,7 +146,7 @@ def release_detail(release, request):
 
 @view_config(
     route_name="includes.edit-project-button",
-    renderer="includes/edit-project-button.html",
+    renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage",
 )

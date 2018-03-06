@@ -35,7 +35,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
 from warehouse.classifiers.models import Classifier
@@ -835,79 +835,79 @@ def file_upload(request):
         )
 
     try:
+        canonical_version = packaging.utils.canonicalize_version(
+            form.version.data
+        )
         release = (
             request.db.query(Release)
-                      .filter(
-                            (Release.project == project) &
-                            (Release.version == form.version.data)).one()
+            .filter(
+                (Release.project == project) &
+                (Release.canonical_version == canonical_version)
+            )
+            .one()
+        )
+    except MultipleResultsFound:
+        # There are multiple releases of this project which have the same
+        # canonical version that were uploaded before we checked for
+        # canonical version equivalence, so return the exact match instead
+        release = (
+            request.db.query(Release)
+            .filter(
+                (Release.project == project) &
+                (Release.version == form.version.data)
+            )
+            .one()
         )
     except NoResultFound:
-        # We didn't find a release with the exact version string, try and see
-        # if one exists with an equivalent parsed version
-        releases = (
-            request.db.query(Release)
-            .filter(Release.project == project)
-            .all()
-        )
-        versions = {
-            packaging.version.parse(release.version): release
-            for release in releases
-        }
-
-        try:
-            release = versions[packaging.version.parse(form.version.data)]
-        except KeyError:
-            release = Release(
-                project=project,
-                _classifiers=[
-                    c for c in all_classifiers
-                    if c.classifier in form.classifiers.data
-                ],
-                _pypi_hidden=False,
-                dependencies=list(_construct_dependencies(
-                    form,
-                    {
-                        "requires": DependencyKind.requires,
-                        "provides": DependencyKind.provides,
-                        "obsoletes": DependencyKind.obsoletes,
-                        "requires_dist": DependencyKind.requires_dist,
-                        "provides_dist": DependencyKind.provides_dist,
-                        "obsoletes_dist": DependencyKind.obsoletes_dist,
-                        "requires_external": DependencyKind.requires_external,
-                        "project_urls": DependencyKind.project_url,
-                    }
-                )),
-                canonical_version=packaging.utils.canonicalize_version(
-                    form.version.data
-                ),
-                **{
-                    k: getattr(form, k).data
-                    for k in {
-                        # This is a list of all the fields in the form that we
-                        # should pull off and insert into our new release.
-                        "version",
-                        "summary", "description", "license",
-                        "author", "author_email",
-                        "maintainer", "maintainer_email",
-                        "keywords", "platform",
-                        "home_page", "download_url",
-                        "requires_python",
-                    }
+        release = Release(
+            project=project,
+            _classifiers=[
+                c for c in all_classifiers
+                if c.classifier in form.classifiers.data
+            ],
+            _pypi_hidden=False,
+            dependencies=list(_construct_dependencies(
+                form,
+                {
+                    "requires": DependencyKind.requires,
+                    "provides": DependencyKind.provides,
+                    "obsoletes": DependencyKind.obsoletes,
+                    "requires_dist": DependencyKind.requires_dist,
+                    "provides_dist": DependencyKind.provides_dist,
+                    "obsoletes_dist": DependencyKind.obsoletes_dist,
+                    "requires_external": DependencyKind.requires_external,
+                    "project_urls": DependencyKind.project_url,
                 }
-            )
-            request.db.add(release)
-            # TODO: This should be handled by some sort of database trigger or
-            #       a SQLAlchemy hook or the like instead of doing it inline in
-            #       this view.
-            request.db.add(
-                JournalEntry(
-                    name=release.project.name,
-                    version=release.version,
-                    action="new release",
-                    submitted_by=request.user,
-                    submitted_from=request.remote_addr,
-                ),
-            )
+            )),
+            canonical_version=canonical_version,
+            **{
+                k: getattr(form, k).data
+                for k in {
+                    # This is a list of all the fields in the form that we
+                    # should pull off and insert into our new release.
+                    "version",
+                    "summary", "description", "license",
+                    "author", "author_email",
+                    "maintainer", "maintainer_email",
+                    "keywords", "platform",
+                    "home_page", "download_url",
+                    "requires_python",
+                }
+            }
+        )
+        request.db.add(release)
+        # TODO: This should be handled by some sort of database trigger or
+        #       a SQLAlchemy hook or the like instead of doing it inline in
+        #       this view.
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            ),
+        )
 
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but

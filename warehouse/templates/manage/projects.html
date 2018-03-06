@@ -46,12 +46,12 @@
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
             {% if project.name in projects_owned %}
-            title="Edit this project"
+            title="Manage this project"
             {% else %}
             disabled
             title="You are not an owner of this project"
             {% endif %}
-            >Edit</a>
+            >Manage</a>
           <a
             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
             class="button"
