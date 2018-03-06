@@ -17,13 +17,10 @@ export default class extends Controller {
   static targets = ["showPassword", "password"];
 
   connect() {
-    if (this.passwordTargets && this.showPasswordTarget) {
-      // Reset these so they don't persist between page reloads
-      for (let field of this.passwordTargets) {
-        field.type = "password";
-        this.showPasswordTarget.checked = false;
-      }
-    }
+    // Reset these so they don't persist between page reloads
+    // We assume that both targets above exist
+    this.showPasswordTarget.checked = false;
+    this.togglePasswords();
   }
 
   togglePasswords() {
