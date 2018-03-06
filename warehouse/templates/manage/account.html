@@ -219,8 +219,12 @@
     </div>
     <div class="form-group">
       <label class="form-group__label" for="name">New Password</label>
-      {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input") }}
+      {# the password field needs to be wrapped in a div to properly place tooltips #}
+      <div>
+          {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input") }}
+      </div>
       {{ field_errors(change_password_form.new_password) }}
+      {{ password_strength_gauge() }}
     </div>
     <div class="form-group">
       <label class="form-group__label" for="name">Confirm New Password</label>
@@ -273,4 +277,10 @@
     {{ confirm_button("Delete your PyPI Account", "Username", user.username) }}
     {% endif %}
   </div>
+{% endblock %}
+
+{% block extra_js %}
+<script async
+  src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
+</script>
 {% endblock %}
