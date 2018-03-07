@@ -64,7 +64,7 @@
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         {{ extra_fields if extra_fields else '' }}
-        <a href="#modal-close" title="Close" class="modal__close">
+        <a href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
           <i class="fa fa-times" aria-hidden="true"></i>
           <span class="sr-only">close</span>
         </a>
@@ -79,7 +79,7 @@
         <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" placeholder="{{ confirm_string }}" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
-          <a href="#modal-close" class="button modal__action">Cancel</a>
+          <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
           <button class="button button--primary modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
             {{ title }}
           </button>

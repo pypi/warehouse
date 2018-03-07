@@ -7,6 +7,10 @@ export default class extends Controller {
     this.buttonTarget.disabled = true;
   }
 
+  cancel() {
+    this.inputTarget.value = "";
+  }
+
   check() {
     if (this.inputTarget.value == this.buttonTarget.dataset.expected) {
       this.buttonTarget.disabled = false;
