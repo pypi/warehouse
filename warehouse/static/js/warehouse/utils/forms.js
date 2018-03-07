@@ -53,6 +53,7 @@ export function submitTriggers() {
 /* global zxcvbn */
 
 const tooltipClasses = ["tooltipped", "tooltipped-s", "tooltipped-immediate"];
+let passwordFormRoot = document;
 
 const passwordStrengthValidator = (value) => {
   const zxcvbnResult = zxcvbn(value);
@@ -66,7 +67,7 @@ const fieldRequiredValidator = (value) => {
 };
 
 const checkPasswordStrength = (event) => {
-  let result = document.querySelector(".password-strength__gauge");
+  let result = passwordFormRoot.querySelector(".password-strength__gauge");
   if (event.target.value === "") {
     result.setAttribute("class", "password-strength__gauge");
     // Feedback for screen readers
@@ -84,7 +85,7 @@ const checkPasswordStrength = (event) => {
 };
 
 const setupPasswordStrengthGauge = () => {
-  let password = document.querySelector("#new_password");
+  let password = passwordFormRoot.querySelector("#new_password");
   if (password === null) return;
   password.addEventListener(
     "input",
@@ -100,7 +101,7 @@ const attachTooltip = (field, message) => {
 };
 
 const removeTooltips = () => {
-  let tooltippedNodes = document.querySelectorAll(".tooltipped");
+  let tooltippedNodes = passwordFormRoot.querySelectorAll(".tooltipped");
   for (let tooltippedNode of tooltippedNodes) {
     tooltippedNode.classList.remove.apply(tooltippedNode.classList, tooltipClasses);
     tooltippedNode.removeAttribute("aria-label");
@@ -109,7 +110,7 @@ const removeTooltips = () => {
 
 const validateForm = (event) => {
   removeTooltips();
-  let inputFields = document.querySelectorAll("input[required='required']");
+  let inputFields = passwordFormRoot.querySelectorAll("input[required='required']");
   for (let inputField of inputFields) {
     let requiredMessage = fieldRequiredValidator(inputField.value);
     if (requiredMessage !== null) {
@@ -119,8 +120,8 @@ const validateForm = (event) => {
     }
   }
 
-  let password = document.querySelector("#new_password");
-  let passwordConfirm = document.querySelector("#password_confirm");
+  let password = passwordFormRoot.querySelector("#new_password");
+  let passwordConfirm = passwordFormRoot.querySelector("#password_confirm");
   if (password.value !== passwordConfirm.value) {
     let message = "Passwords do not match";
     attachTooltip(password, message);
@@ -137,8 +138,12 @@ const validateForm = (event) => {
 };
 
 export function registerFormValidation() {
-  if (document.querySelector(".password-strength") === null) return;
+  const passwordStrengthNode = document.querySelector(".password-strength");
+  if (passwordStrengthNode === null) return;
+  passwordFormRoot = document.evaluate(
+    "./ancestor::form", passwordStrengthNode, null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   setupPasswordStrengthGauge();
-  const submitButton = document.querySelector("#content input[type='submit']");
+  const submitButton = passwordFormRoot.querySelector("input[type='submit']");
   submitButton.addEventListener("click", validateForm, false);
 }
