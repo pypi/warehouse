@@ -12,6 +12,7 @@
 
 from celery.schedules import crontab
 
+from warehouse.accounts.models import User
 from warehouse.cache.origin import key_factory
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.services import RedisDownloadStatService
@@ -45,6 +46,7 @@ def includeme(config):
         ],
         purge_keys=[
             key_factory("project/{obj.normalized_name}"),
+            key_factory("user/{itr.username}", iterate_on='users'),
             key_factory("all-projects"),
         ],
     )
@@ -56,7 +58,17 @@ def includeme(config):
         ],
         purge_keys=[
             key_factory("project/{obj.project.normalized_name}"),
+            key_factory("user/{itr.username}", iterate_on='project.users'),
             key_factory("all-projects"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        User,
+        cache_keys=[
+            key_factory("user/{obj.username}"),
+        ],
+        purge_keys=[
+            key_factory("user/{obj.username}"),
         ],
     )
 

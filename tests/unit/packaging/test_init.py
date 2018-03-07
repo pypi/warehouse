@@ -17,7 +17,7 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Project, Release, User
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -34,7 +34,7 @@ def test_includme(monkeypatch, with_trending):
     )
 
     def key_factory(keystring, iterate_on=None):
-        return pretend.call(keystring, iterate_on=None)
+        return pretend.call(keystring, iterate_on=iterate_on)
 
     monkeypatch.setattr(packaging, 'key_factory', key_factory)
 
@@ -78,9 +78,11 @@ def test_includme(monkeypatch, with_trending):
             Project,
             cache_keys=[
                 key_factory("project/{obj.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='users'),
             ],
             purge_keys=[
                 key_factory("project/{obj.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='users'),
                 key_factory("all-projects"),
             ],
         ),
@@ -88,10 +90,21 @@ def test_includme(monkeypatch, with_trending):
             Release,
             cache_keys=[
                 key_factory("project/{obj.project.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='project.users'),
             ],
             purge_keys=[
                 key_factory("project/{obj.project.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='project.users'),
                 key_factory("all-projects"),
+            ],
+        ),
+        pretend.call(
+            User,
+            cache_keys=[
+                key_factory("user/{obj.username}"),
+            ],
+            purge_keys=[
+                key_factory("user/{obj.username}"),
             ],
         ),
     ]
