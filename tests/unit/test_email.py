@@ -305,3 +305,50 @@ class TestAccountDeletionEmail:
         assert send_email.delay.calls == [
             pretend.call('Email Body', [stub_user.email], 'Email Subject'),
         ]
+
+
+class TestPrimaryEmailChangeEmail:
+
+    def test_primary_email_change_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='new_email',
+            username='username',
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/primary-email-change.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/primary-email-change.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_primary_email_change_email(
+            pyramid_request,
+            stub_user,
+            "old_email"
+        )
+
+        assert result == {
+            'username': stub_user.username,
+            'old_email': "old_email",
+            'new_email': stub_user.email
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=stub_user.username)
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call('Email Body', ['old_email'], 'Email Subject'),
+        ]

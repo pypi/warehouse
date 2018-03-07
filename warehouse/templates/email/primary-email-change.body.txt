@@ -1,0 +1,14 @@
+The primary email for your PyPI account:
+
+  '{{ username }}'
+
+been changed from this address:
+
+  {{ old_email }}
+
+to this address:
+
+  {{ new_email }}
+
+If you did not make this change, you can reply to this email directly to
+communicate with the PyPI administrators.
