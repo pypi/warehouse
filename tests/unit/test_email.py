@@ -437,5 +437,7 @@ class TestCollaboratorAddedEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email, stub_submitter_user.email], 'Email Subject'),
+            pretend.call('Email Body',
+                         [stub_user.email, stub_submitter_user.email],
+                         'Email Subject'),
         ]
