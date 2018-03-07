@@ -126,3 +126,23 @@ def send_account_deletion_email(request, user):
     request.task(send_email).delay(body, [user.email], subject)
 
     return fields
+
+
+def send_primary_email_change_email(request, user, email):
+    fields = {
+        'username': user.username,
+        'old_email': email,
+        'new_email': user.email,
+    }
+
+    subject = render(
+        'email/primary-email-change.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/primary-email-change.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, [email], subject)
+
+    return fields
