@@ -379,6 +379,7 @@ class TestManageAccount:
         user = UserFactory()
         old_primary = EmailFactory(primary=True, user=user)
         new_primary = EmailFactory(primary=False, verified=True, user=user)
+        email = EmailFactory(user=user)
 
         db_request.user = user
 
