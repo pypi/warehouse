@@ -47,14 +47,15 @@
           {% endif %}
         </div>
 
-        <div class="form-group">
+        <div data-controller="password" class="form-group">
           <div class="split-layout">
             <label for="password" class="form-group__label">Password</label>
             <label for="show-password">
-              <input id="show-password" type="checkbox" tabindex="4">&nbsp;Show password
+              <input data-action="change->password#togglePasswords" data-target="password.showPassword"
+                id="show-password" type="checkbox" tabindex="4">&nbsp;Show password
             </label>
           </div>
-          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input", autocomplete="current-password", tabindex="2") }}
+          {{ form.password(placeholder="Your Password", required="required", class_="form-group__input", autocomplete="current-password", tabindex="2", data_target="password.password") }}
           {% if form.password.errors %}
           <ul class="form-errors">
             {% for error in form.password.errors %}
