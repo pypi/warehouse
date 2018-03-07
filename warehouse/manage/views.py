@@ -23,7 +23,7 @@ from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email, send_email_verification_email,
-    send_password_change_email,
+    send_password_change_email, send_primary_email_change_email
 )
 from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
@@ -163,6 +163,7 @@ class ManageAccountViews:
         request_param=["primary_email_id"],
     )
     def change_primary_email(self):
+        previous_primary_email = self.request.user.email
         try:
             new_primary_email = self.request.db.query(Email).filter(
                 Email.user_id == self.request.user.id,
@@ -187,6 +188,9 @@ class ManageAccountViews:
             queue='success',
         )
 
+        send_primary_email_change_email(
+            self.request, self.request.user, previous_primary_email
+        )
         return self.default_response
 
     @view_config(

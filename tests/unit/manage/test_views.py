@@ -379,8 +379,10 @@ class TestManageAccount:
         user = UserFactory()
         old_primary = EmailFactory(primary=True, user=user)
         new_primary = EmailFactory(primary=False, verified=True, user=user)
+        email = EmailFactory(user=user)
 
         db_request.user = user
+
         db_request.find_service = lambda *a, **kw: pretend.stub()
         db_request.POST = {'primary_email_id': new_primary.id}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -389,7 +391,14 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(db_request)
 
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(
+            views, 'send_primary_email_change_email', send_email
+        )
         assert view.change_primary_email() == view.default_response
+        assert send_email.calls == [
+            pretend.call(db_request, db_request.user, email.email)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f'Email address {new_primary.email} set as primary.',
