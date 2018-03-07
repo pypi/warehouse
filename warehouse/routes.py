@@ -178,6 +178,7 @@ def includeme(config):
     )
 
     # Packaging
+    config.add_redirect('/p/{name}/', '/project/{name}/', domain=warehouse)
     config.add_route(
         "packaging.project",
         "/project/{name}/",

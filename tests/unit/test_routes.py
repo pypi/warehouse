@@ -269,6 +269,7 @@ def test_routes(warehouse):
     ]
 
     assert config.add_redirect.calls == [
+        pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
             "/pypi/{name}/{version}/",
