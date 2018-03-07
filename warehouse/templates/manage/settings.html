@@ -34,9 +34,10 @@
   </div>
 
 
-  <div class="callout-block">
+  <div class="callout-block callout-block--danger">
     <h3>Delete Project</h3>
     <p>
+      <i class="fa fa-warning danger" aria-hidden="true"><span class="sr-only">Warning</span></i>
     {% if project.releases %}
       Deleting will irreversibly delete this project along with
       <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">

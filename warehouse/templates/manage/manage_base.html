@@ -80,7 +80,7 @@
         </div>
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
+          <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
             {{ title }}
           </button>
         </div>
@@ -91,7 +91,7 @@
 
 {% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
   {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
-  <a href="#{{ slug }}" class="button button--primary">
+  <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
   {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
