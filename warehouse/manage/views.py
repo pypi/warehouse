@@ -567,8 +567,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 form.role_name.data,
                 email_recipients
             )
-            print("email recipients")
-            print(email_recipients)
+
             request.session.flash(
                 f"Added collaborator '{form.username.data}'",
                 queue="success"
