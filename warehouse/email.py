@@ -146,3 +146,25 @@ def send_primary_email_change_email(request, user, email):
     request.task(send_email).delay(body, subject, recipients=[email])
 
     return fields
+
+
+def send_collaborator_added_email(request, user, submitter, project_name, role,
+                                  email_recipients):
+    fields = {
+        'username': user.username,
+        'project': project_name,
+        'submitter': submitter.username,
+        'role': role
+    }
+
+    subject = render(
+        'email/collaborator-added.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/collaborator-added.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, email_recipients, subject)
+
+    return fields

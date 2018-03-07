@@ -384,3 +384,58 @@ class TestPrimaryEmailChangeEmail:
                 recipients=['old_email'],
             ),
         ]
+
+
+class TestCollaboratorAddedEmail:
+
+    def test_collaborator_added_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/collaborator-added.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/collaborator-added.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_collaborator_added_email(
+            pyramid_request,
+            user=stub_user,
+            submitter=stub_submitter_user,
+            project_name='test_project',
+            role='Owner',
+            email_recipients=[stub_user.email, stub_submitter_user.email]
+        )
+
+        assert result == {
+            'username': stub_user.username,
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=stub_user.username)
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call('Email Body', [stub_user.email, stub_submitter_user.email], 'Email Subject'),
+        ]

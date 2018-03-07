@@ -22,7 +22,8 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
-    send_account_deletion_email, send_email_verification_email,
+    send_account_deletion_email, send_collaborator_added_email,
+    send_email_verification_email,
     send_password_change_email, send_primary_email_change_email
 )
 from warehouse.manage.forms import (
@@ -551,6 +552,23 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     submitted_from=request.remote_addr,
                 ),
             )
+
+            owners = request.db.query(Role).filter(Role.role_name == 'Owner',
+                                                   Role.project == project)
+            email_recipients = [owner.user.email for owner in owners]
+            email_recipients.remove(request.user.email)
+            email_recipients.append(user.email)
+
+            send_collaborator_added_email(
+                request,
+                user,
+                request.user,
+                project.name,
+                form.role_name.data,
+                email_recipients
+            )
+            print("email recipients")
+            print(email_recipients)
             request.session.flash(
                 f"Added collaborator '{form.username.data}'",
                 queue="success"
