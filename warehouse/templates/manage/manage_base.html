@@ -71,7 +71,10 @@
         <div class="modal__body">
           <h3 class="modal__title">{{ title }} {{ confirm_string }}?</h3>
         <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-          <p>Warning: This action cannot be undone!</p>
+          <p>
+            <i class="fa fa-warning danger" aria-hidden="true"><span class="sr-only">Warning</span></i>
+            This action cannot be undone!
+          </p>
         </div>
         <p>Confirm the {{ confirm_name|lower }} to continue.</p>
         {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
