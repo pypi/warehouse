@@ -73,8 +73,6 @@ def conditional_http_tween_factory(handler, registry):
         if response.last_modified is not None:
             response.conditional_response = True
 
-        streaming = not isinstance(response.app_iter, collections.abc.Sequence)
-
         # We want to only enable the conditional machinery if either we
         # were given an explicit ETag header by the view or we have a
         # buffered response and can generate the ETag header ourself.
@@ -83,10 +81,12 @@ def conditional_http_tween_factory(handler, registry):
         # We can only reasonably implement automatic ETags on 200 responses
         # to GET or HEAD requests. The subtles of doing it in other cases
         # are too hard to get right.
-        elif request.method in {"GET", "HEAD"} and response.status_code == 200:
+        elif response.status_code == 200 and request.method in {"GET", "HEAD"}:
             # If we have a streaming response, but it's small enough, we'll
             # just go ahead and buffer it in memory so that we can generate a
             # ETag for it.
+            streaming = not isinstance(response.app_iter, collections.abc.Sequence)
+
             if (streaming and response.content_length is not None and
                     response.content_length <= BUFFER_MAX):
                 response.body
