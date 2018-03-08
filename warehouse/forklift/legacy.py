@@ -962,7 +962,7 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Ensure that the package filetpye is allowed.
+    # Ensure that the package filetype is allowed.
     # TODO: Once PEP 527 is completely implemented we should be able to delete
     #       this and just move it into the form itself.
     if (not project.allow_legacy_files and
