@@ -14,7 +14,7 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.packaging.models import (
-    Release, Dependency, File, Role, JournalEntry, release_classifiers
+    Release, Dependency, File, JournalEntry, release_classifiers
 )
 
 
@@ -52,7 +52,6 @@ def remove_project(project, request, flash=True):
             submitted_from=request.remote_addr,
         )
     )
-    request.db.query(Role).filter(Role.project == project).delete()
     request.db.query(File).filter(File.name == project.name).delete()
     (request.db.query(Dependency).filter(Dependency.name == project.name)
                .delete())
