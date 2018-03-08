@@ -120,9 +120,9 @@ click==6.7 \
 CommonMark==0.7.4 \
     --hash=sha256:4d3e6853c17c5f92a5bec77343d816254f135e34b8935d0d61f0afc1226c51b7 \
     --hash=sha256:24678b72094398df96312fb927e274ccaf5148f25e47aca9f7fc062693ae7577
-disposable-email-domains==0.0.21 \
-    --hash=sha256:4995fc547b9aaa58a0c598279770920171174954be79b1901a8b55d0fde617c9 \
-    --hash=sha256:1c2c58bc2953432f9729d3bbba5bd9944ad1fab6b2cb6c6306c7fe8def66c129
+disposable-email-domains==0.0.22 \
+    --hash=sha256:4276fda57c2f9ef27fc133e5f50da2298d51b0f81d57b143b2002ef1ff524746 \
+    --hash=sha256:4a67dae501ff6da8d6d1aca7d3f9910516dc932f3dc95e27d311db02af4bd89d
 docutils==0.14 \
     --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6 \
     --hash=sha256:02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6 \
