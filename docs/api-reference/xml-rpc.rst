@@ -40,6 +40,11 @@ returned.
 ``release_data`` The `stable_version` flag is always an empty string. It was
 never fully supported anyway.
 
+``release_downloads`` and ``top_packages`` No longer supported. Please
+use `Google BigQuery
+<https://mail.python.org/pipermail/distutils-sig/2016-May/028986.html>`_
+instead (`tips
+<https://langui.sh/2016/12/09/data-driven-decisions/>`_).
 
 Package Querying
 ----------------
@@ -61,10 +66,6 @@ Package Querying
 ``user_packages(user)``
   Retrieve a list of `[role, package_name]` for a given `user`.
   Role is either `Maintainer` or `Owner`.
-
-``release_downloads(package_name, release_version)``
-  Retrieve a list of `[filename, download_count]` for a given `package_name`
-  and `release_version`.
 
 ``release_urls(package_name, release_version)``
   Retrieve a list of download URLs for the given `release_version`.
@@ -153,10 +154,6 @@ Package Querying
   Retrieve a list of `[name, version]` of all releases classified with all of
   the given classifiers. `classifiers` must be a list of Trove classifier
   strings.
-
-``top_packages([number])``
-  Retrieve the sorted list of packages ranked by number of downloads.
-  Optionally limit the list to the `number` given.
 
 ``updated_releases(since)``
   Retrieve a list of package releases made since the given timestamp. The
