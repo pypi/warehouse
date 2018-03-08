@@ -379,7 +379,6 @@ class TestManageAccount:
         user = UserFactory()
         old_primary = EmailFactory(primary=True, user=user)
         new_primary = EmailFactory(primary=False, verified=True, user=user)
-        email = EmailFactory(user=user)
 
         db_request.user = user
 
@@ -397,7 +396,7 @@ class TestManageAccount:
         )
         assert view.change_primary_email() == view.default_response
         assert send_email.calls == [
-            pretend.call(db_request, db_request.user, email.email)
+            pretend.call(db_request, db_request.user, old_primary.email)
         ]
         assert db_request.session.flash.calls == [
             pretend.call(

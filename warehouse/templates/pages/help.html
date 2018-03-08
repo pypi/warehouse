@@ -38,6 +38,7 @@
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_name_reuse() %}Why am I getting "File already exists" error?{% endmacro %}
+{% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
 {% block title %}Help{% endblock %}
 
 {% block content %}
@@ -64,6 +65,7 @@
         <li><a href="#private-indices">{{ private_indices() }}</a></li>
         <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
         <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
+        <li><a href="#APIs">{{ APIs() }}</a></li>
       </ul>
 
       <section id="packages" class="common-question">
@@ -283,6 +285,12 @@
         </p>
         <p>
           To avoid this situation, <a href="https://packaging.python.org/guides/using-testpypi/">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="https://pypi.org">pypi.org</a>.
+        </p>
+      </section>
+      <section id="APIs" class="common-question">
+        <h2>{{ APIs() }}</h2>
+        <p>
+          Yes, including RSS feeds of new packages and new releases. <a href="https://warehouse.readthedocs.io/api-reference/">Please see the API reference.</a>
         </p>
       </section>
     </div>
