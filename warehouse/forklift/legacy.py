@@ -790,10 +790,12 @@ def file_upload(request):
                 STDLIB_PROHIBITTED):
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed (conflict with Python "
+                ("The name {name!r} is not allowed (conflict with Python "
                  "Standard Library module name). See "
-                 "https://pypi.org/help/#project-name for more information.")
-                .format(form.name.data),
+                 "{projecthelp} for more information.").format(
+                     name=form.name.data,
+                     projecthelp=request.route_url(
+                         'help', _anchor='project-name')),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
