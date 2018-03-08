@@ -926,16 +926,24 @@ class TestFileUpload:
             ),
         })
 
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='project-name')
+        ]
+
         assert resp.status_code == 400
         assert resp.status == (("400 The name {!r} is not allowed (conflict "
                                 "with Python Standard Library module name). "
-                                "See https://pypi.org/help/#project-name "
-                                "for more information.").format(name))
+                                "See /the/help/url/ "
+                                "for more information.")).format(name)
 
     def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
         admin_flag = (db_request.db.query(AdminFlag)
@@ -1892,8 +1900,24 @@ class TestFileUpload:
             ),
         })
 
-        with pytest.raises(HTTPForbidden):
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
+        with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='project-name')
+        ]
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 The user '{0}' is not allowed to upload to project '{1}'. "
+            "See /the/help/url/ for more information.").format(
+            user2.username,
+            project.name)
 
     @pytest.mark.parametrize(
         "plat",
