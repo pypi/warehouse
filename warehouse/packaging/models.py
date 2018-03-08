@@ -50,11 +50,15 @@ class Role(db.Model):
     role_name = Column(Text)
     user_name = Column(
         CIText,
-        ForeignKey("accounts_user.username", onupdate="CASCADE"),
+        ForeignKey(
+            "accounts_user.username",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
     )
     package_name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
     user = orm.relationship(User, lazy=False)
