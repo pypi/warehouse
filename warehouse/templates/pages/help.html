@@ -30,6 +30,7 @@
 {% macro preproduction() %}What does pre-production mean?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
@@ -54,6 +55,7 @@
         <li><a href="#preproduction">{{ preproduction() }}</a></li>
         <li><a href="#project-name">{{ project_name() }}</a></li>
         <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+        <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
         <li><a href="#verified-email">{{ verified_email() }}</a></li>
         <li><a href="#maintainers">{{ maintainers() }}</a></li>
         <li><a href="#accessibility">{{ accessibility() }}</a></li>
@@ -152,6 +154,17 @@
         <p>
           When <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a> is accepted, the project will create a workflow, to be documented here.
         </p>
+      </section>
+
+      <section id="file-size-limit" class="common-question">
+        <h2>{{ file_size_limit() }}</h2>
+        <p>
+          If you can't upload your project's release to PyPI because you're hitting the upload file size limit, we can sometimes increase your limit. Please make sure you've uploaded at least one release for the project that's <i>under</i> the limit (a <a href="https://www.python.org/dev/peps/pep-0440/#developmental-releases">developmental release version number</a> is fine). Then, please <a href="https://github.com/pypa/warehouse/issues/new">file an issue</a> and tell us:</p>
+        <ul>
+          <li>The name of the project</li>
+          <li>The size of your release, in megabytes</li>
+          <li>Which index/indexes you need the increase for (PyPI, Test PyPI, or both)</li>
+        </ul>
       </section>
 
       <section id="verified-email" class="common-question">
