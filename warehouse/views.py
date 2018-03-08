@@ -251,17 +251,6 @@ def search(request):
     q = request.params.get("q", '')
     q = q.replace("'", '"')
 
-    def filter_query(s):
-        matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
-        result_quoted = [t[0].strip() for t in matches if t[0]]
-        result_unquoted = [t[1].strip() for t in matches if t[1]]
-        return result_quoted, result_unquoted
-
-    def form_query(query_type, query):
-        return Q('multi_match', fields=SEARCH_FIELDS,
-                 query=query, type=query_type
-                 )
-
     if q:
         quoted_string, unquoted_string = filter_query(q)
         must = [
@@ -277,7 +266,7 @@ def search(request):
         if len(q) > 1:
             bool_query = bool_query | Q('prefix', normalized_name=q)
 
-        query = request.es.query('bool', must=bool_query)
+        query = request.es.query(bool_query)
 
         query = query.suggest("name_suggestion", q, term={"field": "name"})
     else:
@@ -389,3 +378,28 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
+
+
+def filter_query(s):
+    """
+    Filters given query with the below regex
+    and returns lists of quoted and unquoted strings
+    """
+    matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
+    result_quoted = [t[0].strip() for t in matches if t[0]]
+    result_unquoted = [t[1].strip() for t in matches if t[1]]
+    return result_quoted, result_unquoted
+
+
+def form_query(query_type, query):
+    """
+    Returns a multi match query
+    """
+    fields = [
+        field + "^" + str(SEARCH_BOOSTS[field])
+        if field in SEARCH_BOOSTS else field
+        for field in SEARCH_FIELDS
+    ]
+    return Q('multi_match', fields=fields,
+             query=query, type=query_type
+             )

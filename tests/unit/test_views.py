@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import re
 
 import pretend
 import pytest
@@ -24,7 +23,7 @@ from pyramid.httpexceptions import (
 
 from warehouse import views
 from warehouse.views import (
-    SEARCH_FIELDS, classifiers, current_user_indicator, forbidden, health,
+    classifiers, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
     flash_messages, forbidden_include
 )
@@ -208,23 +207,12 @@ def test_esi_flash_messages():
 
 class TestSearch:
 
-    def _filter_query(self, s):
-        matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
-        result_quoted = [t[0].strip() for t in matches if t[0]]
-        result_unquoted = [t[1].strip() for t in matches if t[1]]
-        return result_quoted, result_unquoted
-
-    def _form_query(self, query_type, query):
-        return Q('multi_match', fields=SEARCH_FIELDS,
-                 query=query, type=query_type
-                 )
-
     def _gather_es_queries(self, q):
-        quoted_strings, unquoted_strings = self._filter_query(q)
+        quoted_strings, unquoted_strings = views.filter_query(q)
         queries = [
-            self._form_query("phrase", i) for i in quoted_strings
+            views.form_query("phrase", i) for i in quoted_strings
         ] + [
-            self._form_query("best_fields", i) for i in unquoted_strings
+            views.form_query("best_fields", i) for i in unquoted_strings
         ]
 
         query = Q('bool', must=queries)
@@ -272,8 +260,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                must=self._gather_es_queries(params["q"])
+                self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -323,8 +310,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                must=self._gather_es_queries(params["q"])
+                self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -374,8 +360,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                must=self._gather_es_queries(params["q"])
+                self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -446,8 +431,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                must=self._gather_es_queries(params["q"])
+                self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -521,8 +505,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                "bool",
-                must=self._gather_es_queries(params["q"])
+                self._gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
