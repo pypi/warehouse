@@ -830,8 +830,10 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             ("The user '{0}' is not allowed to upload to project '{1}'. "
-             "See https://pypi.org/help#project-name for more information.")
-            .format(request.user.username, project.name)
+             "See {2} for more information.")
+            .format(request.user.username, project.name, request.route_url(
+                'help', _anchor='project-name')
+            )
         )
 
     try:

@@ -1885,8 +1885,24 @@ class TestFileUpload:
             ),
         })
 
-        with pytest.raises(HTTPForbidden):
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
+        with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='project-name')
+        ]
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 The user '{0}' is not allowed to upload to project '{1}'. "
+            "See /the/help/url/ for more information.").format(
+            user2.username,
+            project.name)
 
     @pytest.mark.parametrize(
         "plat",
