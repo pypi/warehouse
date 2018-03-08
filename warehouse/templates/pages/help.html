@@ -24,7 +24,8 @@
 {% macro installing() %}How do I install a file (package) from PyPI?{% endmacro %}
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
-{% macro accessibility() %}I am having trouble using the PyPI website, can you help me?{% endmacro %}
+{% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
+{% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
 {% macro preproduction() %}What does pre-production mean?{% endmacro %}
@@ -59,6 +60,7 @@
         <li><a href="#verified-email">{{ verified_email() }}</a></li>
         <li><a href="#maintainers">{{ maintainers() }}</a></li>
         <li><a href="#accessibility">{{ accessibility() }}</a></li>
+        <li><a href="#login-problem">{{ login_problem() }}</a></li>
         <li><a href="#feedback">{{ feedback() }}</a></li>
         <li><a href="#contributing">{{ contributing() }}</a></li>
         <li><a href="#sponsors">{{ sponsors() }}</a></li>
@@ -207,6 +209,14 @@
         </p>
         <p>
           If you are experiencing an accessibility problem, please <a href="https://github.com/pypa/warehouse/issues">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
+        </p>
+        {{ code_of_conduct() }}
+      </section>
+
+      <section id="login-problem" class="common-question">
+        <h2>{{ login_problem() }}</h2>
+        <p>
+          You should be able to <a href="{{ request.route_path('accounts.reset-password') }}">reset your password</a> on the site; you'll receive an email with a password reset link. If you no longer have access to the email address associated with your account, <a href="https://github.com/pypa/warehouse/issues">report it to us on GitHub</a>, so we can try to help.
         </p>
         {{ code_of_conduct() }}
       </section>
