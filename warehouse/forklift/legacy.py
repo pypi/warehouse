@@ -993,10 +993,14 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "File too large. " +
-                        "Limit for project {name!r} is {limit}MB".format(
+                        "Limit for project {name!r} is {limit}MB. ".format(
                             name=project.name,
-                            limit=file_size_limit // (1024 * 1024),
-                        ))
+                            limit=file_size_limit // (1024 * 1024)) +
+                        "See " +
+                        request.route_url(
+                            'help', _anchor='file-size-limit'
+                        ),
+                    )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)

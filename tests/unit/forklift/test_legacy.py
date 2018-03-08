@@ -1540,15 +1540,22 @@ class TestFileUpload:
                 type="application/tar",
             ),
         })
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-size-limit')
+        ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 60MB"
+            "400 File too large. Limit for project 'foobar' is 60MB. "
+            "See /the/help/url/"
         )
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config,
