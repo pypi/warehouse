@@ -4,6 +4,7 @@ Legacy API
 The "Legacy API" provides feature parity with `pypi-legacy`_, hence the term
 "legacy".
 
+.. _simple-api:
 
 Simple Project API
 ------------------
