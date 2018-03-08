@@ -11,3 +11,4 @@ parts of Warehouse that generate them.
     json
     legacy
     xml-rpc
+    integration-guide
