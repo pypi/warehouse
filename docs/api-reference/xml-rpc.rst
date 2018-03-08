@@ -159,6 +159,7 @@ Package Querying
   since the given timestamp. The packages will be listed in descending date
   of most recent change.
 
+.. _changelog-since:
 
 Mirroring Support
 -----------------
