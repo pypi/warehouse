@@ -39,6 +39,10 @@
   color: $white;
   padding: ($spacing-unit / 2);
 
+  .site-container {
+    position: relative;
+  }
+
   &__icon {
     font-size: $small-font-size;
   }
@@ -52,6 +56,14 @@
 
       @include link-focus
     }
+  }
+
+  &__dismiss {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
   }
 
   &--danger {

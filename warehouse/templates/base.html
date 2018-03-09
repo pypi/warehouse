@@ -105,8 +105,11 @@
       {% endcsi %}
     {% endblock %}
 
-    <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
+    <div class="notification-bar" data-controller="notification" data-target="notification.notification">
+      <div class="site-container">
+        <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
+        <span data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
+      </div>
     </div>
 
     <header class="site-header">
