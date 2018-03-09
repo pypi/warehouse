@@ -165,6 +165,28 @@ def send_collaborator_added_email(request, user, submitter, project_name, role,
         'email/collaborator-added.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, email_recipients, subject)
+    request.task(send_email).delay(body, email_recipients, subject,
+                                   send_to_bcc=True)
+
+    return fields
+
+
+def send_added_as_collaborator_email(request, submitter, project_name, role,
+                                     user_email):
+    fields = {
+        'project': project_name,
+        'submitter': submitter.username,
+        'role': role
+    }
+
+    subject = render(
+        'email/added-as-collaborator.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/added-as-collaborator.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, [user_email], subject)
 
     return fields

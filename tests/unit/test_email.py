@@ -433,11 +433,76 @@ class TestCollaboratorAddedEmail:
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+
+
         assert pyramid_request.task.calls == [
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
             pretend.call('Email Body',
                          [stub_user.email, stub_submitter_user.email],
+                         'Email Subject',
+                         send_to_bcc=True
+                         ),
+        ]
+
+
+class TestAddedAsCollaboratorEmail:
+
+    def test_added_as_collaborator_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/added-as-collaborator.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/added-as-collaborator.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_added_as_collaborator_email(
+            pyramid_request,
+            submitter=stub_submitter_user,
+            project_name='test_project',
+            role='Owner',
+            user_email=stub_user.email
+        )
+
+        assert result == {
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call('Email Body',
+                         [stub_user.email],
                          'Email Subject'),
         ]
