@@ -555,8 +555,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             owners = (
                 request.db.query(Role)
-                    .join(User)
-                    .filter(Role.role_name == 'Owner', Role.project == project)
+                .join(User)
+                .filter(Role.role_name == 'Owner', Role.project == project)
             )
             owner_emails = [owner.email for owner in owners]
             owner_emails.remove(request.user.email)

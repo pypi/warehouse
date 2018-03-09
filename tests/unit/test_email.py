@@ -437,7 +437,6 @@ class TestCollaboratorAddedEmail:
         body_renderer.assert_(role='Owner')
         body_renderer.assert_(submitter=stub_submitter_user.username)
 
-
         assert pyramid_request.task.calls == [
             pretend.call(send_email),
         ]
