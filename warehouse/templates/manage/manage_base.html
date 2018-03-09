@@ -71,7 +71,10 @@
         <div class="modal__body">
           <h3 class="modal__title">{{ title }} {{ confirm_string }}?</h3>
         <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
-          <p>Warning: This action cannot be undone!</p>
+          <p>
+            <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+            This action cannot be undone!
+          </p>
         </div>
         <p>Confirm the {{ confirm_name|lower }} to continue.</p>
         {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
@@ -80,7 +83,7 @@
         </div>
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
-          <button class="button button--primary modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
+          <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
             {{ title }}
           </button>
         </div>
@@ -91,7 +94,7 @@
 
 {% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
   {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
-  <a href="#{{ slug }}" class="button button--primary">
+  <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
   {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
