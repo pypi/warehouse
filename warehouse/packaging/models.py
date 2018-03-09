@@ -425,6 +425,7 @@ class File(db.Model):
                 ["name", "version"],
                 ["releases.name", "releases.version"],
                 onupdate="CASCADE",
+                ondelete="CASCADE",
             ),
 
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
