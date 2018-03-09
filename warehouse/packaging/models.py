@@ -261,7 +261,7 @@ class Release(db.ModelBase):
 
     name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
     version = Column(Text, primary_key=True)
