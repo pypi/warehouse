@@ -240,7 +240,7 @@
   <hr>
 
   <h2>Delete Account</h2>
-  <div class="callout-block callout-block--danger">
+  <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
     {% if active_projects %}
     <h3>Cannot Delete Account</h3>
     <p>
@@ -273,9 +273,9 @@
       {% endfor %}
     </ul>
     {% else %}
-    <h3 class="danger">Proceed with caution!</h3>
+    <h3>Proceed with caution!</h3>
     <p>
-      <i class="fa fa-warning danger" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
       You will not be able to recover your account after you delete it.
     </p>
     {{ confirm_button("Delete your PyPI Account", "Username", user.username) }}
