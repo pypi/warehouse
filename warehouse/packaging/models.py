@@ -221,6 +221,7 @@ class Dependency(db.Model):
             ["name", "version"],
             ["releases.name", "releases.version"],
             onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
