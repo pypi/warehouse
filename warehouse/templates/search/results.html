@@ -140,7 +140,7 @@
           </p>
         {% else %}
         <p>
-          <strong>{{ page.item_count|format_number }}</strong> projects.
+          <strong>{{ page.item_count|format_number }}{%if page.item_count == 10000 %}+{% endif %}</strong> projects.
         </p>
         {% endif %}
         </div>
