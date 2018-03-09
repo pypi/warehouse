@@ -54,6 +54,19 @@
   &--danger {
     border-color: $danger-color;
 
+    > :not(.modal):not(.button) {
+      color: $danger-color;
+
+      a:not(.button) {
+        color: $danger-color;
+        text-decoration: underline;
+
+        &:hover {
+          color: darken($danger-color, 4);
+        }
+      }
+    }
+
     &:before {
       background-color: $danger-color;
     }
