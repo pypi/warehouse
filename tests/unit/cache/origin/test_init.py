@@ -203,32 +203,28 @@ class TestKeyMaker:
 
     def test_both_cache_and_purge(self):
         key_maker = origin.key_maker_factory(
-            cache_keys=[
-                origin.key_factory("foo"),
-                origin.key_factory("foo/{obj.attr}"),
-            ],
+            cache_keys=["foo", "foo/{obj.attr}"],
             purge_keys=[
                 origin.key_factory("bar"),
                 origin.key_factory("bar/{obj.attr}"),
             ],
         )
-        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
-            cache=["foo", "foo/bar"],
-            purge=["bar", "bar/bar"],
-        )
+        cache_keys = key_maker(pretend.stub(attr="bar"))
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo", "foo/bar"]
+        assert list(cache_keys.purge) == ["bar", "bar/bar"]
 
     def test_only_cache(self):
         key_maker = origin.key_maker_factory(
-            cache_keys=[
-                origin.key_factory("foo"),
-                origin.key_factory("foo/{obj.attr}"),
-            ],
+            cache_keys=["foo", "foo/{obj.attr}"],
             purge_keys=None,
         )
-        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
-            cache=["foo", "foo/bar"],
-            purge=[],
-        )
+        cache_keys = key_maker(pretend.stub(attr="bar"))
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ["foo", "foo/bar"]
+        assert list(cache_keys.purge) == []
 
     def test_only_purge(self):
         key_maker = origin.key_maker_factory(
@@ -238,27 +234,25 @@ class TestKeyMaker:
                 origin.key_factory("bar/{obj.attr}"),
             ],
         )
-        assert key_maker(pretend.stub(attr="bar")) == origin.CacheKeys(
-            cache=[],
-            purge=["bar", "bar/bar"],
-        )
+        cache_keys = key_maker(pretend.stub(attr="bar"))
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == []
+        assert list(cache_keys.purge) == ["bar", "bar/bar"]
 
     def test_iterate_on(self):
         key_maker = origin.key_maker_factory(
-            cache_keys=[
-                origin.key_factory('foo'),
-                origin.key_factory('foo/{itr}', iterate_on='iterate_me'),
-            ],
+            cache_keys=['foo'],  # Intentionally does not support `iterate_on`
             purge_keys=[
                 origin.key_factory('bar'),
                 origin.key_factory('bar/{itr}', iterate_on='iterate_me'),
             ],
         )
         cache_keys = key_maker(pretend.stub(iterate_me=['biz', 'baz']))
-        assert cache_keys == origin.CacheKeys(
-            cache=['foo', 'foo/biz', 'foo/baz'],
-            purge=['bar', 'bar/biz', 'bar/baz'],
-        )
+
+        assert isinstance(cache_keys, origin.CacheKeys)
+        assert cache_keys.cache == ['foo']
+        assert list(cache_keys.purge) == ['bar', 'bar/biz', 'bar/baz']
 
 
 def test_register_origin_keys(monkeypatch):

@@ -40,10 +40,7 @@ def includeme(config):
     # Register our origin cache keys
     config.register_origin_cache_keys(
         Project,
-        cache_keys=[
-            key_factory("project/{obj.normalized_name}"),
-            key_factory("user/{itr.username}", iterate_on='users'),
-        ],
+        cache_keys=["project/{obj.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.normalized_name}"),
             key_factory("user/{itr.username}", iterate_on='users'),
@@ -52,10 +49,7 @@ def includeme(config):
     )
     config.register_origin_cache_keys(
         Release,
-        cache_keys=[
-            key_factory("project/{obj.project.normalized_name}"),
-            key_factory("user/{itr.username}", iterate_on='project.users'),
-        ],
+        cache_keys=["project/{obj.project.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.project.normalized_name}"),
             key_factory("user/{itr.username}", iterate_on='project.users'),
@@ -64,11 +58,10 @@ def includeme(config):
     )
     config.register_origin_cache_keys(
         User,
-        cache_keys=[
-            key_factory("user/{obj.username}"),
-        ],
+        cache_keys=["user/{obj.username}"],
         purge_keys=[
             key_factory("user/{obj.username}"),
+            key_factory("project/{itr.normalized_name}", iterate_on='projects')
         ],
     )
 

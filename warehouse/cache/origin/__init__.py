@@ -110,8 +110,14 @@ def key_maker_factory(cache_keys, purge_keys):
 
     def key_maker(obj):
         return CacheKeys(
-            cache=list(chain.from_iterable(key(obj) for key in cache_keys)),
-            purge=list(chain.from_iterable(key(obj) for key in purge_keys)),
+            # Note: this does not support setting the `cache` argument via
+            # multiple `key_factories` as we do with `purge` because there is
+            # a limit to how many surrogate keys we can attach to a single HTTP
+            # response, and being able to use use `iterate_on` would allow this
+            # size to be unbounded.
+            # ref: https://github.com/pypa/warehouse/pull/3189
+            cache=[k.format(obj=obj) for k in cache_keys],
+            purge=chain.from_iterable(key(obj) for key in purge_keys),
         )
 
     return key_maker
