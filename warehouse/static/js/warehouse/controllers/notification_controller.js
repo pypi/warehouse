@@ -11,24 +11,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as cookie from "cookie";
 import { Controller } from "stimulus";
 
 export default class extends Controller {
   static targets = ["notification", "notificationDismiss"];
-  expireDays = 30;
-  dismissKey = "dismissed";
 
-  connect() {
-    const cookies = cookie.parse(document.cookie);
-    if (this.dismissKey in cookies && cookies[this.dismissKey]) {
+  /**
+   * Get notification's id based on current DOM element id and version
+   *
+   * Notifications _without_ an element id and `notification-data-version`
+   * will be treated as ephemeral: its dismissed state will not be persisted
+   * into localStorage.
+   *
+   * @private
+   */
+  _getNotificationId() {
+    /** Get data from `data-notification-version` attribute */
+    const version = this.data.get("version");
+    if (this.notificationTarget.id && version) {
+      return `${this.notificationTarget.id}_${version}__dismissed`;
+    }
+  }
+
+  initialize() {
+    const notificationId = this._getNotificationId();
+    if (notificationId && localStorage.getItem(notificationId)) {
       this.notificationTarget.style.display = "none";
     }
   }
 
   dismiss() {
+    const notificationId = this._getNotificationId();
+    if (notificationId) {
+      localStorage.setItem(notificationId, 1);
+    }
     this.notificationTarget.style.display = "none";
-    const expires = new Date(Date.now() + this.expireDays * 864e5).toUTCString();
-    document.cookie = `${this.dismissKey}=1;expires=${expires};path=/`;
   }
 }

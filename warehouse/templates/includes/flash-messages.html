@@ -13,19 +13,28 @@
 -#}
 
 {% for message in request.session.pop_flash(queue="error") %}
-<div class="notification-bar notification-bar--danger">
-  <span class="notification-bar__message">{{ message }}</span>
+<div class="notification-bar notification-bar--danger" data-controller="notification" data-target="notification.notification">
+  <div class="site-container">
+    <span class="notification-bar__message">{{ message }}</span>
+    <span data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
+  </div>
 </div>
 {% endfor %}
 
 {% for message in request.session.pop_flash() %}
-<div class="notification-bar notification-bar">
-  <span class="notification-bar__message">{{ message }}</span>
+<div class="notification-bar notification-bar" data-controller="notification" data-target="notification.notification">
+  <div class="site-container">
+    <span class="notification-bar__message">{{ message }}</span>
+    <span data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
+  </div>
 </div>
 {% endfor %}
 
 {% for message in request.session.pop_flash(queue="success") %}
-<div class="notification-bar notification-bar--success">
-  <span class="notification-bar__message">{{ message }}</span>
+<div class="notification-bar notification-bar--success" data-controller="notification" data-target="notification.notification">
+  <div class="site-container">
+    <span class="notification-bar__message">{{ message }}</span>
+    <span data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
+  </div>
 </div>
 {% endfor %}
