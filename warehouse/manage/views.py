@@ -555,10 +555,10 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             owners = (
                 request.db.query(Role)
-                .join(User)
+                .join(Role.user)
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
-            owner_emails = [owner.email for owner in owners]
+            owner_emails = [owner.user.email for owner in owners]
             owner_emails.remove(request.user.email)
 
             send_collaborator_added_email(
@@ -570,12 +570,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 owner_emails
             )
 
-            send_added_as_collaborator_email(request,
-                                             request.user,
-                                             project.name,
-                                             form.role_name.data,
-                                             user.email
-                                             )
+            send_added_as_collaborator_email(
+                request,
+                request.user,
+                project.name,
+                form.role_name.data,
+                user.email
+            )
 
             request.session.flash(
                 f"Added collaborator '{form.username.data}'",
