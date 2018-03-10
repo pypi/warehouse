@@ -19,7 +19,7 @@ from warehouse.accounts.interfaces import ITokenService
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, body, subject, recipients=None):
+def send_email(task, request, body, subject, *, recipients=None):
 
     mailer = get_mailer(request)
     message = Message(
