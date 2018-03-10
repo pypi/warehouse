@@ -36,7 +36,12 @@ accounts_gpgkey = Table(
     Column(
         "user_id",
         UUID(as_uuid=True),
-        ForeignKey("accounts_user.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "accounts_user.id",
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
         nullable=False,
     ),
     Column("key_id", CIText(), nullable=False),
