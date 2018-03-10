@@ -118,7 +118,7 @@
       <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
-    <header class="site-header{% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %} site-header--testing{% endif %}">
+    <header class="site-header" {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}style="background-image: url('{{ request.static_path('warehouse:static/dist/images/testing.png')}}');"{% endif %}>
       <div class="site-container">
         <div class="split-layout">
           {% block brand %}

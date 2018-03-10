@@ -22,6 +22,8 @@
 
 .site-header {
   background-color: $header-background-color;
+  background-repeat: repeat;
+  background-position: 0 50%;
   border-bottom: 1px solid $header-border-color;
 
   &__logo {
@@ -32,10 +34,5 @@
     @media screen and (max-width: $small-tablet) {
       max-width: 50px;
     }
-  }
-
-  // Test PyPI style
-  &--testing {
-    background: $header-background-color url("../images/testing.png") 0 50%;
   }
 }
