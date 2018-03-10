@@ -19,7 +19,7 @@ from warehouse.accounts.interfaces import ITokenService
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, body, recipients, subject):
+def send_email(task, request, body, subject, *, recipients=None):
 
     mailer = get_mailer(request)
     message = Message(
@@ -58,7 +58,7 @@ def send_password_reset_email(request, user):
         'email/password-reset.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, [user.email], subject)
+    request.task(send_email).delay(body, subject, recipients=[user.email])
 
     # Return the fields we used, in case we need to show any of them to the
     # user
@@ -87,7 +87,7 @@ def send_email_verification_email(request, email):
         'email/verify-email.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, [email.email], subject)
+    request.task(send_email).delay(body, subject, recipients=[email.email])
 
     return fields
 
@@ -105,7 +105,7 @@ def send_password_change_email(request, user):
         'email/password-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, [user.email], subject)
+    request.task(send_email).delay(body, subject, recipients=[user.email])
 
     return fields
 
@@ -123,7 +123,7 @@ def send_account_deletion_email(request, user):
         'email/account-deleted.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, [user.email], subject)
+    request.task(send_email).delay(body, subject, recipients=[user.email])
 
     return fields
 
@@ -143,6 +143,6 @@ def send_primary_email_change_email(request, user, email):
         'email/primary-email-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, [email], subject)
+    request.task(send_email).delay(body, subject, recipients=[email])
 
     return fields
