@@ -511,6 +511,7 @@ release_classifiers = Table(
         ["name", "version"],
         ["releases.name", "releases.version"],
         onupdate="CASCADE",
+        ondelete="CASCADE",
     ),
 
     Index("rel_class_name_idx", "name"),
