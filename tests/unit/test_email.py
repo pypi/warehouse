@@ -44,7 +44,7 @@ class TestSendEmail:
             )
         )
 
-        email.send_email(task, request, "body", ["recipients"], "subject")
+        email.send_email(task, request, "body", "subject", recipients=["recipients"])
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
@@ -83,7 +83,7 @@ class TestSendEmail:
         )
 
         with pytest.raises(celery.exceptions.Retry):
-            email.send_email(task, request, "body", ["recipients"], "subject")
+            email.send_email(task, request, "body", "subject", recipients=["recipients"])
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
@@ -154,7 +154,7 @@ class TestSendPasswordResetEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call('Email Body', 'Email Subject', recipients=[stub_user.email]),
         ]
 
 
@@ -215,7 +215,7 @@ class TestEmailVerificationEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_email.email], 'Email Subject'),
+            pretend.call('Email Body', 'Email Subject', recipients=[stub_email.email]),
         ]
 
 
@@ -259,7 +259,7 @@ class TestPasswordChangeEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call('Email Body', 'Email Subject', recipients=[stub_user.email]),
         ]
 
 
@@ -303,7 +303,7 @@ class TestAccountDeletionEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call('Email Body', 'Email Subject', recipients=[stub_user.email]),
         ]
 
 
@@ -350,5 +350,5 @@ class TestPrimaryEmailChangeEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', ['old_email'], 'Email Subject'),
+            pretend.call('Email Body', 'Email Subject', recipients=['old_email']),
         ]
