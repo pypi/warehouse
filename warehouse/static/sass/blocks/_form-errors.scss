@@ -46,4 +46,17 @@
       max-width: 100%;
     }
   }
+
+  .form-error {
+    &--valid {
+      color: $success-color;
+
+      &:before {
+        font-family: "FontAwesome";
+        content: "\f00c"; // Check / Tick
+        margin-right: 5px;
+        color: $success-color;
+      }
+    }
+  }
 }
