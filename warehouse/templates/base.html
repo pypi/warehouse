@@ -98,6 +98,15 @@
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
+      {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
+        <span class="notification-bar__message">You are using the test version of this site.</span>
+      </div>
+      {% endif %}
     </section>
 
     {% block flash_messages %}
@@ -109,7 +118,7 @@
       <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
-    <header class="site-header">
+    <header class="site-header{% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %} site-header--testing{% endif %}">
       <div class="site-container">
         <div class="split-layout">
           {% block brand %}

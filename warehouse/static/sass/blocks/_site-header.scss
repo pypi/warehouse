@@ -33,4 +33,9 @@
       max-width: 50px;
     }
   }
+
+  // Test PyPI style
+  &--testing {
+    background: $header-background-color url("../images/testing.png") 0 50%;
+  }
 }
