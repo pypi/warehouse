@@ -228,6 +228,9 @@ def configure(settings=None):
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
 
+    # Register DataDog metrics
+    config.include(".datadog")
+
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
     # set ASAP before anything else has a chance to set them and possibly call

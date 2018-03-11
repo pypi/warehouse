@@ -115,6 +115,12 @@ class TestLogin:
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.failure',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert result == {
             "form": form_obj,
@@ -173,6 +179,13 @@ class TestLogin:
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.complete',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [

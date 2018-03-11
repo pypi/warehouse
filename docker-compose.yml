@@ -45,6 +45,7 @@ services:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
+      - .coveragerc:/opt/warehouse/src/.coveragerc:z
     ports:
       - "80:8000"
     links:
