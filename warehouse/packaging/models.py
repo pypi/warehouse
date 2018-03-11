@@ -50,11 +50,15 @@ class Role(db.Model):
     role_name = Column(Text)
     user_name = Column(
         CIText,
-        ForeignKey("accounts_user.username", onupdate="CASCADE"),
+        ForeignKey(
+            "accounts_user.username",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
     )
     package_name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
     user = orm.relationship(User, lazy=False)
@@ -217,6 +221,7 @@ class Dependency(db.Model):
             ["name", "version"],
             ["releases.name", "releases.version"],
             onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
@@ -257,11 +262,11 @@ class Release(db.ModelBase):
 
     name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
     version = Column(Text, primary_key=True)
-    canonical_version = Column(Text)
+    canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
     author_email = Column(Text)
@@ -421,6 +426,7 @@ class File(db.Model):
                 ["name", "version"],
                 ["releases.name", "releases.version"],
                 onupdate="CASCADE",
+                ondelete="CASCADE",
             ),
 
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
@@ -507,6 +513,7 @@ release_classifiers = Table(
         ["name", "version"],
         ["releases.name", "releases.version"],
         onupdate="CASCADE",
+        ondelete="CASCADE",
     ),
 
     Index("rel_class_name_idx", "name"),

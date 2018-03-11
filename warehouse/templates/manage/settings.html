@@ -21,8 +21,23 @@
   <h2>Project Settings</h2>
 
   <div class="callout-block">
+    <h3>Project Description and Sidebar</h3>
+    <p>
+      To set the '{{ project.name }}' description, author, links,
+      classifiers, and other details for your next release, use
+      the <a href="https://packaging.python.org/tutorials/distributing-packages/#setup-args"><tt>setup()</tt>
+      arguments in your <tt>setup.py</tt> file</a>. Updating these
+      fields will not change the metadata for past
+      releases. See <a href="https://packaging.python.org/tutorials/distributing-packages/">the
+      Python Packaging User Guide</a> for more help.
+    </p>
+  </div>
+
+
+  <div class="callout-block callout-block--danger">
     <h3>Delete Project</h3>
     <p>
+      <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
     {% if project.releases %}
       Deleting will irreversibly delete this project along with
       <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">

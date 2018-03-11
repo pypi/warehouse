@@ -27,6 +27,7 @@ You can also file specific types of issues:
 
 - `Good First Issue`_: An easy issue reserved for people who haven't
   contributed before
+- `Visual Design Issue`_: An issue related to the visual design of the site
 
 You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
 `pypa-dev mailing list`_, to ask questions or get involved.
@@ -45,4 +46,5 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
 .. _Good First Issue: https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md
+.. _Visual Design Issue: https://github.com/pypa/warehouse/issues/new?template=visual-design.md
 .. _PyPA Code of Conduct: https://www.pypa.io/en/latest/code-of-conduct/

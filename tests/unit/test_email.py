@@ -44,7 +44,13 @@ class TestSendEmail:
             )
         )
 
-        email.send_email(task, request, "body", ["recipients"], "subject")
+        email.send_email(
+            task,
+            request,
+            "body",
+            "subject",
+            recipients=["recipients"],
+        )
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
@@ -83,7 +89,13 @@ class TestSendEmail:
         )
 
         with pytest.raises(celery.exceptions.Retry):
-            email.send_email(task, request, "body", ["recipients"], "subject")
+            email.send_email(
+                task,
+                request,
+                "body",
+                "subject",
+                recipients=["recipients"],
+            )
 
         assert mailer.send_immediately.calls == [pretend.call(message_obj)]
         assert request.registry.getUtility.calls == [pretend.call(IMailer)]
@@ -154,7 +166,11 @@ class TestSendPasswordResetEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_user.email],
+            ),
         ]
 
 
@@ -215,7 +231,11 @@ class TestEmailVerificationEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_email.email], 'Email Subject'),
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_email.email],
+            ),
         ]
 
 
@@ -259,7 +279,11 @@ class TestPasswordChangeEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_user.email],
+            ),
         ]
 
 
@@ -303,5 +327,60 @@ class TestAccountDeletionEmail:
             pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
-            pretend.call('Email Body', [stub_user.email], 'Email Subject'),
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_user.email],
+            ),
+        ]
+
+
+class TestPrimaryEmailChangeEmail:
+
+    def test_primary_email_change_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='new_email',
+            username='username',
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/primary-email-change.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/primary-email-change.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_primary_email_change_email(
+            pyramid_request,
+            stub_user,
+            "old_email"
+        )
+
+        assert result == {
+            'username': stub_user.username,
+            'old_email': "old_email",
+            'new_email': stub_user.email
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(username=stub_user.username)
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=['old_email'],
+            ),
         ]

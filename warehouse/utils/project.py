@@ -13,9 +13,7 @@
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
-from warehouse.packaging.models import (
-    Release, Dependency, File, Role, JournalEntry, release_classifiers
-)
+from warehouse.packaging.models import JournalEntry
 
 
 def confirm_project(project, request, fail_route):
@@ -52,26 +50,7 @@ def remove_project(project, request, flash=True):
             submitted_from=request.remote_addr,
         )
     )
-    request.db.query(Role).filter(Role.project == project).delete()
-    request.db.query(File).filter(File.name == project.name).delete()
-    (request.db.query(Dependency).filter(Dependency.name == project.name)
-               .delete())
-    (request.db.execute(release_classifiers.delete()
-                        .where(release_classifiers.c.name ==
-                               project.name)))
 
-    # Load the following objects into the session and individually delete them
-    # so they are included in `session.deleted` and their cache keys are purged
-
-    # Delete releases first, otherwise they will get cascade-deleted by the
-    # project deletion and won't be purged
-    for release in (
-            request.db.query(Release)
-            .filter(Release.project == project)
-            .all()):
-        request.db.delete(release)
-
-    # Finally, delete the project
     request.db.delete(project)
 
     # Flush so we can repeat this multiple times if necessary

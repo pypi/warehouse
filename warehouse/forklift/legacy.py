@@ -790,10 +790,12 @@ def file_upload(request):
                 STDLIB_PROHIBITTED):
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed (conflict with Python "
+                ("The name {name!r} is not allowed (conflict with Python "
                  "Standard Library module name). See "
-                 "https://pypi.org/help/#project-name for more information.")
-                .format(form.name.data),
+                 "{projecthelp} for more information.").format(
+                     name=form.name.data,
+                     projecthelp=request.route_url(
+                         'help', _anchor='project-name')),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
@@ -830,8 +832,10 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             ("The user '{0}' is not allowed to upload to project '{1}'. "
-             "See https://pypi.org/help#project-name for more information.")
-            .format(request.user.username, project.name)
+             "See {2} for more information.")
+            .format(request.user.username, project.name, request.route_url(
+                'help', _anchor='project-name')
+            )
         )
 
     try:
@@ -962,7 +966,7 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Ensure that the package filetpye is allowed.
+    # Ensure that the package filetype is allowed.
     # TODO: Once PEP 527 is completely implemented we should be able to delete
     #       this and just move it into the form itself.
     if (not project.allow_legacy_files and
@@ -993,10 +997,14 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "File too large. " +
-                        "Limit for project {name!r} is {limit}MB".format(
+                        "Limit for project {name!r} is {limit}MB. ".format(
                             name=project.name,
-                            limit=file_size_limit // (1024 * 1024),
-                        ))
+                            limit=file_size_limit // (1024 * 1024)) +
+                        "See " +
+                        request.route_url(
+                            'help', _anchor='file-size-limit'
+                        ),
+                    )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
