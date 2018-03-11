@@ -53,6 +53,7 @@ services:
       - redis
       - rabbitmq
       - elasticsearch
+      - notdatadog
 
   worker:
     build:
@@ -69,6 +70,7 @@ services:
       - rabbitmq
       - elasticsearch
       - smtp
+      - notdatadog
 
   static:
     build:
@@ -89,3 +91,12 @@ services:
       - "2525:2525"
     volumes:
       - ./dev/smtp.py:/opt/warehouse/dev/smtp.py
+
+  notdatadog:
+    build:
+      context: .
+    command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
+    ports:
+      - "8125:8125/udp"
+    volumes:
+      - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
