@@ -10,9 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from datadog import DogStatsd
 
 
 def includeme(config):
     config.include(".pyramid_datadog")
-    config.configure_metrics(DogStatsd(host='datadog'))
+    config.configure_metrics(
+        DogStatsd(
+            host=os.environ.get('DATADOG_HOST', '127.0.0.1'),
+            port=int(os.environ.get('DATADOG_PORT', 8125)),
+            namespace=os.environ.get('DATADOG_NAMESPACE'),
+            use_ms=True,
+            use_default_route=bool(
+                os.environ.get('DATADOG_USE_DEFAULT_ROUTE')
+            ),
+        )
+    )
