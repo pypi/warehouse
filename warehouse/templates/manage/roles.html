@@ -50,9 +50,8 @@
       <tr class="collaborator">
         <td class="table__user">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
-            {% set alt = "Avatar for {} from gravatar.com".format(role.user.username) %}
-            <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="tooltipped tooltipped-e" aria-label="{{ role.user.username}}" data-original-label="{{ role.user.username}}">
-              <img src="{{ gravatar(role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+            {% set alt = "Avatar for {} from gravatar.com".format(role.user.username) %} <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="tooltipped tooltipped-e" aria-label="{{ role.user.username}}" data-original-label="{{ role.user.username}}">
+            <img src="{{ gravatar(role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
             </a>
             <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
             {{ role.user.username }}
