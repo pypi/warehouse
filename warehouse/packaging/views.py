@@ -122,16 +122,21 @@ def release_detail(release, request):
         )
     ]
 
-    # Get the license from the classifiers or metadata, preferring classifiers.
-    license = None
-    if release.license:
-        # Make a best effort when the entire license text is given
-        # by using the first line only.
-        license = release.license.split('\n')[0]
-    license_classifiers = [c.split(" :: ")[-1] for c in release.classifiers
-                           if c.startswith("License")]
-    if license_classifiers:
-        license = ', '.join(license_classifiers)
+    # Get the license from both the `Classifier` and `License` metadata fields
+    license_classifiers = ', '.join(
+        c.split(" :: ")[-1]
+        for c in release.classifiers
+        if c.startswith("License")
+    )
+
+    # Make a best effort when the entire license text is given by using the
+    # first line only.
+    short_license = release.license.split('\n')[0] if release.license else None
+
+    if license_classifiers and short_license:
+        license = f'{license_classifiers} ({short_license})'
+    else:
+        license = license_classifiers or short_license or None
 
     return {
         "project": project,
