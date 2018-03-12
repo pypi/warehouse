@@ -122,9 +122,9 @@ CommonMark==0.7.4 \
     --hash=sha256:24678b72094398df96312fb927e274ccaf5148f25e47aca9f7fc062693ae7577
 datadog==0.19.0 \
     --hash=sha256:ec476e6f474955770d414d4cffa272d68b2715e59cbb9d7bb561da037c2041bf
-disposable-email-domains==0.0.22 \
-    --hash=sha256:4276fda57c2f9ef27fc133e5f50da2298d51b0f81d57b143b2002ef1ff524746 \
-    --hash=sha256:4a67dae501ff6da8d6d1aca7d3f9910516dc932f3dc95e27d311db02af4bd89d
+disposable-email-domains==0.0.23 \
+    --hash=sha256:b23428c7e69cbb87d7d2e1bd3fda37cd2260809608a217d271d2ff15f48453d0 \
+    --hash=sha256:80684d08cadebfc4e5d61aa63317e74ab9fd7714d0fab06b702989ef68971c51
 decorator==4.2.1 \
     --hash=sha256:7d46dd9f3ea1cf5f06ee0e4e1277ae618cf48dfb10ada7c8427cd46c42702a0e \
     --hash=sha256:94d1d8905f5010d74bbbd86c30471255661a14187c45f8d7f3e5aa8540fdb2e5
