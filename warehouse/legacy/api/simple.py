@@ -10,8 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pkg_resources
 
+from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
@@ -87,7 +87,7 @@ def simple_detail(project, request):
             )
         )
         .all(),
-        key=lambda f: (pkg_resources.parse_version(f.version), f.packagetype)
+        key=lambda f: (parse(f.version), f.packagetype)
     )
 
     return {"project": project, "files": files}
