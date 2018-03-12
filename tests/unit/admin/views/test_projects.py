@@ -120,6 +120,17 @@ class TestProjectDetail:
             views.project_detail(project, db_request)
 
 
+class TestReleaseDetail:
+
+    def test_gets_release(self):
+        release = pretend.stub()
+        request = pretend.stub()
+
+        assert views.release_detail(release, request) == {
+            'release': release,
+        }
+
+
 class TestProjectReleasesList:
 
     def test_no_query(self, db_request):

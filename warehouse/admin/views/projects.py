@@ -173,6 +173,18 @@ def releases_list(project, request):
 
 
 @view_config(
+    route_name="admin.project.release",
+    renderer="admin/projects/release_detail.html",
+    permission="admin",
+    uses_session=True,
+)
+def release_detail(release, request):
+    return {
+        'release': release,
+    }
+
+
+@view_config(
     route_name="admin.project.journals",
     renderer="admin/projects/journals_list.html",
     permission="admin",
