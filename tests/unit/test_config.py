@@ -304,7 +304,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
-        [pretend.call(".csrf")] +
+        [pretend.call(".datadog"),
+         pretend.call(".csrf")] +
         [
             pretend.call(x) for x in [
                 (
