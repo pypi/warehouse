@@ -4,6 +4,11 @@ Integration guide
 We provide multiple APIs to help you integrate with PyPI; see
 :doc:`index`.
 
+Many tools already integrate with PyPI, uploading packages or
+retrieving data; see `the Python Packaging Guide's tool
+recommendations
+<https://packaging.python.org/guides/tool-recommendations/>`_.
+
 
 Migrating to the new PyPI
 -------------------------
@@ -20,12 +25,11 @@ Here are some tips.
 
 * If your client correctly follows redirects, you can replace
   ``pypi.python.org`` in your links with ``pypi.org`` and everything
-  should just work. ``https://pypi.org/pypi/{name}`` (with or
-  without a trailing slash) redirects to
-  ``https://pypi.org/project/{name}/``.
+  should just work. For instance, the project detail page
+  ``https://pypi.org/pypi/{name}`` (with or without a trailing slash)
+  redirects to ``https://pypi.org/project/{name}/``.
 
-* In case you prefer a shorter URL: feel free to link to
-  ``https://pypi.org/p/{name}/``, which will redirect to
+* Shorter URL: ``https://pypi.org/p/{name}/`` will redirect to
   ``https://pypi.org/project/{name}/``.
 
 * Documentation upload: Users can no longer use ``doc_upload`` in the
