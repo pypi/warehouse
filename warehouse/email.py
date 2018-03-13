@@ -25,7 +25,7 @@ def send_email(task, request, body, subject, *, recipients=None, bcc=None):
     message = Message(
         body=body,
         recipients=recipients,
-        bcc=None,
+        bcc=bcc,
         sender=request.registry.settings.get('mail.sender'),
         subject=subject
     )
