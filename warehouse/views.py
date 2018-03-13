@@ -304,15 +304,44 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
-    request.registry.datadog.histogram(
-        "warehouse.views.search.results", page.item_count
-    )
+    def form_filters_tree(split_list):
+        """
+        Takes a list of lists, each of them containing a filter and
+        one of its children.
+        Returns a dictionary, each key being a filter and each value being
+        the filter's children.
+        """
+        d = {}
+        for l in split_list:
+            current_level = d
+            for part in l:
+                if part not in current_level:
+                    current_level[part] = {}
+                current_level = current_level[part]
+        return d
+
+    def process_available_filters():
+        """
+        Processes available filters and returns a list of dictionaries.
+        The value of a key in the dictionary represents its children
+        """
+        sorted_filters = sorted(available_filters.items(), key=filter_key)
+        output = []
+        for f in sorted_filters:
+            classifier_list = f[1]
+            split_list = [i.split(' :: ') for i in classifier_list]
+            tree = form_filters_tree(split_list)
+            output.append(tree)
+        return output
+
+    request.registry.datadog.histogram('warehouse.views.search.results',
+                                       page.item_count)
 
     return {
         "page": page,
         "term": q,
-        "order": request.params.get("o", ""),
-        "available_filters": sorted(available_filters.items(), key=filter_key),
+        "order": request.params.get("o", ''),
+        "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
 

@@ -419,7 +419,12 @@ class TestSearch:
             "order": params.get("o", ""),
             "applied_filters": params.getall("c"),
             "available_filters": [
-                ("foo", [classifier1.classifier, classifier2.classifier])
+                {
+                    'foo': {
+                        classifier1.classifier.split(' :: ')[1]: {},
+                        classifier2.classifier.split(' :: ')[1]: {}
+                    }
+                }
             ],
         }
         assert ("fiz", [classifier3.classifier]) not in search_view["available_filters"]
