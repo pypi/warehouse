@@ -31,6 +31,8 @@ Example usage::
     'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
     'url': 'https://pypi.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
 
+.. _changes-to-legacy-api:
+
 Changes to Legacy API
 ---------------------
 
