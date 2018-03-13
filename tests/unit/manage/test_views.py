@@ -1236,7 +1236,7 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-    def test_post_new_role(self, db_request):
+    def test_post_new_role(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
 
@@ -1261,6 +1261,12 @@ class TestManageProjectRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
 
+        send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_collaborator_added_email', send_collaborator_added_email)
+
+        send_added_as_collaborator_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_added_as_collaborator_email', send_added_as_collaborator_email)
+
         result = views.manage_project_roles(
             project, db_request, _form_class=form_class
         )
@@ -1275,6 +1281,26 @@ class TestManageProjectRoles:
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Added collaborator 'testuser'", queue="success"),
+        ]
+
+        assert send_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                []
+            )
+        ]
+
+        assert send_added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                user.email)
         ]
 
         # Only one role is created
