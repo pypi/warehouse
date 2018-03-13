@@ -1262,10 +1262,18 @@ class TestManageProjectRoles:
         )
 
         send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, 'send_collaborator_added_email', send_collaborator_added_email)
+        monkeypatch.setattr(
+            views,
+            'send_collaborator_added_email',
+            send_collaborator_added_email,
+        )
 
         send_added_as_collaborator_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, 'send_added_as_collaborator_email', send_added_as_collaborator_email)
+        monkeypatch.setattr(
+            views,
+            'send_added_as_collaborator_email',
+            send_added_as_collaborator_email,
+        )
 
         result = views.manage_project_roles(
             project, db_request, _form_class=form_class
