@@ -80,28 +80,28 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-::
+- bin/ - high-level scripts for Docker, Travis, and Makefile commands
+- dev/ - assets for developer environment
+- tests/ - tests
+- warehouse/ - code in modules
 
-    bin/ - high-level scripts for Docker, Travis, and Makefile commands
-    dev/ - assets for developer environment
-    tests/ - tests
-    warehouse/ - code in modules
-        legacy/ - most of the read-only APIs implemented here
-        forklift/ - APIs for upload
-        accounts/ - user accounts
-        admin/ - application-administrator-specific
-        cache/ - caching
-        classifiers/ - frame trove classifiers
-        cli/ - entry scripts and [the interactive shell](https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell)
-        i18n/ - internationalization
-        locales/ - internationalization
-        manage/ - logged-in user functionality (i.e., manage account & owned projects)
-        migrations/ - DB
-        packaging/ - models
-        rate_limiting/ - rate limiting to prevent abuse
-        rss/ - RSS feeds
-        sitemap/ - site maps
-        utils/ - various utilities Warehouse uses
+  - legacy/ - most of the read-only APIs implemented here
+  - forklift/ - :ref:`upload-api-forklift`
+  - accounts/ - user accounts
+  - admin/ - application-administrator-specific
+  - cache/ - caching
+  - classifiers/ - frame trove classifiers
+  - cli/ - entry scripts and `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
+  - i18n/ - internationalization
+  - locales/ - internationalization
+  - manage/ - logged-in user functionality (i.e., manage account &
+    owned/maintained projects)
+  - migrations/ - changes to the database schema
+  - packaging/ - models
+  - rate_limiting/ - rate limiting to prevent abuse
+  - rss/ - RSS feeds: :doc:`api-reference/feeds`
+  - sitemap/ - site maps
+  - utils/ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
 .. _Docker: https://docs.docker.com/
