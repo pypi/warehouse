@@ -1268,7 +1268,8 @@ class TestManageProjectRoles:
             send_collaborator_added_email,
         )
 
-        send_added_as_collaborator_email = pretend.call_recorder(lambda *a: None)
+        send_added_as_collaborator_email = pretend.call_recorder(
+            lambda *a: None)
         monkeypatch.setattr(
             views,
             'send_added_as_collaborator_email',
