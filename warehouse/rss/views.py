@@ -46,6 +46,25 @@ def rss_updates(request):
 
 
 @view_config(
+    route_name="rss.project_updates",
+    renderer="rss/project_updates.xml",
+    decorator=[
+        origin_cache(
+            1 * 24 * 60 * 60,                         # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=5 * 24 * 60 * 60,          # 5 days
+        ),
+    ],
+)
+def rss_project_updates(project, request):
+    request.response.content_type = "text/xml"
+    request.find_service(name="csp").merge(XML_CSP)
+    return {
+        "project": project,
+    }
+
+
+@view_config(
     route_name="rss.packages",
     renderer="rss/packages.xml",
     decorator=[

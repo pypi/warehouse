@@ -71,3 +71,23 @@ def test_rss_packages(db_request):
         "newest_projects": [project3, project1],
     }
     assert db_request.response.content_type == "text/xml"
+
+
+def test_rss_project_updates(db_request):
+    db_request.find_service = pretend.call_recorder(
+        lambda *args, **kwargs: pretend.stub(
+            enabled=False,
+            csp_policy=pretend.stub(),
+            merge=lambda _: None,
+        )
+    )
+
+    db_request.session = pretend.stub()
+
+    project = ProjectFactory.create()
+
+    db_request.matchdict["name"] = project.name
+    assert rss.rss_project_updates(project, db_request) == {
+        "project": project
+    }
+    assert db_request.response.content_type == "text/xml"

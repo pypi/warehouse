@@ -229,6 +229,13 @@ def test_routes(warehouse):
             "https://files.example.com/packages/{path}",
         ),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
+        pretend.call(
+            "rss.project_updates",
+            "/rss/{name}/updates.xml",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse
+        ),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),
         pretend.call(
