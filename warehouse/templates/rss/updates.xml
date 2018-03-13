@@ -7,7 +7,7 @@
     <title>{{ release.project.normalized_name }} {{ release.version }}</title>
     <link>{{ request.route_url('packaging.release', name=release.project.normalized_name, version=release.version) }}</link>
     <description>{{ release.summary }}</description>
-    <pubDate>{{ release.project.created|format_rfc822_datetime() }}</pubDate>
+    <pubDate>{{ release.created|format_rfc822_datetime() }}</pubDate>
   </item>
   {% endfor %}
 {% endblock %}
