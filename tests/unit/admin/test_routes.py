@@ -92,6 +92,16 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            'admin.classifiers',
+            '/admin/classifiers/',
+            domain=warehouse,
+        ),
+        pretend.call(
+            'admin.classifiers.add',
+            '/admin/classifiers/add/',
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.blacklist.list",
             "/admin/blacklist/",
             domain=warehouse,
