@@ -365,6 +365,39 @@ class TestRequestPasswordResetForm:
         form = forms.RequestPasswordResetForm(user_service=user_service)
         assert 'password' not in form._fields
 
+    def test_validate_username_or_email(self):
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda userid: "1"),
+            get_user_by_email=pretend.call_recorder(lambda userid: "1"),
+        )
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        field = pretend.stub(data="username_or_email")
+
+        form.validate_username_or_email(field)
+
+        assert user_service.get_user_by_username.calls == [
+            pretend.call("username_or_email")
+        ]
+
+    def test_validate_username_or_email_with_none(self):
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda userid: None),
+            get_user_by_email=pretend.call_recorder(lambda userid: None),
+        )
+        form = forms.RequestPasswordResetForm(user_service=user_service)
+        field = pretend.stub(data="username_or_email")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_username_or_email(field)
+
+        assert user_service.get_user_by_username.calls == [
+            pretend.call("username_or_email")
+        ]
+
+        assert user_service.get_user_by_email.calls == [
+            pretend.call("username_or_email")
+        ]
+
 
 class TestResetPasswordForm:
 
