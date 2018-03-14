@@ -1,0 +1,77 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Classifiers{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Classifiers</li>
+{% endblock %}
+
+{% block content %}
+<div class="box box-primary" data-controller="classifier">
+  <div class="box-header with-border">
+    <h3 class="box-title">Add Classifier</h3>
+  </div>
+  <form method="POST" action="{{ request.route_path('admin.classifiers.add') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="box-body">
+      <div class="form-group col-sm-4">
+        <label for="parent_id">Parent:</label>
+        <select name="parent_id" data-target="classifier.parent" data-action="classifier#update">
+          <option disabled selected>Select one</option>
+          {% for classifier in classifiers %}
+          <option value="{{ classifier.id }}">{{ classifier.classifier }}</option>
+          {% endfor %}
+        </select>
+        <label for="child">Child:</label>
+        <input name="child" data-action="input->classifier#update" data-target="classifier.input" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" disabled>
+      </div>
+    </div>
+    <div class="box-footer">
+      Add new classifier
+      <code data-target="classifier.preview"></code>?
+      <div class="pull-right">
+        <button type="submit" class="btn btn-primary" data-target="classifier.submit" disabled>Add</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{#
+<div class="box box-primary">
+  <div class="box-header with-border">
+    <h3 class="box-title">Deprecate Classifier</h3>
+  </div>
+  <div class="box-body">
+    <select>
+      <option disabled selected>Select one</option>
+      {% for classifier in classifiers %}
+      <option value="{{ classifier.id }}">{{ classifier.classifier }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="box-footer">
+    Deprecate classifier
+    <code></code>?
+    <div class="pull-right">
+      <button type="submit" class="btn btn-primary">Deprecate</button>
+    </div>
+  </div>
+</div>
+#}
+
+{% endblock content %}
