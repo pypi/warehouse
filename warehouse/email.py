@@ -19,12 +19,13 @@ from warehouse.accounts.interfaces import ITokenService
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, body, subject, *, recipients=None):
+def send_email(task, request, body, subject, *, recipients=None, bcc=None):
 
     mailer = get_mailer(request)
     message = Message(
         body=body,
         recipients=recipients,
+        bcc=bcc,
         sender=request.registry.settings.get('mail.sender'),
         subject=subject
     )
@@ -36,7 +37,6 @@ def send_email(task, request, body, subject, *, recipients=None):
 
 def send_password_reset_email(request, user):
     token_service = request.find_service(ITokenService, name='password')
-
     token = token_service.dumps({
         'action': 'password-reset',
         'user.id': str(user.id),
@@ -144,5 +144,48 @@ def send_primary_email_change_email(request, user, email):
     )
 
     request.task(send_email).delay(body, subject, recipients=[email])
+
+    return fields
+
+
+def send_collaborator_added_email(request, user, submitter, project_name, role,
+                                  email_recipients):
+    fields = {
+        'username': user.username,
+        'project': project_name,
+        'submitter': submitter.username,
+        'role': role
+    }
+
+    subject = render(
+        'email/collaborator-added.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/collaborator-added.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
+
+    return fields
+
+
+def send_added_as_collaborator_email(request, submitter, project_name, role,
+                                     user_email):
+    fields = {
+        'project': project_name,
+        'submitter': submitter.username,
+        'role': role
+    }
+
+    subject = render(
+        'email/added-as-collaborator.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/added-as-collaborator.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, recipients=[user_email])
 
     return fields

@@ -28,6 +28,33 @@ pattern. This method of handling URLs may be unfamiliar to developers used to
 other web frameworks, such as Django or Flask. `This article`_ has a helpful
 discussion of the differences between URL dispatch and traversal in Pyramid.
 
+Usage assumptions and concepts
+------------------------------
+
+See `PyPI help <https://pypi.org/help/#packages>`_ to understand
+projects, releases, and packages.
+
+Warehouse is specifically the codebase for the official Python Package
+Index, and thus focuses on architecture and features for PyPI and Test
+PyPI. People and groups who want to run their own package indexes
+usually use other tools, like `devpi
+<https://pypi.org/project/devpi-server/>`_.
+
+Warehouse serves three main classes of users:
+
+1. *People who are not logged in.* This accounts for the majority of
+   browser traffic and all API download traffic.
+2. *Owners/maintainers of one or more projects.* This accounts for
+   almost all writes. A user must create and use a PyPI account to
+   maintain or own a project, and there is no particular functionality
+   available to a logged-in user other than to manage projects they
+   own/maintain. As of March 2018, PyPI had about 270,000 users, and
+   Test PyPI had about 30,000 users.
+3. *PyPI application administrators*, e.g., Ernest W. Durbin III,
+   Dustin Ingram, and Donald Stufft, who add classifiers, ban
+   spam/malware projects, help users with account recovery, and so
+   on. There are under ten such admins.
+
 Since reads are *much* more common than writes (much more goes out than
 goes in), we try to cache as much as possible. This is a big reason
 that, although we have supported localization in the past, `we currently
@@ -53,28 +80,28 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-::
+- bin/ - high-level scripts for Docker, Travis, and Makefile commands
+- dev/ - assets for developer environment
+- tests/ - tests
+- warehouse/ - code in modules
 
-    bin/ - high-level scripts for Docker, Travis, and Makefile commands
-    dev/ - assets for developer environment
-    tests/ - tests
-    warehouse/ - code in modules
-        legacy/ - most of the read-only APIs implemented here
-        forklift/ - APIs for upload
-        accounts/ - user accounts
-        admin/ - application-administrator-specific
-        cache/ - caching
-        classifiers/ - frame trove classifiers
-        cli/ - entry scripts and [the interactive shell](https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell)
-        i18n/ - internationalization
-        locales/ - internationalization
-        manage/ - logged-in user functionality (i.e., manage account & owned projects)
-        migrations/ - DB
-        packaging/ - models
-        rate_limiting/ - rate limiting to prevent abuse
-        rss/ - RSS feeds
-        sitemap/ - site maps
-        utils/ - various utilities Warehouse uses
+  - legacy/ - most of the read-only APIs implemented here
+  - forklift/ - :ref:`upload-api-forklift`
+  - accounts/ - user accounts
+  - admin/ - application-administrator-specific
+  - cache/ - caching
+  - classifiers/ - frame trove classifiers
+  - cli/ - entry scripts and `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
+  - i18n/ - internationalization
+  - locales/ - internationalization
+  - manage/ - logged-in user functionality (i.e., manage account &
+    owned/maintained projects)
+  - migrations/ - changes to the database schema
+  - packaging/ - models
+  - rate_limiting/ - rate limiting to prevent abuse
+  - rss/ - RSS feeds: :doc:`api-reference/feeds`
+  - sitemap/ - site maps
+  - utils/ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
 .. _Docker: https://docs.docker.com/
