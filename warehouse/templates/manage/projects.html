@@ -27,8 +27,10 @@
     <div class="package-snippet">
       <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
         <div>
-          <h3 class="package-snippet__title">{{ project.name }}</h3>
           {% if release %}
+          <h3 class="package-snippet__title">
+            <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a>
+          </h3>
           <p class="package-snippet__meta">
             <em>Last released on {{ release.created|format_date() }}</em>
           </p>
@@ -36,6 +38,7 @@
             {{ release.summary }}
           </p>
           {% else %}
+          <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
             <em>Created on {{ project.created|format_date() }}</em>
           </p>
