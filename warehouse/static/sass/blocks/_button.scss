@@ -100,6 +100,7 @@
     border: 2px solid darken($background-color, 5%);
     color: darken($background-color, 12%);
     text-decoration: line-through;
+    pointer-events: none;
 
     &:focus,
     &:hover,

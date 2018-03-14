@@ -99,12 +99,3 @@
   </a>
   {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
 {% endmacro %}
-
-{% macro confirm_dropdown(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
-  <a href="#{{ slug }}" class="dropdown__link">
-    <i class="fa fa-trash" aria-hidden="true"></i>
-    Delete
-  </a>
-  {{ confirm_modal(title, confirm_name, confirm_string, slug, index=index, extra_fields=extra_fields, action=action) }}
-{% endmacro %}
