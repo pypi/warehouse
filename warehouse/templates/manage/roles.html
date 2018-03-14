@@ -47,15 +47,20 @@
     {% for username, roles in roles_by_user|dictsort %}
       {% set role = roles|max %}
 
-      <tr class="collaborator">
-        <td class="table__user">
+      <td class="table__user">
+        <span class="table__user-details">
+          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-gravatar">
+            {% set alt = "Avatar for {} from gravatar.com".format(role.user.username) %}
+            <img src="{{ gravatar(role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+          </a>
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
-            {{ role.user.username }}
+            <strong>{{ role.user.username }}</strong>
             {% if role.user.name %}
-                - {{ role.user.name }}
+              <br>{{ role.user.name }}
             {% endif %}
           </a>
-        </td>
+        </span>
+      </td>
         <td class="table__role">
         {% if role.user == request.user %}
           {{ role.role_name }}
