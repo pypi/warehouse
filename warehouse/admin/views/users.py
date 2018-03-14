@@ -23,9 +23,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse import forms
 from warehouse.accounts.models import User, Email
-from warehouse.packaging.models import JournalEntry, Role
+from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import remove_project
 
 
 @view_config(
@@ -139,16 +138,24 @@ def user_delete(request):
     user = request.db.query(User).get(request.matchdict['user_id'])
 
     if user.username != request.params.get('username'):
-        print(user.username)
-        print(request.params.get('username'))
         request.session.flash(f'Wrong confirmation input.', queue='error')
         return HTTPSeeOther(
             request.route_path('admin.user.detail', user_id=user.id)
         )
 
-    # Delete projects one by one so they are purged from the cache
-    for project in user.projects:
-        remove_project(project, request, flash=False)
+    # Delete all the user's projects
+    projects = (
+        request.db.query(Project)
+        .filter(
+            Project.name.in_(
+                request.db.query(Project.name)
+                .join(Role.project)
+                .filter(Role.user == user)
+                .subquery()
+            )
+        )
+    )
+    projects.delete(synchronize_session=False)
 
     # Update all journals to point to `deleted-user` instead
     deleted_user = (

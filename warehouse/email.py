@@ -37,7 +37,6 @@ def send_email(task, request, body, subject, *, recipients=None, bcc=None):
 
 def send_password_reset_email(request, user):
     token_service = request.find_service(ITokenService, name='password')
-
     token = token_service.dumps({
         'action': 'password-reset',
         'user.id': str(user.id),

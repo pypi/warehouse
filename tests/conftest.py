@@ -15,6 +15,7 @@ import xmlrpc.client
 
 import alembic.command
 import click.testing
+import pretend
 import pyramid.testing
 import pytest
 import webtest as _webtest
@@ -52,14 +53,24 @@ def pytest_collection_modifyitems(items):
 
 
 @pytest.fixture
-def pyramid_request():
-    return pyramid.testing.DummyRequest()
+def pyramid_request(datadog):
+    dummy_request = pyramid.testing.DummyRequest()
+    dummy_request.registry.datadog = datadog
+    return dummy_request
 
 
 @pytest.yield_fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
+
+
+@pytest.yield_fixture
+def datadog():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+    )
 
 
 @pytest.yield_fixture
@@ -201,7 +212,8 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, datadog):
+    pyramid_request.registry.datadog = datadog
     pyramid_request.db = db_session
     return pyramid_request
 

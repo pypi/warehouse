@@ -380,6 +380,15 @@
       padding-right: 20px;
     }
 
+    .table__user-details {
+      display: flex;
+      align-items: center;
+    }
+
+    .table__user-gravatar {
+      margin-right: 10px;
+    }
+
     .change-role {
       width: 330px;
     }

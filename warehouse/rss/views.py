@@ -26,6 +26,7 @@ from warehouse.xml import XML_CSP
             1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
             stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            keys=["all-projects"],
         ),
     ],
 )
@@ -53,6 +54,7 @@ def rss_updates(request):
             1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
             stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            keys=["all-projects"],
         ),
     ],
 )

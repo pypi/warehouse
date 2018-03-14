@@ -115,6 +115,12 @@ class TestLogin:
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.failure',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert result == {
             "form": form_obj,
@@ -173,6 +179,13 @@ class TestLogin:
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.complete',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [
@@ -579,7 +592,9 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service),
         ]
-        assert send_password_reset_email.calls == []
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, None)
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
