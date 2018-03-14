@@ -91,6 +91,18 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Classifier related Admin pages
+    config.add_route(
+        'admin.classifiers',
+        '/admin/classifiers/',
+        domain=warehouse,
+    )
+    config.add_route(
+        'admin.classifiers.add',
+        '/admin/classifiers/add/',
+        domain=warehouse,
+    )
+
     # Blacklist related Admin pages
     config.add_route(
         "admin.blacklist.list",
