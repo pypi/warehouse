@@ -194,6 +194,15 @@ class RequestPasswordResetForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
 
+    def validate_username_or_email(self, field):
+        username_or_email = self.user_service.get_user_by_username(field.data)
+        if username_or_email is None:
+            username_or_email = self.user_service.get_user_by_email(field.data)
+        if username_or_email is None:
+            raise wtforms.validators.ValidationError(
+                "No user found with that username or email"
+            )
+
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
 

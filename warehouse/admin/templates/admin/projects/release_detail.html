@@ -1,0 +1,170 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Release {{ release.version }} of {{ release.project.name }}{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li><a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">{{ release.project.name }}</a></li>
+  <li class="active">Release {{ release.version }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="box">
+    <div class="box-header with-border">
+      <h3>Details</h3>
+    </div>
+    <div class="box-body table-responsive">
+      <table class="table table-hover">
+        <tr>
+          <td>Canonical URL:</td>
+          {% set url = request.route_url('packaging.release', name=release.project.normalized_name, version=release.version) %}
+          <td><a href="{{ url }}">{{ url }}</a></td>
+        </tr>
+        <tr>
+          <td>Created</td>
+          <td>{{ release.created }}</td>
+        </tr>
+        <tr>
+          <td>Hidden</td>
+          <td>{{ release._pypi_hidden }}</td>
+        </tr>
+        <tr>
+          <td>Uploader</td>
+          <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-header with-border">
+      <h3>Metadata</h3>
+    </div>
+    <div class="box-body table-responsive">
+      <table class="table table-hover">
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Name</td>
+          <td><code>{{ release.name }}</code></td>
+        </tr>
+        <tr>
+          <td>Version</td>
+          <td><code>{{ release.version }}</code></td>
+        </tr>
+        <tr>
+          <td>Platform</td>
+          <td><code>{{ release.platform }}</code></td>
+        </tr>
+        <tr>
+          <td>Summary</td>
+          <td><code>{{ release.summary }}</code></td>
+        </tr>
+        <tr>
+          <td>Description</td>
+          <td><code>{{ release.description }}</code></td>
+        </tr>
+        {#
+        <tr>
+          <td>Description-Content-Type</td>
+          <td><code>{{ release.description_content_type }}</code></td>
+        </tr>
+        #}
+        <tr>
+          <td>Keywords</td>
+          <td><code>{{ release.keywords }}</code></td>
+        </tr>
+        <tr>
+          <td>Home-page</td>
+          <td><code>{{ release.home_page }}</code></td>
+        </tr>
+        <tr>
+          <td>Download-URL</td>
+          <td><code>{{ release.download_url }}</code></td>
+        </tr>
+        <tr>
+          <td>Author</td>
+          <td><code>{{ release.author }}</code></td>
+        </tr>
+        <tr>
+          <td>Author-Email</td>
+          <td><code>{{ release.author_email }}</code></td>
+        </tr>
+        <tr>
+          <td>Maintainer</td>
+          <td><code>{{ release.maintainer }}</code></td>
+        </tr>
+        <tr>
+          <td>Maintainer-email</td>
+          <td><code>{{ release.maintainer_email }}</code></td>
+        </tr>
+        <tr>
+          <td>License</td>
+          <td><code>{{ release.license }}</code></td>
+        </tr>
+        <tr>
+          <td>Classifier</td>
+          <td>
+            {% for classifier in release.classifiers %}
+            <code>{{ classifier }}</code><br>
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <td>Requires-Dist</td>
+          <td><code>{{ release.requires_dist }}</code></td>
+        </tr>
+        <tr>
+          <td>Provides-Dist</td>
+          <td><code>{{ release.provides_dist}}</code></td>
+        </tr>
+        <tr>
+          <td>Obsoletes-Dist</td>
+          <td><code>{{ release.obsoletes_dist}}</code></td>
+        </tr>
+        <tr>
+          <td>Requires-Python</td>
+          <td><code>{{ release.requires_python }}</code></td>
+        </tr>
+        <tr>
+          <td>Requires-External</td>
+          <td><code>{{ release.requires_external }}</code></td>
+        </tr>
+        <tr>
+          <td>Project-URL</td>
+          <td>
+            {% for url in release.project_urls %}
+            <code>{{ url }}</code><br>
+            {% endfor %}
+          </td>
+        </tr>
+        {#
+          <tr>
+          <td>Provides-Extra</td>
+          <td>
+            {% for extra in release.provides_extras %}
+            <code>{{ extra }}</code><br>
+            {% endfor %}
+          </td>
+        </tr>
+        #}
+      </table>
+    </div>
+  </div>
+{% endblock content %}
