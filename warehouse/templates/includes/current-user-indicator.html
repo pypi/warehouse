@@ -29,6 +29,10 @@
           Admin
         </a>
         {% endif %}
+        <a class="dropdown__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">
+          <i class="fa fa-cube" aria-hidden="true"></i>
+          Your Profile
+        </a>
         <a class="dropdown__link" href="{{ request.route_path('manage.projects') }}">
           <i class="fa fa-cube" aria-hidden="true"></i>
           Your Projects
