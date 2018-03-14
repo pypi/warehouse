@@ -275,6 +275,7 @@ class Release(db.ModelBase):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
+    description_content_type = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
