@@ -124,6 +124,8 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 .. _`pypi-legacy`: https://pypi.python.org/
 .. _`PEP 503`: https://www.python.org/dev/peps/pep-0503/
 
+.. _upload-api-forklift:
+
 Upload API
 ----------
 
