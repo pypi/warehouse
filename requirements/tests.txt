@@ -62,9 +62,9 @@ email_validator==1.0.3 \
 factory-boy==2.10.0 \
     --hash=sha256:be2abc8092294e4097935a29b4e37f5b9ed3e4205e2e32df215c0315b625995e \
     --hash=sha256:bd5a096d0f102d79b6c78cef1c8c0b650f2e1a3ecba351c735c6d2df8dabd29c
-Faker==0.8.11 \
-    --hash=sha256:732ae449678a5c205ebc99e7e816f12eba6d6d1b02bd04d27ccf7edb2f4e6250 \
-    --hash=sha256:0857a92773c9cc6356c4c0c2aaa6f6ec83be94fc14fc0fd9e31904498d6fd388
+Faker==0.8.12 \
+    --hash=sha256:b06d0dc0166618298e668ced513ced7b10df34f3ad2045f22f1d7d88704e8e9c \
+    --hash=sha256:9cc12b821f32ff45f6edfdc1ab7be3893b60b1224e952d68322a57e5b26a4a15
 freezegun==0.3.10 \
     --hash=sha256:94c59d69bb99c9ec3ca5a3adb41930d3ea09d2a9756c23a02d89fa75646e78dd \
     --hash=sha256:703caac155dcaad61f78de4cb0666dca778d854dfb90b3699930adee0559a622
@@ -184,18 +184,18 @@ pytest-postgresql==1.3.2 \
 pytest==3.4.2 \
     --hash=sha256:062027955bccbc04d2fcd5d79690947e018ba31abe4c90b2c6721abec734261b \
     --hash=sha256:117bad36c1a787e1a8a659df35de53ba05f9f3398fb9e4ac17e80ad5903eb8c5
-python-dateutil==2.6.1 \
-    --hash=sha256:95511bae634d69bc7329ba55e646499a842bc4ec342ad54a8cdb65645a0aad3c \
-    --hash=sha256:891c38b2a02f5bb1be3e4793866c8df49c7d19baabf9c1bad62547e0b4866aca
+python-dateutil==2.7.0 \
+    --hash=sha256:07009062406cffd554a9b4135cd2ff167c9bf6b7aac61fe946c93e69fad1bbd8 \
+    --hash=sha256:8f95bb7e6edbb2456a51a1fb58c8dca942024b4f5844cae62c90aa88afe6e300
 requests==2.18.4 \
     --hash=sha256:6a1b267aa90cac58ac3a765d067950e7dbbf75b1da07e895d1f594193a40a38b \
     --hash=sha256:9c443e7324ba5b85070c4a818ade28bfabedf16ea10206da1132edaa6dda237e
 responses==0.8.1 \
     --hash=sha256:98e1c0eb5a7a03d59e73c8ac774428664f319ef35c6ac59479436bbb9c3499be \
     --hash=sha256:a64029dbc6bed7133e2c971ee52153f30e779434ad55a5abf40322bcff91d029
-selenium==3.10.0 \
-    --hash=sha256:60b45c045e9e658ac033ccdafb36000f39088b94336e078c89e8df18d0ef080e \
-    --hash=sha256:6a76deef7d5ea9749e3348b6c1f39df26dbffb9f0ce19ae37bcef02ce9032e41
+selenium==3.11.0 \
+    --hash=sha256:2b6f018e55f50e9c67a67caec2f73f806f72c162fb38cf3ea79e0a8f6506bf56 \
+    --hash=sha256:5841fb30c3965866220c34d16de8e3d091e2833fcac385160a63db0c3522a297
 six==1.11.0 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9

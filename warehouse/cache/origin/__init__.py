@@ -12,6 +12,8 @@
 
 import collections
 import functools
+import operator
+from itertools import chain
 
 from warehouse import db
 from warehouse.cache.origin.interfaces import IOriginCache
@@ -87,6 +89,18 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
+def key_factory(keystring, iterate_on=None):
+
+    def generate_key(obj):
+        if iterate_on:
+            for itr in operator.attrgetter(iterate_on)(obj):
+                yield keystring.format(itr=itr, obj=obj)
+        else:
+            yield keystring.format(obj=obj)
+
+    return generate_key
+
+
 def key_maker_factory(cache_keys, purge_keys):
     if cache_keys is None:
         cache_keys = []
@@ -96,8 +110,14 @@ def key_maker_factory(cache_keys, purge_keys):
 
     def key_maker(obj):
         return CacheKeys(
+            # Note: this does not support setting the `cache` argument via
+            # multiple `key_factories` as we do with `purge` because there is
+            # a limit to how many surrogate keys we can attach to a single HTTP
+            # response, and being able to use use `iterate_on` would allow this
+            # size to be unbounded.
+            # ref: https://github.com/pypa/warehouse/pull/3189
             cache=[k.format(obj=obj) for k in cache_keys],
-            purge=[k.format(obj=obj) for k in purge_keys],
+            purge=chain.from_iterable(key(obj) for key in purge_keys),
         )
 
     return key_maker

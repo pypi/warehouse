@@ -12,6 +12,8 @@
 
 from celery.schedules import crontab
 
+from warehouse.accounts.models import User
+from warehouse.cache.origin import key_factory
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
 from warehouse.packaging.services import RedisDownloadStatService
 from warehouse.packaging.models import Project, Release
@@ -39,12 +41,28 @@ def includeme(config):
     config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],
-        purge_keys=["project/{obj.normalized_name}", "all-projects"],
+        purge_keys=[
+            key_factory("project/{obj.normalized_name}"),
+            key_factory("user/{itr.username}", iterate_on='users'),
+            key_factory("all-projects"),
+        ],
     )
     config.register_origin_cache_keys(
         Release,
         cache_keys=["project/{obj.project.normalized_name}"],
-        purge_keys=["project/{obj.project.normalized_name}", "all-projects"],
+        purge_keys=[
+            key_factory("project/{obj.project.normalized_name}"),
+            key_factory("user/{itr.username}", iterate_on='project.users'),
+            key_factory("all-projects"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        User,
+        cache_keys=["user/{obj.username}"],
+        purge_keys=[
+            key_factory("user/{obj.username}"),
+            key_factory("project/{itr.normalized_name}", iterate_on='projects')
+        ],
     )
 
     # Add a periodic task to compute trending once a day, assuming we have

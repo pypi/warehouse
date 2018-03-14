@@ -17,7 +17,7 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Project, Release, User
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -32,6 +32,11 @@ def test_includme(monkeypatch, with_trending):
     monkeypatch.setattr(
         packaging, "RedisDownloadStatService", download_stat_service_cls,
     )
+
+    def key_factory(keystring, iterate_on=None):
+        return pretend.call(keystring, iterate_on=iterate_on)
+
+    monkeypatch.setattr(packaging, 'key_factory', key_factory)
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
@@ -72,14 +77,30 @@ def test_includme(monkeypatch, with_trending):
         pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
-            purge_keys=["project/{obj.normalized_name}", "all-projects"],
+            purge_keys=[
+                key_factory("project/{obj.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='users'),
+                key_factory("all-projects"),
+            ],
         ),
         pretend.call(
             Release,
             cache_keys=["project/{obj.project.normalized_name}"],
             purge_keys=[
-                "project/{obj.project.normalized_name}",
-                "all-projects",
+                key_factory("project/{obj.project.normalized_name}"),
+                key_factory("user/{itr.username}", iterate_on='project.users'),
+                key_factory("all-projects"),
+            ],
+        ),
+        pretend.call(
+            User,
+            cache_keys=["user/{obj.username}"],
+            purge_keys=[
+                key_factory("user/{obj.username}"),
+                key_factory(
+                    "project/{itr.normalized_name}",
+                    iterate_on='projects',
+                ),
             ],
         ),
     ]
