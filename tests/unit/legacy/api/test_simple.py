@@ -161,3 +161,64 @@ class TestSimpleDetail:
             "files": files,
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
+
+    def test_with_files_with_version_multi_digit(self, db_request):
+        project = ProjectFactory.create()
+        releases = [
+            ReleaseFactory.create(project=project)
+            for _ in range(3)
+        ]
+        release_versions = [
+            "0.3.0rc1", "0.3.0", "0.3.0-post0", "0.14.0", "4.2.0", "24.2.0"
+        ]
+
+        for release, version in zip(releases, release_versions):
+            release.version = version
+
+        tar_files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.tar.gz".format(project.name, r.version),
+                packagetype="sdist"
+            )
+            for r in releases
+        ]
+        wheel_files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.whl".format(project.name, r.version),
+                packagetype="bdist_wheel"
+            )
+            for r in releases
+        ]
+        egg_files = [
+            FileFactory.create(
+                release=r,
+                filename="{}-{}.egg".format(project.name, r.version),
+                packagetype="bdist_egg"
+            )
+            for r in releases
+        ]
+
+        files = []
+        for files_release in \
+                zip(egg_files, wheel_files, tar_files):
+            files += files_release
+
+        db_request.matchdict["name"] = project.normalized_name
+        user = UserFactory.create()
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+
+        # Make sure that we get any changes made since the JournalEntry was
+        # saved.
+        db_request.db.refresh(project)
+        import pprint
+        pprint.pprint(simple.simple_detail(project, db_request)['files'])
+        pprint.pprint(files)
+
+        assert simple.simple_detail(project, db_request) == {
+            "project": project,
+            "files": files,
+        }
+
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
