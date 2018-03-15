@@ -13,7 +13,7 @@
  */
 
 /*
-  A block for highligting important information:
+  A block for highlighting important information:
 
   <div class="callput-block">
     <h3 class="callout-block__heading">Optional Heading</h3>
@@ -25,6 +25,7 @@
   Modifiers:
     - danger: Makes border red
     - success: Makes border green
+    - bottom-margin: Adds extra margin below the callout
 */
 
 .callout-block {
