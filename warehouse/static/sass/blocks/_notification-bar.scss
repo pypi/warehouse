@@ -66,6 +66,17 @@
     font-size: 1.5rem;
   }
 
+  // Indicates that a notification is dismissable.
+  // Since this defaults to not displaying the element, one must make sure the
+  // notification controller is being used.
+  &--dismissable {
+    display: none;
+  }
+
+  &--visible {
+    display: block;
+  }
+
   &--danger {
     background-color: $danger-color;
   }

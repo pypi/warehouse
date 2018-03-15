@@ -109,7 +109,7 @@
       {% endcsi %}
     {% endblock %}
 
-    <div id="notification-donate" class="notification-bar" data-controller="notification" data-target="notification.notification" data-notification-version="1">
+    <div id="notification-donate" class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification" data-notification-version="1">
       <div class="site-container">
         <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
         <span data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>

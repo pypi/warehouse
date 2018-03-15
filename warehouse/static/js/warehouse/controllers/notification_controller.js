@@ -35,8 +35,10 @@ export default class extends Controller {
 
   initialize() {
     const notificationId = this._getNotificationId();
-    if (notificationId && localStorage.getItem(notificationId)) {
-      this.notificationTarget.style.display = "none";
+    const isDismissable = this.notificationTarget.classList.contains('notification-bar--dismissable');
+
+    if (isDismissable && notificationId && !localStorage.getItem(notificationId)) {
+      this.notificationTarget.classList.add("notification-bar--visible");
     }
   }
 
@@ -45,6 +47,6 @@ export default class extends Controller {
     if (notificationId) {
       localStorage.setItem(notificationId, 1);
     }
-    this.notificationTarget.style.display = "none";
+    this.notificationTarget.classList.remove("notification-bar--visible");
   }
 }
