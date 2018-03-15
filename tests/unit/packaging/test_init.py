@@ -16,7 +16,7 @@ import pytest
 from celery.schedules import crontab
 
 from warehouse import packaging
-from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Project, Release, User
 from warehouse.packaging.tasks import compute_trending
 
@@ -25,14 +25,6 @@ from warehouse.packaging.tasks import compute_trending
 def test_includme(monkeypatch, with_trending):
     storage_class = pretend.stub(create_service=pretend.stub())
 
-    download_stat_service_obj = pretend.stub()
-    download_stat_service_cls = pretend.call_recorder(
-        lambda url: download_stat_service_obj
-    )
-    monkeypatch.setattr(
-        packaging, "RedisDownloadStatService", download_stat_service_cls,
-    )
-
     def key_factory(keystring, iterate_on=None):
         return pretend.call(keystring, iterate_on=iterate_on)
 
@@ -40,15 +32,11 @@ def test_includme(monkeypatch, with_trending):
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
-        register_service=pretend.call_recorder(
-            lambda iface, svc: download_stat_service_cls
-        ),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface: None,
         ),
         registry=pretend.stub(
             settings={
-                "download_stats.url": pretend.stub(),
                 "files.backend": "foo.bar",
             },
         ),
@@ -60,16 +48,6 @@ def test_includme(monkeypatch, with_trending):
 
     packaging.includeme(config)
 
-    assert download_stat_service_cls.calls == [
-        pretend.call(config.registry.settings["download_stats.url"]),
-    ]
-
-    assert config.register_service.calls == [
-        pretend.call(
-            download_stat_service_obj,
-            IDownloadStatService,
-        ),
-    ]
     assert config.register_service_factory.calls == [
         pretend.call(storage_class.create_service, IFileStorage),
     ]
