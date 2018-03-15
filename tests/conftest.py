@@ -113,7 +113,6 @@ def app_config(database):
             "celery.scheduler_url": "redis://localhost:0/",
             "database.url": database,
             "docs.url": "http://docs.example.com/",
-            "download_stats.url": "redis://localhost:0/",
             "ratelimit.url": "memory://",
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",

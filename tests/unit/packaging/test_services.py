@@ -15,101 +15,13 @@ import os.path
 
 import boto3.session
 import botocore.exceptions
-import freezegun
 import pretend
 import pytest
-import redis
 
 from zope.interface.verify import verifyClass
 
-from warehouse.packaging.interfaces import IDownloadStatService, IFileStorage
-from warehouse.packaging.services import (
-    RedisDownloadStatService, LocalFileStorage, S3FileStorage,
-)
-
-
-@freezegun.freeze_time("2012-01-14")
-class TestRedisDownloadStatService:
-
-    def test_verify_service(self):
-        assert verifyClass(IDownloadStatService, RedisDownloadStatService)
-
-    def test_creates_redis(self, monkeypatch):
-        redis_obj = pretend.stub()
-        redis_cls = pretend.stub(
-            from_url=pretend.call_recorder(lambda u: redis_obj),
-        )
-        monkeypatch.setattr(redis, "StrictRedis", redis_cls)
-
-        url = pretend.stub()
-        svc = RedisDownloadStatService(url)
-
-        assert svc.redis is redis_obj
-        assert redis_cls.from_url.calls == [pretend.call(url)]
-
-    @pytest.mark.parametrize(
-        ("keys", "result"),
-        [
-            ([], 0),
-            ([5, 7, 8], 20),
-        ]
-    )
-    def test_get_daily_stats(self, keys, result):
-        svc = RedisDownloadStatService("")
-        svc.redis = pretend.stub(mget=pretend.call_recorder(lambda *a: keys))
-
-        call_keys = (
-            ["downloads:hour:12-01-14-00:foo"] +
-            [
-                "downloads:hour:12-01-13-{:02d}:foo".format(i)
-                for i in reversed(range(24))
-            ] +
-            ["downloads:hour:12-01-12-23:foo"]
-        )
-
-        assert svc.get_daily_stats("foo") == result
-        assert svc.redis.mget.calls == [pretend.call(*call_keys)]
-
-    @pytest.mark.parametrize(
-        ("keys", "result"),
-        [
-            ([], 0),
-            ([5, 7, 8], 20),
-        ]
-    )
-    def test_get_weekly_stats(self, keys, result):
-        svc = RedisDownloadStatService("")
-        svc.redis = pretend.stub(mget=pretend.call_recorder(lambda *a: keys))
-
-        call_keys = [
-            "downloads:daily:12-01-{:02d}:foo".format(i + 7)
-            for i in reversed(range(8))
-        ]
-
-        assert svc.get_weekly_stats("foo") == result
-        assert svc.redis.mget.calls == [pretend.call(*call_keys)]
-
-    @pytest.mark.parametrize(
-        ("keys", "result"),
-        [
-            ([], 0),
-            ([5, 7, 8], 20),
-        ]
-    )
-    def test_get_monthly_stats(self, keys, result):
-        svc = RedisDownloadStatService("")
-        svc.redis = pretend.stub(mget=pretend.call_recorder(lambda *a: keys))
-
-        call_keys = [
-            "downloads:daily:12-01-{:02d}:foo".format(i)
-            for i in reversed(range(1, 15))
-        ] + [
-            "downloads:daily:11-12-{:02d}:foo".format(i + 15)
-            for i in reversed(range(17))
-        ]
-
-        assert svc.get_monthly_stats("foo") == result
-        assert svc.redis.mget.calls == [pretend.call(*call_keys)]
+from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.services import LocalFileStorage, S3FileStorage
 
 
 class TestLocalFileStorage:
