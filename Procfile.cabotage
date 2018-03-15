@@ -1,0 +1,3 @@
+release: bin/release
+web: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-cabotage.conf warehouse.wsgi:application
+worker: bin/start-worker celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
