@@ -35,7 +35,7 @@ export default class extends Controller {
 
   initialize() {
     const notificationId = this._getNotificationId();
-    const isDismissable = this.notificationTarget.classList.contains('notification-bar--dismissable');
+    const isDismissable = this.notificationTarget.classList.contains("notification-bar--dismissable");
 
     if (isDismissable && notificationId && !localStorage.getItem(notificationId)) {
       this.notificationTarget.classList.add("notification-bar--visible");
