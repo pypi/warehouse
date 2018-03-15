@@ -29,10 +29,6 @@
           Admin
         </a>
         {% endif %}
-        <a class="dropdown__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">
-          <i class="fa fa-user-circle" aria-hidden="true"></i>
-          Public Profile
-        </a>
         <a class="dropdown__link" href="{{ request.route_path('manage.projects') }}">
           <i class="fa fa-cube" aria-hidden="true"></i>
           Your Projects
@@ -40,6 +36,10 @@
         <a class="dropdown__link" href="{{ request.route_path('manage.account') }}">
           <i class="fa fa-cog" aria-hidden="true"></i>
           Account Settings
+        </a>
+        <a class="dropdown__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">
+          <i class="fa fa-user-circle" aria-hidden="true"></i>
+          Public Profile
         </a>
         <a class="dropdown__link" href="{{ request.route_path('help') }}">
           <i class="fa fa-question-circle" aria-hidden="true"></i>
