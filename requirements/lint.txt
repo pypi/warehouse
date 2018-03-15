@@ -33,8 +33,8 @@ pycodestyle==2.3.1 \
 pyflakes==1.6.0 \
     --hash=sha256:08bd6a50edf8cffa9fa09a463063c425ecaaf10d1eb0335a7e8b1401aef89e6f \
     --hash=sha256:8d616a382f243dbf19b54743f280b80198be0bca3a5396f1d2e1fca6223e8805
-restructuredtext-lint==1.1.2 \
-    --hash=sha256:9201d354e22c27be61cf6d8212da6e10c875eec7ec8d1bdb1067b2a5ba931637
+restructuredtext-lint==1.1.3 \
+    --hash=sha256:c48ca9a84c312b262809f041fe47dcfaedc9ee4879b3e1f9532f745c182b4037
 six==1.11.0 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9

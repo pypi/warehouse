@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload, load_only
+from sqlalchemy.orm import joinedload
 
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
@@ -26,6 +26,7 @@ from warehouse.xml import XML_CSP
             1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
             stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            keys=["all-projects"],
         ),
     ],
 )
@@ -53,6 +54,7 @@ def rss_updates(request):
             1 * 24 * 60 * 60,                         # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
             stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            keys=["all-projects"],
         ),
     ],
 )
@@ -63,9 +65,7 @@ def rss_packages(request):
 
     newest_projects = (
         request.db.query(Project)
-                  .options(load_only("created", "normalized_name"))
-                  .options(joinedload(Project.releases, innerjoin=True)
-                           .load_only("summary"))
+                  .options(joinedload(Project.releases, innerjoin=True))
                   .order_by(Project.created.desc())
                   .limit(40)
                   .all()

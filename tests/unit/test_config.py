@@ -256,7 +256,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.commit": None,
         "site.name": "Warehouse",
         "mail.ssl": True,
-        'password_reset.token_max_age': 21600,
+        'token.default.max_age': 21600,
     }
 
     if environment == config.Environment.development:
@@ -304,7 +304,8 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
-        [pretend.call(".csrf")] +
+        [pretend.call(".datadog"),
+         pretend.call(".csrf")] +
         [
             pretend.call(x) for x in [
                 (
@@ -336,6 +337,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
             pretend.call(".accounts"),
+            pretend.call(".manage"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),

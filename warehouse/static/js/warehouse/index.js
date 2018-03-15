@@ -16,6 +16,10 @@
 // ensure we have an ES6 like environment.
 import "babel-polyfill";
 
+// Import stimulus
+import { Application } from "stimulus";
+import { definitionsFromContext } from "stimulus/webpack-helpers";
+
 // We'll use docReady as a modern replacement for $(document).ready() which
 // does not require all of jQuery to use. This will let us use it without
 // having to load all of jQuery, which will make things faster.
@@ -34,10 +38,9 @@ import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 
-// timestamps for project histories set for 1 minute intervals
+// Human-readable timestamps for project histories
 docReady(() => {
-  const timeElements = document.querySelectorAll("time");
-  if (timeElements.length > 0) setInterval(timeAgo, 1000 * 60);
+  timeAgo();
 });
 
 // project detail tabs
@@ -62,10 +65,14 @@ docReady(Analytics);
 
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);
+docReady(formUtils.registerFormValidation);
 
 docReady(Statuspage);
 
-// Copy handler for the pip command on package detail page
+// Copy handler for
+//   - the pip command on package detail page
+//   - the copy hash on package detail page
+//   - the copy hash on release maintainers page
 docReady(() => {
   let setCopiedTooltip = (e) => {
     e.trigger.setAttribute("aria-label", "Copied!");
@@ -73,7 +80,7 @@ docReady(() => {
   };
 
   new Clipboard(".-js-copy-pip-command").on("success", setCopiedTooltip);
-  new Clipboard(".-js-copy-sha256-link").on("success", setCopiedTooltip);
+  new Clipboard(".-js-copy-hash").on("success", setCopiedTooltip);
 
   // Get all elements with class "tooltipped" and bind to focousout and
   // mouseout events. Change the "aria-label" to "original-label" attribute
@@ -122,24 +129,24 @@ docReady(() => {
 });
 
 docReady(() => {
-  let passwordFields = document.querySelectorAll("#password, #password_confirm");
-  let showPasswordCheck = document.querySelector("#show-password");
+  let changeRoleForms = document.querySelectorAll("form.change-role");
 
-  if (passwordFields && showPasswordCheck) {
-    // Reset these so they don't persist between page reloads
-    for (let field of passwordFields) {
-      field.type = "password";
-      showPasswordCheck.checked = false;
-    }
+  if (changeRoleForms) {
+    for (let form of changeRoleForms) {
+      let changeButton = form.querySelector("button.change-button");
+      let changeSelect = form.querySelector("select.change-field");
 
-    showPasswordCheck.addEventListener("click", function () {
-      for (let field of passwordFields) {
-        if (showPasswordCheck.checked) {
-          field.type = "text";
+      changeSelect.addEventListener("change", function (event) {
+        if (event.target.value === changeSelect.dataset.original) {
+          changeButton.style.display = "none";
         } else {
-          field.type = "password";
+          changeButton.style.display = "inline-block";
         }
-      }
-    });
+      });
+    }
   }
 });
+
+const application = Application.start();
+const context = require.context("./controllers", true, /\.js$/);
+application.load(definitionsFromContext(context));

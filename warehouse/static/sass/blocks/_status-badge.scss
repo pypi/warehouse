@@ -21,21 +21,25 @@
   </a>
 
   Modifiers:
-    - Unknown: Adds a question mark icon to the badge
-    - Good: Adds a tick icon to the badge. Makes it green.
-    - Bad: Adds a warning icon to the badge. Makes it red.
+    - unknown: Adds a question mark icon to the badge.
+    - warn: Adds an exclamation triangle. Makes it yellow.
+    - good: Adds a tick icon to the badge. Makes it green.
+    - bad: Adds a warning icon to the badge. Makes it red.
 
 */
 
 .status-badge {
+  display: inline-flex;
+  align-items: center;
   box-sizing: border-box;
   border-radius: 3px;
-  display: inline-block;
   font-size: $small-font-size;
   color: $text-color;
   background-color: $white;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  padding-right: 12px;
+  padding: 0 12px 0 0;
+  text-align: left;
+  min-height: 40px;
 
   &:hover {
     color: $text-color;
@@ -44,13 +48,12 @@
   &:before {
     content: "\f05a"; // Info icon
     font-family: "FontAwesome";
-    margin-right: 3px;
-    display: inline-block;
-    padding: 8px 12px;
-    width: 40px;
+    padding: 12px;
     margin-right: 12px;
+    width: 40px;
+    height: 42px;
     text-align: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.5);
+    border-right: 1px solid rgba(255, 255, 255, 0.4);
   }
 
   &--unknown {
@@ -97,7 +100,7 @@
     }
   }
 
-  @media only screen and (max-width: $mobile){
-     font-size: 14px;
+  @media only screen and (max-width: $mobile) {
+    font-size: 14px;
   }
 }

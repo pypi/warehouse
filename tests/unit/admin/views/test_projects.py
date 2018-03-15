@@ -108,7 +108,7 @@ class TestProjectDetail:
 
         assert result["project"] == project
         assert result["maintainers"] == roles
-        assert result["journal"] == journals[:50]
+        assert result["journal"] == journals[:30]
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create()
@@ -118,6 +118,17 @@ class TestProjectDetail:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.project_detail(project, db_request)
+
+
+class TestReleaseDetail:
+
+    def test_gets_release(self):
+        release = pretend.stub()
+        request = pretend.stub()
+
+        assert views.release_detail(release, request) == {
+            'release': release,
+        }
 
 
 class TestProjectReleasesList:
@@ -434,7 +445,7 @@ class TestDeleteProject:
     def test_wrong_confirm(self):
         project = pretend.stub(normalized_name='foo')
         request = pretend.stub(
-            POST={"confirm": "bar"},
+            POST={"confirm_project_name": "bar"},
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -447,7 +458,10 @@ class TestDeleteProject:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+            pretend.call(
+                "Could not delete project - 'bar' is not the same as 'foo'",
+                queue="error"
+            ),
         ]
 
     def test_deletes_project(self, db_request):
@@ -458,7 +472,7 @@ class TestDeleteProject:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
-        db_request.POST["confirm"] = project.normalized_name
+        db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
         db_request.remote_addr = "192.168.1.1"
 

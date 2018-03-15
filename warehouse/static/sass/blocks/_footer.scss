@@ -41,7 +41,7 @@
   padding: 60px 0;
   width: 100%;
 
-  @media only screen and (max-width: $mobile){
+  @media only screen and (max-width: $mobile) {
     padding-top: 40px 0;
   }
 
@@ -56,7 +56,7 @@
     @include flex-wrap(wrap);
     margin-bottom: $spacing-unit;
 
-    @media only screen and (max-width: $mobile){
+    @media only screen and (max-width: $mobile) {
       margin-bottom: 10px;
     }
   }
@@ -94,6 +94,8 @@
     border: 1px solid transparentize($footer-faded-color, 0.3);
     margin: 0 auto $spacing-unit;
     width: 200px;
+    background: none;
+    height: 0;
   }
 
   &__text {

@@ -67,6 +67,22 @@ def project_detail(project, request):
 def release_detail(release, request):
     project = release.project
 
+    # Check if the requested version is equivalent but not exactly the same as
+    # the release's version. Use `.get` because this view is used by
+    # `project_detail` and there may not be a version.
+    #
+    # This also handles the case where both the version and the project name
+    # need adjusted, and handles it in a single redirect.
+    if release.version != request.matchdict.get("version", release.version):
+        return HTTPMovedPermanently(
+            request.current_route_path(
+                name=project.name,
+                version=release.version,
+            ),
+        )
+
+    # It's possible that the requested version was correct (or not provided),
+    # but we still need to adjust the project name.
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
@@ -106,16 +122,21 @@ def release_detail(release, request):
         )
     ]
 
-    # Get the license from the classifiers or metadata, preferring classifiers.
-    license = None
-    if release.license:
-        # Make a best effort when the entire license text is given
-        # by using the first line only.
-        license = release.license.split('\n')[0]
-    license_classifiers = [c.split(" :: ")[-1] for c in release.classifiers
-                           if c.startswith("License")]
-    if license_classifiers:
-        license = ', '.join(license_classifiers)
+    # Get the license from both the `Classifier` and `License` metadata fields
+    license_classifiers = ', '.join(
+        c.split(" :: ")[-1]
+        for c in release.classifiers
+        if c.startswith("License")
+    )
+
+    # Make a best effort when the entire license text is given by using the
+    # first line only.
+    short_license = release.license.split('\n')[0] if release.license else None
+
+    if license_classifiers and short_license:
+        license = f'{license_classifiers} ({short_license})'
+    else:
+        license = license_classifiers or short_license or None
 
     return {
         "project": project,
@@ -126,3 +147,13 @@ def release_detail(release, request):
         "maintainers": maintainers,
         "license": license,
     }
+
+
+@view_config(
+    route_name="includes.edit-project-button",
+    renderer="includes/manage-project-button.html",
+    uses_session=True,
+    permission="manage",
+)
+def edit_project_button(project, request):
+    return {'project': project}

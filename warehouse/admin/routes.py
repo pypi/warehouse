@@ -29,6 +29,11 @@ def includeme(config):
         "/admin/users/{user_id}/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.user.delete",
+        "/admin/users/{user_id}/delete/",
+        domain=warehouse,
+    )
 
     # Project related Admin pages
     config.add_route(
@@ -48,6 +53,13 @@ def includeme(config):
         "/admin/projects/{project_name}/releases/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release",
+        "/admin/projects/{project_name}/release/{version}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
         domain=warehouse,
     )
     config.add_route(
@@ -76,6 +88,18 @@ def includeme(config):
     config.add_route(
         "admin.journals.list",
         "/admin/journals/",
+        domain=warehouse,
+    )
+
+    # Classifier related Admin pages
+    config.add_route(
+        'admin.classifiers',
+        '/admin/classifiers/',
+        domain=warehouse,
+    )
+    config.add_route(
+        'admin.classifiers.add',
+        '/admin/classifiers/add/',
         domain=warehouse,
     )
 

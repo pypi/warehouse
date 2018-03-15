@@ -10,12 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import email
 import hashlib
 import hmac
 import os.path
 import re
 import tempfile
 import zipfile
+from cgi import parse_header
 
 from cgi import FieldStorage
 from itertools import chain
@@ -34,7 +36,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import exists, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
 from warehouse.classifiers.models import Classifier
@@ -43,6 +45,7 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry, BlacklistedProject,
 )
+from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils import http
 
 
@@ -51,10 +54,19 @@ MAX_SIGSIZE = 8 * 1024           # 8K
 
 PATH_HASHER = "blake2_256"
 
+
+def namespace_stdlib_list(module_list):
+    for module_name in module_list:
+        parts = module_name.split('.')
+        for i, part in enumerate(parts):
+            yield '.'.join(parts[:i + 1])
+
+
 STDLIB_PROHIBITTED = {
     packaging.utils.canonicalize_name(s.rstrip('-_.').lstrip('-_.'))
-    for s in chain.from_iterable(stdlib_list.stdlib_list(version)
-                                 for version in stdlib_list.short_versions)
+    for s in chain.from_iterable(
+        namespace_stdlib_list(stdlib_list.stdlib_list(version))
+        for version in stdlib_list.short_versions)
 }
 
 # Wheel platform checking
@@ -123,6 +135,13 @@ _project_name_re = re.compile(
 _legacy_specifier_re = re.compile(
     r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$"
 )
+
+
+_valid_description_content_types = {
+    'text/plain',
+    'text/x-rst',
+    'text/markdown',
+}
 
 
 def _exc_with_message(exc, message):
@@ -255,6 +274,33 @@ def _validate_project_url_list(form, field):
         _validate_project_url(datum)
 
 
+def _validate_rfc822_email_field(form, field):
+    email_validator = wtforms.validators.Email(message='Invalid email address')
+    addresses = email.utils.getaddresses([field.data])
+
+    for real_name, address in addresses:
+        email_validator(form, type('field', (), {'data': address}))
+
+
+def _validate_description_content_type(form, field):
+    def _raise(message):
+        raise wtforms.validators.ValidationError(
+            f"Invalid description content type: {message}"
+        )
+
+    content_type, parameters = parse_header(field.data)
+    if content_type not in _valid_description_content_types:
+        _raise("type/subtype is not valid")
+
+    charset = parameters.get('charset')
+    if charset and charset != 'UTF-8':
+        _raise("charset is not valid")
+
+    variant = parameters.get('variant')
+    if content_type == 'text/markdown' and variant and variant != 'CommonMark':
+        _raise("variant is not valid")
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -274,13 +320,14 @@ class MetadataForm(forms.Form):
 
     # Metadata version
     metadata_version = wtforms.StringField(
+        description="Metadata-Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1"],
                 message="Unknown Metadata Version",
             ),
         ],
@@ -288,6 +335,7 @@ class MetadataForm(forms.Form):
 
     # Identity Project and Release
     name = wtforms.StringField(
+        description="Name",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -301,6 +349,7 @@ class MetadataForm(forms.Form):
         ],
     )
     version = wtforms.StringField(
+        description="Version",
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
@@ -313,6 +362,7 @@ class MetadataForm(forms.Form):
 
     # Additional Release metadata
     summary = wtforms.StringField(
+        description="Summary",
         validators=[
             wtforms.validators.Optional(),
             wtforms.validators.Length(max=512),
@@ -323,37 +373,64 @@ class MetadataForm(forms.Form):
         ],
     )
     description = wtforms.StringField(
+        description="Description",
         validators=[wtforms.validators.Optional()],
     )
-    author = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    author_email = wtforms.StringField(
+    author = wtforms.StringField(
+        description="Author",
+        validators=[wtforms.validators.Optional()],
+    )
+    description_content_type = wtforms.StringField(
+        description="Description-Content-Type",
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.Email(),
+            _validate_description_content_type,
+        ],
+    )
+    author_email = wtforms.StringField(
+        description="Author-email",
+        validators=[
+            wtforms.validators.Optional(),
+            _validate_rfc822_email_field,
         ],
     )
     maintainer = wtforms.StringField(
+        description="Maintainer",
         validators=[wtforms.validators.Optional()],
     )
     maintainer_email = wtforms.StringField(
+        description="Maintainer-email",
         validators=[
             wtforms.validators.Optional(),
-            wtforms.validators.Email(),
+            _validate_rfc822_email_field,
         ],
     )
-    license = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    keywords = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    classifiers = wtforms.fields.SelectMultipleField()
-    platform = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    license = wtforms.StringField(
+        description="License",
+        validators=[wtforms.validators.Optional()],
+    )
+    keywords = wtforms.StringField(
+        description="Keywords",
+        validators=[wtforms.validators.Optional()],
+    )
+    classifiers = wtforms.fields.SelectMultipleField(
+        description="Classifier",
+    )
+    platform = wtforms.StringField(
+        description="Platform",
+        validators=[wtforms.validators.Optional()],
+    )
 
     # URLs
     home_page = wtforms.StringField(
+        description="Home-Page",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
         ],
     )
     download_url = wtforms.StringField(
+        description="Download-URL",
         validators=[
             wtforms.validators.Optional(),
             forms.URIValidator(),
@@ -362,6 +439,7 @@ class MetadataForm(forms.Form):
 
     # Dependency Information
     requires_python = wtforms.StringField(
+        description="Requires-Python",
         validators=[
             wtforms.validators.Optional(),
             _validate_pep440_specifier_field,
@@ -384,7 +462,9 @@ class MetadataForm(forms.Form):
             ),
         ]
     )
-    comment = wtforms.StringField(validators=[wtforms.validators.Optional()])
+    comment = wtforms.StringField(
+        validators=[wtforms.validators.Optional()],
+    )
     md5_digest = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
@@ -398,7 +478,7 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, SHA256 message digest.",
             ),
-        ]
+        ],
     )
     blake2_256_digest = wtforms.StringField(
         validators=[
@@ -408,7 +488,7 @@ class MetadataForm(forms.Form):
                 re.IGNORECASE,
                 message="Must be a valid, hex encoded, blake2 message digest.",
             ),
-        ]
+        ],
     )
 
     # Legacy dependency information
@@ -416,7 +496,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_non_dist_req_list,
-        ]
+        ],
     )
     provides = ListField(
         validators=[
@@ -433,24 +513,28 @@ class MetadataForm(forms.Form):
 
     # Newer dependency information
     requires_dist = ListField(
+        description="Requires-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     provides_dist = ListField(
+        description="Provides-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     obsoletes_dist = ListField(
+        description="Obsoletes-Dist",
         validators=[
             wtforms.validators.Optional(),
             _validate_legacy_dist_req_list,
         ],
     )
     requires_external = ListField(
+        description="Requires-External",
         validators=[
             wtforms.validators.Optional(),
             _validate_requires_external_list,
@@ -459,6 +543,7 @@ class MetadataForm(forms.Form):
 
     # Newer metadata information
     project_urls = ListField(
+        description="Project-URL",
         validators=[
             wtforms.validators.Optional(),
             _validate_project_url_list,
@@ -624,20 +709,24 @@ def file_upload(request):
     if request.POST.get("protocol_version", "1") != "1":
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
+    # Check if any fields were supplied as a tuple and have become a
+    # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
+    # FieldStorage, however.
+    # ref: https://github.com/pypa/warehouse/issues/2185
+    # ref: https://github.com/pypa/warehouse/issues/2491
+    for field in set(request.POST) - {'content', 'gpg_signature'}:
+        values = request.POST.getall(field)
+        if any(isinstance(value, FieldStorage) for value in values):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"{field}: Should not be a tuple.",
+            )
+
     # Look up all of the valid classifiers
     all_classifiers = request.db.query(Classifier).all()
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
-
-    # Check if the classifiers were supplied as a tuple
-    # ref: https://github.com/pypa/warehouse/issues/2185
-    classifiers = request.POST.getall('classifiers')
-    if any(isinstance(classifier, FieldStorage) for classifier in classifiers):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "classifiers: Must be a list, not tuple.",
-        )
 
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers
@@ -649,12 +738,27 @@ def file_upload(request):
         else:
             field_name = sorted(form.errors.keys())[0]
 
+        if field_name in form:
+            if form[field_name].description:
+                error_message = (
+                    "{value!r} is an invalid value for {field}. ".format(
+                        value=form[field_name].data,
+                        field=form[field_name].description) +
+                    "Error: {} ".format(form.errors[field_name][0]) +
+                    "see "
+                    "https://packaging.python.org/specifications/core-metadata"
+                )
+            else:
+                error_message = "{field}: {msgs[0]}".format(
+                    field=field_name,
+                    msgs=form.errors[field_name],
+                )
+        else:
+            error_message = "Error: {}".format(form.errors[field_name][0])
+
         raise _exc_with_message(
             HTTPBadRequest,
-            "{field}: {msgs[0]}".format(
-                field=field_name,
-                msgs=form.errors[field_name],
-            ),
+            error_message,
         )
 
     # Ensure that we have file data in the request.
@@ -675,6 +779,32 @@ def file_upload(request):
                           func.normalize_pep426_name(form.name.data)).one()
         )
     except NoResultFound:
+        # Check for AdminFlag set by a PyPI Administrator disabling new project
+        # registration, reasons for this include Spammers, security
+        # vulnerabilities, or just wanting to be lazy and not worry ;)
+        if AdminFlag.is_enabled(
+                request.db,
+                'disallow-new-project-registration'):
+            raise _exc_with_message(
+                HTTPForbidden,
+                ("New Project Registration Temporarily Disabled "
+                 "See https://pypi.org/help#admin-intervention for details"),
+            ) from None
+
+        # Ensure that user has at least one verified email address. This should
+        # reduce the ease of spam account creation and activity.
+        # TODO: Once legacy is shutdown consider the condition here, perhaps
+        # move to user.is_active or some other boolean
+        if not any(email.verified for email in request.user.emails):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("User {!r} has no verified email addresses, please verify "
+                 "at least one address before registering a new project on "
+                 "PyPI. See https://pypi.org/help/#verified-email "
+                 "for more information.")
+                .format(request.user.username),
+            ) from None
+
         # Before we create the project, we're going to check our blacklist to
         # see if this project is even allowed to be registered. If it is not,
         # then we're going to deny the request to create this project.
@@ -694,10 +824,12 @@ def file_upload(request):
                 STDLIB_PROHIBITTED):
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed (conflict with Python "
+                ("The name {name!r} is not allowed (conflict with Python "
                  "Standard Library module name). See "
-                 "https://pypi.org/help/#project-name for more information.")
-                .format(form.name.data),
+                 "{projecthelp} for more information.").format(
+                     name=form.name.data,
+                     projecthelp=request.route_url(
+                         'help', _anchor='project-name')),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
@@ -734,16 +866,35 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPForbidden,
             ("The user '{0}' is not allowed to upload to project '{1}'. "
-             "See https://pypi.org/help#project-name for more information.")
-            .format(request.user.username, project.name)
+             "See {2} for more information.")
+            .format(request.user.username, project.name, request.route_url(
+                'help', _anchor='project-name')
+            )
         )
 
     try:
+        canonical_version = packaging.utils.canonicalize_version(
+            form.version.data
+        )
         release = (
             request.db.query(Release)
-                      .filter(
-                            (Release.project == project) &
-                            (Release.version == form.version.data)).one()
+            .filter(
+                (Release.project == project) &
+                (Release.canonical_version == canonical_version)
+            )
+            .one()
+        )
+    except MultipleResultsFound:
+        # There are multiple releases of this project which have the same
+        # canonical version that were uploaded before we checked for
+        # canonical version equivalence, so return the exact match instead
+        release = (
+            request.db.query(Release)
+            .filter(
+                (Release.project == project) &
+                (Release.version == form.version.data)
+            )
+            .one()
         )
     except NoResultFound:
         release = Release(
@@ -766,13 +917,15 @@ def file_upload(request):
                     "project_urls": DependencyKind.project_url,
                 }
             )),
+            canonical_version=canonical_version,
             **{
                 k: getattr(form, k).data
                 for k in {
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "version",
-                    "summary", "description", "license",
+                    "summary", "description", "description_content_type",
+                    "license",
                     "author", "author_email", "maintainer", "maintainer_email",
                     "keywords", "platform",
                     "home_page", "download_url",
@@ -781,9 +934,9 @@ def file_upload(request):
             }
         )
         request.db.add(release)
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
+        # TODO: This should be handled by some sort of database trigger or
+        #       a SQLAlchemy hook or the like instead of doing it inline in
+        #       this view.
         request.db.add(
             JournalEntry(
                 name=release.project.name,
@@ -847,7 +1000,7 @@ def file_upload(request):
             request.POST["content"].type.startswith("image/")):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Ensure that the package filetpye is allowed.
+    # Ensure that the package filetype is allowed.
     # TODO: Once PEP 527 is completely implemented we should be able to delete
     #       this and just move it into the form itself.
     if (not project.allow_legacy_files and
@@ -878,10 +1031,14 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "File too large. " +
-                        "Limit for project {name!r} is {limit}MB".format(
+                        "Limit for project {name!r} is {limit}MB. ".format(
                             name=project.name,
-                            limit=file_size_limit // (1024 * 1024),
-                        ))
+                            limit=file_size_limit // (1024 * 1024)) +
+                        "See " +
+                        request.route_url(
+                            'help', _anchor='file-size-limit'
+                        ),
+                    )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
@@ -915,7 +1072,13 @@ def file_upload(request):
         if is_duplicate:
             return Response()
         elif is_duplicate is not None:
-            raise _exc_with_message(HTTPBadRequest, "File already exists.")
+            raise _exc_with_message(
+                HTTPBadRequest, "File already exists. "
+                                "See " +
+                                request.route_url(
+                                    'help', _anchor='file-name-reuse'
+                                )
+            )
 
         # Check to see if the file that was uploaded exists in our filename log
         if (request.db.query(
@@ -925,7 +1088,10 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 "This filename has previously been used, you should use a "
-                "different version.",
+                "different version. "
+                "See " + request.route_url(
+                    'help', _anchor='file-name-reuse'
+                ),
             )
 
         # Check to see if uploading this file would create a duplicate sdist

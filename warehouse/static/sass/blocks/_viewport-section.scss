@@ -24,6 +24,10 @@
       </div>
     </div>
   </div>
+
+  Modifiers:
+    - dark: Applies a dark blue background
+    - ee: special design for 404 page, incl. video
 */
 
 .viewport-section {
@@ -83,10 +87,9 @@
       font-family: "Ewert", cursive;
       font-weight: 400;
       color: darken($brand-color, 15);
-      background: $highlight-color;
+      background: $primary-color;
 
       span {
-        font-size: 2.7em;
         line-height: 1;
         padding-bottom: 30px;
         font-size: 3.5em;

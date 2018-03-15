@@ -12,26 +12,30 @@
 
 import datetime
 import hashlib
+import uuid
 
 from pyramid.httpexceptions import (
-    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests,
+    HTTPMovedPermanently, HTTPSeeOther, HTTPTooManyRequests
 )
-from pyramid.renderers import render
-from pyramid.security import remember, forget
+from pyramid.security import Authenticated, remember, forget
 from pyramid.view import view_config
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
     LoginForm, RegistrationForm, RequestPasswordResetForm, ResetPasswordForm,
 )
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.accounts.models import Email
 from warehouse.cache.origin import origin_cache
-from warehouse.email import send_email
+from warehouse.email import (
+    send_password_reset_email, send_email_verification_email,
+)
 from warehouse.packaging.models import Project, Release
+from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 
@@ -75,13 +79,11 @@ def profile(user, request):
         )
 
     projects = (
-        request.db.query(Release)
-                  .options(joinedload(Release.project))
-                  .join(Project)
-                  .distinct(Project.name)
-                  .filter(Project.users.contains(user))
-                  .order_by(Project.name, Release._pypi_ordering.desc())
-                  .all()
+        request.db.query(Project)
+        .filter(Project.users.contains(user))
+        .join(Project.releases)
+        .order_by(Release.created.desc())
+        .all()
     )
 
     return {"user": user, "projects": projects}
@@ -99,6 +101,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('manage.projects'))
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -107,39 +111,53 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
     form = _form_class(request.POST, user_service=user_service)
 
-    if request.method == "POST" and form.validate():
-        # Get the user id for the given username.
-        username = form.username.data
-        userid = user_service.find_userid(username)
+    if request.method == "POST":
+        request.registry.datadog.increment('warehouse.authentication.start',
+                                           tags=['auth_method:login_form'])
+        if form.validate():
+            # Get the user id for the given username.
+            username = form.username.data
+            userid = user_service.find_userid(username)
 
-        # If the user-originating redirection url is not safe, then redirect to
-        # the index instead.
-        if (not redirect_to or
-                not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = "/"
+            # If the user-originating redirection url is not safe, then
+            # redirect to the index instead.
+            if (not redirect_to or
+                    not is_safe_url(url=redirect_to, host=request.host)):
+                redirect_to = request.route_path('manage.projects')
 
-        # Actually perform the login routine for our user.
-        headers = _login_user(request, userid)
+            # Actually perform the login routine for our user.
+            headers = _login_user(request, userid)
 
-        # Now that we're logged in we'll want to redirect the user to either
-        # where they were trying to go originally, or to the default view.
-        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+            # Now that we're logged in we'll want to redirect the user to
+            # either where they were trying to go originally, or to the default
+            # view.
+            resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-        # We'll use this cookie so that client side javascript can Determine
-        # the actual user ID (not username, user ID). This is *not* a security
-        # sensitive context and it *MUST* not be used where security matters.
-        #
-        # We'll also hash this value just to avoid leaking the actual User IDs
-        # here, even though it really shouldn't matter.
-        resp.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(
-                str(userid).encode("ascii"),
-                person=b"warehouse.userid",
-            ).hexdigest().lower(),
-        )
+            # We'll use this cookie so that client side javascript can
+            # Determine the actual user ID (not username, user ID). This is
+            # *not* a security sensitive context and it *MUST* not be used
+            # where security matters.
+            #
+            # We'll also hash this value just to avoid leaking the actual User
+            # IDs here, even though it really shouldn't matter.
+            resp.set_cookie(
+                USER_ID_INSECURE_COOKIE,
+                hashlib.blake2b(
+                    str(userid).encode("ascii"),
+                    person=b"warehouse.userid",
+                ).hexdigest().lower(),
+            )
 
-        return resp
+            request.registry.datadog.increment(
+                'warehouse.authentication.complete',
+                tags=['auth_method:login_form']
+            )
+            return resp
+        else:
+            request.registry.datadog.increment(
+                'warehouse.authentication.failure',
+                tags=['auth_method:login_form']
+            )
 
     return {
         "form": form,
@@ -209,7 +227,15 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 )
 def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
-        return HTTPSeeOther("/")
+        return HTTPSeeOther(request.route_path('manage.projects'))
+
+    if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
+        request.session.flash(
+            ("New User Registration Temporarily Disabled "
+             "See https://pypi.org/help#admin-intervention for details"),
+            queue="error",
+        )
+        return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
     recaptcha_service = request.find_service(name="recaptcha")
@@ -229,13 +255,16 @@ def register(request, _form_class=RegistrationForm):
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
-            form.username.data, form.full_name.data, form.password.data,
-            form.email.data
+            form.username.data, form.full_name.data, form.new_password.data,
         )
+        email = user_service.add_email(user.id, form.email.data, primary=True)
+
+        send_email_verification_email(request, email)
 
         return HTTPSeeOther(
             request.route_path("index"),
-            headers=dict(_login_user(request, user.id)))
+            headers=dict(_login_user(request, user.id))
+        )
 
     return {"form": form}
 
@@ -248,29 +277,20 @@ def register(request, _form_class=RegistrationForm):
     require_methods=False,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('index'))
+
     user_service = request.find_service(IUserService, context=None)
-    user_token_service = request.find_service(IUserTokenService, context=None)
     form = _form_class(request.POST, user_service=user_service)
-
     if request.method == "POST" and form.validate():
-        username = form.username.data
-        user = user_service.get_user_by_username(username)
-        token = user_token_service.generate_token(user)
-        n_hours = user_token_service.token_max_age // 60 // 60
+        user = user_service.get_user_by_username(form.username_or_email.data)
+        if user is None:
+            user = user_service.get_user_by_email(form.username_or_email.data)
 
-        subject = render(
-            'email/password-reset.subject.txt',
-            {},
-            request=request,
-        )
+        send_password_reset_email(request, user)
 
-        body = render(
-            'email/password-reset.body.txt',
-            {'token': token, 'username': username, 'n_hours': n_hours},
-            request=request,
-        )
-
-        request.task(send_email).delay(body, [user.email], subject)
+        token_service = request.find_service(ITokenService, name='password')
+        n_hours = token_service.max_age // 60 // 60
         return {"n_hours": n_hours}
 
     return {"form": form}
@@ -284,21 +304,55 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     require_methods=False,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
-    user_service = request.find_service(IUserService, context=None)
-    user_token_service = request.find_service(IUserTokenService, context=None)
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path('index'))
 
-    try:
-        token = request.params.get('token')
-        user = user_token_service.get_user_by_token(token)
-    except InvalidPasswordResetToken as e:
-        # Fail if the token is invalid for any reason
-        request.session.flash(e.message, queue="error")
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="password")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
         return HTTPSeeOther(
             request.route_path("accounts.request-password-reset"),
         )
 
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new password reset link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new password reset link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "password-reset":
+        return _error("Invalid token - Not a password reset token")
+
+    # Check whether a user with the given user ID exists
+    user = user_service.get_user(uuid.UUID(data.get("user.id")))
+    if user is None:
+        return _error("Invalid token - User not found")
+
+    # Check whether the user has logged in since the token was created
+    last_login = data.get("user.last_login")
+    if str(user.last_login) > last_login:
+        # TODO: track and audit this, seems alertable
+        return _error(
+            "Invalid token - User has logged in since this token was requested"
+        )
+
+    # Check whether the password has been changed since the token was created
+    password_date = data.get("user.password_date")
+    if str(user.password_date) > password_date:
+        return _error(
+            "Invalid token - Password has already been changed since this "
+            "token was requested"
+        )
+
     form = _form_class(
-        request.params,
+        **request.params,
         username=user.username,
         full_name=user.name,
         email=user.email,
@@ -307,7 +361,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
     if request.method == "POST" and form.validate():
         # Update password.
-        user_service.update_user(user.id, password=form.password.data)
+        user_service.update_user(user.id, password=form.new_password.data)
 
         # Flash a success message
         request.session.flash(
@@ -324,12 +378,52 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.edit_gravatar",
-    renderer="accounts/csi/edit_gravatar.csi.html",
+    route_name="accounts.verify-email",
     uses_session=True,
+    effective_principals=Authenticated,
 )
-def edit_gravatar_csi(user, request):
-    return {"user": user}
+def verify_email(request):
+    token_service = request.find_service(ITokenService, name="email")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("manage.account"))
+
+    try:
+        token = request.params.get('token')
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error("Expired token - Request a new verification link")
+    except TokenInvalid:
+        return _error("Invalid token - Request a new verification link")
+    except TokenMissing:
+        return _error("Invalid token - No token supplied")
+
+    # Check whether this token is being used correctly
+    if data.get('action') != "email-verify":
+        return _error("Invalid token - Not an email verification token")
+
+    try:
+        email = (
+            request.db.query(Email)
+            .filter(Email.id == data['email.id'], Email.user == request.user)
+            .one()
+        )
+    except NoResultFound:
+        return _error("Email not found")
+
+    if email.verified:
+        return _error("Email already verified")
+
+    email.verified = True
+    request.user.is_active = True
+
+    request.session.flash(
+        f'Email address {email.email} verified. ' +
+        'You can now set this email as your primary address.',
+        queue='success'
+    )
+    return HTTPSeeOther(request.route_path("manage.account"))
 
 
 def _login_user(request, userid):
@@ -380,3 +474,12 @@ def _login_user(request, userid):
 )
 def profile_callout(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="includes.edit-profile-button",
+    renderer="includes/accounts/edit-profile-button.html",
+    uses_session=True,
+)
+def edit_profile_button(user, request):
+    return {'user': user}

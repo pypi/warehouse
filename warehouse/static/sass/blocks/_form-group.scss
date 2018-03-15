@@ -18,6 +18,7 @@
   <div class="form-group">
     <label class="form-group__label" for="myinput">Label here</label>
     <input class="form-group__input" id="myinput" />
+    <p class="form-group__text">When a field is not editable, you can use me instead</p>
     <p class="form-group__help-text">Some help text here</p>
   </div>
 */
@@ -38,6 +39,11 @@
     max-width: 100%;
   }
 
+  &__text {
+    font-size: 20px;
+    padding: 4px 0 8px;
+  }
+
   &__help-text {
     padding: 0;
     margin-top: 5px;
@@ -45,5 +51,31 @@
     max-width: 100%;
     font-size: $small-font-size;
     font-style: italic;
+  }
+
+  &__horizontal {
+    display: flex;
+  }
+
+  &__horizontal-left {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  &__horizontal-right {
+    margin-left: 10px;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  @media only screen and (max-width: $small-tablet) {
+    &__horizontal {
+      flex-wrap: wrap;
+    }
+
+    &__horizontal-right {
+      margin-left: 0;
+      margin-top: 10px;
+    }
   }
 }

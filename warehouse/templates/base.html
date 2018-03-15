@@ -11,6 +11,27 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+
+{% macro humanize(timestamp) -%}
+<time class="-js-relative-time" datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}">
+  {{ timestamp|format_date()}}
+</time>
+{%- endmacro %}
+
+{% macro password_strength_gauge() -%}
+<p class="form-group__help-text">
+  Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
+</p>
+<p class="form-group__help-text">
+  <strong>Password strength:</strong>
+  <span class="password-strength">
+    <span class="password-strength__gauge">
+      <span class="sr-only">Password field is empty</span>
+    </span>
+  </span>
+</p>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -63,9 +84,7 @@
 
   <body>
     {% block body %}
-    <div class="sr-only">
-      <a href="#content">Skip to main content</a>
-    </div>
+    <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
       {% include "warehouse:templates/includes/warning-banner.html" %}
@@ -95,16 +114,21 @@
         <div class="split-layout">
           {% block brand %}
           <div class="split-layout">
-            <a class="site-header__logo" href="{{ request.route_path('index') }}">
-              <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
-            </a>
+            <div>
+              <a class="site-header__logo" href="{{ request.route_path('index') }}">
+                <img alt="{{ request.registry.settings['site.name'] }}" src="{{ request.static_path('warehouse:static/dist/images/logo-small.svg') }}">
+              </a>
+            </div>
 
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
               <div role="search">
                 <label for="search" class="sr-only">Search PyPI</label>
                 <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
-                {%- block search_form_extra_inputs %}{% endblock %}
-                <input class="search-form__button button button--dark" type="submit" value="Search">
+                {% block search_form_extra_inputs %}{% endblock %}
+                <button type="submit" class="search-form__button">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                  <span class="sr-only">Search</span>
+                </button>
               </div>
             </form>
           </div>
@@ -123,12 +147,10 @@
           <label for="mobile-search" class="sr-only">Search PyPI</label>
           <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
           {{ self.search_form_extra_inputs() }}
-          <button class="search-form__button button button--dark" type="submit">
-            <span class="button__icon">
-              <i class="fa fa-search" aria-hidden="true"></i>
-              <span class="sr-only">Search</span>
-            </span>
-            <span class="button__text">Search</span>
+          <button type="submit" class="search-form__button">
+            <i class="fa fa-search" aria-hidden="true"></i>
+            <span class="sr-only">Search</span>
+          </button>
           </button>
         </div>
       </form>
@@ -153,6 +175,7 @@
           <li><a href="https://packaging.python.org/installing/">Installing Packages</a></li>
           <li><a href="https://packaging.python.org/distributing/">Uploading Packages</a></li>
           <li><a href="https://packaging.python.org/">User Guide</a></li>
+          <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
@@ -161,16 +184,28 @@
           {% if request.registry.settings.get("statuspage.url") %}
           <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
           {% endif %}
-          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package Index Name Retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
         </ul>
+
+
         <ul class="footer__menu">
           <li>
             <h3>Contributing to PyPI</h3>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
+          <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development Roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
+        </ul>
+        <ul class="footer__menu">
+          <li>
+            <h3>Using PyPI</h3>
+          </li>
+          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of Conduct</a></li>
+          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
+          <li><a href="https://www.python.org/privacy/">Privacy Policy</a></li>
+          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></li>
         </ul>
       </div>
 
@@ -182,7 +217,7 @@
           <br>
           <a href="https://donate.pypi.org">Donate Today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation. <a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation.</p>
       </div>
     </footer>
 

@@ -28,13 +28,12 @@
   </div>
 
   Modifiers:
-    - Warning: Applies a red background
-    - Success: Applies a green background
+    - warning: Applies a red background
+    - success: Applies a green background
 */
 
 .notification-bar {
   border-bottom: 2px solid $white;
-  border-top: 2px solid $white;
   text-align: center;
   background-color: darken($brand-color, 10);
   color: $white;
@@ -62,11 +61,4 @@
   &--success {
     background-color: $success-color;
   }
-}
-
-// Remove top border when notification-bars are stacked on top of each other,
-// or when notification bar is under a sticky element
-.notification-bar + .notification-bar,
-body.with-sticky > .notification-bar {
-  border-top: 0;
 }

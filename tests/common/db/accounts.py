@@ -46,3 +46,4 @@ class EmailFactory(WarehouseFactory):
     user = factory.SubFactory(UserFactory)
     email = FuzzyEmail()
     verified = True
+    primary = True

@@ -1,0 +1,75 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_base.html" %}
+
+{% block projects_active %}vertical-tabs__tab--is-active{% endblock %}
+{% block projects_mobile_active %}vertical-tabs__tab--is-active{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block main %}
+  <h1 class="page-title">Your Projects ({{ projects|length }})</h1>
+  <div class="package-list">
+    {% if projects %}
+    {% for project in projects %}
+    {% set release = project.releases[0] if project.releases else None %}
+    <div class="package-snippet">
+      <div class="split-layout split-layout--table split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="package-snippet__title">{{ project.name }}</h3>
+          {% if release %}
+          <p class="package-snippet__meta">
+            <em>Last released on {{ release.created|format_date() }}</em>
+          </p>
+          <p class="package-snippet__description">
+            {{ release.summary }}
+          </p>
+          {% else %}
+          <p class="package-snippet__meta">
+            <em>Created on {{ project.created|format_date() }}</em>
+          </p>
+          {% endif %}
+        </div>
+        <div class="package-snippet__buttons">
+          <a
+            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+            class="button button--primary"
+            {% if project.name in projects_owned %}
+            title="Manage this project"
+            {% else %}
+            disabled
+            title="You are not an owner of this project"
+            {% endif %}
+            >Manage</a>
+          <a
+            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+            class="button"
+            {% if project.releases %}
+            title="View this project's public page"
+            {% else %}
+            disabled
+            title="This project has no releases"
+            {% endif %}
+            >View</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+      <div class="callout-block no-top-margin">
+        <p>You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="https://packaging.python.org/">Python Packaging User Guide</a></p>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

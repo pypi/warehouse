@@ -13,13 +13,11 @@
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
-from warehouse.packaging.models import (
-    Project, Release, Dependency, File, Role, JournalEntry, release_classifiers
-)
+from warehouse.packaging.models import JournalEntry
 
 
-def confirm_project(project, request):
-    confirm = request.POST.get("confirm")
+def confirm_project(project, request, fail_route):
+    confirm = request.POST.get("confirm_project_name")
     project_name = project.normalized_name
     if not confirm:
         request.session.flash(
@@ -27,25 +25,20 @@ def confirm_project(project, request):
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
+            "Could not delete project - " +
             f"{confirm!r} is not the same as {project.normalized_name!r}",
             queue="error",
         )
         raise HTTPSeeOther(
-            request.route_path(
-                'admin.project.detail',
-                project_name=project_name
-            )
+            request.route_path(fail_route, project_name=project_name)
         )
 
 
-def remove_project(project, request):
+def remove_project(project, request, flash=True):
     # TODO: We don't actually delete files from the data store. We should add
     #       some kind of garbage collection at some point.
 
@@ -57,17 +50,14 @@ def remove_project(project, request):
             submitted_from=request.remote_addr,
         )
     )
-    request.db.query(Role).filter(Role.project == project).delete()
-    request.db.query(File).filter(File.name == project.name).delete()
-    (request.db.query(Dependency).filter(Dependency.name == project.name)
-               .delete())
-    (request.db.execute(release_classifiers.delete()
-                        .where(release_classifiers.c.name ==
-                               project.name)))
-    request.db.query(Release).filter(Release.name == project.name).delete()
-    request.db.query(Project).filter(Project.name == project.name).delete()
 
-    request.session.flash(
-        f"Successfully deleted the project {project.name!r}.",
-        queue="success",
-    )
+    request.db.delete(project)
+
+    # Flush so we can repeat this multiple times if necessary
+    request.db.flush()
+
+    if flash:
+        request.session.flash(
+            f"Successfully deleted the project {project.name!r}.",
+            queue="success",
+        )

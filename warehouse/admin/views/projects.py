@@ -22,9 +22,9 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 
 from warehouse.accounts.models import User
-from warehouse.admin.utils import confirm_project, remove_project
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.utils.project import confirm_project, remove_project
 from warehouse.forklift.legacy import MAX_FILESIZE
 
 ONE_MB = 1024 * 1024  # bytes
@@ -81,6 +81,11 @@ def project_detail(project, request):
             ),
         )
 
+    releases = (request.db.query(Release)
+                .filter(Release.project == project)
+                .order_by(Release._pypi_ordering.desc())
+                .limit(10).all())
+
     maintainers = [
         role
         for role in (
@@ -101,12 +106,13 @@ def project_detail(project, request):
             request.db.query(JournalEntry)
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc())
-            .limit(50)
+            .limit(30)
         )
     ]
 
     return {
         "project": project,
+        "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
         "ONE_MB": ONE_MB,
@@ -163,6 +169,18 @@ def releases_list(project, request):
         "releases": releases,
         "project": project,
         "query": q,
+    }
+
+
+@view_config(
+    route_name="admin.project.release",
+    renderer="admin/projects/release_detail.html",
+    permission="admin",
+    uses_session=True,
+)
+def release_detail(release, request):
+    return {
+        'release': release,
     }
 
 
@@ -265,7 +283,7 @@ def set_upload_limit(project, request):
     require_methods=False,
 )
 def delete_project(project, request):
-    confirm_project(project, request)
+    confirm_project(project, request, fail_route="admin.project.detail")
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path('admin.project.list'))

@@ -42,7 +42,7 @@
     color: transparentize($white, 0.2);
     border-bottom: 1px solid transparentize($white, 0.8);
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       display: block;
     }
   }
@@ -59,11 +59,11 @@
       opacity: 1;
     }
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       padding: 7px 10px;
     }
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       padding: 5px 7px;
     }
   }
@@ -71,7 +71,7 @@
   &__image {
     max-height: 45px;
 
-    @media only screen and (max-width: $tablet){
+    @media only screen and (max-width: $tablet) {
       display: none;
     }
   }
@@ -88,7 +88,7 @@
     font-weight: 600;
     margin-top: 10px;
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       margin: 0;
       font-weight: normal;
     }
@@ -97,7 +97,7 @@
   &__service {
     font-style: italic;
 
-    @media only screen and (max-width: $small-tablet){
+    @media only screen and (max-width: $small-tablet) {
       display: none;
     }
   }

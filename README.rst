@@ -1,9 +1,11 @@
 Warehouse
 =========
 
-Warehouse is a next-generation Python Package Repository designed to replace
-the legacy code base that currently powers `PyPI <https://pypi.python.org/>`_
-(whose source code `lives on GitHub <https://github.com/pypa/pypi-legacy/>`_).
+Warehouse is a next-generation Python Package Repository designed to
+replace the legacy code base that currently powers `PyPI
+<https://pypi.python.org/>`_ (whose source code `lives on GitHub
+<https://github.com/pypa/pypi-legacy/>`_). See `our development
+roadmap`_.
 
 You can find more information in the `documentation`_.
 
@@ -21,10 +23,16 @@ Discussion
 
 If you run into bugs, you can file them in our `issue tracker`_.
 
+You can also file specific types of issues:
+
+- `Good First Issue`_: An easy issue reserved for people who haven't
+  contributed before
+- `Visual Design Issue`_: An issue related to the visual design of the site
+
 You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
 `pypa-dev mailing list`_, to ask questions or get involved.
 
-
+.. _`our development roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
 .. _`documentation`: https://warehouse.readthedocs.io/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
@@ -37,4 +45,6 @@ Code of Conduct
 Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
+.. _Good First Issue: https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md
+.. _Visual Design Issue: https://github.com/pypa/warehouse/issues/new?template=visual-design.md
 .. _PyPA Code of Conduct: https://www.pypa.io/en/latest/code-of-conduct/

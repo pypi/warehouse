@@ -18,7 +18,7 @@ import xmlrpc.server
 from elasticsearch_dsl import Q
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
-from sqlalchemy import func, select
+from sqlalchemy import func, orm, select
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -83,9 +83,9 @@ def search(request, spec, operator="and"):
         q = None
         for item in value:
             if q is None:
-                q = Q("match", **{field: item})
+                q = Q("term", **{field: item})
             else:
-                q |= Q("match", **{field: item})
+                q |= Q("term", **{field: item})
         queries.append(q)
 
     if operator == "and":
@@ -171,6 +171,7 @@ def release_data(request, package_name, version):
     try:
         release = (
             request.db.query(Release)
+                      .options(orm.undefer("description"))
                       .join(Project)
                       .filter((Project.normalized_name ==
                                func.normalize_pep426_name(package_name)) &

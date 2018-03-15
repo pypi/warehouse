@@ -14,6 +14,7 @@ import enum
 
 from collections import OrderedDict
 
+import packaging.utils
 from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
@@ -24,7 +25,7 @@ from sqlalchemy import (
 from sqlalchemy import func, orm, sql
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import validates
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -49,15 +50,29 @@ class Role(db.Model):
     role_name = Column(Text)
     user_name = Column(
         CIText,
-        ForeignKey("accounts_user.username", onupdate="CASCADE"),
+        ForeignKey(
+            "accounts_user.username",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
     )
     package_name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+    def __gt__(self, other):
+        '''
+        Temporary hack to allow us to only display the 'highest' role when
+        there are multiple for a given user
+
+        TODO: This should be removed when fixing GH-2745.
+        '''
+        order = ['Maintainer', 'Owner']  # from lowest to highest
+        return order.index(self.role_name) > order.index(other.role_name)
 
 
 class ProjectFactory:
@@ -123,13 +138,27 @@ class Project(SitemapMixin, db.ModelBase):
 
     def __getitem__(self, version):
         session = orm.object_session(self)
+        canonical_version = packaging.utils.canonicalize_version(version)
 
         try:
             return (
                 session.query(Release)
-                       .filter((Release.project == self) &
-                               (Release.version == version))
-                       .one()
+                .filter(
+                    (Release.project == self) &
+                    (Release.canonical_version == canonical_version)
+                )
+                .one()
+            )
+        except MultipleResultsFound:
+            # There are multiple releases of this project which have the same
+            # canonical version that were uploaded before we checked for
+            # canonical version equivalence, so return the exact match instead
+            return (
+                session.query(Release)
+                .filter(
+                    (Release.project == self) & (Release.version == version)
+                )
+                .one()
             )
         except NoResultFound:
             raise KeyError from None
@@ -147,8 +176,10 @@ class Project(SitemapMixin, db.ModelBase):
         for role in sorted(
                 query.all(),
                 key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
-            acls.append((Allow, role.user.id, ["upload"]))
-
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
 
     @property
@@ -190,6 +221,7 @@ class Dependency(db.Model):
             ["name", "version"],
             ["releases.name", "releases.version"],
             onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
@@ -230,10 +262,11 @@ class Release(db.ModelBase):
 
     name = Column(
         Text,
-        ForeignKey("packages.name", onupdate="CASCADE"),
+        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
     version = Column(Text, primary_key=True)
+    canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
     author_email = Column(Text)
@@ -242,7 +275,7 @@ class Release(db.ModelBase):
     home_page = Column(Text)
     license = Column(Text)
     summary = Column(Text)
-    description = Column(Text)
+    description_content_type = Column(Text)
     keywords = Column(Text)
     platform = Column(Text)
     download_url = Column(Text)
@@ -267,6 +300,15 @@ class Release(db.ModelBase):
         nullable=False,
         server_default=sql.func.now(),
     )
+
+    # We defer this column because it is a very large column (it can be MB in
+    # size) and we very rarely actually want to access it. Typically we only
+    # need it when rendering the page for a single project, but many of our
+    # queries only need to access a few of the attributes of a Release. Instead
+    # of playing whack-a-mole and using load_only() or defer() on each of
+    # those queries, deferring this here makes the default case more
+    # performant.
+    description = orm.deferred(Column(Text))
 
     _classifiers = orm.relationship(
         Classifier,
@@ -330,6 +372,25 @@ class Release(db.ModelBase):
         viewonly=True,
     )
 
+    def __acl__(self):
+        session = orm.object_session(self)
+        acls = [
+            (Allow, "group:admins", "admin"),
+        ]
+
+        # Get all of the users for this project.
+        query = session.query(Role).filter(Role.project == self)
+        query = query.options(orm.lazyload("project"))
+        query = query.options(orm.joinedload("user").lazyload("emails"))
+        for role in sorted(
+                query.all(),
+                key=lambda x: ["Owner", "Maintainer"].index(x.role_name)):
+            if role.role_name == "Owner":
+                acls.append((Allow, str(role.user.id), ["manage", "upload"]))
+            else:
+                acls.append((Allow, str(role.user.id), ["upload"]))
+        return acls
+
     @property
     def urls(self):
         _urls = OrderedDict()
@@ -366,6 +427,7 @@ class File(db.Model):
                 ["name", "version"],
                 ["releases.name", "releases.version"],
                 onupdate="CASCADE",
+                ondelete="CASCADE",
             ),
 
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
@@ -452,6 +514,7 @@ release_classifiers = Table(
         ["name", "version"],
         ["releases.name", "releases.version"],
         onupdate="CASCADE",
+        ondelete="CASCADE",
     ),
 
     Index("rel_class_name_idx", "name"),

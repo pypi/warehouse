@@ -20,10 +20,14 @@
 */
 
 .common-question {
-  &:before {
-    font-family: "FontAwesome";
-    content: "\f059";
-    margin-right: 5px;
-    color: $brand-color;
+  h2 {
+    padding-top: 30px;
+
+    &:before {
+      font-family: "FontAwesome";
+      content: "\f059";
+      margin-right: 5px;
+      color: $brand-color;
+    }
   }
 }

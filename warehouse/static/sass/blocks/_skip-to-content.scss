@@ -13,14 +13,26 @@
  */
 
 /*
-  A list of packages:
+  Skip to content link for keyboard users.
+  Must be the first item inside the page body.
+  <a href="#content" class="skip-to-content">Skip to main content</a>
+ */
 
-  <div class="package-list">
-    // Package snippets go here
-  </div>
-*/
+.skip-to-content {
+  position: absolute;
+  top: auto;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: index($z-index-scale, "skip-to-content");
 
-.package-list {
-  padding-top: 5px;
-  margin-bottom: 40px;
+  &:focus {
+    top: 7px;
+    left: 7px;
+    width: auto;
+    height: 41px;
+    line-height: 41px;
+    padding: 0 ($spacing-unit / 2);
+  }
 }

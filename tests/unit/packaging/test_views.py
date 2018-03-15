@@ -106,7 +106,7 @@ class TestProjectDetail:
 
 class TestReleaseDetail:
 
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_name_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
@@ -125,6 +125,23 @@ class TestReleaseDetail:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         assert db_request.current_route_path.calls == [
             pretend.call(name=release.project.name),
+        ]
+
+    def test_normalizing_version_redirects(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
+
+        db_request.matchdict = {"name": project.name, "version": "3.0.0.0.0"}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda **kw: "/project/the-redirect/3.0/"
+        )
+
+        resp = views.release_detail(release, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/project/the-redirect/3.0/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(name=release.project.name, version=release.version),
         ]
 
     def test_detail_renders(self, db_request):
@@ -189,11 +206,11 @@ class TestReleaseDetail:
             classifier="License :: OSI Approved :: BSD License")
         release = ReleaseFactory.create(
             _classifiers=[other_classifier, classifier],
-            license="Will not be used")
+            license="Will be added at the end")
 
         result = views.release_detail(release, db_request)
 
-        assert result["license"] == "BSD License"
+        assert result["license"] == "BSD License (Will be added at the end)"
 
     def test_license_with_no_classifier(self, db_request):
         """With no classifier, a license is used from metadata."""
@@ -231,3 +248,12 @@ class TestReleaseDetail:
         result = views.release_detail(release, db_request)
 
         assert result["license"] == "BSD License, MIT License"
+
+
+class TestEditProjectButton:
+
+    def test_edit_project_button_returns_project(self):
+        project = pretend.stub()
+        assert views.edit_project_button(project, pretend.stub()) == {
+            'project': project
+        }

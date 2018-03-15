@@ -15,6 +15,7 @@ import xmlrpc.client
 
 import alembic.command
 import click.testing
+import pretend
 import pyramid.testing
 import pytest
 import webtest as _webtest
@@ -52,14 +53,24 @@ def pytest_collection_modifyitems(items):
 
 
 @pytest.fixture
-def pyramid_request():
-    return pyramid.testing.DummyRequest()
+def pyramid_request(datadog):
+    dummy_request = pyramid.testing.DummyRequest()
+    dummy_request.registry.datadog = datadog
+    return dummy_request
 
 
 @pytest.yield_fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
+
+
+@pytest.yield_fixture
+def datadog():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+    )
 
 
 @pytest.yield_fixture
@@ -89,7 +100,7 @@ def database(request):
     return "postgresql://{}@{}:{}/{}".format(pg_user, pg_host, pg_port, pg_db)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def app_config(database):
     config = configure(
         settings={
@@ -107,7 +118,6 @@ def app_config(database):
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
-            "password_reset.secret": "insecure secret",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
@@ -154,9 +164,11 @@ def user_service(db_session, app_config):
 
 
 @pytest.yield_fixture
-def token_service(app_config, user_service):
-    return services.UserTokenService(
-        user_service, app_config.registry.settings
+def token_service(app_config):
+    return services.TokenService(
+        secret="secret",
+        salt="salt",
+        max_age=21600,
     )
 
 
@@ -200,7 +212,8 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, datadog):
+    pyramid_request.registry.datadog = datadog
     pyramid_request.db = db_session
     return pyramid_request
 

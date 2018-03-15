@@ -22,19 +22,16 @@
       <a class="dropdown__link">Link Here</a>
     </div>
   </div>
+
+  Modifiers:
+    - on-menu: Styles the dropdown to match the site header
+    - with-icons: Adds extra padding to link to allow space for icons
+    - wide: Makes the dropdown wider to allow space for longer labels
  */
 
 .dropdown {
   position: relative;
   display: inline-block;
-
-  // Remove form styling
-  form,
-  button {
-    border: 0;
-    background-color: transparent;
-    padding: 0;
-  }
 
   &__trigger {
     cursor: pointer;
@@ -49,11 +46,11 @@
   &__content {
     position: absolute;
     right: 0;
-    border: 1px solid $header-border-color;
+    margin-bottom: -4px;
     box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
     z-index: index($z-index-scale, "dropdown");
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-top: 1px solid $header-border-color;
+    border: 1px solid $border-color;
+    border-bottom: 0; // Each link has a bottom border, so we don't need one here
     display: none;
   }
 
@@ -68,23 +65,20 @@
   &__link,
   button.dropdown__link {
     display: block;
-    padding: 15px 15px 15px 45px;
-    border-bottom: 1px solid $header-border-color;
-    background-color: $header-background-color;
-    min-width: 175px;
-    color: $white;
+    padding: 15px 15px 15px 15px;
+    border: 0; // Remove default border on buttons
+    border-bottom: 1px solid $border-color;
+    background-color: $white;
+    min-width: 180px;
+    color: $text-color;
     cursor: pointer;
     text-align: left;
     position: relative;
 
-    &:last-child {
-      border-bottom: 0;
-    }
-
     &:hover {
-      background-color: darken($header-background-color, 1.5);
-      color: $white;
-      text-decoration: underline;
+      background-color: $base-grey;
+      color: $text-color;
+      text-decoration: none;
     }
 
     .fa {
@@ -92,6 +86,47 @@
       position: absolute;
       left: 15px;
       top: 20px;
+    }
+  }
+
+  &--on-menu {
+    // Remove form styling
+    form,
+    button {
+      border: 0;
+      background-color: transparent;
+      padding: 0;
+    }
+
+    .dropdown__content {
+      border-color: $header-border-color;
+      margin-bottom: 0;
+    }
+
+    .dropdown__link,
+    button.dropdown__link {
+      border-bottom-color: $header-border-color;
+      background-color: $header-background-color;
+      color: $white;
+
+      &:hover {
+        background-color: darken($header-background-color, 1.5);
+        color: $white;
+      }
+    }
+  }
+
+  &--with-icons {
+    .dropdown__link,
+    button.dropdown__link {
+      padding: 15px 15px 15px 40px;
+    }
+  }
+
+  &--wide {
+    .dropdown__link,
+    button.dropdown__link {
+      min-width: 200px;
     }
   }
 }

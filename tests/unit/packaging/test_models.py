@@ -27,6 +27,21 @@ from ...common.db.packaging import (
 )
 
 
+class TestRole:
+
+    def test_role_ordering(self, db_request):
+        project = DBProjectFactory.create()
+        owner_role = DBRoleFactory.create(
+            project=project,
+            role_name="Owner",
+        )
+        maintainer_role = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        assert max([maintainer_role, owner_role]) == owner_role
+
+
 class TestProjectFactory:
 
     @pytest.mark.parametrize(
@@ -57,6 +72,19 @@ class TestProject:
         release = DBReleaseFactory.create(project=project)
 
         assert project[release.version] == release
+
+    def test_traversal_finds_canonical_version(self, db_request):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(version='1.0', project=project)
+
+        assert project['1.0.0'] == release
+
+    def test_traversal_finds_canonical_version_if_multiple(self, db_request):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(version='1.0.0', project=project)
+        DBReleaseFactory.create(version='1.0', project=project)
+
+        assert project['1.0.0'] == release
 
     def test_traversal_cant_find(self, db_request):
         project = DBProjectFactory.create()
@@ -95,10 +123,10 @@ class TestProject:
 
         assert project.__acl__() == [
             (Allow, "group:admins", "admin"),
-            (Allow, owner1.user.id, ["upload"]),
-            (Allow, owner2.user.id, ["upload"]),
-            (Allow, maintainer1.user.id, ["upload"]),
-            (Allow, maintainer2.user.id, ["upload"]),
+            (Allow, str(owner1.user.id), ["manage", "upload"]),
+            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(maintainer1.user.id), ["upload"]),
+            (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
 
@@ -238,6 +266,28 @@ class TestRelease:
 
         # TODO: It'd be nice to test for the actual ordering here.
         assert dict(release.urls) == dict(expected)
+
+    def test_acl(self, db_session):
+        project = DBProjectFactory.create()
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+        maintainer1 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        maintainer2 = DBRoleFactory.create(
+            project=project,
+            role_name="Maintainer",
+        )
+        release = DBReleaseFactory.create(project=project)
+
+        assert release.__acl__() == [
+            (Allow, "group:admins", "admin"),
+            (Allow, str(owner1.user.id), ["manage", "upload"]),
+            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(maintainer1.user.id), ["upload"]),
+            (Allow, str(maintainer2.user.id), ["upload"]),
+        ]
 
 
 class TestFile:

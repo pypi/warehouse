@@ -18,9 +18,12 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import users as views
+from warehouse.packaging.models import Project
 
-from ....common.db.accounts import UserFactory, EmailFactory
-from ....common.db.packaging import ProjectFactory, RoleFactory
+from ....common.db.accounts import User, UserFactory, EmailFactory
+from ....common.db.packaging import (
+    JournalEntryFactory, ProjectFactory, RoleFactory,
+)
 
 
 class TestUserList:
@@ -169,3 +172,52 @@ class TestUserDetail:
         assert resp.status_code == 303
         assert resp.location == "/admin/users/{}/".format(user.id)
         assert user.name == "Jane Doe"
+
+
+class TestUserDelete:
+
+    def test_deletes_user(self, db_request, monkeypatch):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        another_project = ProjectFactory.create()
+        journal = JournalEntryFactory(submitted_by=user)
+        RoleFactory(project=project, user=user, role_name='Owner')
+        deleted_user = UserFactory.create(username="deleted-user")
+
+        db_request.matchdict['user_id'] = str(user.id)
+        db_request.params = {'username': user.username}
+        db_request.route_path = pretend.call_recorder(lambda a: '/foobar')
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = '10.10.10.10'
+
+        result = views.user_delete(db_request)
+
+        db_request.db.flush()
+
+        assert not db_request.db.query(User).get(user.id)
+        assert db_request.db.query(Project).all() == [another_project]
+        assert db_request.route_path.calls == [pretend.call('admin.user.list')]
+        assert result.status_code == 303
+        assert result.location == '/foobar'
+        assert journal.submitted_by == deleted_user
+
+    def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory(project=project, user=user, role_name='Owner')
+
+        db_request.matchdict['user_id'] = str(user.id)
+        db_request.params = {'username': 'wrong'}
+        db_request.route_path = pretend.call_recorder(lambda a, **k: '/foobar')
+
+        result = views.user_delete(db_request)
+
+        db_request.db.flush()
+
+        assert db_request.db.query(User).get(user.id)
+        assert db_request.db.query(Project).all() == [project]
+        assert db_request.route_path.calls == [
+            pretend.call('admin.user.detail', user_id=user.id),
+        ]
+        assert result.status_code == 303
+        assert result.location == '/foobar'

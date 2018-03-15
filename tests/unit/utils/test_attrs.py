@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlalchemy.orm.exc import DetachedInstanceError
+
 from warehouse.utils.attrs import make_repr
 
 
@@ -31,3 +33,13 @@ class TestMakeRepr:
                 return self.__repr__()
 
         assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
+
+    def test_with_raise(self):
+        class Fake:
+            __repr__ = make_repr("foo")
+
+            @property
+            def foo(self):
+                raise DetachedInstanceError
+
+        assert repr(Fake()) == "Fake(<detached>)"

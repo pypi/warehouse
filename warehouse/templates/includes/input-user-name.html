@@ -11,10 +11,10 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{{ form.username(placeholder="Your username", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input") }}
-{% if form.username.errors %}
+{{ form.username_or_email(placeholder="Your username or email", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input", required="true") }}
+{% if form.username_or_email.errors %}
   <ul class="form-errors">
-    {% for error in form.username.errors %}
+    {% for error in form.username_or_email.errors %}
     <li>{{ error }}</li>
     {% endfor %}
   </ul>

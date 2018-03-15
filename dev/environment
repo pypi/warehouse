@@ -33,4 +33,7 @@ MAIL_SSL=false
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
-PASSWORD_RESET_SECRET_KEY="an insecure password reset secret key"
+TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
+TOKEN_EMAIL_SECRET="an insecure email verification secret key"
+
+DATADOG_HOST=notdatadog

@@ -49,3 +49,101 @@ export function submitTriggers() {
     );
   }
 }
+
+/* global zxcvbn */
+
+const tooltipClasses = ["tooltipped", "tooltipped-s", "tooltipped-immediate"];
+let passwordFormRoot = document;
+
+const passwordStrengthValidator = (value) => {
+  const zxcvbnResult = zxcvbn(value);
+  return zxcvbnResult.score < 2 ?
+    zxcvbnResult.feedback.suggestions.join(" ") : null;
+};
+
+const fieldRequiredValidator = (value) => {
+  return value === ""?
+    "Please fill out this field" : null;
+};
+
+const checkPasswordStrength = (event) => {
+  let result = passwordFormRoot.querySelector(".password-strength__gauge");
+  if (event.target.value === "") {
+    result.setAttribute("class", "password-strength__gauge");
+    // Feedback for screen readers
+    result.querySelector(".sr-only").innerHTML = "Password field is empty";
+  } else {
+    // following recommendations on the zxcvbn JS docs
+    // the zxcvbn function is available by loading `vendor/zxcvbn.js`
+    // in the register page template only
+    let zxcvbnResult = zxcvbn(event.target.value);
+    result.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
+
+    // Feedback for screen readers
+    result.querySelector(".sr-only").innerHTML = zxcvbnResult.feedback.suggestions.join(" ") || "Password is strong";
+  }
+};
+
+const setupPasswordStrengthGauge = () => {
+  let password = passwordFormRoot.querySelector("#new_password");
+  if (password === null) return;
+  password.addEventListener(
+    "input",
+    checkPasswordStrength,
+    false
+  );
+};
+
+const attachTooltip = (field, message) => {
+  let parentNode = field.parentNode;
+  parentNode.classList.add.apply(parentNode.classList, tooltipClasses);
+  parentNode.setAttribute("aria-label", message);
+};
+
+const removeTooltips = () => {
+  let tooltippedNodes = passwordFormRoot.querySelectorAll(".tooltipped");
+  for (let tooltippedNode of tooltippedNodes) {
+    tooltippedNode.classList.remove.apply(tooltippedNode.classList, tooltipClasses);
+    tooltippedNode.removeAttribute("aria-label");
+  }
+};
+
+const validateForm = (event) => {
+  removeTooltips();
+  let inputFields = passwordFormRoot.querySelectorAll("input[required='required']");
+  for (let inputField of inputFields) {
+    let requiredMessage = fieldRequiredValidator(inputField.value);
+    if (requiredMessage !== null) {
+      attachTooltip(inputField, requiredMessage);
+      event.preventDefault();
+      return false;
+    }
+  }
+
+  let password = passwordFormRoot.querySelector("#new_password");
+  let passwordConfirm = passwordFormRoot.querySelector("#password_confirm");
+  if (password.value !== passwordConfirm.value) {
+    let message = "Passwords do not match";
+    attachTooltip(password, message);
+    event.preventDefault();
+    return false;
+  }
+
+  let passwordStrengthMessage = passwordStrengthValidator(password.value);
+  if (passwordStrengthMessage !== null) {
+    attachTooltip(password, passwordStrengthMessage);
+    event.preventDefault();
+    return false;
+  }
+};
+
+export function registerFormValidation() {
+  const passwordStrengthNode = document.querySelector(".password-strength");
+  if (passwordStrengthNode === null) return;
+  passwordFormRoot = document.evaluate(
+    "./ancestor::form", passwordStrengthNode, null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  setupPasswordStrengthGauge();
+  const submitButton = passwordFormRoot.querySelector("input[type='submit']");
+  submitButton.addEventListener("click", validateForm, false);
+}

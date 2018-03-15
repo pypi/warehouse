@@ -1,5 +1,4 @@
 import brotli from "gulp-brotli";
-
 import composer from "gulp-uglify/composer";
 import del from "del";
 import gulp from "gulp";
@@ -44,6 +43,7 @@ let webpackConfig = {
           loader: "babel-loader",
           options: {
             presets: ["env"],
+            plugins: ["transform-class-properties"],
           },
         },
       },
@@ -103,6 +103,26 @@ gulp.task("dist:js", () => {
 });
 
 
+gulp.task("dist:admin:js", () => {
+  let files = [
+    path.join("warehouse/admin/static/js/warehouse.js"),
+  ];
+
+  return gulp.src(files)
+    .pipe(named(() => { return "admin"; }))
+    .pipe(gulpWebpack(webpackConfig, webpack))
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(uglify(
+      // We don't care about IE6-8 so there's no reason to have
+      // uglify contain to maintain compatability for it.
+      { compress: { ie8: false }, mangle: { ie8: false } }
+    ))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join("warehouse/admin/static/dist/js")));
+});
+
+
+
 gulp.task("dist:css", () => {
   let sassPath = path.join(staticPrefix, "sass");
 
@@ -155,6 +175,11 @@ gulp.task("dist:images", () => {
     .pipe(gulp.dest(path.join(distPath, "images")));
 });
 
+gulp.task("dist:vendor", () => {
+  return gulp.src(path.join(staticPrefix, "js", "vendor", "**", "*"))
+    .pipe(gulp.dest(path.join(distPath, "js", "vendor")));
+});
+
 
 gulp.task("dist:manifest", () => {
   let paths = [
@@ -168,6 +193,10 @@ gulp.task("dist:manifest", () => {
     // Cachebust our JS files and the source maps for them.
     path.join(distPath, "js", "*.js"),
     path.join(distPath, "js", "*.map"),
+
+    // Cachebust our vendored JS files and the source maps for them.
+    path.join(distPath, "js", "vendor", "*.js"),
+    path.join(distPath, "js", "vendor", "*.map"),
 
     // Cachebust our Image files.
     path.join(distPath, "images", "*"),
@@ -257,7 +286,7 @@ gulp.task("dist", (cb) => {
     // any previously built files.
     "clean",
     // Build all of our static assets.
-    ["dist:font-awesome", "dist:css", "dist:js"],
+    ["dist:font-awesome", "dist:css", "dist:js", "dist:admin:js", "dist:vendor"],
     // We have this here, instead of in the list above even though there is no
     // ordering dependency so that all of it's output shows up together which
     // makes it easier to read.
@@ -280,6 +309,8 @@ gulp.task("watch", ["dist"], () => {
   let watchPaths = [
     path.join(staticPrefix, "**", "*"),
     path.join("!" + distPath, "**", "*"),
+    path.join("warehouse/admin/static", "**", "*"),
+    path.join("!warehouse/admin/static/dist", "**", "*"),
   ];
 
   gulpWatch(

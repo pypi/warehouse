@@ -4,7 +4,6 @@ python: 3.6.1
 env:
   global:
     - TRAVIS_NODE_VERSION=6.6.0
-    - CXX=g++-4.8
 
 dist: trusty
 sudo: false
@@ -14,11 +13,6 @@ addons:
     - warehouse.local
   postgresql: "9.6"
   # sauce_connect: true
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.8
 
 services:
   - postgresql
@@ -47,30 +41,12 @@ matrix:
     - script: make lint BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Lint
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.8
     - script: make docs BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Documentation
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.8
     - script: make travis-deps BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Dependencies
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.8
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses

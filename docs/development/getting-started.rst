@@ -1,11 +1,25 @@
+.. _getting-started:
+
 Getting started
 ===============
 
 We're pleased that you are interested in working on Warehouse.
 
+Your first pull request
+-----------------------
+
+After you set up your development environment and ensure you can run
+the tests and build the documentation (using the instructions in this
+document), please look at our `open issues that are labelled "good
+first issue"`_, find one you want to work on, comment on it to say
+you're working on it, then submit a pull request. Use our
+:doc:`submitting-patches` documentation to help.
+
 Setting up a development environment to work on Warehouse should be a
-straightforward process. If you have any difficulty, please contact us so
-we can improve the process.
+straightforward process. If you have any difficulty, please contact us
+so we can improve the process. You can find us via a `GitHub`_ issue,
+``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the `pypa-dev mailing
+list`_, to ask questions or get involved.
 
 
 Quickstart for Developers with Docker experience
@@ -19,12 +33,14 @@ Quickstart for Developers with Docker experience
 
 View Warehouse in the browser at ``http://localhost:80/``.
 
+.. _dev-env-install:
+
 Detailed Installation Instructions
 ----------------------------------
 
-Getting the warehouse source code
+Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the warehouse repository from GitHub:
+Clone the Warehouse repository from `GitHub`_:
 
 .. code-block:: console
 
@@ -41,7 +57,7 @@ Docker simplifies development environment set up.
 
 Warehouse uses Docker and `Docker Compose <https://docs.docker.com/compose/>`_
 to automate setting up a "batteries included" development environment.
-The Dockerfile and ``docker-compose.yml`` files include all the required steps
+The Dockerfile and :file:`docker-compose.yml` files include all the required steps
 for installing and configuring all the required external services of the
 development environment.
 
@@ -51,9 +67,16 @@ Installing Docker
 
 * Install `Docker Engine <https://docs.docker.com/engine/installation/>`_
 
+The best experience for building Warehouse on Windows 10 is to use the
+`Windows Subsystem for Linux`_ (WSL) in combination with both
+`Docker for Windows`_ and `Docker for Linux`_. Follow the instructions
+for both platforms, and see `Docker and Windows Subsystem
+for Linux Quirks`_ for extra configuration instructions.
+
 .. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
 .. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
 .. _Docker for Linux: https://docs.docker.com/engine/installation/linux/
+.. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
 
 Verifying Docker Installation
@@ -92,7 +115,7 @@ in the repository root directory.
 
 This will pull down all of the required docker containers, build
 Warehouse and run all of the needed services. The Warehouse repository will be
-mounted inside of the docker container at ``/opt/warehouse/src/``.
+mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
 Running the Warehouse Container and Services
@@ -117,7 +140,7 @@ Next, you will:
 * create a new Postgres database,
 * install example data to the Postgres database,
 * run migrations, and
-* load some example data from `Test PyPI <https://testpypi.python.org/>`_
+* load some example data from `Test PyPI`_
 
 In a second terminal, separate from the ``make serve`` command above, run:
 
@@ -137,11 +160,11 @@ Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started a reactor:
+``web`` service has started:
 
 .. code-block:: console
 
-    [twisted.application.runner._runner.Runner#info] Starting reactor...
+    [INFO] Listening at: http://0.0.0.0:8000
 
 the web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
@@ -152,6 +175,17 @@ the web container is listening on port 80. It's accessible at
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+
+Logging in to Warehouse
+^^^^^^^^^^^^^^^^^^^^^^^
+
+In the development environment, the password for every account has been set to
+the string ``password``. You can log in as any account at
+``http://localhost:80/account/login/``.
+
+To log in as an admin user, log in as ``ewdurbin`` with the password
+``password`` at ``http://localhost:80/admin/login/``.
 
 
 Stopping Warehouse and other services
@@ -170,13 +204,11 @@ What did we just do and what is happening behind the scenes?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The repository is exposed inside of the web container at
-``/opt/warehouse/src/`` and Warehouse will automatically reload when it detects
-any changes made to the code.
+:file:`/opt/warehouse/src/` and Warehouse will automatically reload
+when it detects any changes made to the code.
 
-The example data located in ``dev/example.sql.xz`` is taken from
-`Test PyPI <https://testpypi.python.org/>`_ and has been sanitized to remove
-anything private. The password for every account has been set to the string
-``password``.
+The example data located in :file:`dev/example.sql.xz` is taken from
+`Test PyPI`_ and has been sanitized to remove anything private.
 
 
 Running your developer environment after initial setup
@@ -199,40 +231,81 @@ Troubleshooting
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* If the ``Dockerfile`` is edited or new dependencies are added (either by you
-  or a prior pull request), a new container will need to built. A new container
-  can be built by running ``make build``. This should be done before
-  running ``make serve`` again.
+* If the :file:`Dockerfile` is edited or new dependencies are added
+  (either by you or a prior pull request), a new container will need
+  to built. A new container can be built by running ``make
+  build``. This should be done before running ``make serve`` again.
 
 * If ``make serve`` hangs after a new build, you should stop any
   running containers and repeat ``make serve``.
 
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
-  ``Dockerfile``.
+  :file:`Dockerfile`.
+
+* If ``sqlalchemy.exec.OperationalError`` is displayed in ``localhost`` after
+  ``make serve`` has been executed, shut down the Docker containers. When the
+  containers have shut down, run ``make serve`` in one terminal window while
+  running ``make initdb`` in a separate terminal window.
 
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``docker-compose`` may leave orphaned volumes during teardown. If you run
-into the message "no space left on device", try running the following command
-(assuming Docker >= 1.9):
+:command:`docker-compose` may leave orphaned volumes during
+teardown. If you run into the message "no space left on device", try
+running the following command (assuming Docker >= 1.9):
 
 .. code-block:: console
 
    docker volume rm $(docker volume ls -qf dangling=true)
 
 .. note:: This will delete orphaned volumes as well as directories that are not
-   volumes in /var/lib/docker/volumes
+   volumes in ``/var/lib/docker/volumes``
 
 (Solution found and further details available at
 https://github.com/chadoe/docker-cleanup-volumes)
 
 
+``make initdb`` is slow or appears to make no progress
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This typically occur when Docker is not allocated enough memory to perform the
+migrations. Try modifying your Docker configuration to allow more RAM for each
+container and run ``make initdb`` again.
+
+Docker and Windows Subsystem for Linux Quirks
+---------------------------------------------
+
+Once you have installed Docker for Windows, the Windows Subsystem for
+Linux, and Docker and Docker Compose in WSL, there are some extra
+configuration steps to deal with current quirks in WSL.
+`Nick Janetakis`_ has a detailed blog post on these steps, including
+installation, but this is a summary of the required steps:
+
+1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
+to mount your root drive at :file:`/c` (or whichever drive you are
+using).  You should clone into this mount and run
+:command:`docker-compose` from within it, to ensure that when volumes
+are linked into the container they can be found by Hyper-V.
+
+2. In Windows, configure Docker to enable "Expose daemon on
+``tcp://localhost:2375`` without TLS". Note that this may expose your
+machine to certain remote code execution attacks, so use with
+caution.
+
+3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your
+:file:`.bashrc` file in WSL, and/or run it directly to enable for the
+current session.  Without this, the :command:`docker` command in WSL
+will not be able to find the daemon running in Windows.
+
+.. _Nick Janetakis: https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
+
+
 Building Styles
 ---------------
 
-Styles are written in the scss variant of Sass and compiled using Gulp. They
-will be automatically built when changed when ``make serve`` is running.
+Styles are written in the scss variant of Sass and compiled using
+:command:`gulp`. They will be automatically built when changed when
+``make serve`` is running.
 
 
 Running the Interactive Shell
@@ -271,12 +344,12 @@ shell.
 Running tests and linters
 -------------------------
 
-.. note:: PostgreSQL 9.4 is required because of pgcrypto extension
+.. note:: PostgreSQL 9.4 is required because of ``pgcrypto`` extension
 
-The Warehouse tests are found in the ``tests/`` directory and are designed to
-be run using make.
+The Warehouse tests are found in the :file:`tests/` directory and are
+designed to be run using make.
 
-To run all tests, all you have to do is:
+To run all tests, in the root of the repository:
 
 .. code-block:: console
 
@@ -284,6 +357,16 @@ To run all tests, all you have to do is:
 
 This will run the tests with the supported interpreter as well as all of the
 additional testing that we require.
+
+.. tip::
+   Currently, running ``make tests`` from a clean checkout of
+   Warehouse (namely, before trying to compile any static assets) will
+   fail multiple tests because the tests depend on a file
+   (:file:`/app/warehouse/static/dist/manifest.json`) that gets
+   created during deployment. So until we fix `bug 1536
+   <https://github.com/pypa/warehouse/issues/1536>`_, you'll need to
+   install Warehouse in a developer environment and run ``make serve``
+   before running tests; see :ref:`dev-env-install` for instructions.
 
 If you want to run a specific test, you can use the ``T`` variable:
 
@@ -301,20 +384,21 @@ You can run linters, programs that check the code, with:
 Building documentation
 ----------------------
 
-The Warehouse documentation is stored in the ``docs/`` directory. It is written
-in `reStructured Text`_ and rendered using `Sphinx`_.
+The Warehouse documentation is stored in the :file:`docs/`
+directory. It is written in `reStructured Text`_ and rendered using
+`Sphinx`_.
 
-Use ``make`` to build the documentation. For example:
+Use :command:`make` to build the documentation. For example:
 
 .. code-block:: console
 
     make docs
 
 The HTML documentation index can now be found at
-``docs/_build/html/index.html``.
+:file:`docs/_build/html/index.html`.
 
-Building the docs requires Python 3.6. If it is not installed, the ``make``
-command will give the following error message:
+Building the docs requires Python 3.6. If it is not installed, the
+:command:`make` command will give the following error message:
 
 .. code-block:: console
 
@@ -322,6 +406,11 @@ command will give the following error message:
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
-.. _`pip`: https://pypi.python.org/pypi/pip
-.. _`sphinx`: https://pypi.python.org/pypi/Sphinx
+.. _`pip`: https://pypi.org/project/pip
+.. _`sphinx`: https://pypi.org/project/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
+.. _`open issues that are labelled "good first issue"`: https://github.com/pypa/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+.. _`GitHub`: https://github.com/pypa/warehouse
+.. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
+.. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
+.. _`Test PyPI`: https://test.pypi.org/

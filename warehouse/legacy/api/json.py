@@ -12,6 +12,7 @@
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy.orm import Load
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
@@ -95,6 +96,7 @@ def json_release(release, request):
     # Get all of the releases and files for this project.
     release_files = (
         request.db.query(Release, File)
+               .options(Load(Release).load_only('version'))
                .outerjoin(File)
                .filter(Release.project == project)
                .order_by(Release._pypi_ordering.desc(), File.filename)
@@ -159,6 +161,10 @@ def json_release(release, request):
                 "last_week": stats_svc.get_weekly_stats(project.name),
                 "last_month": stats_svc.get_monthly_stats(project.name),
             },
+            "package_url": request.route_url(
+                "packaging.project",
+                name=project.name,
+            ),
             "project_url": request.route_url(
                 "packaging.project",
                 name=project.name,
@@ -168,7 +174,8 @@ def json_release(release, request):
                 name=project.name,
                 version=release.version,
             ),
-            "requires_dist": list(release.requires_dist),
+            "requires_dist": (list(release.requires_dist)
+                              if release.requires_dist else None),
             "docs_url": project.documentation_url,
             "bugtrack_url": project.bugtrack_url,
             "home_page": release.home_page,

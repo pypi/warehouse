@@ -1,0 +1,101 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}Manage{% endblock %}
+
+{# Hide mobile search on manager pages #}
+{% block mobile_search %}{% endblock %}
+
+{% block content %}
+  <div class="tabs-container">
+    <div class="vertical-tabs">
+      <div class="vertical-tabs__tabs">
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Your Account</h3>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+            Your Projects
+          </a>
+          <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            Account Settings
+          </a>
+        </div>
+      </div>
+      <div class="vertical-tabs__panel">
+        <!-- mobile nav -->
+        <nav>
+          <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+            Your Projects
+          </a>
+          <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block account_mobile_active %}{% endblock %}">
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            Account Settings
+          </a>
+        </nav>
+
+        <div class="vertical-tabs__content">
+          {% block main %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% macro modal_slug(title, index) %}
+{% endmacro %}
+
+{% macro confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=None, action=None) %}
+  <div id="{{ slug }}" class="modal" data-controller="confirm">
+    <div class="modal__content" role="dialog">
+      <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {{ extra_fields if extra_fields else '' }}
+        <a href="#modal-close" data-action="click->confirm#cancel" title="Close" class="modal__close">
+          <i class="fa fa-times" aria-hidden="true"></i>
+          <span class="sr-only">close</span>
+        </a>
+        <div class="modal__body">
+          <h3 class="modal__title">{{ title }} {{ confirm_string }}?</h3>
+        <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+          <p>
+            <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+            This action cannot be undone!
+          </p>
+        </div>
+        <p>Confirm the {{ confirm_name|lower }} to continue.</p>
+        {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
+        <label for="{{ name }}">{{ confirm_name }}</label>
+        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" placeholder="{{ confirm_string }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+        </div>
+        <div class="modal__footer">
+          <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
+          <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
+            {{ title }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
+  <a href="#{{ slug }}" class="button button--danger">
+    {{ title }}
+  </a>
+  {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
+{% endmacro %}

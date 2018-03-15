@@ -14,10 +14,10 @@ import pytest
 from pretend import call, call_recorder, stub
 from pyramid.httpexceptions import HTTPSeeOther
 
-from warehouse.admin.utils import confirm_project, remove_project
 from warehouse.packaging.models import (
     Project, Release, Dependency, File, Role, JournalEntry
 )
+from warehouse.utils.project import confirm_project, remove_project
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -29,12 +29,12 @@ from ...common.db.packaging import (
 def test_confirm():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': 'foobar'},
+        POST={'confirm_project_name': 'foobar'},
         route_path=call_recorder(lambda *a, **kw: stub()),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
 
-    confirm_project(project, request)
+    confirm_project(project, request, fail_route='fail_route')
 
     assert request.route_path.calls == []
     assert request.session.flash.calls == []
@@ -43,17 +43,17 @@ def test_confirm():
 def test_confirm_no_input():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': ''},
+        POST={'confirm_project_name': ''},
         route_path=call_recorder(lambda *a, **kw: '/the-redirect'),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request)
+        confirm_project(project, request, fail_route='fail_route')
         assert err.value == '/the-redirect'
 
     assert request.route_path.calls == [
-        call('admin.project.detail', project_name='foobar')
+        call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
         call('Must confirm the request.', queue='error')
@@ -63,24 +63,31 @@ def test_confirm_no_input():
 def test_confirm_incorrect_input():
     project = stub(normalized_name='foobar')
     request = stub(
-        POST={'confirm': 'bizbaz'},
+        POST={'confirm_project_name': 'bizbaz'},
         route_path=call_recorder(lambda *a, **kw: '/the-redirect'),
         session=stub(flash=call_recorder(lambda *a, **kw: stub())),
     )
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request)
+        confirm_project(project, request, fail_route='fail_route')
         assert err.value == '/the-redirect'
 
     assert request.route_path.calls == [
-        call('admin.project.detail', project_name='foobar')
+        call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
-        call("'bizbaz' is not the same as 'foobar'", queue='error')
+        call(
+            "Could not delete project - 'bizbaz' is not the same as 'foobar'",
+            queue='error'
+        )
     ]
 
 
-def test_remove_project(db_request):
+@pytest.mark.parametrize(
+    'flash',
+    [True, False]
+)
+def test_remove_project(db_request, flash):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     release = ReleaseFactory.create(project=project)
@@ -96,14 +103,17 @@ def test_remove_project(db_request):
     db_request.remote_addr = "192.168.1.1"
     db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
 
-    remove_project(project, db_request)
+    remove_project(project, db_request, flash=flash)
 
-    assert db_request.session.flash.calls == [
-        call(
-            "Successfully deleted the project 'foo'.",
-            queue="success"
-        ),
-    ]
+    if flash:
+        assert db_request.session.flash.calls == [
+            call(
+                "Successfully deleted the project 'foo'.",
+                queue="success"
+            ),
+        ]
+    else:
+        assert db_request.session.flash.calls == []
 
     assert not (db_request.db.query(Role)
                              .filter(Role.project == project).count())

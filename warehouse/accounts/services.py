@@ -21,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    InvalidPasswordResetToken, IUserService, IUserTokenService,
+    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
@@ -74,6 +74,11 @@ class DatabaseUserService:
     @functools.lru_cache()
     def get_user_by_username(self, username):
         user_id = self.find_userid(username)
+        return None if user_id is None else self.get_user(user_id)
+
+    @functools.lru_cache()
+    def get_user_by_email(self, email):
+        user_id = self.find_userid_by_email(email)
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache()
@@ -148,8 +153,9 @@ class DatabaseUserService:
 
         return False
 
-    def create_user(self, username, name, password, email,
-                    is_active=False, is_staff=False, is_superuser=False):
+    def create_user(
+            self, username, name, password,
+            is_active=False, is_staff=False, is_superuser=False):
 
         user = User(username=username,
                     name=name,
@@ -158,12 +164,19 @@ class DatabaseUserService:
                     is_staff=is_staff,
                     is_superuser=is_superuser)
         self.db.add(user)
-        email_object = Email(email=email, user=user,
-                             primary=True, verified=False)
-        self.db.add(email_object)
-        # flush the db now so user.id is available
-        self.db.flush()
+        self.db.flush()  # flush the db now so user.id is available
+
         return user
+
+    def add_email(self, user_id, email_address, primary=False, verified=False):
+        user = self.get_user(user_id)
+        email= Email(
+            email=email_address, user=user, primary=primary, verified=verified,
+        )
+        self.db.add(email)
+        self.db.flush()  # flush the db now so email.id is available
+
+        return email
 
     def update_user(self, user_id, **changes):
         user = self.get_user(user_id)
@@ -173,68 +186,31 @@ class DatabaseUserService:
             setattr(user, attr, value)
         return user
 
-    def verify_email(self, user_id, email_address):
-        user = self.get_user(user_id)
-        for email in user.emails:
-            if email.email == email_address:
-                email.verified = True
 
+@implementer(ITokenService)
+class TokenService:
+    def __init__(self, secret, salt, max_age):
+        self.serializer = URLSafeTimedSerializer(secret, salt=salt)
+        self.max_age = max_age
 
-@implementer(IUserTokenService)
-class UserTokenService:
-    def __init__(self, user_service, settings):
-        self.user_service = user_service
-        self.serializer = URLSafeTimedSerializer(
-            settings["password_reset.secret"],
-            salt="password-reset",
-        )
-        self.token_max_age = settings["password_reset.token_max_age"]
-
-    def generate_token(self, user):
+    def dumps(self, data):
         return self.serializer.dumps({
-            "user.id": str(user.id),
-            "user.last_login": str(user.last_login),
-            "user.password_date": str(user.password_date),
+            key: str(value)
+            for key, value in data.items()
         })
 
-    def get_user_by_token(self, token):
+    def loads(self, token):
         if not token:
-            raise InvalidPasswordResetToken(
-                "Invalid token - No token supplied"
-            )
+            raise TokenMissing
 
         try:
-            data = self.serializer.loads(token, max_age=self.token_max_age)
+            data = self.serializer.loads(token, max_age=self.max_age)
         except SignatureExpired:
-            raise InvalidPasswordResetToken(
-                "Expired token - Token is expired, request a new password "
-                "reset link"
-            )
+            raise TokenExpired
         except BadData: #  Catch all other exceptions
-            raise InvalidPasswordResetToken(
-                "Invalid token - Request a new password reset link"
-            )
+            raise TokenInvalid
 
-        # Check whether a user with the given user ID exists
-        user = self.user_service.get_user(uuid.UUID(data.get("user.id")))
-        if user is None:
-            raise InvalidPasswordResetToken("Invalid token - User not found")
-
-        last_login = data.get("user.last_login")
-        if str(user.last_login) > last_login:
-            raise InvalidPasswordResetToken(
-                "Invalid token - User has logged in since this token was "
-                "requested"
-            )  # TODO: track and audit this, seems alertable
-
-        password_date = data.get("user.password_date")
-        if str(user.password_date) > password_date:
-            raise InvalidPasswordResetToken(
-                "Invalid token - Password has already been changed since this "
-                "token was requested"
-            )
-
-        return user
+        return data
 
 
 def database_login_factory(context, request):
@@ -255,8 +231,18 @@ def database_login_factory(context, request):
     )
 
 
-def user_token_factory(context, request):
-    return UserTokenService(
-        request.find_service(IUserService),
-        request.registry.settings
-    )
+class TokenServiceFactory:
+
+    def __init__(self, name, service_class=TokenService):
+        self.name = name
+        self.service_class = service_class
+
+    def __call__(self, context, request):
+        secret = request.registry.settings[f"token.{self.name}.secret"]
+        salt = self.name  # Use the service name as the unique salt
+        max_age = request.registry.settings.get(
+            f"token.{self.name}.max_age",
+            request.registry.settings["token.default.max_age"],
+        )
+
+        return self.service_class(secret, salt, max_age)

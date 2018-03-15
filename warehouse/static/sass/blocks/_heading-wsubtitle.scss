@@ -19,6 +19,10 @@
     <h2 class="heading-wsubtitle__heading">Heading</h2>
     <p class="heading-wsubtitle__subtitle">Subtitle</p>
   </div>
+
+  Modifiers:
+   - in-content: restore heading spacing for instances where heading is not
+     at the top of the page
 */
 
 .heading-wsubtitle {
@@ -28,6 +32,12 @@
 
   &__subtitle {
     font-style: italic;
-    margin-bottom :10px;
+    margin-bottom: 15px;
+  }
+
+  &--in-content {
+    .heading-wsubtitle__heading {
+      padding-top: 30px;
+    }
   }
 }

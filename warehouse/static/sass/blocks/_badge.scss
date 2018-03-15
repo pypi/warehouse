@@ -22,8 +22,17 @@
 .badge {
   font-size: $small-font-size;
   text-transform: uppercase;
-  color: darken($highlight-color, 50);
-  background-color: $highlight-color;
+  background-color: $brand-color;
+  color: $white;
   padding: 2px 7px;
   border-radius: 3px;
+  font-weight: 600;
+
+  &--success {
+    background-color: $success-color;
+  }
+
+  &--danger {
+    background-color: $danger-color;
+  }
 }
