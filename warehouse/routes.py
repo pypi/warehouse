@@ -16,6 +16,7 @@ def includeme(config):
     # these to segregate the Warehouse routes from the Forklift routes until
     # Forklift is properly split out into it's own project.
     warehouse = config.get_settings().get("warehouse.domain")
+    legacy_domain = config.get_settings().get("warehouse.legacy_domain")
     files_url = config.get_settings()["files.url"]
 
     # Simple Route for health checks.
@@ -265,7 +266,7 @@ def includeme(config):
         "pypi",
         pattern="/pypi",
         header="Content-Type:text/xml",
-        domain=warehouse,
+        domain=(warehouse or legacy_domain),
     )
 
     # Legacy Documentation
