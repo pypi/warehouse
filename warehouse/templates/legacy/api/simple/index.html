@@ -11,6 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+<!DOCTYPE html>
 <html>
   <head>
     <title>Simple Index</title>
@@ -19,6 +20,6 @@
   <body>
     {% for project in projects -%}
     <a href="{{ request.route_path('legacy.api.simple.detail', name=project.normalized_name) }}">{{ project.name }}</a>
-    {% endfor %}
+    {% endfor -%}
   </body>
 </html>
