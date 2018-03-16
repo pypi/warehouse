@@ -87,7 +87,7 @@ def simple_detail(project, request):
             )
         )
         .all(),
-        key=lambda f: (parse(f.version), f.packagetype)
+        key=lambda f: (parse(f.version), f.filename)
     )
 
     return {"project": project, "files": files}

@@ -202,7 +202,7 @@ class TestSimpleDetail:
 
         files = []
         for files_release in \
-                zip(egg_files, wheel_files, tar_files):
+                zip(egg_files, tar_files, wheel_files):
             files += files_release
 
         db_request.matchdict["name"] = project.normalized_name
@@ -212,9 +212,6 @@ class TestSimpleDetail:
         # Make sure that we get any changes made since the JournalEntry was
         # saved.
         db_request.db.refresh(project)
-        import pprint
-        pprint.pprint(simple.simple_detail(project, db_request)['files'])
-        pprint.pprint(files)
 
         assert simple.simple_detail(project, db_request) == {
             "project": project,
