@@ -126,6 +126,28 @@ class TestReadmeRender:
         assert result == jinja2.Markup("rendered")
         assert renderer.calls == [pretend.call('raw thing')]
 
+    def test_can_render_missing_content_type(self, monkeypatch):
+        renderer = pretend.call_recorder(lambda raw: "rendered")
+        monkeypatch.setattr(readme_renderer.rst, "render", renderer)
+
+        ctx = {
+            "request": pretend.stub(
+                registry=pretend.stub(
+                    settings={
+                        "camo.url": "https://camo.example.net/",
+                        "camo.key": "fake key",
+                    },
+                ),
+            ),
+        }
+
+        result = filters.readme(
+            ctx, "raw thing", description_content_type=None,
+        )
+
+        assert result == jinja2.Markup("rendered")
+        assert renderer.calls == [pretend.call('raw thing')]
+
     def test_renders_camo(self, monkeypatch):
         html = "<img src=http://example.com/image.jpg>"
         monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)

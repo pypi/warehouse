@@ -78,7 +78,7 @@ def readme(ctx, value, *, description_content_type):
     camo_url = request.registry.settings["camo.url"].format(request=request)
     camo_key = request.registry.settings["camo.key"]
 
-    content_type, parameters = cgi.parse_header(description_content_type)
+    content_type, parameters = cgi.parse_header(description_content_type or '')
 
     # Get the appropriate renderer
     renderer = _renderers[content_type]
