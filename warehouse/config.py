@@ -159,6 +159,7 @@ def configure(settings=None):
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
+    maybe_set(settings, "redis.max_connections", "REDIS_MAX_CONNECTIONS", int)
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")

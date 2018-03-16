@@ -269,29 +269,35 @@ class TestSessionFactory:
 
         strict_redis_obj = pretend.stub()
         strict_redis_cls = pretend.stub(
-            from_url=pretend.call_recorder(lambda url: strict_redis_obj),
+            from_url=pretend.call_recorder(
+                lambda *args, **kwargs: strict_redis_obj
+            ),
         )
         monkeypatch.setattr(redis, "StrictRedis", strict_redis_cls)
 
-        session_factory = SessionFactory("mysecret", "my url")
+        session_factory = SessionFactory("mysecret", "my url", None)
 
         assert session_factory.signer is timestamp_signer_obj
         assert session_factory.redis is strict_redis_obj
         assert timestamp_signer_create.calls == [
             pretend.call("mysecret", salt="session"),
         ]
-        assert strict_redis_cls.from_url.calls == [pretend.call("my url")]
+        assert strict_redis_cls.from_url.calls == [
+            pretend.call(
+                "my url", max_connections=None,
+            )
+        ]
 
     def test_redis_key(self):
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         assert session_factory._redis_key("my_session_id") == \
             "warehouse/session/data/my_session_id"
 
     def test_no_current_session(self, pyramid_request):
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory._process_response = pretend.stub()
         session = session_factory(pyramid_request)
@@ -308,7 +314,7 @@ class TestSessionFactory:
         pyramid_request.cookies["session_id"] = "invalid!"
 
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory._process_response = pretend.stub()
         session = session_factory(pyramid_request)
@@ -325,7 +331,7 @@ class TestSessionFactory:
         pyramid_request.cookies["session_id"] = "123456"
 
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.signer.unsign = pretend.call_recorder(
             lambda session_id, max_age: b"123456"
@@ -356,7 +362,7 @@ class TestSessionFactory:
         pyramid_request.cookies["session_id"] = "123456"
 
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.signer.unsign = pretend.call_recorder(
             lambda session_id, max_age: b"123456"
@@ -392,7 +398,7 @@ class TestSessionFactory:
         pyramid_request.cookies["session_id"] = "123456"
 
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.signer.unsign = pretend.call_recorder(
             lambda session_id, max_age: b"123456"
@@ -426,7 +432,7 @@ class TestSessionFactory:
 
     def test_no_save_invalid_session(self, pyramid_request):
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.redis = pretend.stub()
         pyramid_request.session = InvalidSession()
@@ -435,7 +441,7 @@ class TestSessionFactory:
 
     def test_noop_unused_session(self, pyramid_request):
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.redis = pretend.stub()
         pyramid_request.session.invalidated = set()
@@ -448,7 +454,7 @@ class TestSessionFactory:
 
     def test_invalidated_deletes_no_save(self, pyramid_request):
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.redis = pretend.stub(
             delete=pretend.call_recorder(lambda key: None)
@@ -480,7 +486,7 @@ class TestSessionFactory:
         monkeypatch.setattr(msgpack, "packb", msgpack_packb)
 
         session_factory = SessionFactory(
-            "mysecret", "redis://redis://localhost:6379/0",
+            "mysecret", "redis://redis://localhost:6379/0", None,
         )
         session_factory.redis = pretend.stub(
             delete=pretend.call_recorder(lambda key: None),
@@ -586,7 +592,7 @@ class TestSessionView:
 def test_includeme(monkeypatch):
     session_factory_obj = pretend.stub()
     session_factory_cls = pretend.call_recorder(
-        lambda secret, url: session_factory_obj
+        lambda *args, **kwargs: session_factory_obj
     )
     monkeypatch.setattr(
         warehouse.sessions,
@@ -610,7 +616,9 @@ def test_includeme(monkeypatch):
     assert config.set_session_factory.calls == [
         pretend.call(session_factory_obj),
     ]
-    assert session_factory_cls.calls == [pretend.call("my secret", "my url")]
+    assert session_factory_cls.calls == [
+        pretend.call("my secret", "my url", None)
+    ]
     assert config.add_view_deriver.calls == [
         pretend.call(
             session_view,
