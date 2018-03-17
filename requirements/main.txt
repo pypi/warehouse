@@ -398,9 +398,9 @@ rsa==3.4.2 \
 s3transfer==0.1.13 \
     --hash=sha256:c7a9ec356982d5e9ab2d4b46391a7d6a950e2b04c472419f5fdec70cc0ada72f \
     --hash=sha256:90dc18e028989c609146e241ea153250be451e05ecc0c2832565231dacdf59c1
-setuptools==38.6.0 \
-    --hash=sha256:020ca62e457d006b02e69de0b199c26bab9cc9d0d225b6faa2574ad347017ff1 \
-    --hash=sha256:9e4009f4de6d83ee267e8b972891eb3ecfa8348a21ac0cc2e9f46eb789c8e1ac
+setuptools==38.7.0 \
+    --hash=sha256:e39b4b7c772dc94d3037c002db21ffc429e47059a133e060d5eaa9d613b466df \
+    --hash=sha256:5fd3dae560dd6c4f15b39ef2a7b2ca5f024f10d5b8defcdcdec909f7c9b10c0e
 simplejson==3.13.2 \
     --hash=sha256:194fa08e4047f16e7087f2a406abd15151a482a097e42d8babb1b8181b2232b1 \
     --hash=sha256:43dc3082f3a8fd5bb0c80df5a8ab96d81eafeca701615aaa0b01910b1869e678 \
