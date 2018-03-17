@@ -14,27 +14,21 @@
 
 {% for message in request.session.pop_flash(queue="error") %}
 <div class="notification-bar notification-bar--danger" data-controller="notification" data-target="notification.notification">
-  <div class="site-container">
-    <span class="notification-bar__message">{{ message }}</span>
-    <span title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
-  </div>
+  <span class="notification-bar__message">{{ message }}</span>
+  <button title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
 </div>
 {% endfor %}
 
 {% for message in request.session.pop_flash() %}
 <div class="notification-bar notification-bar" data-controller="notification" data-target="notification.notification">
-  <div class="site-container">
-    <span class="notification-bar__message">{{ message }}</span>
-    <span title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
-  </div>
+  <span class="notification-bar__message">{{ message }}</span>
+  <button title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
 </div>
 {% endfor %}
 
 {% for message in request.session.pop_flash(queue="success") %}
 <div class="notification-bar notification-bar--success" data-controller="notification" data-target="notification.notification">
-  <div class="site-container">
-    <span class="notification-bar__message">{{ message }}</span>
-    <span title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss">×</span>
-  </div>
+  <span class="notification-bar__message">{{ message }}</span>
+  <button title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="dismiss"><i class="fa fa-times" aria-hidden="true"></i></button>
 </div>
 {% endfor %}
