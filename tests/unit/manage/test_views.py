@@ -1292,16 +1292,7 @@ class TestManageProjectRoles:
             pretend.call("Added collaborator 'testuser'", queue="success"),
         ]
 
-        assert send_collaborator_added_email.calls == [
-            pretend.call(
-                db_request,
-                user,
-                db_request.user,
-                project.name,
-                form_obj.role_name.data,
-                []
-            )
-        ]
+        assert send_collaborator_added_email.calls == []
 
         assert send_added_as_collaborator_email.calls == [
             pretend.call(
@@ -1327,6 +1318,154 @@ class TestManageProjectRoles:
         assert entry.action == "add Owner testuser"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
+
+    def test_post_new_role_notify_other_owners(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+
+        owner = UserFactory.create(username="owneruser")
+        EmailFactory.create(user=owner, email="owneremail")
+        other_owner = UserFactory.create(username="otherowner")
+        EmailFactory.create(
+            user=other_owner,
+            email="otherowneremail",
+        )
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+        RoleFactory.create(
+            user=other_owner, project=project, role_name="Owner"
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: user.id,
+            get_user=lambda userid: user,
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: user_service
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_collaborator_added_email',
+            send_collaborator_added_email,
+        )
+
+        send_added_as_collaborator_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_added_as_collaborator_email',
+            send_added_as_collaborator_email,
+        )
+
+        views.manage_project_roles(
+            project, db_request, _form_class=form_class
+        )
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Added collaborator 'testuser'", queue="success"),
+        ]
+
+        assert send_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                [other_owner.email]
+            )
+        ]
+
+        assert send_added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                user.email)
+        ]
+
+    def test_post_new_role_no_other_owners(self, monkeypatch, db_request):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        owner = UserFactory.create(username="owneruser")
+        EmailFactory.create(user=owner, email="owneremail")
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+
+        user_service = pretend.stub(
+            find_userid=lambda username: user.id,
+            get_user=lambda userid: user,
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: user_service
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user = owner
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_collaborator_added_email',
+            send_collaborator_added_email,
+        )
+
+        send_added_as_collaborator_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_added_as_collaborator_email',
+            send_added_as_collaborator_email,
+        )
+
+        views.manage_project_roles(
+            project, db_request, _form_class=form_class
+        )
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Added collaborator 'testuser'", queue="success"),
+        ]
+
+        assert send_collaborator_added_email.calls == []
+
+        assert send_added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                user.email)
+        ]
 
     def test_post_duplicate_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -1442,13 +1581,7 @@ class TestChangeProjectRoles:
             )
         ]
 
-        assert send_role_changed_for_user_email.calls == [
-            pretend.call(
-                db_request,
-                role,
-                [],
-            )
-        ]
+        assert send_role_changed_for_user_email.calls == []
 
         entry = db_request.db.query(JournalEntry).one()
 
@@ -1456,6 +1589,130 @@ class TestChangeProjectRoles:
         assert entry.action == "change Owner testuser to Maintainer"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
+
+    def test_change_role_email_sent_to_other_owners(self, db_request,
+                                                    monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        owner = UserFactory.create(username="owneruser")
+        EmailFactory.create(user=owner, email="owneremail")
+        other_owner = UserFactory.create(username="otherowner")
+        EmailFactory.create(
+            user=other_owner,
+            email="otherowneremail",
+        )
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+        RoleFactory.create(
+            user=other_owner, project=project, role_name="Owner"
+        )
+        new_role_name = "Maintainer"
+
+        db_request.method = "POST"
+        db_request.user = owner
+        db_request.remote_addr = "10.10.10.10"
+        db_request.POST = MultiDict({
+            "role_id": role.id,
+            "role_name": new_role_name,
+        })
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        send_user_role_changed_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_user_role_changed_email',
+            send_user_role_changed_email
+        )
+
+        send_role_changed_for_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_changed_for_user_email',
+            send_role_changed_for_user_email
+        )
+
+        views.change_project_role(project, db_request)
+
+        assert send_user_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_changed_for_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [other_owner.email],
+            )
+        ]
+
+    def test_change_role_email_no_other_owners(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        owner = UserFactory.create(username="owneruser")
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+        new_role_name = "Maintainer"
+
+        db_request.method = "POST"
+        db_request.user = owner
+        db_request.remote_addr = "10.10.10.10"
+        db_request.POST = MultiDict({
+            "role_id": role.id,
+            "role_name": new_role_name,
+        })
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        send_user_role_changed_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_user_role_changed_email',
+            send_user_role_changed_email
+        )
+
+        send_role_changed_for_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_changed_for_user_email',
+            send_role_changed_for_user_email
+        )
+
+        views.change_project_role(project, db_request)
+
+        assert send_user_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_changed_for_user_email.calls == []
 
     def test_change_role_invalid_role_name(self, pyramid_request):
         project = pretend.stub(name="foobar")
@@ -1662,13 +1919,7 @@ class TestDeleteProjectRoles:
             )
         ]
 
-        assert send_role_removed_from_user_email.calls == [
-            pretend.call(
-                db_request,
-                role,
-                [],
-            )
-        ]
+        assert send_role_removed_from_user_email.calls == []
 
         entry = db_request.db.query(JournalEntry).one()
 
@@ -1676,6 +1927,122 @@ class TestDeleteProjectRoles:
         assert entry.action == "remove Owner testuser"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
+
+    def test_delete_role_notify_other_owners(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        owner = UserFactory.create(username="owneruser")
+        EmailFactory.create(user=owner, email="owneremail")
+        other_owner = UserFactory.create(username="otherowner")
+        EmailFactory.create(
+            user=other_owner,
+            email="otherowneremail",
+        )
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+        RoleFactory.create(
+            user=other_owner, project=project, role_name="Owner"
+        )
+
+        db_request.method = "POST"
+        db_request.user = owner
+        db_request.remote_addr = "10.10.10.10"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        send_removed_from_role_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_removed_from_role_email',
+            send_removed_from_role_email
+        )
+
+        send_role_removed_from_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_removed_from_user_email',
+            send_role_removed_from_user_email
+        )
+
+        views.delete_project_role(project, db_request)
+
+        assert send_removed_from_role_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_removed_from_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [other_owner.email],
+            )
+        ]
+
+    def test_delete_role_no_other_owner(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        role = RoleFactory.create(
+            user=user, project=project, role_name="Owner"
+        )
+        owner = UserFactory.create(username="owneruser")
+        EmailFactory.create(user=owner, email="owneremail")
+
+        RoleFactory.create(
+            user=owner, project=project, role_name="Owner"
+        )
+
+        db_request.method = "POST"
+        db_request.user = owner
+        db_request.remote_addr = "10.10.10.10"
+        db_request.POST = MultiDict({"role_id": role.id})
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+
+        send_removed_from_role_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_removed_from_role_email',
+            send_removed_from_role_email
+        )
+
+        send_role_removed_from_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_removed_from_user_email',
+            send_role_removed_from_user_email
+        )
+
+        views.delete_project_role(project, db_request)
+
+        assert send_removed_from_role_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_removed_from_user_email.calls == []
 
     def test_delete_missing_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
