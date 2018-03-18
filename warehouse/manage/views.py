@@ -24,7 +24,9 @@ from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email, send_added_as_collaborator_email,
     send_collaborator_added_email, send_email_verification_email,
-    send_password_change_email, send_primary_email_change_email
+    send_password_change_email, send_primary_email_change_email,
+    send_removed_from_role_email, send_role_changed_for_user_email,
+    send_role_removed_from_user_email, send_user_role_changed_email,
 )
 from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
@@ -559,7 +561,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
             owner_emails = [owner.user.email for owner in owners]
-            owner_emails.remove(request.user.email)
+            if request.user.email in owner_emails:
+                owner_emails.remove(request.user.email)
 
             send_collaborator_added_email(
                 request,
@@ -683,7 +686,23 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             submitted_from=request.remote_addr,
                         ),
                     )
+                    owners = (
+                        request.db.query(Role)
+                            .join(Role.user)
+                            .filter(Role.role_name == 'Owner',
+                                    Role.project == role.project)
+                    )
+                    owner_emails = [owner.user.email for owner in owners]
+                    if request.user.email in owner_emails:
+                        owner_emails.remove(request.user.email)
+
                     role.role_name = form.role_name.data
+                    send_user_role_changed_email(request, role)
+                    send_role_changed_for_user_email(
+                        request,
+                        role,
+                        owner_emails,
+                    )
                     request.session.flash(
                         'Successfully changed role', queue="success"
                     )
@@ -733,6 +752,18 @@ def delete_project_role(project, request):
                     submitted_from=request.remote_addr,
                 ),
             )
+            owners = (
+                request.db.query(Role)
+                    .join(Role.user)
+                    .filter(Role.role_name == 'Owner',
+                            Role.project == role.project)
+            )
+            owner_emails = [owner.user.email for owner in owners]
+            if request.user.email in owner_emails:
+                owner_emails.remove(request.user.email)
+
+            send_removed_from_role_email(request, role)
+            send_role_removed_from_user_email(request, role, owner_emails)
         request.session.flash("Successfully removed role", queue="success")
 
     return HTTPSeeOther(

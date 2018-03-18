@@ -1385,7 +1385,7 @@ class TestManageProjectRoles:
 
 class TestChangeProjectRoles:
 
-    def test_change_role(self, db_request):
+    def test_change_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(
@@ -1407,6 +1407,22 @@ class TestChangeProjectRoles:
             lambda *a, **kw: "/the-redirect"
         )
 
+        send_user_role_changed_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_user_role_changed_email',
+            send_user_role_changed_email
+        )
+
+        send_role_changed_for_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_changed_for_user_email',
+            send_role_changed_for_user_email
+        )
+
         result = views.change_project_role(project, db_request)
 
         assert role.role_name == new_role_name
@@ -1418,6 +1434,21 @@ class TestChangeProjectRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+        assert send_user_role_changed_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_changed_for_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [],
+            )
+        ]
 
         entry = db_request.db.query(JournalEntry).one()
 
@@ -1579,7 +1610,7 @@ class TestChangeProjectRoles:
 
 class TestDeleteProjectRoles:
 
-    def test_delete_role(self, db_request):
+    def test_delete_role(self, db_request, monkeypatch):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
         role = RoleFactory.create(
@@ -1597,8 +1628,23 @@ class TestDeleteProjectRoles:
             lambda *a, **kw: "/the-redirect"
         )
 
-        result = views.delete_project_role(project, db_request)
+        send_removed_from_role_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_removed_from_role_email',
+            send_removed_from_role_email
+        )
 
+        send_role_removed_from_user_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_role_removed_from_user_email',
+            send_role_removed_from_user_email
+        )
+
+        result = views.delete_project_role(project, db_request)
         assert db_request.route_path.calls == [
             pretend.call('manage.project.roles', project_name=project.name),
         ]
@@ -1608,6 +1654,21 @@ class TestDeleteProjectRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+        assert send_removed_from_role_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+            )
+        ]
+
+        assert send_role_removed_from_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [],
+            )
+        ]
 
         entry = db_request.db.query(JournalEntry).one()
 
@@ -1662,6 +1723,7 @@ class TestDeleteProjectRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
 
 
 class TestManageProjectHistory:

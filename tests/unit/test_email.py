@@ -20,6 +20,10 @@ from pyramid_mailer.interfaces import IMailer
 from warehouse import email
 from warehouse.accounts.interfaces import ITokenService
 
+from ..common.db.packaging import (
+    JournalEntryFactory, ProjectFactory, ReleaseFactory, RoleFactory,
+    UserFactory,
+)
 
 class TestSendEmail:
 
@@ -505,5 +509,273 @@ class TestAddedAsCollaboratorEmail:
                 'Email Body',
                 'Email Subject',
                 recipients=[stub_user.email],
+            ),
+        ]
+
+
+class TestRemovedAsCollaboratorEmail:
+
+    def test_removed_as_collaborator_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        stub_role = pretend.stub(
+            role_name="Owner",
+            user=stub_user,
+            project=pretend.stub(
+                name="test_project"
+            ),
+        )
+        pyramid_request.user = stub_submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/removed-as-collaborator.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/removed-as-collaborator.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_removed_from_role_email(
+            pyramid_request,
+            role=stub_role,
+        )
+
+        assert result == {
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_user.email],
+            ),
+        ]
+
+
+class TestUserRoleChangedEmail:
+
+    def test_user_role_changed_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        stub_role = pretend.stub(
+            role_name="Owner",
+            user=stub_user,
+            project=pretend.stub(
+                name="test_project"
+            ),
+        )
+        pyramid_request.user = stub_submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/role-removed-from-user.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/role-removed-from-user.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_role_removed_from_user_email(
+            pyramid_request,
+            role=stub_role,
+            email_recipients=[stub_user.email, stub_submitter_user.email]
+        )
+
+        assert result == {
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username,
+            'username': stub_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                bcc=[stub_user.email, stub_submitter_user.email],
+            ),
+        ]
+
+
+class TestUserRoleChangedEmailEmail:
+
+    def test_user_role_changed_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        stub_role = pretend.stub(
+            role_name="Owner",
+            user=stub_user,
+            project=pretend.stub(
+                name="test_project"
+            ),
+        )
+        pyramid_request.user = stub_submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/user-role-changed.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/user-role-changed.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_user_role_changed_email(
+            pyramid_request,
+            role=stub_role,
+        )
+
+        assert result == {
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                recipients=[stub_user.email],
+            ),
+        ]
+
+
+class TestRoleChangedForUserEmail:
+
+    def test_role_changed_for_user_email(
+            self, pyramid_request, pyramid_config, monkeypatch):
+
+        stub_user = pretend.stub(
+            email='email',
+            username='username',
+        )
+        stub_submitter_user = pretend.stub(
+            email='submiteremail',
+            username='submitterusername'
+        )
+        stub_role = pretend.stub(
+            role_name="Owner",
+            user=stub_user,
+            project=pretend.stub(
+                name="test_project"
+            ),
+        )
+        pyramid_request.user = stub_submitter_user
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            'email/role-changed-for-user.subject.txt'
+        )
+        subject_renderer.string_response = 'Email Subject'
+        body_renderer = pyramid_config.testing_add_renderer(
+            'email/role-changed-for-user.body.txt'
+        )
+        body_renderer.string_response = 'Email Body'
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(
+            lambda *args, **kwargs: send_email
+        )
+        monkeypatch.setattr(email, 'send_email', send_email)
+
+        result = email.send_role_changed_for_user_email(
+            pyramid_request,
+            role=stub_role,
+            email_recipients=[stub_user.email, stub_submitter_user.email]
+        )
+
+        assert result == {
+            'project': 'test_project',
+            'role': 'Owner',
+            'submitter': stub_submitter_user.username,
+            'username': stub_user.username,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(submitter=stub_submitter_user.username)
+        body_renderer.assert_(project='test_project')
+        body_renderer.assert_(role='Owner')
+
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                'Email Body',
+                'Email Subject',
+                bcc=[stub_user.email, stub_submitter_user.email],
             ),
         ]
