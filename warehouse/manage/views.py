@@ -688,9 +688,11 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     )
                     owners = (
                         request.db.query(Role)
-                            .join(Role.user)
-                            .filter(Role.role_name == 'Owner',
-                                    Role.project == role.project)
+                        .join(Role.user)
+                        .filter(
+                            Role.role_name == 'Owner',
+                            Role.project == role.project,
+                        )
                     )
                     owner_emails = [owner.user.email for owner in owners]
                     if request.user.email in owner_emails:
@@ -754,9 +756,11 @@ def delete_project_role(project, request):
             )
             owners = (
                 request.db.query(Role)
-                    .join(Role.user)
-                    .filter(Role.role_name == 'Owner',
-                            Role.project == role.project)
+                .join(Role.user)
+                .filter(
+                    Role.role_name == 'Owner',
+                    Role.project == role.project,
+                )
             )
             owner_emails = [owner.user.email for owner in owners]
             if request.user.email in owner_emails:

@@ -20,10 +20,6 @@ from pyramid_mailer.interfaces import IMailer
 from warehouse import email
 from warehouse.accounts.interfaces import ITokenService
 
-from ..common.db.packaging import (
-    JournalEntryFactory, ProjectFactory, ReleaseFactory, RoleFactory,
-    UserFactory,
-)
 
 class TestSendEmail:
 

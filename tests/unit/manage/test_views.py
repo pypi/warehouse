@@ -1725,7 +1725,6 @@ class TestDeleteProjectRoles:
         assert result.headers["Location"] == "/the-redirect"
 
 
-
 class TestManageProjectHistory:
 
     def test_get(self, db_request):
