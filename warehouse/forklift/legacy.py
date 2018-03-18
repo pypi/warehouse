@@ -660,7 +660,9 @@ def _is_valid_dist_file(filename, filetype):
 
 def _is_duplicate_file(db_session, filename, hashes):
     """
-    Check to see if file already exists, and if it's content matches
+    Check to see if file already exists, and if it's content matches.
+    A file is considered to exist if its filename *or* blake2 digest are
+    present in a file row in the database.
 
     Returns:
     - True: This file is a duplicate and all further processing should halt.
@@ -670,14 +672,19 @@ def _is_duplicate_file(db_session, filename, hashes):
 
     file_ = (
         db_session.query(File)
-                  .filter(File.filename == filename)
+                  .filter(
+                        (File.filename == filename) |
+                        (File.blake2_256_digest == hashes["blake2_256"]))
                   .first()
     )
 
     if file_ is not None:
-        return (file_.sha256_digest == hashes["sha256"] and
-                file_.md5_digest == hashes["md5"] and
-                file_.blake2_256_digest == hashes["blake2_256"])
+        return (
+            file_.filename == filename and
+            file_.sha256_digest == hashes["sha256"] and
+            file_.md5_digest == hashes["md5"] and
+            file_.blake2_256_digest == hashes["blake2_256"]
+        )
 
     return None
 
