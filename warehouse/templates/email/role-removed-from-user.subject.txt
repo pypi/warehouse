@@ -1,0 +1,1 @@
+Role removed on PyPI for project {{ project }}

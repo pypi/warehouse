@@ -1,0 +1,14 @@
+Your role in the {{ project }} project has been removed by {{ submitter }}.
+
+{% if role == 'Owner' -%}
+You are no longer a project owner. This means that you can no longer add other
+collaborators, upload releases for the project, delete files and releases, or
+delete the entire project.
+{%- elif role == 'Maintainer' -%}
+You are no longer a project maintainer. This means that you can no longer add
+other collaborators, upload releases for the project, delete files and releases,
+or delete the entire project.
+{%- endif %}
+
+If this was a mistake, you can email admin@mail.pypi.org to communicate with
+the PyPI administrators.

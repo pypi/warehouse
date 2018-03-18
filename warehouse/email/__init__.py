@@ -180,3 +180,94 @@ def includeme(config):
     # or not, because even if we stop using SES, we'll want to remove any
     # emails that had been sent, and the cost of doing this is very low.
     config.add_periodic_task(crontab(minute=0, hour=0), ses_cleanup)
+
+
+def send_removed_from_role_email(request, role):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name
+    }
+
+    subject = render(
+        'email/removed-as-collaborator.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/removed-as-collaborator.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(subject, body, recipient=role.user.email)
+
+    return fields
+
+
+def send_role_removed_from_user_email(request, role, email_recipients):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name,
+        'username': role.user.username,
+    }
+
+    subject = render(
+        'email/role-removed-from-user.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/role-removed-from-user.body.txt', fields, request=request
+    )
+
+    for recipient in email_recipients:
+        request.task(send_email).delay(
+            subject,
+            body,
+            recipient=recipient,
+        )
+    return fields
+
+
+def send_user_role_changed_email(request, role):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name
+    }
+
+    subject = render(
+        'email/user-role-changed.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/user-role-changed.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(subject, body, recipient=role.user.email)
+
+    return fields
+
+
+def send_role_changed_for_user_email(request, role, email_recipients):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name,
+        'username': role.user.username,
+    }
+
+    subject = render(
+        'email/role-changed-for-user.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/role-changed-for-user.body.txt', fields, request=request
+    )
+
+    for recipient in email_recipients:
+        request.task(send_email).delay(
+            subject,
+            body,
+            recipient=recipient,
+        )
+
+    return fields
