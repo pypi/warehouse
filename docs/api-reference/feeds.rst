@@ -20,6 +20,7 @@ Available at https://pypi.org/rss/updates.xml, this feed provides the latest
 newly created releases for individual projects on PyPI, including the project
 name and description, release version, and a link to the release page.
 
+
 Project and release activity details
 ------------------------------------
 

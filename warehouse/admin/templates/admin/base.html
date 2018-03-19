@@ -103,6 +103,11 @@
           </a>
         </li>
         <li>
+          <a href="{{ request.route_path('admin.classifiers') }}">
+            <i class="fa fa-tags"></i> <span>Classifiers</span>
+          </a>
+        </li>
+        <li>
           <a href="{{ request.route_path('admin.blacklist.list') }}">
             <i class="fa fa-ban"></i> <span>Blacklist</span>
           </a>
@@ -157,11 +162,6 @@
 </div>
 {% endblock %}
 
-<script src="{{ request.static_url('warehouse.admin:static/js/jquery-2.2.3.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/bootstrap.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/jquery.slimscroll.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/fastclick.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/app.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/warehouse.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/dist/js/admin.js') }}"></script>
 </body>
 </html>

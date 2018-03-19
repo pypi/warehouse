@@ -448,11 +448,8 @@ def test_includeme(env, ssl):
             "broker_url": config.registry.settings["celery.broker_url"],
             "broker_use_ssl": ssl,
             "worker_disable_rate_limits": True,
-            "result_backend": config.registry.settings["celery.result_url"],
-            "result_serializer": "json",
             "task_serializer": "json",
             "accept_content": ["json", "msgpack"],
-            "result_compression": "gzip",
             "task_queue_ha_policy": "all",
             "REDBEAT_REDIS_URL": (
                 config.registry.settings["celery.scheduler_url"])}.items():

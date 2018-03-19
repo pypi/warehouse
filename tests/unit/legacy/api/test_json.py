@@ -148,16 +148,6 @@ class TestJSONRelease:
             submitted_by=user,
         )
 
-        daily_stats = pretend.stub()
-        weekly_stats = pretend.stub()
-        monthly_stats = pretend.stub()
-
-        db_request.find_service = lambda x: pretend.stub(
-            get_daily_stats=lambda p: daily_stats,
-            get_weekly_stats=lambda p: weekly_stats,
-            get_monthly_stats=lambda p: monthly_stats,
-        )
-
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
 
@@ -196,9 +186,9 @@ class TestJSONRelease:
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
                 "downloads": {
-                    "last_day": daily_stats,
-                    "last_week": weekly_stats,
-                    "last_month": monthly_stats,
+                    "last_day": -1,
+                    "last_week": -1,
+                    "last_month": -1,
                 },
                 "home_page": None,
                 "keywords": None,

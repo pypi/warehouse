@@ -592,7 +592,9 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service),
         ]
-        assert send_password_reset_email.calls == []
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, None)
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)

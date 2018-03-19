@@ -13,7 +13,7 @@
 -#}
 
 {% for message in request.session.pop_flash(queue="error") %}
-<div class="notification-bar notification-bar--warning">
+<div class="notification-bar notification-bar--danger">
   <span class="notification-bar__message">{{ message }}</span>
 </div>
 {% endfor %}

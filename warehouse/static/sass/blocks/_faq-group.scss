@@ -13,14 +13,29 @@
  */
 
 /*
-  Dynamically adds a blue question mark icon to the element it is applied to.
-  Use on headings, e.g.
+  Styles a group of frequently asked questions.
 
-  <h1 class="common-question">There will be a question mark icon on my left</h1>
+  <section class="faq-group">
+    <h2>I will have a border applied</h2>
+    <h3>I will have a question icon</h3>
+  </section>
+
+  Modifiers:
+    - list: Modifies h2 margins to compliment uls
 */
 
-.common-question {
+.faq-group {
   h2 {
+    border-bottom: 2px solid $base-grey;
+    padding-bottom: 5px;
+    margin-top: $spacing-unit * 2;
+  }
+
+  h2.faq-group__first {
+    margin-top: 0; // Removes margin from first item
+  }
+
+  h3 {
     padding-top: 30px;
 
     &:before {
@@ -28,6 +43,13 @@
       content: "\f059";
       margin-right: 5px;
       color: $brand-color;
+    }
+  }
+
+  &--list {
+    h2 {
+      margin-top: $spacing-unit;
+      margin-bottom: 15px;
     }
   }
 }

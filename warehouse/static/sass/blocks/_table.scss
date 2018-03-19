@@ -37,7 +37,10 @@
      - light: removes borders and backgrounds from table - maintains only horizontal borders
      - downloads: specific styles for downloads table on project detail page
      - releases: specific styles for releases table on manage project page
+     - files: specific styles for files table on releases tab
+     - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
+     - emails: specific styles for the email on account page
  */
 
 // TABLE
@@ -378,6 +381,15 @@
   &--collaborators {
     .table__user {
       padding-right: 20px;
+    }
+
+    .table__user-details {
+      display: flex;
+      align-items: center;
+    }
+
+    .table__user-gravatar {
+      margin-right: 10px;
     }
 
     .change-role {
