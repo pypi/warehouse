@@ -26,5 +26,6 @@ dev/prod.sql.xz
 warehouse/.commit
 warehouse/static/components
 warehouse/static/dist
+warehouse/admin/static/dist
 
 tags

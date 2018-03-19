@@ -13,24 +13,6 @@
 from zope.interface import Interface
 
 
-class IDownloadStatService(Interface):
-
-    def get_daily_stats(project):
-        """
-        Return the daily download counts for the given project.
-        """
-
-    def get_weekly_stats(project):
-        """
-        Return the weekly download counts for the given project.
-        """
-
-    def get_monthly_stats(project):
-        """
-        Return the monthly download counts for the given project.
-        """
-
-
 class IFileStorage(Interface):
 
     def create_service(context, request):

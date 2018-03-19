@@ -23,7 +23,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
-from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
@@ -166,6 +165,20 @@ def package_releases(request, package_name, show_hidden=False):
     return [v[0] for v in versions]
 
 
+@pypi_xmlrpc(method="package_data")
+def package_data(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_data can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
+
+
 @pypi_xmlrpc(method="release_data")
 def release_data(request, package_name, version):
     try:
@@ -180,8 +193,6 @@ def release_data(request, package_name, version):
         )
     except NoResultFound:
         return {}
-
-    stats_svc = request.find_service(IDownloadStatService)
 
     return {
         "name": release.project.name,
@@ -222,11 +233,25 @@ def release_data(request, package_name, version):
         "_pypi_ordering": release._pypi_ordering,
         "_pypi_hidden": release._pypi_hidden,
         "downloads": {
-            "last_day": stats_svc.get_daily_stats(release.project.name),
-            "last_week": stats_svc.get_weekly_stats(release.project.name),
-            "last_month": stats_svc.get_monthly_stats(release.project.name),
+            "last_day": -1,
+            "last_week": -1,
+            "last_month": -1,
         },
     }
+
+
+@pypi_xmlrpc(method="package_urls")
+def package_urls(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_urls can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
 
 
 @pypi_xmlrpc(method="release_urls")

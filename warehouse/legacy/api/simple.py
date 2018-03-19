@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.view import view_config
 from sqlalchemy import func
@@ -73,7 +75,7 @@ def simple_detail(project, request):
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
     # Get all of the files for this project.
-    files = (
+    files = sorted(
         request.db.query(File)
         .options(joinedload(File.release))
         .filter(
@@ -84,8 +86,8 @@ def simple_detail(project, request):
                           .with_entities(Release.version)
             )
         )
-        .order_by(File.filename)
-        .all()
+        .all(),
+        key=lambda f: (parse(f.version), f.filename)
     )
 
     return {"project": project, "files": files}

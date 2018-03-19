@@ -17,6 +17,7 @@ import os.path
 import re
 import tempfile
 import zipfile
+from cgi import parse_header
 
 from cgi import FieldStorage
 from itertools import chain
@@ -134,6 +135,13 @@ _project_name_re = re.compile(
 _legacy_specifier_re = re.compile(
     r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$"
 )
+
+
+_valid_description_content_types = {
+    'text/plain',
+    'text/x-rst',
+    'text/markdown',
+}
 
 
 def _exc_with_message(exc, message):
@@ -274,6 +282,25 @@ def _validate_rfc822_email_field(form, field):
         email_validator(form, type('field', (), {'data': address}))
 
 
+def _validate_description_content_type(form, field):
+    def _raise(message):
+        raise wtforms.validators.ValidationError(
+            f"Invalid description content type: {message}"
+        )
+
+    content_type, parameters = parse_header(field.data)
+    if content_type not in _valid_description_content_types:
+        _raise("type/subtype is not valid")
+
+    charset = parameters.get('charset')
+    if charset and charset != 'UTF-8':
+        _raise("charset is not valid")
+
+    variant = parameters.get('variant')
+    if content_type == 'text/markdown' and variant and variant != 'CommonMark':
+        _raise("variant is not valid")
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -300,7 +327,7 @@ class MetadataForm(forms.Form):
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1"],
                 message="Unknown Metadata Version",
             ),
         ],
@@ -352,6 +379,13 @@ class MetadataForm(forms.Form):
     author = wtforms.StringField(
         description="Author",
         validators=[wtforms.validators.Optional()],
+    )
+    description_content_type = wtforms.StringField(
+        description="Description-Content-Type",
+        validators=[
+            wtforms.validators.Optional(),
+            _validate_description_content_type,
+        ],
     )
     author_email = wtforms.StringField(
         description="Author-email",
@@ -779,10 +813,12 @@ def file_upload(request):
                 func.normalize_pep426_name(form.name.data))).scalar():
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed. "
-                 "See https://pypi.org/help/#project-name "
-                 "for more information.")
-                .format(form.name.data),
+                ("The name {name!r} is not allowed. "
+                 "See {projecthelp} "
+                 "for more information.").format(
+                    name=form.name.data,
+                    projecthelp=request.route_url(
+                        'help', _anchor='project-name')),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
@@ -890,9 +926,9 @@ def file_upload(request):
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "version",
-                    "summary", "description", "license",
-                    "author", "author_email",
-                    "maintainer", "maintainer_email",
+                    "summary", "description", "description_content_type",
+                    "license",
+                    "author", "author_email", "maintainer", "maintainer_email",
                     "keywords", "platform",
                     "home_page", "download_url",
                     "requires_python",

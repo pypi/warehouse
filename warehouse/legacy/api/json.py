@@ -17,7 +17,6 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import File, Release
 
 
@@ -138,9 +137,6 @@ def json_release(release, request):
         for r, fs in releases.items()
     }
 
-    # Get our stats service
-    stats_svc = request.find_service(IDownloadStatService)
-
     return {
         "info": {
             "name": project.name,
@@ -157,9 +153,9 @@ def json_release(release, request):
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {
-                "last_day": stats_svc.get_daily_stats(project.name),
-                "last_week": stats_svc.get_weekly_stats(project.name),
-                "last_month": stats_svc.get_monthly_stats(project.name),
+                "last_day": -1,
+                "last_week": -1,
+                "last_month": -1,
             },
             "package_url": request.route_url(
                 "packaging.project",

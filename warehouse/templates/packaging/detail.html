@@ -234,7 +234,7 @@
           <h2 class="page-title">Project Description</h2>
           {% if release.description %}
           <div class="project-description">
-            {{ release.description|readme(format="rst") }}
+            {{ release.description|readme(description_content_type=release.description_content_type) }}
           </div>
           {% else %}
           <div class="callout-block">

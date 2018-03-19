@@ -11,6 +11,9 @@
  * limitations under the License.
  */
 
+// Import stimulus
+import { Application } from "stimulus";
+import { definitionsFromContext } from "stimulus/webpack-helpers";
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
@@ -18,14 +21,11 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
     // default action, this event will handle things.
     event.preventDefault();
 
-    console.log("form#" + element.dataset.formSubmit);
-
     // Find the form identified by our formSubmit, and submit it.
     document.querySelector("form#" + element.dataset.formSubmit).submit();
   });
 });
 
- // var button = document.querySelector('form[name="myform"] > button');
- // button.addEventListener(function() {
- //   document.querySelector("form[name="myform"]").submit();
- // });
+const application = Application.start();
+const context = require.context("./controllers", true, /\.js$/);
+application.load(definitionsFromContext(context));
