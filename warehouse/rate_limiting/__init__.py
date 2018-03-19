@@ -109,4 +109,5 @@ class RateLimit:
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"],
+        max_connections=config.registry.settings.get("redis.max_connections"),
     )

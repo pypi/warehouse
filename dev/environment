@@ -13,6 +13,7 @@ DATABASE_URL=postgresql://postgres@db/warehouse
 ELASTICSEARCH_URL=http://elasticsearch:9200/development
 
 REDIS_URL=redis://redis:6379/0
+REDIS_MAX_CONNECTIONS=2
 
 SESSION_SECRET="an insecure development secret"
 

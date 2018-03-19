@@ -173,8 +173,10 @@ class SessionFactory:
     cookie_name = "session_id"
     max_age = 12 * 60 * 60  # 12 hours
 
-    def __init__(self, secret, url):
-        self.redis = redis.StrictRedis.from_url(url)
+    def __init__(self, secret, url, max_connections):
+        self.redis = redis.StrictRedis.from_url(
+            url, max_connections=max_connections,
+        )
         self.signer = crypto.TimestampSigner(secret, salt="session")
 
     def __call__(self, request):
@@ -307,6 +309,7 @@ def includeme(config):
         SessionFactory(
             config.registry.settings["sessions.secret"],
             config.registry.settings["sessions.url"],
+            config.registry.settings.get("redis.max_connections"),
         ),
     )
 
