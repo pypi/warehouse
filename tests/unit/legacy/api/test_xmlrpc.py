@@ -305,6 +305,38 @@ def test_top_packages(num):
         "RuntimeError: This API has been removed. Please Use BigQuery instead."
 
 
+@pytest.mark.parametrize("domain", [None, 'example.com'])
+def test_package_urls(domain, db_request):
+    db_request.registry.settings = {}
+    if domain:
+        db_request.registry.settings = {'warehouse.domain': domain}
+    db_request.domain = 'example.org'
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.package_urls(db_request, 'foo', '1.0.0')
+
+    assert exc.value.faultString == \
+        ("RuntimeError: This API has been deprecated. Use "
+         f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
+         "instead. The XMLRPC method release_urls can be used in the "
+         "interim, but will be deprecated in the future.")
+
+
+@pytest.mark.parametrize("domain", [None, 'example.com'])
+def test_package_data(domain, db_request):
+    db_request.registry.settings = {}
+    if domain:
+        db_request.registry.settings = {'warehouse.domain': domain}
+    db_request.domain = 'example.org'
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.package_data(db_request, 'foo', '1.0.0')
+
+    assert exc.value.faultString == \
+        ("RuntimeError: This API has been deprecated. Use "
+         f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
+         "instead. The XMLRPC method release_data can be used in the "
+         "interim, but will be deprecated in the future.")
+
+
 def test_package_releases(db_request):
     project1 = ProjectFactory.create()
     releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
