@@ -27,12 +27,22 @@ from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
-
 pypi_xmlrpc = functools.partial(
     xmlrpc_method,
     endpoint="pypi",
     require_csrf=False,
     require_methods=["POST"],
+)
+
+pypi_xmlrpc_cache_by_project = functools.partial(
+    xmlrpc_method,
+    endpoint="pypi",
+    require_csrf=False,
+    require_methods=["POST"],
+    xmlrpc_cache=True,
+    xmlrpc_cache_expires=3600,
+    xmlrpc_cache_tag='project/%s',
+    xmlrpc_cache_arg_index=0,
 )
 
 
@@ -148,7 +158,7 @@ def top_packages(request, num=None):
     )
 
 
-@pypi_xmlrpc(method="package_releases")
+@pypi_xmlrpc_cache_by_project(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
@@ -179,7 +189,7 @@ def package_data(request, package_name, version):
     )
 
 
-@pypi_xmlrpc(method="release_data")
+@pypi_xmlrpc_cache_by_project(method="release_data")
 def release_data(request, package_name, version):
     try:
         release = (
@@ -254,7 +264,7 @@ def package_urls(request, package_name, version):
     )
 
 
-@pypi_xmlrpc(method="release_urls")
+@pypi_xmlrpc_cache_by_project(method="release_urls")
 def release_urls(request, package_name, version):
     files = (
         request.db.query(File)
@@ -288,7 +298,7 @@ def release_urls(request, package_name, version):
     ]
 
 
-@pypi_xmlrpc(method="package_roles")
+@pypi_xmlrpc_cache_by_project(method="package_roles")
 def package_roles(request, package_name):
     roles = (
         request.db.query(Role)

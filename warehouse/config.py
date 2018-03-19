@@ -173,6 +173,7 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(settings, "xmlrpc_cache.url", "REDIS_URL")
     maybe_set(
         settings,
         "token.password.max_age",
@@ -326,6 +327,9 @@ def configure(settings=None):
 
     # Register support for services
     config.include("pyramid_services")
+
+    # Register our XMLRPC cache
+    config.include(".xmlrpc_cache")
 
     # Register support for XMLRPC and override it's renderer to allow
     # specifying custom dumps arguments.
