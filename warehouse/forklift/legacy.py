@@ -1080,7 +1080,7 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
-                HTTPBadRequest, "File already exists. "
+                HTTPBadRequest, "The filename or contents already exist. "
                                 "See " +
                                 request.route_url(
                                     'help', _anchor='file-name-reuse'

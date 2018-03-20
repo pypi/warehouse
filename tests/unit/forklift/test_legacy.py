@@ -1826,7 +1826,7 @@ class TestFileUpload:
         ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. "
+            "400 The filename or contents already exist. "
             "See /the/help/url/"
         )
 
@@ -1888,7 +1888,7 @@ class TestFileUpload:
         ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. "
+            "400 The filename or contents already exist. "
             "See /the/help/url/"
         )
 
