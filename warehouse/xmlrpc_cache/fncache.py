@@ -94,7 +94,7 @@ class RedisLru(object):
             return self.get(func.__name__, key, tag) or \
                 self.add(
                     func.__name__, key, func(*args, **kwargs), tag, expires
-                )
+            )
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
             self.metric_reporter.increment(f'{self.name}.cache.error')
             raise CacheError()
