@@ -23,7 +23,7 @@
     <div class="site-container">
       <h1 class="page-title">Create an account on PyPI</h1>
 
-      <form method="POST" action="{{ request.current_route_path() }}">
+      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
@@ -70,7 +70,7 @@
           {% endif %}
         </div>
 
-        <div data-controller="password">
+        <div>
           <div class="form-group">
             <div class="split-layout">
               <label for="password" class="form-group__label">Password</label>
@@ -81,7 +81,7 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
             </div>
             {% if form.new_password.errors %}
             <ul class="form-errors">
@@ -95,7 +95,7 @@
 
           <div class="form-group">
             <label for="password_confirm" class="form-group__label">Confirm Password</label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password") }}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
             {% if form.password_confirm.errors %}
             <ul class="form-errors">
               {% for error in form.password_confirm.errors %}
@@ -107,10 +107,16 @@
         </div>
 
         <div class="form-group">
+          <ul class="form-errors">
+            <li data-target="password-match.matchMessage" class="hidden"></li>
+          </ul>
+        </div>
+
+        <div class="form-group">
           {{ recaptcha_html(request, form) }}
         </div>
 
-        <input type="submit" value="Create Account" class="button button--primary">
+        <input type="submit" value="Create Account" class="button button--primary" data-target="password-match.submit">
       </form>
     </div>
   </section>

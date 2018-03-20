@@ -820,10 +820,12 @@ def file_upload(request):
                 func.normalize_pep426_name(form.name.data))).scalar():
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed. "
-                 "See https://pypi.org/help/#project-name "
-                 "for more information.")
-                .format(form.name.data),
+                ("The name {name!r} is not allowed. "
+                 "See {projecthelp} "
+                 "for more information.").format(
+                    name=form.name.data,
+                    projecthelp=request.route_url(
+                        'help', _anchor='project-name')),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
