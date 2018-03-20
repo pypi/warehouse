@@ -1,4 +1,17 @@
-You have been added as {{ role }} to the PyPI project {{ project }} by {{ submitter }}.
+You have been added as a collaborator to the PyPI project {{ project }}
+by {{ submitter }}.
+
+{% if role == 'Owner' %}
+You are now a project owner. This means that you may add other collaborators,
+upload releases for the project, delete files and releases, or delete the entire
+project.
+{% endif %}
+
+{% if role == 'Maintainer' %}
+You are now a project maintainer. This means that you may upload releases for
+the project. You cannot add collaborators, delete files, delete releases, or
+delete the project.
+{% endif %}
 
 Congratulations!
 

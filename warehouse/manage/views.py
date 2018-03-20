@@ -564,11 +564,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                             if owner.user.email]
             if request.user.email in owner_emails:
                 owner_emails.remove(request.user.email)
-            print("owneremails")
-            print(owner_emails)
-            print("owners")
-            print(owners)
-            print("---")
+
             if owner_emails:
                 send_collaborator_added_email(
                     request,
