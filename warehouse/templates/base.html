@@ -61,7 +61,7 @@
     <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.urll }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}">
+    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/twitter.png') }}">
     <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
 
