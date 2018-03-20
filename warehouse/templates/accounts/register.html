@@ -106,9 +106,11 @@
           </div>
         </div>
 
-        <ul class="form-errors">
-          <li data-target="password-match.matchMessage" class="hidden"></li>
-        </ul>
+        <div class="form-group">
+          <ul class="form-errors">
+            <li data-target="password-match.matchMessage" class="hidden"></li>
+          </ul>
+        </div>
 
         <div class="form-group">
           {{ recaptcha_html(request, form) }}
