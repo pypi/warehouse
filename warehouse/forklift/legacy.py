@@ -660,7 +660,9 @@ def _is_valid_dist_file(filename, filetype):
 
 def _is_duplicate_file(db_session, filename, hashes):
     """
-    Check to see if file already exists, and if it's content matches
+    Check to see if file already exists, and if it's content matches.
+    A file is considered to exist if its filename *or* blake2 digest are
+    present in a file row in the database.
 
     Returns:
     - True: This file is a duplicate and all further processing should halt.
@@ -670,14 +672,19 @@ def _is_duplicate_file(db_session, filename, hashes):
 
     file_ = (
         db_session.query(File)
-                  .filter(File.filename == filename)
+                  .filter(
+                        (File.filename == filename) |
+                        (File.blake2_256_digest == hashes["blake2_256"]))
                   .first()
     )
 
     if file_ is not None:
-        return (file_.sha256_digest == hashes["sha256"] and
-                file_.md5_digest == hashes["md5"] and
-                file_.blake2_256_digest == hashes["blake2_256"])
+        return (
+            file_.filename == filename and
+            file_.sha256_digest == hashes["sha256"] and
+            file_.md5_digest == hashes["md5"] and
+            file_.blake2_256_digest == hashes["blake2_256"]
+        )
 
     return None
 
@@ -813,10 +820,12 @@ def file_upload(request):
                 func.normalize_pep426_name(form.name.data))).scalar():
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("The name {!r} is not allowed. "
-                 "See https://pypi.org/help/#project-name "
-                 "for more information.")
-                .format(form.name.data),
+                ("The name {name!r} is not allowed. "
+                 "See {projecthelp} "
+                 "for more information.").format(
+                    name=form.name.data,
+                    projecthelp=request.route_url(
+                        'help', _anchor='project-name')),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
@@ -1073,7 +1082,7 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
-                HTTPBadRequest, "File already exists. "
+                HTTPBadRequest, "The filename or contents already exist. "
                                 "See " +
                                 request.route_url(
                                     'help', _anchor='file-name-reuse'

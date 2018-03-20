@@ -165,6 +165,20 @@ def package_releases(request, package_name, show_hidden=False):
     return [v[0] for v in versions]
 
 
+@pypi_xmlrpc(method="package_data")
+def package_data(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_data can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
+
+
 @pypi_xmlrpc(method="release_data")
 def release_data(request, package_name, version):
     try:
@@ -224,6 +238,20 @@ def release_data(request, package_name, version):
             "last_month": -1,
         },
     }
+
+
+@pypi_xmlrpc(method="package_urls")
+def package_urls(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_urls can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
 
 
 @pypi_xmlrpc(method="release_urls")
