@@ -915,14 +915,22 @@ class TestFileUpload:
             ),
         })
 
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='project-name')
+        ]
+
         assert resp.status_code == 400
         assert resp.status == ("400 The name {!r} is not allowed. "
-                               "See https://pypi.org/help/#project-name "
+                               "See /the/help/url/ "
                                "for more information.").format(name)
 
     @pytest.mark.parametrize("name", ["xml", "XML", "pickle", "PiCKle",
