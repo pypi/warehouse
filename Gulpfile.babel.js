@@ -215,6 +215,7 @@ gulp.task("dist:manifest", () => {
         ".ttf",
         ".otf",
         ".png",
+        ".jpg",
         ".ico",
         ".js",
       ],
@@ -245,6 +246,7 @@ gulp.task("dist:compress:br:generic", () => {
     path.join(distPath, "fonts", "*.eot"),
     path.join(distPath, "fonts", "*.svg"),
 
+    path.join(distPath, "images", "*.jpg"),
     path.join(distPath, "images", "*.png"),
     path.join(distPath, "images", "*.svg"),
     path.join(distPath, "images", "*.ico"),
