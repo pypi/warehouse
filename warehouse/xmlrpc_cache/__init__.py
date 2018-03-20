@@ -12,6 +12,9 @@
 
 import json
 
+from urllib.parse import urlparse
+
+from pyramid.exceptions import ConfigurationError
 from redis import StrictRedis
 from zope.interface import implementer
 
@@ -37,6 +40,9 @@ class RedisXMLRPCCache:
 
 @implementer(IXMLRPCCache)
 class NullXMLRPCCache:
+
+    def __init__(self, *args, **kwargs):
+        pass
 
     def fetch(self, func, args, kwargs, key, tag, expires):
         return func(*args, **kwargs)
@@ -70,11 +76,7 @@ def cached_return_view(view, info):
                 )
             except CacheError:
                 return view(context, request)
-            print(context, request)
-            print(request.rpc_method)
-            print(request.rpc_args)
             response = view(context, request)
-            print(response)
             return response
         return wrapper_view
     return view
@@ -90,25 +92,40 @@ cached_return_view.options = [
 
 
 def includeme(config):
-    xmlrpc_cache_class = config.registry.settings.get(
-        'xmlrpc_cache.class',
-        RedisXMLRPCCache,
-    )
     xmlrpc_cache_url = config.registry.settings.get(
         'xmlrpc_cache.url'
     )
     xmlrpc_cache_name = config.registry.settings.get(
-        'xmlrpc_cache.name',
-        'lru',
+        'xmlrpc_cache.name', 'lru'
     )
     xmlrpc_cache_expires = config.registry.settings.get(
-        'xmlrpc_cache.expires'
+        'xmlrpc_cache.expires', 3600
     )
+
+    xmlrpc_cache_url_scheme = urlparse(xmlrpc_cache_url).scheme
+    if xmlrpc_cache_url_scheme in ('redis', 'rediss'):
+        xmlrpc_cache_class = RedisXMLRPCCache
+    elif xmlrpc_cache_url_scheme in ('null'):
+        xmlrpc_cache_class = NullXMLRPCCache
+    else:
+        raise ConfigurationError(
+            f'Unknown XMLRPCCache scheme: {xmlrpc_cache_url_scheme}'
+        )
+
+    try:
+        xmlrpc_cache_expires = int(xmlrpc_cache_expires)
+    except ValueError:
+        raise ConfigurationError(
+            f'Unable to cast XMLRPCCache expires "{xmlrpc_cache_expires}" '
+            ' to integer'
+        )
+
     xmlrpc_cache = xmlrpc_cache_class(
         xmlrpc_cache_url,
         name=xmlrpc_cache_name,
         expires=xmlrpc_cache_expires,
     )
+
     config.register_service(xmlrpc_cache, iface=IXMLRPCCache)
     config.add_view_deriver(
         cached_return_view, under='rendered_view', over='mapped_view'
