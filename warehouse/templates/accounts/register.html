@@ -57,9 +57,9 @@
         </div>
 
         {# The following is a honeypot field and is hidden from the user #}
-        <div class="form-group confirm-form" aria-hidden="true">
+        <div class="form-group confirm-form">
           <label for="confirm_form" class="form-group__label">Confirm Form</label>
-          {{ form.confirm_form(class="form-group__input") }}
+          {{ form.confirm_form(class="form-group__input", **{'aria-hidden':'true'}) }}
         </div>
 
         <div class="form-group">
