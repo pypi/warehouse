@@ -338,7 +338,7 @@ class TestRegister:
         create_user = pretend.call_recorder(lambda *args, **kwargs: None)
         add_email = pretend.call_recorder(lambda *args, **kwargs: None)
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
-        pyramid_request.POST = {'confirm_email': 'fuzzywuzzy@bears.com'}
+        pyramid_request.POST = {'confirm_form': 'fuzzywuzzy@bears.com'}
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
 

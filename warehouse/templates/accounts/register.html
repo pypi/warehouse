@@ -57,11 +57,9 @@
         </div>
 
         {# The following is a honeypot field and is hidden from the user #}
-        <div class="form-group confirm-email" aria-hidden="true">
-          <label for="confirm_email" class="form-group__label">
-              Confirm Email Address
-          </label>
-          <input id="confirm_email" class="form-group__input" name="confirm_email" placeholder="Confirm your email address" value="" type="email">
+        <div class="form-group confirm-form" aria-hidden="true">
+          <label for="confirm_form" class="form-group__label">Confirm Form</label>
+          {{ form.confirm_form(class="form-group__input") }}
         </div>
 
         <div class="form-group">

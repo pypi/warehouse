@@ -155,8 +155,16 @@ class NewEmailMixin:
             )
 
 
+class HoneypotMixin:
+
+    """ A mixin to catch spammers. This field should always be blank """
+
+    confirm_form = wtforms.StringField()
+
+
 class RegistrationForm(
-        NewUsernameMixin, NewEmailMixin, NewPasswordMixin, forms.Form):
+        NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin,
+        forms.Form):
 
     full_name = wtforms.StringField()
 
