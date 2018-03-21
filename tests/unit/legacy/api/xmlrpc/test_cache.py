@@ -15,9 +15,8 @@ import pytest
 
 from pyramid.exceptions import ConfigurationError
 
-from warehouse import xmlrpc_cache
-from warehouse.xmlrpc_cache import (
-    RedisXMLRPCCache,
+from warehouse.legacy.api.xmlrpc import cache
+from warehouse.legacy.api.xmlrpc.cache import (
     NullXMLRPCCache,
     IXMLRPCCache,
 )
@@ -51,7 +50,7 @@ class TestIncludeMe:
     def test_configuration(self, url, cache_class, monkeypatch):
         client_obj = pretend.stub()
         client_cls = pretend.call_recorder(lambda *a, **kw: client_obj)
-        monkeypatch.setattr(xmlrpc_cache, cache_class, client_cls)
+        monkeypatch.setattr(cache, cache_class, client_cls)
 
         registry = {}
         config = pretend.stub(
@@ -62,19 +61,19 @@ class TestIncludeMe:
                 lambda service, iface=None: None
             ),
             registry=pretend.stub(
-                settings={"xmlrpc_cache.url": url},
+                settings={"warehouse.xmlrpc.cache.url": url},
                 __setitem__=registry.__setitem__,
             ),
         )
 
-        xmlrpc_cache.includeme(config)
+        cache.includeme(config)
 
         assert config.register_service.calls == [
             pretend.call(client_obj, iface=IXMLRPCCache)
         ]
         assert config.add_view_deriver.calls == [
             pretend.call(
-                xmlrpc_cache.cached_return_view,
+                cache.cached_return_view,
                 under='rendered_view', over='mapped_view'
             )
         ]
@@ -89,37 +88,37 @@ class TestIncludeMe:
         )
 
         with pytest.raises(ConfigurationError):
-            xmlrpc_cache.includeme(config)
+            cache.includeme(config)
 
     def test_bad_url_configuration(self, monkeypatch):
         registry = {}
         config = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "xmlrpc_cache.url": "memcached://",
+                    "warehouse.xmlrpc.cache.url": "memcached://",
                 },
                 __setitem__=registry.__setitem__,
             )
         )
 
         with pytest.raises(ConfigurationError):
-            xmlrpc_cache.includeme(config)
+            cache.includeme(config)
 
     def test_bad_expires_configuration(self, monkeypatch):
         client_obj = pretend.stub()
         client_cls = pretend.call_recorder(lambda *a, **kw: client_obj)
-        monkeypatch.setattr(xmlrpc_cache, "NullXMLRPCCache", client_cls)
+        monkeypatch.setattr(cache, "NullXMLRPCCache", client_cls)
 
         registry = {}
         config = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "xmlrpc_cache.url": "null://",
-                    "xmlrpc_cache.expires": "Never",
+                    "warehouse.xmlrpc.cache.url": "null://",
+                    "warehouse.xmlrpc.cache.expires": "Never",
                 },
                 __setitem__=registry.__setitem__,
             ),
         )
 
         with pytest.raises(ConfigurationError):
-            xmlrpc_cache.includeme(config)
+            cache.includeme(config)

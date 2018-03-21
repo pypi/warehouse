@@ -13,7 +13,7 @@
 import json
 import redis
 
-from warehouse.xmlrpc_cache.interfaces import CacheError
+from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError
 
 DEFAULT_EXPIRES = 86400
 

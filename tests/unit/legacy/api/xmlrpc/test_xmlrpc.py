@@ -15,11 +15,11 @@ import datetime
 import pretend
 import pytest
 
-from warehouse.legacy.api import xmlrpc
+from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
 
-from ....common.db.accounts import UserFactory
-from ....common.db.packaging import (
+from .....common.db.accounts import UserFactory
+from .....common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
     JournalEntryFactory,
 )
