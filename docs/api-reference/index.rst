@@ -42,6 +42,10 @@ the following suggestions:
 * Try not to make a lot of requests (thousands) in a short amount of time
   (minutes). Generally PyPI can handle it, but it's preferred to make requests
   in serial over a longer amount of time if possible.
+* If your consumer is actually an organization or service that will be
+  downloading a lot of packages from PyPI, consider `using your own index
+  mirror or cache
+  <https://packaging.python.org/guides/index-mirrors-and-caches/>`_.
 
 API Preference
 ~~~~~~~~~~~~~~
