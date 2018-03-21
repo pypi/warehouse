@@ -639,9 +639,51 @@ class TestIsDuplicateFile:
             ),
         )
 
+        hashes["blake2_256"] = "another blake2 digest"
+
         assert legacy._is_duplicate_file(
             db_request.db, requested_file_name, hashes
         ) is None
+
+    def test_is_duplicate_false_same_blake2(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        requested_file_name = "{}-{}-1.tar.gz".format(project.name,
+                                                      release.version)
+        file_content = io.BytesIO(b"A fake file.")
+        file_value = file_content.getvalue()
+
+        hashes = {
+            "sha256": hashlib.sha256(file_value).hexdigest(),
+            "md5": hashlib.md5(file_value).hexdigest(),
+            "blake2_256": hashlib.blake2b(
+                file_value, digest_size=256 // 8
+            ).hexdigest()
+        }
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashes["md5"],
+                sha256_digest=hashes["sha256"],
+                blake2_256_digest=hashes["blake2_256"],
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+
+        assert legacy._is_duplicate_file(
+            db_request.db, requested_file_name, hashes
+        ) is False
 
     def test_is_duplicate_false(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
@@ -1792,7 +1834,69 @@ class TestFileUpload:
         ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File already exists. "
+            "400 The filename or contents already exist. "
+            "See /the/help/url/"
+        )
+
+    def test_upload_fails_with_diff_filename_same_blake2(self,
+                                                         pyramid_config,
+                                                         db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+        file_content = io.BytesIO(b"A fake file.")
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": project.name,
+            "version": release.version,
+            "filetype": "sdist",
+            "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+            "content": pretend.stub(
+                filename="{}-fake.tar.gz".format(project.name),
+                file=file_content,
+                type="application/tar",
+            ),
+        })
+
+        db_request.db.add(
+            File(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
+                sha256_digest=hashlib.sha256(
+                    file_content.getvalue()
+                ).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    file_content.getvalue(),
+                    digest_size=256 // 8
+                ).hexdigest(),
+                path="source/{name[0]}/{name}/{filename}".format(
+                    name=project.name,
+                    filename=filename,
+                ),
+            ),
+        )
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.route_url.calls == [
+            pretend.call('help', _anchor='file-name-reuse')
+        ]
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 The filename or contents already exist. "
             "See /the/help/url/"
         )
 
