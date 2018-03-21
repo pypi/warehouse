@@ -16,6 +16,7 @@ import functools
 import xmlrpc.server
 
 from elasticsearch_dsl import Q
+from packaging.utils import canonicalize_name
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
 from sqlalchemy import func, orm, select
@@ -40,6 +41,7 @@ pypi_xmlrpc_cache_by_project = functools.partial(
     xmlrpc_cache_expires=3600,
     xmlrpc_cache_tag='project/%s',
     xmlrpc_cache_arg_index=0,
+    xmlrpc_cache_tag_processor=canonicalize_name,
 )
 
 

@@ -417,7 +417,7 @@ class TestDeriver:
         request = pretend.stub(
             find_service=_find_service,
             rpc_method='rpc_method',
-            rpc_args=(0, 1)
+            rpc_args=('warehouse', '1.0.0')
         )
         response = {}
 
