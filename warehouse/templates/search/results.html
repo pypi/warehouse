@@ -133,9 +133,21 @@
         <p>Enter a search query above, or select a filter from the list of classifiers on the left.</p>
         <p>You can combine searches and classifier filters. Examples:</p>
         <ul class="no-bottom-margin">
-          <li><a href="/search/?q=&o=&c=Programming+Language+%3A%3A+Python+%3A%3A+3">New Python 3 project releases</a></li>
-          <li><a href="/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Extension&c=Development+Status+%3A%3A+5+-+Production%2FStable">Sphinx extensions that are stable/production status</a></li>
-          <li><a href="/search/?q=graphics&o=&c=License+%3A%3A+OSI+Approved">Graphics projects under OSI-approved licenses</a></li>
+          <li>
+            <a href="{{ request.route_path('search', _query=[('c', 'Programming Language :: Python :: 3')]) }}">
+              New Python 3 project releases
+            </a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('search', _query=[('c', 'Framework :: Sphinx :: Extension'), ('c', 'Development Status :: 5 - Production/Stable')]) }}">
+              Sphinx extensions that are stable/production status
+            </a>
+          </li>
+          <li>
+            <a href="{{ request.route_path('search', _query=[('q', 'graphics'), ('c', 'License :: OSI Approved')]) }}">
+              Graphics projects under OSI-approved licenses
+            </a>
+          </li>
         </ul>
       </div>
       {% endif %}
