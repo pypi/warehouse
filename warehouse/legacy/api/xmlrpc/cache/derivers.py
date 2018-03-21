@@ -12,12 +12,7 @@
 
 import json
 
-from urllib.parse import urlparse
-
-from pyramid.exceptions import ConfigurationError
-
 from warehouse.legacy.api.xmlrpc.cache import interfaces
-from warehouse.legacy.api.xmlrpc.cache import services
 
 
 def cached_return_view(view, info):

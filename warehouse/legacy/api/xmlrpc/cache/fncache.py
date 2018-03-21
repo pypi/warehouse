@@ -74,7 +74,7 @@ class RedisLru(object):
             return value
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
             self.metric_reporter.increment(f'{self.name}.cache.error')
-            return None
+            return value
 
     def purge(self, tag):
         try:
@@ -89,11 +89,7 @@ class RedisLru(object):
             raise CacheError()
 
     def fetch(self, func, args, kwargs, key, tag, expires):
-        try:
-            return self.get(func.__name__, key, tag) or \
-                self.add(
-                    func.__name__, key, func(*args, **kwargs), tag, expires
-            )
-        except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
-            self.metric_reporter.increment(f'{self.name}.cache.error')
-            raise CacheError()
+        return self.get(func.__name__, key, tag) or \
+            self.add(
+                func.__name__, key, func(*args, **kwargs), tag, expires
+        )
