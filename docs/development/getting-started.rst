@@ -151,10 +151,6 @@ In a second terminal, separate from the ``make serve`` command above, run:
 If you get an error about xz, you may need to install the ``xz`` utility. This
 is highly likely on Mac OS X and Windows.
 
-.. note:: reCaptcha is featured in authentication and registration pages. To
-          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
-          through to ``serve`` and ``debug`` targets.
-
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

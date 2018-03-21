@@ -16,8 +16,6 @@
 
 {% block title %}Register{% endblock %}
 
-{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
-
 {% block content %}
   <section class="horizontal-section">
     <div class="site-container">
@@ -112,10 +110,6 @@
           </ul>
         </div>
 
-        <div class="form-group">
-          {{ recaptcha_html(request, form) }}
-        </div>
-
         <input type="submit" value="Create Account" class="button button--primary" data-target="password-match.submit">
       </form>
     </div>
@@ -123,7 +117,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  {{ recaptcha_src(request) }}
   <script async
   src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
 </script>
