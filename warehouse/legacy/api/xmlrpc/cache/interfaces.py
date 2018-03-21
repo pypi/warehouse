@@ -40,7 +40,7 @@ class IXMLRPCCache(Interface):
         from the cache.
         """
 
-    def purge_tags(self, tag):
+    def purge_tags(self, tags):
         """
         Issues a purge, clearing all cached objects associated with each tag
         in the iterable tags.
