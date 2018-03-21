@@ -1,4 +1,4 @@
 release: bin/release
-web: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-cabotage.conf warehouse.wsgi:application
+web: bin/start-web-cabotage twisted web -n -p unix:/var/run/cabotage/cabotage.sock --wsgi warehouse.wsgi.application
 web-uploads: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-uploads-cabotage.conf warehouse.wsgi:application
 worker: bin/start-worker celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
