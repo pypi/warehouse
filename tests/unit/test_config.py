@@ -347,7 +347,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".raven"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
-            pretend.call(".recaptcha"),
             pretend.call(".http"),
         ] + [
             pretend.call(x) for x in [

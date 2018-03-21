@@ -333,6 +333,23 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
+    def test_register_honeypot(self, pyramid_request, monkeypatch):
+        pyramid_request.method = "POST"
+        create_user = pretend.call_recorder(lambda *args, **kwargs: None)
+        add_email = pretend.call_recorder(lambda *args, **kwargs: None)
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.POST = {'confirm_form': 'fuzzywuzzy@bears.com'}
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+
+        result = views.register(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert create_user.calls == []
+        assert add_email.calls == []
+        assert send_email.calls == []
+
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
