@@ -98,25 +98,3 @@ class RedisLru(object):
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
             self.metric_reporter.increment(f'{self.name}.cache.error')
             raise CacheError()
-
-    def decorator(self, tag=None, expires=86400, arg_index=None,
-                  kwarg_name=None, slice_obj=slice(None)):
-        if arg_index is not None and kwarg_name is not None:
-            raise ValueError('Must choose one of arg_index or kwarg_name')
-
-        def outter(func):
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                try:
-                    items = args + tuple(sorted(kwargs.items()))
-                    key = json.dumps(items[slice_obj])
-                    _tag = None
-                    if arg_index is not None:
-                        _tag = tag % (args[arg_index])
-                    if kwarg_name is not None:
-                        _tag = tag % (kwargs[kwarg_name])
-                    return self.fetch(func, args, kwargs, key, _tag)
-                except CacheError:
-                    return func(*args, **kwargs)
-            return wrapper
-        return outter
