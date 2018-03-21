@@ -229,6 +229,10 @@ def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path('manage.projects'))
 
+    if request.method == "POST" and request.POST.get('confirm_email'):
+        # Someone has filled out the honeypot
+        return HTTPSeeOther(request.route_path("index"))
+
     if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
             ("New User Registration Temporarily Disabled "
