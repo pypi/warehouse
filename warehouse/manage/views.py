@@ -562,8 +562,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
             owner_emails = [owner.user.email for owner in owners
                             if owner.user.email]
-            if request.user.email in owner_emails:
-                owner_emails.remove(request.user.email)
 
             if owner_emails:
                 send_collaborator_added_email(
@@ -697,8 +695,6 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     )
                     owner_emails = [owner.user.email for owner in owners
                                     if owner.user.email]
-                    if request.user.email in owner_emails:
-                        owner_emails.remove(request.user.email)
 
                     role.role_name = form.role_name.data
                     send_user_role_changed_email(request, role)
@@ -767,8 +763,6 @@ def delete_project_role(project, request):
             )
             owner_emails = [owner.user.email for owner in owners
                             if owner.user.email]
-            if request.user.email in owner_emails:
-                owner_emails.remove(request.user.email)
 
             send_removed_from_role_email(request, role)
             if owner_emails:
