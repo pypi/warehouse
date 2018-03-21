@@ -35,10 +35,7 @@ pypi_xmlrpc = functools.partial(
 )
 
 pypi_xmlrpc_cache_by_project = functools.partial(
-    xmlrpc_method,
-    endpoint="pypi",
-    require_csrf=False,
-    require_methods=["POST"],
+    pypi_xmlrpc,
     xmlrpc_cache=True,
     xmlrpc_cache_expires=3600,
     xmlrpc_cache_tag='project/%s',

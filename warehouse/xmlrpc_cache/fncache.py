@@ -13,8 +13,6 @@
 import json
 import redis
 
-from functools import wraps
-
 from warehouse.xmlrpc_cache.interfaces import CacheError
 
 DEFAULT_EXPIRES = 86400

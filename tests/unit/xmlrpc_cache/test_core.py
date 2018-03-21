@@ -79,15 +79,21 @@ class TestIncludeMe:
             )
         ]
 
+    def test_no_url_configuration(self, monkeypatch):
+        registry = {}
+        config = pretend.stub(
+            registry=pretend.stub(
+                settings={},
+                __setitem__=registry.__setitem__,
+            )
+        )
+
+        with pytest.raises(ConfigurationError):
+            xmlrpc_cache.includeme(config)
+
     def test_bad_url_configuration(self, monkeypatch):
         registry = {}
         config = pretend.stub(
-            add_view_deriver=pretend.call_recorder(
-                lambda deriver, over=None, under=None: None
-            ),
-            register_service=pretend.call_recorder(
-                lambda service, iface=None: None
-            ),
             registry=pretend.stub(
                 settings={
                     "xmlrpc_cache.url": "memcached://",
@@ -96,7 +102,7 @@ class TestIncludeMe:
             )
         )
 
-        with pytest.raises(ConfigurationError) as excinfo:
+        with pytest.raises(ConfigurationError):
             xmlrpc_cache.includeme(config)
 
     def test_bad_expires_configuration(self, monkeypatch):
@@ -106,12 +112,6 @@ class TestIncludeMe:
 
         registry = {}
         config = pretend.stub(
-            add_view_deriver=pretend.call_recorder(
-                lambda deriver, over=None, under=None: None
-            ),
-            register_service=pretend.call_recorder(
-                lambda service, iface=None: None
-            ),
             registry=pretend.stub(
                 settings={
                     "xmlrpc_cache.url": "null://",
@@ -121,5 +121,5 @@ class TestIncludeMe:
             ),
         )
 
-        with pytest.raises(ConfigurationError) as excinfo:
+        with pytest.raises(ConfigurationError):
             xmlrpc_cache.includeme(config)

@@ -102,6 +102,11 @@ def includeme(config):
         'xmlrpc_cache.expires', 3600
     )
 
+    if xmlrpc_cache_url is None:
+        raise ConfigurationError(
+            'Cannot configure xlmrpc_cache without xmlrpc_cache.url'
+        )
+
     xmlrpc_cache_url_scheme = urlparse(xmlrpc_cache_url).scheme
     if xmlrpc_cache_url_scheme in ('redis', 'rediss'):
         xmlrpc_cache_class = RedisXMLRPCCache
