@@ -26,7 +26,7 @@ def cached_return_view(view, info):
         expires = info.options.get('xmlrpc_cache_expires', 86400)
         arg_index = info.options.get('xmlrpc_cache_arg_index')
         slice_obj = info.options.get(
-            'xmlrpc_cache_arg_index',
+            'xmlrpc_cache_slice_obj',
             slice(None, None)
         )
 

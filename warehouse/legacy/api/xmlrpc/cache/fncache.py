@@ -83,6 +83,7 @@ class RedisLru(object):
             for key in keys:
                 pipeline.delete(key)
             pipeline.execute()
+            self.metric_reporter.increment(f'{self.name}.cache.purge')
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
             self.metric_reporter.increment(f'{self.name}.cache.error')
             raise CacheError()

@@ -10,16 +10,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import redis
 import pretend
 import pytest
 
 from pyramid.exceptions import ConfigurationError
 
+import warehouse.legacy.api.xmlrpc.cache
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
-    NullXMLRPCCache,
     IXMLRPCCache,
+    NullXMLRPCCache,
+    RedisLru,
+    RedisXMLRPCCache,
 )
+
+
+@pytest.fixture
+def fakeredis():
+    import fakeredis
+    _fakeredis = fakeredis.FakeStrictRedis()
+    yield _fakeredis
+    _fakeredis.flushall()
 
 
 class TestXMLRPCCache:
@@ -35,6 +47,73 @@ class TestXMLRPCCache:
             == ((1, 2), {'kwarg0': 3, 'kwarg1': 4})
 
         assert service.purge(None) is None
+
+
+class TestRedisXMLRPCCache:
+
+    def test_redis_cache(self, monkeypatch):
+        strict_redis_obj = pretend.stub()
+        strict_redis_cls = pretend.stub(
+            from_url=pretend.call_recorder(
+                lambda url, db=None: strict_redis_obj
+            ),
+        )
+        monkeypatch.setattr(redis, "StrictRedis", strict_redis_cls)
+
+        redis_lru_obj = pretend.stub(
+            fetch=pretend.call_recorder(
+                lambda func, args, kwargs, key, tag, expires:
+                    func(*args, **kwargs)
+            ),
+            purge=pretend.call_recorder(
+                lambda tag: None
+            )
+        )
+        redis_lru_cls = pretend.call_recorder(
+            lambda redis_conn, **kwargs: redis_lru_obj
+        )
+        monkeypatch.setattr(
+            warehouse.legacy.api.xmlrpc.cache,
+            "RedisLru",
+            redis_lru_cls,
+        )
+
+        service = RedisXMLRPCCache('redis://localhost:6379')
+
+        assert strict_redis_cls.from_url.calls == [
+            pretend.call("redis://localhost:6379", db=0)
+        ]
+        assert redis_lru_cls.calls == [
+            pretend.call(
+                strict_redis_obj,
+                name='lru',
+                expires=None,
+                metric_reporter=None,
+            )
+        ]
+
+        def test_func(arg0, arg1, kwarg0=0, kwarg1=1):
+            return ((arg0, arg1), {'kwarg0': kwarg0, 'kwarg1': kwarg1})
+
+        assert service.fetch(
+            test_func, (1, 2), {'kwarg0': 3, 'kwarg1': 4}, None, None, None) \
+            == ((1, 2), {'kwarg0': 3, 'kwarg1': 4})
+
+        assert service.purge(None) is None
+
+        assert redis_lru_obj.fetch.calls == [
+            pretend.call(
+                test_func,
+                (1, 2),
+                {'kwarg0': 3, 'kwarg1': 4},
+                None,
+                None,
+                None,
+            )
+        ]
+        assert redis_lru_obj.purge.calls == [
+            pretend.call(None)
+        ]
 
 
 class TestIncludeMe:
@@ -122,3 +201,44 @@ class TestIncludeMe:
 
         with pytest.raises(ConfigurationError):
             cache.includeme(config)
+
+
+class TestRedisLru:
+
+    def test_redis_lru(self, fakeredis):
+        redis_lru = RedisLru(fakeredis)
+
+        def test_func(arg0, arg1, kwarg0=0, kwarg1=1):
+            return [[arg0, arg1], {'kwarg0': kwarg0, 'kwarg1': kwarg1}]
+
+        expected = test_func(0, 1, kwarg0=2, kwarg1=3)
+
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        redis_lru.purge('test')
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+
+    def test_redis_custom_metrics(self, fakeredis):
+        metric_reporter = pretend.stub(
+            increment=pretend.call_recorder(lambda *args: None)
+        )
+        redis_lru = RedisLru(fakeredis, metric_reporter=metric_reporter)
+
+        def test_func(arg0, arg1, kwarg0=0, kwarg1=1):
+            return [[arg0, arg1], {'kwarg0': kwarg0, 'kwarg1': kwarg1}]
+
+        expected = test_func(0, 1, kwarg0=2, kwarg1=3)
+
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        redis_lru.purge('test')
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        assert expected == redis_lru.fetch(test_func, [0, 1], {'kwarg0': 2, 'kwarg1': 3}, None, 'test', None)
+        assert metric_reporter.increment.calls == [
+            pretend.call('lru.cache.miss'),
+            pretend.call('lru.cache.hit'),
+            pretend.call('lru.cache.purge'),
+            pretend.call('lru.cache.miss'),
+            pretend.call('lru.cache.hit'),
+        ]
