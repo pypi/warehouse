@@ -16,19 +16,25 @@ Caching
 
 All API requests are cached. Requests to the JSON, RSS or Legacy APIs are
 cached by our CDN provider. You can determine if you've hit the cache based on
-the ``X-Cache`` and ``X-Cache-Hist`` headers in the response.
+the ``X-Cache`` and ``X-Cache-Hits`` headers in the response.
 
-All API requests also provide an ``ETag`` header. If you're making a lot of
-repeated requests, please ensure your API consumer will respect this header to
-determine whether to actually repeat a request or not.
+Requests to the JSON, RSS and Legacy APIs also provide an ``ETag`` header. If
+you're making a lot of repeated requests, please ensure your API consumer will
+respect this header to determine whether to actually repeat a request or not.
+
+The XML-RPC API does not have the ability to indicate cached responses.
 
 Rate Limiting
 ~~~~~~~~~~~~~
 
 Due to the heavy caching and CDN use, there is currently no rate limiting of
-PyPI APIs.
+PyPI APIs at the edge. The XML-RPC API may be rate limited if usage is causing
+degradation of service.
 
-However, if you plan to make a lot of requests to a PyPI API, please adhere to
+In addition, PyPI reserves the right to temporarily or permanently prohibit a
+consumer based on irresponsible activity.
+
+If you plan to make a lot of requests to a PyPI API, please adhere to
 the following suggestions:
 
 * Set your consumer's ``User-Agent`` header to uniquely identify your requests
@@ -42,8 +48,8 @@ API Preference
 For periodically checking for new packages or updates to existing packages,
 please use our RSS feeds.
 
-If at all possible, it is recommended to use the JSON/RSS/Legacy APIs over
-XML-RPC.
+No new integrations should use the XML-RPC APIs as they are planned for
+deprecation. Existing consumers should migrate to JSON/RSS/Legacy APIs.
 
 Available APIs
 --------------
