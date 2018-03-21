@@ -128,81 +128,94 @@
     </div>
 
     <div class="left-layout__main">
-      <form action="{{ request.route_path('search') }}">
-      <section class="split-layout split-layout--table">
-        <div>
-        {% if term %}
-          <p>
-            <strong>{{ page.item_count|format_number }}</strong> projects match "<em>{{ term }}</em>".
-            {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
-              {{ suggestion_link(page.collection.best_guess) }}
-            {% endif %}
-          </p>
-        {% else %}
-        <p>
-          <strong>{{ page.item_count|format_number }}{%if page.item_count == 10000 %}+{% endif %}</strong> projects.
-        </p>
-        {% endif %}
-        </div>
-          <div>
-            <input id="search" type="hidden" name="q" value="{{ term }}">
-            <label for="order">Order by &nbsp;</label>
-            <select class="-js-form-submit-trigger" id="order" name="o">
-              {{ search_option("Relevance", "") }}
-              {{ search_option("Date Last Updated", "-created") }}
-            </select>
-          </div>
-      </section>
-
-      <div class="applied-filters">
-      {% if applied_filters %}
-        {% for filter in applied_filters %}
-        <div class="filter-badge">
-          <input type="hidden" name="c" value="{{ filter }}">
-          <span class="filter-badge__icon">
-            <i class="fa fa-filter" aria-hidden="true"></i>
-            <span class="sr-only">Filter</span>
-          </span>
-          <span class="filter-badge__description">{{ filter }}</span>
-          <a class="filter-badge__remove-button" href="#">
-            <i class="fa fa-close" aria-hidden="true"></i>
-            <span class="sr-only">Close</span>
-          </a>
-        </div>
-        {% endfor %}
-      {% endif %}
-        <span class="applied-filters__add-button">
-          <a class="-js-add-filter button button--small" href="#">Add Filter</a>
-        </span>
+      {% if not term and not applied_filters %}
+      <div class="callout-block no-top-margin">
+        <p>Enter a search query above, or select a filter from the list of classifiers on the left.</p>
+        <p>You can combine searches and classifier filters. Examples:</p>
+        <ul class="no-bottom-margin">
+          <li><a href="/search/?q=&o=&c=Programming+Language+%3A%3A+Python+%3A%3A+3">New Python 3 project releases</a></li>
+          <li><a href="/search/?q=&o=&c=Framework+%3A%3A+Sphinx+%3A%3A+Extension&c=Development+Status+%3A%3A+5+-+Production%2FStable">Sphinx extensions that are stable/production status</a></li>
+          <li><a href="/search/?q=graphics&o=&c=License+%3A%3A+OSI+Approved">Graphics projects under OSI-approved licenses</a></li>
+        </ul>
       </div>
-
-      <section>
-        <div class="package-list">
-        {% for item in page.items %}
-          {{ project_snippet(item) }}
-        {% else %}
-          <div class="callout-block">
+      {% endif %}
+      <form action="{{ request.route_path('search') }}">
+        <section class="split-layout split-layout--table">
+          <div>
+            {% if term or applied_filters %}
             <p>
-              {% if term %}
-                There were no results for '<em>{{ term }}</em>'.
-              {% elif applied_filters %}
-                {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                  There were no results for '<em>{{ filters }}</em>' filter.
-                {% pluralize %}
-                  There were no results for '<em>{{ filters }}</em>' filters.
-                {% endtrans %}
-              {% endif %}
-              {% if page.collection.best_guess %}
-                {{ suggestion_link(page.collection.best_guess) }}
-              {% endif %}
+              <strong>{{ page.item_count|format_number }}{%if page.item_count == 10000 %}+{% endif %}</strong>
+                projects
+                {% if term %}for "<em>{{ term }}</em>"{% endif %}
+                {% if applied_filters %} with the selected classifier{% if applied_filters|length > 1 %}s{% endif %}{% endif %}
+
+                {% if page.collection.best_guess and page.collection.best_guess.freq > page.item_count %}
+                  {{ suggestion_link(page.collection.best_guess) }}
+                {% endif %}
             </p>
+            {% endif %}
           </div>
-        {% endfor %}
+          <div>
+            {% if term or applied_filters %}
+              <input id="search" type="hidden" name="q" value="{{ term }}">
+              <label for="order">Order by &nbsp;</label>
+              <select class="-js-form-submit-trigger" id="order" name="o">
+                {{ search_option("Relevance", "") }}
+                {{ search_option("Date Last Updated", "-created") }}
+              </select>
+            {% endif %}
+          </div>
+        </section>
+
+        <div class="applied-filters">
+        {% if applied_filters %}
+          {% for filter in applied_filters %}
+          <div class="filter-badge">
+            <input type="hidden" name="c" value="{{ filter }}">
+            <span class="filter-badge__icon">
+              <i class="fa fa-filter" aria-hidden="true"></i>
+              <span class="sr-only">Filter</span>
+            </span>
+            <span class="filter-badge__description">{{ filter }}</span>
+            <a class="filter-badge__remove-button" href="#">
+              <i class="fa fa-close" aria-hidden="true"></i>
+              <span class="sr-only">Close</span>
+            </a>
+          </div>
+          {% endfor %}
+        {% endif %}
+          <span class="applied-filters__add-button">
+            <a class="-js-add-filter button button--small" href="#">Add Filter</a>
+          </span>
         </div>
 
-        {{ pagination(page) }}
-      </section>
-
+        {% if term or applied_filters %}
+        <section>
+          <div class="package-list">
+          {% for item in page.items %}
+            {{ project_snippet(item) }}
+          {% else %}
+            <div class="callout-block">
+              <p>
+                {% if term %}
+                  There were no results for '<em>{{ term }}</em>'.
+                {% elif applied_filters %}
+                  {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
+                    There were no results for '<em>{{ filters }}</em>' filter.
+                  {% pluralize %}
+                    There were no results for '<em>{{ filters }}</em>' filters.
+                  {% endtrans %}
+                {% endif %}
+                {% if page.collection.best_guess %}
+                  {{ suggestion_link(page.collection.best_guess) }}
+                {% endif %}
+              </p>
+            </div>
+          {% endfor %}
+          </div>
+          {{ pagination(page) }}
+        </section>
+        {% endif %}
       </form>
     </div>
   </div>
