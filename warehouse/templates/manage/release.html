@@ -48,9 +48,8 @@
               aria-label="{{ file.comment_text|truncate(60, True) }}"
               data-original-label="{{ file.comment_text|truncate(60, True) }}"
             {% endif %}
-          >
-            {{ file.filename }}
-          </a>
+            title="Download file">
+            {{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </td>
         <td class="table__type">{{ file.packagetype|format_package_type }}</td>
