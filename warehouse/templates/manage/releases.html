@@ -31,7 +31,7 @@
       {% for release in project.releases %}
         <tr>
           <td class="table__version">
-            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}">
+            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="Manage version">
               {{ release.version }}
             </a>
           </td>
@@ -55,7 +55,7 @@
               <div class="dropdown__content">
                 <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
-                  Edit
+                  Manage
                 </a>
                 <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-eye" aria-hidden="true"></i>
