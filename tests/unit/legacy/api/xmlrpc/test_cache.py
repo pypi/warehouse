@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import celery
 import redis
 import pretend
 import pytest
@@ -17,15 +18,18 @@ import pytest
 from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
+from warehouse.legacy.api.xmlrpc.cache import services
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
     cached_return_view,
-    IXMLRPCCache,
     NullXMLRPCCache,
     RedisLru,
     RedisXMLRPCCache,
 )
-from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError
+from warehouse.legacy.api.xmlrpc.cache.interfaces import (
+    CacheError,
+    IXMLRPCCache,
+)
 
 
 @pytest.fixture
@@ -43,7 +47,8 @@ def func_test(arg0, arg1, kwarg0=0, kwarg1=1):
 class TestXMLRPCCache:
 
     def test_null_cache(self):
-        service = NullXMLRPCCache()
+        purger = pretend.call_recorder(lambda tags: None)
+        service = NullXMLRPCCache('null://', purger)
 
         assert service.fetch(
             func_test, (1, 2), {'kwarg0': 3, 'kwarg1': 4}, None, None, None) \
@@ -81,7 +86,9 @@ class TestRedisXMLRPCCache:
             redis_lru_cls,
         )
 
-        service = RedisXMLRPCCache('redis://localhost:6379')
+        purger = pretend.call_recorder(lambda tags: None)
+
+        service = RedisXMLRPCCache('redis://localhost:6379', purger)
 
         assert strict_redis_cls.from_url.calls == [
             pretend.call("redis://localhost:6379", db=0)
@@ -128,7 +135,9 @@ class TestIncludeMe:
     )
     def test_configuration(self, url, cache_class, monkeypatch):
         client_obj = pretend.stub()
-        client_cls = pretend.call_recorder(lambda *a, **kw: client_obj)
+        client_cls = pretend.stub(
+            create_service=pretend.call_recorder(lambda *a, **kw: client_obj)
+        )
         monkeypatch.setattr(cache, cache_class, client_cls)
 
         registry = {}
@@ -136,7 +145,7 @@ class TestIncludeMe:
             add_view_deriver=pretend.call_recorder(
                 lambda deriver, over=None, under=None: None
             ),
-            register_service=pretend.call_recorder(
+            register_service_factory=pretend.call_recorder(
                 lambda service, iface=None: None
             ),
             registry=pretend.stub(
@@ -147,9 +156,6 @@ class TestIncludeMe:
 
         cache.includeme(config)
 
-        assert config.register_service.calls == [
-            pretend.call(client_obj, iface=IXMLRPCCache)
-        ]
         assert config.add_view_deriver.calls == [
             pretend.call(
                 cache.cached_return_view,
@@ -201,6 +207,52 @@ class TestIncludeMe:
 
         with pytest.raises(ConfigurationError):
             cache.includeme(config)
+
+    def test_create_null_service(self):
+        purge_tags = pretend.stub(
+            delay=pretend.call_recorder(lambda tag: None)
+        )
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.xmlrpc.cache.url": "null://",
+                },
+            ),
+            task=lambda f: purge_tags,
+        )
+        service = NullXMLRPCCache.create_service(None, request)
+        service.purge_tags(['wu', 'tang', '4', 'evah'])
+        assert isinstance(service, NullXMLRPCCache)
+        assert service._purger is purge_tags.delay
+        assert purge_tags.delay.calls == [
+            pretend.call('wu'),
+            pretend.call('tang'),
+            pretend.call('4'),
+            pretend.call('evah'),
+        ]
+
+    def test_create_redis_service(self):
+        purge_tags = pretend.stub(
+            delay=pretend.call_recorder(lambda tag: None)
+        )
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "warehouse.xmlrpc.cache.url": "redis://",
+                },
+            ),
+            task=lambda f: purge_tags,
+        )
+        service = RedisXMLRPCCache.create_service(None, request)
+        service.purge_tags(['wu', 'tang', '4', 'evah'])
+        assert isinstance(service, RedisXMLRPCCache)
+        assert service._purger is purge_tags.delay
+        assert purge_tags.delay.calls == [
+            pretend.call('wu'),
+            pretend.call('tang'),
+            pretend.call('4'),
+            pretend.call('evah'),
+        ]
 
 
 class TestRedisLru:
@@ -311,7 +363,8 @@ class TestDeriver:
     )
     def test_deriver(self, service_available, xmlrpc_cache, fakeredis):
         context = pretend.stub()
-        service = RedisXMLRPCCache('redis://127.0.0.2:6379/0')
+        purger = pretend.call_recorder(lambda tags: None)
+        service = RedisXMLRPCCache('redis://127.0.0.2:6379/0', purger)
         service.redis_conn = fakeredis
         service.redis_lru.conn = fakeredis
         if service_available:
@@ -420,3 +473,138 @@ class TestDeriver:
 
         assert derived_view(context, request) is response
         assert view.calls == [pretend.call(context, request)]
+
+
+class TestPurgeTask:
+
+    def test_purges_successfully(self, monkeypatch):
+        task = pretend.stub()
+        service = pretend.stub(purge=pretend.call_recorder(lambda k: None))
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: service),
+        )
+
+        services.purge_tag(task, request, "foo")
+
+        assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
+        assert service.purge.calls == [pretend.call("foo")]
+
+    @pytest.mark.parametrize(
+        "exception_type",
+        [
+            CacheError
+        ],
+    )
+    def test_purges_fails(self, monkeypatch, exception_type):
+        exc = exception_type()
+
+        class Cache:
+            @staticmethod
+            @pretend.call_recorder
+            def purge(key):
+                raise exc
+
+        class Task:
+            @staticmethod
+            @pretend.call_recorder
+            def retry(exc):
+                raise celery.exceptions.Retry
+
+        task = Task()
+        service = Cache()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda iface: service),
+        )
+
+        with pytest.raises(celery.exceptions.Retry):
+            services.purge_tag(task, request, "foo")
+
+        assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
+        assert service.purge.calls == [pretend.call("foo")]
+        assert task.retry.calls == [pretend.call(exc=exc)]
+
+    def test_store_purge_keys(self):
+        class Type1:
+            pass
+
+        class Type2:
+            pass
+
+        class Type3:
+            pass
+
+        class Type4:
+            pass
+
+        config = pretend.stub(
+            registry={
+                "cache_keys": {
+                    Type1: lambda o: cache.CacheKeys(
+                        cache=[],
+                        purge=["type_1"],
+                    ),
+                    Type2: lambda o: cache.CacheKeys(
+                        cache=[],
+                        purge=["type_2", "foo"],
+                    ),
+                    Type3: lambda o: cache.CacheKeys(
+                        cache=[],
+                        purge=["type_3", "foo"],
+                    ),
+                },
+            },
+        )
+        session = pretend.stub(
+            info={},
+            new={Type1()},
+            dirty={Type2()},
+            deleted={Type3(), Type4()},
+        )
+
+        cache.store_purge_keys(config, session, pretend.stub())
+
+        assert session.info["warehouse.legacy.api.xmlrpc.cache.purges"] == {
+            "type_1", "type_2", "type_3", "foo",
+        }
+
+    def test_execute_purge(self, app_config):
+        service = pretend.stub(purge_tags=pretend.call_recorder(
+            lambda purges: None)
+        )
+        factory = pretend.call_recorder(lambda ctx, config: service)
+        app_config.register_service_factory(factory, IXMLRPCCache)
+        app_config.commit()
+        session = pretend.stub(
+            info={
+                "warehouse.legacy.api.xmlrpc.cache.purges": {
+                    "type_1", "type_2", "foobar"
+                },
+            },
+        )
+
+        cache.execute_purge(app_config, session)
+
+        assert factory.calls == [pretend.call(None, app_config)]
+        assert service.purge_tags.calls == [
+            pretend.call({"type_1", "type_2", "foobar"})
+        ]
+        assert "warehouse.legacy.api.xmlrpc.cache.purges" not in session.info
+
+    def test_execute_unsuccessful_purge(self):
+        @pretend.call_recorder
+        def find_service_factory(interface):
+            raise ValueError
+
+        config = pretend.stub(find_service_factory=find_service_factory)
+        session = pretend.stub(
+            info={
+                "warehouse.legacy.api.xmlrpc.cache.purges": {
+                    "type_1", "type_2", "foobar"
+                },
+            },
+        )
+
+        cache.execute_purge(config, session)
+
+        assert find_service_factory.calls == [pretend.call(IXMLRPCCache)]
+        assert "warehouse.legacy.api.xmlrpc.cache.purges" not in session.info

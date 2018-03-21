@@ -10,29 +10,68 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+
 from urllib.parse import urlparse
 
 from pyramid.exceptions import ConfigurationError
 
-from .fncache import RedisLru
-from .derivers import cached_return_view
-from .services import (
+from warehouse import db
+from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
+from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
+from warehouse.legacy.api.xmlrpc.cache.services import (
     NullXMLRPCCache,
     RedisXMLRPCCache,
 )
-from .interfaces import IXMLRPCCache
+from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
 
 __all__ = [
     "RedisLru",
 ]
 
 
+CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+
+
+@db.listens_for(db.Session, "after_flush")
+def store_purge_keys(config, session, flush_context):
+    cache_keys = config.registry["cache_keys"]
+
+    # We'll (ab)use the session.info dictionary to store a list of pending
+    # purges to the session.
+    purges = session.info.setdefault(
+        "warehouse.legacy.api.xmlrpc.cache.purges", set()
+    )
+
+    # Go through each new, changed, and deleted object and attempt to store
+    # a cache key that we'll want to purge when the session has been committed.
+    for obj in (session.new | session.dirty | session.deleted):
+        try:
+            key_maker = cache_keys[obj.__class__]
+        except KeyError:
+            continue
+
+        purges.update(key_maker(obj).purge)
+
+
+@db.listens_for(db.Session, "after_commit")
+def execute_purge(config, session):
+    purges = session.info.pop(
+        "warehouse.legacy.api.xmlrpc.cache.purges", set()
+    )
+
+    try:
+        xmlrpc_cache_factory = config.find_service_factory(IXMLRPCCache)
+    except ValueError:
+        return
+
+    xmlrpc_cache = xmlrpc_cache_factory(None, config)
+    xmlrpc_cache.purge_tags(purges)
+
+
 def includeme(config):
     xmlrpc_cache_url = config.registry.settings.get(
         'warehouse.xmlrpc.cache.url'
-    )
-    xmlrpc_cache_name = config.registry.settings.get(
-        'warehouse.xmlrpc.cache.name', 'xmlrpc'
     )
     xmlrpc_cache_expires = config.registry.settings.get(
         'warehouse.xmlrpc.cache.expires', 25 * 60 * 60
@@ -61,13 +100,10 @@ def includeme(config):
             ' to integer'
         )
 
-    xmlrpc_cache = xmlrpc_cache_class(
-        xmlrpc_cache_url,
-        name=xmlrpc_cache_name,
-        expires=xmlrpc_cache_expires,
+    config.register_service_factory(
+        xmlrpc_cache_class.create_service,
+        iface=IXMLRPCCache
     )
-
-    config.register_service(xmlrpc_cache, iface=IXMLRPCCache)
     config.add_view_deriver(
         cached_return_view, under='rendered_view', over='mapped_view'
     )

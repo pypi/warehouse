@@ -19,6 +19,12 @@ class CacheError(Exception):
 
 class IXMLRPCCache(Interface):
 
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created for.
+        """
+
     def fetch(self, func, args, kwargs, key, tag, expire):
         """
         Gets cached function return value from the cache or calls func with the
@@ -30,6 +36,12 @@ class IXMLRPCCache(Interface):
 
     def purge(self, tag):
         """
-        Issues a purge, clearing all cached objects associated wiht the tag
+        Issues a purge, clearing all cached objects associated with the tag
         from the cache.
+        """
+
+    def purge_tags(self, tag):
+        """
+        Issues a purge, clearing all cached objects associated with each tag
+        in the iterable tags.
         """
