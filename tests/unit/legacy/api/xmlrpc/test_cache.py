@@ -19,6 +19,7 @@ from pyramid.exceptions import ConfigurationError
 import warehouse.legacy.api.xmlrpc.cache
 from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import (
+    cached_return_view,
     IXMLRPCCache,
     NullXMLRPCCache,
     RedisLru,
@@ -295,3 +296,127 @@ class TestRedisLru:
             pretend.call('lru.cache.error'),  # Failed add
             pretend.call('lru.cache.error'),  # Failed purge
         ]
+
+
+class TestDeriver:
+
+    @pytest.mark.parametrize(
+        ("service_available", "xmlrpc_cache"),
+        [
+            (True, True),
+            (True, False),
+            (False, True),
+            (False, False),
+        ]
+    )
+    def test_deriver(self, service_available, xmlrpc_cache, fakeredis):
+        context = pretend.stub()
+        service = RedisXMLRPCCache('redis://127.0.0.2:6379/0')
+        service.redis_conn = fakeredis
+        service.redis_lru.conn = fakeredis
+        if service_available:
+            _find_service = pretend.call_recorder(
+                lambda *args, **kwargs: service
+            )
+        else:
+            _find_service = pretend.raiser(ValueError)
+        request = pretend.stub(
+            find_service=_find_service,
+            rpc_method='rpc_method',
+            rpc_args=(0, 1)
+        )
+        response = {}
+
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
+        info = pretend.stub(options={}, exception_only=False)
+        info.options["xmlrpc_cache"] = xmlrpc_cache
+        derived_view = cached_return_view(view, info)
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    @pytest.mark.parametrize(
+        ("service_available", "xmlrpc_cache"),
+        [
+            (True, True),
+            (True, False),
+            (False, True),
+            (False, False),
+        ]
+    )
+    def test_custom_tag(self, service_available, xmlrpc_cache):
+        context = pretend.stub()
+        service = pretend.stub(
+            fetch=pretend.call_recorder(
+                lambda func, args, kwargs, key, tag, expires:
+                func(*args, **kwargs)
+            )
+        )
+        if service_available:
+            _find_service = pretend.call_recorder(
+                lambda *args, **kwargs: service
+            )
+        else:
+            _find_service = pretend.raiser(ValueError)
+        request = pretend.stub(
+            find_service=_find_service,
+            rpc_method='rpc_method',
+            rpc_args=(0, 1)
+        )
+        response = {}
+
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
+        info = pretend.stub(options={}, exception_only=False)
+        info.options["xmlrpc_cache"] = xmlrpc_cache
+        info.options["xmlrpc_cache_tag"] = 'arg1/%s'
+        info.options["xmlrpc_cache_arg_index"] = 1
+        derived_view = cached_return_view(view, info)
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]
+
+    @pytest.mark.parametrize(
+        ("service_available", "xmlrpc_cache"),
+        [
+            (True, True),
+            (True, False),
+            (False, True),
+            (False, False),
+        ]
+    )
+    def test_down_redis(self, service_available, xmlrpc_cache):
+        context = pretend.stub()
+        service = pretend.stub(
+            fetch=pretend.raiser(CacheError),
+            purge=pretend.raiser(CacheError),
+        )
+        if service_available:
+            _find_service = pretend.call_recorder(
+                lambda *args, **kwargs: service
+            )
+        else:
+            _find_service = pretend.raiser(ValueError)
+        request = pretend.stub(
+            find_service=_find_service,
+            rpc_method='rpc_method',
+            rpc_args=(0, 1)
+        )
+        response = pretend.stub()
+
+        @pretend.call_recorder
+        def view(context, request):
+            return response
+
+        info = pretend.stub(options={}, exception_only=False)
+        info.options["xmlrpc_cache"] = xmlrpc_cache
+        derived_view = cached_return_view(view, info)  # miss
+        derived_view = cached_return_view(view, info)  # hit
+
+        assert derived_view(context, request) is response
+        assert view.calls == [pretend.call(context, request)]

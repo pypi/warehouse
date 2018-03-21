@@ -40,8 +40,6 @@ def cached_return_view(view, info):
                 )
             except interfaces.CacheError:
                 return view(context, request)
-            response = view(context, request)
-            return response
         return wrapper_view
     return view
 
