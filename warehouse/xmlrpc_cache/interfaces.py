@@ -19,12 +19,13 @@ class CacheError(Exception):
 
 class IXMLRPCCache(Interface):
 
-    def fetch(self, func, args, kwargs, key, tag):
+    def fetch(self, func, args, kwargs, key, tag, expire):
         """
         Gets cached function return value from the cache or calls func with the
         supplied args and kwargs, stashing it in the cache. Cache is drawn from
         by the specified func.__name__ and key. A tag is set on the cached
-        response which can be used for purging.
+        response which can be used for purging. Set expire to override default
+        expiration.
         """
 
     def purge(self, tag):
