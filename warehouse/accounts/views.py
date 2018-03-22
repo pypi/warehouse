@@ -229,6 +229,10 @@ def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path('manage.projects'))
 
+    # Check if the honeypot field has been filled
+    if request.method == "POST" and request.POST.get('confirm_form'):
+        return HTTPSeeOther(request.route_path("index"))
+
     if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
         request.session.flash(
             ("New User Registration Temporarily Disabled "
@@ -238,20 +242,8 @@ def register(request, _form_class=RegistrationForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
-    recaptcha_service = request.find_service(name="recaptcha")
-    request.find_service(name="csp").merge(recaptcha_service.csp_policy)
 
-    # the form contains an auto-generated field from recaptcha with
-    # hyphens in it. make it play nice with wtforms.
-    post_body = {
-        key.replace("-", "_"): value
-        for key, value in request.POST.items()
-    }
-
-    form = _form_class(
-        data=post_body, user_service=user_service,
-        recaptcha_service=recaptcha_service
-    )
+    form = _form_class(data=request.POST, user_service=user_service,)
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(

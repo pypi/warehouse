@@ -120,6 +120,7 @@ def app_config(database):
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+            "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         },
     )
 

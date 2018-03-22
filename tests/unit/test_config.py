@@ -321,6 +321,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
             pretend.call("pyramid_services"),
+            pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
             pretend.call(".domain"),
@@ -346,7 +347,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".raven"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
-            pretend.call(".recaptcha"),
             pretend.call(".http"),
         ] + [
             pretend.call(x) for x in [

@@ -16,7 +16,6 @@ import wtforms
 
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
-from warehouse import recaptcha
 
 
 class TestLoginForm:
@@ -127,14 +126,9 @@ class TestRegistrationForm:
 
     def test_create(self):
         user_service = pretend.stub()
-        recaptcha_service = pretend.stub(enabled=True)
 
-        form = forms.RegistrationForm(
-            data={}, user_service=user_service,
-            recaptcha_service=recaptcha_service
-        )
+        form = forms.RegistrationForm(data={}, user_service=user_service)
         assert form.user_service is user_service
-        assert form.recaptcha_service is recaptcha_service
 
     def test_password_confirm_required_error(self):
         form = forms.RegistrationForm(
@@ -144,7 +138,6 @@ class TestRegistrationForm:
                     lambda _: pretend.stub()
                 ),
             ),
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -162,7 +155,6 @@ class TestRegistrationForm:
                 "password_confirm": "mismatch",
             },
             user_service=user_service,
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -183,7 +175,6 @@ class TestRegistrationForm:
                 "password_confirm": "MyStr0ng!shPassword",
             },
             user_service=user_service,
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         form.validate()
@@ -198,7 +189,6 @@ class TestRegistrationForm:
                     lambda _: pretend.stub()
                 ),
             ),
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -210,7 +200,6 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
             ),
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -228,7 +217,6 @@ class TestRegistrationForm:
                     lambda _: pretend.stub()
                 ),
             ),
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -244,7 +232,6 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None),
             ),
-            recaptcha_service=pretend.stub(enabled=True),
         )
 
         assert not form.validate()
@@ -254,55 +241,11 @@ class TestRegistrationForm:
             "this domain. Please use a different email."
         )
 
-    def test_recaptcha_disabled(self):
-        form = forms.RegistrationForm(
-            data={"g_recpatcha_response": ""},
-            user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
-                enabled=False,
-                verify_response=pretend.call_recorder(lambda _: None),
-            ),
-        )
-        assert not form.validate()
-        # there shouldn't be any errors for the recaptcha field if it's
-        # disabled
-        assert not form.g_recaptcha_response.errors
-
-    def test_recaptcha_required_error(self):
-        form = forms.RegistrationForm(
-            data={"g_recaptcha_response": ""},
-            user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
-                enabled=True,
-                verify_response=pretend.call_recorder(lambda _: None),
-            ),
-        )
-        assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() \
-            == "Recaptcha error."
-
-    def test_recaptcha_error(self):
-        form = forms.RegistrationForm(
-            data={"g_recaptcha_response": "asd"},
-            user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
-                verify_response=pretend.raiser(recaptcha.RecaptchaError),
-                enabled=True,
-            ),
-        )
-        assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() \
-            == "Recaptcha error."
-
     def test_username_exists(self):
         form = forms.RegistrationForm(
             data={"username": "foo"},
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda name: 1),
-            ),
-            recaptcha_service=pretend.stub(
-                enabled=False,
-                verify_response=pretend.call_recorder(lambda _: None),
             ),
         )
         assert not form.validate()
@@ -318,10 +261,6 @@ class TestRegistrationForm:
             data={"username": username},
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None),
-            ),
-            recaptcha_service=pretend.stub(
-                enabled=False,
-                verify_response=pretend.call_recorder(lambda _: None),
             ),
         )
         assert not form.validate()
@@ -344,10 +283,6 @@ class TestRegistrationForm:
             form = forms.RegistrationForm(
                 data={"new_password": pwd, "password_confirm": pwd},
                 user_service=pretend.stub(),
-                recaptcha_service=pretend.stub(
-                    enabled=False,
-                    verify_response=pretend.call_recorder(lambda _: None),
-                ),
             )
             form.validate()
             assert (len(form.new_password.errors) == 0) == valid
