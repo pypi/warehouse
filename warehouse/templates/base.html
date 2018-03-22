@@ -18,14 +18,14 @@
 </time>
 {%- endmacro %}
 
-{% macro password_strength_gauge() -%}
+{% macro password_strength_gauge(data_target=None) -%}
 <p class="form-group__help-text">
   Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
 </p>
 <p class="form-group__help-text">
   <strong>Password strength:</strong>
   <span class="password-strength">
-    <span class="password-strength__gauge">
+    <span class="password-strength__gauge"{% if data_target %} data-target="{{ data_target }}"{% endif %}>
       <span class="sr-only">Password field is empty</span>
     </span>
   </span>
