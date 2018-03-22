@@ -11,8 +11,9 @@
 # limitations under the License.
 
 from celery.schedules import crontab
-from warehouse import db
+from sqlalchemy.orm.base import NO_VALUE
 
+from warehouse import db
 from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.packaging.interfaces import IFileStorage
@@ -22,12 +23,14 @@ from warehouse.packaging.tasks import compute_trending
 
 @db.listens_for(User.name, 'set')
 def user_name_receive_set(config, target, value, oldvalue, initiator):
-    receive_set(User.name, config, target)
+    if oldvalue is not NO_VALUE:
+        receive_set(User.name, config, target)
 
 
 @db.listens_for(Email.primary, 'set')
 def email_primary_receive_set(config, target, value, oldvalue, initiator):
-    receive_set(Email.primary, config, target)
+    if oldvalue is not NO_VALUE:
+        receive_set(Email.primary, config, target)
 
 
 def includeme(config):
