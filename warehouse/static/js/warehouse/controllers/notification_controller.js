@@ -27,8 +27,8 @@ export default class extends Controller {
    */
   _getNotificationId() {
     /** Get data from `data-notification-version` attribute */
-    const version = this.data.get("version");
-    if (this.notificationTarget.id && version) {
+    const version = this.data.get("version") || "-1";
+    if (this.notificationTarget.id) {
       return `${this.notificationTarget.id}_${version}__dismissed`;
     }
   }
@@ -37,7 +37,10 @@ export default class extends Controller {
     const notificationId = this._getNotificationId();
     const isDismissable = this.notificationTarget.classList.contains("notification-bar--dismissable");
 
-    if (isDismissable && notificationId && !localStorage.getItem(notificationId)) {
+    // Check if the target is dismissable, and if so:
+    // * whether it has no notificationId (it's ephemeral)
+    // * or it's not in localStorage (it hasn't been dismissed yet)
+    if (isDismissable && (!notificationId || !localStorage.getItem(notificationId))) {
       this.notificationTarget.classList.add("notification-bar--visible");
     }
   }
