@@ -15,6 +15,8 @@ import functools
 import operator
 from itertools import chain
 
+from sqlalchemy.orm.session import Session
+
 from warehouse import db
 from warehouse.cache.origin.interfaces import IOriginCache
 
@@ -130,6 +132,19 @@ def register_origin_cache_keys(config, klass, cache_keys=None,
         cache_keys=cache_keys,
         purge_keys=purge_keys,
     )
+
+
+def receive_set(attribute, config, target):
+    cache_keys = config.registry["cache_keys"]
+    session = Session.object_session(target)
+    if session:
+        purges = session.info.setdefault(
+            "warehouse.cache.origin.purges",
+            set()
+        )
+        key_maker = cache_keys[attribute]
+        keys = key_maker(target).purge
+        purges.update(list(keys))
 
 
 def includeme(config):
