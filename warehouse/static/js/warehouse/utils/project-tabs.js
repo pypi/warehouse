@@ -12,6 +12,9 @@
  */
 
 export default () => {
+  if (!document.querySelector(".-js-vertical-tab-content")) {
+    return; // Nothing to tab on, just bail
+  }
   const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
   let inMobileState = false;
   if (mobileBtn) {
@@ -46,12 +49,16 @@ export default () => {
 
   var initialContentId = location.hash ? location.hash.replace("#", "") : "description";
   var initialBtn = getBtnByHref(initialContentId);
-  toggleTab(initialBtn);
+  if (initialBtn){
+    toggleTab(initialBtn);
+  }
 
   // I'm not sure if this is needed?
   window.addEventListener("hashchange", () => {
     var btn = getBtnByHref(location.hash.replace("#", ""));
-    toggleTab(btn);
+    if (btn) {
+      toggleTab(btn);
+    }
   }, false);
 
 };

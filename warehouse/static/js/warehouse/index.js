@@ -44,11 +44,8 @@ docReady(() => {
 });
 
 // project detail tabs
-docReady(()=> {
-  const headingBtn = document.querySelector(".-js-vertical-tab-content");
-  if (headingBtn) {
-    projectTabs();
-  }
+docReady(() => {
+  projectTabs();
   window.addEventListener("resize", projectTabs, false);
 });
 
