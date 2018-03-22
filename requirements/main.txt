@@ -1,5 +1,5 @@
-alembic==0.9.8 \
-    --hash=sha256:13b8611788acf0d7b617775db5c2ae26554a6d4263c590ef628d448fd05aef56
+alembic==0.9.9 \
+    --hash=sha256:85bd3ea7633024e4930900bc64fb58f9742dedbc6ebb6ecf25be2ea9a3c1b32e
 amqp==2.2.2 \
     --hash=sha256:4e28d3ea61a64ae61830000c909662cb053642efddbe96503db0e7783a6ee85b \
     --hash=sha256:cba1ace9d4ff6049b190d8b7991f9c1006b443a5238021aca96dd6ad2ac9da22
