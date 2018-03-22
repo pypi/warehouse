@@ -27,8 +27,8 @@ export default class extends Controller {
    */
   _getNotificationId() {
     /** Get data from `data-notification-version` attribute */
-    const version = this.data.get("version");
-    if (this.notificationTarget.id && version) {
+    const version = this.data.get("version") || "-1";
+    if (this.notificationTarget.id) {
       return `${this.notificationTarget.id}_${version}__dismissed`;
     }
   }
@@ -46,7 +46,9 @@ export default class extends Controller {
     const notificationId = this._getNotificationId();
     if (notificationId) {
       localStorage.setItem(notificationId, 1);
+      this.notificationTarget.classList.remove("notification-bar--visible");
+    } else {
+      console.warn(`${this.notificationTarget} is dismissable but has no id attribute`); // eslint-disable-line no-console
     }
-    this.notificationTarget.classList.remove("notification-bar--visible");
   }
 }
