@@ -137,14 +137,10 @@ def register_origin_cache_keys(config, klass, cache_keys=None,
 def receive_set(attribute, config, target):
     cache_keys = config.registry["cache_keys"]
     session = Session.object_session(target)
-    if session:
-        purges = session.info.setdefault(
-            "warehouse.cache.origin.purges",
-            set()
-        )
-        key_maker = cache_keys[attribute]
-        keys = key_maker(target).purge
-        purges.update(list(keys))
+    purges = session.info.setdefault("warehouse.cache.origin.purges", set())
+    key_maker = cache_keys[attribute]
+    keys = key_maker(target).purge
+    purges.update(list(keys))
 
 
 def includeme(config):
