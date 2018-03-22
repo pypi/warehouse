@@ -27,8 +27,8 @@ export default class extends Controller {
    */
   _getNotificationId() {
     /** Get data from `data-notification-version` attribute */
-    const version = this.data.get("version");
-    if (this.notificationTarget.id && version) {
+    const version = this.data.get("version") || "-1";
+    if (this.notificationTarget.id) {
       return `${this.notificationTarget.id}_${version}__dismissed`;
     }
   }
