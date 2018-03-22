@@ -157,8 +157,6 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
-    maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
-    maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
@@ -173,6 +171,7 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(
         settings,
         "token.password.max_age",
@@ -327,6 +326,9 @@ def configure(settings=None):
     # Register support for services
     config.include("pyramid_services")
 
+    # Register our XMLRPC cache
+    config.include(".legacy.api.xmlrpc.cache")
+
     # Register support for XMLRPC and override it's renderer to allow
     # specifying custom dumps arguments.
     config.include("pyramid_rpc.xmlrpc")
@@ -458,9 +460,6 @@ def configure(settings=None):
 
     # Register Referrer-Policy service
     config.include(".referrer_policy")
-
-    # Register recaptcha service
-    config.include(".recaptcha")
 
     config.add_settings({
         "http": {

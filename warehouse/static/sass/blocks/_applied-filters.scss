@@ -26,6 +26,7 @@
 
 .applied-filters {
   margin-top: 10px;
+  margin-bottom: 15px;
   @include clearfix;
 
   &__add-button {
