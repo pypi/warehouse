@@ -13,6 +13,7 @@ sub vcl_recv {
     # let us present a better error message in the interim before Fastly shuts
     # off TLSv1.0 and TLSv1.1 support completely.
     if (tls.client.protocol ~ "^TLSv1(\.(0|1))?$") {
+        set req.http.Error-Message = "Support for " tls.client.protocol " has been removed, please upgrade to a TLSv1.2+ client. Please see https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html";
         error 804 "Bad SSL Version";
     }
 
@@ -395,7 +396,7 @@ sub vcl_error {
         set obj.status = 403;
         set obj.response = "TLSv1.2+ is required";
         set obj.http.Content-Type = "text/plain; charset=UTF-8";
-        synthetic {"Support for " tls.client.protocol " has been removed, please upgrade to a TLSv1.2+ client."};
+        synthetic req.http.Error-Message;
         return (deliver);
     } else if (obj.status == 750) {
         set obj.status = 301;
