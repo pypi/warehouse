@@ -35,7 +35,7 @@ from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
 )
 from warehouse.packaging.models import Project, Release
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 

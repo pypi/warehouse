@@ -10,9 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 
-from ...common.db.utils import AdminFlagFactory as DBAdminFlagFactory
+from ...common.db.admin import AdminFlagFactory as DBAdminFlagFactory
 
 
 class TestAdminFlag:

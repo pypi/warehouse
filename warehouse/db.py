@@ -163,7 +163,7 @@ def _create_session(request):
         connection.close()
 
     # Check if we're in read-only mode
-    from warehouse.utils.admin_flags import AdminFlag
+    from warehouse.admin.flags import AdminFlag
     flag = session.query(AdminFlag).get('read-only')
     if flag and flag.enabled:
         request.tm.doom()
