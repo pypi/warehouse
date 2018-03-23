@@ -695,6 +695,13 @@ def _is_duplicate_file(db_session, filename, hashes):
     require_methods=["POST"],
 )
 def file_upload(request):
+    # If we're in read-only mode, let upload clients know
+    if request.flags.enabled('read-only'):
+        raise _exc_with_message(
+            HTTPForbidden,
+            'Read Only Mode: Uploads are temporarily disabled',
+        )
+
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
