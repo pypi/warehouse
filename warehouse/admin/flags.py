@@ -10,24 +10,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, Boolean, Text
+from sqlalchemy import Column, Boolean, Text, sql
 
 from warehouse import db
 
 
-class AdminFlag(db.Model):
+class AdminFlag(db.ModelBase):
 
     __tablename__ = "warehouse_admin_flag"
 
     id = Column(Text, primary_key=True, nullable=False)
     description = Column(Text, nullable=False)
     enabled = Column(Boolean, nullable=False)
+    notify = Column(Boolean, nullable=False, server_default=sql.false())
 
-    @classmethod
-    def is_enabled(cls, session, flag_name):
-        flag = (session.query(cls)
-                       .filter(cls.id == flag_name)
-                       .first())
-        if flag is None:
-            return False
-        return flag.enabled
+
+class Flags:
+    def __init__(self, request):
+        self.request = request
+
+    def notifications(self):
+        return (
+            self.request.db.query(AdminFlag)
+            .filter(AdminFlag.enabled.is_(True), AdminFlag.notify.is_(True))
+            .all()
+        )
+
+    def enabled(self, flag_name):
+        flag = self.request.db.query(AdminFlag).get(flag_name)
+        return flag.enabled if flag else False
+
+
+def includeme(config):
+    config.add_request_method(Flags, name='flags', reify=True)

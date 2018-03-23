@@ -9,17 +9,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add notify column to AdminFlag
 
-from warehouse.utils.admin_flags import AdminFlag
+Revision ID: bf73e785eed9
+Revises: 5dda74213989
+Create Date: 2018-03-23 21:20:05.834821
+"""
 
-from ...common.db.utils import AdminFlagFactory as DBAdminFlagFactory
+from alembic import op
+import sqlalchemy as sa
+
+revision = 'bf73e785eed9'
+down_revision = '5dda74213989'
 
 
-class TestAdminFlag:
+def upgrade():
+    op.add_column(
+        'warehouse_admin_flag',
+        sa.Column(
+            'notify',
+            sa.Boolean(),
+            server_default=sa.text('false'),
+            nullable=False,
+        ),
+    )
 
-    def test_default(self, db_session):
-        assert not AdminFlag.is_enabled(db_session, 'not-a-real-flag')
 
-    def test_enabled(self, db_session):
-        DBAdminFlagFactory.create(id='this-flag-is-enabled', enabled=True)
-        assert AdminFlag.is_enabled(db_session, 'this-flag-is-enabled')
+def downgrade():
+    op.drop_column('warehouse_admin_flag', 'notify')
