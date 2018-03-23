@@ -33,6 +33,7 @@
       <tr>
         <th>Flag ID</th>
         <th>Description</th>
+        <th>Notify?</th>
         <th>Enabled?</th>
         <th></th>
       </tr>
@@ -43,6 +44,7 @@
           <input name="id" type="hidden" value="{{ flag.id }}">
           <td><code>{{ flag.id }}</code></td>
           <td><input name="description" size="50" value="{{ flag.description }}"></td>
+          <td>{{ flag.notify }}</td>
           <td><input name="enabled" type="checkbox" {{ 'checked' if flag.enabled else '' }}></td>
           <td><input type="submit" value="Save"></td>
         </form>

@@ -109,7 +109,7 @@
       {% endcsi %}
     {% endblock %}
 
-    {% for flag in request.flags.all() %}
+    {% for flag in request.flags.notifications() %}
     <div class="notification-bar notification-bar--danger">
       <span class="notification-bar__message">{{ flag.description }}</span>
     </div>

@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, Boolean, Text
+from sqlalchemy import Column, Boolean, Text, sql
 
 from warehouse import db
 
@@ -22,16 +22,17 @@ class AdminFlag(db.ModelBase):
     id = Column(Text, primary_key=True, nullable=False)
     description = Column(Text, nullable=False)
     enabled = Column(Boolean, nullable=False)
+    notify = Column(Boolean, nullable=False, server_default=sql.false())
 
 
 class Flags:
     def __init__(self, request):
         self.request = request
 
-    def all(self):
+    def notifications(self):
         return (
             self.request.db.query(AdminFlag)
-            .filter(AdminFlag.enabled.is_(True))
+            .filter(AdminFlag.enabled.is_(True), AdminFlag.notify.is_(True))
             .all()
         )
 
