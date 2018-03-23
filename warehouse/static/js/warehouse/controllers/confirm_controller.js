@@ -9,6 +9,7 @@ export default class extends Controller {
 
   cancel() {
     this.inputTarget.value = "";
+    this.buttonTarget.disabled = true;
   }
 
   check() {
