@@ -26,6 +26,7 @@
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
+{% macro notifications() %}How do I get notified when a new version of a package is released?{% endmacro %}
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
@@ -63,6 +64,7 @@
         <ul>
           <li><a href="#APIs">{{ APIs() }}</a></li>
           <li><a href="#mirroring">{{ mirroring() }}</a></li>
+          <li><a href="#notifications">{{ notifications() }}</a></li>
         </ul>
       </section>
 
@@ -149,6 +151,12 @@
         <h3 id="mirroring">{{ mirroring() }}</h3>
         <p>
           If you need to run your own mirror of PyPI, the <a href="https://pypi.org/project/bandersnatch/">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!
+        </p>
+
+        <h3 id="notifications">{{ notifications() }}</h3>
+        <p>
+          While PyPI itself does not offer a way to get notified when new releases are uploaded, there are several third-party services that offer comprehensive monitoring and notifications for package releases and vulnerabilities such as <a href="https://pyup.io" target="_blank">pyup.io</a> and <a href="https://libraries.io/" target="_blank">libraries.io</a>.
+        </p>
       </section>
 
       <section class="faq-group" id="problems">
