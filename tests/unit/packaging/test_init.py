@@ -18,7 +18,7 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -69,6 +69,13 @@ def test_includme(monkeypatch, with_trending):
                 key_factory("project/{obj.project.normalized_name}"),
                 key_factory("user/{itr.username}", iterate_on='project.users'),
                 key_factory("all-projects"),
+            ],
+        ),
+        pretend.call(
+            Role,
+            purge_keys=[
+                key_factory("user/{obj.user.username}"),
+                key_factory("project/{obj.project.normalized_name}")
             ],
         ),
         pretend.call(
