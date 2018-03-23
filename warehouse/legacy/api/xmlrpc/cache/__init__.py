@@ -15,6 +15,7 @@ import collections
 from urllib.parse import urlparse
 
 from pyramid.exceptions import ConfigurationError
+from sqlalchemy.orm.base import NO_VALUE
 from sqlalchemy.orm.session import Session
 
 from warehouse import db
@@ -38,14 +39,13 @@ CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 def receive_set(attribute, config, target):
     cache_keys = config.registry["cache_keys"]
     session = Session.object_session(target)
-    if session:
-        purges = session.info.setdefault(
-            "warehouse.legacy.api.xmlrpc.cache.purges",
-            set()
-        )
-        key_maker = cache_keys[attribute]
-        keys = key_maker(target).purge
-        purges.update(list(keys))
+    purges = session.info.setdefault(
+        "warehouse.legacy.api.xmlrpc.cache.purges",
+        set()
+    )
+    key_maker = cache_keys[attribute]
+    keys = key_maker(target).purge
+    purges.update(list(keys))
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -86,12 +86,14 @@ def execute_purge(config, session):
 
 @db.listens_for(User.name, 'set')
 def user_name_receive_set(config, target, value, oldvalue, initiator):
-    receive_set(User.name, config, target)
+    if oldvalue is not NO_VALUE:
+        receive_set(User.name, config, target)
 
 
 @db.listens_for(Email.primary, 'set')
 def email_primary_receive_set(config, target, value, oldvalue, initiator):
-    receive_set(Email.primary, config, target)
+    if oldvalue is not NO_VALUE:
+        receive_set(Email.primary, config, target)
 
 
 def includeme(config):
