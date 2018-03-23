@@ -120,8 +120,8 @@ click==6.7 \
 CommonMark==0.7.5 \
     --hash=sha256:12deadd8ef46155a0af4213a91a95833ae6c29e1ff36cc3f6121668f345af5ad \
     --hash=sha256:4dfbbd1dbc669a9b71a015032b2bbe5c4b019ca8b6ca410d89cf7020de46d2c0
-datadog==0.19.0 \
-    --hash=sha256:ec476e6f474955770d414d4cffa272d68b2715e59cbb9d7bb561da037c2041bf
+datadog==0.20.0 \
+    --hash=sha256:7bb4af836d7422a6138f983b81c16acd56c2d608913982602856cc273ae74768
 disposable-email-domains==0.0.23 \
     --hash=sha256:b23428c7e69cbb87d7d2e1bd3fda37cd2260809608a217d271d2ff15f48453d0 \
     --hash=sha256:80684d08cadebfc4e5d61aa63317e74ab9fd7714d0fab06b702989ef68971c51
