@@ -162,6 +162,12 @@ def _create_session(request):
         session.close()
         connection.close()
 
+    # Check if we're in read-only mode
+    from warehouse.utils.admin_flags import AdminFlag
+    flag = session.query(AdminFlag).get('read-only')
+    if flag and flag.enabled:
+        request.tm.doom()
+
     # Return our session now that it's created and registered
     return session
 
