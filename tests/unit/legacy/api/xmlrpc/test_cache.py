@@ -482,6 +482,9 @@ class TestPurgeTask:
         service = pretend.stub(purge=pretend.call_recorder(lambda k: None))
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: service),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         services.purge_tag(task, request, "foo")
@@ -514,6 +517,10 @@ class TestPurgeTask:
         service = Cache()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: service),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+                error=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         with pytest.raises(celery.exceptions.Retry):

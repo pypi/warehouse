@@ -28,6 +28,9 @@ class TestPurgeKey:
         cacher = pretend.stub(purge_key=pretend.call_recorder(lambda k: None))
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: cacher),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         fastly.purge_key(task, request, "foo")
@@ -63,6 +66,10 @@ class TestPurgeKey:
         cacher = Cacher()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: cacher),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+                error=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         with pytest.raises(celery.exceptions.Retry):
