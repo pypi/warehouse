@@ -28,12 +28,16 @@ class TestPurgeKey:
         cacher = pretend.stub(purge_key=pretend.call_recorder(lambda k: None))
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: cacher),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         fastly.purge_key(task, request, "foo")
 
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
+        assert request.log.info.calls == [pretend.call('Purging %s', "foo")]
 
     @pytest.mark.parametrize(
         "exception_type",
@@ -63,6 +67,10 @@ class TestPurgeKey:
         cacher = Cacher()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: cacher),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+                error=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         with pytest.raises(celery.exceptions.Retry):
@@ -71,6 +79,10 @@ class TestPurgeKey:
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
         assert task.retry.calls == [pretend.call(exc=exc)]
+        assert request.log.info.calls == [pretend.call('Purging %s', "foo")]
+        assert request.log.error.calls == [
+            pretend.call('Error purging %s: %s', "foo", str(exception_type()))
+        ]
 
 
 class TestFastlyCache:

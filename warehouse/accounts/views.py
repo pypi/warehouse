@@ -35,7 +35,6 @@ from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
 )
 from warehouse.packaging.models import Project, Release
-from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 
@@ -233,7 +232,7 @@ def register(request, _form_class=RegistrationForm):
     if request.method == "POST" and request.POST.get('confirm_form'):
         return HTTPSeeOther(request.route_path("index"))
 
-    if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
+    if request.flags.enabled('disallow-new-user-registration'):
         request.session.flash(
             ("New User Registration Temporarily Disabled "
              "See https://pypi.org/help#admin-intervention for details"),

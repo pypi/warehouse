@@ -482,12 +482,16 @@ class TestPurgeTask:
         service = pretend.stub(purge=pretend.call_recorder(lambda k: None))
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: service),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         services.purge_tag(task, request, "foo")
 
         assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
         assert service.purge.calls == [pretend.call("foo")]
+        assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
 
     @pytest.mark.parametrize(
         "exception_type",
@@ -514,6 +518,10 @@ class TestPurgeTask:
         service = Cache()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface: service),
+            log=pretend.stub(
+                info=pretend.call_recorder(lambda *args, **kwargs: None),
+                error=pretend.call_recorder(lambda *args, **kwargs: None),
+            )
         )
 
         with pytest.raises(celery.exceptions.Retry):
@@ -522,6 +530,10 @@ class TestPurgeTask:
         assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
         assert service.purge.calls == [pretend.call("foo")]
         assert task.retry.calls == [pretend.call(exc=exc)]
+        assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
+        assert request.log.error.calls == [
+            pretend.call("Error purging %s: %s", "foo", str(exception_type()))
+        ]
 
     def test_store_purge_keys(self):
         class Type1:
