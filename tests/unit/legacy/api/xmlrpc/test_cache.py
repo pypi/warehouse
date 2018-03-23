@@ -491,6 +491,7 @@ class TestPurgeTask:
 
         assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
         assert service.purge.calls == [pretend.call("foo")]
+        assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
 
     @pytest.mark.parametrize(
         "exception_type",
@@ -529,6 +530,10 @@ class TestPurgeTask:
         assert request.find_service.calls == [pretend.call(IXMLRPCCache)]
         assert service.purge.calls == [pretend.call("foo")]
         assert task.retry.calls == [pretend.call(exc=exc)]
+        assert request.log.info.calls == [pretend.call("Purging %s", "foo")]
+        assert request.log.error.calls == [
+            pretend.call("Error purging %s: %s", "foo", str(exception_type()))
+        ]
 
     def test_store_purge_keys(self):
         class Type1:

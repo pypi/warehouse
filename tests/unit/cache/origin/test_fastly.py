@@ -37,6 +37,7 @@ class TestPurgeKey:
 
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
+        assert request.log.info.calls == [pretend.call('Purging %s', "foo")]
 
     @pytest.mark.parametrize(
         "exception_type",
@@ -78,6 +79,10 @@ class TestPurgeKey:
         assert request.find_service.calls == [pretend.call(IOriginCache)]
         assert cacher.purge_key.calls == [pretend.call("foo")]
         assert task.retry.calls == [pretend.call(exc=exc)]
+        assert request.log.info.calls == [pretend.call('Purging %s', "foo")]
+        assert request.log.error.calls == [
+            pretend.call('Error purging %s: %s', "foo", str(exception_type()))
+        ]
 
 
 class TestFastlyCache:
