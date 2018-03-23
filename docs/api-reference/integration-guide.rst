@@ -14,7 +14,10 @@ Migrating to the new PyPI
 -------------------------
 
 If your site/service used to link or upload to pypi.python.org, you
-should start using pypi.org instead.
+should prepare to start using pypi.org instead. Subscribe to `the PyPI
+announcement list (low-traffic)
+<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+to find out when you should switch permanently.
 
 Here are some tips.
 
