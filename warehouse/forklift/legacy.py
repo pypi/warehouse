@@ -45,7 +45,6 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry, BlacklistedProject,
 )
-from warehouse.admin.flags import AdminFlag
 from warehouse.utils import http
 
 
@@ -789,9 +788,7 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if AdminFlag.is_enabled(
-                request.db,
-                'disallow-new-project-registration'):
+        if request.flags.enabled('disallow-new-project-registration'):
             raise _exc_with_message(
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "

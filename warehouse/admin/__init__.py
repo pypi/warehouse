@@ -23,6 +23,9 @@ def includeme(config):
     # Add our routes
     config.include(".routes")
 
+    # Add our flags
+    config.include(".flags")
+
     config.add_view(
         login,
         route_name="admin.login",

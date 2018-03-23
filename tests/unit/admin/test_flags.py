@@ -10,16 +10,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.admin.flags import AdminFlag
-
-from ...common.db.admin import AdminFlagFactory as DBAdminFlagFactory
+from ...common.db.admin import AdminFlagFactory
 
 
 class TestAdminFlag:
 
-    def test_default(self, db_session):
-        assert not AdminFlag.is_enabled(db_session, 'not-a-real-flag')
+    def test_default(self, db_request):
+        assert not db_request.flags.enabled('not-a-real-flag')
 
-    def test_enabled(self, db_session):
-        DBAdminFlagFactory.create(id='this-flag-is-enabled', enabled=True)
-        assert AdminFlag.is_enabled(db_session, 'this-flag-is-enabled')
+    def test_enabled(self, db_request):
+        AdminFlagFactory(id='this-flag-is-enabled')
+
+        assert db_request.flags.enabled('this-flag-is-enabled')
