@@ -36,7 +36,7 @@ from warehouse.packaging.models import (
     File, Filename, Dependency, DependencyKind, Release, Project, Role,
     JournalEntry,
 )
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 
 from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
@@ -738,6 +738,7 @@ class TestFileUpload:
                                    version):
         pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.POST["protocol_version"] = version
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(pyramid_request)
@@ -2797,7 +2798,21 @@ class TestFileUpload:
             ),
         ]
 
+    def test_fails_in_read_only_mode(self, pyramid_request):
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            '403 Read Only Mode: Uploads are temporarily disabled'
+        )
+
     def test_fails_without_user(self, pyramid_config, pyramid_request):
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
         pyramid_config.testing_securitypolicy(userid=None)
 
         with pytest.raises(HTTPForbidden) as excinfo:

@@ -27,6 +27,7 @@ from sqlalchemy import event
 
 from warehouse.config import configure
 from warehouse.accounts import services
+from warehouse.admin.flags import Flags
 
 from .common.db import Session
 
@@ -215,6 +216,7 @@ def query_recorder(app_config):
 def db_request(pyramid_request, db_session, datadog):
     pyramid_request.registry.datadog = datadog
     pyramid_request.db = db_session
+    pyramid_request.flags = Flags(pyramid_request)
     return pyramid_request
 
 
