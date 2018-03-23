@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import email
+import datetime
 import hashlib
 import hmac
 import os.path
@@ -839,6 +840,23 @@ def file_upload(request):
                      name=form.name.data,
                      projecthelp=request.route_url(
                          'help', _anchor='project-name')),
+            ) from None
+
+        # Check rate at which user is submitting packages.
+        lookback = datetime.datetime.now() - datetime.timedelta(days=1)
+        recent = (request.db.query(JournalEntry)
+                            .filter(JournalEntry.submitted_by == request.user)
+                            .filter(JournalEntry.action == 'create')
+                            .filter(JournalEntry.submitted_date > lookback)
+                            .count())
+        if recent >= request.user.limit_new_project_registration:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("Registrations are limited to {} per day for user {}"
+                 "See "
+                 "https://pypi.org/help/#rate-limits for more information.")
+                .format(request.user.limit_new_project_registration,
+                        request.user.username),
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with

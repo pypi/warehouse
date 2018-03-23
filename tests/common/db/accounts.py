@@ -37,6 +37,7 @@ class UserFactory(WarehouseFactory):
     last_login = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2011, 1, 1),
     )
+    limit_new_project_registration = 1
 
 
 class EmailFactory(WarehouseFactory):

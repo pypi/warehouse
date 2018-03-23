@@ -93,6 +93,8 @@ class UserForm(forms.Form):
 
     emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailField))
 
+    limit_new_project_registration = wtforms.fields.IntegerField()
+
 
 @view_config(route_name="admin.user.detail",
              renderer="admin/users/detail.html",
