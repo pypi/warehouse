@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
 import pytest
 
 from warehouse.admin.flags import AdminFlag
@@ -99,31 +98,3 @@ class TestEditFlag:
 
         assert flag.enabled == expected_enabled
         assert flag.description == expected_description
-
-    def test_edit_read_only_flag(self, db_request, monkeypatch):
-        # Clear out any existing flags added from migrations
-        db_request.db.query(AdminFlag).delete()
-
-        active = pretend.stub()
-        doomed = pretend.stub()
-        txn = pretend.stub(status=doomed)
-        monkeypatch.setattr(
-            views.transaction._transaction.Status, 'ACTIVE', active
-        )
-
-        db_request.tm = pretend.stub(
-            isDoomed=lambda: True,
-            get=lambda: txn,
-        )
-        db_request.POST = {
-            'id': 'read-only',
-            'description': 'some new description',
-        }
-        db_request.route_path = lambda *a: '/the/redirect'
-        db_request.flash = lambda *a: None
-
-        AdminFlagFactory(id='read-only', enabled=True)
-
-        views.edit_flag(db_request)
-
-        assert txn.status == active

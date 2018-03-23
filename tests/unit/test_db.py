@@ -203,15 +203,23 @@ def test_create_session(monkeypatch, read_only, tx_status):
         connection.connection.rollback.calls == [pretend.call()]
 
 
-@pytest.mark.parametrize("admin_flag, doom_calls", [
-    (None, []),
-    (pretend.stub(enabled=False), []),
-    (
-        pretend.stub(enabled=True, description='flag description'),
-        [pretend.call()],
-    ),
-])
-def test_create_session_read_only_mode(admin_flag, doom_calls, monkeypatch):
+@pytest.mark.parametrize(
+    "admin_flag, is_superuser, doom_calls",
+    [
+        (None, True, []),
+        (None, False, []),
+        (pretend.stub(enabled=False), True, []),
+        (pretend.stub(enabled=False), False, []),
+        (pretend.stub(enabled=True, description='flag description'), True, []),
+        (
+            pretend.stub(enabled=True, description='flag description'),
+            False,
+            [pretend.call()],
+        ),
+    ],
+)
+def test_create_session_read_only_mode(
+        admin_flag, is_superuser, doom_calls, monkeypatch):
     get = pretend.call_recorder(lambda *a: admin_flag)
     session_obj = pretend.stub(
         close=lambda: None,
@@ -238,6 +246,7 @@ def test_create_session_read_only_mode(admin_flag, doom_calls, monkeypatch):
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         read_only=False,
         add_finished_callback=lambda callback: None,
+        user=pretend.stub(is_superuser=is_superuser),
     )
 
     assert _create_session(request) is session_obj

@@ -12,7 +12,6 @@
 
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.view import view_config
-import transaction
 
 from warehouse.admin.flags import AdminFlag
 
@@ -41,11 +40,6 @@ def edit_flag(request):
     flag = request.db.query(AdminFlag).get(request.POST['id'])
     flag.description = request.POST['description']
     flag.enabled = bool(request.POST.get('enabled'))
-
-    if flag.id == 'read-only' and request.tm.isDoomed():
-        # We are trying to disable the `read-only` flag, but the flag has
-        # alreeady doomed the transaction, so we need to manually un-doom it
-        request.tm.get().status = transaction._transaction.Status.ACTIVE
 
     request.session.flash(
         f'Successfully edited flag {flag.id!r}',
