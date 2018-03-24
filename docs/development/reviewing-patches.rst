@@ -122,7 +122,9 @@ In the command above,
 
 -   ``<path to distribution>`` should be a path to a distribution file (or
     directory of distribution files) of the package you would like to test,
-    likely created by running ``python setup.py``.
+    likely created by running ``python setup.py sdist``. See the `Python
+    Packaging User Guide`_ for instructions on how to create a distribution
+    file or directory.
 
 -   ``<username>`` is the username of the account you would like to test with.
     Note that your current PyPI username may not exist in the development
@@ -151,3 +153,5 @@ Merge requirements
 .. _`Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
 
 .. _`twine`: https://github.com/pypa/twine
+
+.. _`Python Packaging User Guide`: https://packaging.python.org/tutorials/distributing-packages/#packaging-your-project
