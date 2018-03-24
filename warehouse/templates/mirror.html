@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mirror of https://pypi.python.org</title>
+    <title>Mirror of https://pypi.org</title>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
     <style type="text/css" media="screen">
@@ -47,7 +47,7 @@
         display: inline-block;
         padding: 20px;
         background-color: #0073b7;
-        margin: 10px 0 0;
+        margin: 30px 0 0;
         border-radius: 6px;
         color: #fff;
         cursor: pointer;
@@ -74,6 +74,7 @@
 
       .callout-block__link {
         display: block;
+        color: #fff;
         font-size: 1.2rem;
         text-decoration: underline;
       }
@@ -138,18 +139,16 @@
         </p>
 
         <p>
-          In any event: This serves a full mirror, current as of: <br><strong>timestamp.</strong><br>
+          In any event: This serves a full mirror, current as of: <br><strong><span id="message">timestamp.</span></strong><br>
         </p>
 
-        <a id="active-maintenance" class="callout-block">
-          <h2 class="callout-block__heading">Scheduled Maintenance</h2>
-          <span class="callout-block__link">Link to status page here</span>
-        </a>
+        <div id="active-maintenance" class="callout-block" style="display: none;">
+          <h2 class="callout-block__heading">Active Maintenance</h2>
+        </div>
 
-        <a id="active-incidents" class="callout-block callout-block--danger">
+        <div id="active-incidents" class="callout-block callout-block--danger" style="display: none;">
           <h2 class="callout-block__heading" >Active Incidents</h2>
-          <span class="callout-block__link">Link to status page here</span>
-        </a>
+        </div>
 
         <p class="footer">
           Check <a href="http://status.python.org">http://status.python.org</a> or
@@ -157,5 +156,70 @@
         </p>
       </main>
     </div>
+    <script>
+      var xmlhttp;
+      if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp = new XMLHttpRequest();
+      }
+      else { // code for IE6, IE5
+          xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+      xmlhttp.onreadystatechange = function() {
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+              var time;
+              time = xmlhttp.responseText.replace('T', ' ').replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3") + "UTC";
+              document.getElementById("message").innerHTML = document.getElementById("message").innerHTML.replace('timestamp', time);
+          }
+      }
+      xmlhttp.open("GET", "/last-modified", true);
+      xmlhttp.send();
+    </script>
+    <script type="text/javascript" src="https://cdn.statuspage.io/se-v2.js"></script>
+    <script>
+      var warehouseStatus = new StatusPage.page({ page : '2p66nmmycsj3', component: 'xt7f24hjvspn' });
+
+      function unhide(elementId) {
+        var x = document.getElementById(elementId);
+        if (x.style.display === "none") {
+          x.style.display = "block";
+        }
+      }
+
+      function jsUcfirst(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      function addIncident(type, incident) {
+        var x = document.getElementById(type);
+            elem = document.createElement("span");
+            link = document.createElement("a");
+        link.innerHTML = jsUcfirst(incident.status) + ': ' + incident.name;
+        link.href = incident.shortlink;
+        link.classList.add("callout-block__link");
+        elem.appendChild(link);
+        x.appendChild(elem);
+      }
+
+      warehouseStatus.incidents({
+        filter : 'unresolved',
+        success: function(data) {
+          for (incident in data.incidents) {
+            unhide("active-incidents");
+            addIncident("active-incidents", data.incidents[incident]);
+          }
+        }
+      })
+
+      warehouseStatus.scheduled_maintenances({
+        filter : 'active',
+        success : function(data) {
+          for (incident in data.scheduled_maintenances) {
+            unhide("active-maintenance");
+            addIncident("active-maintenance", data.scheduled_maintenances[incident]);
+          }
+        }
+      })
+
+    </script>
   </body>
 </html>
