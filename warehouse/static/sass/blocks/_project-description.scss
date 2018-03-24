@@ -31,7 +31,46 @@
   h4,
   h5,
   h6 {
-    padding: $spacing-unit 0 0;
+    padding: 0;
+    margin: $spacing-unit 0 0;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  h1 + p,
+  h2 + p,
+  h3 + p,
+  h4 + p,
+  h5 + p,
+  h6 + p {
+    margin-top: $spacing-unit;
+  }
+
+  // Remove top margin on elements at the top of the description
+  > div:first-child > *:first-child,
+  > *:first-child,
+  > div:first-child > *:first-child,
+  > *:first-child,
+  > div:first-child > *:first-child,
+  > *:first-child,
+  > div:first-child > *:first-child,
+  > *:first-child,
+  > div:first-child > *:first-child,
+  > *:first-child,
+  > div:first-child > *:first-child,
+  > *:first-child {
+    margin-top: 0;
+  }
+
+  p {
+    padding: 0;
+    margin-top: $spacing-unit / 2;
+  }
+
+  li p:first-child {
+    margin-top: 0;
   }
 
   strong,
@@ -47,12 +86,21 @@
   pre {
     display: block;
     padding: $spacing-unit / 2;
-    margin-bottom: $spacing-unit / 2;
+    margin: $spacing-unit 0 0;
+  }
+
+  pre code {
+    font-size: inherit;
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    color: inherit;
   }
 
   ol,
   ul {
-    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) $spacing-unit;
+    margin: ($spacing-unit / 2) 0 0 $spacing-unit;
+    padding-bottom: 0;
 
     @media only screen and (max-width: $mobile) {
       margin-left: $spacing-unit / 2;
@@ -77,7 +125,7 @@
   }
 
   blockquote {
-    margin: ($spacing-unit / 2) 0 ($spacing-unit / 2) ($spacing-unit / 2);
+    margin: ($spacing-unit / 2) 0 0 ($spacing-unit / 2);
     border-left: 3px solid $light-grey;
     font-style: italic;
     padding-left: ($spacing-unit / 2);
@@ -89,7 +137,7 @@
   }
 
   dl {
-    margin: ($spacing-unit / 2) 0 5px 0;
+    margin: ($spacing-unit / 2) 0 0 0;
 
     dt {
       font-weight: $bold-font-weight;
@@ -102,33 +150,17 @@
 
   table {
     @include table;
-    margin-bottom: $spacing-unit;
+    margin: $spacing-unit 0 0;
   }
 
   hr {
-    margin: ($spacing-unit / 2) 0;
+    margin: ($spacing-unit / 2) 0 0;
     border: 1px solid $light-grey;
   }
 
-  // Add a margin at the bottom of commonly included status badges
+  // Add a margin at the top of commonly included status badges
   > a  {
-    margin-bottom: $spacing-unit / 2;
-  }
-
-  // Remove top padding on titles at the top of the description
-  > div:first-child > h1:first-child,
-  > h1:first-child,
-  > div:first-child > h2:first-child,
-  > h2:first-child,
-  > div:first-child > h3:first-child,
-  > h3:first-child,
-  > div:first-child > h4:first-child,
-  > h4:first-child,
-  > div:first-child > h5:first-child,
-  > h5:first-child,
-  > div:first-child > h6:first-child,
-  > h6:first-child {
-    padding-top: 0;
+    margin-top: $spacing-unit / 2;
   }
 }
 
