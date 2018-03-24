@@ -27,6 +27,7 @@
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
+{% macro statistics() %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endmacro %}
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
@@ -65,6 +66,7 @@
           <li><a href="#APIs">{{ APIs() }}</a></li>
           <li><a href="#mirroring">{{ mirroring() }}</a></li>
           <li><a href="#project-release-notifications">{{ project_release_notifications() }}</a></li>
+          <li><a href="#statistics">{{ statistics() }}</a></li>
         </ul>
       </section>
 
@@ -152,15 +154,17 @@
         <p>
           If you need to run your own mirror of PyPI, the <a href="https://pypi.org/project/bandersnatch/">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!
         </p>
-
         <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
         <p>
           PyPI itself does not offer a way to get notified when a project uploads new releases. However, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities such as <a href="https://pyup.io" target="_blank" rel="noopener">pyup.io</a> and <a href="https://libraries.io/" target="_blank" rel="noopener">libraries.io</a>.
         </p>
+      <h3 id="statistics">{{ statistics() }}</h3>
+        <p>You can <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">analyze PyPI download usage statistics via Google BigQuery</a>.</p>
+        <p><a href="https://libraries.io/pypi" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a> (<a href="https://libraries.io/pypi/twine/" target="_blank" rel="noopener">example</a>, <a href="https://libraries.io/api" target="_blank" rel="noopener">API</a>) including GitHub stars and forks, dependency tracking (<a href="https://github.com/librariesio/bibliothecary/issues/415" target="_blank" rel="noopener">in progress</a>), and <a href="https://docs.libraries.io/overview#sourcerank" target="_blank" rel="noopener">other relevant factors</a>.</p>
+        <p>For recent statistics on uptime and performance, see <a href="http://status.python.org/" target="_blank" rel="noopener">our status page</a>.</p>
       </section>
 
       <section class="faq-group" id="problems">
-
         <h2>Problems</h2>
 
         <h3 id="login-problem">{{ login_problem() }}</h3>
