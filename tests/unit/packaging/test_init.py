@@ -18,7 +18,7 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -53,6 +53,13 @@ def test_includme(monkeypatch, with_trending):
         pretend.call(storage_class.create_service, IFileStorage),
     ]
     assert config.register_origin_cache_keys.calls == [
+        pretend.call(
+            File,
+            cache_keys=["project/{obj.release.project.normalized_name}"],
+            purge_keys=[
+                key_factory("project/{obj.release.project.normalized_name}"),
+            ],
+        ),
         pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
