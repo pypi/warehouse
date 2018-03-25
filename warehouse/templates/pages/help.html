@@ -36,6 +36,7 @@
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro new_classifier() %}How do I request a new Trove classifier?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
@@ -80,6 +81,7 @@
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
+          <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
         </ul>
       </section>
@@ -244,6 +246,11 @@
         </p>
         <p>
           To avoid this situation, <a href="https://packaging.python.org/guides/using-testpypi/">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="https://pypi.org">pypi.org</a>.
+        </p>
+
+        <h3 id="new-classifier">{{ new_classifier() }}</h3>
+        <p>
+          If you would like to request a new Trove classifer please file a bug on our <a href="https://github.com/pypa/warehouse/issues">issue tracker</a>.
         </p>
 
         <h3 id="feedback">{{ feedback() }}</h3>
