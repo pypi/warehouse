@@ -369,7 +369,9 @@ def delete_project(project, request):
     permission="manage",
 )
 def destroy_project_docs(project, request):
-    confirm_project(project, request, fail_route="manage.project.settings")
+    confirm_project(
+        project, request, fail_route="manage.project.documentation"
+    )
     destroy_docs(project, request)
 
     return HTTPSeeOther(
