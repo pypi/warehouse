@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import os.path
+import shutil
 import warnings
 
 import botocore.exceptions
@@ -50,6 +51,13 @@ class LocalFileStorage:
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
                 dest_fp.write(src_fp.read())
+
+    def remove_by_prefix(self, prefix):
+        directory = os.path.join(self.base, prefix)
+        try:
+            shutil.rmtree(directory)
+        except FileNotFoundError:
+            pass
 
 
 @implementer(IFileStorage)
@@ -97,3 +105,15 @@ class S3FileStorage:
         path = self._get_path(path)
 
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
+
+    def remove_by_prefix(self, prefix):
+        if self.prefix:
+            prefix = os.path.join(self.prefix, prefix)
+        keys_to_delete = []
+        for key in self.bucket.list(prefix=prefix):
+            keys_to_delete.append(key)
+            if len(keys_to_delete) > 99:
+                self.bucket.delete_keys(keys_to_delete)
+                keys_to_delete = []
+        if len(keys_to_delete) > 0:
+            self.bucket.delete_keys(keys_to_delete)

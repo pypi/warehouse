@@ -87,6 +87,52 @@ class TestLocalFileStorage:
         with open(os.path.join(storage_dir, "foo/second.txt"), "rb") as fp:
             assert fp.read() == b"Second Test File!"
 
+    def test_delete_by_prefix(self, tmpdir):
+        filename0 = str(tmpdir.join("testfile0.txt"))
+        with open(filename0, "wb") as fp:
+            fp.write(b"Zeroth Test File!")
+
+        filename1 = str(tmpdir.join("testfile1.txt"))
+        with open(filename1, "wb") as fp:
+            fp.write(b"First Test File!")
+
+        filename2 = str(tmpdir.join("testfile2.txt"))
+        with open(filename2, "wb") as fp:
+            fp.write(b"Second Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/zeroth.txt", filename0)
+        storage.store("foo/first.txt", filename1)
+        storage.store("bar/second.txt", filename2)
+
+        with open(os.path.join(storage_dir, "foo/zeroth.txt"), "rb") as fp:
+            assert fp.read() == b"Zeroth Test File!"
+
+        with open(os.path.join(storage_dir, "foo/first.txt"), "rb") as fp:
+            assert fp.read() == b"First Test File!"
+
+        with open(os.path.join(storage_dir, "bar/second.txt"), "rb") as fp:
+            assert fp.read() == b"Second Test File!"
+
+        storage.remove_by_prefix('foo')
+
+        with pytest.raises(FileNotFoundError):
+            storage.get("foo/zeroth.txt")
+
+        with pytest.raises(FileNotFoundError):
+            storage.get("foo/first.txt")
+
+        with open(os.path.join(storage_dir, "bar/second.txt"), "rb") as fp:
+            assert fp.read() == b"Second Test File!"
+
+    def test_delete_already_gone(self, tmpdir):
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+
+        response = storage.remove_by_prefix('foo')
+        assert response is None
+
 
 class TestS3FileStorage:
 
@@ -229,3 +275,60 @@ class TestS3FileStorage:
 
         assert file_object.read() == b"my contents"
         assert bucket.Object.calls == [pretend.call("ab/file.txt")]
+
+    @pytest.mark.parametrize('file_count', [66, 100])
+    def test_delete_by_prefix(self, file_count):
+        files = [f'foo/{i}.html' for i in range(file_count)]
+        bucket = pretend.stub(
+            list=pretend.call_recorder(lambda prefix=None: files),
+            delete_keys=pretend.call_recorder(lambda keys: None),
+        )
+        storage = S3FileStorage(bucket)
+
+        storage.remove_by_prefix('foo')
+
+        assert bucket.list.calls == [
+            pretend.call(prefix='foo'),
+        ]
+
+        assert bucket.delete_keys.calls == [
+            pretend.call([f'foo/{i}.html' for i in range(file_count)]),
+        ]
+
+    def test_delete_by_prefix_more_files(self):
+        files = [f'foo/{i}.html' for i in range(150)]
+        bucket = pretend.stub(
+            list=pretend.call_recorder(lambda prefix=None: files),
+            delete_keys=pretend.call_recorder(lambda keys: None),
+        )
+        storage = S3FileStorage(bucket)
+
+        storage.remove_by_prefix('foo')
+
+        assert bucket.list.calls == [
+            pretend.call(prefix='foo'),
+        ]
+
+        assert bucket.delete_keys.calls == [
+            pretend.call([f'foo/{i}.html' for i in range(100)]),
+            pretend.call([f'foo/{i}.html' for i in range(100, 150)]),
+        ]
+
+    def test_delete_by_prefix_with_storage_prefix(self):
+        files = [f'docs/foo/{i}.html' for i in range(150)]
+        bucket = pretend.stub(
+            list=pretend.call_recorder(lambda prefix=None: files),
+            delete_keys=pretend.call_recorder(lambda keys: None),
+        )
+        storage = S3FileStorage(bucket, prefix='docs')
+
+        storage.remove_by_prefix('foo')
+
+        assert bucket.list.calls == [
+            pretend.call(prefix='docs/foo'),
+        ]
+
+        assert bucket.delete_keys.calls == [
+            pretend.call([f'docs/foo/{i}.html' for i in range(100)]),
+            pretend.call([f'docs/foo/{i}.html' for i in range(100, 150)]),
+        ]
