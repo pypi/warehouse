@@ -39,8 +39,17 @@ class TestLocalFileStorage:
                 settings={"files.path": "/the/one/two/"},
             ),
         )
-        storage = LocalFileStorage.create_service(None, request)
+        storage = LocalFileStorage.create_service(None, request, name='files')
         assert storage.base == "/the/one/two/"
+
+    def test_create_service_no_name(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"files.path": "/the/one/two/"},
+            ),
+        )
+        with pytest.raises(ValueError):
+            LocalFileStorage.create_service(None, request)
 
     def test_gets_file(self, tmpdir):
         with open(str(tmpdir.join("file.txt")), "wb") as fp:
@@ -152,10 +161,19 @@ class TestS3FileStorage:
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"files.bucket": "froblob"}),
         )
-        storage = S3FileStorage.create_service(None, request)
+        storage = S3FileStorage.create_service(None, request, name='files')
 
         assert request.find_service.calls == [pretend.call(name="aws.session")]
         assert storage.bucket.name == "froblob"
+
+    def test_create_service_without_name(self):
+        session = boto3.session.Session()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: session),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        with pytest.raises(ValueError):
+            S3FileStorage.create_service(None, request)
 
     def test_gets_file(self):
         s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
