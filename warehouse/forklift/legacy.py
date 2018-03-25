@@ -799,7 +799,10 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "
-                 "See https://pypi.org/help#admin-intervention for details"),
+                 "See {projecthelp} for details")
+                .format(
+                    projecthelp = request.route_url(
+                        'help', _anchor='admin-intervention')),
             ) from None
 
         # Ensure that user has at least one verified email address. This should

@@ -1044,6 +1044,10 @@ class TestFileUpload:
             ),
         })
 
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
@@ -1052,7 +1056,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == ("403 New Project Registration Temporarily "
                                "Disabled See "
-                               "https://pypi.org/help#admin-intervention for "
+                               "/the/help/url/ for "
                                "details")
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
