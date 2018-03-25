@@ -88,8 +88,6 @@ def destroy_docs(project, request, flash=True):
     request.task(remove_documentation).delay(project.name)
 
     project.has_docs = False
-    # Flush so we can repeat this multiple times if necessary
-    request.db.flush()
 
     if flash:
         request.session.flash(
