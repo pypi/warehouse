@@ -63,17 +63,19 @@ class LocalFileStorage:
 @implementer(IFileStorage)
 class S3FileStorage:
 
-    def __init__(self, bucket, *, prefix=None):
+    def __init__(self, s3_client, bucket, *, prefix=None):
+        self.s3_client = s3_client
         self.bucket = bucket
         self.prefix = prefix
 
     @classmethod
     def create_service(cls, context, request):
         session = request.find_service(name="aws.session")
+        s3_client = session.client("s3")
         s3 = session.resource("s3")
         bucket = s3.Bucket(request.registry.settings["files.bucket"])
         prefix = request.registry.settings.get("files.prefix")
-        return cls(bucket, prefix=prefix)
+        return cls(s3_client, bucket, prefix=prefix)
 
     def _get_path(self, path):
         # Legacy paths will have a first directory of something like 2.7, we
@@ -110,10 +112,19 @@ class S3FileStorage:
         if self.prefix:
             prefix = os.path.join(self.prefix, prefix)
         keys_to_delete = []
-        for key in self.bucket.list(prefix=prefix):
-            keys_to_delete.append(key)
+        keys = self.s3_client.list_objects_v2(
+            Bucket=self.bucket.name, Prefix=prefix
+        )
+        for key in keys.get('Contents', []):
+            keys_to_delete.append({'Key': key['Key']})
             if len(keys_to_delete) > 99:
-                self.bucket.delete_keys(keys_to_delete)
+                self.s3_client.delete_objects(
+                    Bucket=self.bucket.name,
+                    Delete={'Objects': keys_to_delete}
+                )
                 keys_to_delete = []
         if len(keys_to_delete) > 0:
-            self.bucket.delete_keys(keys_to_delete)
+            self.s3_client.delete_objects(
+                Bucket=self.bucket.name,
+                Delete={'Objects': keys_to_delete}
+            )
