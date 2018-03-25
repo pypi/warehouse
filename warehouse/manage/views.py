@@ -31,7 +31,11 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Role
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import (
+    confirm_project,
+    destroy_docs,
+    remove_project,
+)
 
 
 @view_defaults(
@@ -356,6 +360,26 @@ def delete_project(project, request):
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path('manage.projects'))
+
+
+@view_config(
+    route_name="manage.project.destroy_docs",
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage",
+)
+def destroy_project_docs(project, request):
+    confirm_project(
+        project, request, fail_route="manage.project.documentation"
+    )
+    destroy_docs(project, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            'manage.project.documentation',
+            project_name=project.normalized_name,
+        )
+    )
 
 
 @view_config(
@@ -756,4 +780,16 @@ def manage_project_history(project, request):
     return {
         'project': project,
         'journals': journals,
+    }
+
+
+@view_config(
+    route_name="manage.project.documentation",
+    renderer="manage/documentation.html",
+    uses_session=True,
+    permission="manage",
+)
+def manage_project_documentation(project, request):
+    return {
+        'project': project,
     }

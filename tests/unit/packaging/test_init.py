@@ -34,11 +34,12 @@ def test_includme(monkeypatch, with_trending):
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
         register_service_factory=pretend.call_recorder(
-            lambda factory, iface: None,
+            lambda factory, iface, name=None: None,
         ),
         registry=pretend.stub(
             settings={
                 "files.backend": "foo.bar",
+                "docs.backend": "wu.tang",
             },
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
@@ -50,7 +51,8 @@ def test_includme(monkeypatch, with_trending):
     packaging.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, IFileStorage, name='files'),
+        pretend.call(storage_class.create_service, IFileStorage, name='docs'),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(

@@ -33,3 +33,8 @@ class IFileStorage(Interface):
         specified by path. An additional meta keyword argument may contain
         extra information that an implementation may or may not store.
         """
+
+    def remove_by_prefix(prefix):
+        """
+        Remove all files matching the given prefix.
+        """
