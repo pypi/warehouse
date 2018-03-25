@@ -1,10 +1,9 @@
 WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 
-# Uncomment the below line if you're working on the PyPI theme, this is a
-# private repository due to the fact that other people's IP is contained in
-# it.
-# WAREHOUSE_THEME: pypi_theme.pypi
+# Uncomment the line below if you're working on pypi-theme, this is a private
+# repository due to the fact that other people's IP is contained in it.
+#WAREHOUSE_THEME=pypi_theme.pypi
 
 AMQP_URL=amqp://guest@rabbitmq:5672//
 
@@ -22,9 +21,6 @@ CAMO_KEY="insecure camo key"
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.example.com/packages/{path}
-
-RECAPTCHA_SITE_KEY
-RECAPTCHA_SECRET_KEY
 
 MAIL_HOST=smtp
 MAIL_PORT=2525

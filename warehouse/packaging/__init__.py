@@ -11,12 +11,26 @@
 # limitations under the License.
 
 from celery.schedules import crontab
+from sqlalchemy.orm.base import NO_VALUE
 
-from warehouse.accounts.models import User
-from warehouse.cache.origin import key_factory
+from warehouse import db
+from warehouse.accounts.models import User, Email
+from warehouse.cache.origin import key_factory, receive_set
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
+
+
+@db.listens_for(User.name, 'set')
+def user_name_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(User.name, config, target)
+
+
+@db.listens_for(Email.primary, 'set')
+def email_primary_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(Email.primary, config, target)
 
 
 def includeme(config):
@@ -28,6 +42,13 @@ def includeme(config):
     config.register_service_factory(storage_class.create_service, IFileStorage)
 
     # Register our origin cache keys
+    config.register_origin_cache_keys(
+        File,
+        cache_keys=["project/{obj.release.project.normalized_name}"],
+        purge_keys=[
+            key_factory("project/{obj.release.project.normalized_name}"),
+        ],
+    )
     config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],
@@ -47,11 +68,31 @@ def includeme(config):
         ],
     )
     config.register_origin_cache_keys(
+        Role,
+        purge_keys=[
+            key_factory("user/{obj.user.username}"),
+            key_factory("project/{obj.project.normalized_name}")
+        ],
+    )
+    config.register_origin_cache_keys(
         User,
         cache_keys=["user/{obj.username}"],
+    )
+    config.register_origin_cache_keys(
+        User.name,
         purge_keys=[
             key_factory("user/{obj.username}"),
             key_factory("project/{itr.normalized_name}", iterate_on='projects')
+        ],
+    )
+    config.register_origin_cache_keys(
+        Email.primary,
+        purge_keys=[
+            key_factory("user/{obj.user.username}"),
+            key_factory(
+                "project/{itr.normalized_name}",
+                iterate_on='user.projects',
+            )
         ],
     )
 

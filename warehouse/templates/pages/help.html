@@ -26,13 +26,14 @@
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
+{% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
-{% macro file_name_reuse() %}Why am I getting a "File already exists" error?{% endmacro %}
+{% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
@@ -63,6 +64,7 @@
         <ul>
           <li><a href="#APIs">{{ APIs() }}</a></li>
           <li><a href="#mirroring">{{ mirroring() }}</a></li>
+          <li><a href="#project-release-notifications">{{ project_release_notifications() }}</a></li>
         </ul>
       </section>
 
@@ -149,6 +151,12 @@
         <h3 id="mirroring">{{ mirroring() }}</h3>
         <p>
           If you need to run your own mirror of PyPI, the <a href="https://pypi.org/project/bandersnatch/">bandersnatch project</a> is the recommended solution. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte—and growing!
+        </p>
+
+        <h3 id="project-release-notifications">{{ project_release_notifications() }}</h3>
+        <p>
+          PyPI itself does not offer a way to get notified when a project uploads new releases. However, there are several third-party services that offer comprehensive monitoring and notifications for project releases and vulnerabilities such as <a href="https://pyup.io" target="_blank" rel="noopener">pyup.io</a> and <a href="https://libraries.io/" target="_blank" rel="noopener">libraries.io</a>.
+        </p>
       </section>
 
       <section class="faq-group" id="problems">
@@ -224,11 +232,12 @@
 
         <h3 id="file-name-reuse">{{ file_name_reuse() }}</h3>
         <p>
-          The error <i>HTTPError: 400 Client Error: File already exists</i> happens for one of two reasons:
+          PyPI will return these errors for one of these reasons:
         </p>
         <ul>
           <li>Filename has been used and file exists</li>
           <li>Filename has been used but file no longer exists</li>
+          <li>A file with the exact same content exists</li>
         </ul>
         <p>
           PyPI does not allow for a filename to be reused, even once a project has been deleted and recreated.

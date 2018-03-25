@@ -102,6 +102,22 @@ gulp.task("dist:js", () => {
     .pipe(gulp.dest(path.join(distPath, "js")));
 });
 
+gulp.task("dist:noscript", () => {
+  let sassPath = path.join(staticPrefix, "sass");
+
+  return gulp.src(path.join(sassPath, "noscript.scss"))
+    .pipe(sourcemaps.init())
+    .pipe(
+      gulpSass({ includePaths: [sassPath] })
+        .on("error", gulpSass.logError))
+    .pipe(gulpCSSNano({
+      safe: true,
+      discardComments: {removeAll: true},
+    }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest(path.join(distPath, "css")));
+});
+
 
 gulp.task("dist:admin:js", () => {
   let files = [
@@ -215,6 +231,7 @@ gulp.task("dist:manifest", () => {
         ".ttf",
         ".otf",
         ".png",
+        ".jpg",
         ".ico",
         ".js",
       ],
@@ -245,6 +262,7 @@ gulp.task("dist:compress:br:generic", () => {
     path.join(distPath, "fonts", "*.eot"),
     path.join(distPath, "fonts", "*.svg"),
 
+    path.join(distPath, "images", "*.jpg"),
     path.join(distPath, "images", "*.png"),
     path.join(distPath, "images", "*.svg"),
     path.join(distPath, "images", "*.ico"),
@@ -286,7 +304,7 @@ gulp.task("dist", (cb) => {
     // any previously built files.
     "clean",
     // Build all of our static assets.
-    ["dist:font-awesome", "dist:css", "dist:js", "dist:admin:js", "dist:vendor"],
+    ["dist:font-awesome", "dist:css", "dist:noscript", "dist:js", "dist:admin:js", "dist:vendor"],
     // We have this here, instead of in the list above even though there is no
     // ordering dependency so that all of it's output shows up together which
     // makes it easier to read.

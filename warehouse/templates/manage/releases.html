@@ -31,7 +31,7 @@
       {% for release in project.releases %}
         <tr>
           <td class="table__version">
-            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}">
+            <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" title="Manage version">
               {{ release.version }}
             </a>
           </td>
@@ -55,16 +55,22 @@
               <div class="dropdown__content">
                 <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-pencil" aria-hidden="true"></i>
-                  Edit
+                  Manage
                 </a>
                 <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
                   <i class="fa fa-eye" aria-hidden="true"></i>
                   View
                 </a>
-                {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
-                {{ confirm_dropdown("Delete Release", "Version", release.version, index=loop.index, action=action) }}
+                {% set title = "Delete Release" %}
+                {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                <a href="#{{ slug }}" class="dropdown__link">
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                  Delete
+                </a>
               </div>
             </div>
+            {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
+            {{ confirm_modal(title, "Version", release.version, slug, index=loop.index, action=action) }}
           </td>
         </tr>
       {% endfor %}

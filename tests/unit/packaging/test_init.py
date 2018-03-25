@@ -16,8 +16,9 @@ import pytest
 from celery.schedules import crontab
 
 from warehouse import packaging
+from warehouse.accounts.models import Email, User
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release, User
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -53,6 +54,13 @@ def test_includme(monkeypatch, with_trending):
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
+            File,
+            cache_keys=["project/{obj.release.project.normalized_name}"],
+            purge_keys=[
+                key_factory("project/{obj.release.project.normalized_name}"),
+            ],
+        ),
+        pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
             purge_keys=[
@@ -71,13 +79,33 @@ def test_includme(monkeypatch, with_trending):
             ],
         ),
         pretend.call(
+            Role,
+            purge_keys=[
+                key_factory("user/{obj.user.username}"),
+                key_factory("project/{obj.project.normalized_name}")
+            ],
+        ),
+        pretend.call(
             User,
             cache_keys=["user/{obj.username}"],
+        ),
+        pretend.call(
+            User.name,
             purge_keys=[
                 key_factory("user/{obj.username}"),
                 key_factory(
                     "project/{itr.normalized_name}",
                     iterate_on='projects',
+                ),
+            ],
+        ),
+        pretend.call(
+            Email.primary,
+            purge_keys=[
+                key_factory("user/{obj.user.username}"),
+                key_factory(
+                    "project/{itr.normalized_name}",
+                    iterate_on='user.projects',
                 ),
             ],
         ),
