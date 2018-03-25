@@ -169,6 +169,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.destroy_docs",
+            "/manage/project/{project_name}/delete_project_docs/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.releases",
             "/manage/project/{project_name}/releases/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -199,6 +206,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.project.delete_role",
             "/manage/project/{project_name}/collaboration/delete/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.documentation",
+            "/manage/project/{project_name}/documentation/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,

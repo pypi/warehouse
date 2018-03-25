@@ -61,3 +61,24 @@ def remove_project(project, request, flash=True):
             f"Successfully deleted the project {project.name!r}.",
             queue="success",
         )
+
+
+def destroy_docs(project, request, flash=True):
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="docdestroy",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    project.has_docs = False
+    # Flush so we can repeat this multiple times if necessary
+    request.db.flush()
+
+    if flash:
+        request.session.flash(
+            f"Successfully deleted docs for project {project.name!r}.",
+            queue="success",
+        )
