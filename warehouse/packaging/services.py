@@ -39,8 +39,10 @@ class LocalFileStorage:
         self.base = base
 
     @classmethod
-    def create_service(cls, context, request):
-        return cls(request.registry.settings["files.path"])
+    def create_service(cls, context, request, name=None):
+        if name is None:
+            raise ValueError('name is required')
+        return cls(request.registry.settings[f"{name}.path"])
 
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
@@ -69,12 +71,14 @@ class S3FileStorage:
         self.prefix = prefix
 
     @classmethod
-    def create_service(cls, context, request):
+    def create_service(cls, context, request, name=None):
+        if name is None:
+            raise ValueError('name is required')
         session = request.find_service(name="aws.session")
         s3_client = session.client("s3")
         s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings["files.bucket"])
-        prefix = request.registry.settings.get("files.prefix")
+        bucket = s3.Bucket(request.registry.settings[f"{name}.bucket"])
+        prefix = request.registry.settings.get(f"{name}.prefix")
         return cls(s3_client, bucket, prefix=prefix)
 
     def _get_path(self, path):
