@@ -2740,6 +2740,10 @@ class TestFileUpload:
         db_request.find_service = lambda svc: storage_service
         db_request.remote_addr = "10.10.10.10"
 
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
         if expected_success:
             resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
@@ -2753,7 +2757,7 @@ class TestFileUpload:
                  "addresses, please verify at least one "
                  "address before registering a new project "
                  "on PyPI. See "
-                 "https://pypi.org/help/#verified-email "
+                 "/the/help/url/ "
                  "for more information.").format(user.username)
             )
 
