@@ -117,6 +117,7 @@ def app_config(database):
             "ratelimit.url": "memory://",
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
+            "docs.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
