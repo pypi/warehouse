@@ -39,12 +39,16 @@ def includeme(config):
     files_storage_class = config.maybe_dotted(
         config.registry.settings["files.backend"],
     )
-    config.register_service_factory(files_storage_class.create_service, IFileStorage, name='files')
+    config.register_service_factory(
+        files_storage_class.create_service, IFileStorage, name='files'
+    )
 
     docs_storage_class = config.maybe_dotted(
         config.registry.settings["docs.backend"],
     )
-    config.register_service_factory(docs_storage_class.create_service, IFileStorage, name='docs')
+    config.register_service_factory(
+        docs_storage_class.create_service, IFileStorage, name='docs'
+    )
 
     # Register our origin cache keys
     config.register_origin_cache_keys(
