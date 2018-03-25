@@ -17,7 +17,7 @@ from warehouse import db
 from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -43,6 +43,13 @@ def includeme(config):
 
     # Register our origin cache keys
     config.register_origin_cache_keys(
+        File,
+        cache_keys=["project/{obj.release.project.normalized_name}"],
+        purge_keys=[
+            key_factory("project/{obj.release.project.normalized_name}"),
+        ],
+    )
+    config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],
         purge_keys=[
@@ -58,6 +65,13 @@ def includeme(config):
             key_factory("project/{obj.project.normalized_name}"),
             key_factory("user/{itr.username}", iterate_on='project.users'),
             key_factory("all-projects"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        Role,
+        purge_keys=[
+            key_factory("user/{obj.user.username}"),
+            key_factory("project/{obj.project.normalized_name}")
         ],
     )
     config.register_origin_cache_keys(
