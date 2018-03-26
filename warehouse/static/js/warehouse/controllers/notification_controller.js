@@ -33,6 +33,10 @@ export default class extends Controller {
     }
   }
 
+  get isSticky() {
+    return this.notificationTarget.parentNode.classList.contains("js-stick-to-top");
+  }
+
   initialize() {
     const notificationId = this._getNotificationId();
     const isDismissable = this.notificationTarget.classList.contains("notification-bar--dismissable");
@@ -51,5 +55,9 @@ export default class extends Controller {
       localStorage.setItem(notificationId, 1);
     }
     this.notificationTarget.classList.remove("notification-bar--visible");
+    if (this.isSticky) {
+      let bodyElement = document.querySelector("body");
+      bodyElement.style.paddingTop = "0px";
+    }
   }
 }
