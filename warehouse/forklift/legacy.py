@@ -801,7 +801,7 @@ def file_upload(request):
                 ("New Project Registration Temporarily Disabled "
                  "See {projecthelp} for details")
                 .format(
-                    projecthelp = request.route_url(
+                    projecthelp=request.route_url(
                         'help', _anchor='admin-intervention')),
             ) from None
 
@@ -817,7 +817,7 @@ def file_upload(request):
                  "PyPI. See {projecthelp} for more information.")
                 .format(
                     request.user.username,
-                    projecthelp = request.route_url(
+                    projecthelp=request.route_url(
                         'help', _anchor='verified-email')),
             ) from None
 
