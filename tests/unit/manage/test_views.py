@@ -1096,7 +1096,7 @@ class TestManageProjectRelease:
         )
         request = pretend.stub(
             POST={
-                'confirm_filename': release_file.filename,
+                'confirm_project_name': release.project.name,
                 'file_id': release_file.id,
             },
             method="POST",
@@ -1156,7 +1156,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm_filename': ''},
+            POST={'confirm_project_name': ''},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
@@ -1195,7 +1195,7 @@ class TestManageProjectRelease:
             raise NoResultFound
 
         request = pretend.stub(
-            POST={'confirm_filename': 'whatever'},
+            POST={'confirm_project_name': 'whatever'},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -1239,7 +1239,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm_filename': 'invalid'},
+            POST={'confirm_project_name': 'invalid'},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -1263,7 +1263,7 @@ class TestManageProjectRelease:
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - " +
-                f"'invalid' is not the same as {release_file.filename!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
