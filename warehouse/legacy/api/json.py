@@ -186,6 +186,7 @@ def json_release(release, request):
             "bugtrack_url": project.bugtrack_url,
             "home_page": release.home_page,
             "download_url": release.download_url,
+            "last_serial": project.last_serial,
         },
         "urls": releases[release.version],
         "releases": releases,
