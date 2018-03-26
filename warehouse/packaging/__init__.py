@@ -10,15 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from functools import partial
-
 from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
 from warehouse import db
 from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
@@ -42,16 +40,14 @@ def includeme(config):
         config.registry.settings["files.backend"],
     )
     config.register_service_factory(
-        partial(files_storage_class.create_service, name='files'),
-        IFileStorage, name='files'
+        files_storage_class.create_service, IFileStorage
     )
 
     docs_storage_class = config.maybe_dotted(
         config.registry.settings["docs.backend"],
     )
     config.register_service_factory(
-        partial(docs_storage_class.create_service, name='docs'),
-        IFileStorage, name='docs'
+        docs_storage_class.create_service, IDocsStorage
     )
 
     # Register our origin cache keys
