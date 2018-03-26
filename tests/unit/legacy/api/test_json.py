@@ -210,7 +210,6 @@ class TestJSONRelease:
                 "requires_python": None,
                 "summary": None,
                 "version": "2.0",
-                "last_serial": je.id,
             },
             "releases": {
                 "1.0": [
@@ -275,4 +274,5 @@ class TestJSONRelease:
                     "url": "/the/fake/url/",
                 },
             ],
+            "last_serial": je.id,
         }
