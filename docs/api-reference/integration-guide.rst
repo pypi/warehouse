@@ -50,8 +50,8 @@ Here are some tips.
 
 * XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
   the future; switch to the RSS or JSON APIs. If you depend on an
-  XML-RPC call that our other APIs do not support, please <a
-  href="https://pypi.org/help/#feedback">tell us</a>.
+  XML-RPC call that our other APIs do not support, please `tell us
+  <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and
