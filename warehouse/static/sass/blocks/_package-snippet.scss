@@ -39,7 +39,7 @@
     padding: 10px;
     background-image: none;
   }
-  
+
   &__title {
     @include ellipsis;
     @include h3;

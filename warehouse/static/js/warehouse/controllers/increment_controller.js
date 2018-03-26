@@ -16,7 +16,7 @@ import { Controller } from "stimulus";
 export default class extends Controller {
   static targets = ["button"];
 
-  // initially set default to 5 projects visible
+  // Initially set default to 5 projects visible
   constructor() {
     super();
     this.trending_visible = 5;
@@ -28,7 +28,7 @@ export default class extends Controller {
     const elements = document.getElementsByClassName(
       `hide-by-index-${eventType}`
     );
-    // j is previous amount visible, end is how many will be
+    // j is previous amount visible, end is how many will be visible
     let j = this[`${eventType}_visible`];
     const end = (this[`${eventType}_visible`] += 5);
     if (end <= 20) {

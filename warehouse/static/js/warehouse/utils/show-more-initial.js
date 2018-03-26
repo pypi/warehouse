@@ -18,9 +18,7 @@ export default () => {
   const latestElements = document.getElementsByClassName(
     "hide-by-index-latest"
   );
-  // Hide all elements beyond 5 initially
   for (let i = 5; i <= 20; i++) {
-    // ATM, with mock data? There are someimtes only 19 trending projects
     if (trendingElements[i]) {
       trendingElements[i].style.display = "none";
     }

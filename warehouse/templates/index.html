@@ -19,23 +19,23 @@
 {% set latest_releases_visible = namespace(total=20) %}
 
 {% macro project_snippet_latest(release, summary, index) -%}
-<div class='package-snippet hide-by-index-latest'>
+<div class="package-snippet hide-by-index-latest">
   {{ project_snippet(release, summary, index)}}
 </div>
 {%- endmacro %}
 {% macro project_snippet_trending(release, summary, index) -%}
-<div class='package-snippet hide-by-index-trending'>
+<div class="package-snippet hide-by-index-trending">
   {{ project_snippet(release, summary, index)}}
 </div>
 {%- endmacro %}
 
 {% macro project_snippet(release, summary, index) -%}
 <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
-    <span class="package-snippet__version">{{ release.version }}</span>
-  </h3>
-  {% set summary = release.summary if release.summary else "No description provided" %}
-  <p class="package-snippet__description">{{ summary }}</p>
+  <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
+  <span class="package-snippet__version">{{ release.version }}</span>
+</h3>
+{% set summary = release.summary if release.summary else "No description provided" %}
+<p class="package-snippet__description">{{ summary }}</p>
 {%- endmacro %}
 
 

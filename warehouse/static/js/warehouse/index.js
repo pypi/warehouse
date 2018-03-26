@@ -58,6 +58,7 @@ docReady(() => {
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
 
+// Initially hide all packages in homepage except the first 5.
 docReady(showMoreInitial);
 
 // Trigger our analytics code.
