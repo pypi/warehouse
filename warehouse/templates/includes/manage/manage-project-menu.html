@@ -24,6 +24,11 @@
     <i class="fa fa-history" aria-hidden="true"></i>
     History
   </a>
+  {% if project.has_docs %}
+  <a href="{{ request.route_path('manage.project.documentation', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'documentation' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"> <i class="fa fa-book" aria-hidden="true"></i>
+    Documentation
+  </a>
+  {% endif %}
   <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}">
     <i class="fa fa-wrench" aria-hidden="true"></i>
     Settings

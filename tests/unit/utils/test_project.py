@@ -11,13 +11,18 @@
 # limitations under the License.
 
 import pytest
-from pretend import call, call_recorder, stub
+from pretend import call, call_recorder, stub, raiser
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.packaging.models import (
     Project, Release, Dependency, File, Role, JournalEntry
 )
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import (
+    confirm_project,
+    destroy_docs,
+    remove_project,
+    remove_documentation,
+)
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -134,3 +139,90 @@ def test_remove_project(db_request, flash):
     assert journal_entry.action == "remove"
     assert journal_entry.submitted_by == db_request.user
     assert journal_entry.submitted_from == db_request.remote_addr
+
+
+@pytest.mark.parametrize(
+    'flash',
+    [True, False]
+)
+def test_destroy_docs(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo", has_docs=True)
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    db_request.remote_addr = "192.168.1.1"
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+    remove_documentation_recorder = stub(
+        delay=call_recorder(lambda *a, **kw: None)
+    )
+    db_request.task = call_recorder(
+        lambda *a, **kw: remove_documentation_recorder
+    )
+
+    destroy_docs(project, db_request, flash=flash)
+
+    journal_entry = (
+        db_request.db.query(JournalEntry)
+                     .filter(JournalEntry.name == "foo")
+                     .one()
+    )
+    assert journal_entry.action == "docdestroy"
+    assert journal_entry.submitted_by == db_request.user
+    assert journal_entry.submitted_from == db_request.remote_addr
+
+    assert not (db_request.db.query(Project)
+                             .filter(Project.name == project.name)
+                             .first().has_docs)
+
+    assert remove_documentation_recorder.delay.calls == [
+        call('foo')
+    ]
+
+    if flash:
+        assert db_request.session.flash.calls == [
+            call(
+                "Successfully deleted docs for project 'foo'.",
+                queue="success"
+            ),
+        ]
+    else:
+        assert db_request.session.flash.calls == []
+
+
+def test_remove_documentation(db_request):
+    project = ProjectFactory.create(name="foo", has_docs=True)
+    task = stub()
+    service = stub(remove_by_prefix=call_recorder(lambda project_name: None))
+    db_request.find_service = call_recorder(
+        lambda interface, name=None: service
+    )
+    db_request.log = stub(info=call_recorder(lambda *a, **kw: None))
+
+    remove_documentation(task, db_request, project.name)
+
+    assert service.remove_by_prefix.calls == [
+        call(project.name)
+    ]
+
+    assert db_request.log.info.calls == [
+        call("Removing documentation for %s", project.name),
+    ]
+
+
+def test_remove_documentation_retry(db_request):
+    project = ProjectFactory.create(name="foo", has_docs=True)
+    task = stub(retry=call_recorder(lambda *a, **kw: None))
+    service = stub(remove_by_prefix=raiser(Exception))
+    db_request.find_service = call_recorder(
+        lambda interface, name=None: service
+    )
+    db_request.log = stub(info=call_recorder(lambda *a, **kw: None))
+
+    remove_documentation(task, db_request, project.name)
+
+    assert len(task.retry.calls) == 1
+
+    assert db_request.log.info.calls == [
+        call("Removing documentation for %s", project.name),
+    ]

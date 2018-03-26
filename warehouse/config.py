@@ -192,6 +192,7 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
     # Add the settings we use when the environment is set to development.
