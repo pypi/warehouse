@@ -185,7 +185,7 @@ def index(request):
             request.db.query(Project.name)
                    .order_by(Project.zscore.desc().nullslast(),
                              func.random())
-                   .limit(5)
+                   .limit(20)
                    .all())
     ]
     release_a = aliased(
@@ -209,7 +209,7 @@ def index(request):
         request.db.query(Release)
                   .options(joinedload(Release.project))
                   .order_by(Release.created.desc())
-                  .limit(5)
+                  .limit(20)
                   .all()
     )
 
