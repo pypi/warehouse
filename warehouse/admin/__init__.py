@@ -10,10 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.accounts.views import login, logout
-
 
 def includeme(config):
+    from warehouse.accounts.views import login, logout
+
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
 
@@ -22,6 +22,9 @@ def includeme(config):
 
     # Add our routes
     config.include(".routes")
+
+    # Add our flags
+    config.include(".flags")
 
     config.add_view(
         login,

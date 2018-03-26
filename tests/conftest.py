@@ -27,6 +27,7 @@ from sqlalchemy import event
 
 from warehouse.config import configure
 from warehouse.accounts import services
+from warehouse.admin.flags import Flags
 
 from .common.db import Session
 
@@ -116,6 +117,7 @@ def app_config(database):
             "ratelimit.url": "memory://",
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
+            "docs.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
@@ -215,6 +217,7 @@ def query_recorder(app_config):
 def db_request(pyramid_request, db_session, datadog):
     pyramid_request.registry.datadog = datadog
     pyramid_request.db = db_session
+    pyramid_request.flags = Flags(pyramid_request)
     return pyramid_request
 
 

@@ -15,8 +15,11 @@ import collections
 from urllib.parse import urlparse
 
 from pyramid.exceptions import ConfigurationError
+from sqlalchemy.orm.base import NO_VALUE
+from sqlalchemy.orm.session import Session
 
 from warehouse import db
+from warehouse.accounts.models import Email, User
 from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
 from warehouse.legacy.api.xmlrpc.cache.services import (
@@ -31,6 +34,18 @@ __all__ = [
 
 
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+
+
+def receive_set(attribute, config, target):
+    cache_keys = config.registry["cache_keys"]
+    session = Session.object_session(target)
+    purges = session.info.setdefault(
+        "warehouse.legacy.api.xmlrpc.cache.purges",
+        set()
+    )
+    key_maker = cache_keys[attribute]
+    keys = key_maker(target).purge
+    purges.update(list(keys))
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -67,6 +82,18 @@ def execute_purge(config, session):
 
     xmlrpc_cache = xmlrpc_cache_factory(None, config)
     xmlrpc_cache.purge_tags(purges)
+
+
+@db.listens_for(User.name, 'set')
+def user_name_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(User.name, config, target)
+
+
+@db.listens_for(Email.primary, 'set')
+def email_primary_receive_set(config, target, value, oldvalue, initiator):
+    if oldvalue is not NO_VALUE:
+        receive_set(Email.primary, config, target)
 
 
 def includeme(config):

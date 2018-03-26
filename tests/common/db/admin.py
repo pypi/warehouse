@@ -12,7 +12,7 @@
 
 import factory.fuzzy
 
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 
 from .base import WarehouseFactory
 
