@@ -39,8 +39,17 @@ class TestLocalFileStorage:
                 settings={"files.path": "/the/one/two/"},
             ),
         )
-        storage = LocalFileStorage.create_service(None, request)
+        storage = LocalFileStorage.create_service(None, request, name='files')
         assert storage.base == "/the/one/two/"
+
+    def test_create_service_no_name(self):
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={"files.path": "/the/one/two/"},
+            ),
+        )
+        with pytest.raises(ValueError):
+            LocalFileStorage.create_service(None, request)
 
     def test_gets_file(self, tmpdir):
         with open(str(tmpdir.join("file.txt")), "wb") as fp:
@@ -140,9 +149,11 @@ class TestS3FileStorage:
         assert verifyClass(IFileStorage, S3FileStorage)
 
     def test_basic_init(self):
+        s3_client = pretend.stub()
         bucket = pretend.stub()
-        storage = S3FileStorage(bucket)
+        storage = S3FileStorage(s3_client, bucket)
         assert storage.bucket is bucket
+        assert storage.s3_client is s3_client
 
     def test_create_service(self):
         session = boto3.session.Session()
@@ -150,15 +161,25 @@ class TestS3FileStorage:
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"files.bucket": "froblob"}),
         )
-        storage = S3FileStorage.create_service(None, request)
+        storage = S3FileStorage.create_service(None, request, name='files')
 
         assert request.find_service.calls == [pretend.call(name="aws.session")]
         assert storage.bucket.name == "froblob"
 
+    def test_create_service_without_name(self):
+        session = boto3.session.Session()
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: session),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        with pytest.raises(ValueError):
+            S3FileStorage.create_service(None, request)
+
     def test_gets_file(self):
         s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
         bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
-        storage = S3FileStorage(bucket)
+        s3_client = pretend.stub()
+        storage = S3FileStorage(s3_client, bucket)
 
         file_object = storage.get("file.txt")
 
@@ -174,7 +195,8 @@ class TestS3FileStorage:
 
         s3key = pretend.stub(get=raiser)
         bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
-        storage = S3FileStorage(bucket)
+        s3_client = pretend.stub()
+        storage = S3FileStorage(s3_client, bucket)
 
         with pytest.raises(FileNotFoundError):
             storage.get("file.txt")
@@ -189,8 +211,9 @@ class TestS3FileStorage:
             )
 
         s3key = pretend.stub(get=raiser)
-        bucket = pretend.stub(Object=lambda path: s3key)
-        storage = S3FileStorage(bucket)
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        s3_client = pretend.stub()
+        storage = S3FileStorage(s3_client, bucket)
 
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get("file.txt")
@@ -200,12 +223,13 @@ class TestS3FileStorage:
         with open(filename, "wb") as fp:
             fp.write(b"Test File!")
 
+        s3_client = pretend.stub()
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
                 lambda filename, key, ExtraArgs: None,
             ),
         )
-        storage = S3FileStorage(bucket)
+        storage = S3FileStorage(s3_client, bucket)
         storage.store("foo/bar.txt", filename)
 
         assert bucket.upload_file.calls == [
@@ -221,12 +245,13 @@ class TestS3FileStorage:
         with open(filename2, "wb") as fp:
             fp.write(b"Second Test File!")
 
+        s3_client = pretend.stub()
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
                 lambda filename, key, ExtraArgs: None,
             ),
         )
-        storage = S3FileStorage(bucket)
+        storage = S3FileStorage(s3_client, bucket)
         storage.store("foo/first.txt", filename1)
         storage.store("foo/second.txt", filename2)
 
@@ -240,12 +265,13 @@ class TestS3FileStorage:
         with open(filename, "wb") as fp:
             fp.write(b"Test File!")
 
+        s3_client = pretend.stub()
         bucket = pretend.stub(
             upload_file=pretend.call_recorder(
                 lambda filename, key, ExtraArgs: None,
             ),
         )
-        storage = S3FileStorage(bucket)
+        storage = S3FileStorage(s3_client, bucket)
         storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
 
         assert bucket.upload_file.calls == [
@@ -258,8 +284,9 @@ class TestS3FileStorage:
 
     def test_hashed_path_with_prefix(self):
         s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
+        s3_client = pretend.stub()
         bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
-        storage = S3FileStorage(bucket, prefix="packages/")
+        storage = S3FileStorage(s3_client, bucket, prefix="packages/")
 
         file_object = storage.get("ab/file.txt")
 
@@ -268,8 +295,9 @@ class TestS3FileStorage:
 
     def test_hashed_path_without_prefix(self):
         s3key = pretend.stub(get=lambda: {"Body": io.BytesIO(b"my contents")})
+        s3_client = pretend.stub()
         bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
-        storage = S3FileStorage(bucket)
+        storage = S3FileStorage(s3_client, bucket)
 
         file_object = storage.get("ab/file.txt")
 
@@ -278,57 +306,115 @@ class TestS3FileStorage:
 
     @pytest.mark.parametrize('file_count', [66, 100])
     def test_delete_by_prefix(self, file_count):
-        files = [f'foo/{i}.html' for i in range(file_count)]
+        files = {
+            'Contents': [
+                {'Key': f'foo/{i}.html'} for i in range(file_count)
+            ],
+        }
         bucket = pretend.stub(
-            list=pretend.call_recorder(lambda prefix=None: files),
-            delete_keys=pretend.call_recorder(lambda keys: None),
+            name='bucket-name',
         )
-        storage = S3FileStorage(bucket)
+        s3_client = pretend.stub(
+            list_objects_v2=pretend.call_recorder(
+                lambda Bucket=None, Prefix=None: files),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None),
+        )
+        storage = S3FileStorage(s3_client, bucket)
 
         storage.remove_by_prefix('foo')
 
-        assert bucket.list.calls == [
-            pretend.call(prefix='foo'),
+        assert s3_client.list_objects_v2.calls == [
+            pretend.call(Bucket='bucket-name', Prefix='foo'),
         ]
 
-        assert bucket.delete_keys.calls == [
-            pretend.call([f'foo/{i}.html' for i in range(file_count)]),
+        assert s3_client.delete_objects.calls == [
+            pretend.call(
+                Bucket='bucket-name',
+                Delete={
+                    'Objects': [
+                        {'Key': f'foo/{i}.html'} for i in range(file_count)
+                    ]
+                },
+            ),
         ]
 
     def test_delete_by_prefix_more_files(self):
-        files = [f'foo/{i}.html' for i in range(150)]
+        files = {
+            'Contents': [{'Key': f'foo/{i}.html'} for i in range(150)]
+        }
         bucket = pretend.stub(
-            list=pretend.call_recorder(lambda prefix=None: files),
-            delete_keys=pretend.call_recorder(lambda keys: None),
+            name='bucket-name',
         )
-        storage = S3FileStorage(bucket)
+        s3_client = pretend.stub(
+            list_objects_v2=pretend.call_recorder(
+                lambda Bucket=None, Prefix=None: files),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None),
+        )
+        storage = S3FileStorage(s3_client, bucket)
 
         storage.remove_by_prefix('foo')
 
-        assert bucket.list.calls == [
-            pretend.call(prefix='foo'),
+        assert s3_client.list_objects_v2.calls == [
+            pretend.call(Bucket='bucket-name', Prefix='foo'),
         ]
 
-        assert bucket.delete_keys.calls == [
-            pretend.call([f'foo/{i}.html' for i in range(100)]),
-            pretend.call([f'foo/{i}.html' for i in range(100, 150)]),
+        assert s3_client.delete_objects.calls == [
+            pretend.call(
+                Bucket='bucket-name',
+                Delete={
+                    'Objects': [
+                        {'Key': f'foo/{i}.html'} for i in range(100)
+                    ]
+                },
+            ),
+            pretend.call(
+                Bucket='bucket-name',
+                Delete={
+                    'Objects': [
+                        {'Key': f'foo/{i}.html'} for i in range(100, 150)
+                    ]
+                },
+            )
         ]
 
     def test_delete_by_prefix_with_storage_prefix(self):
-        files = [f'docs/foo/{i}.html' for i in range(150)]
+        files = {
+            'Contents': [{'Key': f'docs/foo/{i}.html'} for i in range(150)]
+        }
         bucket = pretend.stub(
-            list=pretend.call_recorder(lambda prefix=None: files),
-            delete_keys=pretend.call_recorder(lambda keys: None),
+            name='bucket-name',
         )
-        storage = S3FileStorage(bucket, prefix='docs')
+        s3_client = pretend.stub(
+            list_objects_v2=pretend.call_recorder(
+                lambda Bucket=None, Prefix=None: files),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None),
+        )
+        storage = S3FileStorage(s3_client, bucket, prefix='docs')
 
         storage.remove_by_prefix('foo')
 
-        assert bucket.list.calls == [
-            pretend.call(prefix='docs/foo'),
+        assert s3_client.list_objects_v2.calls == [
+            pretend.call(Bucket='bucket-name', Prefix='docs/foo'),
         ]
 
-        assert bucket.delete_keys.calls == [
-            pretend.call([f'docs/foo/{i}.html' for i in range(100)]),
-            pretend.call([f'docs/foo/{i}.html' for i in range(100, 150)]),
+        assert s3_client.delete_objects.calls == [
+            pretend.call(
+                Bucket='bucket-name',
+                Delete={
+                    'Objects': [
+                        {'Key': f'docs/foo/{i}.html'} for i in range(100)
+                    ]
+                },
+            ),
+            pretend.call(
+                Bucket='bucket-name',
+                Delete={
+                    'Objects': [
+                        {'Key': f'docs/foo/{i}.html'} for i in range(100, 150)
+                    ]
+                },
+            )
         ]

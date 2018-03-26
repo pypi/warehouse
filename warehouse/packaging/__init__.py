@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import partial
+
 from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
@@ -40,14 +42,16 @@ def includeme(config):
         config.registry.settings["files.backend"],
     )
     config.register_service_factory(
-        files_storage_class.create_service, IFileStorage, name='files'
+        partial(files_storage_class.create_service, name='files'),
+        IFileStorage, name='files'
     )
 
     docs_storage_class = config.maybe_dotted(
         config.registry.settings["docs.backend"],
     )
     config.register_service_factory(
-        docs_storage_class.create_service, IFileStorage, name='docs'
+        partial(docs_storage_class.create_service, name='docs'),
+        IFileStorage, name='docs'
     )
 
     # Register our origin cache keys
