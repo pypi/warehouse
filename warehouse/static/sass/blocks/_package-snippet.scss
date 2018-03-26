@@ -24,10 +24,6 @@
   </div>
 */
 
-.package-snippet.hide-by-index-latest .package-snippet.hide-by-index-trending {
-  display: none;
-}
-
 .package-snippet {
   @include card;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
@@ -43,6 +39,7 @@
     padding: 10px;
     background-image: none;
   }
+  
   &__title {
     @include ellipsis;
     @include h3;

@@ -37,6 +37,7 @@ import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
+import showMoreInitial from "warehouse/utils/show-more-initial";
 
 // Human-readable timestamps for project histories
 docReady(() => {
@@ -57,27 +58,7 @@ docReady(() => {
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
 
-docReady(() => {
-  const trendingElements = document.getElementsByClassName(
-    "hide-by-index-trending"
-  );
-  const latestElements = document.getElementsByClassName(
-    "hide-by-index-latest"
-  );
-  let i = 0;
-  for (; i < 5; i++) {
-    trendingElements[i].style.display = "block";
-    latestElements[i].style.display = "block";
-  }
-  for (; i <= 20; i++) {
-    if (trendingElements[i]) {
-      trendingElements[i].style.display = "none";
-    }
-    if (latestElements[i]) {
-      latestElements[i].style.display = "none";
-    }
-  }
-});
+docReady(showMoreInitial);
 
 // Trigger our analytics code.
 docReady(Analytics);

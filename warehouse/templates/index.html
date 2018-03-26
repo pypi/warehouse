@@ -15,29 +15,27 @@
 
 {% block title %}PyPI - the Python Package Index{% endblock %}
 
-{% set trending_projects_visible = namespace(amount=20) %}
-{% set latest_releases_visible = namespace(amount=20) %}
+{% set trending_projects_visible = namespace(total=20) %}
+{% set latest_releases_visible = namespace(total=20) %}
 
 {% macro project_snippet_latest(release, summary, index) -%}
 <div class='package-snippet hide-by-index-latest'>
-  <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
-    <span class="package-snippet__version">{{ release.version }}</span>
-  </h3>
-  {% set summary = release.summary if release.summary else "No description provided" %}
-  <p class="package-snippet__description">{{ summary }}</p>
+  {{ project_snippet(release, summary, index)}}
+</div>
+{%- endmacro %}
+{% macro project_snippet_trending(release, summary, index) -%}
+<div class='package-snippet hide-by-index-trending'>
+  {{ project_snippet(release, summary, index)}}
 </div>
 {%- endmacro %}
 
-{% macro project_snippet_trending(release, summary, index) -%}
-<div style="display:'none'" class='package-snippet hide-by-index-trending'>
-  <h3 class="package-snippet__title">
+{% macro project_snippet(release, summary, index) -%}
+<h3 class="package-snippet__title">
     <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
     <span class="package-snippet__version">{{ release.version }}</span>
   </h3>
   {% set summary = release.summary if release.summary else "No description provided" %}
   <p class="package-snippet__description">{{ summary }}</p>
-</div>
 {%- endmacro %}
 
 
@@ -106,32 +104,32 @@
         <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
-      <div class="package-list">
-        {% set counter = namespace(idx=0) %}
+      <div class="package-list-timeout">
+        {% set current = namespace(amount_to_show=0) %}
         {% for release in trending_projects %}
-          {% if counter.idx < trending_projects_visible.amount %}
-            {{ project_snippet_trending(release, release.summary, counter.idx) }}
-            {% set counter.idx = counter.idx + 1 %}
+          {% if current.amount_to_show < trending_projects_visible.total %}
+            {{ project_snippet_trending(release, release.summary, current.amount_to_show) }}
+            {% set current.amount_to_show = current.amount_to_show + 1 %}
           {% endif %}
         {% endfor %}
       </div>
-      <button id="increment-button-trending" class="button" type="button" data-action="click->increment#addFiveTrending" data-target="increment.button">Show More</button>
+      <button id="increment-button-trending" class="button" type="button" value="trending" data-action="click->increment#addFive">Show More</button>
     </div>
     <div class="col-half">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">New Releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
       </div>
-      <div class="package-list">
-        {% set counter = namespace(idx=0) %}
+      <div class="package-list-timeout">
+        {% set current = namespace(amount_to_show=0) %}
         {% for release in latest_releases %}
-          {% if counter.idx < latest_releases_visible.amount %}
-            {{ project_snippet_latest(release, release.summary, counter.idx) }}
-            {% set counter.idx = counter.idx + 1 %}
+          {% if current.amount_to_show < latest_releases_visible.total %}
+            {{ project_snippet_latest(release, release.summary, current.amount_to_show) }}
+            {% set current.amount_to_show = current.amount_to_show + 1 %}
           {% endif %}
         {% endfor %}
       </div>
-      <button id="increment-button-latest" class="button" data-action="click->increment#addFiveLatest" data-target="increment.button">Show More</button>
+      <button id="increment-button-latest" class="button" value="latest" data-action="click->increment#addFive">Show More</button>
     </div>
   </div>
 </section>

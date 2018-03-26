@@ -12,50 +12,36 @@
  * limitations under the License.
  */
 import { Controller } from "stimulus";
-import $ from "jquery";
 
 export default class extends Controller {
   static targets = ["button"];
 
+  // initially set default to 5 projects visible
   constructor() {
     super();
-    this.trending_projects_visible = 5;
-    this.latest_releases_visible = 5;
+    this.trending_visible = 5;
+    this.latest_visible = 5;
   }
-  addFiveTrending() {
-    const trendingElements = document.getElementsByClassName(
-      "hide-by-index-trending"
+  // Increase amount visible during each click event of Show More button
+  addFive(e) {
+    const eventType = e.target.value;
+    const elements = document.getElementsByClassName(
+      `hide-by-index-${eventType}`
     );
-    let j = this.trending_projects_visible;
-    const end = (this.trending_projects_visible += 5);
-    if (this.trending_projects_visible <= 20) {
+    // j is previous amount visible, end is how many will be
+    let j = this[`${eventType}_visible`];
+    const end = (this[`${eventType}_visible`] += 5);
+    if (end <= 20) {
       for (; j < end; j++) {
-        if (trendingElements[j]) {
-          trendingElements[j].style.display = "block";
+        if (elements[j]) {
+          elements[j].style.display = "block";
         }
       }
-      console.log(end);
+      // Hide Show More button when max amount is visible
       if (end === 20) {
-        document.getElementById("increment-button-trending").style.display = "none";
+        document.getElementById(`increment-button-${eventType}`).style.display =
+          "none";
       }
-    }
-  }
-  addFiveLatest() {
-    const latestElements = document.getElementsByClassName(
-      "hide-by-index-latest"
-    );
-    let j = this.latest_releases_visible;
-    const end = (this.latest_releases_visible += 5);
-    if (this.latest_releases_visible <= 20) {
-      for (; j < end; j++) {
-        if (latestElements[j]) {
-          latestElements[j].style.display = "block";
-        }
-      }
-    }
-    console.log(end);
-    if (end === 20) {
-      document.getElementById("increment-button-latest").style.display = "none";
     }
   }
 }
