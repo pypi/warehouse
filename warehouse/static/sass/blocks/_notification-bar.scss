@@ -30,6 +30,8 @@
   Modifiers:
     - danger: Applies a red background
     - success: Applies a green background
+    - dismissable: Indicates notification be be dismissed. Defaults to hidden.
+    - visible: Indicates a visible, non-dismissed notification
 */
 
 .notification-bar {
@@ -38,6 +40,7 @@
   background-color: darken($brand-color, 10);
   color: $white;
   padding: ($spacing-unit / 2);
+  position: relative;
 
   &__icon {
     font-size: $small-font-size;
@@ -52,6 +55,29 @@
 
       @include link-focus
     }
+  }
+
+  &__dismiss {
+    background: transparent;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 15px;
+    cursor: pointer;
+    font-size: 1.0rem;
+    line-height: 3.25rem;
+  }
+
+  // Indicates that a notification is dismissable.
+  // Since this defaults to not displaying the element, one must make sure the
+  // notification controller is being used.
+  &--dismissable {
+    display: none;
+    padding-right: 55px;
+  }
+
+  &--visible {
+    display: block;
   }
 
   &--danger {

@@ -11,10 +11,6 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
-# Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
-export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
-export RECAPTCHA_SECRET_KEY := $(shell echo "$${RECAPTCHA_SECRET_KEY:-6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe}")
-
 define DEPCHECKER
 import sys
 

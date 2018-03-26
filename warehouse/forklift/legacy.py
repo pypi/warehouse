@@ -45,7 +45,6 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry, BlacklistedProject,
 )
-from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils import http
 
 
@@ -704,6 +703,13 @@ def _is_duplicate_file(db_session, filename, hashes):
     require_methods=["POST"],
 )
 def file_upload(request):
+    # If we're in read-only mode, let upload clients know
+    if request.flags.enabled('read-only'):
+        raise _exc_with_message(
+            HTTPForbidden,
+            'Read Only Mode: Uploads are temporarily disabled',
+        )
+
     # Before we do anything, if there isn't an authenticated user with this
     # request, then we'll go ahead and bomb out.
     if request.authenticated_userid is None:
@@ -797,9 +803,7 @@ def file_upload(request):
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
         # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if AdminFlag.is_enabled(
-                request.db,
-                'disallow-new-project-registration'):
+        if request.flags.enabled('disallow-new-project-registration'):
             raise _exc_with_message(
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "
@@ -1220,7 +1224,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage)
+        storage = request.find_service(IFileStorage, name='files')
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),

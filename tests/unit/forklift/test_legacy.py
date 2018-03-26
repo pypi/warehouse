@@ -36,7 +36,7 @@ from warehouse.packaging.models import (
     File, Filename, Dependency, DependencyKind, Release, Project, Role,
     JournalEntry,
 )
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 
 from ...common.db.accounts import UserFactory, EmailFactory
 from ...common.db.packaging import (
@@ -739,6 +739,7 @@ class TestFileUpload:
                                    version):
         pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.POST["protocol_version"] = version
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(pyramid_request)
@@ -1196,13 +1197,15 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage, name="files"),
+        ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join([
@@ -2110,7 +2113,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         monkeypatch.setattr(
@@ -2121,7 +2124,9 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage, name="files"),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join([
@@ -2218,7 +2223,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         monkeypatch.setattr(
@@ -2229,7 +2234,9 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage, name="files"),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join([
@@ -2315,7 +2322,7 @@ class TestFileUpload:
                 assert fp.read() == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         monkeypatch.setattr(
             legacy,
@@ -2361,7 +2368,7 @@ class TestFileUpload:
                 assert fp.read() == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         monkeypatch.setattr(
             legacy,
@@ -2463,7 +2470,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2554,7 +2561,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2601,7 +2608,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         legacy.file_upload(db_request)
 
@@ -2631,7 +2638,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         resp = legacy.file_upload(db_request)
@@ -2733,7 +2740,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         if expected_success:
@@ -2777,7 +2784,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         tm = pretend.stub(
@@ -2798,7 +2805,21 @@ class TestFileUpload:
             ),
         ]
 
+    def test_fails_in_read_only_mode(self, pyramid_request):
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            '403 Read Only Mode: Uploads are temporarily disabled'
+        )
+
     def test_fails_without_user(self, pyramid_config, pyramid_request):
+        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
         pyramid_config.testing_securitypolicy(userid=None)
 
         with pytest.raises(HTTPForbidden) as excinfo:
@@ -2859,7 +2880,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2940,7 +2961,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 

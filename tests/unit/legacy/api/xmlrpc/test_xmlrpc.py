@@ -15,11 +15,11 @@ import datetime
 import pretend
 import pytest
 
-from warehouse.legacy.api import xmlrpc
+from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
 
-from ....common.db.accounts import UserFactory
-from ....common.db.packaging import (
+from .....common.db.accounts import UserFactory
+from .....common.db.packaging import (
     ProjectFactory, ReleaseFactory, FileFactory, RoleFactory,
     JournalEntryFactory,
 )
@@ -442,7 +442,7 @@ def test_release_urls(db_request):
                 "sha256": file_.sha256_digest,
             },
             "has_sig": file_.has_signature,
-            "upload_time": file_.upload_time,
+            "upload_time": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
             "downloads": -1,
             "url": urls[0],
