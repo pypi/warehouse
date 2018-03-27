@@ -77,6 +77,7 @@ build:
 	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
 	docker-compose build worker
 	docker-compose build static
+	docker-compose build tests
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
@@ -93,6 +94,11 @@ tests:
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
+
+tests_e2e: .state/docker-build
+	docker-compose run --rm tests env -i ENCODING="C.UTF-8" \
+								PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								bin/tests-e2e --postgresql-host db $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .

@@ -16,6 +16,11 @@ services:
   elasticsearch:
     image: elasticsearch:5
 
+  selenium:
+    image: selenium/standalone-firefox-debug
+    ports:
+      - "4444:4444"
+
   camo:
     image: pypa/warehouse-camo:latest
     ports:
@@ -106,3 +111,15 @@ services:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+
+  tests:
+    build:
+      context: .
+      args:
+        DEVEL: "yes"
+        IPYTHON: "no"
+    depends_on:
+      - selenium
+      - web
+    volumes:
+      - ./tests:/opt/warehouse/src/tests:z

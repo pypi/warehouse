@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+set -x
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Actually run our tests.
+python -m pytest --driver Remote --host selenium --port 4444 --capability browserName firefox --base-url http://web:8000 --sensitive-url "pypi\.org" $@ tests/e2e
