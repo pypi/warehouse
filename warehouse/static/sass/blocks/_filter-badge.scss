@@ -34,7 +34,7 @@
   font-weight: 500;
   font-size: $small-font-size;
   border-radius: 2px;
-  background-color: $primary-color;
+  background-color: $highlight-color;
   color: $white;
   display: table;
   float: left;
@@ -43,7 +43,7 @@
   &__icon {
     display: table-cell;
     padding: 6px 0 6px 6px;
-    color: darken($primary-color, 10%);
+    color: darken($highlight-color, 10%);
     vertical-align: middle;
   }
 
@@ -61,7 +61,7 @@
 
     &:hover {
       color: $white;
-      background-color: darken($primary-color, 5%);
+      background-color: darken($highlight-color, 5%);
     }
   }
 }

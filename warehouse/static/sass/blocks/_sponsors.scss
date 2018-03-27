@@ -30,8 +30,8 @@
 
 .sponsors {
   text-align: center;
-  border-top: 1px solid darken($primary-color, 2);
-  background-color: $primary-color;
+  border-top: 1px solid darken($highlight-color, 2);
+  background-color: $highlight-color;
   padding: ($spacing-unit / 2);
 
   &__title {

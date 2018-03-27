@@ -58,7 +58,7 @@
 
     &:hover {
       text-decoration: none;
-      color: darken($primary-color, 10)
+      color: darken($highlight-color, 10)
     }
 
     &--mobile {
@@ -81,7 +81,7 @@
 
     &--is-active,
     &--is-active:hover {
-      background: $primary-color;
+      background: $highlight-color;
       color: $white;
       border-color: transparent;
     }

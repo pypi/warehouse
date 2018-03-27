@@ -37,7 +37,7 @@
 .notification-bar {
   border-bottom: 2px solid $white;
   text-align: center;
-  background-color: darken($primary-color, 10);
+  background-color: darken($highlight-color, 10);
   color: $white;
   padding: ($spacing-unit / 2);
   position: relative;

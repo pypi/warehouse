@@ -50,8 +50,8 @@
   &:focus,
   &:hover,
   &:active {
-    border-color: $primary-color;
-    color: darken($primary-color, 10);
+    border-color: $highlight-color;
+    color: darken($highlight-color, 10);
     text-decoration: none;
     z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
@@ -64,16 +64,16 @@
   }
 
   &--primary {
-    border-color: $primary-color;
-    background-color: $primary-color;
+    border-color: $highlight-color;
+    background-color: $highlight-color;
     color: $white;
     z-index: index($z-index-scale, "primary-button"); // Needed for button groups
 
     &:focus,
     &:hover,
     &:active {
-      border-color: darken($primary-color, 10);
-      background-color: darken($primary-color, 9);
+      border-color: darken($highlight-color, 10);
+      background-color: darken($highlight-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
