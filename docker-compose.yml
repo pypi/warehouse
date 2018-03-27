@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres:9.6
+    image: postgres:10.1
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"

@@ -4,15 +4,19 @@ python: 3.6.1
 env:
   global:
     - TRAVIS_NODE_VERSION=6.6.0
+    - PGPORT=5433
 
 dist: trusty
-sudo: false
+sudo: true
 
 addons:
   hosts:
     - warehouse.local
-  postgresql: "9.6"
-  # sauce_connect: true
+  postgresql: 10
+  apt:
+    packages:
+    - postgresql-10
+    - postgresql-client-10
 
 services:
   - postgresql
@@ -27,6 +31,8 @@ install:
   - pip install -U pip setuptools wheel
   - pip install -r requirements/main.txt -r requirements/deploy.txt -r requirements/docs.txt -r requirements/lint.txt -r requirements/tests.txt
   - npm install
+  - sudo cp /etc/postgresql/{9.6,10}/main/pg_hba.conf
+  - sudo service postgresql restart
 
 script:
   - node -v
