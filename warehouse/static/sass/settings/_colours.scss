@@ -17,9 +17,11 @@
 $brand-color:                 #006dad;
 $primary-color:               #ffd343;
 $success-color:               #169428;
-$warn-color:                  #f05d22;
+$warn-color:                  #ffdf76;
+$warn-text:                   #664e04;
 $danger-color:                #D52D40;
 $brand-color-soft:            lighten($brand-color, 45);
+$brand-color-dark:            darken($brand-color, 10);
 
 $white:                       #fff;
 $black:                       #000;

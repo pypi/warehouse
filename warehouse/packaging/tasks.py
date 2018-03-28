@@ -18,7 +18,7 @@ from warehouse.packaging.models import Project
 @tasks.task(ignore_result=True, acks_late=True)
 def compute_trending(request):
     bq = request.find_service(name="gcloud.bigquery")
-    query = bq.run_sync_query(
+    query = bq.query(
         """ SELECT project,
                    IF(
                         STDDEV(downloads) > 0,
@@ -56,21 +56,11 @@ def compute_trending(request):
             ORDER BY zscore DESC
         """.format(table=request.registry.settings["warehouse.trending_table"])
     )
-    query.use_legacy_sql = False
-    query.run()
 
     zscores = {}
-    page_token = None
-    while True:
-        rows, total_rows, page_token = query.fetch_data(
-            max_results=1000,
-            page_token=page_token,
-        )
-
-        zscores.update(dict(rows))
-
-        if not page_token:
-            break
+    for row in query.result():
+        row = dict(row)
+        zscores[row["project"]] = row["zscore"]
 
     # We're going to "reset" all of our zscores to a steady state where they
     # are all equal to ``None``. The next query will then set any that have a

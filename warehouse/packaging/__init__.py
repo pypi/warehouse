@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from functools import partial
+
 from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
@@ -36,10 +38,21 @@ def email_primary_receive_set(config, target, value, oldvalue, initiator):
 def includeme(config):
     # Register whatever file storage backend has been configured for storing
     # our package files.
-    storage_class = config.maybe_dotted(
+    files_storage_class = config.maybe_dotted(
         config.registry.settings["files.backend"],
     )
-    config.register_service_factory(storage_class.create_service, IFileStorage)
+    config.register_service_factory(
+        partial(files_storage_class.create_service, name='files'),
+        IFileStorage, name='files'
+    )
+
+    docs_storage_class = config.maybe_dotted(
+        config.registry.settings["docs.backend"],
+    )
+    config.register_service_factory(
+        partial(docs_storage_class.create_service, name='docs'),
+        IFileStorage, name='docs'
+    )
 
     # Register our origin cache keys
     config.register_origin_cache_keys(
