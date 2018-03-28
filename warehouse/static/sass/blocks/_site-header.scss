@@ -18,6 +18,9 @@
   <header class="site-header">
     <a class="site-header__logo"></a>
   </header>
+
+  Modifiers:
+    - test-pypi: Adds a 'testing' image in the bg for test PyPI
 */
 
 .site-header {
@@ -34,5 +37,9 @@
     @media screen and (max-width: $small-tablet) {
       max-width: 50px;
     }
+  }
+
+  &--test-pypi {
+    background-image: url("../images/testing.png");
   }
 }
