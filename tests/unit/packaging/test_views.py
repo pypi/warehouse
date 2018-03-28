@@ -206,11 +206,11 @@ class TestReleaseDetail:
             classifier="License :: OSI Approved :: BSD License")
         release = ReleaseFactory.create(
             _classifiers=[other_classifier, classifier],
-            license="Will not be used")
+            license="Will be added at the end")
 
         result = views.release_detail(release, db_request)
 
-        assert result["license"] == "BSD License"
+        assert result["license"] == "BSD License (Will be added at the end)"
 
     def test_license_with_no_classifier(self, db_request):
         """With no classifier, a license is used from metadata."""

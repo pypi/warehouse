@@ -25,7 +25,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins
 )
-from warehouse.utils.admin_flags import AdminFlag
+from warehouse.admin.flags import AdminFlag
 
 from ...common.db.accounts import EmailFactory, UserFactory
 
@@ -115,6 +115,12 @@ class TestLogin:
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.failure',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert result == {
             "form": form_obj,
@@ -173,6 +179,13 @@ class TestLogin:
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
+
+        assert pyramid_request.registry.datadog.increment.calls == [
+            pretend.call('warehouse.authentication.start',
+                         tags=['auth_method:login_form']),
+            pretend.call('warehouse.authentication.complete',
+                         tags=['auth_method:login_form']),
+        ]
 
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [
@@ -320,6 +333,23 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
+    def test_register_honeypot(self, pyramid_request, monkeypatch):
+        pyramid_request.method = "POST"
+        create_user = pretend.call_recorder(lambda *args, **kwargs: None)
+        add_email = pretend.call_recorder(lambda *args, **kwargs: None)
+        pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
+        pyramid_request.POST = {'confirm_form': 'fuzzywuzzy@bears.com'}
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, 'send_email_verification_email', send_email)
+
+        result = views.register(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert create_user.calls == []
+        assert add_email.calls == []
+        assert send_email.calls == []
+
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
@@ -364,11 +394,13 @@ class TestRegister:
         assert send_email.calls == [pretend.call(db_request, email)]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
-        admin_flag = (db_request.db.query(AdminFlag)
-                      .filter(
-                          AdminFlag.id == 'disallow-new-user-registration')
-                      .first())
-        admin_flag.enabled = True
+        # This flag was already set via migration, just need to enable it
+        flag = (
+            db_request.db.query(AdminFlag)
+            .get('disallow-new-user-registration')
+        )
+        flag.enabled = True
+
         db_request.method = "POST"
 
         db_request.POST.update({
@@ -579,7 +611,9 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service),
         ]
-        assert send_password_reset_email.calls == []
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, None)
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)

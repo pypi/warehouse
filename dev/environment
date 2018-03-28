@@ -1,10 +1,9 @@
 WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 
-# Uncomment the below line if you're working on the PyPI theme, this is a
-# private repository due to the fact that other people's IP is contained in
-# it.
-# WAREHOUSE_THEME: pypi_theme.pypi
+# Uncomment the line below if you're working on pypi-theme, this is a private
+# repository due to the fact that other people's IP is contained in it.
+#WAREHOUSE_THEME=pypi_theme.pypi
 
 AMQP_URL=amqp://guest@rabbitmq:5672//
 
@@ -21,10 +20,8 @@ CAMO_KEY="insecure camo key"
 
 DOCS_URL="https://pythonhosted.org/{project}/"
 
-FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.example.com/packages/{path}
-
-RECAPTCHA_SITE_KEY
-RECAPTCHA_SECRET_KEY
+FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.example.com/packages/{path} name=files
+DOCS_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/docs/ name=docs
 
 MAIL_HOST=smtp
 MAIL_PORT=2525
@@ -35,3 +32,7 @@ STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
 TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
+
+DATADOG_HOST=notdatadog
+
+WAREHOUSE_LEGACY_DOMAIN=pypi.python.org

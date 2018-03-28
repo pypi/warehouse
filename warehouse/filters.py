@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import binascii
+import cgi
 import collections
 import enum
 import hmac
@@ -24,12 +25,20 @@ import html5lib.treewalkers
 import jinja2
 
 import packaging.version
+import readme_renderer.markdown
 import readme_renderer.rst
 import readme_renderer.txt
 
 from pyramid.threadlocal import get_current_request
 
 from warehouse.utils.http import is_valid_uri
+
+_renderers = {
+    '': readme_renderer.rst,  # Default if description_content_type is None
+    'text/plain': readme_renderer.txt,
+    'text/x-rst': readme_renderer.rst,
+    'text/markdown': readme_renderer.markdown,
+}
 
 
 class PackageType(enum.Enum):
@@ -63,23 +72,22 @@ def _camo_url(camo_url, camo_key, url):
 
 
 @jinja2.contextfilter
-def readme(ctx, value, *, format):
+def readme(ctx, value, *, description_content_type):
     request = ctx.get("request") or get_current_request()
 
     camo_url = request.registry.settings["camo.url"].format(request=request)
     camo_key = request.registry.settings["camo.key"]
 
-    # The format parameter is here so we can more easily expand this to cover
-    # READMEs which do not use restructuredtext, but for now rst is the only
-    # format we support.
-    assert format == "rst", "We currently only support rst rendering."
+    content_type, parameters = cgi.parse_header(description_content_type or '')
+
+    # Get the appropriate renderer
+    renderer = _renderers[content_type]
 
     # Actually render the given value, this will not only render the value, but
     # also ensure that it's had any disallowed markup removed.
-    rendered = readme_renderer.rst.render(value)
+    rendered = renderer.render(value, **parameters)
 
-    # If the content was not rendered, we'll replace the newlines with breaks
-    # so that it shows up nicer when rendered.
+    # If the content was not rendered, we'll render as plaintext instead
     if rendered is None:
         rendered = readme_renderer.txt.render(value)
 

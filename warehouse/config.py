@@ -156,10 +156,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
-    maybe_set(settings, "download_stats.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
-    maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
-    maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
@@ -174,6 +171,7 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(
         settings,
         "token.password.max_age",
@@ -194,6 +192,7 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
     # Add the settings we use when the environment is set to development.
@@ -227,6 +226,9 @@ def configure(settings=None):
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
+
+    # Register DataDog metrics
+    config.include(".datadog")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -324,6 +326,9 @@ def configure(settings=None):
 
     # Register support for services
     config.include("pyramid_services")
+
+    # Register our XMLRPC cache
+    config.include(".legacy.api.xmlrpc.cache")
 
     # Register support for XMLRPC and override it's renderer to allow
     # specifying custom dumps arguments.
@@ -456,9 +461,6 @@ def configure(settings=None):
 
     # Register Referrer-Policy service
     config.include(".referrer_policy")
-
-    # Register recaptcha service
-    config.include(".recaptcha")
 
     config.add_settings({
         "http": {

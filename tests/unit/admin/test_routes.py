@@ -59,6 +59,13 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.release",
+            "/admin/projects/{project_name}/release/{version}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.journals",
             "/admin/projects/{project_name}/journals/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -85,6 +92,16 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            'admin.classifiers',
+            '/admin/classifiers/',
+            domain=warehouse,
+        ),
+        pretend.call(
+            'admin.classifiers.add',
+            '/admin/classifiers/add/',
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.blacklist.list",
             "/admin/blacklist/",
             domain=warehouse,
@@ -97,6 +114,16 @@ def test_includeme():
         pretend.call(
             "admin.blacklist.remove",
             "/admin/blacklist/remove/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.flags",
+            "/admin/flags/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.flags.edit",
+            "/admin/flags/edit/",
             domain=warehouse,
         ),
     ]

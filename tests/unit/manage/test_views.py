@@ -23,6 +23,7 @@ from webob.multidict import MultiDict
 from warehouse.manage import views
 from warehouse.accounts.interfaces import IUserService
 from warehouse.packaging.models import JournalEntry, Project, Role, User
+from warehouse.utils.project import remove_documentation
 
 from ...common.db.accounts import EmailFactory
 from ...common.db.packaging import (
@@ -830,6 +831,105 @@ class TestManageProjectSettings:
                                  .filter(Project.name == "foo").count())
 
 
+class TestManageProjectDocumentation:
+
+    def test_manage_project_documentation(self):
+        request = pretend.stub()
+        project = pretend.stub()
+
+        assert views.manage_project_documentation(project, request) == {
+            "project": project,
+        }
+
+    def test_destroy_project_docs_no_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.destroy_project_docs(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Must confirm the request.", queue="error"),
+        ]
+
+    def test_destroy_project_docs_wrong_confirm(self):
+        project = pretend.stub(normalized_name='foo')
+        request = pretend.stub(
+            POST={"confirm_project_name": "bar"},
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.destroy_project_docs(project, request)
+            assert exc.value.status_code == 303
+            assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not delete project - 'bar' is not the same as 'foo'",
+                queue="error"
+            ),
+        ]
+
+    def test_destroy_project_docs(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        remove_documentation_recorder = pretend.stub(
+            delay=pretend.call_recorder(
+                lambda *a, **kw: None
+            )
+        )
+        task = pretend.call_recorder(
+            lambda *a, **kw: remove_documentation_recorder
+        )
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        db_request.POST["confirm_project_name"] = project.normalized_name
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+        db_request.task = task
+
+        result = views.destroy_project_docs(project, db_request)
+
+        assert task.calls == [
+            pretend.call(remove_documentation)
+        ]
+
+        assert remove_documentation_recorder.delay.calls == [
+            pretend.call(project.name)
+        ]
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Successfully deleted docs for project 'foo'.",
+                queue="success"
+            ),
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call('manage.project.documentation', project_name='foo'),
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert not (db_request.db.query(Project)
+                                 .filter(Project.name == "foo")
+                                 .first().has_docs)
+
+
 class TestManageProjectReleases:
 
     def test_manage_project_releases(self):
@@ -1236,7 +1336,7 @@ class TestManageProjectRoles:
             "form": form_obj,
         }
 
-    def test_post_new_role(self, db_request):
+    def test_post_new_role(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
 
@@ -1261,6 +1361,21 @@ class TestManageProjectRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None),
         )
 
+        send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_collaborator_added_email',
+            send_collaborator_added_email,
+        )
+
+        send_added_as_collaborator_email = pretend.call_recorder(
+            lambda *a: None)
+        monkeypatch.setattr(
+            views,
+            'send_added_as_collaborator_email',
+            send_added_as_collaborator_email,
+        )
+
         result = views.manage_project_roles(
             project, db_request, _form_class=form_class
         )
@@ -1275,6 +1390,26 @@ class TestManageProjectRoles:
         ]
         assert db_request.session.flash.calls == [
             pretend.call("Added collaborator 'testuser'", queue="success"),
+        ]
+
+        assert send_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                []
+            )
+        ]
+
+        assert send_added_as_collaborator_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                user.email)
         ]
 
         # Only one role is created

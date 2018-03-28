@@ -16,7 +16,7 @@ You can run Warehouse locally using ``docker`` and ``docker-compose``. See
 `Getting started <https://warehouse.readthedocs.io/development/getting-started/>`__
 in the documentation for instructions on how to set it up.
 
-You can try a pre-production deployment of Warehouse at `pypi.org`_.
+You can try a beta deployment of Warehouse at `pypi.org`_.
 
 Discussion
 ----------

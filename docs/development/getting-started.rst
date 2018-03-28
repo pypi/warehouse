@@ -151,20 +151,16 @@ In a second terminal, separate from the ``make serve`` command above, run:
 If you get an error about xz, you may need to install the ``xz`` utility. This
 is highly likely on Mac OS X and Windows.
 
-.. note:: reCaptcha is featured in authentication and registration pages. To
-          enable it, pass ``RECAPTCHA_SITE_KEY`` and ``RECAPTCHA_SECRET_KEY``
-          through to ``serve`` and ``debug`` targets.
-
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started:
+``web`` service has started a reactor:
 
 .. code-block:: console
 
-    [INFO] Listening at: http://0.0.0.0:8000
+    [twisted.application.runner._runner.Runner#info] Starting reactor...
 
 the web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
@@ -406,6 +402,37 @@ Building the docs requires Python 3.6. If it is not installed, the
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
+What next?
+----------
+
+Please look at our `open issues that are labelled "good first
+issue"`_, find one you want to work on, comment on it to say you're
+working on it, then submit a pull request. Use our
+:doc:`submitting-patches` documentation to help.
+
+Talk with us
+^^^^^^^^^^^^
+
+You can find us via a `GitHub`_ issue, ``#pypa`` or ``#pypa-dev`` `on
+Freenode`_, or the `pypa-dev mailing list`_, to ask questions or get
+involved. And you can meet us in person at `packaging sprints`_.
+
+Learn about Warehouse and packaging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Resources to help you learn Warehouse's context:
+
+-  `the Warehouse
+   roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`__
+-  `blog posts, mailing list messages, and notes from our core developer
+   meetings <https://wiki.python.org/psf/PackagingWG>`__
+- :doc:`../application`
+-  `the PyPA's list of presentations and
+   articles <https://www.pypa.io/en/latest/presentations/>`__
+-  `PyPA's history of Python
+   packaging <https://www.pypa.io/en/latest/history/>`__
+
+
 .. _`pip`: https://pypi.org/project/pip
 .. _`sphinx`: https://pypi.org/project/Sphinx
 .. _`reStructured Text`: http://sphinx-doc.org/rest.html
@@ -414,3 +441,4 @@ Building the docs requires Python 3.6. If it is not installed, the
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
 .. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
 .. _`Test PyPI`: https://test.pypi.org/
+.. _`packaging sprints`: https://wiki.python.org/psf/PackagingSprints

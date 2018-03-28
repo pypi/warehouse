@@ -135,6 +135,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.project.destroy_docs",
+        "/manage/project/{project_name}/delete_project_docs/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.project.releases",
         "/manage/project/{project_name}/releases/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -165,6 +172,13 @@ def includeme(config):
     config.add_route(
         "manage.project.delete_role",
         "/manage/project/{project_name}/collaboration/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.documentation",
+        "/manage/project/{project_name}/documentation/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

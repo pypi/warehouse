@@ -8,6 +8,15 @@
 
 sub vcl_recv {
 
+    # Fastly is dropping support for TLSv1.0 and TLSv1.1, in preperation for
+    # for that, we're going to block support for it now, using VCL. This will
+    # let us present a better error message in the interim before Fastly shuts
+    # off TLSv1.0 and TLSv1.1 support completely.
+    if (tls.client.protocol ~ "^TLSv1(\.(0|1))?$") {
+        set req.http.Error-Message = "Support for " tls.client.protocol " has been removed, please upgrade to a TLSv1.2+ client. Please see https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html";
+        error 804 "Bad SSL Version";
+    }
+
     # I'm not 100% sure on what this is exactly for, it was taken from the
     # Fastly documentation, however, what I *believe* it does is just ensure
     # that we don't serve a stale copy of the page from the shield node when
@@ -382,6 +391,12 @@ sub vcl_error {
         set obj.response = "SSL is required";
         set obj.http.Content-Type = "text/plain; charset=UTF-8";
         synthetic {"SSL is required."};
+        return (deliver);
+    } else if(obj.status == 804) {
+        set obj.status = 403;
+        set obj.response = "TLSv1.2+ is required";
+        set obj.http.Content-Type = "text/plain; charset=UTF-8";
+        synthetic req.http.Error-Message;
         return (deliver);
     } else if (obj.status == 750) {
         set obj.status = 301;

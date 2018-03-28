@@ -17,8 +17,27 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.interfaces import IDownloadStatService
 from warehouse.packaging.models import File, Release
+
+
+# Generate appropriate CORS headers for the JSON endpoint.
+# We want to allow Cross-Origin requests here so that users can interact
+# with these endpoints via XHR/Fetch APIs in the browser.
+_CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": ", ".join([
+        "Content-Type",
+        "If-Match",
+        "If-Modified-Since",
+        "If-None-Match",
+        "If-Unmodified-Since",
+    ]),
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Max-Age": "86400",  # 1 day.
+    "Access-Control-Expose-Headers": ", ".join([
+        "X-PyPI-Last-Serial",
+    ]),
+}
 
 
 @view_config(
@@ -37,6 +56,7 @@ def json_project(project, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
+            headers=_CORS_HEADERS
         )
 
     try:
@@ -50,7 +70,7 @@ def json_project(project, request):
                       .one()
         )
     except NoResultFound:
-        return HTTPNotFound()
+        return HTTPNotFound(headers=_CORS_HEADERS)
 
     return json_release(release, request)
 
@@ -73,22 +93,11 @@ def json_release(release, request):
     if project.name != request.matchdict.get("name", project.name):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
+            headers=_CORS_HEADERS
         )
 
-    # We want to allow CORS here to enable anyone to fetch data from this API
-    request.response.headers["Access-Control-Allow-Origin"] = "*"
-    request.response.headers["Access-Control-Allow-Headers"] = ", ".join([
-        "Content-Type",
-        "If-Match",
-        "If-Modified-Since",
-        "If-None-Match",
-        "If-Unmodified-Since",
-    ])
-    request.response.headers["Access-Control-Allow-Methods"] = "GET"
-    request.response.headers["Access-Control-Max-Age"] = "86400"
-    request.response.headers["Access-Control-Expose-Headers"] = ", ".join([
-        "X-PyPI-Last-Serial",
-    ])
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
 
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
@@ -138,9 +147,6 @@ def json_release(release, request):
         for r, fs in releases.items()
     }
 
-    # Get our stats service
-    stats_svc = request.find_service(IDownloadStatService)
-
     return {
         "info": {
             "name": project.name,
@@ -157,9 +163,9 @@ def json_release(release, request):
             "requires_python": release.requires_python,
             "platform": release.platform,
             "downloads": {
-                "last_day": stats_svc.get_daily_stats(project.name),
-                "last_week": stats_svc.get_weekly_stats(project.name),
-                "last_month": stats_svc.get_monthly_stats(project.name),
+                "last_day": -1,
+                "last_week": -1,
+                "last_month": -1,
             },
             "package_url": request.route_url(
                 "packaging.project",
@@ -183,4 +189,5 @@ def json_release(release, request):
         },
         "urls": releases[release.version],
         "releases": releases,
+        "last_serial": project.last_serial,
     }

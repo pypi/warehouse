@@ -35,7 +35,6 @@ from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
 )
 from warehouse.packaging.models import Project, Release
-from warehouse.utils.admin_flags import AdminFlag
 from warehouse.utils.http import is_safe_url
 
 
@@ -111,39 +110,53 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME,
 
     form = _form_class(request.POST, user_service=user_service)
 
-    if request.method == "POST" and form.validate():
-        # Get the user id for the given username.
-        username = form.username.data
-        userid = user_service.find_userid(username)
+    if request.method == "POST":
+        request.registry.datadog.increment('warehouse.authentication.start',
+                                           tags=['auth_method:login_form'])
+        if form.validate():
+            # Get the user id for the given username.
+            username = form.username.data
+            userid = user_service.find_userid(username)
 
-        # If the user-originating redirection url is not safe, then redirect to
-        # the index instead.
-        if (not redirect_to or
-                not is_safe_url(url=redirect_to, host=request.host)):
-            redirect_to = request.route_path('manage.projects')
+            # If the user-originating redirection url is not safe, then
+            # redirect to the index instead.
+            if (not redirect_to or
+                    not is_safe_url(url=redirect_to, host=request.host)):
+                redirect_to = request.route_path('manage.projects')
 
-        # Actually perform the login routine for our user.
-        headers = _login_user(request, userid)
+            # Actually perform the login routine for our user.
+            headers = _login_user(request, userid)
 
-        # Now that we're logged in we'll want to redirect the user to either
-        # where they were trying to go originally, or to the default view.
-        resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+            # Now that we're logged in we'll want to redirect the user to
+            # either where they were trying to go originally, or to the default
+            # view.
+            resp = HTTPSeeOther(redirect_to, headers=dict(headers))
 
-        # We'll use this cookie so that client side javascript can Determine
-        # the actual user ID (not username, user ID). This is *not* a security
-        # sensitive context and it *MUST* not be used where security matters.
-        #
-        # We'll also hash this value just to avoid leaking the actual User IDs
-        # here, even though it really shouldn't matter.
-        resp.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(
-                str(userid).encode("ascii"),
-                person=b"warehouse.userid",
-            ).hexdigest().lower(),
-        )
+            # We'll use this cookie so that client side javascript can
+            # Determine the actual user ID (not username, user ID). This is
+            # *not* a security sensitive context and it *MUST* not be used
+            # where security matters.
+            #
+            # We'll also hash this value just to avoid leaking the actual User
+            # IDs here, even though it really shouldn't matter.
+            resp.set_cookie(
+                USER_ID_INSECURE_COOKIE,
+                hashlib.blake2b(
+                    str(userid).encode("ascii"),
+                    person=b"warehouse.userid",
+                ).hexdigest().lower(),
+            )
 
-        return resp
+            request.registry.datadog.increment(
+                'warehouse.authentication.complete',
+                tags=['auth_method:login_form']
+            )
+            return resp
+        else:
+            request.registry.datadog.increment(
+                'warehouse.authentication.failure',
+                tags=['auth_method:login_form']
+            )
 
     return {
         "form": form,
@@ -215,7 +228,11 @@ def register(request, _form_class=RegistrationForm):
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path('manage.projects'))
 
-    if AdminFlag.is_enabled(request.db, 'disallow-new-user-registration'):
+    # Check if the honeypot field has been filled
+    if request.method == "POST" and request.POST.get('confirm_form'):
+        return HTTPSeeOther(request.route_path("index"))
+
+    if request.flags.enabled('disallow-new-user-registration'):
         request.session.flash(
             ("New User Registration Temporarily Disabled "
              "See https://pypi.org/help#admin-intervention for details"),
@@ -224,20 +241,8 @@ def register(request, _form_class=RegistrationForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
-    recaptcha_service = request.find_service(name="recaptcha")
-    request.find_service(name="csp").merge(recaptcha_service.csp_policy)
 
-    # the form contains an auto-generated field from recaptcha with
-    # hyphens in it. make it play nice with wtforms.
-    post_body = {
-        key.replace("-", "_"): value
-        for key, value in request.POST.items()
-    }
-
-    form = _form_class(
-        data=post_body, user_service=user_service,
-        recaptcha_service=recaptcha_service
-    )
+    form = _form_class(data=request.POST, user_service=user_service,)
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
@@ -268,13 +273,12 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
-
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
-        if user:
-            send_password_reset_email(request, user)
+
+        send_password_reset_email(request, user)
 
         token_service = request.find_service(ITokenService, name='password')
         n_hours = token_service.max_age // 60 // 60

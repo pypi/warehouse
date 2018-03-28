@@ -10,11 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import os.path
 import xmlrpc.client
 
 import alembic.command
 import click.testing
+import pretend
 import pyramid.testing
 import pytest
 import webtest as _webtest
@@ -26,6 +28,7 @@ from sqlalchemy import event
 
 from warehouse.config import configure
 from warehouse.accounts import services
+from warehouse.admin.flags import Flags
 
 from .common.db import Session
 
@@ -52,14 +55,24 @@ def pytest_collection_modifyitems(items):
 
 
 @pytest.fixture
-def pyramid_request():
-    return pyramid.testing.DummyRequest()
+def pyramid_request(datadog):
+    dummy_request = pyramid.testing.DummyRequest()
+    dummy_request.registry.datadog = datadog
+    return dummy_request
 
 
 @pytest.yield_fixture
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
+
+
+@pytest.yield_fixture
+def datadog():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+    )
 
 
 @pytest.yield_fixture
@@ -73,10 +86,10 @@ def cli():
 def database(request):
     config = get_config(request)
     pg_host = config.get("host")
-    pg_port = config.get("port") or 5432
+    pg_port = config.get("port") or os.environ.get('PGPORT', 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 9.6)
+    pg_version = config.get("version", 10.1)
 
     # Create our Database.
     init_postgresql_database(pg_user, pg_host, pg_port, pg_db)
@@ -102,14 +115,15 @@ def app_config(database):
             "celery.scheduler_url": "redis://localhost:0/",
             "database.url": database,
             "docs.url": "http://docs.example.com/",
-            "download_stats.url": "redis://localhost:0/",
             "ratelimit.url": "memory://",
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
+            "docs.backend": "warehouse.packaging.services.LocalFileStorage",
             "files.url": "http://localhost:7000/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+            "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         },
     )
 
@@ -201,8 +215,10 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, datadog):
+    pyramid_request.registry.datadog = datadog
     pyramid_request.db = db_session
+    pyramid_request.flags = Flags(pyramid_request)
     return pyramid_request
 
 

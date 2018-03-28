@@ -52,6 +52,10 @@
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <noscript>
+      <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
+    </noscript>
+
     {% block extra_css %}{% endblock %}
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
@@ -65,7 +69,7 @@
     <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.urll }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/logo-large.svg') }}">
+    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}">
     <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
 
@@ -95,7 +99,7 @@
       {% include "warehouse:templates/includes/warning-banner.html" %}
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
-      <div class="notification-bar notification-bar--warning">
+      <div class="notification-bar notification-bar--danger">
         <span class="notification-bar__icon">
           <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
           <span class="sr-only">Warning:</span>
@@ -118,6 +122,12 @@
       {% csi request.route_path("includes.flash-messages") %}
       {% endcsi %}
     {% endblock %}
+
+    {% for flag in request.flags.notifications() %}
+    <div class="notification-bar notification-bar--danger">
+      <span class="notification-bar__message">{{ flag.description }}</span>
+    </div>
+    {% endfor %}
 
     <div class="notification-bar">
       <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>

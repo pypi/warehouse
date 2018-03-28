@@ -2,6 +2,11 @@
 PyPI's XML-RPC methods
 ======================
 
+.. note::
+   The XML-RPC API will be deprecated in the future. Use of this API is not
+   recommended, and existing consumers of the API should migrate to the RSS
+   and/or JSON APIs instead.
+
 Example usage::
 
   >>> import xmlrpclib
@@ -31,6 +36,8 @@ Example usage::
     'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
     'url': 'https://pypi.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
 
+.. _changes-to-legacy-api:
+
 Changes to Legacy API
 ---------------------
 
@@ -43,8 +50,9 @@ never fully supported anyway.
 ``release_downloads`` and ``top_packages`` No longer supported. Please
 use `Google BigQuery
 <https://mail.python.org/pipermail/distutils-sig/2016-May/028986.html>`_
-instead (`tips
-<https://langui.sh/2016/12/09/data-driven-decisions/>`_).
+instead (`guidance
+<https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_,
+`tips <https://langui.sh/2016/12/09/data-driven-decisions/>`_).
 
 Package Querying
 ----------------

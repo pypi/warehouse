@@ -12,22 +12,25 @@
  * limitations under the License.
  */
 
+@charset "utf-8";
+
 /*
-  Dynamically adds a blue question mark icon to the element it is applied to.
-  Use on headings, e.g.
+  This is an import file for the CSS for the Warehouse project (PyPI).
+  This stylesheet is used to override any styling that will cause issues
+  for users without Javascript (or have it disabled).
+ */
 
-  <h1 class="common-question">There will be a question mark icon on my left</h1>
-*/
+.notification-bar {
+  // Default notifications to be visible, even if they're dismissed
+  // Also, hide any elements that suggest dismiss-ability since js is disabled
+  display: block;
 
-.common-question {
-  h2 {
-    padding-top: 30px;
+  &__dismiss {
+    display: none;
+  }
 
-    &:before {
-      font-family: "FontAwesome";
-      content: "\f059";
-      margin-right: 5px;
-      color: $brand-color;
-    }
+  &--hidden,
+  &--visible {
+    display: inherit;
   }
 }

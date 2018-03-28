@@ -70,9 +70,9 @@
 @import "blocks/button-group";
 @import "blocks/callout-block";
 @import "blocks/checkbox-tree";
-@import "blocks/common-question";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
+@import "blocks/faq-group";
 @import "blocks/filter-badge";
 @import "blocks/filter-panel";
 @import "blocks/footer";
@@ -136,6 +136,11 @@
   margin-bottom: 0;
 }
 
+// Add small margin to the top of elements
+.margin-top {
+  margin-top: $spacing-unit / 4;
+}
+
 // Make text or icons red to draw attention
 .danger {
   color: $danger-color;
@@ -151,8 +156,15 @@
   padding-bottom: 25px;
 }
 
+// Reset text to default
+.reset-text {
+  font-size: $base-font-size;
+  font-weight: normal;
+}
+
 // Visibility helpers
-.hidden {
+.hidden,
+.confirm-form {
   display: none;
 }
 

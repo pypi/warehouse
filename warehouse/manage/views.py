@@ -22,7 +22,8 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
-    send_account_deletion_email, send_email_verification_email,
+    send_account_deletion_email, send_added_as_collaborator_email,
+    send_collaborator_added_email, send_email_verification_email,
     send_password_change_email, send_primary_email_change_email
 )
 from warehouse.manage.forms import (
@@ -30,7 +31,11 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Role
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import (
+    confirm_project,
+    destroy_docs,
+    remove_project,
+)
 
 
 @view_defaults(
@@ -358,6 +363,26 @@ def delete_project(project, request):
 
 
 @view_config(
+    route_name="manage.project.destroy_docs",
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage",
+)
+def destroy_project_docs(project, request):
+    confirm_project(
+        project, request, fail_route="manage.project.documentation"
+    )
+    destroy_docs(project, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            'manage.project.documentation',
+            project_name=project.normalized_name,
+        )
+    )
+
+
+@view_config(
     route_name="manage.project.releases",
     renderer="manage/releases.html",
     uses_session=True,
@@ -551,6 +576,32 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     submitted_from=request.remote_addr,
                 ),
             )
+
+            owners = (
+                request.db.query(Role)
+                .join(Role.user)
+                .filter(Role.role_name == 'Owner', Role.project == project)
+            )
+            owner_emails = [owner.user.email for owner in owners]
+            owner_emails.remove(request.user.email)
+
+            send_collaborator_added_email(
+                request,
+                user,
+                request.user,
+                project.name,
+                form.role_name.data,
+                owner_emails
+            )
+
+            send_added_as_collaborator_email(
+                request,
+                request.user,
+                project.name,
+                form.role_name.data,
+                user.email
+            )
+
             request.session.flash(
                 f"Added collaborator '{form.username.data}'",
                 queue="success"
@@ -729,4 +780,16 @@ def manage_project_history(project, request):
     return {
         'project': project,
         'journals': journals,
+    }
+
+
+@view_config(
+    route_name="manage.project.documentation",
+    renderer="manage/documentation.html",
+    uses_session=True,
+    permission="manage",
+)
+def manage_project_documentation(project, request):
+    return {
+        'project': project,
     }
