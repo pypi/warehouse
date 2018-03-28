@@ -18,7 +18,7 @@ from sqlalchemy.orm import lazyload, joinedload, load_only
 
 from warehouse.packaging.models import Release, Project
 from warehouse.packaging.search import Project as ProjectDocType
-from warehouse.search import get_index
+from warehouse.search.utils import get_index
 from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
