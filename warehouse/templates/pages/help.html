@@ -43,6 +43,7 @@
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
 {% macro beta() %}What does beta mean?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
+{% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
 {% block title %}Help{% endblock %}
 
 {% block content %}
@@ -94,6 +95,7 @@
           <li><a href="#availability">{{ availability() }}</a></li>
           <li><a href="#beta">{{ beta() }}</a></li>
           <li><a href="#contributing">{{ contributing() }}</a></li>
+          <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
         </ul>
       </section>
 
@@ -333,6 +335,12 @@
           <em>Stay updated</em>: You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">Distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev" target="_blank" rel="noopener">PyPA Dev message group</a>.
         </p>
         {{ code_of_conduct() }}
+
+        <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
+        <p>
+          Changes to PyPI are generally announced on both the <a href="https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/" target="_blank" rel="noopener">pypi-announce mailing list</a> and the <a href="https://pyfound.blogspot.com/search/label/pypi" target="_blank" rel="noopener">PSF blog</a> under the label "pypi". The PSF blog also has <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi" target="_blank" rel="noopener">Atom</a> and
+          <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
+        </p>
       </section>
     </div>
   </section>
