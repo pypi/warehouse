@@ -37,11 +37,7 @@
 .notification-bar {
   border-bottom: 2px solid $white;
   text-align: center;
-<<<<<<< HEAD
-  background-color: darken($highlight-color, 10);
-=======
-  background-color: $brand-color-dark;
->>>>>>> 84086f9018dd8f4b0b53917d2e405708fdde0334
+  background-color: $primary-color-dark;
   color: $white;
   padding: ($spacing-unit / 2);
   position: relative;

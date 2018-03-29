@@ -36,7 +36,7 @@
 
 .footer {
   $footer-faded-color: transparentize($white, 0.3);
-  background-color: lighten($highlight-color, 2);
+  background-color: lighten($primary-color, 2);
   color: $white;
   padding: 60px 0;
   width: 100%;

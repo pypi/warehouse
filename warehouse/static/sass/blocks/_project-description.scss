@@ -167,10 +167,10 @@
 
 // PYGMENTS THEME
 
-$blue:          $highlight-color;
-$light-blue:    lighten($highlight-color, 10);
-$dark-blue:     darken($highlight-color, 10);
-$darkest-blue:  darken($highlight-color, 20);
+$blue:          $primary-color;
+$light-blue:    lighten($primary-color, 10);
+$dark-blue:     darken($primary-color, 10);
+$darkest-blue:  darken($primary-color, 20);
 $green:         $success-color;
 $light-green:   lighten($success-color, 10);
 $red:           $danger-color;
