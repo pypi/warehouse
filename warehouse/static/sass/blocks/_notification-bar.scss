@@ -37,7 +37,7 @@
 .notification-bar {
   border-bottom: 2px solid $white;
   text-align: center;
-  background-color: darken($brand-color, 10);
+  background-color: $brand-color-dark;
   color: $white;
   padding: ($spacing-unit / 2);
   position: relative;
@@ -73,11 +73,21 @@
   // notification controller is being used.
   &--dismissable {
     display: none;
-    padding-right: 55px;
+    padding: 15px 55px;
   }
 
   &--visible {
     display: block;
+  }
+
+  &--warning {
+    background-color: $warn-color;
+    color: $warn-text;
+    border-color: darken($primary-color, 10);
+
+    a {
+      color: $warn-text;
+    }
   }
 
   &--danger {
