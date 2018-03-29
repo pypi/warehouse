@@ -9,4 +9,4 @@ export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
 # Actually run our tests.
-python -m pytest --driver Remote --host selenium --port 4444 --capability browserName firefox --base-url http://web:8000 --sensitive-url "pypi\.org" -m e2e $@
+python -m pytest --driver Remote --host selenium --port 4444 --capability browserName firefox --base-url http://web:8000 --sensitive-url "pypi\.org" --html selenium-report/index.html -m e2e $@

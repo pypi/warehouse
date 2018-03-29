@@ -123,3 +123,4 @@ services:
       - web
     volumes:
       - ./tests:/opt/warehouse/src/tests:z
+      - ./selenium-report:/opt/warehouse/src/selenium-report:z
