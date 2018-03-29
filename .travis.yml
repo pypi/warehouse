@@ -56,7 +56,7 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
-    - script: make tests_e2e BINDIR="$(dirname $(which python))"
+    - script: make mindb && make tests_e2e BINDIR="$(dirname $(which python))"
       env:
         - SUITE=End2end
 
