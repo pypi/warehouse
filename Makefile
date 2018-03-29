@@ -139,12 +139,18 @@ ifneq ($(PR), false)
 	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
-initdb:
+createdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+
+initdb: createdb
 	xz -d -k dev/$(DB).sql.xz
 	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
+	docker-compose run --rm web python -m warehouse db upgrade head
+	$(MAKE) reindex
+
+mindb: createdb
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
