@@ -12,7 +12,6 @@
 
 from urllib.parse import urljoin
 
-import pytest
 
 def test_register_password_strength(selenium, base_url):
     register_url = urljoin(base_url, 'account/register')
@@ -20,7 +19,8 @@ def test_register_password_strength(selenium, base_url):
     new_password = selenium.find_element_by_id('new_password')
     new_password.send_keys('foo')
     assert selenium.find_element_by_xpath(
-        '//span[@class="password-strength__gauge password-strength__gauge--0"]')
+        '//span[@class="password-strength__gauge password-strength__gauge--0"]'
+    )
     assert selenium.find_element_by_xpath(
         '//li[text()="Passwords do not match"]')
     assert selenium.find_element_by_xpath(
