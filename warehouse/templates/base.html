@@ -42,7 +42,11 @@
     <meta name="defaultLanguage" content="en">
     <meta name="availableLanguages" content="en">
 
-    <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
+    {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+      {% set testPyPI = true %}
+    {% endif %}
+
+    <title>{% if testPyPI %}Test{% endif %}{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
@@ -88,6 +92,7 @@
 
   <body>
     {% block body %}
+
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
@@ -102,6 +107,15 @@
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
+      {% if testPyPI %}
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
+        <span class="notification-bar__message">You are using testPyPI - a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
+      </div>
+      {% endif %}
     </section>
 
     {% block flash_messages %}
@@ -119,7 +133,7 @@
       <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
-    <header class="site-header">
+    <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
         <div class="split-layout">
           {% block brand %}
