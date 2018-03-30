@@ -7,5 +7,5 @@ Request to add a new Trove classifier.
 <!--
     Please include a brief explanation to justify your request.
     Why do the current classifiers not meet your need?
-    How many packages to you expect to use this new classifier?
+    How many projects do you expect to use this new classifier?
 -->
