@@ -13,16 +13,13 @@
 import binascii
 import os
 
-import click
-
 from elasticsearch.helpers import parallel_bulk
 from sqlalchemy.orm import lazyload, joinedload, load_only
 
-from warehouse.cli.search import search
-from warehouse.db import Session
 from warehouse.packaging.models import Release, Project
 from warehouse.packaging.search import Project as ProjectDocType
-from warehouse.search import get_index
+from warehouse.search.utils import get_index
+from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
 
@@ -49,16 +46,14 @@ def _project_docs(db):
         yield p.to_dict(include_meta=True)
 
 
-@search.command()
-@click.pass_obj
-def reindex(config, **kwargs):
+@tasks.task(ignore_result=True, acks_late=True)
+def reindex(request):
     """
     Recreate the Search Index.
     """
-    client = config.registry["elasticsearch.client"]
-    db = Session(bind=config.registry["sqlalchemy.engine"])
-    number_of_replicas = config.registry.get("elasticsearch.replicas", 0)
-    refresh_interval = config.registry.get("elasticsearch.interval", "1s")
+    client = request.registry["elasticsearch.client"]
+    number_of_replicas = request.registry.get("elasticsearch.replicas", 0)
+    refresh_interval = request.registry.get("elasticsearch.interval", "1s")
 
     # We use a randomly named index so that we can do a zero downtime reindex.
     # Essentially we'll use a randomly named index which we will use until all
@@ -66,11 +61,11 @@ def reindex(config, **kwargs):
     # our randomly named index, and then delete the old randomly named index.
 
     # Create the new index and associate all of our doc types with it.
-    index_base = config.registry["elasticsearch.index"]
+    index_base = request.registry["elasticsearch.index"]
     random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
     new_index_name = "{}-{}".format(index_base, random_token)
-    doc_types = config.registry.get("search.doc_types", set())
-    shards = config.registry.get("elasticsearch.shards", 1)
+    doc_types = request.registry.get("search.doc_types", set())
+    shards = request.registry.get("elasticsearch.shards", 1)
 
     # Create the new index with zero replicas and index refreshes disabled
     # while we are bulk indexing.
@@ -87,16 +82,16 @@ def reindex(config, **kwargs):
     # From this point on, if any error occurs, we want to be able to delete our
     # in progress index.
     try:
-        db.execute("SET statement_timeout = '600s'")
+        request.db.execute("SET statement_timeout = '600s'")
 
-        for _ in parallel_bulk(client, _project_docs(db)):
+        for _ in parallel_bulk(client, _project_docs(request.db)):
             pass
     except:  # noqa
         new_index.delete()
         raise
     finally:
-        db.rollback()
-        db.close()
+        request.db.rollback()
+        request.db.close()
 
     # Now that we've finished indexing all of our data we can optimize it and
     # update the replicas and refresh intervals.

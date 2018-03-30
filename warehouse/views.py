@@ -52,15 +52,15 @@ SEARCH_BOOSTS = {
     "summary": 5,
 }
 SEARCH_FILTER_ORDER = (
-    "Programming Language",
-    "License",
     "Framework",
     "Topic",
-    "Intended Audience",
-    "Environment",
-    "Operating System",
-    "Natural Language",
     "Development Status",
+    "License",
+    "Programming Language",
+    "Operating System",
+    "Environment",
+    "Intended Audience",
+    "Natural Language",
 )
 
 
