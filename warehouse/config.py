@@ -350,6 +350,9 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
+    # Register the support for Celery Tasks
+    config.include(".tasks")
+
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
 
@@ -362,9 +365,6 @@ def configure(settings=None):
     # Register the support for AWS and Google Cloud
     config.include(".aws")
     config.include(".gcloud")
-
-    # Register the support for Celery Tasks
-    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")
