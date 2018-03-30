@@ -244,9 +244,9 @@ passlib==1.7.1 \
 PasteDeploy==1.5.2 \
     --hash=sha256:39973e73f391335fac8bc8a8a95f7d34a9f42e2775600ce2dc518d93b37ef943 \
     --hash=sha256:d5858f89a255e6294e63ed46b73613c56e3b9a2d82a42f1df4d06c8421a9e3cb
-plaster-pastedeploy==0.4.2 \
-    --hash=sha256:1c25ac22b6eaee828d2986d16d270c11ac335ebead80def32c3e218588daba9a \
-    --hash=sha256:2a401228c7cfbe38f728249e75af7a666f91c61d642cbb8fcb78a71df69d2754
+plaster-pastedeploy==0.5 \
+    --hash=sha256:25cc239d767c5fab0afa44b1ed3c1a33a3d7ec6302ff2e599aec674b77ff6667 \
+    --hash=sha256:70a3185b2a3336996a26e9987968cf35e84cf13390b7e8a0a9a91eb8f6f85ba9
 plaster==1.0 \
     --hash=sha256:215c921a438b5349931fd7df9a5a11a3572947f20f4bc6dd622ac08f1c3ba249 \
     --hash=sha256:8351c7c7efdf33084c1de88dd0f422cbe7342534537b553c49b857b12d98c8c3
