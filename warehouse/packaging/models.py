@@ -18,8 +18,6 @@ from urllib.parse import urlparse
 import packaging.utils
 
 from citext import CIText
-from first import first
-from packaging.version import parse as parse_version
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
@@ -199,33 +197,22 @@ class Project(SitemapMixin, db.ModelBase):
         return request.route_url("legacy.docs", project=self.name)
 
     @property
-    def all_releases(self):
-        return sorted(
-            orm.object_session(self).query(Release)
-            .filter(Release.project == self)
-            .options(orm.load_only(
-                Release.version,
-                Release.is_prerelease,
-                Release._pypi_hidden,
-                Release._pypi_ordering,
-                Release.created))
-            .order_by(Release._pypi_ordering.desc())
-            .all(),
-            key=lambda r: parse_version(r.version),
-            reverse=True,
-        )
+    def all_versions(self):
+        return (orm.object_session(self)
+                   .query(Release.version, Release.created)
+                   .filter(Release.project == self)
+                   .order_by(Release._pypi_ordering.desc())
+                   .all())
 
     @property
-    def latest_release(self):
-        return first(
-            sorted(
-                self.all_releases,
-                key=lambda r: parse_version(r.version),
-                reverse=True,
-            ),
-            key=lambda r: not r.is_prerelease,
-            default=self.all_releases[0],
-        )
+    def latest_version(self):
+        return (orm.object_session(self)
+                   .query(Release.version, Release.created)
+                   .filter(Release.project == self)
+                   .order_by(
+                       Release.is_prerelease.nullslast(),
+                       Release._pypi_ordering.desc())
+                   .first())
 
 
 class DependencyKind(enum.IntEnum):

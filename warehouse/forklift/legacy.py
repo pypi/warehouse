@@ -35,7 +35,7 @@ import wtforms.validators
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
@@ -989,7 +989,14 @@ def file_upload(request):
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
     #       at least this should be some sort of hook or trigger.
-    releases = project.all_releases
+    releases = (
+        request.db.query(Release)
+                  .filter(Release.project == project)
+                  .options(orm.load_only(
+                      Release._pypi_ordering,
+                      Release._pypi_hidden))
+                  .all()
+    )
     for i, r in enumerate(sorted(
             releases, key=lambda x: packaging.version.parse(x.version))):
         r._pypi_ordering = i

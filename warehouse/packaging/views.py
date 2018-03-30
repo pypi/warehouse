@@ -120,8 +120,8 @@ def release_detail(release, request):
         "project": project,
         "release": release,
         "files": release.files.all(),
-        "latest_release": project.latest_release,
-        "all_releases": project.all_releases,
+        "latest_version": project.latest_version,
+        "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
     }

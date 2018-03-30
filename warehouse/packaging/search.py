@@ -58,8 +58,8 @@ class Project(DocType):
         obj = cls(meta={"id": release.project.normalized_name})
         obj["name"] = release.project.name
         obj["normalized_name"] = release.project.normalized_name
-        obj["version"] = [r.version for r in release.project.all_releases]
-        obj["latest_version"] = release.project.latest_release.version
+        obj["version"] = [r.version for r in release.project.all_versions]
+        obj["latest_version"] = release.project.latest_version.version
         obj["summary"] = release.summary
         obj["description"] = release.description
         obj["author"] = release.author

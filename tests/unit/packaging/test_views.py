@@ -180,9 +180,9 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
-            "latest_release": project.latest_release,
-            "all_releases": [
-                r for r in reversed(releases)
+            "latest_version": project.latest_version,
+            "all_versions": [
+                (r.version, r.created) for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None
