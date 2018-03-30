@@ -15,7 +15,7 @@ from zope.interface import Interface
 
 class IFileStorage(Interface):
 
-    def create_service(context, request, name=None):
+    def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
         created for, passing a name for settings.
@@ -32,6 +32,15 @@ class IFileStorage(Interface):
         Save the file located at file_path to the file storage at the location
         specified by path. An additional meta keyword argument may contain
         extra information that an implementation may or may not store.
+        """
+
+
+class IDocsStorage(Interface):
+
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created for, passing a name for settings.
         """
 
     def remove_by_prefix(prefix):
