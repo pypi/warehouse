@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import click
+
 from warehouse.cli import warehouse
+from warehouse.search.tasks import reindex as _reindex
 
 
 @warehouse.group()  # pragma: no branch
@@ -18,3 +21,14 @@ def search():
     """
     Manage the Warehouse Search.
     """
+
+
+@search.command()
+@click.pass_obj
+def reindex(config):
+    """
+    Recreate the Search Index.
+    """
+
+    request = config.task(_reindex).get_request()
+    config.task(_reindex).run(request)

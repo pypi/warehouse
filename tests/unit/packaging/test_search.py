@@ -13,7 +13,7 @@
 import datetime
 import pretend
 
-from warehouse.packaging import search
+from warehouse.packaging.search import Project
 
 
 def test_build_search():
@@ -42,7 +42,7 @@ def test_build_search():
         created=datetime.datetime(1956, 1, 31),
         classifiers=["Alpha", "Beta"],
     )
-    obj = search.Project.from_db(release)
+    obj = Project.from_db(release)
 
     assert obj.meta.id == "foobar"
     assert obj["name"] == "Foobar"
