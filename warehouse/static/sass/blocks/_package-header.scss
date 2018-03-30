@@ -28,7 +28,11 @@
     </div>
     <div class="package-header__right">
       // status badge here
-      <p class="package-header__date"></p>
+      <p class="package-header__date">
+        <span class="status-badge">
+          // release date
+        </span>
+      </p>
     </div>
   </div>
 */
@@ -132,8 +136,18 @@
   }
 
   &__date {
-    font-style: italic;
-    margin-top: 20px;
-    padding-bottom: 5px;
+    color: $text-color;
+
+    span {
+      margin-top: 10px;
+
+      &:before {
+        border-color: rgba(0, 0, 0, 0.4);
+      }
+
+      > .-js-relative-time {
+        padding-left: 4px;
+      }
+    }
   }
 }

@@ -339,6 +339,7 @@ def configure(settings=None):
         "warehouse.filters:format_package_type"
     )
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
+    filters.setdefault("uncapitalize", "warehouse.filters:uncapitalize")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
