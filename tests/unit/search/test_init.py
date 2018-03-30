@@ -23,7 +23,7 @@ def test_es(monkeypatch):
         settings=pretend.call_recorder(lambda **kw: None),
     )
     index_cls = pretend.call_recorder(lambda name, using: index_obj)
-    monkeypatch.setattr(search, "Index", index_cls)
+    monkeypatch.setattr(search.utils, "Index", index_cls)
 
     doc_types = [pretend.stub(), pretend.stub()]
 
