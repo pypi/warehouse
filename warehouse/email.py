@@ -165,8 +165,7 @@ def send_collaborator_added_email(request, user, submitter, project_name, role,
         'email/collaborator-added.body.txt', fields, request=request
     )
 
-    if email_recipients:
-        request.task(send_email).delay(body, subject, bcc=email_recipients)
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
 
     return fields
 
@@ -228,8 +227,7 @@ def send_role_removed_from_user_email(request, role, email_recipients):
         'email/role-removed-from-user.body.txt', fields, request=request
     )
 
-    if email_recipients:
-        request.task(send_email).delay(body, subject, bcc=email_recipients)
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
     return fields
 
 
@@ -269,7 +267,6 @@ def send_role_changed_for_user_email(request, role, email_recipients):
         'email/role-changed-for-user.body.txt', fields, request=request
     )
 
-    if email_recipients:
-        request.task(send_email).delay(body, subject, bcc=email_recipients)
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
 
     return fields
