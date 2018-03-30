@@ -29,7 +29,7 @@ class TestProjectList:
     def test_no_query(self, db_request):
         journals = sorted(
             [JournalEntryFactory.create() for _ in range(30)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         result = views.journals_list(db_request)
@@ -42,7 +42,7 @@ class TestProjectList:
     def test_with_page(self, db_request):
         journals = sorted(
             [JournalEntryFactory.create() for _ in range(30)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         db_request.GET["page"] = "2"
@@ -65,7 +65,7 @@ class TestProjectList:
         journals0 = sorted(
             [JournalEntryFactory.create(name=project0.normalized_name)
              for _ in range(30)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         [JournalEntryFactory.create(name=project1.normalized_name)
@@ -85,7 +85,7 @@ class TestProjectList:
         journals0 = sorted(
             [JournalEntryFactory.create(name=project0.normalized_name)
              for _ in range(30)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         [JournalEntryFactory.create(name=project1.normalized_name)
@@ -105,7 +105,7 @@ class TestProjectList:
         journals0 = sorted(
             [JournalEntryFactory.create(submitted_by=user0)
              for _ in range(30)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         [JournalEntryFactory.create(submitted_by=user1)
@@ -139,13 +139,13 @@ class TestProjectList:
         journals0 = sorted(
             [JournalEntryFactory.create(submitted_from=ipv4)
              for _ in range(10)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
         journals1 = sorted(
             [JournalEntryFactory.create(submitted_from=ipv6)
              for _ in range(10)],
-            key=lambda j: j.submitted_date,
+            key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
 
