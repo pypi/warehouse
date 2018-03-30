@@ -13,13 +13,11 @@
 import pretend
 import pytest
 
-from functools import partial
-
 from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
@@ -54,18 +52,10 @@ def test_includme(monkeypatch, with_trending):
 
     packaging.includeme(config)
 
-    assert repr(config.register_service_factory.calls[0]) == repr(
-        pretend.call(
-            partial(storage_class.create_service, name='files'),
-            IFileStorage, name='files'
-        )
-    )
-    assert repr(config.register_service_factory.calls[1]) == repr(
-        pretend.call(
-            partial(storage_class.create_service, name='docs'),
-            IFileStorage, name='docs'
-        )
-    )
+    assert config.register_service_factory.calls == [
+        pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, IDocsStorage),
+    ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
             File,
