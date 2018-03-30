@@ -1203,7 +1203,7 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IFileStorage, name="files"),
+            pretend.call(IFileStorage),
         ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
@@ -2124,7 +2124,7 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IFileStorage, name="files"),
+            pretend.call(IFileStorage),
         ]
         assert storage_service.store.calls == [
             pretend.call(
@@ -2234,7 +2234,7 @@ class TestFileUpload:
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
-            pretend.call(IFileStorage, name="files"),
+            pretend.call(IFileStorage),
         ]
         assert storage_service.store.calls == [
             pretend.call(
