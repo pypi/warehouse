@@ -105,7 +105,7 @@ def project_detail(project, request):
         for entry in (
             request.db.query(JournalEntry)
             .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc())
+            .order_by(JournalEntry.id.desc())
             .limit(30)
         )
     ]
@@ -208,7 +208,7 @@ def journals_list(project, request):
 
     journals_query = (request.db.query(JournalEntry)
                       .filter(JournalEntry.name == project.name)
-                      .order_by(JournalEntry.submitted_date.desc()))
+                      .order_by(JournalEntry.id.desc()))
 
     if q:
         terms = shlex.split(q)

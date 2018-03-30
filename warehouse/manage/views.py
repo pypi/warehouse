@@ -774,7 +774,7 @@ def manage_project_history(project, request):
     journals = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc())
+        .order_by(JournalEntry.id.desc())
         .all()
     )
     return {

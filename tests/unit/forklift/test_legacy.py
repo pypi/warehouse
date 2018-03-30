@@ -1255,7 +1255,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("id")
                          .all()
         )
         assert [
@@ -2160,7 +2160,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("id")
                          .all()
         )
         assert [
@@ -2270,7 +2270,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("id")
                          .all()
         )
         assert [
@@ -2506,7 +2506,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("id")
                          .all()
         )
         assert [
@@ -2679,7 +2679,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("id")
                          .all()
         )
         assert [
