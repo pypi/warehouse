@@ -989,11 +989,7 @@ def file_upload(request):
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but
     #       at least this should be some sort of hook or trigger.
-    releases = (
-        request.db.query(Release)
-                  .filter(Release.project == project)
-                  .all()
-    )
+    releases = project.all_releases
     for i, r in enumerate(sorted(
             releases, key=lambda x: packaging.version.parse(x.version))):
         r._pypi_ordering = i
