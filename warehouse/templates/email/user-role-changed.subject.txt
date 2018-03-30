@@ -1,1 +1,1 @@
-Role changed in PyPI
+Role changed on PyPI for project {{ project }}

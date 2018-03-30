@@ -561,17 +561,16 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
             owner_emails = [owner.user.email for owner in owners
-                            if owner.user.email]
+                            if owner.user.email != user.email]
 
-            if owner_emails:
-                send_collaborator_added_email(
-                    request,
-                    user,
-                    request.user,
-                    project.name,
-                    form.role_name.data,
-                    owner_emails
-                )
+            send_collaborator_added_email(
+                request,
+                user,
+                request.user,
+                project.name,
+                form.role_name.data,
+                owner_emails,
+            )
             send_added_as_collaborator_email(
                 request,
                 request.user,
@@ -694,16 +693,15 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         )
                     )
                     owner_emails = [owner.user.email for owner in owners
-                                    if owner.user.email]
+                                    if owner.user.email != role.user.email]
 
                     role.role_name = form.role_name.data
                     send_user_role_changed_email(request, role)
-                    if owner_emails:
-                        send_role_changed_for_user_email(
-                            request,
-                            role,
-                            owner_emails,
-                        )
+                    send_role_changed_for_user_email(
+                        request,
+                        role,
+                        owner_emails,
+                    )
                     request.session.flash(
                         'Successfully changed role', queue="success"
                     )
@@ -761,12 +759,10 @@ def delete_project_role(project, request):
                     Role.project == role.project,
                 )
             )
-            owner_emails = [owner.user.email for owner in owners
-                            if owner.user.email]
+            owner_emails = [owner.user.email for owner in owners]
 
             send_removed_from_role_email(request, role)
-            if owner_emails:
-                send_role_removed_from_user_email(request, role, owner_emails)
+            send_role_removed_from_user_email(request, role, owner_emails)
         request.session.flash("Successfully removed role", queue="success")
 
     return HTTPSeeOther(

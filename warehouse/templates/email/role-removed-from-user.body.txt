@@ -1,7 +1,7 @@
 A collaborator's role has been removed from a project you own on PyPI:
 
   Username: {{ username }}
-  Role: {{ role }}
+  Role was previously: {{ role }}
   Collaborator for: {{ project }}
   Changed by: {{ submitter }}
 

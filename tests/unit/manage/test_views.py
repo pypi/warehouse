@@ -1239,7 +1239,15 @@ class TestManageProjectRoles:
     def test_post_new_role(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
+        EmailFactory.create(user=user, email="useremail")
 
+        otherowner = UserFactory.create(username="otherowner")
+        otherowner_role = RoleFactory.create(
+            user=otherowner,
+            project=project,
+            role_name="Owner",
+        )
+        EmailFactory.create(user=otherowner, email="otherowneremail")
         user_service = pretend.stub(
             find_userid=lambda username: user.id,
             get_user=lambda userid: user,
@@ -1250,7 +1258,7 @@ class TestManageProjectRoles:
         db_request.method = "POST"
         db_request.POST = pretend.stub()
         db_request.remote_addr = "10.10.10.10"
-        db_request.user = UserFactory.create()
+        db_request.user = otherowner
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=user.username),
@@ -1292,7 +1300,16 @@ class TestManageProjectRoles:
             pretend.call("Added collaborator 'testuser'", queue="success"),
         ]
 
-        assert send_collaborator_added_email.calls == []
+        assert send_collaborator_added_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                db_request.user,
+                project.name,
+                form_obj.role_name.data,
+                [otherowner.email],
+            ),
+        ]
 
         assert send_added_as_collaborator_email.calls == [
             pretend.call(
@@ -1300,15 +1317,19 @@ class TestManageProjectRoles:
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                user.email)
+                user.email,
+            ),
         ]
 
         # Only one role is created
-        role = db_request.db.query(Role).one()
+        role = db_request.db.query(Role).filter(Role.user == user).one()
 
         assert result == {
             "project": project,
-            "roles_by_user": {user.username: [role]},
+            "roles_by_user": {
+                user.username: [role],
+                otherowner.username: [otherowner_role],
+            },
             "form": form_obj,
         }
 
@@ -1322,6 +1343,7 @@ class TestManageProjectRoles:
     def test_post_new_role_notify_all_owners(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
+        EmailFactory.create(user=user, email="useremail")
 
         owner = UserFactory.create(username="owneruser")
         EmailFactory.create(user=owner, email="owneremail")
@@ -1465,10 +1487,17 @@ class TestChangeProjectRoles:
         role = RoleFactory.create(
             user=user, project=project, role_name="Owner"
         )
+        EmailFactory.create(user=user, email="useremail")
+
+        otherowner = UserFactory.create(username="otherowner")
+        RoleFactory.create(
+            user=otherowner, project=project, role_name="Owner"
+        )
+        EmailFactory.create(user=otherowner, email="otherowneremail")
         new_role_name = "Maintainer"
 
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
+        db_request.user = otherowner
         db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({
             "role_id": role.id,
@@ -1513,10 +1542,16 @@ class TestChangeProjectRoles:
             pretend.call(
                 db_request,
                 role,
-            )
+            ),
         ]
 
-        assert send_role_changed_for_user_email.calls == []
+        assert send_role_changed_for_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [otherowner.email],
+            ),
+        ]
 
         entry = db_request.db.query(JournalEntry).one()
 
@@ -1532,6 +1567,7 @@ class TestChangeProjectRoles:
         role = RoleFactory.create(
             user=user, project=project, role_name="Owner"
         )
+        EmailFactory.create(user=user, email="useremail")
         owner = UserFactory.create(username="owneruser")
         EmailFactory.create(user=owner, email="owneremail")
         other_owner = UserFactory.create(username="otherowner")
@@ -1754,9 +1790,15 @@ class TestDeleteProjectRoles:
         role = RoleFactory.create(
             user=user, project=project, role_name="Owner"
         )
+        EmailFactory.create(user=user, email="useremail")
+        otherowner = UserFactory.create(username="otherowner")
+        otherowner_role = RoleFactory.create(
+            user=otherowner, project=project, role_name="Owner"
+        )
+        EmailFactory.create(user=otherowner, email="otherowneremail")
 
         db_request.method = "POST"
-        db_request.user = UserFactory.create()
+        db_request.user = otherowner
         db_request.remote_addr = "10.10.10.10"
         db_request.POST = MultiDict({"role_id": role.id})
         db_request.session = pretend.stub(
@@ -1786,7 +1828,7 @@ class TestDeleteProjectRoles:
         assert db_request.route_path.calls == [
             pretend.call('manage.project.roles', project_name=project.name),
         ]
-        assert db_request.db.query(Role).all() == []
+        assert db_request.db.query(Role).all() == [otherowner_role]
         assert db_request.session.flash.calls == [
             pretend.call("Successfully removed role", queue="success"),
         ]
@@ -1800,7 +1842,13 @@ class TestDeleteProjectRoles:
             )
         ]
 
-        assert send_role_removed_from_user_email.calls == []
+        assert send_role_removed_from_user_email.calls == [
+            pretend.call(
+                db_request,
+                role,
+                [otherowner.email],
+            ),
+        ]
 
         entry = db_request.db.query(JournalEntry).one()
 
