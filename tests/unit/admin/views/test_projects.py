@@ -96,7 +96,7 @@ class TestProjectDetail:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(75)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         roles = sorted(
@@ -257,7 +257,7 @@ class TestProjectJournalsList:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(30)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
@@ -274,7 +274,7 @@ class TestProjectJournalsList:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(30)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
@@ -300,7 +300,7 @@ class TestProjectJournalsList:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(30)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
@@ -318,7 +318,7 @@ class TestProjectJournalsList:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(30)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
@@ -336,7 +336,7 @@ class TestProjectJournalsList:
         journals = sorted(
             [JournalEntryFactory(name=project.name)
              for _ in range(30)],
-            key=lambda x: x.submitted_date,
+            key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
