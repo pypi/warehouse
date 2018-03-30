@@ -14,9 +14,7 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 
 .. http:get:: /simple/
 
-    All of the projects that have been registered. All responses *MUST* have
-    a ``<meta name="api-version" value="2" />`` tag where the only valid
-    value is ``2``.
+    All of the projects that have been registered.
 
     **Example request**:
 
@@ -38,7 +36,6 @@ The Simple API implements the HTML-based package index API as specified in `PEP
         <html>
           <head>
             <title>Simple Index</title>
-            <meta name="api-version" value="2" />
           </head>
           <body>
             <!-- More projects... -->
@@ -55,10 +52,8 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 .. http:get:: /simple/<project>/
 
     Get all of the URLS for the ``project``. The project is matched case
-    insensitively with the ``_`` and ``-`` characters considered equal. All
-    responses *MUST* have a ``<meta name="api-version" value="2" />`` tag where
-    the only valid value is ``2``. The URLs returned by this API are classified
-    by their ``rel`` attribute.
+    insensitively with the ``_`` and ``-`` characters considered equal. The URLs
+    returned by this API are classified by their ``rel`` attribute.
 
     ============ =============================================================
       rel name                               value
@@ -105,7 +100,6 @@ The Simple API implements the HTML-based package index API as specified in `PEP
         <html>
           <head>
             <title>Links for warehouse</title>
-            <meta name="api-version" value="2" />
           </head>
           <body>
             <h1>Links for warehouse</h1>

@@ -14,31 +14,11 @@ import urllib.parse
 
 import certifi
 import elasticsearch
-import venusian
 
-from elasticsearch_dsl import Index, serializer
+from celery.schedules import crontab
+from elasticsearch_dsl import serializer
 
-
-def doc_type(cls):
-    def callback(scanner, _name, item):
-        types_ = scanner.config.registry.setdefault("search.doc_types", set())
-        types_.add(item)
-
-    venusian.attach(cls, callback)
-
-    return cls
-
-
-def get_index(name, doc_types, *, using, shards=1, replicas=0, interval="1s"):
-    index = Index(name, using=using)
-    for doc_type in doc_types:
-        index.doc_type(doc_type)
-    index.settings(
-        number_of_shards=shards,
-        number_of_replicas=replicas,
-        refresh_interval=interval,
-    )
-    return index
+from warehouse.search.utils import get_index
 
 
 def es(request):
@@ -71,3 +51,6 @@ def includeme(config):
     config.registry["elasticsearch.replicas"] = \
         int(qs.get("replicas", ["0"])[0])
     config.add_request_method(es, name="es", reify=True)
+
+    from warehouse.search.tasks import reindex
+    config.add_periodic_task(crontab(minute=0, hour='*/3'), reindex)
