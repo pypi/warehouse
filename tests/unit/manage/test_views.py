@@ -1411,7 +1411,7 @@ class TestManageProjectRoles:
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                [owner.email, other_owner.email]
+                [other_owner.email, owner.email]
             )
         ]
 
@@ -1627,7 +1627,7 @@ class TestChangeProjectRoles:
             pretend.call(
                 db_request,
                 role,
-                [owner.email, other_owner.email],
+                [other_owner.email, owner.email],
             )
         ]
 
@@ -1918,7 +1918,7 @@ class TestDeleteProjectRoles:
             pretend.call(
                 db_request,
                 role,
-                [owner.email, other_owner.email],
+                [other_owner.email, owner.email],
             )
         ]
 
