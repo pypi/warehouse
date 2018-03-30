@@ -38,7 +38,10 @@ def _project_docs(db):
                     .load_only("version", "is_prerelease")),
                    joinedload(Release._classifiers).load_only("classifier"))
           .distinct(Release.name)
-          .order_by(Release.name, Release._pypi_ordering.desc())
+          .order_by(
+              Release.name,
+              Release.is_prerelease.nullslast(),
+              Release._pypi_ordering.desc())
     )
     for release in windowed_query(releases, Release.name, 1000):
         p = ProjectDocType.from_db(release)
