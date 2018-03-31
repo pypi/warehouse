@@ -15,21 +15,18 @@
 
 {% block title %}PyPI - the Python Package Index{% endblock %}
 
-{% set trending_projects_visible = namespace(total=20) %}
-{% set latest_releases_visible = namespace(total=20) %}
-
-{% macro project_snippet_latest(release, summary, index) -%}
-<div class="package-snippet hide-by-index-latest">
-  {{ project_snippet(release, summary, index)}}
+{% macro project_snippet_latest(release) -%}
+<div class="package-snippet hide-by-index-latest" data-target="show-latest-releases.latestRelease">
+  {{ project_snippet(release)}}
 </div>
 {%- endmacro %}
-{% macro project_snippet_trending(release, summary, index) -%}
-<div class="package-snippet hide-by-index-trending">
-  {{ project_snippet(release, summary, index)}}
+{% macro project_snippet_trending(release) -%}
+<div class="package-snippet hide-by-index-trending" data-target="show-trending-projects.trendingProject">
+  {{ project_snippet(release)}}
 </div>
 {%- endmacro %}
 
-{% macro project_snippet(release, summary, index) -%}
+{% macro project_snippet(release) -%}
 <h3 class="package-snippet__title">
   <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
   <span class="package-snippet__version">{{ release.version }}</span>
@@ -97,39 +94,31 @@
   </div>
 </section>
 
-<section class="horizontal-section horizontal-section--grey" data-controller="increment">
+<section class="horizontal-section horizontal-section--grey">
   <div class="site-container" >
-    <div class="col-half">
+    <div class="col-half" data-controller="show-trending-projects">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
-      <div class="package-list-timeout">
-        {% set current = namespace(amount_to_show=0) %}
+      <div class="package-list">
         {% for release in trending_projects %}
-          {% if current.amount_to_show < trending_projects_visible.total %}
-            {{ project_snippet_trending(release, release.summary, current.amount_to_show) }}
-            {% set current.amount_to_show = current.amount_to_show + 1 %}
-          {% endif %}
+          {{ project_snippet_trending(release) }}
         {% endfor %}
       </div>
-      <button id="increment-button-trending" class="button" type="button" value="trending" data-action="click->increment#addFive">Show More</button>
+      <button class="button" type="button" data-action="click->show-trending-projects#addFive" data-target="show-trending-projects.addFiveButton">Show More</button>
     </div>
-    <div class="col-half">
+    <div class="col-half" data-controller="show-latest-releases">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">New Releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
       </div>
-      <div class="package-list-timeout">
-        {% set current = namespace(amount_to_show=0) %}
+      <div class="package-list">
         {% for release in latest_releases %}
-          {% if current.amount_to_show < latest_releases_visible.total %}
-            {{ project_snippet_latest(release, release.summary, current.amount_to_show) }}
-            {% set current.amount_to_show = current.amount_to_show + 1 %}
-          {% endif %}
+          {{ project_snippet_latest(release) }}
         {% endfor %}
       </div>
-      <button id="increment-button-latest" class="button" value="latest" data-action="click->increment#addFive">Show More</button>
+      <button class="button" type="button" data-action="click->show-latest-releases#addFive" data-target="show-latest-releases.addFiveButton">Show More</button>
     </div>
   </div>
 </section>

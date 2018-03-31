@@ -37,7 +37,6 @@ import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
-import showMoreInitial from "warehouse/utils/show-more-initial";
 
 // Human-readable timestamps for project histories
 docReady(() => {
@@ -57,9 +56,6 @@ docReady(() => {
 
 // Kick off the client side HTML includes.
 docReady(HTMLInclude);
-
-// Initially hide all packages in homepage except the first 5.
-docReady(showMoreInitial);
 
 // Trigger our analytics code.
 docReady(Analytics);
