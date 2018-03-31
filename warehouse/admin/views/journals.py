@@ -37,7 +37,9 @@ def journals_list(request):
 
     journals_query = (
         request.db.query(JournalEntry)
-                  .order_by(JournalEntry.submitted_date.desc())
+                  .order_by(
+                      JournalEntry.submitted_date.desc(),
+                      JournalEntry.id.desc())
     )
 
     if q:
