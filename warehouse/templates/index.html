@@ -15,24 +15,19 @@
 
 {% block title %}PyPI - the Python Package Index{% endblock %}
 
-{% macro project_snippet_latest(release) -%}
-<div class="package-snippet hide-by-index-latest" data-target="show-latest-releases.latestRelease">
-  {{ project_snippet(release)}}
+{% macro project_snippet(release, class) -%}
+{% if class == "latest" %}
+<div class="package-snippet" data-target="show-latest-releases.latestRelease">
+{% else %}
+<div class="package-snippet" data-target="show-trending-projects.trendingProject">
+{% endif %}
+  <h3 class="package-snippet__title">
+    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
+    <span class="package-snippet__version">{{ release.version }}</span>
+  </h3>
+  {% set summary = release.summary if release.summary else "No description provided" %}
+  <p class="package-snippet__description">{{ summary }}</p>
 </div>
-{%- endmacro %}
-{% macro project_snippet_trending(release) -%}
-<div class="package-snippet hide-by-index-trending" data-target="show-trending-projects.trendingProject">
-  {{ project_snippet(release)}}
-</div>
-{%- endmacro %}
-
-{% macro project_snippet(release) -%}
-<h3 class="package-snippet__title">
-  <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
-  <span class="package-snippet__version">{{ release.version }}</span>
-</h3>
-{% set summary = release.summary if release.summary else "No description provided" %}
-<p class="package-snippet__description">{{ summary }}</p>
 {%- endmacro %}
 
 
@@ -103,7 +98,7 @@
       </div>
       <div class="package-list">
         {% for release in trending_projects %}
-          {{ project_snippet_trending(release) }}
+          {{ project_snippet(release, "trending") }}
         {% endfor %}
       </div>
       <button class="button" type="button" data-action="click->show-trending-projects#addFive" data-target="show-trending-projects.addFiveButton">Show More</button>
@@ -115,7 +110,7 @@
       </div>
       <div class="package-list">
         {% for release in latest_releases %}
-          {{ project_snippet_latest(release) }}
+          {{ project_snippet(release, "latest") }}
         {% endfor %}
       </div>
       <button class="button" type="button" data-action="click->show-latest-releases#addFive" data-target="show-latest-releases.addFiveButton">Show More</button>

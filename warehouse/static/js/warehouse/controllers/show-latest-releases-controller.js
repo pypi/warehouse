@@ -17,7 +17,7 @@ export default class extends Controller {
   static targets = ["latestRelease", "addFiveButton"];
 
   // Initially set 5 projects to be visible
-  initialize() {
+  connect() {
     this.amountVisible = 5;
     let i = 0;
     for (let element of this.latestReleaseTargets) {

@@ -16,7 +16,7 @@ import { Controller } from "stimulus";
 export default class extends Controller {
   static targets = ["trendingProject", "addFiveButton"];
 
-  initialize() {
+  connect() {
     // Initially set 5 projects to be visible
     let i = 0;
     this.amountVisible = 5;
