@@ -168,6 +168,20 @@
   display: none;
 }
 
+
+// Desktop specific visibility
+@media screen and (min-width: calc($desktop + 1px)) {
+  .hide-on-desktop {
+    display: none;
+  }
+}
+
+@media screen and (max-width: $desktop) {
+  .hide-below-desktop {
+    display: none;
+  }
+}
+
 // Mobile specific visibility
 @media screen and (max-width: $mobile) {
   .hide-on-mobile {
