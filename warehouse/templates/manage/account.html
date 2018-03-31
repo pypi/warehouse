@@ -124,7 +124,7 @@
       <p>
       We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
       </p>
-      <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button">
+      <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button" tabindex="1">
         Change image<span class="hide-on-mobile"> on gravatar.com</span>
         <i class="fa fa-external-link" aria-hidden="true"></i>
         <span class="sr-only">Opens in new window</span>
@@ -148,11 +148,11 @@
     {{ form_errors(save_account_form) }}
     <div class="form-group">
       <label class="form-group__label" for="name">Full Name</label>
-      {{ save_account_form.name(placeholder="No name set", class_="form-group__input") }}
+      {{ save_account_form.name(placeholder="No name set", class_="form-group__input", tabindex="2") }}
       {{ field_errors(save_account_form.name) }}
       <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
     </div>
-    <input value="Update Account" class="button button--primary" type="submit">
+    <input value="Update Account" class="button button--primary" type="submit" tabindex="3">
   </form>
 
   <hr>
@@ -189,11 +189,11 @@
       <label class="form-group__label" for="email">Add Email</label>
       <div class="form-group__horizontal">
         <div class="form-group__horizontal-left">
-          {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
+          {{ add_email_form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", tabindex="4") }}
           {{ field_errors(add_email_form.email) }}
         </div>
         <div class="form-group__horizontal-right">
-          <input value="Add" class="button button--primary" type="submit">
+          <input value="Add" class="button button--primary" type="submit" tabindex="5">
         </div>
       </div>
     </div>
@@ -211,24 +211,24 @@
         <label class="form-group__label" for="name">Old Password</label>
         <label for="show-password">
           <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-            id="show-password" type="checkbox" tabindex="4">&nbsp;Show passwords
+            id="show-password" type="checkbox" tabindex="10">&nbsp;Show passwords
         </label>
       </div>
-      {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password")}}
+      {{ change_password_form.password(placeholder="Your current password", required="required", class_="form-group__input", data_target="password.password", tabindex="6")}}
       {{ field_errors(change_password_form.password) }}
     </div>
     <div class="form-group">
       <label class="form-group__label" for="name">New Password</label>
       {# the password field needs to be wrapped in a div to properly place tooltips #}
       <div>
-        {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
+        {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength", tabindex="7") }}
       </div>
       {{ field_errors(change_password_form.new_password) }}
       {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
     </div>
     <div class="form-group">
       <label class="form-group__label" for="name">Confirm New Password</label>
-      {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
+      {{ change_password_form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch", tabindex="8") }}
       {{ field_errors(change_password_form.password_confirm) }}
     </div>
     <div class="form-group">
@@ -237,7 +237,7 @@
       </ul>
     </div>
     <div>
-      <input value="Update Password" class="button button--primary" type="submit" data-target="password-match.submit">
+      <input value="Update Password" class="button button--primary" type="submit" data-target="password-match.submit" tabindex="9">
     </div>
   </form>
 
@@ -282,7 +282,7 @@
       <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
       You will not be able to recover your account after you delete it.
     </p>
-    {{ confirm_button("Delete your PyPI Account", "Username", user.username) }}
+    {{ confirm_button("Delete your PyPI Account", "Username", user.username, tabindex="11") }}
     {% endif %}
   </div>
 {% endblock %}
