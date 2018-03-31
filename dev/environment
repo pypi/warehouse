@@ -21,6 +21,7 @@ CAMO_KEY="insecure camo key"
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.example.com/packages/{path}
+DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 
 MAIL_HOST=smtp
 MAIL_PORT=2525
@@ -33,3 +34,5 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 
 DATADOG_HOST=notdatadog
+
+WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
