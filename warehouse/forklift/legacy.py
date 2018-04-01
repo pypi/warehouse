@@ -144,7 +144,7 @@ _valid_description_content_types = {
 
 _valid_markdown_variants = {
     'CommonMark',
-    'gfm',
+    'GFM',
 }
 
 
