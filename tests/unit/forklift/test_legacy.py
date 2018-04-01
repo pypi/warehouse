@@ -304,7 +304,7 @@ class TestValidation:
             "text/plain; charset=UTF-8",
             "text/x-rst; charset=UTF-8",
             "text/markdown; charset=UTF-8; variant=CommonMark",
-            "text/markdown; charset=UTF-8; variant=gfm",
+            "text/markdown; charset=UTF-8; variant=GFM",
             "text/markdown",
         ],
     )
