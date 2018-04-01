@@ -142,6 +142,11 @@ _valid_description_content_types = {
     'text/markdown',
 }
 
+_valid_markdown_variants = {
+    'CommonMark',
+    'gfm',
+}
+
 
 def _exc_with_message(exc, message):
     # The crappy old API that PyPI offered uses the status to pass down
@@ -296,8 +301,11 @@ def _validate_description_content_type(form, field):
         _raise("charset is not valid")
 
     variant = parameters.get('variant')
-    if content_type == 'text/markdown' and variant and variant != 'CommonMark':
-        _raise("variant is not valid")
+    if (content_type == 'text/markdown' and variant and
+            variant not in _valid_markdown_variants):
+        _raise(
+            "variant is not valid, expected one of {}".format(
+                ', '.join(_valid_markdown_variants)))
 
 
 def _construct_dependencies(form, types):
