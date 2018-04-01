@@ -142,7 +142,7 @@
       margin-top: 10px;
 
       &:before {
-        border-color: rgba(0, 0, 0, 0.4);
+        border-color: $border-color;
       }
 
       > .-js-relative-time {

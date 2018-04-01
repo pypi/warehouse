@@ -46,7 +46,6 @@ def test_templates_for_empty_titles():
         "contains_valid_uris": "warehouse.filters:contains_valid_uris",
         "format_package_type": "warehouse.filters:format_package_type",
         "parse_version": "warehouse.filters:parse_version",
-        "uncapitalize": "warehouse.filters:uncapitalize",
     })
 
     for dir_, _, files in os.walk(dir_name):

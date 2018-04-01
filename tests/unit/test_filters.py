@@ -344,13 +344,3 @@ def test_format_package_type(inp, expected):
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected
-
-
-@pytest.mark.parametrize(
-    ("inp", "expected"),
-    [
-        ("Yesterday.", "yesterday."),
-    ]
-)
-def test_uncapitalize(inp, expected):
-    assert filters.uncapitalize(inp) == expected
