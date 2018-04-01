@@ -33,6 +33,10 @@
     font-size: 18px;
   }
 
+  .sidebar-section__user-gravatar {
+    text-decoration: none;
+  }
+
   &:last-of-type {
     margin-bottom: 0;
     padding-bottom: 0;
@@ -43,6 +47,10 @@
     @include clearfix;
     display: flex;
     flex-wrap: wrap;
+
+    span {
+      margin: 0 0 5px 0;
+    }
 
     h3 {
       width: 100%

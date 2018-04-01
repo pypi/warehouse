@@ -187,9 +187,14 @@
           <h3 class="sidebar-section__title">Maintainers</h3>
           {% for maintainer in maintainers %}
             {% set alt = "Avatar for {} from gravatar.com".format(maintainer.username) %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="tooltipped tooltipped-e" aria-label="{{ maintainer.username}}" data-original-label="{{ maintainer.username}}">
-              <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
-            </a>
+            <span>
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}" class="sidebar-section__user-gravatar">
+                <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+              </a>
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}">
+                <strong>{{ maintainer.username}}</strong>
+              </a>
+            </span>
           {% endfor %}
         </div>
 
