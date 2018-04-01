@@ -30,7 +30,7 @@
 
 .callout-block {
   padding: 15px 15px 15px 30px;
-  border: 2px solid $brand-color;
+  border: 2px solid $primary-color;
   margin: 15px 0;
   position: relative;
   z-index: index($z-index-scale, "callout-block");
@@ -43,7 +43,7 @@
   &:before {
     content: "";
     width: 15px;
-    background-color: $brand-color;
+    background-color: $primary-color;
     position: absolute;
     top: -1px;
     left: -2px;

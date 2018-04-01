@@ -1224,7 +1224,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage, name='files')
+        storage = request.find_service(IFileStorage)
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),

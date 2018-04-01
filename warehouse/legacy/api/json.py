@@ -189,4 +189,5 @@ def json_release(release, request):
         },
         "urls": releases[release.version],
         "releases": releases,
+        "last_serial": project.last_serial,
     }

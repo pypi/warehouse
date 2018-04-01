@@ -344,11 +344,17 @@ def configure(settings=None):
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)
 
+    # Register support for sendnging emails
+    config.include(".email")
+
     # Register support for internationalization and localization
     config.include(".i18n")
 
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
+
+    # Register the support for Celery Tasks
+    config.include(".tasks")
 
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
@@ -362,9 +368,6 @@ def configure(settings=None):
     # Register the support for AWS and Google Cloud
     config.include(".aws")
     config.include(".gcloud")
-
-    # Register the support for Celery Tasks
-    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")

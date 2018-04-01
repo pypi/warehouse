@@ -37,12 +37,14 @@
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro new_classifier() %}How do I request a new Trove classifier?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
 {% macro availability() %}Can I depend on PyPI being available?{% endmacro %}
 {% macro beta() %}What does beta mean?{% endmacro %}
 {% macro contributing() %}How can I contribute to PyPI?{% endmacro %}
+{% macro upcoming_changes() %}How do I keep up with upcoming changes to PyPI?{% endmacro %}
 {% block title %}Help{% endblock %}
 
 {% block content %}
@@ -82,6 +84,7 @@
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
+          <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
         </ul>
       </section>
@@ -94,6 +97,7 @@
           <li><a href="#availability">{{ availability() }}</a></li>
           <li><a href="#beta">{{ beta() }}</a></li>
           <li><a href="#contributing">{{ contributing() }}</a></li>
+          <li><a href="#upcoming-changes">{{ upcoming_changes() }}</a></li>
         </ul>
       </section>
 
@@ -250,6 +254,12 @@
           To avoid this situation, <a href="https://packaging.python.org/guides/using-testpypi/">use Test PyPI to perform and check your upload first</a>, before uploading to <a href="https://pypi.org">pypi.org</a>.
         </p>
 
+        <h3 id="new-classifier">{{ new_classifier() }}</h3>
+        <p>
+          If you would like to request a new Trove classifier please file a bug on our <a href="https://github.com/pypa/warehouse/issues/new?template=new-trove-classifier.md" target="_blank" rel="noopener">issue tracker</a>. Please include the name of the requested classifier and a brief justification of why it is important.
+        </p>
+        {{ code_of_conduct() }}
+
         <h3 id="feedback">{{ feedback() }}</h3>
         <p>
           We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. Before writing a new issue, please first check that a similar issue does not already exist.
@@ -333,6 +343,12 @@
           <em>Stay updated</em>: You can also follow the ongoing development of the project on the <a href="https://mail.python.org/mailman/listinfo/distutils-sig">Distutils-sig mailing list</a> and the <a href="https://groups.google.com/forum/#!forum/pypa-dev" target="_blank" rel="noopener">PyPA Dev message group</a>.
         </p>
         {{ code_of_conduct() }}
+
+        <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
+        <p>
+          Changes to PyPI are generally announced on both the <a href="https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/" target="_blank" rel="noopener">pypi-announce mailing list</a> and the <a href="https://pyfound.blogspot.com/search/label/pypi" target="_blank" rel="noopener">PSF blog</a> under the label "pypi". The PSF blog also has <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi" target="_blank" rel="noopener">Atom</a> and
+          <a href="https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
+        </p>
       </section>
     </div>
   </section>

@@ -35,8 +35,8 @@ select {
 select:focus,
 select:hover,
 select:active {
-  box-shadow: inset 0 0 0 2px $brand-color-soft;
-  border-color: $brand-color-soft;
+  box-shadow: inset 0 0 0 2px $primary-color-light;
+  border-color: $primary-color-light;
   outline: none;
 }
 
