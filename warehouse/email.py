@@ -189,3 +189,84 @@ def send_added_as_collaborator_email(request, submitter, project_name, role,
     request.task(send_email).delay(body, subject, recipients=[user_email])
 
     return fields
+
+
+def send_removed_from_role_email(request, role):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name
+    }
+
+    subject = render(
+        'email/removed-as-collaborator.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/removed-as-collaborator.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, recipients=[role.user.email])
+
+    return fields
+
+
+def send_role_removed_from_user_email(request, role, email_recipients):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name,
+        'username': role.user.username,
+    }
+
+    subject = render(
+        'email/role-removed-from-user.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/role-removed-from-user.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
+    return fields
+
+
+def send_user_role_changed_email(request, role):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name
+    }
+
+    subject = render(
+        'email/user-role-changed.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/user-role-changed.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, recipients=[role.user.email])
+
+    return fields
+
+
+def send_role_changed_for_user_email(request, role, email_recipients):
+    fields = {
+        'project': role.project.name,
+        'submitter': request.user.username,
+        'role': role.role_name,
+        'username': role.user.username,
+    }
+
+    subject = render(
+        'email/role-changed-for-user.subject.txt', fields, request=request
+    )
+
+    body = render(
+        'email/role-changed-for-user.body.txt', fields, request=request
+    )
+
+    request.task(send_email).delay(body, subject, bcc=email_recipients)
+
+    return fields
