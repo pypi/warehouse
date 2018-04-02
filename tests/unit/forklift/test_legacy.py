@@ -814,7 +814,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "filetype: This field is required.",
+                "Invalid value for filetype. Error: This field is required.",
             ),
             (
                 {
@@ -835,7 +835,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "filetype: Unknown type of file.",
+                "Invalid value for filetype. Error: Unknown type of file.",
             ),
             (
                 {
@@ -867,8 +867,8 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "sha256_digest: "
-                "Must be a valid, hex encoded, SHA256 message digest."
+                "Invalid value for sha256_digest. "
+                "Error: Must be a valid, hex encoded, SHA256 message digest."
             ),
 
             # summary errors
@@ -1494,11 +1494,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 ['Environment :: Other Environment'] "
-            "is an invalid value for Classifier. "
+            "400 Invalid value for classifiers. "
             "Error: 'Environment :: Other Environment' is not a valid choice "
-            "for this field "
-            "see https://packaging.python.org/specifications/core-metadata"
+            "for this field"
         )
 
     @pytest.mark.parametrize(
