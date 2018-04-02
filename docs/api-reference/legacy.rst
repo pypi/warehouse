@@ -71,6 +71,10 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 
     .. code:: http
 
+        HTTP/1.0 200 OK
+        Content-Type: text/html; charset=utf-8
+        X-PyPI-Last-Serial: 761270
+
         <!DOCTYPE html>
         <html>
           <head>
