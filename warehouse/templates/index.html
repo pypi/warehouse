@@ -17,9 +17,9 @@
 
 {% macro project_snippet(release, class) -%}
 {% if class == "latest" %}
-<div class="package-snippet" data-target="show-latest-releases.latestRelease">
+<div class="package-snippet" data-target="show-more.latestRelease">
 {% else %}
-<div class="package-snippet" data-target="show-trending-projects.trendingProject">
+<div class="package-snippet" data-target="show-more.trendingProject">
 {% endif %}
   <h3 class="package-snippet__title">
     <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
@@ -89,9 +89,9 @@
   </div>
 </section>
 
-<section class="horizontal-section horizontal-section--grey">
+<section class="horizontal-section horizontal-section--grey" data-controller="show-more">
   <div class="site-container" >
-    <div class="col-half" data-controller="show-trending-projects">
+    <div class="col-half">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
@@ -101,9 +101,9 @@
           {{ project_snippet(release, "trending") }}
         {% endfor %}
       </div>
-      <button class="button" type="button" data-action="click->show-trending-projects#addFive" data-target="show-trending-projects.addFiveButton">Show More</button>
+      <button class="button" type="button" data-action="click->show-more#addFiveTrending" data-target="show-more.trendingAddFiveButton">Show More</button>
     </div>
-    <div class="col-half" data-controller="show-latest-releases">
+    <div class="col-half">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">New Releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
@@ -113,7 +113,7 @@
           {{ project_snippet(release, "latest") }}
         {% endfor %}
       </div>
-      <button class="button" type="button" data-action="click->show-latest-releases#addFive" data-target="show-latest-releases.addFiveButton">Show More</button>
+      <button class="button" type="button" data-action="click->show-more#addFiveLatest" data-target="show-more.latestAddFiveButton">Show More</button>
     </div>
   </div>
 </section>
