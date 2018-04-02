@@ -13,7 +13,19 @@
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPSeeOther
 
+from warehouse.tasks import task
+from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry
+
+
+@task(bind=True, ignore_result=True, acks_late=True)
+def remove_documentation(task, request, project_name):
+    request.log.info("Removing documentation for %s", project_name)
+    storage = request.find_service(IDocsStorage)
+    try:
+        storage.remove_by_prefix(project_name)
+    except Exception as exc:
+        task.retry(exc=exc)
 
 
 def confirm_project(project, request, fail_route):
@@ -59,5 +71,26 @@ def remove_project(project, request, flash=True):
     if flash:
         request.session.flash(
             f"Successfully deleted the project {project.name!r}.",
+            queue="success",
+        )
+
+
+def destroy_docs(project, request, flash=True):
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="docdestroy",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    request.task(remove_documentation).delay(project.name)
+
+    project.has_docs = False
+
+    if flash:
+        request.session.flash(
+            f"Successfully deleted docs for project {project.name!r}.",
             queue="success",
         )

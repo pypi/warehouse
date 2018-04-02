@@ -136,6 +136,11 @@
   margin-bottom: 0;
 }
 
+// Add small margin to the top of elements
+.margin-top {
+  margin-top: $spacing-unit / 4;
+}
+
 // Make text or icons red to draw attention
 .danger {
   color: $danger-color;
@@ -151,10 +156,30 @@
   padding-bottom: 25px;
 }
 
+// Reset text to default
+.reset-text {
+  font-size: $base-font-size;
+  font-weight: normal;
+}
+
 // Visibility helpers
 .hidden,
 .confirm-form {
   display: none;
+}
+
+
+// Desktop specific visibility
+@media screen and (min-width: calc($desktop + 1px)) {
+  .hide-on-desktop {
+    display: none;
+  }
+}
+
+@media screen and (max-width: $desktop) {
+  .hide-below-desktop {
+    display: none;
+  }
 }
 
 // Mobile specific visibility
