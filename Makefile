@@ -152,7 +152,7 @@ clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
 
-purge: clean
+purge: stop clean
 	rm -rf .state
 	docker-compose rm --force --all
 
