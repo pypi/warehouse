@@ -722,7 +722,7 @@ def file_upload(request):
     # string "UNKNOWN". This is basically never what anyone actually wants so
     # we'll just go ahead and delete anything whose value is UNKNOWN.
     for key in list(request.POST):
-        if request.POST.get(key) == "UNKNOWN":
+        if str(request.POST.get(key)).strip() == "UNKNOWN":
             del request.POST[key]
 
     # We require protocol_version 1, it's the only supported version however

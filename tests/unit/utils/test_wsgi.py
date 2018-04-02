@@ -149,30 +149,6 @@ class TestProxyFixer:
             ),
         ]
 
-    def test_accepts_x_forwarded_port(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
-
-        environ = {
-            "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_PORT": "443",
-            "HTTP_SOME_OTHER_HEADER": "woop",
-        }
-        start_response = pretend.stub()
-
-        resp = wsgi.ProxyFixer(app, token=None)(environ, start_response)
-
-        assert resp is response
-        assert app.calls == [
-            pretend.call(
-                {
-                    "HTTP_SOME_OTHER_HEADER": "woop",
-                    "wsgi.url_scheme": "https",
-                },
-                start_response,
-            ),
-        ]
-
 
 class TestVhmRootRemover:
 
