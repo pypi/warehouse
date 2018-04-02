@@ -52,28 +52,7 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 .. http:get:: /simple/<project>/
 
     Get all of the URLS for the ``project``. The project is matched case
-    insensitively with the ``_`` and ``-`` characters considered equal. The URLs
-    returned by this API are classified by their ``rel`` attribute.
-
-    ============ =============================================================
-      rel name                               value
-    ============ =============================================================
-    internal     Packages hosted by this repository, *MUST* be a direct package
-                 link.
-    homepage     The homepage of the project, *MAY* be a direct package link
-                 and *MAY* be fetched and processed for more direct package
-                 links.
-    download     The download url for the project, *MAY* be a direct package
-                 link and *MAY* be fetched and processed for more direct
-                 package links.
-    ext-homepage The homepage of the project, *MUST* not be fetched to look
-                 for more packages, *MAY* be a direct link.
-    ext-download The download url for the project, **MUST** not be fetched to
-                 look for more packages but *MAY* be a direct package link.
-    external     An externally hosted url, *MUST* not be fetched to look for
-                 more packages but *MAY* be a direct package link.
-    ============ =============================================================
-
+    insensitively with the ``_`` and ``-`` characters considered equal.
     The links may optionally include a hash using the url fragment. This
     fragment is in the form of ``#<hashname>=<hexdigest>``. If present
     the downloaded file *MUST* be verified against that hash value. Valid
@@ -84,7 +63,7 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 
     .. code:: http
 
-        GET /simple/warehouse/ HTTP/1.1
+        GET /simple/beautifulsoup/ HTTP/1.1
         Host: pypi.org
         Accept: text/html
 
@@ -92,23 +71,18 @@ The Simple API implements the HTML-based package index API as specified in `PEP
 
     .. code:: http
 
-        HTTP/1.0 200 OK
-        Content-Type: text/html; charset=utf-8
-        X-PyPI-Last-Serial: 867465
-
         <!DOCTYPE html>
         <html>
           <head>
-            <title>Links for warehouse</title>
+            <title>Links for BeautifulSoup</title>
           </head>
           <body>
-            <h1>Links for warehouse</h1>
-            <a rel="internal" href="../../packages/source/w/warehouse/warehouse-13.9.1.tar.gz#md5=f7f467ab87637b4ba25e462696dfc3b4">warehouse-13.9.1.tar.gz</a>
-            <a rel="internal" href="../../packages/3.3/w/warehouse/warehouse-13.9.1-py2.py3-none-any.whl#md5=d105995d0b3dc91f938c308a23426689">warehouse-13.9.1-py2.py3-none-any.whl</a>
-            <a rel="internal" href="../../packages/source/w/warehouse/warehouse-13.9.0.tar.gz#md5=b39322c1e6af3dda210d75cf65a14f4c">warehouse-13.9.0.tar.gz</a>
-            <a rel="internal" href="../../packages/3.3/w/warehouse/warehouse-13.9.0-py2.py3-none-any.whl#md5=8767c0ed961ee7bc9e5e157998cd2b40">warehouse-13.9.0-py2.py3-none-any.whl</a>
-          </body>
+            <h1>Links for BeautifulSoup</h1>
+            <a href="https://files.pythonhosted.org/packages/33/fe/15326560884f20d792d3ffc7fe8f639aab88647c9d46509a240d9bfbb6b1/BeautifulSoup-3.2.0.tar.gz#sha256=0dc52d07516c1665c9dd9f0a390a7a054bfb7b147a50b2866fb116b8909dfd37">BeautifulSoup-3.2.0.tar.gz</a><br/>
+            <a href="https://files.pythonhosted.org/packages/1e/ee/295988deca1a5a7accd783d0dfe14524867e31abb05b6c0eeceee49c759d/BeautifulSoup-3.2.1.tar.gz#sha256=6a8cb4401111e011b579c8c52a51cdab970041cc543814bbd9577a4529fe1cdb">BeautifulSoup-3.2.1.tar.gz</a><br/>
+            </body>
         </html>
+        <!--SERIAL 761270-->
 
     :resheader X-PyPI-Last-Serial: The most recent serial id number for the
                                    project.
