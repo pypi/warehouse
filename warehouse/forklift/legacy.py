@@ -722,7 +722,7 @@ def file_upload(request):
     # string "UNKNOWN". This is basically never what anyone actually wants so
     # we'll just go ahead and delete anything whose value is UNKNOWN.
     for key in list(request.POST):
-        if request.POST.get(key) == "UNKNOWN":
+        if str(request.POST.get(key)).strip() == "UNKNOWN":
             del request.POST[key]
 
     # We require protocol_version 1, it's the only supported version however
@@ -1097,11 +1097,16 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
-                HTTPBadRequest, "The filename or contents already exist. "
-                                "See " +
-                                request.route_url(
-                                    'help', _anchor='file-name-reuse'
-                                )
+                HTTPBadRequest,
+                # Note: Changing this error message to something that doesn't
+                # start with "File already exists" will break the
+                # --skip-existing functionality in twine
+                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypa/twine/issues/332
+                "File already exists. See " +
+                request.route_url(
+                    'help', _anchor='file-name-reuse'
+                )
             )
 
         # Check to see if the file that was uploaded exists in our filename log

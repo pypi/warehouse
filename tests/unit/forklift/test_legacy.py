@@ -1074,11 +1074,14 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
 
-    def test_upload_cleans_unknown_values(self, pyramid_config, db_request):
+    @pytest.mark.parametrize("value", [('UNKNOWN'), ('UNKNOWN\n\n')])
+    def test_upload_cleans_unknown_values(
+            self, pyramid_config, db_request, value):
+
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
-            "name": "UNKNOWN",
+            "name": value,
             "version": "1.0",
             "filetype": "sdist",
             "md5_digest": "a fake md5 digest",
@@ -1835,10 +1838,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_diff_filename_same_blake2(self,
                                                          pyramid_config,
@@ -1897,10 +1897,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):
