@@ -410,16 +410,10 @@ class Release(db.ModelBase):
 
     @property
     def github_repo_info_url(self):
-        if self.home_page:
-            parsed = urlparse(self.home_page)
+        for parsed in [urlparse(url) for url in self.urls.values()]:
             if parsed.netloc == 'github.com' and parsed.path.count('/') >= 2:
-                splited_path = parsed.path.split('/')
-                user_name, repo_name = splited_path[1], splited_path[2]
-                tpl = "https://api.github.com/repos/{user_name}/{repo_name}"
-                return tpl.format(
-                    user_name=user_name,
-                    repo_name=repo_name
-                )
+                user_name, repo_name = parsed.path.split('/')[1:3]
+                return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
     def has_meta(self):
