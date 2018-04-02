@@ -1074,11 +1074,14 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
 
-    def test_upload_cleans_unknown_values(self, pyramid_config, db_request):
+    @pytest.mark.parametrize("value", [('UNKNOWN'), ('UNKNOWN\n\n')])
+    def test_upload_cleans_unknown_values(
+            self, pyramid_config, db_request, value):
+
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
-            "name": "UNKNOWN",
+            "name": value,
             "version": "1.0",
             "filetype": "sdist",
             "md5_digest": "a fake md5 digest",
