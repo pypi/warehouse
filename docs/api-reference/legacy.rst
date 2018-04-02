@@ -130,3 +130,51 @@ legacy PyPI upload API. This is the endpoint that tools such as `twine
 <https://docs.python.org/3.6/distutils/packageindex.html#the-upload-command>`_
 use to `upload distributions to PyPI
 <https://packaging.python.org/tutorials/distributing-packages/>`_.
+
+Here is a table with all the metadata fields PyPI accepts 
+when uploading a package.
+
+================= ================= =================================== =======================
+  Metadata Spec      PyPI Field                  Description                 Example Value     
+================= ================= =================================== =======================
+Metadata-Version  metadata_version  Version of the file format.*        "2.1"
+Name              name              The name of the distribution.*      "Identipy"
+Version           version           The distribution's version number.* "1.0a2"
+Summary           summary           A one-line summary of what the      "A module for
+                                    distribution does.*                 identifying pies
+                                                                        in pictures using
+                                                                        image recognition."
+Description       description       The distribution description.       "Using the module is as
+                                    Can be written using plain text,    easy as calling
+                                    reStructuredText, or                `identipy_image()`."
+                                    Markdown markup.
+Author            author            The name and optional contact info  "P. Baker"
+                                    of the author.
+Author-email      author_email      The email of the author.            "pbaker@example.com"
+                                    It can contain multiple
+                                    comma-separated e-mail addresses.
+Maintainer        maintainer        The name and optional contact info  "Kate Smith"
+                                    of the maintainer. This field is
+                                    intended for use when the original
+                                    author is not the main maintainer.
+Maintainer-email  maintainer_email  The email of the maintainer.        "katesm@email.com"
+                                    It can contain multiple
+                                    comma-separated e-mail addresses.
+License           license           The license covering the            "This software may only
+                                    distribution where the license      be used after the user
+                                    is not an option in the             has succesfully mailed
+                                    "License" Trove classifiers.        the author a chocolate."
+Keywords          keywords          A space-separated list of keywords  "pie image recognition"
+Classifier        classifiers       A list of valid classifier values   ["Development Status :: 4 - Beta",
+                                                                         "Environment :: Console (Text Based)"]
+Platform          platform          A Platfrm specification as a list   ["ObscureUnix", "RareBSD"]
+                                    of operating systems not listed in
+                                    the "Operating System" Trove
+                                    classifier.
+Home-page         home_page         The url of the distribution home    "https://pypie.com"
+                                    page
+Download-URL      download_url      The url from which this version     "https://pypie.com/1.0"
+                                    of the distribution can be
+                                    downloaded
+
+* required.
