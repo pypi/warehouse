@@ -154,7 +154,7 @@ clean:
 
 purge: stop clean
 	rm -rf .state
-	docker-compose rm --force --all
+	docker-compose rm --force
 
 stop:
 	docker-compose down -v
