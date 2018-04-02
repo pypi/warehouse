@@ -14,14 +14,14 @@ import os
 
 import packaging.version
 import pretend
+import pytest
 
 from first import first
 
-import warehouse.cli.search.reindex
+import warehouse.search.tasks
+from warehouse.search.tasks import reindex, _project_docs
 
-from warehouse.cli.search.reindex import reindex, _project_docs
-
-from ....common.db.packaging import ProjectFactory, ReleaseFactory
+from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
 def test_project_docs(db_session):
@@ -98,34 +98,24 @@ class FakeESClient:
 
 class TestReindex:
 
-    def test_fails_when_raising(self, monkeypatch, cli):
-        sess_obj = pretend.stub(
-            execute=pretend.call_recorder(lambda q: None),
-            rollback=pretend.call_recorder(lambda: None),
-            close=pretend.call_recorder(lambda: None),
-        )
-        sess_cls = pretend.call_recorder(lambda bind: sess_obj)
-        monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
-
+    def test_fails_when_raising(self, db_request, monkeypatch):
         docs = pretend.stub()
 
         def project_docs(db):
             return docs
 
         monkeypatch.setattr(
-            warehouse.cli.search.reindex,
+            warehouse.search.tasks,
             "_project_docs",
             project_docs,
         )
 
         es_client = FakeESClient()
-        db_engine = pretend.stub()
 
-        config = pretend.stub(
-            registry={
+        db_request.registry.update(
+            {
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
-                "sqlalchemy.engine": db_engine,
             },
         )
 
@@ -138,34 +128,20 @@ class TestReindex:
             raise TestException
 
         monkeypatch.setattr(
-            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
+            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
-        result = cli.invoke(reindex, obj=config)
+        with pytest.raises(TestException):
+            reindex(db_request)
 
-        assert result.exit_code == -1
-        assert isinstance(result.exception, TestException)
-        assert sess_cls.calls == [pretend.call(bind=db_engine)]
-        assert sess_obj.execute.calls == [
-            pretend.call("SET statement_timeout = '600s'"),
-        ]
-        assert sess_obj.rollback.calls == [pretend.call()]
-        assert sess_obj.close.calls == [pretend.call()]
         assert es_client.indices.delete.calls == [
             pretend.call(index='warehouse-cbcbcbcbcb'),
         ]
         assert es_client.indices.put_settings.calls == []
         assert es_client.indices.forcemerge.calls == []
 
-    def test_successfully_indexes_and_adds_new(self, monkeypatch, cli):
-        sess_obj = pretend.stub(
-            execute=pretend.call_recorder(lambda q: None),
-            rollback=pretend.call_recorder(lambda: None),
-            close=pretend.call_recorder(lambda: None),
-        )
-        sess_cls = pretend.call_recorder(lambda bind: sess_obj)
-        monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
+    def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
 
         docs = pretend.stub()
 
@@ -173,39 +149,30 @@ class TestReindex:
             return docs
 
         monkeypatch.setattr(
-            warehouse.cli.search.reindex,
+            warehouse.search.tasks,
             "_project_docs",
             project_docs,
         )
 
         es_client = FakeESClient()
-        db_engine = pretend.stub()
 
-        config = pretend.stub(
-            registry={
+        db_request.registry.update(
+            {
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
-            },
+            }
         )
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
         monkeypatch.setattr(
-            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
+            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
-        result = cli.invoke(reindex, obj=config)
+        reindex(db_request)
 
-        assert result.exit_code == 0
-        assert sess_cls.calls == [pretend.call(bind=db_engine)]
-        assert sess_obj.execute.calls == [
-            pretend.call("SET statement_timeout = '600s'"),
-        ]
         assert parallel_bulk.calls == [pretend.call(es_client, docs)]
-        assert sess_obj.rollback.calls == [pretend.call()]
-        assert sess_obj.close.calls == [pretend.call()]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
@@ -238,22 +205,14 @@ class TestReindex:
             pretend.call(index='warehouse-cbcbcbcbcb')
         ]
 
-    def test_successfully_indexes_and_replaces(self, monkeypatch, cli):
-        sess_obj = pretend.stub(
-            execute=pretend.call_recorder(lambda q: None),
-            rollback=pretend.call_recorder(lambda: None),
-            close=pretend.call_recorder(lambda: None),
-        )
-        sess_cls = pretend.call_recorder(lambda bind: sess_obj)
-        monkeypatch.setattr(warehouse.cli.search.reindex, "Session", sess_cls)
-
+    def test_successfully_indexes_and_replaces(self, db_request, monkeypatch):
         docs = pretend.stub()
 
         def project_docs(db):
             return docs
 
         monkeypatch.setattr(
-            warehouse.cli.search.reindex,
+            warehouse.search.tasks,
             "_project_docs",
             project_docs,
         )
@@ -263,8 +222,8 @@ class TestReindex:
         es_client.indices.aliases["warehouse"] = ["warehouse-aaaaaaaaaa"]
         db_engine = pretend.stub()
 
-        config = pretend.stub(
-            registry={
+        db_request.registry.update(
+            {
                 "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
@@ -274,20 +233,13 @@ class TestReindex:
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
         monkeypatch.setattr(
-            warehouse.cli.search.reindex, "parallel_bulk", parallel_bulk)
+            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
-        result = cli.invoke(reindex, obj=config)
+        reindex(db_request)
 
-        assert result.exit_code == 0
-        assert sess_cls.calls == [pretend.call(bind=db_engine)]
-        assert sess_obj.execute.calls == [
-            pretend.call("SET statement_timeout = '600s'"),
-        ]
         assert parallel_bulk.calls == [pretend.call(es_client, docs)]
-        assert sess_obj.rollback.calls == [pretend.call()]
-        assert sess_obj.close.calls == [pretend.call()]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={

@@ -362,7 +362,7 @@ class Release(db.ModelBase):
         secondaryjoin=lambda: (
             (User.username == orm.foreign(JournalEntry._submitted_by))
         ),
-        order_by=lambda: JournalEntry.submitted_date.desc(),
+        order_by=lambda: JournalEntry.id.desc(),
         # TODO: We have uselist=False here which raises a warning because
         # multiple items were returned. This should only be temporary because
         # we should add a nullable FK to JournalEntry so we don't need to rely

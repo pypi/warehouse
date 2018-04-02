@@ -14,7 +14,7 @@ from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
 from first import first
 from packaging.version import parse as parse_version
 
-from warehouse.search import doc_type
+from warehouse.search.utils import doc_type
 
 
 EmailAnalyzer = analyzer(

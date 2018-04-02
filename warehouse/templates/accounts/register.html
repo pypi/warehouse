@@ -17,9 +17,15 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+  {% if testPyPI %}
+    {% set title = "TestPyPI" %}
+  {% else %}
+    {% set title = "PyPI" %}
+  {% endif %}
+
   <section class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Create an account on PyPI</h1>
+      <h1 class="page-title">Create an account on {{ title }}</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -57,9 +63,9 @@
         </div>
 
         {# The following is a honeypot field and is hidden from the user #}
-        <div class="form-group confirm-form" aria-hidden="true">
+        <div class="form-group confirm-form">
           <label for="confirm_form" class="form-group__label">Confirm Form</label>
-          {{ form.confirm_form(class="form-group__input") }}
+          {{ form.confirm_form(class="form-group__input", **{'aria-hidden':'true'}) }}
         </div>
 
         <div class="form-group">

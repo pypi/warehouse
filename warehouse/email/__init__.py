@@ -11,26 +11,19 @@
 # limitations under the License.
 
 from pyramid.renderers import render
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
+from warehouse.email.interfaces import IEmailSender
+from warehouse.email.services import SMTPEmailSender
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, body, subject, *, recipients=None, bcc=None):
+def send_email(task, request, subject, body, *, recipient=None):
+    sender = request.find_service(IEmailSender)
 
-    mailer = get_mailer(request)
-    message = Message(
-        body=body,
-        recipients=recipients,
-        bcc=bcc,
-        sender=request.registry.settings.get('mail.sender'),
-        subject=subject
-    )
     try:
-        mailer.send_immediately(message)
+        sender.send(subject, body, recipient=recipient)
     except Exception as exc:
         task.retry(exc=exc)
 
@@ -58,7 +51,7 @@ def send_password_reset_email(request, user):
         'email/password-reset.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[user.email])
+    request.task(send_email).delay(subject, body, recipient=user.email)
 
     # Return the fields we used, in case we need to show any of them to the
     # user
@@ -87,7 +80,7 @@ def send_email_verification_email(request, email):
         'email/verify-email.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[email.email])
+    request.task(send_email).delay(subject, body, recipient=email.email)
 
     return fields
 
@@ -105,7 +98,7 @@ def send_password_change_email(request, user):
         'email/password-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[user.email])
+    request.task(send_email).delay(subject, body, recipient=user.email)
 
     return fields
 
@@ -123,7 +116,7 @@ def send_account_deletion_email(request, user):
         'email/account-deleted.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[user.email])
+    request.task(send_email).delay(subject, body, recipient=user.email)
 
     return fields
 
@@ -143,7 +136,7 @@ def send_primary_email_change_email(request, user, email):
         'email/primary-email-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[email])
+    request.task(send_email).delay(subject, body, recipient=email)
 
     return fields
 
@@ -165,7 +158,8 @@ def send_collaborator_added_email(request, user, submitter, project_name, role,
         'email/collaborator-added.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, bcc=email_recipients)
+    for recipient in email_recipients:
+        request.task(send_email).delay(subject, body, recipient=recipient)
 
     return fields
 
@@ -186,6 +180,13 @@ def send_added_as_collaborator_email(request, submitter, project_name, role,
         'email/added-as-collaborator.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(body, subject, recipients=[user_email])
+    request.task(send_email).delay(subject, body, recipient=user_email)
 
     return fields
+
+
+def includeme(config):
+    config.register_service_factory(
+        SMTPEmailSender.create_service,
+        IEmailSender,
+    )
