@@ -157,6 +157,6 @@ purge: clean
 	docker-compose rm --force --all
 
 stop:
-	docker ps -aq --filter name=warehouse | xargs docker stop
+	docker-compose down -v
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
