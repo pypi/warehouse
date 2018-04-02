@@ -27,7 +27,7 @@
     <div class="site-container">
       <h1 class="page-title">Create an account on {{ title }}</h1>
 
-      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match">
+      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
@@ -91,7 +91,7 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
             </div>
             {% if form.new_password.errors %}
             <ul class="form-errors">
@@ -100,7 +100,7 @@
               {% endfor %}
             </ul>
             {% endif %}
-            {{ password_strength_gauge() }}
+            {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
           </div>
 
           <div class="form-group">

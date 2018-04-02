@@ -203,7 +203,7 @@
 
   <h2 class="sub-title">Change Password</h2>
   {{ form_error_anchor(change_password_form) }}
-  <form data-controller="password password-match" method="POST" action="#errors">
+  <form data-controller="password password-match password-strength-gauge" method="POST" action="#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     {{ form_errors(change_password_form) }}
     <div class="form-group">
@@ -221,10 +221,10 @@
       <label class="form-group__label" for="name">New Password</label>
       {# the password field needs to be wrapped in a div to properly place tooltips #}
       <div>
-        {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch") }}
+        {{ change_password_form.new_password(placeholder="Select a new password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength") }}
       </div>
       {{ field_errors(change_password_form.new_password) }}
-      {{ password_strength_gauge() }}
+      {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
     </div>
     <div class="form-group">
       <label class="form-group__label" for="name">Confirm New Password</label>
