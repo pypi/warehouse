@@ -1835,10 +1835,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_diff_filename_same_blake2(self,
                                                          pyramid_config,
@@ -1897,10 +1894,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):

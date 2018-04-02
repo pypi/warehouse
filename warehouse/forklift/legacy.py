@@ -1097,11 +1097,16 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
-                HTTPBadRequest, "The filename or contents already exist. "
-                                "See " +
-                                request.route_url(
-                                    'help', _anchor='file-name-reuse'
-                                )
+                HTTPBadRequest,
+                # Note: Changing this error message to something that doesn't
+                # start with "File already exists" will break the
+                # --skip-existing functionality in twine
+                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypa/twine/issues/332
+                "File already exists. See " +
+                request.route_url(
+                    'help', _anchor='file-name-reuse'
+                )
             )
 
         # Check to see if the file that was uploaded exists in our filename log
