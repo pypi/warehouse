@@ -58,7 +58,7 @@
 {% macro modal_slug(title, index) %}
 {% endmacro %}
 
-{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, index=None, extra_fields=None, extra_description=None, action=None) %}
+{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, confirm_button_label=None, index=None, extra_fields=None, extra_description=None, action=None) %}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
@@ -86,7 +86,7 @@
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
           <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
-            {{ title }}
+            {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
       </form>
