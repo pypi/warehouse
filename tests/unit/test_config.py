@@ -325,6 +325,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
             pretend.call(".domain"),
+            pretend.call(".email"),
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),

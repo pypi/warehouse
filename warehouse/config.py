@@ -344,6 +344,9 @@ def configure(settings=None):
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)
 
+    # Register support for sendnging emails
+    config.include(".email")
+
     # Register support for internationalization and localization
     config.include(".i18n")
 

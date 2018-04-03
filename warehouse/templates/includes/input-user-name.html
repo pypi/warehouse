@@ -11,7 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{{ form.username_or_email(placeholder="Your username or email", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input", required="true") }}
+{{ form.username_or_email(placeholder="Your username or email", autocorrect="off", autocapitalize="off", spellcheck="false", class="form-group__input", required="true", autofocus="true") }}
 {% if form.username_or_email.errors %}
   <ul class="form-errors">
     {% for error in form.username_or_email.errors %}
