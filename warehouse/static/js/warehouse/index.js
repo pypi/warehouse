@@ -16,6 +16,11 @@
 // ensure we have an ES6 like environment.
 import "babel-polyfill";
 
+// manually import IE11 Stimulus polyfills
+// TODO: use @stimulus/polyfills once 1.1 is released https://github.com/stimulusjs/stimulus/pull/134
+import "element-closest";
+import "mutation-observer-inner-html-shim";
+
 // Import stimulus
 import { Application } from "stimulus";
 import { definitionsFromContext } from "stimulus/webpack-helpers";
