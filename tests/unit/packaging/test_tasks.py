@@ -13,6 +13,8 @@
 import pretend
 import pytest
 
+from google.cloud.bigquery import Row
+
 from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Project
 from warehouse.packaging.tasks import compute_trending
@@ -30,18 +32,22 @@ class TestComputeTrending:
         ]
 
         results = iter([
-            ([(projects[1].normalized_name, 2)], 2, "blah"),
-            ([(projects[2].normalized_name, -1)], 2, None),
+            Row(
+                (projects[1].normalized_name, 2),
+                {'project': 0, 'zscore': 1},
+            ),
+            Row(
+                (projects[2].normalized_name, -1),
+                {'project': 0, 'zscore': 1},
+            ),
         ])
         query = pretend.stub(
-            use_legacy_sql=True,
-            run=pretend.call_recorder(lambda: None),
-            fetch_data=pretend.call_recorder(
-                lambda max_results, page_token: next(results),
+            result=pretend.call_recorder(
+                lambda *a, **kw: results,
             )
         )
         bigquery = pretend.stub(
-            run_sync_query=pretend.call_recorder(lambda q: query),
+            query=pretend.call_recorder(lambda q: query),
         )
 
         cacher = pretend.stub(purge=pretend.call_recorder(lambda keys: None))
@@ -62,7 +68,7 @@ class TestComputeTrending:
 
         compute_trending(db_request)
 
-        assert bigquery.run_sync_query.calls == [
+        assert bigquery.query.calls == [
             pretend.call(""" SELECT project,
                    IF(
                         STDDEV(downloads) > 0,
@@ -100,8 +106,7 @@ class TestComputeTrending:
             ORDER BY zscore DESC
         """),
         ]
-        assert not query.use_legacy_sql
-        assert query.run.calls == [pretend.call()]
+        assert query.result.calls == [pretend.call()]
         assert (cacher.purge.calls ==
                 ([pretend.call(["trending"])] if with_purges else []))
 

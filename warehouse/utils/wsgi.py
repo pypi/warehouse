@@ -48,15 +48,6 @@ class ProxyFixer:
             )
             host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
-            # If we have a X-Forwarded-Port and it disagreed with
-            # X-Forwarded-Proto then we're going to listen to X-Forwarded-Port
-            # instead. This is because h2o overwrites X-Forwarded-Proto but not
-            # X-Forwarded-Port
-            # TODO: Note, this can go away if/once h2o/h2o#883 is solved.
-            port = environ.get("HTTP_X_FORWARDED_PORT", "")
-            if port == "443":
-                proto = "https"
-
         # Put the new header values into our environment.
         if remote_addr:
             environ["REMOTE_ADDR"] = remote_addr

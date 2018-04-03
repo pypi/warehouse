@@ -15,8 +15,8 @@ Contents:
 Warehouse is a new code base that implements a `Python package index
 (repository)`_.  It is being `actively developed`_ and will eventually
 power PyPI_ and replace an older code base that is currently powering
-PyPI.  You can see Warehouse in production at https://pypi.org/ and
-you can read the `Warehouse roadmap`_.
+PyPI.  You can see a beta version of Warehouse at https://pypi.org/
+and you can read the `Warehouse roadmap`_.
 
 The goal is to improve PyPI by making it:
 

@@ -10,11 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.cli import warehouse
+from zope.interface import Interface
 
 
-@warehouse.group()  # pragma: no branch
-def search():
-    """
-    Manage the Warehouse Search.
-    """
+class IEmailSender(Interface):
+
+    def create_service(context, request):
+        """
+        Create the service, given the context and request for which it is being
+        created for.
+        """
+
+    def send(subject, body, *, recipient):
+        """
+        Sends an email with the given subject and body to the given recipient.
+        """

@@ -58,7 +58,7 @@
 {% macro modal_slug(title, index) %}
 {% endmacro %}
 
-{% macro confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=None, action=None) %}
+{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, index=None, extra_fields=None, action=None) %}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
@@ -76,10 +76,11 @@
             This action cannot be undone!
           </p>
         </div>
-        <p>Confirm the {{ confirm_name|lower }} to continue.</p>
+        {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
+        <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
         {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
         <label for="{{ name }}">{{ confirm_name }}</label>
-        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" placeholder="{{ confirm_string }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>

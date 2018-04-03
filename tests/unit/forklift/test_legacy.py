@@ -304,6 +304,7 @@ class TestValidation:
             "text/plain; charset=UTF-8",
             "text/x-rst; charset=UTF-8",
             "text/markdown; charset=UTF-8; variant=CommonMark",
+            "text/markdown; charset=UTF-8; variant=GFM",
             "text/markdown",
         ],
     )
@@ -813,7 +814,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "filetype: This field is required.",
+                "Invalid value for filetype. Error: This field is required.",
             ),
             (
                 {
@@ -834,7 +835,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "filetype: Unknown type of file.",
+                "Invalid value for filetype. Error: Unknown type of file.",
             ),
             (
                 {
@@ -866,8 +867,8 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "sha256_digest: "
-                "Must be a valid, hex encoded, SHA256 message digest."
+                "Invalid value for sha256_digest. "
+                "Error: Must be a valid, hex encoded, SHA256 message digest."
             ),
 
             # summary errors
@@ -1044,6 +1045,10 @@ class TestFileUpload:
             ),
         })
 
+        db_request.route_url = pretend.call_recorder(
+            lambda route, **kw: "/the/help/url/"
+        )
+
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(db_request)
 
@@ -1052,7 +1057,7 @@ class TestFileUpload:
         assert resp.status_code == 403
         assert resp.status == ("403 New Project Registration Temporarily "
                                "Disabled See "
-                               "https://pypi.org/help#admin-intervention for "
+                               "/the/help/url/ for "
                                "details")
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
@@ -1073,11 +1078,14 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
 
-    def test_upload_cleans_unknown_values(self, pyramid_config, db_request):
+    @pytest.mark.parametrize("value", [('UNKNOWN'), ('UNKNOWN\n\n')])
+    def test_upload_cleans_unknown_values(
+            self, pyramid_config, db_request, value):
+
         pyramid_config.testing_securitypolicy(userid=1)
         db_request.POST = MultiDict({
             "metadata_version": "1.2",
-            "name": "UNKNOWN",
+            "name": value,
             "version": "1.0",
             "filetype": "sdist",
             "md5_digest": "a fake md5 digest",
@@ -1196,13 +1204,15 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage),
+        ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join([
@@ -1253,7 +1263,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("submitted_date", "id")
                          .all()
         )
         assert [
@@ -1491,11 +1501,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 ['Environment :: Other Environment'] "
-            "is an invalid value for Classifier. "
+            "400 Invalid value for classifiers. "
             "Error: 'Environment :: Other Environment' is not a valid choice "
-            "for this field "
-            "see https://packaging.python.org/specifications/core-metadata"
+            "for this field"
         )
 
     @pytest.mark.parametrize(
@@ -1834,10 +1842,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_diff_filename_same_blake2(self,
                                                          pyramid_config,
@@ -1896,10 +1901,7 @@ class TestFileUpload:
             pretend.call('help', _anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
-        assert resp.status == (
-            "400 The filename or contents already exist. "
-            "See /the/help/url/"
-        )
+        assert resp.status == "400 File already exists. See /the/help/url/"
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config,
                                               db_request):
@@ -2110,7 +2112,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         monkeypatch.setattr(
@@ -2121,7 +2123,9 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join([
@@ -2156,7 +2160,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("submitted_date", "id")
                          .all()
         )
         assert [
@@ -2218,7 +2222,7 @@ class TestFileUpload:
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
-            lambda svc: storage_service
+            lambda svc, name=None: storage_service
         )
 
         monkeypatch.setattr(
@@ -2229,7 +2233,9 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert db_request.find_service.calls == [pretend.call(IFileStorage)]
+        assert db_request.find_service.calls == [
+            pretend.call(IFileStorage),
+        ]
         assert storage_service.store.calls == [
             pretend.call(
                 "/".join([
@@ -2264,7 +2270,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("submitted_date", "id")
                          .all()
         )
         assert [
@@ -2315,7 +2321,7 @@ class TestFileUpload:
                 assert fp.read() == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         monkeypatch.setattr(
             legacy,
@@ -2361,7 +2367,7 @@ class TestFileUpload:
                 assert fp.read() == b"A fake file."
 
         storage_service = pretend.stub(store=storage_service_store)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         monkeypatch.setattr(
             legacy,
@@ -2463,7 +2469,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2500,7 +2506,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("submitted_date", "id")
                          .all()
         )
         assert [
@@ -2554,7 +2560,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2601,7 +2607,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         legacy.file_upload(db_request)
 
@@ -2631,7 +2637,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         resp = legacy.file_upload(db_request)
@@ -2673,7 +2679,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-                         .order_by("submitted_date")
+                         .order_by("submitted_date", "id")
                          .all()
         )
         assert [
@@ -2733,7 +2739,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         if expected_success:
@@ -2777,7 +2783,7 @@ class TestFileUpload:
         })
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
         tm = pretend.stub(
@@ -2873,7 +2879,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 
@@ -2954,7 +2960,7 @@ class TestFileUpload:
         ])
 
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc: storage_service
+        db_request.find_service = lambda svc, name=None: storage_service
 
         resp = legacy.file_upload(db_request)
 

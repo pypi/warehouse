@@ -14,7 +14,10 @@ Migrating to the new PyPI
 -------------------------
 
 If your site/service used to link or upload to pypi.python.org, you
-should start using pypi.org instead.
+should prepare to start using pypi.org instead. Subscribe to `the PyPI
+announcement list (low-traffic)
+<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+to find out when you should switch permanently.
 
 Here are some tips.
 
@@ -45,7 +48,10 @@ Here are some tips.
 * JSON API: ``https://pypi.org/pypi/{name}/json`` returns the
   expected JSON response directly. See :doc:`json`.
 
-* XML-RPC API: see :ref:`changes-to-legacy-api`.
+* XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
+  the future; switch to the RSS or JSON APIs. If you depend on an
+  XML-RPC call that our other APIs do not support, please `tell us
+  <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and

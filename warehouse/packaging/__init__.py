@@ -16,8 +16,8 @@ from sqlalchemy.orm.base import NO_VALUE
 from warehouse import db
 from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
@@ -36,12 +36,28 @@ def email_primary_receive_set(config, target, value, oldvalue, initiator):
 def includeme(config):
     # Register whatever file storage backend has been configured for storing
     # our package files.
-    storage_class = config.maybe_dotted(
+    files_storage_class = config.maybe_dotted(
         config.registry.settings["files.backend"],
     )
-    config.register_service_factory(storage_class.create_service, IFileStorage)
+    config.register_service_factory(
+        files_storage_class.create_service, IFileStorage
+    )
+
+    docs_storage_class = config.maybe_dotted(
+        config.registry.settings["docs.backend"],
+    )
+    config.register_service_factory(
+        docs_storage_class.create_service, IDocsStorage
+    )
 
     # Register our origin cache keys
+    config.register_origin_cache_keys(
+        File,
+        cache_keys=["project/{obj.release.project.normalized_name}"],
+        purge_keys=[
+            key_factory("project/{obj.release.project.normalized_name}"),
+        ],
+    )
     config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],

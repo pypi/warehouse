@@ -16,9 +16,15 @@
 {% block title %}Log In{% endblock %}
 
 {% block content %}
+  {% if testPyPI %}
+    {% set title = "TestPyPI" %}
+  {% else %}
+    {% set title = "PyPI" %}
+  {% endif %}
+
   <section class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Log In to PyPI</h1>
+      <h1 class="page-title">Log In to {{ title }}</h1>
 
       <form method="POST" action="{{ request.current_route_path() }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -34,6 +40,12 @@
           {% endfor %}
         </ul>
         {% endif %}
+
+        <div class="form-group">
+          <p>
+            Accounts from {{ request.registry.settings.get("warehouse.legacy_domain") }} work too!
+          </p>
+        </div>
 
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
