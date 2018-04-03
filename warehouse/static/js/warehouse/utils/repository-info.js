@@ -11,8 +11,6 @@
  * limitations under the License.
  */
 
-import {getTimeAgoText} from "warehouse/utils/timeago";
-
 export default () => {
   const repoInfoContainer = document.querySelector(".github-repo-info");
   if (repoInfoContainer !== null){
@@ -32,7 +30,6 @@ export default () => {
       }
       repoInfoContainer.classList.remove("hidden");
       const items = document.querySelectorAll(".github-repo-info__item");
-      json.pushed_at = getTimeAgoText(json.pushed_at);
       items.forEach(function(elem) {
         const jsonKey = elem.dataset.key;
         const jsonValue = json[jsonKey];
