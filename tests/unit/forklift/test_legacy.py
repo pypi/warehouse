@@ -2746,16 +2746,24 @@ class TestFileUpload:
             resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
         else:
+            db_request.route_url = pretend.call_recorder(
+                lambda route, **kw: "/the/help/url/"
+            )
+
             with pytest.raises(HTTPBadRequest) as excinfo:
                 legacy.file_upload(db_request)
+
             resp = excinfo.value
+
+            assert db_request.route_url.calls == [
+                pretend.call('help', _anchor='verified-email')
+            ]
             assert resp.status_code == 400
             assert resp.status == (
                 ("400 User {!r} has no verified email "
                  "addresses, please verify at least one "
                  "address before registering a new project "
-                 "on PyPI. See "
-                 "https://pypi.org/help/#verified-email "
+                 "on PyPI. See /the/help/url/ "
                  "for more information.").format(user.username)
             )
 
