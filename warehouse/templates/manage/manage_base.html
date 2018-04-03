@@ -93,9 +93,9 @@
   </div>
 {% endmacro %}
 
-{% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None, tabindex=None) %}
+{% macro confirm_button(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
   {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
-  <a href="#{{ slug }}" class="button button--danger" {%if tabindex is not none %} tabindex="{{ tabindex }}"{% endif %}>
+  <a href="#{{ slug }}" class="button button--danger">
     {{ title }}
   </a>
   {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
