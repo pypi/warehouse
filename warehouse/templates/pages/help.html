@@ -21,9 +21,9 @@
 
 {# define macros for FAQ to use them as headers and in TOC #}
 {% macro packages() %}What's a package, project, or release?{% endmacro %}
-{% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
 {% macro installing() %}How do I install a file (package) from PyPI?{% endmacro %}
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
+{% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -56,9 +56,9 @@
         <h2 class="faq-group__first"><a href="#basics">Basics</a></h2>
         <ul>
           <li><a href="#packages">{{ packages() }}</a></li>
-          <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
+          <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
         </ul>
       </section>
@@ -118,12 +118,6 @@
           A <em>file</em>, also known as a <em>package</em>, on PyPI is something that you can download and install. Because of different hardware, operating systems, and file formats, a release may have several files (packages), like an archive containing source code or a binary <a href="https://pypi.org/project/wheel/#files">wheel</a>.
         </p>
 
-        <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
-
-        <p>Each project's maintainers provide PyPI with a list of "trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.</p>
-        <p>These classifiers can then be used by community members to find projects based on their desired criteria.</p>
-        <p>Instructions for how to add trove classifiers to a project can be found on the <a href="https://packaging.python.org/tutorials/distributing-packages/#classifiers">Python Packaging User Guide</a>. To read the original classifier specification, refer to <a href="https://www.python.org/dev/peps/pep-0301/#distutils-trove-classification">PEP 301</a>.</p>
-
         <h3 id="installing">{{ installing() }}</h3>
         <p>
           To learn how to install a file from PyPI, visit the <a href="https://packaging.python.org/installing/">installation tutorial</a> on the <a href="https://packaging.python.org/">Python Packaging User Guide</a>.
@@ -133,6 +127,12 @@
         <p>
           For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="https://packaging.python.org/distributing/">packaging tutorial</a> on the <a href="https://packaging.python.org">Python Packaging User Guide</a>.
         </p>
+
+        <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
+
+        <p>Each project's maintainers provide PyPI with a list of "trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.</p>
+        <p>These standardized classifiers can then be used by community members to find projects based on their desired criteria.</p>
+        <p>Instructions for how to add trove classifiers to a project can be found on the <a href="https://packaging.python.org/tutorials/distributing-packages/#classifiers">Python Packaging User Guide</a>. To read the original classifier specification, refer to <a href="https://www.python.org/dev/peps/pep-0301/#distutils-trove-classification">PEP 301</a>.</p>
 
         <h3 id="verified-email">{{ verified_email() }}</h3>
         <p>
