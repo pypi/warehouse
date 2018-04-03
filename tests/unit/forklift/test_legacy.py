@@ -2747,7 +2747,7 @@ class TestFileUpload:
             assert resp.status_code == 200
         else:
             db_request.route_url = pretend.call_recorder(
-                lambda route, **kw: "/the/help/url"
+                lambda route, **kw: "/the/help/url/"
             )
 
             with pytest.raises(HTTPBadRequest) as excinfo:
