@@ -210,6 +210,7 @@ def test_includeme():
                 "connect-src": [
                     "'self'",
                     "https://2p66nmmycsj3.statuspage.io",
+                    "https://api.github.com/repos/",
                 ],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
