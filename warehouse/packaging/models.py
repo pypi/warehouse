@@ -411,8 +411,9 @@ class Release(db.ModelBase):
     @property
     def github_repo_info_url(self):
         for parsed in [urlparse(url) for url in self.urls.values()]:
-            if parsed.netloc == 'github.com' and parsed.path.count('/') >= 2:
-                user_name, repo_name = parsed.path.split('/')[1:3]
+            segments = parsed.path.strip('/').rstrip('/').split('/')
+            if parsed.netloc == 'github.com' and len(segments) >= 2:
+                user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
