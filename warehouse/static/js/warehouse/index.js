@@ -42,6 +42,7 @@ import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
+import RepositoryInfo from "warehouse/utils/repository-info";
 
 // Human-readable timestamps for project histories
 docReady(() => {
@@ -152,3 +153,7 @@ docReady(() => {
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);
 application.load(definitionsFromContext(context));
+
+docReady(() => {
+  RepositoryInfo();
+});
