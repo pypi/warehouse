@@ -73,7 +73,9 @@
                 <i class="fa fa-hashtag" aria-hidden="true"></i>
                 View Hashes
               </a>
-              {% set title = "Delete File" %}
+
+              {% set title = "Delete File From" %}
+              {% set confirm_button_label = "Delete File" %}
               {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
               <a href="#{{ slug }}" class="dropdown__link">
                 <i class="fa fa-trash" aria-hidden="true"></i>
@@ -82,9 +84,12 @@
               {% set extra_fields %}
                 <input name="file_id" type="hidden" value="{{ file.id }}">
               {% endset %}
+              {% set extra_description %}
+                <p><strong>Filename:</strong> {{ file.filename }}</p>
+              {% endset %}
             </div>
           </div>
-          {{ confirm_modal(title, "Filename", file.filename, slug, index=loop.index, extra_fields=extra_fields) }}
+          {{ confirm_modal(title, "Project Name", project.name, slug, confirm_button_label=confirm_button_label, index=loop.index, extra_fields=extra_fields, extra_description=extra_description) }}
         </td>
       </tr>
     {% endfor %}
