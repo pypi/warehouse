@@ -473,7 +473,7 @@ class ManageProjectRelease:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_filename", "file_id"]
+        request_param=["confirm_project_name", "file_id"]
     )
     def delete_project_release_file(self):
 
@@ -487,9 +487,9 @@ class ManageProjectRelease:
                 )
             )
 
-        filename = self.request.POST.get('confirm_filename')
+        project_name = self.request.POST.get('confirm_project_name')
 
-        if not filename:
+        if not project_name:
             return _error("Must confirm the request.")
 
         try:
@@ -504,10 +504,11 @@ class ManageProjectRelease:
         except NoResultFound:
             return _error('Could not find file.')
 
-        if filename != release_file.filename:
+        if project_name != self.release.project.name:
             return _error(
                 "Could not delete file - " +
-                f"{filename!r} is not the same as {release_file.filename!r}",
+                f"{project_name!r} is not the same as "
+                f"{self.release.project.name!r}",
             )
 
         self.request.db.add(
