@@ -1096,6 +1096,22 @@ class TestFileUpload:
 
         assert "name" not in db_request.POST
 
+    def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "testing",
+            "summary": "I want to go to the \x00",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+        })
+
+        with pytest.raises(HTTPBadRequest):
+            legacy.file_upload(db_request)
+
+        assert "\x00" not in db_request.POST["summary"]
+
     @pytest.mark.parametrize(
         ("has_signature", "digests"),
         [

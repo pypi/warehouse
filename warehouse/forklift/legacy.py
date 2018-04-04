@@ -718,12 +718,20 @@ def file_upload(request):
             "Invalid or non-existent authentication information.",
         )
 
-    # distutils "helpfully" substitutes unknown, but "required" values with the
-    # string "UNKNOWN". This is basically never what anyone actually wants so
-    # we'll just go ahead and delete anything whose value is UNKNOWN.
+    # Do some cleanup of the various form fields
     for key in list(request.POST):
-        if str(request.POST.get(key)).strip() == "UNKNOWN":
-            del request.POST[key]
+        value = request.POST.get(key)
+        if isinstance(value, str):
+            # distutils "helpfully" substitutes unknown, but "required" values
+            # with the string "UNKNOWN". This is basically never what anyone
+            # actually wants so we'll just go ahead and delete anything whose
+            # value is UNKNOWN.
+            if value.strip() == "UNKNOWN":
+                del request.POST[key]
+
+            # Escape NUL characters, which psycopg doesn't like
+            if '\x00' in value:
+                request.POST[key] = value.replace('\x00', '\\x00')
 
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
