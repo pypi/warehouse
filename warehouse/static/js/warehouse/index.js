@@ -105,7 +105,9 @@ docReady(() => {
 });
 
 // Position sticky bar
-docReady(PositionWarning);
+docReady(() => {
+  setTimeout(PositionWarning, 200);
+});
 
 docReady(() => {
   let resizeTimer;
