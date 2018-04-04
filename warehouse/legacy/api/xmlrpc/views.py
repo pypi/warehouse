@@ -346,7 +346,7 @@ def changelog(request, since, with_ids=False):
     entries = (
         request.db.query(JournalEntry)
                   .filter(JournalEntry.submitted_date > since)
-                  .order_by(JournalEntry.submitted_date)
+                  .order_by(JournalEntry.id)
                   .limit(50000)
     )
 
