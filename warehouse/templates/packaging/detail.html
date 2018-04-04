@@ -324,7 +324,7 @@
                 <tr>
                   <th class="table__filename">
                     Filename, size &amp; hash
-                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
+                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?" target="_blank">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 hash help</span>
                     </a>
@@ -341,7 +341,6 @@
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
-                    <br>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>
