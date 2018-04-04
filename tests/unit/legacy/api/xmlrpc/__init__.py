@@ -9,18 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import factory.fuzzy
-
-from warehouse.utils.admin_flags import AdminFlag
-
-from .base import WarehouseFactory
-
-
-class AdminFlagFactory(WarehouseFactory):
-    class Meta:
-        model = AdminFlag
-
-    id = factory.fuzzy.FuzzyText(length=12)
-    description = factory.fuzzy.FuzzyText(length=24)
-    enabled = True

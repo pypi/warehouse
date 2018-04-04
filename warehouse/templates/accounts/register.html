@@ -16,14 +16,18 @@
 
 {% block title %}Register{% endblock %}
 
-{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
-
 {% block content %}
+  {% if testPyPI %}
+    {% set title = "TestPyPI" %}
+  {% else %}
+    {% set title = "PyPI" %}
+  {% endif %}
+
   <section class="horizontal-section">
     <div class="site-container">
-      <h1 class="page-title">Create an account on PyPI</h1>
+      <h1 class="page-title">Create an account on {{ title }}</h1>
 
-      <form method="POST" action="{{ request.current_route_path() }}">
+      <form method="POST" action="{{ request.current_route_path() }}" data-controller="password password-match password-strength-gauge">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
         {% if form.errors.__all__ %}
@@ -36,7 +40,7 @@
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Name</label>
-          {{ form.full_name(placeholder="Your name", required="required", class_="form-group__input") }}
+          {{ form.full_name(placeholder="Your name", required="required", class_="form-group__input", autofocus=true, tabindex="1") }}
           {% if form.full_name.errors %}
           <ul class="form-errors">
             {% for error in form.full_name.errors %}
@@ -48,7 +52,7 @@
 
         <div class="form-group">
           <label for="full_name" class="form-group__label">Email Address</label>
-          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input") }}
+          {{ form.email(placeholder="Your email address", autocomplete="email", required="required", class_="form-group__input", tabindex="2") }}
           {% if form.email.errors %}
           <ul class="form-errors">
             {% for error in form.email.errors %}
@@ -58,9 +62,15 @@
           {% endif %}
         </div>
 
+        {# The following is a honeypot field and is hidden from the user #}
+        <div class="form-group confirm-form">
+          <label for="confirm_form" class="form-group__label">Confirm Form</label>
+          {{ form.confirm_form(class="form-group__input", **{'aria-hidden':'true'}) }}
+        </div>
+
         <div class="form-group">
           <label for="username" class="form-group__label">Username</label>
-          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input") }}
+          {{ form.username(placeholder="Select a username", autocorrect="off", autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__input", tabindex="3") }}
           {% if form.username.errors %}
           <ul class="form-errors">
             {% for error in form.username.errors %}
@@ -70,18 +80,18 @@
           {% endif %}
         </div>
 
-        <div data-controller="password">
+        <div>
           <div class="form-group">
             <div class="split-layout">
               <label for="password" class="form-group__label">Password</label>
               <label for="show-password">
                 <input data-action="change->password#togglePasswords" data-target="password.showPassword"
-                  id="show-password" type="checkbox">&nbsp;Show passwords
+                  id="show-password" type="checkbox" tabindex="7">&nbsp;Show passwords
               </label>
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength", tabindex="4") }}
             </div>
             {% if form.new_password.errors %}
             <ul class="form-errors">
@@ -90,12 +100,12 @@
               {% endfor %}
             </ul>
             {% endif %}
-            {{ password_strength_gauge() }}
+            {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
           </div>
 
           <div class="form-group">
             <label for="password_confirm" class="form-group__label">Confirm Password</label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password") }}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch", tabindex="5") }}
             {% if form.password_confirm.errors %}
             <ul class="form-errors">
               {% for error in form.password_confirm.errors %}
@@ -107,17 +117,18 @@
         </div>
 
         <div class="form-group">
-          {{ recaptcha_html(request, form) }}
+          <ul class="form-errors">
+            <li data-target="password-match.matchMessage" class="hidden"></li>
+          </ul>
         </div>
 
-        <input type="submit" value="Create Account" class="button button--primary">
+        <input type="submit" value="Create Account" class="button button--primary" data-target="password-match.submit" tabindex="6">
       </form>
     </div>
   </section>
 {% endblock %}
 
 {% block extra_js %}
-  {{ recaptcha_src(request) }}
   <script async
   src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
 </script>

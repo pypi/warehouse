@@ -30,14 +30,40 @@
   Modifiers:
     - danger: Applies a red background
     - success: Applies a green background
+    - dismissable: Indicates notification can be dismissed. Defaults to hidden.
+    - visible: Indicates a visible, non-dismissed notification
+
+  A notification bar can be made dismissable by adding the following to the main
+  notification-bar div:
+    - .notification-bar--dismissable to its classes
+    - data-controller="notification" as an attribute
+    - data-target="notification.notification" as an attribute
+
+  The data-controller and data-target are used for handling visibility,
+  including adding .notification-bar--visible to notification-bar div if it has
+  not been dismissed (and persisted) yet.
+
+  <div class="notification-bar notification-bar--dismissable"
+    data-controller="notification" data-target="notification.notification">
+      <span class="notification-bar__icon">
+        // icon here
+      </span>
+      <span class="notification-bar__message">
+        // A one line notification goes here.
+      </span>
+  </div>
+
+  Note that if JavaScript is disabled, the notification bar always defaults to
+  be visible.
 */
 
 .notification-bar {
   border-bottom: 2px solid $white;
   text-align: center;
-  background-color: darken($brand-color, 10);
+  background-color: $primary-color-dark;
   color: $white;
   padding: ($spacing-unit / 2);
+  position: relative;
 
   &__icon {
     font-size: $small-font-size;
@@ -51,6 +77,39 @@
       text-decoration: underline;
 
       @include link-focus
+    }
+  }
+
+  &__dismiss {
+    background: transparent;
+    border: 0;
+    position: absolute;
+    top: 0;
+    right: 15px;
+    cursor: pointer;
+    font-size: 1.0rem;
+    line-height: 3.25rem;
+  }
+
+  // Indicates that a notification is dismissable.
+  // Since this defaults to not displaying the element, one must make sure the
+  // notification controller is being used.
+  &--dismissable {
+    display: none;
+    padding: 15px 55px;
+  }
+
+  &--visible {
+    display: block;
+  }
+
+  &--warning {
+    background-color: $warn-color;
+    color: $warn-text;
+    border-color: darken($primary-color, 10);
+
+    a {
+      color: $warn-text;
     }
   }
 

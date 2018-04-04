@@ -34,14 +34,19 @@
 </div>
 {% endblock %}
 
-
 {% block mobile_search %}{% endblock %}
 
-
 {% block content %}
+
+{% if testPyPI %}
+  {% set banner = "Test Python package publishing with the Test Python Package Index" %}
+{% else %}
+  {% set banner = "Find, install and publish Python packages with the Python Package Index" %}
+{% endif %}
+
 <section class="banner">
   <div class="homepage-banner">
-    <h1 class="homepage-banner__title">Find, install and publish Python packages with the Python Package Index</h1>
+    <h1 class="homepage-banner__title">{{ banner }}</h1>
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
       <label for="search" class="sr-only">Search PyPI</label>

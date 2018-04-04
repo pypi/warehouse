@@ -18,14 +18,14 @@
 </time>
 {%- endmacro %}
 
-{% macro password_strength_gauge() -%}
+{% macro password_strength_gauge(data_target=None) -%}
 <p class="form-group__help-text">
   Choose a strong password that contains letters (uppercase and lowercase), numbers and special characters. Avoid common words or repetition.
 </p>
 <p class="form-group__help-text">
   <strong>Password strength:</strong>
   <span class="password-strength">
-    <span class="password-strength__gauge">
+    <span class="password-strength__gauge"{% if data_target %} data-target="{{ data_target }}"{% endif %}>
       <span class="sr-only">Password field is empty</span>
     </span>
   </span>
@@ -42,12 +42,20 @@
     <meta name="defaultLanguage" content="en">
     <meta name="availableLanguages" content="en">
 
-    <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
+    {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+      {% set testPyPI = true %}
+    {% endif %}
+
+    <title>{% if testPyPI %}Test{% endif %}{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
+    <noscript>
+      <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
+    </noscript>
+
     {% block extra_css %}{% endblock %}
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
@@ -61,7 +69,7 @@
     <meta property="og:url" content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.urll }}{% endif %}">
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/logo-large.svg') }}">
+    <meta property="og:image" content="{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}">
     <meta property="og:title" content="{{ self.title()|default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
 
@@ -84,6 +92,7 @@
 
   <body>
     {% block body %}
+
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
@@ -98,6 +107,15 @@
         <span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span>
       </div>
       <![endif]-->
+      {% if testPyPI %}
+      <div class="notification-bar notification-bar--warning">
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
+        <span class="notification-bar__message">You are using testPyPI - a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
+      </div>
+      {% endif %}
     </section>
 
     {% block flash_messages %}
@@ -105,11 +123,17 @@
       {% endcsi %}
     {% endblock %}
 
+    {% for flag in request.flags.notifications() %}
+    <div class="notification-bar notification-bar--danger">
+      <span class="notification-bar__message">{{ flag.description }}</span>
+    </div>
+    {% endfor %}
+
     <div class="notification-bar">
       <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
     </div>
 
-    <header class="site-header">
+    <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
         <div class="split-layout">
           {% block brand %}

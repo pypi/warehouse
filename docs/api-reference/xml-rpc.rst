@@ -2,6 +2,11 @@
 PyPI's XML-RPC methods
 ======================
 
+.. note::
+   The XML-RPC API will be deprecated in the future. Use of this API is not
+   recommended, and existing consumers of the API should migrate to the RSS
+   and/or JSON APIs instead.
+
 Example usage::
 
   >>> import xmlrpclib

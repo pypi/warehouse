@@ -112,6 +112,11 @@
             <i class="fa fa-ban"></i> <span>Blacklist</span>
           </a>
         </li>
+        <li>
+          <a href="{{ request.route_path('admin.flags') }}">
+            <i class="fa fa-flag"></i> <span>Flags</span>
+          </a>
+        </li>
       </ul>
     </section>
   </aside>
@@ -163,5 +168,11 @@
 {% endblock %}
 
 <script src="{{ request.static_url('warehouse.admin:static/dist/js/admin.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/js/jquery-2.2.3.min.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/js/bootstrap.min.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/js/jquery.slimscroll.min.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/js/fastclick.min.js') }}"></script>
+<script src="{{ request.static_url('warehouse.admin:static/js/app.min.js') }}"></script>
+
 </body>
 </html>

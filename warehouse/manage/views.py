@@ -31,7 +31,11 @@ from warehouse.manage.forms import (
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Role
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import (
+    confirm_project,
+    destroy_docs,
+    remove_project,
+)
 
 
 @view_defaults(
@@ -359,6 +363,26 @@ def delete_project(project, request):
 
 
 @view_config(
+    route_name="manage.project.destroy_docs",
+    uses_session=True,
+    require_methods=["POST"],
+    permission="manage",
+)
+def destroy_project_docs(project, request):
+    confirm_project(
+        project, request, fail_route="manage.project.documentation"
+    )
+    destroy_docs(project, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            'manage.project.documentation',
+            project_name=project.normalized_name,
+        )
+    )
+
+
+@view_config(
     route_name="manage.project.releases",
     renderer="manage/releases.html",
     uses_session=True,
@@ -449,7 +473,7 @@ class ManageProjectRelease:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_filename", "file_id"]
+        request_param=["confirm_project_name", "file_id"]
     )
     def delete_project_release_file(self):
 
@@ -463,9 +487,9 @@ class ManageProjectRelease:
                 )
             )
 
-        filename = self.request.POST.get('confirm_filename')
+        project_name = self.request.POST.get('confirm_project_name')
 
-        if not filename:
+        if not project_name:
             return _error("Must confirm the request.")
 
         try:
@@ -480,10 +504,11 @@ class ManageProjectRelease:
         except NoResultFound:
             return _error('Could not find file.')
 
-        if filename != release_file.filename:
+        if project_name != self.release.project.name:
             return _error(
                 "Could not delete file - " +
-                f"{filename!r} is not the same as {release_file.filename!r}",
+                f"{project_name!r} is not the same as "
+                f"{self.release.project.name!r}",
             )
 
         self.request.db.add(
@@ -750,10 +775,22 @@ def manage_project_history(project, request):
     journals = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc())
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
     )
     return {
         'project': project,
         'journals': journals,
+    }
+
+
+@view_config(
+    route_name="manage.project.documentation",
+    renderer="manage/documentation.html",
+    uses_session=True,
+    permission="manage",
+)
+def manage_project_documentation(project, request):
+    return {
+        'project': project,
     }

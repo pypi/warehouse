@@ -16,14 +16,17 @@ import pytest
 from celery.schedules import crontab
 
 from warehouse import packaging
-from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Project, Release, User
+from warehouse.accounts.models import Email, User
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
 @pytest.mark.parametrize("with_trending", [True, False])
 def test_includme(monkeypatch, with_trending):
-    storage_class = pretend.stub(create_service=pretend.stub())
+    storage_class = pretend.stub(
+        create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+    )
 
     def key_factory(keystring, iterate_on=None):
         return pretend.call(keystring, iterate_on=iterate_on)
@@ -33,11 +36,12 @@ def test_includme(monkeypatch, with_trending):
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
         register_service_factory=pretend.call_recorder(
-            lambda factory, iface: None,
+            lambda factory, iface, name=None: None,
         ),
         registry=pretend.stub(
             settings={
                 "files.backend": "foo.bar",
+                "docs.backend": "wu.tang",
             },
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
@@ -50,8 +54,16 @@ def test_includme(monkeypatch, with_trending):
 
     assert config.register_service_factory.calls == [
         pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, IDocsStorage),
     ]
     assert config.register_origin_cache_keys.calls == [
+        pretend.call(
+            File,
+            cache_keys=["project/{obj.release.project.normalized_name}"],
+            purge_keys=[
+                key_factory("project/{obj.release.project.normalized_name}"),
+            ],
+        ),
         pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
@@ -71,13 +83,33 @@ def test_includme(monkeypatch, with_trending):
             ],
         ),
         pretend.call(
+            Role,
+            purge_keys=[
+                key_factory("user/{obj.user.username}"),
+                key_factory("project/{obj.project.normalized_name}")
+            ],
+        ),
+        pretend.call(
             User,
             cache_keys=["user/{obj.username}"],
+        ),
+        pretend.call(
+            User.name,
             purge_keys=[
                 key_factory("user/{obj.username}"),
                 key_factory(
                     "project/{itr.normalized_name}",
                     iterate_on='projects',
+                ),
+            ],
+        ),
+        pretend.call(
+            Email.primary,
+            purge_keys=[
+                key_factory("user/{obj.user.username}"),
+                key_factory(
+                    "project/{itr.normalized_name}",
+                    iterate_on='user.projects',
                 ),
             ],
         ),

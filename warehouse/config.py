@@ -157,8 +157,6 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
-    maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
-    maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
@@ -173,6 +171,7 @@ def configure(settings=None):
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
+    maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
     maybe_set(
         settings,
         "token.password.max_age",
@@ -193,6 +192,7 @@ def configure(settings=None):
         default=21600,  # 6 hours
     )
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
 
     # Add the settings we use when the environment is set to development.
@@ -327,6 +327,9 @@ def configure(settings=None):
     # Register support for services
     config.include("pyramid_services")
 
+    # Register our XMLRPC cache
+    config.include(".legacy.api.xmlrpc.cache")
+
     # Register support for XMLRPC and override it's renderer to allow
     # specifying custom dumps arguments.
     config.include("pyramid_rpc.xmlrpc")
@@ -341,11 +344,17 @@ def configure(settings=None):
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)
 
+    # Register support for sendnging emails
+    config.include(".email")
+
     # Register support for internationalization and localization
     config.include(".i18n")
 
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
+
+    # Register the support for Celery Tasks
+    config.include(".tasks")
 
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
@@ -359,9 +368,6 @@ def configure(settings=None):
     # Register the support for AWS and Google Cloud
     config.include(".aws")
     config.include(".gcloud")
-
-    # Register the support for Celery Tasks
-    config.include(".tasks")
 
     # Register our session support
     config.include(".sessions")
@@ -458,9 +464,6 @@ def configure(settings=None):
 
     # Register Referrer-Policy service
     config.include(".referrer_policy")
-
-    # Register recaptcha service
-    config.include(".recaptcha")
 
     config.add_settings({
         "http": {

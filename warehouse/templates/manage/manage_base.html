@@ -58,7 +58,7 @@
 {% macro modal_slug(title, index) %}
 {% endmacro %}
 
-{% macro confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=None, action=None) %}
+{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, confirm_button_label=None, index=None, extra_fields=None, extra_description=None, action=None) %}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
@@ -76,15 +76,17 @@
             This action cannot be undone!
           </p>
         </div>
-        <p>Confirm the {{ confirm_name|lower }} to continue.</p>
+        {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
+        {{ extra_description if extra_description else '' }}
+        <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
         {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
         <label for="{{ name }}">{{ confirm_name }}</label>
-        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" placeholder="{{ confirm_string }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+        <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
           <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
-            {{ title }}
+            {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
       </form>
@@ -98,13 +100,4 @@
     {{ title }}
   </a>
   {{ confirm_modal(title, confirm_name, confirm_string, slug, index=None, extra_fields=extra_fields, action=action) }}
-{% endmacro %}
-
-{% macro confirm_dropdown(title, confirm_name, confirm_string, index=None, extra_fields=None, action=None) %}
-  {% set slug = title.lower().replace(' ', '-') + '-modal' + ('-{}'.format(index) if index else '') %}
-  <a href="#{{ slug }}" class="dropdown__link">
-    <i class="fa fa-trash" aria-hidden="true"></i>
-    Delete
-  </a>
-  {{ confirm_modal(title, confirm_name, confirm_string, slug, index=index, extra_fields=extra_fields, action=action) }}
 {% endmacro %}

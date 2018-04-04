@@ -119,3 +119,15 @@ def includeme(config):
         "/admin/blacklist/remove/",
         domain=warehouse,
     )
+
+    # Flags
+    config.add_route(
+        "admin.flags",
+        "/admin/flags/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.flags.edit",
+        "/admin/flags/edit/",
+        domain=warehouse,
+    )

@@ -48,9 +48,8 @@
               aria-label="{{ file.comment_text|truncate(60, True) }}"
               data-original-label="{{ file.comment_text|truncate(60, True) }}"
             {% endif %}
-          >
-            {{ file.filename }}
-          </a>
+            title="Download file">
+            {{ file.filename }}</a>
           {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}<br>
         </td>
         <td class="table__type">{{ file.packagetype|format_package_type }}</td>
@@ -74,12 +73,23 @@
                 <i class="fa fa-hashtag" aria-hidden="true"></i>
                 View Hashes
               </a>
+
+              {% set title = "Delete File From" %}
+              {% set confirm_button_label = "Delete File" %}
+              {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+              <a href="#{{ slug }}" class="dropdown__link">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                Delete
+              </a>
               {% set extra_fields %}
                 <input name="file_id" type="hidden" value="{{ file.id }}">
               {% endset %}
-              {{ confirm_dropdown("Delete File", "Filename", file.filename, index=loop.index, extra_fields=extra_fields) }}
+              {% set extra_description %}
+                <p><strong>Filename:</strong> {{ file.filename }}</p>
+              {% endset %}
             </div>
           </div>
+          {{ confirm_modal(title, "Project Name", project.name, slug, confirm_button_label=confirm_button_label, index=loop.index, extra_fields=extra_fields, extra_description=extra_description) }}
         </td>
       </tr>
     {% endfor %}

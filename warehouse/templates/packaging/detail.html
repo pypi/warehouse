@@ -148,6 +148,27 @@
         </div>
         {% endif %}
 
+        {% if release.github_repo_info_url %}
+        <div class="sidebar-section github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
+          <h3 class="sidebar-section__title">GitHub Statistics</h3>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <strong>Stars: </strong>
+            <span class="github-repo-info__item" data-key="stargazers_count"></span>
+          </p>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-code-fork" aria-hidden="true"></i>
+            <strong>Forks: </strong>
+            <span class="github-repo-info__item" data-key="forks"></span>
+          </p>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>Open Issues: </strong>
+            <span class="github-repo-info__item" data-key="open_issues_count"></span>
+          </p>
+        </div>
+        {% endif %}
+
         {% if release.has_meta %}
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Meta</h3>
@@ -191,6 +212,11 @@
               <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
             </a>
           {% endfor %}
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Statistics</h3>
+          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a>.</p>
         </div>
 
         {% if release.classifiers %}
@@ -245,7 +271,10 @@
 
         {# Tab: Release History #}
         <div id="history" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab">
-          <h2 class="page-title">Release History</h2>
+          <h2 class="page-title split-layout">
+            <span>Release History</span>
+            <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">Release notifications</a>
+          </h2>
 
           <section class="release-timeline">
             {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}

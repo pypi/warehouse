@@ -9,17 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from warehouse.utils.admin_flags import AdminFlag
-
-from ...common.db.utils import AdminFlagFactory as DBAdminFlagFactory
-
-
-class TestAdminFlag:
-
-    def test_default(self, db_session):
-        assert not AdminFlag.is_enabled(db_session, 'not-a-real-flag')
-
-    def test_enabled(self, db_session):
-        DBAdminFlagFactory.create(id='this-flag-is-enabled', enabled=True)
-        assert AdminFlag.is_enabled(db_session, 'this-flag-is-enabled')

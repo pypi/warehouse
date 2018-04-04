@@ -106,11 +106,11 @@ strong {
 }
 
 a {
-  color: $brand-color;
+  color: $primary-color;
   text-decoration: none;
 
   &:hover {
-    color: darken($brand-color, 10);
+    color: darken($primary-color, 10);
     text-decoration: underline;
   }
 
@@ -118,8 +118,8 @@ a {
 }
 
 @include selection {
-  color: darken($brand-color, 15);
-  background: $primary-color;
+  color: darken($primary-color, 15);
+  background: $highlight-color;
 }
 
 // VERTICAL RHYTHM

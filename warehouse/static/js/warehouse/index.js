@@ -16,6 +16,11 @@
 // ensure we have an ES6 like environment.
 import "babel-polyfill";
 
+// manually import IE11 Stimulus polyfills
+// TODO: use @stimulus/polyfills once 1.1 is released https://github.com/stimulusjs/stimulus/pull/134
+import "element-closest";
+import "mutation-observer-inner-html-shim";
+
 // Import stimulus
 import { Application } from "stimulus";
 import { definitionsFromContext } from "stimulus/webpack-helpers";
@@ -37,6 +42,7 @@ import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
+import RepositoryInfo from "warehouse/utils/repository-info";
 
 // Human-readable timestamps for project histories
 docReady(() => {
@@ -44,11 +50,8 @@ docReady(() => {
 });
 
 // project detail tabs
-docReady(()=> {
-  const headingBtn = document.querySelector(".-js-vertical-tab-content");
-  if (headingBtn) {
-    projectTabs();
-  }
+docReady(() => {
+  projectTabs();
   window.addEventListener("resize", projectTabs, false);
 });
 
@@ -116,7 +119,9 @@ docReady(() => {
 });
 
 // Position sticky bar
-docReady(PositionWarning);
+docReady(() => {
+  setTimeout(PositionWarning, 200);
+});
 
 docReady(() => {
   let resizeTimer;
@@ -164,3 +169,7 @@ docReady(() => {
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);
 application.load(definitionsFromContext(context));
+
+docReady(() => {
+  RepositoryInfo();
+});

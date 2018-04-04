@@ -18,10 +18,15 @@
   <header class="site-header">
     <a class="site-header__logo"></a>
   </header>
+
+  Modifiers:
+    - test-pypi: Adds a 'testing' image in the bg for test PyPI
 */
 
 .site-header {
   background-color: $header-background-color;
+  background-repeat: repeat;
+  background-position: 0 50%;
   border-bottom: 1px solid $header-border-color;
 
   &__logo {
@@ -32,5 +37,9 @@
     @media screen and (max-width: $small-tablet) {
       max-width: 50px;
     }
+  }
+
+  &--test-pypi {
+    background-image: url("../images/testing.png");
   }
 }

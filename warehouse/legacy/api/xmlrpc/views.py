@@ -16,6 +16,7 @@ import functools
 import xmlrpc.server
 
 from elasticsearch_dsl import Q
+from packaging.utils import canonicalize_name
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
 from sqlalchemy import func, orm, select
@@ -27,12 +28,20 @@ from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
-
 pypi_xmlrpc = functools.partial(
     xmlrpc_method,
     endpoint="pypi",
     require_csrf=False,
     require_methods=["POST"],
+)
+
+pypi_xmlrpc_cache_by_project = functools.partial(
+    pypi_xmlrpc,
+    xmlrpc_cache=True,
+    xmlrpc_cache_expires=3600,
+    xmlrpc_cache_tag='project/%s',
+    xmlrpc_cache_arg_index=0,
+    xmlrpc_cache_tag_processor=canonicalize_name,
 )
 
 
@@ -148,7 +157,7 @@ def top_packages(request, num=None):
     )
 
 
-@pypi_xmlrpc(method="package_releases")
+@pypi_xmlrpc_cache_by_project(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
@@ -165,7 +174,21 @@ def package_releases(request, package_name, show_hidden=False):
     return [v[0] for v in versions]
 
 
-@pypi_xmlrpc(method="release_data")
+@pypi_xmlrpc(method="package_data")
+def package_data(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_data can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
+
+
+@pypi_xmlrpc_cache_by_project(method="release_data")
 def release_data(request, package_name, version):
     try:
         release = (
@@ -226,7 +249,21 @@ def release_data(request, package_name, version):
     }
 
 
-@pypi_xmlrpc(method="release_urls")
+@pypi_xmlrpc(method="package_urls")
+def package_urls(request, package_name, version):
+    settings = request.registry.settings
+    domain = settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            ("This API has been deprecated. Use "
+             f"https://{domain}/{package_name}/{version}/json "
+             "instead. The XMLRPC method release_urls can be used in the "
+             "interim, but will be deprecated in the future.")
+        )
+    )
+
+
+@pypi_xmlrpc_cache_by_project(method="release_urls")
 def release_urls(request, package_name, version):
     files = (
         request.db.query(File)
@@ -249,7 +286,7 @@ def release_urls(request, package_name, version):
                 "sha256": f.sha256_digest,
             },
             "has_sig": f.has_signature,
-            "upload_time": f.upload_time,
+            "upload_time": f.upload_time.isoformat() + "Z",
             "comment_text": f.comment_text,
             # TODO: Remove this once we've had a long enough time with it
             #       here to consider it no longer in use.
@@ -260,7 +297,7 @@ def release_urls(request, package_name, version):
     ]
 
 
-@pypi_xmlrpc(method="package_roles")
+@pypi_xmlrpc_cache_by_project(method="package_roles")
 def package_roles(request, package_name):
     roles = (
         request.db.query(Role)
@@ -309,7 +346,7 @@ def changelog(request, since, with_ids=False):
     entries = (
         request.db.query(JournalEntry)
                   .filter(JournalEntry.submitted_date > since)
-                  .order_by(JournalEntry.submitted_date)
+                  .order_by(JournalEntry.id)
                   .limit(50000)
     )
 

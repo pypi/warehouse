@@ -11,10 +11,6 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
-# Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
-export RECAPTCHA_SITE_KEY := $(shell echo "$${RECAPTCHA_SITE_KEY:-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}")
-export RECAPTCHA_SECRET_KEY := $(shell echo "$${RECAPTCHA_SECRET_KEY:-6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe}")
-
 define DEPCHECKER
 import sys
 
@@ -156,11 +152,11 @@ clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
 
-purge: clean
+purge: stop clean
 	rm -rf .state
-	docker-compose rm --force --all
+	docker-compose rm --force
 
 stop:
-	docker ps -aq --filter name=warehouse | xargs docker stop
+	docker-compose down -v
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
