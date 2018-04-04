@@ -14,48 +14,26 @@
 import { Controller } from "stimulus";
 
 export default class extends Controller {
-  static targets = [
-    "trendingProject",
-    "latestRelease",
-    "latestAddFiveButton",
-    "trendingAddFiveButton",
-  ];
+  static targets = ["release", "showMoreButton"];
 
-  // Initially set 5 projects to be visible of both trending and latest
+  // Initially set 5 projects to be visible.
   connect() {
-    this.amountVisibleTrending = 5;
-    this.trendingProjectTargets
-      .slice(this.amountVisibleTrending, this.trendingProjectTargets.length)
-      .forEach(element => (element.style.display = "none"));
-    this.amountVisibleLatest = 5;
-    this.latestReleaseTargets
-      .slice(this.amountVisibleLatest, this.latestReleaseTargets.length)
+    this.amountVisible = 5;
+    this.releaseTargets
+      .slice(this.amountVisible, this.releaseTargets.length)
       .forEach(element => (element.style.display = "none"));
   }
 
   // Increase amount visible during each button click event and check
-  // if max amount visible has occurred, and if so, hide the button.
-  addFiveLatest() {
-    const previousAmountVisible = this.amountVisibleLatest;
-    this.amountVisibleLatest = this.amountVisibleLatest + 5;
-    this.latestReleaseTargets
-      .slice(previousAmountVisible, this.amountVisibleLatest)
+  // if max amount visible has occurred and, if so, hide the button.
+  addFive() {
+    const previousAmountVisible = this.amountVisible;
+    this.amountVisible = this.amountVisible + 5;
+    this.releaseTargets
+      .slice(previousAmountVisible, this.amountVisible)
       .forEach(element => (element.style.display = "block"));
-
-    if (this.amountVisibleLatest >= 20) {
-      this.latestAddFiveButtonTarget.style.display = "none";
-    }
-  }
-
-  addFiveTrending() {
-    const previousAmountVisible = this.amountVisibleTrending;
-    this.amountVisibleTrending = this.amountVisibleTrending + 5;
-    this.trendingProjectTargets
-      .slice(previousAmountVisible, this.amountVisibleTrending)
-      .forEach(element => (element.style.display = "block"));
-
-    if (this.amountVisibleTrending >= 20) {
-      this.trendingAddFiveButtonTarget.style.display = "none";
+    if (this.amountVisible === 20) {
+      this.showMoreButtonTarget.style.display = "none";
     }
   }
 }

@@ -15,12 +15,8 @@
 
 {% block title %}PyPI - the Python Package Index{% endblock %}
 
-{% macro project_snippet(release, class) -%}
-{% if class == "latest" %}
-<div class="package-snippet" data-target="show-more.latestRelease">
-{% else %}
-<div class="package-snippet" data-target="show-more.trendingProject">
-{% endif %}
+{% macro project_snippet(release) -%}
+<div class="package-snippet" data-target="show-more.release">
   <h3 class="package-snippet__title">
     <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
     <span class="package-snippet__version">{{ release.version }}</span>
@@ -89,31 +85,31 @@
   </div>
 </section>
 
-<section class="horizontal-section horizontal-section--grey" data-controller="show-more">
+<section class="horizontal-section horizontal-section--grey">
   <div class="site-container" >
-    <div class="col-half">
+    <div class="col-half" data-controller="show-more">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
       <div class="package-list">
         {% for release in trending_projects %}
-          {{ project_snippet(release, "trending") }}
+          {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      <button class="button" type="button" data-action="click->show-more#addFiveTrending" data-target="show-more.trendingAddFiveButton">Show More</button>
+      <button class="button" type="button" data-action="click->show-more#addFive" data-target="show-more.showMoreButton">Show More</button>
     </div>
-    <div class="col-half">
+    <div class="col-half" data-controller="show-more">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">New Releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
       </div>
       <div class="package-list">
         {% for release in latest_releases %}
-          {{ project_snippet(release, "latest") }}
+          {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      <button class="button" type="button" data-action="click->show-more#addFiveLatest" data-target="show-more.latestAddFiveButton">Show More</button>
+      <button class="button" type="button" data-action="click->show-more#addFive" data-target="show-more.showMoreButton">Show More</button>
     </div>
   </div>
 </section>
