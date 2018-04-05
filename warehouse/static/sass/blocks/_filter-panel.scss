@@ -31,6 +31,9 @@
 
   &__close {
     display: none;
+    border: 0;
+    color: $white;
+    background: transparent;
   }
 
   @media only screen and (max-width: $desktop) {
