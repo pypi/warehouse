@@ -104,8 +104,24 @@ docReady(() => {
   });
 });
 
+// Close modals when escape button is pressed
+docReady(() => {
+  document.addEventListener("keydown", event => {
+    if (event.keyCode === 27) {
+      window.location.href = "#modal-close";
+      for (let element of document.querySelectorAll(".modal")) {
+        application
+          .getControllerForElementAndIdentifier(element, "confirm")
+          .cancel();
+      }
+    }
+  });
+});
+
 // Position sticky bar
-docReady(PositionWarning);
+docReady(() => {
+  setTimeout(PositionWarning, 200);
+});
 
 docReady(() => {
   let resizeTimer;

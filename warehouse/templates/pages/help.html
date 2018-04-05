@@ -23,6 +23,7 @@
 {% macro packages() %}What's a package, project, or release?{% endmacro %}
 {% macro installing() %}How do I install a file (package) from PyPI?{% endmacro %}
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
+{% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
@@ -37,7 +38,7 @@
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
-{% macro new_classifier() %}How do I request a new Trove classifier?{% endmacro %}
+{% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
 {% macro sponsors() %}What powers PyPI?{% endmacro %}
@@ -58,6 +59,7 @@
           <li><a href="#packages">{{ packages() }}</a></li>
           <li><a href="#installing">{{ installing() }}</a></li>
           <li><a href="#publishing">{{ publishing() }}</a></li>
+          <li><a href="#trove-classifier">{{ trove_classifier() }}</a></li>
           <li><a href="#verified-email">{{ verified_email() }}</a></li>
         </ul>
       </section>
@@ -127,6 +129,12 @@
         <p>
           For full instructions on configuring, packaging and distributing your Python project, refer to the <a href="https://packaging.python.org/distributing/">packaging tutorial</a> on the <a href="https://packaging.python.org">Python Packaging User Guide</a>.
         </p>
+
+        <h3 id="trove-classifier">{{ trove_classifier() }}</h3>
+
+        <p>Each project's maintainers provide PyPI with a list of "trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.</p>
+        <p>These standardized classifiers can then be used by community members to find projects based on their desired criteria.</p>
+        <p>Instructions for how to add trove classifiers to a project can be found on the <a href="https://packaging.python.org/tutorials/distributing-packages/#classifiers">Python Packaging User Guide</a>. To read the original classifier specification, refer to <a href="https://www.python.org/dev/peps/pep-0301/#distutils-trove-classification">PEP 301</a>.</p>
 
         <h3 id="verified-email">{{ verified_email() }}</h3>
         <p>
@@ -256,7 +264,7 @@
 
         <h3 id="new-classifier">{{ new_classifier() }}</h3>
         <p>
-          If you would like to request a new Trove classifier please file a bug on our <a href="https://github.com/pypa/warehouse/issues/new?template=new-trove-classifier.md" target="_blank" rel="noopener">issue tracker</a>. Please include the name of the requested classifier and a brief justification of why it is important.
+          If you would like to request a new trove classifier please file a bug on our <a href="https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md" target="_blank" rel="noopener">issue tracker</a>. Please include the name of the requested classifier and a brief justification of why it is important.
         </p>
         {{ code_of_conduct() }}
 
