@@ -25,6 +25,7 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
+  color: $white;
   z-index: index($z-index-scale, "skip-to-content");
 
   &:focus {
@@ -34,5 +35,7 @@
     height: 41px;
     line-height: 41px;
     padding: 0 ($spacing-unit / 2);
+    color: $white;
+    background-color: #235589;
   }
 }

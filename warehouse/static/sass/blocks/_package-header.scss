@@ -73,7 +73,7 @@
   }
 
   &__name {
-    @include ellipsis;
+    @include add-ellipsis;
     padding: 0;
     margin-top: -10px;
   }

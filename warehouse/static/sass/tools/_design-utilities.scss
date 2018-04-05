@@ -20,8 +20,8 @@
 
 @mixin link-focus {
   &:focus {
-    background-color: $highlight-color;
-    color: darken($highlight-color, 50);
+    outline: 1px solid $primary-color-light;
+    background-color: transparentize($primary-color-light, 0.9            );
     cursor: pointer;
   }
 }
@@ -78,4 +78,10 @@
       background-color: darken($background-color, 2);
     }
   }
+}
+
+@mixin add-ellipsis {
+  @include ellipsis;
+  padding-left: 1px;
+  padding-right: 1px;
 }
