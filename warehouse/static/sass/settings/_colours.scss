@@ -15,13 +15,13 @@
 // SETTINGS - COLOURS
 
 $primary-color:               #006dad;
-$highlight-color:             #ffd343;
+$primary-color-light:         lighten($primary-color, 45);
+$primary-color-dark:          darken($primary-color, 10);
 $success-color:               #148024;
 $warn-color:                  #ffdf76;
 $warn-text:                   #664e04;
 $danger-color:                #D52D40;
-$primary-color-light:         lighten($primary-color, 45);
-$primary-color-dark:          darken($primary-color, 10);
+$highlight-color:             #ffd343;
 
 $white:                       #fff;
 $black:                       #000;

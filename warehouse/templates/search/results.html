@@ -96,11 +96,20 @@
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
       <aside class="filter-panel -js-filter-panel">
-        <a class="filter-panel__close -js-close-panel">
+        <button type="button" class="filter-panel__close -js-close-panel">
           <i class="fa fa-close" aria-hidden="true"></i>
           <span class="sr-only">Close</span>
-        </a>
-        <h2 class="no-top-padding">Filter Projects</h2>
+        </button>
+        <h2 class="no-top-padding">
+          Filter by classifier
+          <a href="{{ request.route_path('help')}}#trove-classifier"
+             class="tooltipped tooltipped-s"
+             aria-label="What's a trove classifier?"
+             data-original-label="What's a trove classifier?">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+            <span class="sr-only">Classifier information<span>
+          </a>
+        </h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" value="{{ term }}">
         <input type="hidden" name="o" value="{{ order }}">
@@ -108,7 +117,7 @@
         {% set applied_filters_str = applied_filters|join(' ') %}
         {% for top_level, classifiers in available_filters %}
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
-            <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
+            <button type="button" class="accordion__link -js-accordion-trigger">By {{ top_level }}</button>
             <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
@@ -190,15 +199,15 @@
               <span class="sr-only">Filter</span>
             </span>
             <span class="filter-badge__description">{{ filter }}</span>
-            <a class="filter-badge__remove-button" href="#">
+            <button type="button" class="filter-badge__remove-button">
               <i class="fa fa-close" aria-hidden="true"></i>
               <span class="sr-only">Close</span>
-            </a>
+            </button>
           </div>
           {% endfor %}
         {% endif %}
           <span class="applied-filters__add-button">
-            <a class="-js-add-filter button button--small" href="#">Add Filter</a>
+            <button type="button" class="-js-add-filter button button--small">Add Filter</button>
           </span>
         </div>
 
