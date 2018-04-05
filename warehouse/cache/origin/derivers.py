@@ -28,9 +28,6 @@ def html_cache_deriver(view, info):
                     functools.partial(
                         cacher.cache,
                         sorted(['all-html', renderer.name]),
-                        seconds=1 * 24 * 60 * 60,                 # 1 day
-                        stale_while_revalidate=5 * 60,    # 5 minutes
-                        stale_if_error=1 * 24 * 60 * 60,  # 1 day
                     )
                 )
             return view(context, request)

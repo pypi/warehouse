@@ -55,8 +55,7 @@ def test_response_hook():
 
         @staticmethod
         @pretend.call_recorder
-        def cache(keys, request, response, seconds, stale_while_revalidate,
-                  stale_if_error):
+        def cache(keys, request, response):
             pass
 
     response = pretend.stub()
@@ -86,8 +85,5 @@ def test_response_hook():
             ['all-html', 'foo.html'],
             request,
             response,
-            seconds=86400,
-            stale_while_revalidate=300,
-            stale_if_error=86400,
         ),
     ]
