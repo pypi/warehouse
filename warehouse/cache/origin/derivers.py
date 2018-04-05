@@ -27,7 +27,7 @@ def html_cache_deriver(view, info):
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(['all-html', renderer.name]),
+                        ['all-html', renderer.name],
                     )
                 )
             return view(context, request)

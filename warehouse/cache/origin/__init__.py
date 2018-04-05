@@ -76,7 +76,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(context_keys + keys),
+                        context_keys + keys,
                         seconds=seconds,
                         stale_while_revalidate=stale_while_revalidate,
                         stale_if_error=stale_if_error,

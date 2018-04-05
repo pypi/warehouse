@@ -190,7 +190,7 @@ class TestOriginCache:
 
         assert cacher.cache.calls == [
             pretend.call(
-                sorted(["one", "two"] + ([] if keys is None else keys)),
+                ["one", "two"] + ([] if keys is None else keys),
                 request,
                 response,
                 seconds=seconds,
