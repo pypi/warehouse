@@ -57,6 +57,8 @@
     outline: none;
   }
 
+  @include link-focus;
+
   &--small {
     font-size: $small-font-size;
     height: 32px;

@@ -67,7 +67,7 @@
     <td class="table__action">
       {% if not email.verified or user.emails|length > 1 and not email.primary%}
       <div class="dropdown dropdown--with-icons dropdown--wide">
-        <button class="dropdown__trigger button button--primary">
+        <button type="button" class="dropdown__trigger button button--primary">
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
