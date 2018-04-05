@@ -45,6 +45,7 @@ class FastlyCache:
         self.api_key = api_key
         self.service_id = service_id
         self._purger = purger
+        self.keys = set()
 
     @classmethod
     def create_service(cls, context, request):
@@ -56,7 +57,9 @@ class FastlyCache:
 
     def cache(self, keys, request, response, *, seconds=None,
               stale_while_revalidate=None, stale_if_error=None):
-        response.headers["Surrogate-Key"] = " ".join(keys)
+
+        self.keys.update(keys)
+        response.headers["Surrogate-Key"] = " ".join(sorted(self.keys))
 
         values = []
 
