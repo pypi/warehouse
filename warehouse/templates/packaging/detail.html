@@ -148,6 +148,27 @@
         </div>
         {% endif %}
 
+        {% if release.github_repo_info_url %}
+        <div class="sidebar-section github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
+          <h3 class="sidebar-section__title">GitHub Statistics</h3>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <strong>Stars: </strong>
+            <span class="github-repo-info__item" data-key="stargazers_count"></span>
+          </p>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-code-fork" aria-hidden="true"></i>
+            <strong>Forks: </strong>
+            <span class="github-repo-info__item" data-key="forks"></span>
+          </p>
+          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>Open Issues: </strong>
+            <span class="github-repo-info__item" data-key="open_issues_count"></span>
+          </p>
+        </div>
+        {% endif %}
+
         {% if release.has_meta %}
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Meta</h3>

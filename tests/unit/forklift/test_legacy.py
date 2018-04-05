@@ -1096,6 +1096,22 @@ class TestFileUpload:
 
         assert "name" not in db_request.POST
 
+    def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "testing",
+            "summary": "I want to go to the \x00",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+        })
+
+        with pytest.raises(HTTPBadRequest):
+            legacy.file_upload(db_request)
+
+        assert "\x00" not in db_request.POST["summary"]
+
     @pytest.mark.parametrize(
         ("has_signature", "digests"),
         [
@@ -2746,16 +2762,24 @@ class TestFileUpload:
             resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
         else:
+            db_request.route_url = pretend.call_recorder(
+                lambda route, **kw: "/the/help/url/"
+            )
+
             with pytest.raises(HTTPBadRequest) as excinfo:
                 legacy.file_upload(db_request)
+
             resp = excinfo.value
+
+            assert db_request.route_url.calls == [
+                pretend.call('help', _anchor='verified-email')
+            ]
             assert resp.status_code == 400
             assert resp.status == (
                 ("400 User {!r} has no verified email "
                  "addresses, please verify at least one "
                  "address before registering a new project "
-                 "on PyPI. See "
-                 "https://pypi.org/help/#verified-email "
+                 "on PyPI. See /the/help/url/ "
                  "for more information.").format(user.username)
             )
 

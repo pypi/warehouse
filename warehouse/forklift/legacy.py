@@ -718,12 +718,20 @@ def file_upload(request):
             "Invalid or non-existent authentication information.",
         )
 
-    # distutils "helpfully" substitutes unknown, but "required" values with the
-    # string "UNKNOWN". This is basically never what anyone actually wants so
-    # we'll just go ahead and delete anything whose value is UNKNOWN.
+    # Do some cleanup of the various form fields
     for key in list(request.POST):
-        if str(request.POST.get(key)).strip() == "UNKNOWN":
-            del request.POST[key]
+        value = request.POST.get(key)
+        if isinstance(value, str):
+            # distutils "helpfully" substitutes unknown, but "required" values
+            # with the string "UNKNOWN". This is basically never what anyone
+            # actually wants so we'll just go ahead and delete anything whose
+            # value is UNKNOWN.
+            if value.strip() == "UNKNOWN":
+                del request.POST[key]
+
+            # Escape NUL characters, which psycopg doesn't like
+            if '\x00' in value:
+                request.POST[key] = value.replace('\x00', '\\x00')
 
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
@@ -823,11 +831,14 @@ def file_upload(request):
         if not any(email.verified for email in request.user.emails):
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("User {!r} has no verified email addresses, please verify "
-                 "at least one address before registering a new project on "
-                 "PyPI. See https://pypi.org/help/#verified-email "
-                 "for more information.")
-                .format(request.user.username),
+                ("User {!r} has no verified email addresses, "
+                 "please verify at least one address before registering "
+                 "a new project on PyPI. See {projecthelp} "
+                 "for more information.").format(
+                     request.user.username,
+                     projecthelp=request.route_url(
+                         'help', _anchor='verified-email'
+                     )),
             ) from None
 
         # Before we create the project, we're going to check our blacklist to
