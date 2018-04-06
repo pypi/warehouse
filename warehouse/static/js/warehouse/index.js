@@ -177,12 +177,12 @@ docReady(() => {
 docReady(() => {
   // browser warning for IE 10
   if (navigator.appVersion.includes("MSIE 10")) {
-    var warning_html = '<div class="notification-bar notification-bar--danger"><span class="notification-bar__icon"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i><span class="sr-only">Warning:</span></span><span class="notification-bar__message">You are using an unsupported browser, please upgrade to a newer version.</span></div>';
+    var warning_html = "<div class='notification-bar notification-bar--danger'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
-    var warning_div = document.createElement('div');
+    var warning_div = document.createElement("div");
     warning_div.innerHTML = warning_html;
 
-    var warning_section = document.getElementById('sticky-top');
+    var warning_section = document.getElementById("sticky-top");
     warning_section.appendChild(warning_div);
   }
 });
