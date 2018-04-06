@@ -46,7 +46,7 @@
       {% set testPyPI = true %}
     {% endif %}
 
-    <title>{% if testPyPI %}Test{% endif %}{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
+    <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock %}</title>
     <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
