@@ -43,24 +43,18 @@
     border: 0;
   }
 
-  &--maintainers {
-    @include clearfix;
+  &__maintainer {
     display: flex;
-    flex-wrap: wrap;
-
-    span {
-      margin: 0 0 5px 0;
-    }
-
-    h3 {
-      width: 100%
-    }
+    align-items: center;
 
     a {
-      margin: 0 5px 5px 0;
+      margin-bottom: 5px;
+      word-break: break-word;
     }
 
     img {
+      margin-right: 10px;
+
       @media only screen and (max-width: $desktop) {
         max-width: 40px;
         max-height: 40px;
