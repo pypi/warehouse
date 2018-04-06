@@ -28,7 +28,7 @@ request, e.g.::
 
     curl -XPURGE https://pypi.org/the/page/to/purge
 
-All HTML pages can be dropped from the cache by purging the `all-html`
+All HTML pages can be dropped from the cache by purging the ``all-html``
 surrogate key via our CDN provider.
 
 The entire cache can be purged by issuing a "Purge All" via our CDN provider.
