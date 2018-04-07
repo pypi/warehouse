@@ -10,9 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import shlex
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPSeeOther, HTTPBadRequest, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
 from pyramid.view import view_config
+from sqlalchemy import or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.email.ses.models import EmailMessage
@@ -26,28 +29,25 @@ from warehouse.utils.paginate import paginate_url_factory
     uses_session=True,
 )
 def email_list(request):
-    # q = request.params.get("q")
-    #
-    # try:
-    #     page_num = int(request.params.get("page", 1))
-    # except ValueError:
-    #     raise HTTPBadRequest("'page' must be an integer.") from None
-    page_num = 1
+    q = request.params.get("q")
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
 
     email_query = (
         request.db.query(EmailMessage)
                .order_by(EmailMessage.created.desc()))
 
-    # if q:
-    #     terms = shlex.split(q)
-    #
-    #     filters = []
-    #     for term in terms:
-    #         filters.append(
-    #             BlacklistedProject.name.ilike(func.normalize_pep426_name(term))
-    #         )
-    #
-    #     blacklist_query = blacklist_query.filter(or_(*filters))
+    if q:
+        terms = shlex.split(q)
+
+        filters = []
+        for term in terms:
+            filters.append(EmailMessage.to.ilike(term))
+
+        email_query = email_query.filter(or_(*filters))
 
     emails = SQLAlchemyORMPage(
         email_query,
@@ -56,7 +56,7 @@ def email_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"emails": emails}
+    return {"emails": emails, "query": q}
 
 
 @view_config(
