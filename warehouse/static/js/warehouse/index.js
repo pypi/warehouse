@@ -182,7 +182,7 @@ docReady(() => {
     var warning_div = document.createElement("div");
     warning_div.innerHTML = warning_html;
 
-    var warning_section = document.getElementById("sticky-top");
+    var warning_section = document.getElementById("stick-to-top");
     warning_section.appendChild(warning_div);
   }
 });
