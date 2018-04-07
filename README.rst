@@ -53,12 +53,12 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
-.. _Good First Issue: https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md
-.. _Visual Design Issue: https://github.com/pypa/warehouse/issues/new?template=visual-design.md
-.. _Trove Classifier Issue: https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md
+.. _`Good First Issue`: https://github.com/pypa/warehouse/issues/new?template=good-first-issue.md
+.. _`Visual Design Issue`: https://github.com/pypa/warehouse/issues/new?template=visual-design.md
+.. _`Trove Classifier Issue`: https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
 .. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
-.. _Running tests and linters section: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
+.. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: http://browserstack.com/
-.. _supported browsers: https://warehouse.readthedocs.io/development/frontend/#browser-support
-.. _PyPA Code of Conduct: https://www.pypa.io/en/latest/code-of-conduct/
+.. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
+.. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
