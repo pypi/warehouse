@@ -15,7 +15,6 @@ from pyramid.renderers import render
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import SMTPEmailSender, SESEmailSender
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -186,7 +185,10 @@ def send_added_as_collaborator_email(request, submitter, project_name, role,
 
 
 def includeme(config):
+    email_sending_class = config.maybe_dotted(
+        config.registry.settings["mail.backend"],
+    )
     config.register_service_factory(
-        SMTPEmailSender.create_service,
+        email_sending_class.create_service,
         IEmailSender,
     )
