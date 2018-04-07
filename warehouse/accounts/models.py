@@ -111,3 +111,8 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+    is_having_delivery_issues = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+    )

@@ -15,7 +15,7 @@ from pyramid.renderers import render
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import SMTPEmailSender
+from warehouse.email.services import SMTPEmailSender, SESEmailSender
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)

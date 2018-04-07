@@ -15,6 +15,7 @@ from pyramid_mailer.message import Message
 from zope.interface import implementer
 
 from warehouse.email.interfaces import IEmailSender
+from warehouse.email.ses.models import EmailMessage
 
 
 @implementer(IEmailSender)
@@ -37,3 +38,40 @@ class SMTPEmailSender:
             sender=self.sender,
         )
         self.mailer.send_immediately(message)
+
+
+@implementer(IEmailSender)
+class SESEmailSender:
+
+    def __init__(self, client, *, sender=None, db):
+        self._client = client
+        self._sender = sender
+        self._db = db
+
+    @classmethod
+    def create_service(cls, context, request):
+        aws_session = request.find_service(name="aws.session")
+        return cls(aws_session.client("ses", region_name="us-west-2"),
+                   sender=request.registry.settings.get("mail.sender"),
+                   db=request.db)
+
+    def send(self, subject, body, *, recipient):
+        resp = self._client.send_email(
+            Source=self._sender,
+            Destination={"ToAddresses": [recipient]},
+            Message={
+                "Subject": {"Data": subject, "Charset": "UTF-8"},
+                "Body": {
+                    "Text": {"Data": body, "Charset": "UTF-8"},
+                },
+            },
+        )
+
+        self._db.add(
+            EmailMessage(
+                message_id=resp["MessageId"],
+                from_=self._sender,
+                to=recipient,
+                subject=subject,
+            ),
+        )
