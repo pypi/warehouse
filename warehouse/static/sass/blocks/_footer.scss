@@ -81,7 +81,7 @@
           text-decoration: underline;
         }
 
-        @include link-focus
+        @include link-focus(underline);
       }
 
       h3 {
@@ -111,7 +111,7 @@
       color: $white;
       text-decoration: underline;
 
-      @include link-focus
+      @include link-focus(underline);
     }
   }
 }

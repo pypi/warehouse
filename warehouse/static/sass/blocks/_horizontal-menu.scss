@@ -51,7 +51,7 @@
         text-decoration-color: $transparent-white;
       }
 
-      @include link-focus
+      @include link-focus(underline);
     }
   }
 
