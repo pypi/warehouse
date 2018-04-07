@@ -2,7 +2,7 @@ Warehouse
 =========
 
 Warehouse is a next-generation Python Package Repository designed to
-replace the legacy code base that currently powers `PyPI`_ 
+replace the legacy code base that currently powers `PyPI`_
 (whose source code `lives on GitHub`_). See `our development roadmap`_.
 
 You can find more information in the `documentation`_.
@@ -33,12 +33,14 @@ You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
 Testing
 ----------
 
-Help on how to test your code can be found in the 
+Help on how to test your code can be found in the
 `running tests and linters section`_ in the documentation.
-For cross browser testing, we use an open source account from 
-`BrowserStack`_. If your pull request makes any change to the user 
+For cross browser testing, we use an open source account from
+`BrowserStack`_. If your pull request makes any change to the user
 interface, it will need to be tested to confirm it works in our
 `supported browsers`_.
+
+|BrowserStackImg|_
 
 Code of Conduct
 ---------------
@@ -61,4 +63,6 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: http://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
+.. |BrowserStackImg| image:: browserstack-logo.png
+.. _BrowserStackImg: http://browserstack.com/
 .. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
