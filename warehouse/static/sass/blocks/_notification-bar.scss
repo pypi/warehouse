@@ -76,7 +76,7 @@
       color: $white;
       text-decoration: underline;
 
-      @include link-focus
+      @include link-focus(underline);
     }
   }
 
