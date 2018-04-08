@@ -80,7 +80,7 @@ class MessageVerifier:
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
         cert_host = urllib.parse.urlparse(cert_url).netloc
-        if _signing_url_host_re.match(cert_host) is None:
+        if _signing_url_host_re.fullmatch(cert_host) is None:
             raise InvalidMessage("Invalid location for SigningCertURL")
 
         resp = self.http.get(cert_url)
