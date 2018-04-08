@@ -151,16 +151,16 @@
         {% if release.github_repo_info_url %}
         <div class="sidebar-section github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
           <h3 class="sidebar-section__title">GitHub Statistics</h3>
-          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener" target="_blank">
             <i class="fa fa-star" aria-hidden="true"></i>
             <strong>Stars: </strong>
             <span class="github-repo-info__item" data-key="stargazers_count"></span>
-          </p>
-          <p class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed">
+          </a>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener" target="_blank">
             <i class="fa fa-code-fork" aria-hidden="true"></i>
             <strong>Forks: </strong>
             <span class="github-repo-info__item" data-key="forks"></span>
-          </p>
+          </a>
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
             <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
             <strong>Open Issues: </strong>
