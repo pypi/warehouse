@@ -339,9 +339,6 @@ def configure(settings=None):
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)
 
-    # Register support for sendnging emails
-    config.include(".email")
-
     # Register support for internationalization and localization
     config.include(".i18n")
 
@@ -370,6 +367,9 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+
+    # Register support for sendnging emails
+    config.include(".email")
 
     # Register our authentication support.
     config.include(".accounts")
