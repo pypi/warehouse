@@ -16,6 +16,7 @@ from sqlalchemy import sql, orm
 from sqlalchemy import Column, Enum, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress
@@ -28,8 +29,8 @@ class EmailStatus:
 
     _machine = automat.MethodicalMachine()
 
-    def __init__(self, db_session):
-        self._db = db_session
+    def __init__(self, email_message):
+        self._email_message = email_message
 
     # States
 
@@ -68,45 +69,45 @@ class EmailStatus:
 
     # Inputs
     @_machine.input()
-    def deliver(self, email_address):
+    def deliver(self):
         """
         We have received an event stating that the email has been delivered.
         """
 
     @_machine.input()
-    def bounce(self, email_address):
+    def bounce(self):
         """
         Emails can bounce!
         """
 
     @_machine.input()
-    def soft_bounce(self, email_address):
+    def soft_bounce(self):
         """
         Emails can bounce, but only transiently so.
         """
 
     @_machine.input()
-    def complain(self, email_address):
+    def complain(self):
         """
         A recipient can complain about our emaill :(
         """
 
     # Outputs
     @_machine.output()
-    def _flag_email(self, email_address):
-        self._unverify_email(self._get_email(email_address))
+    def _flag_email(self):
+        self._unverify_email(self._get_email())
 
     @_machine.output()
-    def _incr_transient_bounce(self, email_address):
-        email = self._get_email(email_address)
+    def _incr_transient_bounce(self):
+        email = self._get_email()
         email.transient_bounces += 1
 
         if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
             self._unverify_email(email)
 
     @_machine.output()
-    def _reset_transient_bounce(self, email_address):
-        email = self._get_email(email_address)
+    def _reset_transient_bounce(self):
+        email = self._get_email()
         email.transient_bounces = 0
 
     # Transitions
@@ -130,24 +131,29 @@ class EmailStatus:
     # Serialization / Deserialization
 
     @_machine.serializer()
-    def save(self, state):
+    def _save(self, state):
         return state
 
     @_machine.unserializer()
     def _restore(self, state):
         return state
 
+    def save(self):
+        self._email_message.status = self._save()
+        return self._email_message
+
     @classmethod
-    def load(cls, db_session, state):
-        self = cls(db_session)
-        self._restore(state)
+    def load(cls, email_message):
+        self = cls(email_message)
+        self._restore(email_message.status)
         return self
 
     # Helper methods
-    def _get_email(self, email_address):
-        return (self._db.query(EmailAddress)
-                        .filter(EmailAddress.email == email_address)
-                        .one())
+    def _get_email(self):
+        db = object_session(self._email_message)
+        return (db.query(EmailAddress)
+                  .filter(EmailAddress.email == self._email_message.to)
+                  .one())
 
     def _unverify_email(self, email):
         # Unverify the email, and mark why

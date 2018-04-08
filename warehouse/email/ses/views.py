@@ -98,19 +98,19 @@ def notification(request):
 
     # Load our state machine from the status in the database, process any
     # transition we have from this event, and then save the result.
-    machine = EmailStatus.load(request.db, email.status)
+    machine = EmailStatus.load(email)
     if message["notificationType"] == "Delivery":
-        machine.deliver(email.to)
+        machine.deliver()
     elif (message["notificationType"] == "Bounce" and
             message["bounce"]["bounceType"] == "Permanent"):
-        machine.bounce(email.to)
+        machine.bounce()
     elif message["notificationType"] == "Bounce":
-        machine.soft_bounce(email.to)
+        machine.soft_bounce()
     elif message["notificationType"] == "Complaint":
-        machine.complain(email.to)
+        machine.complain()
     else:
         raise HTTPBadRequest("Unknown notificationType")
-    email.status = machine.save()
+    email = machine.save()
 
     # Save our event to the database.
     request.db.add(
