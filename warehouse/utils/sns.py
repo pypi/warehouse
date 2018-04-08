@@ -45,9 +45,9 @@ class MessageVerifier:
         if message.get("SignatureVersion") != "1":
             raise InvalidMessage("Unknown SignatureVersion")
 
-        self._validate_topic(message["TopicArn"])
-        self._validate_timestamp(message["Timestamp"])
         self._validate_signature(message)
+        self._validate_timestamp(message["Timestamp"])
+        self._validate_topic(message["TopicArn"])
 
     def _validate_topic(self, topic):
         comparer = functools.partial(hmac.compare_digest, topic)
