@@ -12,8 +12,6 @@
 
 import base64
 import datetime
-import functools
-import hmac
 import re
 import urllib.parse
 
@@ -50,8 +48,7 @@ class MessageVerifier:
         self._validate_topic(message["TopicArn"])
 
     def _validate_topic(self, topic):
-        comparer = functools.partial(hmac.compare_digest, topic)
-        if not all(map(comparer, self.topics)):
+        if topic not in self.topics:
             raise InvalidMessage("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
