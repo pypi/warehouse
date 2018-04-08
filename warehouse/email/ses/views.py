@@ -19,6 +19,19 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 
 from warehouse.email.ses.models import EmailMessage, EmailStatus, Event
+from warehouse.utils import sns
+
+
+def _verify_sns_message(request, message):
+    verifier = sns.MessageVerifier(
+        topics=[request.registry.settings["mail.topic"]],
+        session=request.http,
+    )
+
+    try:
+        verifier.verify(message)
+    except sns.InvalidMessage as exc:
+        raise HTTPBadRequest(str(exc)) from None
 
 
 @view_config(
@@ -33,6 +46,8 @@ def confirm_subscription(request):
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "SubscriptionConfirmation":
         raise HTTPBadRequest("Expected Type of SubscriptionConfirmation")
+
+    _verify_sns_message(request, data)
 
     aws_session = request.find_service(name="aws.session")
     sns_client = aws_session.client(
@@ -61,6 +76,8 @@ def notification(request):
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "Notification":
         raise HTTPBadRequest("Expected Type of Notification")
+
+    _verify_sns_message(request, data)
 
     event_exists = (
         request.db.query(exists().where(Event.event_id == data["MessageId"]))
