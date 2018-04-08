@@ -13,11 +13,8 @@
 import automat
 
 from sqlalchemy import sql, orm
-from sqlalchemy import (
-    CheckConstraint, Column, Enum, ForeignKey, ForeignKeyConstraint, Index,
-    Boolean, DateTime, Integer, Float, Table, Text,
-)
-from sqlalchemy.dialects.postgresql import HSTORE, INET, JSONB, UUID
+from sqlalchemy import Column, Enum, ForeignKey, DateTime, Text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 
 from warehouse import db
