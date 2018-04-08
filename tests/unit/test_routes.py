@@ -242,6 +242,7 @@ def test_routes(warehouse):
             "packaging.file",
             "https://files.example.com/packages/{path}",
         ),
+        pretend.call("ses.hook", "/_/ses-hook/", domain=warehouse),
         pretend.call("rss.updates", "/rss/updates.xml", domain=warehouse),
         pretend.call("rss.packages", "/rss/packages.xml", domain=warehouse),
         pretend.call("legacy.api.simple.index", "/simple/", domain=warehouse),

@@ -116,6 +116,12 @@ def test_includeme():
             "/admin/blacklist/remove/",
             domain=warehouse,
         ),
+        pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
+        pretend.call(
+            "admin.emails.detail",
+            "/admin/emails/{email_id}/",
+            domain=warehouse,
+        ),
         pretend.call(
             "admin.flags",
             "/admin/flags/",
