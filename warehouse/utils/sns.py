@@ -67,7 +67,6 @@ class MessageVerifier:
             raise InvalidMessage("Message has expired")
 
     def _validate_signature(self, message):
-
         pubkey = self._get_pubkey(message["SigningCertURL"])
         signature = self._get_signature(message)
         data = self._get_data_to_sign(message)
@@ -81,7 +80,7 @@ class MessageVerifier:
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
         cert_host = urllib.parse.urlparse(cert_url).netloc
-        if _signing_url_host_re.search(cert_host) is None:
+        if _signing_url_host_re.match(cert_host) is None:
             raise InvalidMessage("Invalid location for SigningCertURL")
 
         resp = self.http.get(cert_url)
