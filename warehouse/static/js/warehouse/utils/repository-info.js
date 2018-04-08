@@ -32,8 +32,12 @@ export default () => {
       const items = document.querySelectorAll(".github-repo-info__item");
       items.forEach(function(elem) {
         const jsonKey = elem.dataset.key;
-        const jsonValue = json[jsonKey];
+        let jsonValue = json[jsonKey];
         if(jsonValue !== undefined){
+          const supplement = elem.dataset.supplement;
+          if (supplement !== undefined) {
+            jsonValue += supplement;
+          }
           const attr = elem.dataset.attr;
           if (attr !== undefined) {
             elem[attr] = jsonValue;
