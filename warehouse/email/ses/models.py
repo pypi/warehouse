@@ -24,6 +24,9 @@ from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress
 
 
+MAX_TRANSIENT_BOUNCES = 5
+
+
 class EmailStatus:
 
     _machine = automat.MethodicalMachine()
@@ -94,22 +97,30 @@ class EmailStatus:
     # Outputs
     @_machine.output()
     def _flag_email(self, email_address):
-        # First we need to locate the EmailAddress that we're operating on
-        email = (
-            self._db.query(EmailAddress)
-                    .filter(EmailAddress.email == email_address)
-                    .one())
+        self._unverify_email(self._get_email(email_address))
 
-        # Then we need to unverify it, and mark why.
-        email.verified = False
-        email.is_having_delivery_issues = True
+    @_machine.output()
+    def _incr_transient_bounce(self, email_address):
+        email = self._get_email(email_address)
+        email.transient_bounces += 1
+
+        if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
+            self._unverify_email(email_address)
+
+    @_machine.output()
+    def _reset_transient_bounce(self, email_address):
+        email = self._get_email(email_address)
+        email.transient_bounces = 0
 
     # Transitions
 
-    accepted.upon(deliver, enter=delivered, outputs=[])
+    accepted.upon(deliver, enter=delivered, outputs=[_reset_transient_bounce],
+                  collector=lambda iterable: list(iterable)[-1])
     accepted.upon(bounce, enter=bounced, outputs=[_flag_email],
                   collector=lambda iterable: list(iterable)[-1])
-    accepted.upon(soft_bounce, enter=soft_bounced, outputs=[])
+    accepted.upon(soft_bounce, enter=soft_bounced,
+                  outputs=[_incr_transient_bounce],
+                  collector=lambda iterable: list(iterable)[-1])
 
     # This is an OOTO response, it's techincally a bounce, but we don't
     # really want to treat this as a bounce. We'll record the event
@@ -133,6 +144,17 @@ class EmailStatus:
         self = cls(db_session)
         self._restore(state)
         return self
+
+    # Helper methods
+    def _get_email(self, email_address):
+        return (self._db.query(EmailAddress)
+                        .filter(EmailAddress.email == email_address)
+                        .one())
+
+    def _unverify_email(self, email):
+        # Unverify the email, and mark why
+        email.verified = False
+        email.is_having_delivery_issues = True
 
 
 class EmailMessage(db.Model):

@@ -408,6 +408,8 @@ def verify_email(request):
 
     email.verified = True
     email.is_having_delivery_issues = False
+    email.transient_bounces = 0
+
     request.user.is_active = True
 
     request.session.flash(

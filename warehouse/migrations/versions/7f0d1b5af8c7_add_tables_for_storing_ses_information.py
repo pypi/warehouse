@@ -121,8 +121,19 @@ def upgrade():
         ),
     )
 
+    op.add_column(
+        "accounts_email",
+        sa.Column(
+            "transient_bounces",
+            sa.Integer(),
+            server_default=sa.text("0"),
+            nullable=False,
+        ),
+    )
+
 
 def downgrade():
+    op.drop_column("accounts_email", "transient_bounces")
     op.drop_column("accounts_email", "is_having_delivery_issues")
     op.drop_index(op.f("ix_ses_events_event_id"), table_name="ses_events")
     op.drop_table("ses_events")
