@@ -31,6 +31,9 @@
     display: block;
     text-decoration: none;
     cursor: pointer;
+    border: 0;
+    background-color: transparent;
+    color: $primary-color;
 
     &:hover {
       text-decoration: none;
@@ -41,6 +44,11 @@
       content: "\f139";
       margin-right: $spacing-unit / 2;
     }
+
+    @media only screen and (max-width: $desktop) {
+      color: $white;
+    }
+
   }
 
   &__content {
