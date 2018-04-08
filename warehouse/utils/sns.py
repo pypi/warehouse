@@ -95,7 +95,7 @@ class MessageVerifier:
 
     def _get_data_to_sign(self, message):
         if message["Type"] == "Notification":
-            parts = self._get_parts_to_sign_notiifcation(message)
+            parts = self._get_parts_to_sign_notification(message)
         elif (message["Type"] in
                 {"SubscriptionConfirmation", "UnsubscribeConfirmation"}):
             parts = self._get_parts_to_sign_subscription(message)
@@ -104,7 +104,7 @@ class MessageVerifier:
 
         return ("\n".join(parts) + "\n").encode("utf8")
 
-    def _get_parts_to_sign_notiifcation(self, message):
+    def _get_parts_to_sign_notification(self, message):
         parts = [
             "Message", message["Message"],
             "MessageId", message["MessageId"],
