@@ -79,7 +79,11 @@ class MessageVerifier:
     def _get_pubkey(self, cert_url):
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
-        cert_host = urllib.parse.urlparse(cert_url).netloc
+        cert_url_p = urllib.parse.urlparse(cert_url)
+        cert_scheme = cert_url_p.scheme
+        cert_host = cert_url_p.netloc
+        if cert_scheme != "https":
+            raise InvalidMessage("Invalid scheme for SigningCertURL")
         if _signing_url_host_re.fullmatch(cert_host) is None:
             raise InvalidMessage("Invalid location for SigningCertURL")
 
