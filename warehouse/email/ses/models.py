@@ -102,7 +102,7 @@ class EmailStatus:
         email.transient_bounces += 1
 
         if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
-            self._unverify_email(email_address)
+            self._unverify_email(email)
 
     @_machine.output()
     def _reset_transient_bounce(self, email_address):
@@ -113,7 +113,8 @@ class EmailStatus:
 
     accepted.upon(deliver, enter=delivered, outputs=[_reset_transient_bounce],
                   collector=lambda iterable: list(iterable)[-1])
-    accepted.upon(bounce, enter=bounced, outputs=[_flag_email],
+    accepted.upon(bounce, enter=bounced,
+                  outputs=[_reset_transient_bounce, _flag_email],
                   collector=lambda iterable: list(iterable)[-1])
     accepted.upon(soft_bounce, enter=soft_bounced,
                   outputs=[_incr_transient_bounce],

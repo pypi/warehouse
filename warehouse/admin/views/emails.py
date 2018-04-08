@@ -38,7 +38,8 @@ def email_list(request):
 
     email_query = (
         request.db.query(EmailMessage)
-               .order_by(EmailMessage.created.desc()))
+               .order_by(EmailMessage.created.desc(),
+                         EmailMessage.id))
 
     if q:
         terms = shlex.split(q)

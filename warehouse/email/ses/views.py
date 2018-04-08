@@ -94,7 +94,7 @@ def notification(request):
                       .filter(EmailMessage.message_id == message_id)
                       .one())
     except NoResultFound:
-        raise None  # 404?
+        raise HTTPBadRequest("Unknown messageId")
 
     # Load our state machine from the status in the database, process any
     # transition we have from this event, and then save the result.
@@ -108,6 +108,8 @@ def notification(request):
         machine.soft_bounce(email.to)
     elif message["notificationType"] == "Complaint":
         machine.complain(email.to)
+    else:
+        raise HTTPBadRequest("Unknown notificationType")
     email.status = machine.save()
 
     # Save our event to the database.
