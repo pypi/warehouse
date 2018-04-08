@@ -51,9 +51,14 @@ class SESEmailSender:
     @classmethod
     def create_service(cls, context, request):
         aws_session = request.find_service(name="aws.session")
-        return cls(aws_session.client("ses", region_name="us-west-2"),
-                   sender=request.registry.settings.get("mail.sender"),
-                   db=request.db)
+        return cls(
+            aws_session.client(
+                "ses",
+                region_name=request.registry.settings.get("mail.region"),
+            ),
+            sender=request.registry.settings.get("mail.sender"),
+            db=request.db,
+        )
 
     def send(self, subject, body, *, recipient):
         resp = self._client.send_email(

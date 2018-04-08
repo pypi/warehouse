@@ -12,6 +12,7 @@
 
 import json
 
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
@@ -31,9 +32,14 @@ def confirm_subscription(request):
 
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "SubscriptionConfirmation":
-        raise None  # 400 Error pls
+        raise HTTPBadRequest("Expected Type of SubscriptionConfirmation")
 
-    sns_client = request.find_service(name="aws.session").client("sns", region_name="us-west-2")
+    aws_session = request.find_service(name="aws.session")
+    sns_client = aws_session.client(
+        "sns",
+        region_name=request.registry.settings.get("mail.region"),
+    )
+
     sns_client.confirm_subscription(
         TopicArn=data["TopicArn"],
         Token=data["Token"],
@@ -52,11 +58,9 @@ def confirm_subscription(request):
 def notification(request):
     data = request.json_body
 
-    print(data)
-
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "Notification":
-        raise None  # 400 Error pls
+        raise HTTPBadRequest("Expected Type of Notification")
 
     event_exists = (
         request.db.query(exists().where(Event.event_id == data["MessageId"]))
