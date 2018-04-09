@@ -102,7 +102,7 @@
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>
     {% else %}
-      <p class="package-description__summary">No project description provided.</p>
+      <p class="package-description__summary">No project description provided</p>
     {% endif %}
     {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
     {% endcsi %}
@@ -216,7 +216,7 @@
 
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Statistics</h3>
-          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a>.</p>
+          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
         </div>
 
         {% if release.classifiers %}
@@ -264,7 +264,7 @@
           </div>
           {% else %}
           <div class="callout-block">
-            <p>The author of this package has not provided a project description.</p>
+            <p>The author of this package has not provided a project description</p>
           </div>
           {% endif %}
         </div>

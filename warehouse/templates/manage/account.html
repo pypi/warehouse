@@ -150,7 +150,7 @@
       <label class="form-group__label" for="name">Full Name</label>
       {{ save_account_form.name(placeholder="No name set", class_="form-group__input") }}
       {{ field_errors(save_account_form.name) }}
-      <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a>.</p>
+      <p class="form-group__help-text">Displayed on your <a href="{{ request.route_path('accounts.profile', username=user.username) }}">public profile</a></p>
     </div>
     <input value="Update Account" class="button button--primary" type="submit">
   </form>
@@ -280,7 +280,7 @@
     <h3>Proceed with caution!</h3>
     <p>
       <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
-      You will not be able to recover your account after you delete it.
+      You will not be able to recover your account after you delete it
     </p>
     {{ confirm_button("Delete your PyPI Account", "Username", user.username) }}
     {% endif %}

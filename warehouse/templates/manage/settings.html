@@ -42,13 +42,13 @@
       <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}">
         {{ project.releases|length() }}
         {% trans count=project.releases|length %}
-          release.
+          release
         {% pluralize %}
-          releases.
+          releases
         {% endtrans %}
       </a>
     {% else %}
-      Deleting will irreversibly delete this project.
+      Deleting will irreversibly delete this project
     {% endif %}
     </p>
     {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
