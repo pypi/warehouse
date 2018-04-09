@@ -130,7 +130,7 @@
     {% endfor %}
 
     <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">Donate today!</a></span>
+      <span class="notification-bar__message">Help us improve Python packaging - <a href="https://donate.pypi.org">donate today!</a></span>
     </div>
 
     <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
@@ -147,7 +147,7 @@
             <form class="search-form search-form--primary" action="{{ request.route_path('search') }}">
               <div role="search">
                 <label for="search" class="sr-only">Search PyPI</label>
-                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+                <input id="search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
                 {% block search_form_extra_inputs %}{% endblock %}
                 <button type="submit" class="search-form__button">
                   <i class="fa fa-search" aria-hidden="true"></i>
@@ -169,7 +169,7 @@
       <form class="search-form search-form--fullwidth" action="{{ request.route_path('search') }}">
         <div role="search">
           <label for="mobile-search" class="sr-only">Search PyPI</label>
-          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search Projects" value="{{ term }}">
+          <input id="mobile-search" class="search-form__search" type="text" name="q" placeholder="Search projects" value="{{ term }}">
           {{ self.search_form_extra_inputs() }}
           <button type="submit" class="search-form__button">
             <i class="fa fa-search" aria-hidden="true"></i>
@@ -196,9 +196,9 @@
           <li>
             <h3>Get Help</h3>
           </li>
-          <li><a href="https://packaging.python.org/installing/">Installing Packages</a></li>
-          <li><a href="https://packaging.python.org/distributing/">Uploading Packages</a></li>
-          <li><a href="https://packaging.python.org/">User Guide</a></li>
+          <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
+          <li><a href="https://packaging.python.org/distributing/">Uploading packages</a></li>
+          <li><a href="https://packaging.python.org/">User guide</a></li>
           <li><a href="{{ request.route_path('help')}}">FAQs</a></li>
         </ul>
         <ul class="footer__menu">
@@ -209,7 +209,7 @@
           <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
           {% endif %}
           <li><a href="https://www.python.org/dev/peps/pep-0541/">Package Index Name Retention</a></li>
-          <li><a href="{{ request.route_path('sponsors') }}">Our Sponsors</a></li>
+          <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
         </ul>
 
 
@@ -217,19 +217,19 @@
           <li>
             <h3>Contributing to PyPI</h3>
           </li>
-          <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; Feedback</a></li>
-          <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development Roadmap</a></li>
+          <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; feedback</a></li>
+          <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
-          <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development Credits</a></li>
+          <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development credits</a></li>
         </ul>
         <ul class="footer__menu">
           <li>
             <h3>Using PyPI</h3>
           </li>
-          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of Conduct</a></li>
-          <li><a href="{{ request.route_path('security') }}">Security Policy</a></li>
-          <li><a href="https://www.python.org/privacy/">Privacy Policy</a></li>
-          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of Use</a></li>
+          <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of conduct</a></li>
+          <li><a href="{{ request.route_path('security') }}">Security policy</a></li>
+          <li><a href="https://www.python.org/privacy/">Privacy policy</a></li>
+          <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
         </ul>
       </div>
 
@@ -239,9 +239,9 @@
         <p>
           Developed and maintained by the Python community, for the Python community.
           <br>
-          <a href="https://donate.pypi.org">Donate Today!</a>
+          <a href="https://donate.pypi.org">Donate today!</a>
         </p>
-        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation.</p>
+        <p>© {{ now()|format_date('yyyy') }} Python Software Foundation</p>
       </div>
     </footer>
 

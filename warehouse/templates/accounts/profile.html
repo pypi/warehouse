@@ -47,12 +47,12 @@
       <h2>
         {% if projects %}
           {% trans count=projects|length %}
-            {{ count }} Project
+            {{ count }} project
           {% pluralize %}
-            {{ count }} Projects
+            {{ count }} projects
           {% endtrans %}
         {% else %}
-          No Projects
+          No projects
         {% endif %}
       </h2>
       <div class="package-list">

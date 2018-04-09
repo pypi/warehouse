@@ -50,7 +50,7 @@
 
     <form class="search-form search-form--large search-form--fullwidth" action="{{ request.route_path('search') }}">
       <label for="search" class="sr-only">Search PyPI</label>
-      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search Projects">
+      <input id="search" class="search-form__search large-input" type="text" name="q" placeholder="Search projects">
       <button type="submit" class="search-form__button">
         <i class="fa fa-search" aria-hidden="true"></i>
         <span class="sr-only">Search</span>
@@ -63,10 +63,10 @@
 
 <section class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">
   <div class="statistics-bar">
-    <p class="statistics-bar__statistic">{{ num_projects|format_number }} Projects</p>
-    <p class="statistics-bar__statistic">{{ num_releases|format_number }} Releases</p>
-    <p class="statistics-bar__statistic">{{ num_files|format_number }} Files</p>
-    <p class="statistics-bar__statistic">{{ num_users|format_number }} Users</p>
+    <p class="statistics-bar__statistic">{{ num_projects|format_number }} projects</p>
+    <p class="statistics-bar__statistic">{{ num_releases|format_number }} releases</p>
+    <p class="statistics-bar__statistic">{{ num_files|format_number }} files</p>
+    <p class="statistics-bar__statistic">{{ num_users|format_number }} users</p>
   </div>
 </section>
 
@@ -93,7 +93,7 @@
   <div class="site-container">
     <div class="col-half">
       <div class="heading-wsubtitle">
-        <h2 class="heading-wsubtitle__heading">Trending Projects</h2>
+        <h2 class="heading-wsubtitle__heading">Trending projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
       </div>
       <div class="package-list">
@@ -102,12 +102,12 @@
         {% endfor %}
       </div>
       {#
-      <a class="button" href="TODO">Show More</a>
+      <a class="button" href="TODO">Show more</a>
       #}
     </div>
     <div class="col-half">
       <div class="heading-wsubtitle">
-        <h2 class="heading-wsubtitle__heading">New Releases</h2>
+        <h2 class="heading-wsubtitle__heading">New releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
       </div>
       <div class="package-list">
@@ -116,7 +116,7 @@
         {% endfor %}
       </div>
       {#
-      <a class="button" href="TODO">Show More</a>
+      <a class="button" href="TODO">Show more</a>
       #}
     </div>
   </div>
