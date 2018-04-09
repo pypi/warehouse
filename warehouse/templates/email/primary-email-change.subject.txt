@@ -1,1 +1,1 @@
-PyPI Primary Email Change Notification
+PyPI primary email change notification
