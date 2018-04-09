@@ -34,6 +34,8 @@ class TestEmailStatus:
         status.deliver()
 
         assert status.save().status == "Delivered"
+        assert not email.is_having_delivery_issues
+        assert not email.spam_complaint
 
     def test_delivery_resets_transient_bounces(self, db_session):
         email = EmailFactory.create(transient_bounces=3)
@@ -66,6 +68,7 @@ class TestEmailStatus:
         assert email.transient_bounces == MAX_TRANSIENT_BOUNCES + 1
         assert not email.verified
         assert email.is_having_delivery_issues
+        assert not email.spam_complaint
 
     def test_soft_bounce_after_delivery_does_nothing(self, db_session):
         email = EmailFactory.create(transient_bounces=3)
@@ -88,6 +91,7 @@ class TestEmailStatus:
         assert status.save().status == "Bounced"
         assert not email.verified
         assert email.is_having_delivery_issues
+        assert not email.spam_complaint
 
     def test_hard_bounce_resets_transient_bounces(self, db_session):
         email = EmailFactory.create(transient_bounces=3)
@@ -108,7 +112,8 @@ class TestEmailStatus:
 
         assert status.save().status == "Complained"
         assert not email.verified
-        assert email.is_having_delivery_issues
+        assert not email.is_having_delivery_issues
+        assert email.spam_complaint
 
     def test_complain_resets_transient_bounces(self, db_session):
         email = EmailFactory.create(transient_bounces=3)

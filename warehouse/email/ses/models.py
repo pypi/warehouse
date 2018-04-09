@@ -94,8 +94,14 @@ class EmailStatus:
 
     # Outputs
     @_machine.output()
-    def _flag_email(self):
-        self._unverify_email(self._get_email())
+    def _handle_bounce(self):
+        self._unverify_for_delivery_failure(self._get_email())
+
+    @_machine.output()
+    def _handle_complaint(self):
+        email = self._get_email()
+        email.verified = False
+        email.spam_complaint = True
 
     @_machine.output()
     def _incr_transient_bounce(self):
@@ -103,7 +109,7 @@ class EmailStatus:
         email.transient_bounces += 1
 
         if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
-            self._unverify_email(email)
+            self._unverify_for_delivery_failure(email)
 
     @_machine.output()
     def _reset_transient_bounce(self):
@@ -115,7 +121,7 @@ class EmailStatus:
     accepted.upon(deliver, enter=delivered, outputs=[_reset_transient_bounce],
                   collector=lambda iterable: list(iterable)[-1])
     accepted.upon(bounce, enter=bounced,
-                  outputs=[_reset_transient_bounce, _flag_email],
+                  outputs=[_reset_transient_bounce, _handle_bounce],
                   collector=lambda iterable: list(iterable)[-1])
     accepted.upon(soft_bounce, enter=soft_bounced,
                   outputs=[_incr_transient_bounce],
@@ -125,7 +131,7 @@ class EmailStatus:
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
-    delivered.upon(complain, enter=complained, outputs=[_flag_email],
+    delivered.upon(complain, enter=complained, outputs=[_handle_complaint],
                    collector=lambda iterable: list(iterable)[-1])
 
     # Serialization / Deserialization
@@ -155,7 +161,7 @@ class EmailStatus:
                   .filter(EmailAddress.email == self._email_message.to)
                   .one())
 
-    def _unverify_email(self, email):
+    def _unverify_for_delivery_failure(self, email):
         # Unverify the email, and mark why
         email.verified = False
         email.is_having_delivery_issues = True

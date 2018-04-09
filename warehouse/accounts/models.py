@@ -113,6 +113,11 @@ class Email(db.ModelBase):
     verified = Column(Boolean, nullable=False)
 
     # Deliverability information
+    spam_complaint = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+    )
     is_having_delivery_issues = Column(
         Boolean,
         nullable=False,

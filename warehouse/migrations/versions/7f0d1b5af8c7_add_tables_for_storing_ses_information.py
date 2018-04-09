@@ -114,6 +114,16 @@ def upgrade():
     op.add_column(
         "accounts_email",
         sa.Column(
+            "spam_complaint",
+            sa.Boolean(),
+            server_default=sa.false(),
+            nullable=False,
+        ),
+    )
+
+    op.add_column(
+        "accounts_email",
+        sa.Column(
             "is_having_delivery_issues",
             sa.Boolean(),
             server_default=sa.false(),
@@ -135,6 +145,7 @@ def upgrade():
 def downgrade():
     op.drop_column("accounts_email", "transient_bounces")
     op.drop_column("accounts_email", "is_having_delivery_issues")
+    op.drop_column("accounts_email", "spam_complaint")
     op.drop_index(op.f("ix_ses_events_event_id"), table_name="ses_events")
     op.drop_table("ses_events")
     op.drop_index(op.f("ix_ses_emails_message_id"), table_name="ses_emails")
