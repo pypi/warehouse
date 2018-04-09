@@ -18,7 +18,9 @@ import xmlrpc.server
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
-from pyramid_rpc.xmlrpc import exception_view as _exception_view, xmlrpc_method
+from pyramid_rpc.xmlrpc import (
+    exception_view as _exception_view, xmlrpc_method as _xmlrpc_method
+)
 from sqlalchemy import func, orm, select
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -28,15 +30,29 @@ from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
-pypi_xmlrpc = functools.partial(
-    xmlrpc_method,
-    endpoint="pypi",
+_xmlrpc_method_partial = functools.partial(
+    _xmlrpc_method,
     require_csrf=False,
     require_methods=["POST"],
 )
 
-pypi_xmlrpc_cache_by_project = functools.partial(
-    pypi_xmlrpc,
+
+def xmlrpc_method(**kwargs):
+    """
+    Support multiple endpoints serving the same views by chaining calls to
+    xmlrpc_method
+    """
+
+    def decorator(f):
+        rpc2 = _xmlrpc_method_partial(endpoint='RPC2', **kwargs)
+        pypi = _xmlrpc_method_partial(endpoint='pypi', **kwargs)
+        return rpc2(pypi(f))
+
+    return decorator
+
+
+xmlrpc_cache_by_project = functools.partial(
+    xmlrpc_method,
     xmlrpc_cache=True,
     xmlrpc_cache_expires=3600,
     xmlrpc_cache_tag='project/%s',
@@ -63,7 +79,7 @@ def exception_view(exc, request):
     return _exception_view(exc, request)
 
 
-@pypi_xmlrpc(method="search")
+@xmlrpc_method(method="search")
 def search(request, spec, operator="and"):
     if not isinstance(spec, collections.abc.Mapping):
         raise XMLRPCWrappedError(
@@ -111,19 +127,19 @@ def search(request, spec, operator="and"):
     ]
 
 
-@pypi_xmlrpc(method="list_packages")
+@xmlrpc_method(method="list_packages")
 def list_packages(request):
     names = request.db.query(Project.name).order_by(Project.name).all()
     return [n[0] for n in names]
 
 
-@pypi_xmlrpc(method="list_packages_with_serial")
+@xmlrpc_method(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
     return dict((serial[0], serial[1]) for serial in serials)
 
 
-@pypi_xmlrpc(method="package_hosting_mode")
+@xmlrpc_method(method="package_hosting_mode")
 def package_hosting_mode(request, package_name):
     try:
         project = (
@@ -138,7 +154,7 @@ def package_hosting_mode(request, package_name):
         return project.hosting_mode
 
 
-@pypi_xmlrpc(method="user_packages")
+@xmlrpc_method(method="user_packages")
 def user_packages(request, username):
     roles = (
         request.db.query(Role)
@@ -150,14 +166,14 @@ def user_packages(request, username):
     return [(r.role_name, r.project.name) for r in roles]
 
 
-@pypi_xmlrpc(method="top_packages")
+@xmlrpc_method(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
         RuntimeError("This API has been removed. Please Use BigQuery instead.")
     )
 
 
-@pypi_xmlrpc_cache_by_project(method="package_releases")
+@xmlrpc_cache_by_project(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
@@ -174,7 +190,7 @@ def package_releases(request, package_name, show_hidden=False):
     return [v[0] for v in versions]
 
 
-@pypi_xmlrpc(method="package_data")
+@xmlrpc_method(method="package_data")
 def package_data(request, package_name, version):
     settings = request.registry.settings
     domain = settings.get("warehouse.domain", request.domain)
@@ -188,7 +204,7 @@ def package_data(request, package_name, version):
     )
 
 
-@pypi_xmlrpc_cache_by_project(method="release_data")
+@xmlrpc_cache_by_project(method="release_data")
 def release_data(request, package_name, version):
     try:
         release = (
@@ -249,7 +265,7 @@ def release_data(request, package_name, version):
     }
 
 
-@pypi_xmlrpc(method="package_urls")
+@xmlrpc_method(method="package_urls")
 def package_urls(request, package_name, version):
     settings = request.registry.settings
     domain = settings.get("warehouse.domain", request.domain)
@@ -263,7 +279,7 @@ def package_urls(request, package_name, version):
     )
 
 
-@pypi_xmlrpc_cache_by_project(method="release_urls")
+@xmlrpc_cache_by_project(method="release_urls")
 def release_urls(request, package_name, version):
     files = (
         request.db.query(File)
@@ -297,7 +313,7 @@ def release_urls(request, package_name, version):
     ]
 
 
-@pypi_xmlrpc_cache_by_project(method="package_roles")
+@xmlrpc_cache_by_project(method="package_roles")
 def package_roles(request, package_name):
     roles = (
         request.db.query(Role)
@@ -310,12 +326,12 @@ def package_roles(request, package_name):
     return [(r.role_name, r.user.username) for r in roles]
 
 
-@pypi_xmlrpc(method="changelog_last_serial")
+@xmlrpc_method(method="changelog_last_serial")
 def changelog_last_serial(request):
     return request.db.query(func.max(JournalEntry.id)).scalar()
 
 
-@pypi_xmlrpc(method="changelog_since_serial")
+@xmlrpc_method(method="changelog_since_serial")
 def changelog_since_serial(request, serial):
     entries = (
         request.db.query(JournalEntry)
@@ -340,7 +356,7 @@ def changelog_since_serial(request, serial):
     ]
 
 
-@pypi_xmlrpc(method="changelog")
+@xmlrpc_method(method="changelog")
 def changelog(request, since, with_ids=False):
     since = datetime.datetime.utcfromtimestamp(since)
     entries = (
@@ -371,7 +387,7 @@ def changelog(request, since, with_ids=False):
         return [r[:-1] for r in results]
 
 
-@pypi_xmlrpc(method="browse")
+@xmlrpc_method(method="browse")
 def browse(request, classifiers):
     classifiers_q = (
         request.db.query(Classifier)

@@ -281,6 +281,12 @@ def includeme(config):
         header="Content-Type:text/xml",
         domain=warehouse,
     )
+    config.add_xmlrpc_endpoint(
+        "RPC2",
+        pattern="/RPC2",
+        header="Content-Type:text/xml",
+        domain=warehouse,
+    )
 
     # Legacy Documentation
     config.add_route("legacy.docs", config.registry.settings["docs.url"])
