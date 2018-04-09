@@ -18,7 +18,7 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
-from sqlalchemy import event
+from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -53,7 +53,11 @@ class ReadOnlyPredicate:
 class ModelBase:
 
     def __repr__(self):
-        self.__repr__ = make_repr(*self.__table__.columns.keys(), _self=self)
+        inst = inspect(self)
+        self.__repr__ = make_repr(
+            *[c_attr.key for c_attr in inst.mapper.column_attrs],
+            _self=self,
+        )
         return self.__repr__()
 
 
