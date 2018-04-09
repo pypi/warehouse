@@ -63,6 +63,6 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
 .. _BrowserStack: http://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
-.. |BrowserStackImg| image:: browserstack-logo.png
+.. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
 .. _BrowserStackImg: http://browserstack.com/
 .. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/
