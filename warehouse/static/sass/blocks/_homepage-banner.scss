@@ -54,7 +54,7 @@
         text-decoration-color: $white;
       }
 
-      @include link-focus
+      @include link-focus(underline);
     }
   }
 }
