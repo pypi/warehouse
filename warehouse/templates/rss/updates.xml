@@ -1,5 +1,5 @@
 {% extends "base.xml" %}
-{% block title %}PyPI Recent Updates{% endblock %}
+{% block title %}PyPI recent updates{% endblock %}
 {% block description %}Recent updates to the Python Package Index{% endblock %}
 {% block items -%}
   {% for release in latest_releases %}
