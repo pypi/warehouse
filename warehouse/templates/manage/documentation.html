@@ -31,7 +31,7 @@
       </a>
     </p>
     <p>
-      There is <b>no</b> undo as uploading new documentaiton is no longer supported.
+      There is <b>no</b> undo as uploading new documentation is no longer supported.
     </p>
     {% set action = request.route_path('manage.project.destroy_docs', project_name=project.normalized_name) %}
     {{ confirm_button("Destroy Documentation for project", "Project name", project.normalized_name, action=action) }}
