@@ -29,14 +29,26 @@ from warehouse.db import (
 )
 
 
-def test_model_base_repr():
+def test_model_base_repr(monkeypatch):
+    @pretend.call_recorder
+    def inspect(item):
+        return pretend.stub(
+            mapper=pretend.stub(
+                column_attrs=[
+                    pretend.stub(key="foo"),
+                ],
+            ),
+        )
+
+    monkeypatch.setattr(db, "inspect", inspect)
+
     model = ModelBase()
-    model.__table__ = pretend.stub(columns={"foo": None})
     model.foo = "bar"
 
     original_repr = model.__repr__
 
     assert repr(model) == "Base(foo={})".format(repr("bar"))
+    assert inspect.calls == [pretend.call(model)]
     assert model.__repr__ is not original_repr
     assert repr(model) == "Base(foo={})".format(repr("bar"))
 
