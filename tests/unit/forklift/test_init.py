@@ -35,8 +35,8 @@ def test_includeme(forklift_domain, monkeypatch):
 
     forklift.includeme(config)
 
-    config.include.calls == [pretend.call(".action_routing")]
-    config.add_legacy_action_route.calls == [
+    assert config.include.calls == [pretend.call(".action_routing")]
+    assert config.add_legacy_action_route.calls == [
         pretend.call(
             "forklift.legacy.file_upload",
             "file_upload",
@@ -62,16 +62,22 @@ def test_includeme(forklift_domain, monkeypatch):
         pretend.call(_help_url, name='help_url'),
     ]
     if forklift_domain:
-        config.add_template_view.calls == [
+        assert config.add_template_view.calls == [
             pretend.call(
                 "forklift.index",
                 "/",
                 "upload.html",
-                route_kw={"domain": forklift},
+                route_kw={"domain": forklift_domain},
+            ),
+            pretend.call(
+                'forklift.legacy.invalid_request',
+                '/legacy/',
+                'upload.html',
+                route_kw={'domain': 'upload.pypi.io'},
             ),
         ]
     else:
-        config.add_template_view.calls == []
+        assert config.add_template_view.calls == []
 
 
 def test_help_url():
