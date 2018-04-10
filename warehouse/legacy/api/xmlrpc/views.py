@@ -30,22 +30,18 @@ from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
 
-_xmlrpc_method_partial = functools.partial(
-    _xmlrpc_method,
-    require_csrf=False,
-    require_methods=["POST"],
-)
-
 
 def xmlrpc_method(**kwargs):
     """
     Support multiple endpoints serving the same views by chaining calls to
     xmlrpc_method
     """
+    # Add some default arguments
+    kwargs.update(require_csrf=False, require_methods=["POST"])
 
     def decorator(f):
-        rpc2 = _xmlrpc_method_partial(endpoint='RPC2', **kwargs)
-        pypi = _xmlrpc_method_partial(endpoint='pypi', **kwargs)
+        rpc2 = _xmlrpc_method(endpoint='RPC2', **kwargs)
+        pypi = _xmlrpc_method(endpoint='pypi', **kwargs)
         return rpc2(pypi(f))
 
     return decorator
