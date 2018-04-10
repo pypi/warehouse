@@ -191,8 +191,8 @@
               <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}" class="sidebar-section__user-gravatar">
                 <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
               </a>
-              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}">
-                <strong>{{ maintainer.username}}</strong>
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="sidebar-section__user-gravatar-text">
+                {{ maintainer.username}}
               </a>
             </span>
           {% endfor %}

@@ -46,19 +46,31 @@
   &__maintainer {
     display: flex;
     align-items: center;
+  }
 
-    a {
-      margin-bottom: 5px;
-      word-break: break-word;
-    }
+  &__user-gravatar {
+    margin-right: 10px;
+    margin-bottom: 5px;
 
     img {
-      margin-right: 10px;
+      max-width: 50px;
 
       @media only screen and (max-width: $desktop) {
         max-width: 40px;
         max-height: 40px;
       }
+    }
+  }
+
+  &__user-gravatar-text {
+    margin-bottom: 5px;
+    word-break: break-word;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: calc(100% - 60px);
+
+    @media only screen and (max-width: $desktop) {
+      max-width: calc(100% - 50px);
     }
   }
 }
