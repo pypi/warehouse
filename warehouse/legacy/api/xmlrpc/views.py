@@ -50,7 +50,7 @@ def xmlrpc_method(**kwargs):
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
-    xmlrpc_cache_expires=86400,
+    xmlrpc_cache_expires=24 * 60 * 60,  # 24 hours
     xmlrpc_cache_tag='project/%s',
     xmlrpc_cache_arg_index=0,
     xmlrpc_cache_tag_processor=canonicalize_name,
