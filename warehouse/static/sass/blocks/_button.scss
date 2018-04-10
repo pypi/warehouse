@@ -24,6 +24,7 @@
     - primary: Makes button bright blue.
     - danger: Makes button red.
     - disabled: Styles for when the button cannot be clicked.
+    - footer: Switch to desktop button found in site footer.
 */
 
 .button {
@@ -112,6 +113,19 @@
       border: 2px solid darken($background-color, 5%);
       color: darken($background-color, 12%);
       outline: none;
+    }
+  }
+
+  &--footer {
+    border: 2px solid transparentize($white, 0.3);
+    color: $white;
+    margin: $spacing-unit auto 0;
+
+    &:hover,
+    &:focus,
+    &:active {
+      border-color: $white;
+      color: $white;
     }
   }
 }
