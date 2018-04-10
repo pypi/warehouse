@@ -23,7 +23,7 @@
     <table class="table table--light table--releases no-top-margin">
       <thead>
         <th class="table__version">Version</th>
-        <th class="table__date">Release Date</th>
+        <th class="table__date">Release date</th>
         <th class="table__summary">Summary</th>
         <th class="table__options"></th>
       </thead>
@@ -61,7 +61,7 @@
                   <i class="fa fa-eye" aria-hidden="true"></i>
                   View
                 </a>
-                {% set title = "Delete Release" %}
+                {% set title = "Delete release" %}
                 {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
                 <a href="#{{ slug }}" class="dropdown__link">
                   <i class="fa fa-trash" aria-hidden="true"></i>
@@ -81,9 +81,9 @@
 
   <div class="callout-block">
     {% if project.releases %}
-    <h3>Creating a New Release</h3>
+    <h3>Creating a new release</h3>
     {% else %}
-    <h3>No Releases Found</h3>
+    <h3>No releases found</h3>
     {% endif %}
     <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/">Python Packaging User Guide</a></p>
   </div>

@@ -75,10 +75,10 @@
           pip install {{ release.project.name }}
         {% endif %}
         </span>
-        <a class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
+        <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
-        </a>
+        </button>
       </p>
       {% endif %}
     </div>
@@ -89,7 +89,7 @@
       {% elif release.version|parse_version != latest_release.version|parse_version %}
       <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_release.version }})</a>
       {% else %}
-      <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest Version</a>
+      <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
       {% endif %}
       <p class="package-header__date">{{ humanize(release.created) }}</p>
     </div>
@@ -102,7 +102,7 @@
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>
     {% else %}
-      <p class="package-description__summary">No project description provided.</p>
+      <p class="package-description__summary">No project description provided</p>
     {% endif %}
     {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
     {% endcsi %}
@@ -119,16 +119,16 @@
             <nav role="tablist">
               <a id="description-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" href="#description" role="tab">
                 <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project Description
+                Project description
               </a>
               <a id="history-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon" href="#history" role="tab">
                 <i class="fa fa-history" aria-hidden="true"></i>
-                Release History
+                Release history
               </a>
               {% if files %}
                 <a id="download-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon" href="#files" role="tab">
                   <i class="fa fa-download" aria-hidden="true"></i>
-                  Download Files
+                  Download files
                 </a>
               {% endif %}
             </nav>
@@ -136,7 +136,7 @@
 
         {% if release.urls.values() | contains_valid_uris %}
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Project Links</h3>
+          <h3 class="sidebar-section__title">Project links</h3>
           {% for name, url in release.urls.items() %}
           {% if is_valid_uri(url) %}
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
@@ -150,7 +150,7 @@
 
         {% if release.github_repo_info_url %}
         <div class="sidebar-section github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
-          <h3 class="sidebar-section__title">GitHub Statistics</h3>
+          <h3 class="sidebar-section__title">GitHub statistics</h3>
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener" target="_blank">
             <i class="fa fa-star" aria-hidden="true"></i>
             <strong>Stars: </strong>
@@ -163,7 +163,7 @@
           </a>
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
             <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <strong>Open Issues: </strong>
+            <strong>Open issues: </strong>
             <span class="github-repo-info__item" data-key="open_issues_count"></span>
           </a>
         </div>
@@ -216,7 +216,7 @@
 
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Statistics</h3>
-          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a>.</p>
+          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
         </div>
 
         {% if release.classifiers %}
@@ -242,20 +242,20 @@
         <nav>
           <a id="mobile-description-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" href="#description">
             <i class="fa fa-align-left" aria-hidden="true"></i>
-            Project Description
+            Project description
           </a>
           <a id="mobile-history-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#history">
             <i class="fa fa-history" aria-hidden="true"></i>
-            Release History
+            Release history
           </a>
           {% if files %}
           <a id="mobile-files-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#files">
             <i class="fa fa-download" aria-hidden="true"></i>
-            Download Files
+            Download files
           </a>
           {% endif %}
         </nav>
-        {# Tab: Project Description #}
+        {# Tab: Project description #}
         <div id="description" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
           <h2 class="page-title">Project Description</h2>
           {% if release.description %}
@@ -264,15 +264,15 @@
           </div>
           {% else %}
           <div class="callout-block">
-            <p>The author of this package has not provided a project description.</p>
+            <p>The author of this package has not provided a project description</p>
           </div>
           {% endif %}
         </div>
 
-        {# Tab: Release History #}
+        {# Tab: Release history #}
         <div id="history" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab">
           <h2 class="page-title split-layout">
-            <span>Release History</span>
+            <span>Release history</span>
             <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">Release notifications</a>
           </h2>
 
@@ -311,22 +311,22 @@
         {% if files %}
           {# Tab: Downloads #}
           <div id="files" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab">
-            <h2 class="page-title">Download Files</h2>
+            <h2 class="page-title">Download files</h2>
             <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
 
             <table class="table table--downloads">
               <thead>
                 <tr>
                   <th class="table__filename">
-                    Filename, Size &amp; Hash
+                    Filename, size &amp; hash
                     <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
-                      <span class="sr-only">SHA256 Hash Help</span>
+                      <span class="sr-only">SHA256 hash help</span>
                     </a>
                   </th>
-                  <th class="table__type">File Type</th>
-                  <th class="table__version">Python Version</th>
-                  <th class="table__upload-date">Upload Date</th>
+                  <th class="table__type">File type</th>
+                  <th class="table__version">Python version</th>
+                  <th class="table__upload-date">Upload date</th>
                 </tr>
               </thead>
               <tbody>
@@ -340,7 +340,7 @@
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>
-                      <span class="sr-only">Copy SHA256 Hash</span>
+                      <span class="sr-only">Copy SHA256 hash</span>
                       SHA256
                     </a>
                   </td>
