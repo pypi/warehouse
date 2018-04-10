@@ -334,6 +334,12 @@ def test_routes(warehouse):
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
+        pretend.call(
+            "RPC2",
+            pattern="/RPC2",
+            header="Content-Type:text/xml",
+            domain=warehouse,
+        ),
     ]
 
     assert config.add_policy.calls == [
