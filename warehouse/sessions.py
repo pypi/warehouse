@@ -263,7 +263,6 @@ class SessionFactory:
                 max_age=self.max_age,
                 httponly=True,
                 secure=request.scheme == "https",
-                samesite=b"lax"
             )
 
 

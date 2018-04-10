@@ -497,7 +497,7 @@ class TestSessionFactory:
         )
         response = pretend.stub(
             set_cookie=pretend.call_recorder(
-                lambda cookie, data, max_age, httponly, secure, samesite: None
+                lambda cookie, data, max_age, httponly, secure: None
             )
         )
         session_factory._process_response(pyramid_request, response)
@@ -532,7 +532,6 @@ class TestSessionFactory:
                 max_age=12 * 60 * 60,
                 httponly=True,
                 secure=False,
-                samesite=b"lax",
             ),
         ]
 
