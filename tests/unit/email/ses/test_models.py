@@ -14,7 +14,7 @@ import pytest
 
 from warehouse.accounts.models import UnverifyReasons
 from warehouse.email.ses.models import (
-    MAX_TRANSIENT_BOUNCES, EmailStatus, EmailMessage,
+    MAX_TRANSIENT_BOUNCES, EmailStatus, EmailStatuses, EmailMessage,
 )
 
 from ....common.db.accounts import EmailFactory
@@ -25,7 +25,7 @@ class TestEmailStatus:
 
     def test_starts_out_accepted(self, db_session):
         em = EmailStatus(EmailMessage()).save()
-        assert em.status == "Accepted"
+        assert em.status is EmailStatuses.Accepted
 
     def test_can_deliver(self, db_session):
         email = EmailFactory.create()
@@ -34,7 +34,7 @@ class TestEmailStatus:
         status = EmailStatus.load(em)
         status.deliver()
 
-        assert status.save().status == "Delivered"
+        assert status.save().status is EmailStatuses.Delivered
         assert email.unverify_reason is None
 
     def test_delivery_resets_transient_bounces(self, db_session):
@@ -44,7 +44,7 @@ class TestEmailStatus:
         status = EmailStatus.load(em)
         status.deliver()
 
-        assert status.save().status == "Delivered"
+        assert status.save().status is EmailStatuses.Delivered
         assert email.transient_bounces == 0
 
     def test_soft_bounce_increments_transient_bounces(self, db_session):
@@ -54,7 +54,7 @@ class TestEmailStatus:
         status = EmailStatus.load(em)
         status.soft_bounce()
 
-        assert status.save().status == "Soft Bounced"
+        assert status.save().status is EmailStatuses.SoftBounced
         assert email.transient_bounces == 4
 
     def test_soft_bounced_unverifies_when_going_over(self, db_session):
@@ -64,7 +64,7 @@ class TestEmailStatus:
         status = EmailStatus.load(em)
         status.soft_bounce()
 
-        assert status.save().status == "Soft Bounced"
+        assert status.save().status is EmailStatuses.SoftBounced
         assert email.transient_bounces == MAX_TRANSIENT_BOUNCES + 1
         assert not email.verified
         assert email.unverify_reason is UnverifyReasons.SoftBounce
@@ -77,7 +77,7 @@ class TestEmailStatus:
         status.deliver()
         status.soft_bounce()
 
-        assert status.save().status == "Delivered"
+        assert status.save().status is EmailStatuses.Delivered
         assert email.transient_bounces == 0
 
     def test_hard_bounce_unverifies_email(self, db_session):
@@ -87,7 +87,7 @@ class TestEmailStatus:
         status = EmailStatus.load(em)
         status.bounce()
 
-        assert status.save().status == "Bounced"
+        assert status.save().status is EmailStatuses.Bounced
         assert not email.verified
         assert email.unverify_reason is UnverifyReasons.HardBounce
 
@@ -108,7 +108,7 @@ class TestEmailStatus:
         status.deliver()
         status.complain()
 
-        assert status.save().status == "Complained"
+        assert status.save().status is EmailStatuses.Complained
         assert not email.verified
         assert email.unverify_reason is UnverifyReasons.SpamComplaint
 
@@ -127,6 +127,6 @@ class TestEmailStatus:
         ["Accepted", "Delivered", "Bounced", "Soft Bounced", "Complained"],
     )
     def test_load(self, start_status, db_session):
-        em = EmailMessageFactory.create(status=start_status)
+        em = EmailMessageFactory.create(status=EmailStatuses(start_status))
         status = EmailStatus.load(em)
-        assert status.save().status == start_status
+        assert status.save().status == EmailStatuses(start_status)

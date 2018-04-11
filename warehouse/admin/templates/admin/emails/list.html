@@ -16,13 +16,13 @@
 {% import "admin/utils/pagination.html" as pagination %}
 
 {% macro status_color(status) -%}
-  {%- if status == "Delivered" -%}
+  {%- if status.value == "Delivered" -%}
     green
-  {%- elif status == "Soft Bounced" -%}
+  {%- elif status.value == "Soft Bounced" -%}
     yellow
-  {%- elif status == "Bounced" -%}
+  {%- elif status.value == "Bounced" -%}
     red
-  {%- elif status == "Complained" -%}
+  {%- elif status.value == "Complained" -%}
     red
   {%- else -%}
     muted
@@ -72,7 +72,7 @@
         <td>{{ email.from_ }}</td>
         <td>{{ email.to }}</td>
         <td>{{ email.subject }}</td>
-        <td class="text-{{ status_color(email.status) }}">{{email.status }}</td>
+        <td class="text-{{ status_color(email.status) }}">{{email.status.value }}</td>
       </tr>
       {% endfor %}
 

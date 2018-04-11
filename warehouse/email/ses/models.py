@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 import automat
 
 from sqlalchemy import sql, orm
@@ -25,6 +27,15 @@ from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
 MAX_TRANSIENT_BOUNCES = 5
 
 
+class EmailStatuses(enum.Enum):
+
+    Accepted = "Accepted"
+    Delivered = "Delivered"
+    Bounced = "Bounced"
+    SoftBounced = "Soft Bounced"
+    Complained = "Complained"
+
+
 class EmailStatus:
 
     _machine = automat.MethodicalMachine()
@@ -34,33 +45,33 @@ class EmailStatus:
 
     # States
 
-    @_machine.state(initial=True, serialized="Accepted")
+    @_machine.state(initial=True, serialized=EmailStatuses.Accepted.value)
     def accepted(self):
         """
         In this state, the email has been accepted, but nothing else.
         """
 
-    @_machine.state(serialized="Delivered")
+    @_machine.state(serialized=EmailStatuses.Delivered.value)
     def delivered(self):
         """
         In this state, the email has successfully been delivered to the
         recipient.
         """
 
-    @_machine.state(serialized="Bounced")
+    @_machine.state(serialized=EmailStatuses.Bounced.value)
     def bounced(self):
         """
         In this state, the email has bounced when delivery was attempted.
         """
 
-    @_machine.state(serialized="Soft Bounced")
+    @_machine.state(serialized=EmailStatuses.SoftBounced.value)
     def soft_bounced(self):
         """
         In this state, the email soft bounced, we can continue sending email
         to this address.
         """
 
-    @_machine.state(serialized="Complained")
+    @_machine.state(serialized=EmailStatuses.Complained.value)
     def complained(self):
         """
         In this state, the user has gotten the email, but they've complained
@@ -148,13 +159,13 @@ class EmailStatus:
         return state
 
     def save(self):
-        self._email_message.status = self._save()
+        self._email_message.status = EmailStatuses(self._save())
         return self._email_message
 
     @classmethod
     def load(cls, email_message):
         self = cls(email_message)
-        self._restore(email_message.status)
+        self._restore(email_message.status.value)
         return self
 
     # Helper methods
@@ -171,9 +182,9 @@ class EmailMessage(db.Model):
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     status = Column(
-        Enum("Accepted", "Delivered", "Soft Bounced", "Bounced", "Complained"),
+        Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
-        server_default="Accepted",
+        server_default=EmailStatuses.Accepted.value,
     )
 
     message_id = Column(Text, nullable=False, unique=True, index=True)
@@ -191,6 +202,13 @@ class EmailMessage(db.Model):
     )
 
 
+class EventTypes(enum.Enum):
+
+    Delivery = "Delivery"
+    Bounce = "Bounce"
+    Complaint = "Complaint"
+
+
 class Event(db.Model):
 
     __tablename__ = "ses_events"
@@ -205,7 +223,7 @@ class Event(db.Model):
 
     event_id = Column(Text, nullable=False, unique=True, index=True)
     event_type = Column(
-        Enum("Delivery", "Bounce", "Complaint"),
+        Enum(EventTypes, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
 

@@ -15,7 +15,7 @@ import datetime
 import factory
 import factory.fuzzy
 
-from warehouse.email.ses.models import EmailMessage, Event
+from warehouse.email.ses.models import EmailMessage, Event, EventTypes
 
 from .base import WarehouseFactory, FuzzyEmail
 
@@ -42,4 +42,4 @@ class EventFactory(WarehouseFactory):
     )
     email = factory.SubFactory(EmailMessageFactory)
     event_id = factory.fuzzy.FuzzyText(length=12)
-    event_type = factory.fuzzy.FuzzyChoice(["Delivery", "Bounce", "Complaint"])
+    event_type = factory.fuzzy.FuzzyChoice([e.value for e in EventTypes])

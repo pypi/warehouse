@@ -19,7 +19,9 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.email.ses import views
-from warehouse.email.ses.models import EmailMessage, Event
+from warehouse.email.ses.models import (
+    EmailMessage, EmailStatuses, Event, EventTypes,
+)
 
 from ....common.db.accounts import EmailFactory
 from ....common.db.ses import EmailMessageFactory, EventFactory
@@ -219,7 +221,7 @@ class TestNotification:
         ]
         assert resp.status_code == 200
 
-        assert em.status == "Delivered"
+        assert em.status is EmailStatuses.Delivered
 
         event = (
             db_request.db.query(Event)
@@ -227,7 +229,7 @@ class TestNotification:
                          .one())
 
         assert event.email == em
-        assert event.event_type == "Delivery"
+        assert event.event_type is EventTypes.Delivery
         assert event.data == {"someData": "this is some data"}
 
     def test_bounce(self, db_request, monkeypatch):
@@ -258,7 +260,7 @@ class TestNotification:
         ]
         assert resp.status_code == 200
 
-        assert em.status == "Bounced"
+        assert em.status is EmailStatuses.Bounced
 
         event = (
             db_request.db.query(Event)
@@ -266,7 +268,7 @@ class TestNotification:
                          .one())
 
         assert event.email == em
-        assert event.event_type == "Bounce"
+        assert event.event_type is EventTypes.Bounce
         assert event.data == {
             "bounceType": "Permanent",
             "someData": "this is some bounce data",
@@ -300,7 +302,7 @@ class TestNotification:
         ]
         assert resp.status_code == 200
 
-        assert em.status == "Soft Bounced"
+        assert em.status is EmailStatuses.SoftBounced
 
         event = (
             db_request.db.query(Event)
@@ -308,7 +310,7 @@ class TestNotification:
                          .one())
 
         assert event.email == em
-        assert event.event_type == "Bounce"
+        assert event.event_type is EventTypes.Bounce
         assert event.data == {
             "bounceType": "Transient",
             "someData": "this is some soft bounce data",
@@ -319,9 +321,10 @@ class TestNotification:
         monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
 
         e = EmailFactory.create()
-        em = EmailMessageFactory.create(to=e.email, status="Delivered")
+        em = EmailMessageFactory.create(to=e.email,
+                                        status=EmailStatuses.Delivered)
 
-        EventFactory.create(email=em, event_type="Delivery")
+        EventFactory.create(email=em, event_type=EventTypes.Delivery)
 
         event_id = str(uuid.uuid4())
         db_request.json_body = {
@@ -343,7 +346,7 @@ class TestNotification:
         ]
         assert resp.status_code == 200
 
-        assert em.status == "Complained"
+        assert em.status is EmailStatuses.Complained
 
         event = (
             db_request.db.query(Event)
@@ -351,7 +354,7 @@ class TestNotification:
                          .one())
 
         assert event.email == em
-        assert event.event_type == "Complaint"
+        assert event.event_type is EventTypes.Complaint
         assert event.data == {
             "someData": "this is some complaint data",
         }

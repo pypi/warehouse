@@ -18,7 +18,9 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 
-from warehouse.email.ses.models import EmailMessage, EmailStatus, Event
+from warehouse.email.ses.models import (
+    EmailMessage, EmailStatus, Event, EventTypes,
+)
 from warehouse.utils import sns
 
 
@@ -117,7 +119,7 @@ def notification(request):
         Event(
             email=email,
             event_id=data["MessageId"],
-            event_type=message["notificationType"],
+            event_type=EventTypes(message["notificationType"]),
             data=message[message["notificationType"].lower()],
         )
     )

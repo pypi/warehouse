@@ -52,13 +52,13 @@
 {%- endmacro %}
 
 {% macro status_color(status) -%}
-  {%- if status == "Delivered" -%}
+  {%- if status.value == "Delivered" -%}
     green
-  {%- elif status == "Soft Bounced" -%}
+  {%- elif status.value == "Soft Bounced" -%}
     yellow
-  {%- elif status == "Bounced" -%}
+  {%- elif status.value == "Bounced" -%}
     red
-  {%- elif status == "Complained" -%}
+  {%- elif status.value == "Complained" -%}
     red
   {%- else -%}
     muted
@@ -98,7 +98,7 @@
             <dd>{{ email.subject }}</dd>
 
             <dt>Status</dt>
-            <dd class="text-{{ status_color(email.status) }}">{{ email.status }}</dd>
+            <dd class="text-{{ status_color(email.status) }}">{{ email.status.value }}</dd>
           </dl>
         </div>
       </div>
@@ -118,10 +118,10 @@
           <ul class="timeline">
             {% for event in email.events|reverse %}
             <li>
-              {% if event.event_type == "Delivery" %}
+              {% if event.event_type.value == "Delivery" %}
                 {% set event_icon = "envelope" %}
                 {% set event_color = "green" %}
-              {% elif event.event_type == "Bounce" %}
+              {% elif event.event_type.value == "Bounce" %}
                 {% set event_icon = "exclamation" %}
 
                 {% if event.data.bounceType == "Permanent" %}
@@ -129,7 +129,7 @@
                 {% else %}
                   {% set event_color = "orange" %}
                 {% endif %}
-              {% elif event.event_type == "Complaint" %}
+              {% elif event.event_type.value == "Complaint" %}
                 {% set event_icon = "ban" %}
                 {% set event_color = "red" %}
               {% else %}
@@ -140,7 +140,7 @@
               <i class="fa fa-{{ event_icon }} bg-{{ event_color }}"></i>
               <div class="timeline-item">
                 <span class="time"><i class="fa fa-clock-o"></i> {{ event.created|format_datetime }}</span>
-                <h3 class="timeline-header">{{ event.event_type }}</h3>
+                <h3 class="timeline-header">{{ event.event_type.value }}</h3>
                 <div class="timeline-body">
                   {{ render_data(event.data) }}
                 </div>
