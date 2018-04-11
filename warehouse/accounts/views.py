@@ -407,6 +407,9 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
+    email.unverify_reason = None
+    email.transient_bounces = 0
+
     request.user.is_active = True
 
     request.session.flash(

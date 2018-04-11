@@ -10,12 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from celery.schedules import crontab
 from pyramid.renderers import render
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import SMTPEmailSender
+from warehouse.email.ses.tasks import cleanup as ses_cleanup
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -186,7 +187,16 @@ def send_added_as_collaborator_email(request, submitter, project_name, role,
 
 
 def includeme(config):
+    email_sending_class = config.maybe_dotted(
+        config.registry.settings["mail.backend"],
+    )
     config.register_service_factory(
-        SMTPEmailSender.create_service,
+        email_sending_class.create_service,
         IEmailSender,
     )
+
+    # Add a periodic task to cleanup our EmailMessage table. We're going to
+    # do this cleanup, regardless of if we're configured to use SES to send
+    # or not, because even if we stop using SES, we'll want to remove any
+    # emails that had been sent, and the cost of doing this is very low.
+    config.add_periodic_task(crontab(minute=0, hour=0), ses_cleanup)

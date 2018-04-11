@@ -209,6 +209,9 @@ def includeme(config):
     )
     config.add_route("packaging.file", files_url)
 
+    # SES Webhooks
+    config.add_route("ses.hook", "/_/ses-hook/", domain=warehouse)
+
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
