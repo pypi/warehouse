@@ -145,6 +145,9 @@ class EmailStatus:
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
+    delivered.upon(bounce, enter=bounced,
+                   outputs=[_reset_transient_bounce, _handle_bounce],
+                   collector=lambda iterable: list(iterable)[-1])
     delivered.upon(complain, enter=complained, outputs=[_handle_complaint],
                    collector=lambda iterable: list(iterable)[-1])
 
