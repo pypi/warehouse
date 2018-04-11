@@ -82,6 +82,13 @@ Here are some tips.
 * Subscribe to `the PyPI announcement list (low-traffic)
   <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
 
+* ``User-Agent`` Filtering: Some client user agents have been filtered to
+  always use ``pypi.python.org`` regardless of brownouts or redirects, in order
+  to give them extra time to migrate. Once ``pypi.python.org`` is shut down,
+  all clients will use ``pypi.org`` regardless of their ``User-Agent``. See
+  `the Warehouse Roadmap <https://wiki.python.org/psf/WarehouseRoadmap>` for a
+  timeline.
+
 If you're a PyPI end user or packager looking to migrate to the new
 PyPI, please see `the official Python Packaging User Guide on
 migrating to PyPI
