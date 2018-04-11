@@ -407,7 +407,7 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
-    email.is_having_delivery_issues = False
+    email.unverify_reason = None
     email.transient_bounces = 0
 
     request.user.is_active = True

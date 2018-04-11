@@ -19,7 +19,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
-from warehouse.accounts.models import Email as EmailAddress
+from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
 
 
 MAX_TRANSIENT_BOUNCES = 5
@@ -95,13 +95,15 @@ class EmailStatus:
     # Outputs
     @_machine.output()
     def _handle_bounce(self):
-        self._unverify_for_delivery_failure(self._get_email())
+        email = self._get_email()
+        email.verified = False
+        email.unverify_reason = UnverifyReasons.HardBounce
 
     @_machine.output()
     def _handle_complaint(self):
         email = self._get_email()
         email.verified = False
-        email.spam_complaint = True
+        email.unverify_reason = UnverifyReasons.SpamComplaint
 
     @_machine.output()
     def _incr_transient_bounce(self):
@@ -109,7 +111,8 @@ class EmailStatus:
         email.transient_bounces += 1
 
         if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
-            self._unverify_for_delivery_failure(email)
+            email.verified = False
+            email.unverify_reason = UnverifyReasons.SoftBounce
 
     @_machine.output()
     def _reset_transient_bounce(self):
@@ -160,11 +163,6 @@ class EmailStatus:
         return (db.query(EmailAddress)
                   .filter(EmailAddress.email == self._email_message.to)
                   .one())
-
-    def _unverify_for_delivery_failure(self, email):
-        # Unverify the email, and mark why
-        email.verified = False
-        email.is_having_delivery_issues = True
 
 
 class EmailMessage(db.Model):

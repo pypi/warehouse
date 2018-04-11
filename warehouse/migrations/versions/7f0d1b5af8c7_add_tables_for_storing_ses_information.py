@@ -36,6 +36,11 @@ SESEventTypes = sa.Enum(
     name="ses_event_types",
 )
 
+EmailFailureTypes = sa.Enum(
+    "spam complaint", "hard bounce", "soft bounce",
+    name="accounts_email_failure_types",
+)
+
 
 def upgrade():
     op.create_table(
@@ -111,24 +116,11 @@ def upgrade():
         unique=True,
     )
 
-    op.add_column(
-        "accounts_email",
-        sa.Column(
-            "spam_complaint",
-            sa.Boolean(),
-            server_default=sa.false(),
-            nullable=False,
-        ),
-    )
+    EmailFailureTypes.create(op.get_bind(), checkfirst=True)
 
     op.add_column(
         "accounts_email",
-        sa.Column(
-            "is_having_delivery_issues",
-            sa.Boolean(),
-            server_default=sa.false(),
-            nullable=False,
-        ),
+        sa.Column("unverify_reason", EmailFailureTypes, nullable=True),
     )
 
     op.add_column(
@@ -144,11 +136,11 @@ def upgrade():
 
 def downgrade():
     op.drop_column("accounts_email", "transient_bounces")
-    op.drop_column("accounts_email", "is_having_delivery_issues")
-    op.drop_column("accounts_email", "spam_complaint")
+    op.drop_column('accounts_email', 'unverify_reason')
     op.drop_index(op.f("ix_ses_events_event_id"), table_name="ses_events")
     op.drop_table("ses_events")
     op.drop_index(op.f("ix_ses_emails_message_id"), table_name="ses_emails")
     op.drop_table("ses_emails")
     SESEventTypes.drop(op.get_bind())
     SESEmailStatuses.drop(op.get_bind())
+    EmailFailureTypes.drop(op.get_bind())
