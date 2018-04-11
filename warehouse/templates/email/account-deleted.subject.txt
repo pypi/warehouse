@@ -1,1 +1,1 @@
-PyPI Account Deletion Notification
+Account deletion notification

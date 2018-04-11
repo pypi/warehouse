@@ -13,13 +13,31 @@
 import uuid
 
 import pretend
+import pytest
 
 from pyramid_mailer.mailer import DummyMailer
 from zope.interface.verify import verifyClass
 
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import SMTPEmailSender, SESEmailSender
+from warehouse.email.services import (
+    SMTPEmailSender, SESEmailSender, _format_sender,
+)
 from warehouse.email.ses.models import EmailMessage
+
+
+@pytest.mark.parametrize(
+    ("sitename", "sender", "expected"),
+    [
+        (
+            "My Site Name",
+            "noreply@example.com",
+            "My Site Name <noreply@example.com>",
+        ),
+        ("My Site Name", None, None),
+    ],
+)
+def test_format_sender(sitename, sender, expected):
+    assert _format_sender(sitename, sender) == expected
 
 
 class TestSMTPEmailSender:
@@ -32,7 +50,10 @@ class TestSMTPEmailSender:
         context = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(
-                settings=pretend.stub(get=lambda k: "SENDER"),
+                settings={
+                    "site.name": "DevPyPI",
+                    "mail.sender": "noreply@example.com",
+                },
                 getUtility=lambda mailr: mailer,
             )
         )
@@ -41,11 +62,12 @@ class TestSMTPEmailSender:
 
         assert isinstance(service, SMTPEmailSender)
         assert service.mailer is mailer
-        assert service.sender == "SENDER"
+        assert service.sender == "DevPyPI <noreply@example.com>"
 
     def test_send(self):
         mailer = DummyMailer()
-        service = SMTPEmailSender(mailer, sender="noreply@example.com")
+        service = SMTPEmailSender(mailer,
+                                  sender="DevPyPI <noreply@example.com>")
 
         service.send("a subject", "a body", recipient="sombody@example.com")
 
@@ -56,7 +78,7 @@ class TestSMTPEmailSender:
         assert msg.subject == "a subject"
         assert msg.body == "a body"
         assert msg.recipients == ["sombody@example.com"]
-        assert msg.sender == "noreply@example.com"
+        assert msg.sender == "DevPyPI <noreply@example.com>"
 
 
 class TestSESEmailSender:
@@ -73,6 +95,7 @@ class TestSESEmailSender:
             find_service=lambda name: {"aws.session": aws_session}[name],
             registry=pretend.stub(
                 settings={
+                    "site.name": "DevPyPI",
                     "mail.region": "us-west-2",
                     "mail.sender": "noreply@example.com",
                 },
@@ -87,7 +110,7 @@ class TestSESEmailSender:
         ]
 
         assert sender._client is aws_client
-        assert sender._sender == "noreply@example.com"
+        assert sender._sender == "DevPyPI <noreply@example.com>"
         assert sender._db is request.db
 
     def test_send(self, db_session):
@@ -96,7 +119,8 @@ class TestSESEmailSender:
             send_email=pretend.call_recorder(lambda *a, **kw: resp),
         )
         sender = SESEmailSender(aws_client,
-                                sender="noreply@example.com", db=db_session)
+                                sender="DevPyPI <noreply@example.com>",
+                                db=db_session)
 
         sender.send(
             "This is a Subject",
@@ -106,7 +130,7 @@ class TestSESEmailSender:
 
         assert aws_client.send_email.calls == [
             pretend.call(
-                Source="noreply@example.com",
+                Source="DevPyPI <noreply@example.com>",
                 Destination={"ToAddresses": ["somebody@example.com"]},
                 Message={
                     "Subject": {
@@ -124,6 +148,6 @@ class TestSESEmailSender:
                         .filter_by(message_id=resp["MessageId"])
                         .one())
 
-        assert em.from_ == "noreply@example.com"
+        assert em.from_ == "DevPyPI <noreply@example.com>"
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"

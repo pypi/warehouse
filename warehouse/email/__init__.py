@@ -23,6 +23,12 @@ from warehouse.email.ses.tasks import cleanup as ses_cleanup
 def send_email(task, request, subject, body, *, recipient=None):
     sender = request.find_service(IEmailSender)
 
+    # We want to include the site name into the lead in for every subject
+    # to reduce possible confusion about what site an email is talking
+    # about.
+    sitename = request.registry.settings["site.name"]
+    subject = f"[{sitename}] {subject}"
+
     try:
         sender.send(subject, body, recipient=recipient)
     except Exception as exc:
