@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import urllib.parse
+import weakref
 
 import requests
 
@@ -45,7 +46,7 @@ class FastlyCache:
         self.api_key = api_key
         self.service_id = service_id
         self._purger = purger
-        self.keys = set()
+        self.keys = weakref.WeakKeyDictionary()
 
     @classmethod
     def create_service(cls, context, request):
@@ -58,8 +59,14 @@ class FastlyCache:
     def cache(self, keys, request, response, *, seconds=None,
               stale_while_revalidate=None, stale_if_error=None):
 
-        self.keys.update(keys)
-        response.headers["Surrogate-Key"] = " ".join(sorted(self.keys))
+        if request in self.keys:
+            self.keys[request].update(keys)
+        else:
+            self.keys[request] = set(keys)
+
+        response.headers["Surrogate-Key"] = " ".join(
+            sorted(self.keys[request])
+        )
 
         values = []
 
