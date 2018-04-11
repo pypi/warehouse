@@ -77,6 +77,13 @@ def upgrade():
         unique=True,
     )
 
+    op.create_index(
+        op.f("ix_ses_emails_to"),
+        "ses_emails",
+        ["to"],
+        unique=False,
+    )
+
     op.create_table(
         "ses_events",
         sa.Column(
@@ -140,6 +147,7 @@ def downgrade():
     op.drop_index(op.f("ix_ses_events_event_id"), table_name="ses_events")
     op.drop_table("ses_events")
     op.drop_index(op.f("ix_ses_emails_message_id"), table_name="ses_emails")
+    op.drop_index(op.f("ix_ses_emails_to"), table_name="ses_emails")
     op.drop_table("ses_emails")
     SESEventTypes.drop(op.get_bind())
     SESEmailStatuses.drop(op.get_bind())

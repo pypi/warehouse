@@ -178,7 +178,7 @@ class EmailMessage(db.Model):
 
     message_id = Column(Text, nullable=False, unique=True, index=True)
     from_ = Column("from", Text, nullable=False)
-    to = Column(Text, nullable=False)
+    to = Column(Text, nullable=False, index=True)
     subject = Column(Text, nullable=False)
 
     # Relationships!
