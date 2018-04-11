@@ -1,2 +1,2 @@
-pypi-theme==1.80 \
-    --hash=sha256:ee6a542ead3aa7dc217b7606258191a96189f9761d6edb3a9d1d28f763ee58a0
+pypi-theme==1.83 \
+    --hash=sha256:29ab37de1ed15941241f8b09e856a00e56dd365188b0d9e5cf6b9290763d8f7e

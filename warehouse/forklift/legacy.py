@@ -820,8 +820,8 @@ def file_upload(request):
                 ("New Project Registration Temporarily Disabled "
                  "See {projecthelp} for details")
                 .format(
-                    projecthelp=request.route_url(
-                        'help', _anchor='admin-intervention')),
+                    projecthelp=request.help_url(_anchor='admin-intervention'),
+                ),
             ) from None
 
         # Ensure that user has at least one verified email address. This should
@@ -835,10 +835,9 @@ def file_upload(request):
                  "please verify at least one address before registering "
                  "a new project on PyPI. See {projecthelp} "
                  "for more information.").format(
-                     request.user.username,
-                     projecthelp=request.route_url(
-                         'help', _anchor='verified-email'
-                     )),
+                    request.user.username,
+                    projecthelp=request.help_url(_anchor='verified-email'),
+                ),
             ) from None
 
         # Before we create the project, we're going to check our blacklist to
@@ -853,8 +852,8 @@ def file_upload(request):
                  "See {projecthelp} "
                  "for more information.").format(
                     name=form.name.data,
-                    projecthelp=request.route_url(
-                        'help', _anchor='project-name')),
+                    projecthelp=request.help_url(_anchor='project-name'),
+                ),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
@@ -865,9 +864,9 @@ def file_upload(request):
                 ("The name {name!r} is not allowed (conflict with Python "
                  "Standard Library module name). See "
                  "{projecthelp} for more information.").format(
-                     name=form.name.data,
-                     projecthelp=request.route_url(
-                         'help', _anchor='project-name')),
+                    name=form.name.data,
+                    projecthelp=request.help_url(_anchor='project-name')
+                )
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
@@ -905,8 +904,10 @@ def file_upload(request):
             HTTPForbidden,
             ("The user '{0}' is not allowed to upload to project '{1}'. "
              "See {2} for more information.")
-            .format(request.user.username, project.name, request.route_url(
-                'help', _anchor='project-name')
+            .format(
+                request.user.username,
+                project.name,
+                request.help_url(_anchor='project-name')
             )
         )
 
@@ -1073,9 +1074,7 @@ def file_upload(request):
                             name=project.name,
                             limit=file_size_limit // (1024 * 1024)) +
                         "See " +
-                        request.route_url(
-                            'help', _anchor='file-size-limit'
-                        ),
+                        request.help_url(_anchor='file-size-limit'),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1118,9 +1117,7 @@ def file_upload(request):
                 # ref: https://github.com/pypa/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See " +
-                request.route_url(
-                    'help', _anchor='file-name-reuse'
-                )
+                request.help_url(_anchor='file-name-reuse')
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1132,9 +1129,7 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has previously been used, you should use a "
                 "different version. "
-                "See " + request.route_url(
-                    'help', _anchor='file-name-reuse'
-                ),
+                "See " + request.help_url(_anchor='file-name-reuse'),
             )
 
         # Check to see if uploading this file would create a duplicate sdist
