@@ -37,6 +37,7 @@ class TestSendEmail:
         task = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: sender),
+            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
         )
 
         email.send_email(
@@ -49,7 +50,11 @@ class TestSendEmail:
 
         assert request.find_service.calls == [pretend.call(IEmailSender)]
         assert sender.emails == [
-            {"subject": "subject", "body": "body", "recipient": "recipient"},
+            {
+                "subject": "[DevPyPI] subject",
+                "body": "body",
+                "recipient": "recipient",
+            },
         ]
 
     def test_send_email_failure(self, monkeypatch):
@@ -67,7 +72,10 @@ class TestSendEmail:
                 raise celery.exceptions.Retry
 
         sender, task = FakeMailSender(), Task()
-        request = pretend.stub(find_service=lambda *a, **kw: sender)
+        request = pretend.stub(
+            find_service=lambda *a, **kw: sender,
+            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
+        )
 
         with pytest.raises(celery.exceptions.Retry):
             email.send_email(
