@@ -15,8 +15,6 @@ from functools import partial
 import pretend
 import pytest
 
-import pyramid.threadlocal
-
 from warehouse.filters import _camo_url
 from warehouse.utils.gravatar import gravatar, profile
 
@@ -91,12 +89,10 @@ def test_gravatar(email, size, expected, monkeypatch):
     )
     camo_url = partial(_camo_url, request)
     request.camo_url = camo_url
-    monkeypatch.setattr(
-        pyramid.threadlocal, "get_current_request", lambda: request)
     kwargs = {}
     if size is not None:
         kwargs["size"] = size
-    assert gravatar(email, **kwargs) == expected
+    assert gravatar(request, email, **kwargs) == expected
 
 
 def test_profile():

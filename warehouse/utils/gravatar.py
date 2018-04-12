@@ -13,8 +13,6 @@
 import hashlib
 import urllib.parse
 
-import pyramid.threadlocal
-
 
 def _hash(email):
     if email is None:
@@ -23,9 +21,7 @@ def _hash(email):
     return hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
 
 
-def gravatar(email, size=80):
-    request = pyramid.threadlocal.get_current_request()
-
+def gravatar(request, email, size=80):
     url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
     params = {
         "size": size,
