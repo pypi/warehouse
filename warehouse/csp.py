@@ -85,7 +85,6 @@ def includeme(config):
             "img-src": [
                 SELF,
                 config.registry.settings["camo.url"],
-                "https://secure.gravatar.com",
             ],
             "script-src": [SELF, "www.google-analytics.com"],
             "style-src": [SELF, "fonts.googleapis.com"],
