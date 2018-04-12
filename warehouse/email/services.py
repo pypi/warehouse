@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from email.headerregistry import Address
+from email.utils import parseaddr
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -89,8 +90,8 @@ class SESEmailSender:
         self._db.add(
             EmailMessage(
                 message_id=resp["MessageId"],
-                from_=self._sender,
-                to=recipient,
+                from_=parseaddr(self._sender)[1],
+                to=parseaddr(recipient)[1],
                 subject=subject,
             ),
         )
