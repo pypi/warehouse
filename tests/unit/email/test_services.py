@@ -125,13 +125,13 @@ class TestSESEmailSender:
         sender.send(
             "This is a Subject",
             "This is a Body",
-            recipient="somebody@example.com",
+            recipient="FooBar <somebody@example.com>",
         )
 
         assert aws_client.send_email.calls == [
             pretend.call(
                 Source="DevPyPI <noreply@example.com>",
-                Destination={"ToAddresses": ["somebody@example.com"]},
+                Destination={"ToAddresses": ["FooBar <somebody@example.com>"]},
                 Message={
                     "Subject": {
                         "Data": "This is a Subject",
@@ -148,6 +148,6 @@ class TestSESEmailSender:
                         .filter_by(message_id=resp["MessageId"])
                         .one())
 
-        assert em.from_ == "DevPyPI <noreply@example.com>"
+        assert em.from_ == "noreply@example.com"
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
