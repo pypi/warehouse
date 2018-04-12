@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 from citext import CIText
 from sqlalchemy import (
-    CheckConstraint, Column, ForeignKey, Index, UniqueConstraint,
+    CheckConstraint, Column, Enum, ForeignKey, Index, UniqueConstraint,
     Boolean, DateTime, Integer, String,
 )
 from sqlalchemy import orm, select, sql
@@ -92,6 +94,13 @@ class User(SitemapMixin, db.Model):
         )
 
 
+class UnverifyReasons(enum.Enum):
+
+    SpamComplaint = "spam complaint"
+    HardBounce = "hard bounce"
+    SoftBounce = "soft bounce"
+
+
 class Email(db.ModelBase):
 
     __tablename__ = "accounts_email"
@@ -111,3 +120,14 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+
+    # Deliverability information
+    unverify_reason = Column(
+        Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
+        nullable=True,
+    )
+    transient_bounces = Column(
+        Integer,
+        nullable=False,
+        server_default=sql.text("0"),
+    )

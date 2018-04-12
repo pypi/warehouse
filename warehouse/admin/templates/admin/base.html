@@ -17,6 +17,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <meta name="google" content="notranslate">
+
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}Admin · {{ request.registry.settings['site.name'] }}{% endblock %}</title>
 
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -110,6 +112,11 @@
         <li>
           <a href="{{ request.route_path('admin.blacklist.list') }}">
             <i class="fa fa-ban"></i> <span>Blacklist</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('admin.emails.list') }}">
+            <i class="fa fa-envelope"></i> <span>Emails</span>
           </a>
         </li>
         <li>

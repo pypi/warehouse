@@ -183,7 +183,7 @@
             <label for="order">Order by &nbsp;</label>
             <select class="-js-form-submit-trigger" id="order" name="o">
               {{ search_option("Relevance", "") }}
-              {{ search_option("Date Last Updated", "-created") }}
+              {{ search_option("Date last updated", "-created") }}
             </select>
             {% endif %}
           </div>
@@ -207,7 +207,7 @@
           {% endfor %}
         {% endif %}
           <span class="applied-filters__add-button">
-            <button type="button" class="-js-add-filter button button--small">Add Filter</button>
+            <button type="button" class="-js-add-filter button button--small">Add filter</button>
           </span>
         </div>
 
@@ -220,12 +220,12 @@
             <div class="callout-block">
               <p>
                 {% if term %}
-                  There were no results for '<em>{{ term }}</em>'.
+                  There were no results for '<em>{{ term }}</em>'
                 {% elif applied_filters %}
                   {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                    There were no results for '<em>{{ filters }}</em>' filter.
+                    There were no results for '<em>{{ filters }}</em>' filter
                   {% pluralize %}
-                    There were no results for '<em>{{ filters }}</em>' filters.
+                    There were no results for '<em>{{ filters }}</em>' filters
                   {% endtrans %}
                 {% endif %}
                 {% if page.collection.best_guess %}
