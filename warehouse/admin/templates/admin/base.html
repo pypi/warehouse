@@ -55,7 +55,7 @@
         <ul class="nav navbar-nav">
           <li class="user user-menu">
             <a>
-              <img src="{{ gravatar(request.user.email, size=160) }}" class="user-image" alt="User Image">
+              <img src="{{ gravatar(request, request.user.email, size=160) }}" class="user-image" alt="User Image">
               <span class="hidden-xs">{{ request.user.name|default(request.user.username, true) }}</span>
             </a>
           </li>

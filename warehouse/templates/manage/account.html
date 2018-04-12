@@ -119,7 +119,7 @@
   <h2 class="no-top-padding sub-title">Profile picture</h2>
   {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
   <div class="gravatar-form">
-    <img src="{{ gravatar(user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
+    <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
     <div class="gravatar-form__content">
       <p>
       We use <a href="https://gravatar.com/">gravatar.com</a> to generate your profile picture based on your primary email address — <code class="break-on-mobile">{{ user.email }}</code>
