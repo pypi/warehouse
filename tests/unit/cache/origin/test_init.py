@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from warehouse.cache import origin
+from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
@@ -189,7 +190,7 @@ class TestOriginCache:
 
         assert cacher.cache.calls == [
             pretend.call(
-                sorted(["one", "two"] + ([] if keys is None else keys)),
+                ["one", "two"] + ([] if keys is None else keys),
                 request,
                 response,
                 seconds=seconds,
@@ -306,6 +307,7 @@ def test_includeme_with_origin_cache():
     cache_class = pretend.stub(create_service=pretend.stub())
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda name, func: None),
+        add_view_deriver=pretend.call_recorder(lambda deriver: None),
         registry=pretend.stub(
             settings={
                 "origin_cache.backend":
@@ -323,6 +325,9 @@ def test_includeme_with_origin_cache():
             "register_origin_cache_keys",
             origin.register_origin_cache_keys,
         ),
+    ]
+    assert config.add_view_deriver.calls == [
+        pretend.call(html_cache_deriver),
     ]
     assert config.maybe_dotted.calls == [
         pretend.call("warehouse.cache.origin.fastly.FastlyCache"),
