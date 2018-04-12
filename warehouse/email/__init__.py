@@ -10,13 +10,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from email.headerregistry import Address
+
 from celery.schedules import crontab
+from first import first
 from pyramid.renderers import render
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
+
+
+def _compute_recipient(user, *, email=None):
+    # We want to try and use the user's name, then their username, and finally
+    # nothing to display a "Friendly" name for the recipient.
+    return str(
+        Address(
+            first([user.name, user.username], default=""),
+            addr_spec=first([email, user.email]),
+        ),
+    )
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -58,14 +72,15 @@ def send_password_reset_email(request, user):
         'email/password-reset.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=user.email)
+    request.task(send_email).delay(subject, body,
+                                   recipient=_compute_recipient(user))
 
     # Return the fields we used, in case we need to show any of them to the
     # user
     return fields
 
 
-def send_email_verification_email(request, email):
+def send_email_verification_email(request, user, email):
     token_service = request.find_service(ITokenService, name='email')
 
     token = token_service.dumps({
@@ -87,7 +102,11 @@ def send_email_verification_email(request, email):
         'email/verify-email.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=email.email)
+    request.task(send_email).delay(
+        subject,
+        body,
+        recipient=_compute_recipient(user, email=email.email),
+    )
 
     return fields
 
@@ -105,7 +124,8 @@ def send_password_change_email(request, user):
         'email/password-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=user.email)
+    request.task(send_email).delay(subject, body,
+                                   recipient=_compute_recipient(user))
 
     return fields
 
@@ -123,7 +143,8 @@ def send_account_deletion_email(request, user):
         'email/account-deleted.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=user.email)
+    request.task(send_email).delay(subject, body,
+                                   recipient=_compute_recipient(user))
 
     return fields
 
@@ -143,7 +164,11 @@ def send_primary_email_change_email(request, user, email):
         'email/primary-email-change.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=email)
+    request.task(send_email).delay(
+        subject,
+        body,
+        recipient=_compute_recipient(user, email=email),
+    )
 
     return fields
 
@@ -166,13 +191,17 @@ def send_collaborator_added_email(request, user, submitter, project_name, role,
     )
 
     for recipient in email_recipients:
-        request.task(send_email).delay(subject, body, recipient=recipient)
+        request.task(send_email).delay(
+            subject,
+            body,
+            recipient=_compute_recipient(recipient),
+        )
 
     return fields
 
 
 def send_added_as_collaborator_email(request, submitter, project_name, role,
-                                     user_email):
+                                     user):
     fields = {
         'project': project_name,
         'submitter': submitter.username,
@@ -187,7 +216,11 @@ def send_added_as_collaborator_email(request, submitter, project_name, role,
         'email/added-as-collaborator.body.txt', fields, request=request
     )
 
-    request.task(send_email).delay(subject, body, recipient=user_email)
+    request.task(send_email).delay(
+        subject,
+        body,
+        recipient=_compute_recipient(user),
+    )
 
     return fields
 
