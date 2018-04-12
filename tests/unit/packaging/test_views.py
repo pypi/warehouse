@@ -182,7 +182,8 @@ class TestReleaseDetail:
             "files": [files[1]],
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created) for r in reversed(releases)
+                (r.version, r.created, r.is_prerelease)
+                for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None

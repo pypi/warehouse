@@ -17,7 +17,7 @@ from elasticsearch.helpers import parallel_bulk
 from sqlalchemy import and_
 from sqlalchemy.orm import lazyload, joinedload, load_only
 
-from warehouse.packaging.models import Release, Project
+from warehouse.packaging.models import Release
 from warehouse.packaging.search import Project as ProjectDocType
 from warehouse.search.utils import get_index
 from warehouse import tasks
@@ -46,9 +46,7 @@ def _project_docs(db):
                    "created"))
           .options(lazyload("*"),
                    (joinedload(Release.project)
-                    .load_only("normalized_name", "name")
-                    .joinedload(Project.releases)
-                    .load_only("version", "is_prerelease")),
+                    .load_only("normalized_name", "name")),
                    joinedload(Release._classifiers).load_only("classifier"))
           .filter(and_(
               Release.name == releases_list.c.name,

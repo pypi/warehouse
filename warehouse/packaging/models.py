@@ -199,7 +199,10 @@ class Project(SitemapMixin, db.ModelBase):
     @property
     def all_versions(self):
         return (orm.object_session(self)
-                   .query(Release.version, Release.created)
+                   .query(
+                       Release.version,
+                       Release.created,
+                       Release.is_prerelease)
                    .filter(Release.project == self)
                    .order_by(Release._pypi_ordering.desc())
                    .all())
@@ -207,7 +210,10 @@ class Project(SitemapMixin, db.ModelBase):
     @property
     def latest_version(self):
         return (orm.object_session(self)
-                   .query(Release.version, Release.created)
+                   .query(
+                       Release.version,
+                       Release.created,
+                       Release.is_prerelease)
                    .filter(Release.project == self)
                    .order_by(
                        Release.is_prerelease.nullslast(),
