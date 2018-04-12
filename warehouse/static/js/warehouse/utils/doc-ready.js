@@ -22,7 +22,7 @@ function showUnsupportedBrowserWarning() {
   let warning_div = document.createElement("div");
   warning_div.innerHTML = warning_html;
 
-  let warning_section = document.getElementById("stick-to-top");
+  let warning_section = document.getElementById("sticky-notifications");
   warning_section.appendChild(warning_div);
   warningShown = true;
 }
