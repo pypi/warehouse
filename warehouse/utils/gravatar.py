@@ -15,8 +15,6 @@ import urllib.parse
 
 import pyramid.threadlocal
 
-from warehouse.filters import _camo_url
-
 
 def _hash(email):
     if email is None:
@@ -28,19 +26,12 @@ def _hash(email):
 def gravatar(email, size=80):
     request = pyramid.threadlocal.get_current_request()
 
-    camo_url = request.registry.settings["camo.url"].format(request=request)
-    camo_key = request.registry.settings["camo.key"]
-
     url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
     params = {
         "size": size,
     }
 
-    return _camo_url(
-        camo_url,
-        camo_key,
-        "?".join([url, urllib.parse.urlencode(params)])
-    )
+    return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
 
 
 def profile(email):
