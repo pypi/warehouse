@@ -391,7 +391,7 @@ class TestRegister:
         assert add_email.calls == [
             pretend.call(user.id, 'foo@bar.com', primary=True),
         ]
-        assert send_email.calls == [pretend.call(db_request, email)]
+        assert send_email.calls == [pretend.call(db_request, user, email)]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
