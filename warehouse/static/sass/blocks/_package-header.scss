@@ -23,7 +23,7 @@
       <h1 class="package-header__name"></h1>
       <p class="package-header__pip-instructions">
         <span>// pip instructions</span>
-        <a><i></i></a> // copy icon
+        <button><i></i></button> // copy icon
       </p>
     </div>
     <div class="package-header__right">
@@ -37,7 +37,7 @@
   @include site-container;
   display: flex;
 
-  a {
+  button {
     color: $white;
     text-decoration: underline;
     text-decoration-color: $transparent-white;
@@ -73,7 +73,7 @@
   }
 
   &__name {
-    @include ellipsis;
+    @include add-ellipsis;
     padding: 0;
     margin-top: -10px;
   }
@@ -104,7 +104,7 @@
       }
     }
 
-    a {
+    button {
       color: $white;
       line-height: $spacing-unit;
       float: left;
@@ -114,6 +114,7 @@
       border-right: 1px dotted $transparent-white;
       border-top: 1px dotted $transparent-white;
       border-bottom: 1px dotted $transparent-white;
+      border-left: 1px;
 
       &:hover {
         background-color: transparentize($black, 0.8);

@@ -1,5 +1,5 @@
 {% extends "base.xml" %}
-{% block title %}PyPI Newest Packages{% endblock %}
+{% block title %}PyPI newest packages{% endblock %}
 {% block description %}Newest packages registered at the Python Package Index{% endblock %}
 {% block items -%}
   {% for project in newest_projects %}
