@@ -11,12 +11,12 @@
  * limitations under the License.
  */
 
-import unsupportedBrowser from "./unsupported_browser"
+import unsupportedBrowser from "./unsupported_browser";
 
 let warningShown = false;
 
 function showUnsupportedBrowserWarning() {
-  if (document.getElementById('unsupported-browser') !== null) return;
+  if (document.getElementById("unsupported-browser") !== null) return;
 
   let warning_html = "<div id='unsupported-browser' class='notification-bar notification-bar--danger'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
   let warning_div = document.createElement("div");
@@ -32,7 +32,7 @@ export default (fn) => {
     if (!warningShown) {
       document.addEventListener("DOMContentLoaded", showUnsupportedBrowserWarning);
     }
-    return
+    return;
   }
   if (document.readyState != "loading") { fn(); }
   else { document.addEventListener("DOMContentLoaded", fn); }
