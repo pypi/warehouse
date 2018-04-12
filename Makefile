@@ -152,11 +152,11 @@ clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
 
-purge: clean
+purge: stop clean
 	rm -rf .state
-	docker-compose rm --force --all
+	docker-compose rm --force
 
 stop:
-	docker ps -aq --filter name=warehouse | xargs docker stop
+	docker-compose down -v
 
 .PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop

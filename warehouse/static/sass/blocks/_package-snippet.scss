@@ -41,13 +41,15 @@
   }
 
   &__title {
-    @include ellipsis;
+    @include add-ellipsis;
     @include h3;
     padding-bottom: 0;
     display: block;
 
-    &--page-title {
+    &--page-title,
+    &--page-title:first-child {
       @include h1-title;
+      padding-top: 1px;
       padding-bottom: 5px;
     }
   }
@@ -62,14 +64,14 @@
   }
 
   &__description {
-    @include ellipsis;
+    @include add-ellipsis;
     clear: both;
     font-size: 1rem;
     font-style: italic;
   }
 
   &__buttons {
-    width: 180px;
+    width: 165px;
 
     .button {
       display: inline-block;

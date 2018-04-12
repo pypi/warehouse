@@ -34,7 +34,7 @@
   font-weight: 500;
   font-size: $small-font-size;
   border-radius: 2px;
-  background-color: $brand-color;
+  background-color: $primary-color;
   color: $white;
   display: table;
   float: left;
@@ -43,7 +43,7 @@
   &__icon {
     display: table-cell;
     padding: 6px 0 6px 6px;
-    color: darken($brand-color, 10%);
+    color: darken($primary-color, 10%);
     vertical-align: middle;
   }
 
@@ -56,12 +56,14 @@
   &__remove-button {
     display: table-cell;
     color: $white;
+    background: transparent;
+    border: 0;
     border-left: 1px solid transparentize($white, 0.8);
     padding: 6px;
 
     &:hover {
       color: $white;
-      background-color: darken($brand-color, 5%);
+      background-color: darken($primary-color, 5%);
     }
   }
 }

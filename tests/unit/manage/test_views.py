@@ -205,7 +205,7 @@ class TestManageAccount:
             ),
             find_service=lambda a, **kw: user_service,
             user=pretend.stub(
-                emails=[], name=pretend.stub(), id=pretend.stub()
+                emails=[], username="username", name="Name", id=pretend.stub()
             ),
             task=pretend.call_recorder(lambda *args, **kwargs: send_email),
         )
@@ -236,7 +236,7 @@ class TestManageAccount:
             ),
         ]
         assert send_email.calls == [
-            pretend.call(request, email),
+            pretend.call(request, request.user, email),
         ]
 
     def test_add_email_validation_fails(self, monkeypatch):
@@ -442,7 +442,11 @@ class TestManageAccount:
                 flash=pretend.call_recorder(lambda *a, **kw: None)
             ),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="username",
+                name="Name",
+            ),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, 'send_email_verification_email', send_email)
@@ -458,7 +462,7 @@ class TestManageAccount:
                 queue='success',
             ),
         ]
-        assert send_email.calls == [pretend.call(request, email)]
+        assert send_email.calls == [pretend.call(request, request.user, email)]
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
@@ -1096,7 +1100,7 @@ class TestManageProjectRelease:
         )
         request = pretend.stub(
             POST={
-                'confirm_filename': release_file.filename,
+                'confirm_project_name': release.project.name,
                 'file_id': release_file.id,
             },
             method="POST",
@@ -1156,7 +1160,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm_filename': ''},
+            POST={'confirm_project_name': ''},
             method="POST",
             db=pretend.stub(delete=pretend.call_recorder(lambda a: None)),
             route_path=pretend.call_recorder(lambda *a, **kw: '/the-redirect'),
@@ -1195,7 +1199,7 @@ class TestManageProjectRelease:
             raise NoResultFound
 
         request = pretend.stub(
-            POST={'confirm_filename': 'whatever'},
+            POST={'confirm_project_name': 'whatever'},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -1239,7 +1243,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name='foobar'),
         )
         request = pretend.stub(
-            POST={'confirm_filename': 'invalid'},
+            POST={'confirm_project_name': 'invalid'},
             method="POST",
             db=pretend.stub(
                 delete=pretend.call_recorder(lambda a: None),
@@ -1263,7 +1267,7 @@ class TestManageProjectRelease:
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - " +
-                f"'invalid' is not the same as {release_file.filename!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
@@ -1350,7 +1354,7 @@ class TestManageProjectRoles:
         db_request.method = "POST"
         db_request.POST = pretend.stub()
         db_request.remote_addr = "10.10.10.10"
-        db_request.user = UserFactory.create()
+        db_request.user = user
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data=user.username),
@@ -1409,7 +1413,8 @@ class TestManageProjectRoles:
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                user.email)
+                user,
+            ),
         ]
 
         # Only one role is created

@@ -18,11 +18,16 @@
   background-color: $white;
 }
 
-@mixin link-focus {
+@mixin link-focus($underline: "none") {
   &:focus {
-    background-color: $primary-color;
-    color: darken($primary-color, 50);
+    outline: 1px solid $primary-color-light;
+    background-color: transparentize($primary-color-light, 0.9);
     cursor: pointer;
+    @if $underline == "none" {
+      text-decoration: none;
+    } @else {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -78,4 +83,10 @@
       background-color: darken($background-color, 2);
     }
   }
+}
+
+@mixin add-ellipsis {
+  @include ellipsis;
+  padding-left: 1px;
+  padding-right: 1px;
 }

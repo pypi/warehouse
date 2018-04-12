@@ -35,8 +35,8 @@
 */
 
 .footer {
-  $footer-faded-color: transparentize($white, 0.3);
-  background-color: lighten($brand-color, 2);
+  $footer-link-color: mix($white, $primary-color, 95%);
+  background-color: lighten($primary-color, 2);
   color: $white;
   padding: 60px 0;
   width: 100%;
@@ -73,14 +73,15 @@
       text-align: center;
 
       a {
-        color: $footer-faded-color;
+        color: $footer-link-color;
         text-decoration: none;
 
         &:hover {
-          color: transparentize($white, 0);
+          color: $white;
+          text-decoration: underline;
         }
 
-        @include link-focus
+        @include link-focus(underline);
       }
 
       h3 {
@@ -91,7 +92,7 @@
   }
 
   &__divider {
-    border: 1px solid transparentize($footer-faded-color, 0.3);
+    border: 1px solid transparentize($white, 0.7);
     margin: 0 auto $spacing-unit;
     width: 200px;
     background: none;
@@ -99,7 +100,7 @@
   }
 
   &__text {
-    color: $footer-faded-color;
+    color: $footer-link-color;
     font-size: $base-font-size * 0.9;
     margin: auto;
     max-width: 600px;
@@ -107,10 +108,10 @@
     padding: 0 20px;
 
     a {
-      color: transparentize($white, 0.5);
+      color: $white;
       text-decoration: underline;
 
-      @include link-focus
+      @include link-focus(underline);
     }
   }
 }

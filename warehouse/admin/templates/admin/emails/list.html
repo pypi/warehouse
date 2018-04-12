@@ -1,0 +1,95 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% macro status_color(status) -%}
+  {%- if status.value == "Delivered" -%}
+    green
+  {%- elif status.value == "Soft Bounced" -%}
+    yellow
+  {%- elif status.value == "Bounced" -%}
+    red
+  {%- elif status.value == "Complained" -%}
+    red
+  {%- else -%}
+    muted
+  {%- endif -%}
+{%- endmacro %}
+
+{% block title %}Emails{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Emails</li>
+{% endblock %}
+
+{% block content %}
+<div class="box">
+  <div class="box-body">
+    <form>
+      <div class="input-group input-group-lg">
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
+        <div class="input-group-btn">
+          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="box">
+  <div class="box-body table-responsive no-padding">
+    <table class="table table-hover">
+      <tr>
+        <th></th>
+        <th>Date</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Subject</th>
+        <th>Status</th>
+      </tr>
+
+      {% for email in emails %}
+      <tr>
+        <td>
+          <a href="{{ request.route_path('admin.emails.detail', email_id=email.id) }}">
+            <i class="fa fa-cog"></i>
+          </a>
+        </td>
+        <td>{{ email.created|format_datetime }}</td>
+        <td>{{ email.from_ }}</td>
+        <td>{{ email.to }}</td>
+        <td>{{ email.subject }}</td>
+        <td class="text-{{ status_color(email.status) }}">{{email.status.value }}</td>
+      </tr>
+      {% endfor %}
+
+    </table>
+
+    <div class="box-footer">
+      <div class="col-sm-5">
+          {{ pagination.summary(emails) }}
+      </div>
+
+      <div class="col-sm-7">
+        <div class="pull-right">
+            {{ pagination.paginate(emails) }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}

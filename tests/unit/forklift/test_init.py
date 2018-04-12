@@ -13,51 +13,84 @@
 import pretend
 import pytest
 
-from warehouse.forklift import includeme
+from warehouse import forklift
 
 
-@pytest.mark.parametrize("forklift", [None, "upload.pypi.io"])
-def test_includeme(forklift):
+@pytest.mark.parametrize("forklift_domain", [None, "upload.pypi.io"])
+def test_includeme(forklift_domain, monkeypatch):
     settings = {}
-    if forklift:
-        settings["forklift.domain"] = forklift
+    if forklift_domain:
+        settings["forklift.domain"] = forklift_domain
+
+    _help_url = pretend.stub()
+    monkeypatch.setattr(forklift, '_help_url', _help_url)
 
     config = pretend.stub(
         get_settings=lambda: settings,
         include=pretend.call_recorder(lambda n: None),
         add_legacy_action_route=pretend.call_recorder(lambda *a, **k: None),
         add_template_view=pretend.call_recorder(lambda *a, **kw: None),
+        add_request_method=pretend.call_recorder(lambda *a, **kw: None),
     )
 
-    includeme(config)
+    forklift.includeme(config)
 
-    config.include.calls == [pretend.call(".action_routing")]
-    config.add_legacy_action_route.calls == [
+    assert config.include.calls == [pretend.call(".action_routing")]
+    assert config.add_legacy_action_route.calls == [
         pretend.call(
             "forklift.legacy.file_upload",
             "file_upload",
-            domain=forklift,
+            domain=forklift_domain,
         ),
-        pretend.call("forklift.legacy.submit", "submit", domain=forklift),
+        pretend.call(
+            "forklift.legacy.submit",
+            "submit",
+            domain=forklift_domain,
+        ),
         pretend.call(
             "forklift.legacy.submit_pkg_info",
             "submit_pkg_info",
-            domain=forklift,
+            domain=forklift_domain,
         ),
         pretend.call(
             "forklift.legacy.doc_upload",
             "doc_upload",
-            domain=forklift,
+            domain=forklift_domain,
         ),
     ]
-    if forklift:
-        config.add_template_view.calls == [
+    assert config.add_request_method.calls == [
+        pretend.call(_help_url, name='help_url'),
+    ]
+    if forklift_domain:
+        assert config.add_template_view.calls == [
             pretend.call(
                 "forklift.index",
                 "/",
                 "upload.html",
-                route_kw={"domain": forklift},
+                route_kw={"domain": forklift_domain},
+            ),
+            pretend.call(
+                'forklift.legacy.invalid_request',
+                '/legacy/',
+                'upload.html',
+                route_kw={'domain': 'upload.pypi.io'},
             ),
         ]
     else:
-        config.add_template_view.calls == []
+        assert config.add_template_view.calls == []
+
+
+def test_help_url():
+    warehouse_domain = pretend.stub()
+    result = pretend.stub()
+    request = pretend.stub(
+        route_url=pretend.call_recorder(lambda *a, **kw: result),
+        registry=pretend.stub(
+            settings={'warehouse.domain': warehouse_domain},
+        ),
+    )
+
+    assert forklift._help_url(request, _anchor='foo') == result
+    assert request.route_url.calls == [
+        pretend.call('help', _host=warehouse_domain, _anchor='foo'),
+    ]

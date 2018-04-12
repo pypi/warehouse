@@ -30,8 +30,8 @@
 
 .sponsors {
   text-align: center;
-  border-top: 1px solid darken($brand-color, 2);
-  background-color: $brand-color;
+  border-top: 1px solid darken($primary-color, 2);
+  background-color: $primary-color;
   padding: ($spacing-unit / 2);
 
   &__title {
@@ -39,8 +39,8 @@
     font-style: italic;
     padding-bottom: 10px;
     margin-bottom: 10px;
-    color: transparentize($white, 0.2);
     border-bottom: 1px solid transparentize($white, 0.8);
+    color: $white;
 
     @media only screen and (max-width: $small-tablet) {
       display: block;
@@ -51,12 +51,16 @@
     display: inline-block;
     text-align: center;
     padding: ($spacing-unit / 2) 13px 10px 13px;
-    opacity: 0.6;
+    opacity: 0.95;
     text-decoration: none;
 
     &:hover {
       text-decoration: none;
       opacity: 1;
+
+      .sponsors__image {
+        opacity: 1;
+      }
     }
 
     @media only screen and (max-width: $tablet) {
@@ -70,6 +74,7 @@
 
   &__image {
     max-height: 45px;
+    opacity: 0.8;
 
     @media only screen and (max-width: $tablet) {
       display: none;

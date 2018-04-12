@@ -23,14 +23,14 @@
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Your Account</h3>
+          <h3 class="sidebar-section__title">Your account</h3>
           <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
             <i class="fa fa-cube" aria-hidden="true"></i>
-            Your Projects
+            Your projects
           </a>
           <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
             <i class="fa fa-cog" aria-hidden="true"></i>
-            Account Settings
+            Account settings
           </a>
         </div>
       </div>
@@ -39,11 +39,11 @@
         <nav>
           <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
             <i class="fa fa-cube" aria-hidden="true"></i>
-            Your Projects
+            Your projects
           </a>
           <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block account_mobile_active %}{% endblock %}">
             <i class="fa fa-cog" aria-hidden="true"></i>
-            Account Settings
+            Account settings
           </a>
         </nav>
 
@@ -58,7 +58,7 @@
 {% macro modal_slug(title, index) %}
 {% endmacro %}
 
-{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, index=None, extra_fields=None, action=None) %}
+{% macro confirm_modal(title, confirm_name, confirm_string, slug, context, confirm_button_label=None, index=None, extra_fields=None, extra_description=None, action=None) %}
   <div id="{{ slug }}" class="modal" data-controller="confirm">
     <div class="modal__content" role="dialog">
       <form method="POST" class="modal__form" action="{{ action or request.current_route_path() }}">
@@ -77,6 +77,7 @@
           </p>
         </div>
         {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
+        {{ extra_description if extra_description else '' }}
         <p>Confirm {{ context }} {{ confirm_name|lower }} to continue.</p>
         {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
         <label for="{{ name }}">{{ confirm_name }}</label>
@@ -85,7 +86,7 @@
         <div class="modal__footer">
           <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
           <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
-            {{ title }}
+            {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
       </form>

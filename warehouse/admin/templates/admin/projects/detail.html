@@ -82,11 +82,11 @@
             </div>
             <div class="box-body box-releases">
               <table class="table table-hover">
-                <th>Release Version</th>
+                <th>Release version</th>
                 <th>Created</th>
                 <th>Hidden</th>
                 <th>Uploader</th>
-                <th>Author Email</th>
+                <th>Author email</th>
                 {% for release in releases %}
                 <tr>
                   <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
@@ -97,7 +97,7 @@
                 </tr>
                 {% endfor %}
               </table>
-              <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All Releases</a>
+              <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
             </div>
             <div class="box-body box-journals">
               <table class="table table-hover">
@@ -120,7 +120,7 @@
                 </tr>
                 {% endfor %}
               </table>
-              <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All Journals</a>
+              <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@
   <!-- Blacklist form -->
   <div class="box box-secondary collapsed-box">
     <div class="box-header with-border">
-      <h3 class="box-title">Blacklist Project</h3>
+      <h3 class="box-title">Blacklist project</h3>
       <div class="box-tools">
         <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Expand"><i class="fa fa-plus"></i></button>
       </div>
@@ -169,7 +169,7 @@
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="box-body">
         <div class="form-group col-sm-12">
-          <label for="uploadLimit">Upload limit (in Megabytes)</label>
+          <label for="uploadLimit">Upload limit (in megabytes)</label>
           {% if project.upload_limit %}
             {% set upload_limit_value = project.upload_limit / ONE_MB %}
           {% else %}

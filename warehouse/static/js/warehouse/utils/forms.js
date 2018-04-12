@@ -50,48 +50,22 @@ export function submitTriggers() {
   }
 }
 
-/* global zxcvbn */
-
 const tooltipClasses = ["tooltipped", "tooltipped-s", "tooltipped-immediate"];
 let passwordFormRoot = document;
 
-const passwordStrengthValidator = (value) => {
-  const zxcvbnResult = zxcvbn(value);
-  return zxcvbnResult.score < 2 ?
-    zxcvbnResult.feedback.suggestions.join(" ") : null;
+const passwordStrengthValidator = () => {
+  let passwordGauge = document.querySelector(".password-strength__gauge");
+  let score = parseInt(passwordGauge.getAttribute("data-zxcvbn-score"));
+  if (!isNaN(score) && score < 2) {
+    return passwordGauge.querySelector(".sr-only").innerHTML;
+  } else {
+    return null;
+  }
 };
 
 const fieldRequiredValidator = (value) => {
   return value === ""?
     "Please fill out this field" : null;
-};
-
-const checkPasswordStrength = (event) => {
-  let result = passwordFormRoot.querySelector(".password-strength__gauge");
-  if (event.target.value === "") {
-    result.setAttribute("class", "password-strength__gauge");
-    // Feedback for screen readers
-    result.querySelector(".sr-only").innerHTML = "Password field is empty";
-  } else {
-    // following recommendations on the zxcvbn JS docs
-    // the zxcvbn function is available by loading `vendor/zxcvbn.js`
-    // in the register page template only
-    let zxcvbnResult = zxcvbn(event.target.value);
-    result.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
-
-    // Feedback for screen readers
-    result.querySelector(".sr-only").innerHTML = zxcvbnResult.feedback.suggestions.join(" ") || "Password is strong";
-  }
-};
-
-const setupPasswordStrengthGauge = () => {
-  let password = passwordFormRoot.querySelector("#new_password");
-  if (password === null) return;
-  password.addEventListener(
-    "input",
-    checkPasswordStrength,
-    false
-  );
 };
 
 const attachTooltip = (field, message) => {
@@ -121,14 +95,6 @@ const validateForm = (event) => {
   }
 
   let password = passwordFormRoot.querySelector("#new_password");
-  let passwordConfirm = passwordFormRoot.querySelector("#password_confirm");
-  if (password.value !== passwordConfirm.value) {
-    let message = "Passwords do not match";
-    attachTooltip(password, message);
-    event.preventDefault();
-    return false;
-  }
-
   let passwordStrengthMessage = passwordStrengthValidator(password.value);
   if (passwordStrengthMessage !== null) {
     attachTooltip(password, passwordStrengthMessage);
@@ -138,12 +104,11 @@ const validateForm = (event) => {
 };
 
 export function registerFormValidation() {
-  const passwordStrengthNode = document.querySelector(".password-strength");
-  if (passwordStrengthNode === null) return;
+  const newPasswordNode = document.querySelector("#new_password");
+  if (newPasswordNode === null) return;
   passwordFormRoot = document.evaluate(
-    "./ancestor::form", passwordStrengthNode, null,
+    "./ancestor::form", newPasswordNode, null,
     XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-  setupPasswordStrengthGauge();
   const submitButton = passwordFormRoot.querySelector("input[type='submit']");
   submitButton.addEventListener("click", validateForm, false);
 }

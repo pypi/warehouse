@@ -13,10 +13,10 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Sign out{% endblock %}
+{% block title %}Log out{% endblock %}
 
 {% block content %}
-  <h1>Sign out of {{ request.user.username }}</h1>
+  <h1>Log out of {{ request.user.username }}</h1>
   <form method="POST" action="{{ request.current_route_path() }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     {% if redirect.data %}

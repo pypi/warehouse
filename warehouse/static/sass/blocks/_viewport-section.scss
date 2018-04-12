@@ -65,7 +65,7 @@
   }
 
   &--dark {
-    background-color: $brand-color;
+    background-color: $primary-color;
     color: $white;
 
     a {
@@ -86,8 +86,8 @@
       display: inline;
       font-family: "Ewert", cursive;
       font-weight: 400;
-      color: darken($brand-color, 15);
-      background: $primary-color;
+      color: darken($primary-color, 15);
+      background: $highlight-color;
 
       span {
         line-height: 1;
@@ -129,9 +129,9 @@
         padding-bottom: 56.25%;
         padding-top: 25px;
         height: 0;
-        background-color: darken($brand-color, 15);
+        background-color: darken($primary-color, 15);
         border: 9px dashed #fff;
-        outline: 9px solid darken($brand-color, 15);
+        outline: 9px solid darken($primary-color, 15);
 
         iframe {
           position: absolute;

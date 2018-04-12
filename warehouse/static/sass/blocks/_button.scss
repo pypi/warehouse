@@ -50,12 +50,14 @@
   &:focus,
   &:hover,
   &:active {
-    border-color: $brand-color;
-    color: darken($brand-color, 10);
+    border-color: $primary-color;
+    color: darken($primary-color, 10);
     text-decoration: none;
     z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }
+
+  @include link-focus;
 
   &--small {
     font-size: $small-font-size;
@@ -64,16 +66,16 @@
   }
 
   &--primary {
-    border-color: $brand-color;
-    background-color: $brand-color;
+    border-color: $primary-color;
+    background-color: $primary-color;
     color: $white;
     z-index: index($z-index-scale, "primary-button"); // Needed for button groups
 
     &:focus,
     &:hover,
     &:active {
-      border-color: darken($brand-color, 10);
-      background-color: darken($brand-color, 9);
+      border-color: darken($primary-color, 10);
+      background-color: darken($primary-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }

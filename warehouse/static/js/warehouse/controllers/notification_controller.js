@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 import { Controller } from "stimulus";
+import positionWarning from "../utils/position-warning";
 
 export default class extends Controller {
   static targets = ["notification", "notificationDismiss"];
@@ -51,5 +52,6 @@ export default class extends Controller {
       localStorage.setItem(notificationId, 1);
     }
     this.notificationTarget.classList.remove("notification-bar--visible");
+    positionWarning();
   }
 }

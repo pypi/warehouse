@@ -255,7 +255,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": None,
         "site.name": "Warehouse",
-        "mail.ssl": True,
         'token.default.max_age': 21600,
     }
 
@@ -337,6 +336,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".manage"),
             pretend.call(".packaging"),
