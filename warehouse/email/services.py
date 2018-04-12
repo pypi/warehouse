@@ -10,12 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from email.headerregistry import Address
+from email.utils import parseaddr
+
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 from zope.interface import implementer
 
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.ses.models import EmailMessage
+
+
+def _format_sender(sitename, sender):
+    if sender is not None:
+        return str(Address(sitename, addr_spec=sender))
 
 
 @implementer(IEmailSender)
@@ -27,8 +35,10 @@ class SMTPEmailSender:
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(get_mailer(request),
-                   sender=request.registry.settings.get("mail.sender"))
+        sitename = request.registry.settings["site.name"]
+        sender = _format_sender(sitename,
+                                request.registry.settings.get("mail.sender"))
+        return cls(get_mailer(request), sender=sender)
 
     def send(self, subject, body, *, recipient):
         message = Message(
@@ -50,13 +60,18 @@ class SESEmailSender:
 
     @classmethod
     def create_service(cls, context, request):
+        sitename = request.registry.settings["site.name"]
+        sender = _format_sender(sitename,
+                                request.registry.settings.get("mail.sender"))
+
         aws_session = request.find_service(name="aws.session")
+
         return cls(
             aws_session.client(
                 "ses",
                 region_name=request.registry.settings.get("mail.region"),
             ),
-            sender=request.registry.settings.get("mail.sender"),
+            sender=sender,
             db=request.db,
         )
 
@@ -75,8 +90,8 @@ class SESEmailSender:
         self._db.add(
             EmailMessage(
                 message_id=resp["MessageId"],
-                from_=self._sender,
-                to=recipient,
+                from_=parseaddr(self._sender)[1],
+                to=parseaddr(recipient)[1],
                 subject=subject,
             ),
         )
