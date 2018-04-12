@@ -21,13 +21,14 @@ def test_build_search():
         project=pretend.stub(
             name="Foobar",
             normalized_name="foobar",
-            releases=[
-                pretend.stub(version="1.0", is_prerelease=False),
-                pretend.stub(version="2.0", is_prerelease=False),
-                pretend.stub(version="3.0", is_prerelease=False),
-                pretend.stub(version="4.0", is_prerelease=False),
-                pretend.stub(version="5.0.dev0", is_prerelease=True),
+            all_versions=[
+                pretend.stub(version="5.0.dev0"),
+                pretend.stub(version="4.0"),
+                pretend.stub(version="3.0"),
+                pretend.stub(version="2.0"),
+                pretend.stub(version="1.0"),
             ],
+            latest_version=pretend.stub(version="4.0"),
         ),
         summary="This is my summary",
         description="This is my description",
