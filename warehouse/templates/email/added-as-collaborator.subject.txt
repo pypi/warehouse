@@ -1,1 +1,1 @@
-PyPI Collaborator Added Notification
+Collaborator added notification

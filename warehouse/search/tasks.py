@@ -14,9 +14,10 @@ import binascii
 import os
 
 from elasticsearch.helpers import parallel_bulk
+from sqlalchemy import and_
 from sqlalchemy.orm import lazyload, joinedload, load_only
 
-from warehouse.packaging.models import Release, Project
+from warehouse.packaging.models import Release
 from warehouse.packaging.search import Project as ProjectDocType
 from warehouse.search.utils import get_index
 from warehouse import tasks
@@ -24,7 +25,19 @@ from warehouse.utils.db import windowed_query
 
 
 def _project_docs(db):
-    releases = (
+
+    releases_list = (
+        db.query(Release)
+          .options(load_only(
+                   "name", "version"))
+          .distinct(Release.name)
+          .order_by(
+              Release.name,
+              Release.is_prerelease.nullslast(),
+              Release._pypi_ordering.desc())
+    ).subquery('release_list')
+
+    release_data = (
         db.query(Release)
           .options(load_only(
                    "summary", "description", "author",
@@ -33,14 +46,14 @@ def _project_docs(db):
                    "created"))
           .options(lazyload("*"),
                    (joinedload(Release.project)
-                    .load_only("normalized_name", "name")
-                    .joinedload(Project.releases)
-                    .load_only("version", "is_prerelease")),
+                    .load_only("normalized_name", "name")),
                    joinedload(Release._classifiers).load_only("classifier"))
-          .distinct(Release.name)
-          .order_by(Release.name, Release._pypi_ordering.desc())
+          .filter(and_(
+              Release.name == releases_list.c.name,
+              Release.version == releases_list.c.version))
     )
-    for release in windowed_query(releases, Release.name, 1000):
+
+    for release in windowed_query(release_data, Release.name, 1000):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         yield p.to_dict(include_meta=True)

@@ -166,8 +166,9 @@ future==0.16.0 \
 google-api-core==1.1.0 \
     --hash=sha256:7618a9c2ee84c0d99f9c7823675c15024b25094bb920f49d204a72107d856aac \
     --hash=sha256:b4f103de6bd38ab346f7d17236f6098a51ebdff733ff69956a0f1e29cb35f10b
-google-cloud-bigquery==0.32.0 \
-    --hash=sha256:0681c20dbc663ba382397fd4fc45bd6dba92339408ff399365e47303753f3084
+google-cloud-bigquery==1.0.0 \
+    --hash=sha256:593cc03a06f88cccd9c73a10610145e23229e07e2b97c613995968a2efbe7362 \
+    --hash=sha256:49a0eda0e41a236d3986db69d4a7bb31370908f98ee98c0ef16e72f6bd0e2e3b
 google-auth==1.4.1 \
     --hash=sha256:34088434cb2a2409360b8f3cbc04195a465df1fb2aafad71ebbded77cbf08803 \
     --hash=sha256:9051802d3dae256036cca9e34633a32c0ed1427730d4ebc513dff91ec8b6dd45
@@ -500,5 +501,5 @@ zope.interface==4.4.3 \
     --hash=sha256:d6d26d5dfbfd60c65152938fcb82f949e8dada37c041f72916fef6621ba5c5ce
 zope.sqlalchemy==1.0 \
     --hash=sha256:9316a1a8bb9e4f9f59332acf1ad2cc8b664f19a4bde5f68be7f61f3e11f80514
-zxcvbn-python==4.4.23 \
-    --hash=sha256:0d12b00efe29732f00c02b33608ac40c118f6c682a1f5f90cb8fda20864990e1
+zxcvbn-python==4.4.24 \
+    --hash=sha256:900b28cc5e96be4091d8778f19f222832890264e338765a1c1c09fca2db64b2d

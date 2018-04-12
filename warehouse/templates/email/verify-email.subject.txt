@@ -1,1 +1,1 @@
-PyPI email verification
+Email verification

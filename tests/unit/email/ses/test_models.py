@@ -100,6 +100,29 @@ class TestEmailStatus:
 
         assert email.transient_bounces == 0
 
+    def test_hard_bounce_after_delivery_unverifies_email(self, db_session):
+        email = EmailFactory.create()
+        em = EmailMessageFactory.create(to=email.email)
+
+        status = EmailStatus.load(em)
+        status.deliver()
+        status.bounce()
+
+        assert status.save().status is EmailStatuses.Bounced
+        assert not email.verified
+        assert email.unverify_reason is UnverifyReasons.HardBounce
+
+    def test_hard_bounce_after_delivery_resets_transient_bounces(self,
+                                                                 db_session):
+        email = EmailFactory.create(transient_bounces=3)
+        em = EmailMessageFactory.create(to=email.email)
+
+        status = EmailStatus.load(em)
+        status.deliver()
+        status.bounce()
+
+        assert email.transient_bounces == 0
+
     def test_complain_unverifies_email(self, db_session):
         email = EmailFactory.create()
         em = EmailMessageFactory.create(to=email.email)

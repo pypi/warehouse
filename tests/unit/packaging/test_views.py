@@ -12,7 +12,6 @@
 
 import pretend
 
-from first import first
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
@@ -155,10 +154,6 @@ class TestReleaseDetail:
             ReleaseFactory.create(project=project, version=v)
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
         ]
-        latest_release = first(
-            reversed(releases),
-            key=lambda r: not r.is_prerelease,
-        )
         files = [
             FileFactory.create(
                 release=r,
@@ -185,13 +180,9 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
-            "latest_release": (
-                latest_release.version,
-                latest_release.is_prerelease,
-                latest_release.created,
-            ),
-            "all_releases": [
-                (r.version, r.is_prerelease, r.created)
+            "latest_version": project.latest_version,
+            "all_versions": [
+                (r.version, r.created, r.is_prerelease)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),

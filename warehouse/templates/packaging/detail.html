@@ -84,10 +84,10 @@
     </div>
 
     <div class="package-header__right">
-      {% if release.version|parse_version > latest_release.version|parse_version %}
-      <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_release.version }})</a>
-      {% elif release.version|parse_version != latest_release.version|parse_version %}
-      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_release.version }})</a>
+      {% if release.version|parse_version > latest_version.version|parse_version %}
+      <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_version.version }})</a>
+      {% elif release.version|parse_version != latest_version.version|parse_version %}
+      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_version.version }})</a>
       {% else %}
       <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
       {% endif %}
@@ -279,8 +279,8 @@
           <section class="release-timeline">
             {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
             {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
-            {% for hrelease in all_releases %}
-            {% set is_current = (hrelease.version == release.version) %}
+            {% for hversion in all_versions %}
+            {% set is_current = (hversion.version == release.version) %}
             <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
               <div class="release__meta">
                 {% if is_current %}
@@ -300,8 +300,8 @@
               </div>
 
               <div class="card release__card">
-                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hrelease.version) }}">{{ hrelease.version }}</a></p>
-                <p class="release__version-date">{{ humanize(hrelease.created) }}</p>
+                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">{{ hversion.version }}</a></p>
+                <p class="release__version-date">{{ humanize(hversion.created) }}</p>
               </div>
             </div>
             {% endfor %}

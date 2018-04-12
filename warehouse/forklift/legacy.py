@@ -35,7 +35,7 @@ import wtforms.validators
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
@@ -992,6 +992,9 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
                   .filter(Release.project == project)
+                  .options(orm.load_only(
+                      Release._pypi_ordering,
+                      Release._pypi_hidden))
                   .all()
     )
     for i, r in enumerate(sorted(
