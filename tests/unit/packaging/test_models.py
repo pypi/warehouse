@@ -306,6 +306,10 @@ class TestRelease:
                 "https://api.github.com/repos/pypa/warehouse"
             ),
             (
+                "https://www.github.com/pypa/warehouse",
+                "https://api.github.com/repos/pypa/warehouse"
+            ),
+            (
                 "https://github.com/pypa/",
                 None
             ),
