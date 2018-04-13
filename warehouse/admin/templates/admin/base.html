@@ -17,6 +17,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <meta name="google" content="notranslate">
+
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}Admin · {{ request.registry.settings['site.name'] }}{% endblock %}</title>
 
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -53,7 +55,7 @@
         <ul class="nav navbar-nav">
           <li class="user user-menu">
             <a>
-              <img src="{{ gravatar(request.user.email, size=160) }}" class="user-image" alt="User Image">
+              <img src="{{ gravatar(request, request.user.email, size=160) }}" class="user-image" alt="User Image">
               <span class="hidden-xs">{{ request.user.name|default(request.user.username, true) }}</span>
             </a>
           </li>
@@ -110,6 +112,11 @@
         <li>
           <a href="{{ request.route_path('admin.blacklist.list') }}">
             <i class="fa fa-ban"></i> <span>Blacklist</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('admin.emails.list') }}">
+            <i class="fa fa-envelope"></i> <span>Emails</span>
           </a>
         </li>
         <li>

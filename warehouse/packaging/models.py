@@ -16,6 +16,7 @@ from collections import OrderedDict
 from urllib.parse import urlparse
 
 import packaging.utils
+
 from citext import CIText
 from pyramid.security import Allow
 from pyramid.threadlocal import get_current_request
@@ -194,6 +195,30 @@ class Project(SitemapMixin, db.ModelBase):
             return
 
         return request.route_url("legacy.docs", project=self.name)
+
+    @property
+    def all_versions(self):
+        return (orm.object_session(self)
+                   .query(
+                       Release.version,
+                       Release.created,
+                       Release.is_prerelease)
+                   .filter(Release.project == self)
+                   .order_by(Release._pypi_ordering.desc())
+                   .all())
+
+    @property
+    def latest_version(self):
+        return (orm.object_session(self)
+                   .query(
+                       Release.version,
+                       Release.created,
+                       Release.is_prerelease)
+                   .filter(Release.project == self)
+                   .order_by(
+                       Release.is_prerelease.nullslast(),
+                       Release._pypi_ordering.desc())
+                   .first())
 
 
 class DependencyKind(enum.IntEnum):
@@ -412,7 +437,8 @@ class Release(db.ModelBase):
     def github_repo_info_url(self):
         for parsed in [urlparse(url) for url in self.urls.values()]:
             segments = parsed.path.strip('/').rstrip('/').split('/')
-            if parsed.netloc == 'github.com' and len(segments) >= 2:
+            if (parsed.netloc == 'github.com' or
+                    parsed.netloc == 'www.github.com') and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 

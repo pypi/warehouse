@@ -959,8 +959,8 @@ class TestFileUpload:
             ),
         })
 
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -968,8 +968,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='project-name')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='project-name')
         ]
 
         assert resp.status_code == 400
@@ -1005,8 +1005,8 @@ class TestFileUpload:
             ),
         })
 
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -1014,8 +1014,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='project-name')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='project-name')
         ]
 
         assert resp.status_code == 400
@@ -1045,8 +1045,8 @@ class TestFileUpload:
             ),
         })
 
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPForbidden) as excinfo:
@@ -1650,8 +1650,8 @@ class TestFileUpload:
                 type="application/tar",
             ),
         })
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -1659,8 +1659,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='file-size-limit')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='file-size-limit')
         ]
         assert resp.status_code == 400
         assert resp.status == (
@@ -1732,8 +1732,8 @@ class TestFileUpload:
         })
 
         db_request.db.add(Filename(filename=filename))
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -1741,8 +1741,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='file-name-reuse')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='file-name-reuse'),
         ]
         assert resp.status_code == 400
         assert resp.status == (
@@ -1846,16 +1846,16 @@ class TestFileUpload:
                 ),
             ),
         )
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='file-name-reuse')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
         assert resp.status == "400 File already exists. See /the/help/url/"
@@ -1904,8 +1904,8 @@ class TestFileUpload:
                 ),
             ),
         )
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -1913,8 +1913,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='file-name-reuse')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='file-name-reuse')
         ]
         assert resp.status_code == 400
         assert resp.status == "400 File already exists. See /the/help/url/"
@@ -2058,8 +2058,8 @@ class TestFileUpload:
             ),
         })
 
-        db_request.route_url = pretend.call_recorder(
-            lambda route, **kw: "/the/help/url/"
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
         )
 
         with pytest.raises(HTTPForbidden) as excinfo:
@@ -2067,8 +2067,8 @@ class TestFileUpload:
 
         resp = excinfo.value
 
-        assert db_request.route_url.calls == [
-            pretend.call('help', _anchor='project-name')
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='project-name')
         ]
         assert resp.status_code == 403
         assert resp.status == (
@@ -2762,8 +2762,8 @@ class TestFileUpload:
             resp = legacy.file_upload(db_request)
             assert resp.status_code == 200
         else:
-            db_request.route_url = pretend.call_recorder(
-                lambda route, **kw: "/the/help/url/"
+            db_request.help_url = pretend.call_recorder(
+                lambda **kw: "/the/help/url/"
             )
 
             with pytest.raises(HTTPBadRequest) as excinfo:
@@ -2771,8 +2771,8 @@ class TestFileUpload:
 
             resp = excinfo.value
 
-            assert db_request.route_url.calls == [
-                pretend.call('help', _anchor='verified-email')
+            assert db_request.help_url.calls == [
+                pretend.call(_anchor='verified-email')
             ]
             assert resp.status_code == 400
             assert resp.status == (

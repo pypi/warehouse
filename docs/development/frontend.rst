@@ -17,6 +17,27 @@ however, you can trigger a manual build of them by installing all of the
 dependencies using ``npm install`` and then running ``gulp dist``.
 
 
+Deploying
+---------
+
+When deploying changes to the frontend, to see the changes immediately it is
+necessary to purge the cache.
+
+Individual pages can be purged from the command line by issuing a ``XPURGE``
+request, e.g.::
+
+    curl -XPURGE https://pypi.org/the/page/to/purge
+
+All HTML pages can be dropped from the cache by purging the ``all-html``
+surrogate key via our CDN provider.
+
+The entire cache can be purged by issuing a "Purge All" via our CDN provider.
+
+Purging the cache is not usually necesasry when making frontend changes, unless
+it would be unacceptable for the site to simultaneously have an "old" version
+of some pages, but the "new" version of others.
+
+
 Browser Support
 ---------------
 

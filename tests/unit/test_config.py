@@ -255,7 +255,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": None,
         "site.name": "Warehouse",
-        "mail.ssl": True,
         'token.default.max_age': 21600,
     }
 
@@ -317,6 +316,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
+            pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
@@ -325,7 +325,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
             pretend.call(".domain"),
-            pretend.call(".email"),
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),
@@ -338,6 +337,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".manage"),
             pretend.call(".packaging"),
