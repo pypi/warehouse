@@ -115,11 +115,16 @@ def search(request, spec, operator="and"):
 
     results = query[:1000].execute()
 
+    if "version" in spec.keys():
+        return [
+            {"name": r.name, "summary": r.summary, "version": v}
+            for r in results
+            for v in r.version
+            if v in spec.get("version", [v])
+        ]
     return [
-        {"name": r.name, "summary": r.summary, "version": v}
+        {"name": r.name, "summary": r.summary, "version": r.latest_version}
         for r in results
-        for v in r.version
-        if v in spec.get("version", [v])
     ]
 
 
