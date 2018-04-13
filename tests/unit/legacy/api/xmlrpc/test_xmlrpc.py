@@ -297,7 +297,6 @@ class TestSearch:
             {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
         ]
 
-
     def test_version_search_returns_latest(self):
         class FakeQuery:
             def __init__(self, type, must):
