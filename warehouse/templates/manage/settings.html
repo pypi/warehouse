@@ -51,7 +51,7 @@
       Deleting will irreversibly delete this project.
     {% endif %}
     </p>
-    {% set action = request.route_path('manage.project.delete_project', project_name=project.name) %}
+    {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
     {{ confirm_button("Delete project", "Project Name", project.name, action=action) }}
   </div>
 {% endblock %}
