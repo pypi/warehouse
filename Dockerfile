@@ -32,6 +32,7 @@ RUN set -x \
 # it's very small so copying it needlessly isn't a big deal but it will save a
 # small amount of copying when only Gulpfile.babel.js is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
+COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
 COPY Gulpfile.babel.js /opt/warehouse/src/
 
 RUN gulp dist
