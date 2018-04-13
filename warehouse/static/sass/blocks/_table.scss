@@ -79,20 +79,23 @@
     margin-top: ($spacing-unit / 2);
     margin-bottom: 10px;
 
-    &__filename {
-      width: 65%;
+    .table__filename {
+      width: 64%;
     }
 
-    &__version {
-      width: 9%;
+    .table__type {
+      width: 10%;
     }
 
-    &__type,
-    &__upload-date {
-      width: 13%;
+    .table__version {
+      width: 14%;
     }
 
-    &__sha256-link {
+    .table__upload-date {
+      width: 12%;
+    }
+
+    .table__sha256-link {
       margin-left: 5px;
     }
 
