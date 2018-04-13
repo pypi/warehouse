@@ -264,8 +264,7 @@ class TestRelease:
                 )
             )
 
-        # TODO: It'd be nice to test for the actual ordering here.
-        assert dict(release.urls) == dict(expected)
+        assert release.urls == expected
 
     def test_acl(self, db_session):
         project = DBProjectFactory.create()
