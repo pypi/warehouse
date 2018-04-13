@@ -19,17 +19,15 @@
 
 {% if name|lower == "download" %}
    {% set icon = "cloud-download" %}
-{% elif parsed.netloc == "github.com" %}
+{% elif parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com") %}
   {% set icon = "github" %}
-{% elif parsed.netloc == "bitbucket.org" %}
+{% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
   {% set icon = "bitbucket" %}
-{% elif parsed.netloc == "gratipay.com" or parsed.netloc == "gittip.com" %}
-  {% set icon = "gratipay" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "reddit-alien" %}
 {% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "slack" %}
-{% elif parsed.netloc == "twitter.com" %}
+{% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "twitter" %}
 {% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
   {% set icon = "home" %}
