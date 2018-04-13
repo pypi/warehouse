@@ -1,9 +1,9 @@
 Warehouse
 =========
 
-Warehouse is a next-generation Python Package Repository designed to
-replace the legacy code base that currently powers `PyPI`_
-(whose source code `lives on GitHub`_). See `our development roadmap`_.
+Warehouse is a next-generation Python Package Repository that powers
+`PyPI`_ (whose source code `lives on GitHub`_). See `our development
+roadmap`_.
 
 You can find more information in the `documentation`_.
 
@@ -13,7 +13,7 @@ Getting Started
 You can run Warehouse locally using ``docker`` and ``docker-compose``. See
 `Getting started`_ in the documentation for instructions on how to set it up.
 
-You can try a beta deployment of Warehouse at `pypi.org`_.
+The canonical deployment of Warehouse is in production at `pypi.org`_.
 
 Discussion
 ----------
