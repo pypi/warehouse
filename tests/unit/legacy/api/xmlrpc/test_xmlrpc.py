@@ -90,8 +90,10 @@ class TestSearch:
             {"name": "foo", "summary": ["one", "two"]},
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_default_search_operator_with_spaces_in_values(self):
@@ -138,8 +140,10 @@ class TestSearch:
             {"summary": ["fix code", "like this"]},
         )
         assert results == [
-            {"name": "foo", "summary": "fix code", "version": "1.0"},
-            {"name": "foo-bar", "summary": "like this", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "fix code", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "like this", "version": "2.0"},
         ]
 
     def test_searches_with_and(self):
@@ -192,8 +196,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_searches_with_or(self):
@@ -246,8 +252,10 @@ class TestSearch:
             "or",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_version_search(self):
@@ -293,8 +301,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "1.0"},
         ]
 
     def test_version_search_returns_latest(self):
@@ -339,8 +349,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
 

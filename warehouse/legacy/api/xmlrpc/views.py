@@ -117,13 +117,23 @@ def search(request, spec, operator="and"):
 
     if "version" in spec.keys():
         return [
-            {"name": r.name, "summary": r.summary, "version": v}
+            {
+                "name": r.name,
+                "summary": r.summary,
+                "version": v,
+                "_pypi_ordering": False
+            }
             for r in results
             for v in r.version
             if v in spec.get("version", [v])
         ]
     return [
-        {"name": r.name, "summary": r.summary, "version": r.latest_version}
+        {
+            "name": r.name,
+            "summary": r.summary,
+            "version": r.latest_version,
+            "_pypi_ordering": False
+        }
         for r in results
     ]
 
