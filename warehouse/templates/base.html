@@ -92,8 +92,14 @@
     {% endif -%}
   </head>
 
-  <body>
+  <body data-controller="viewport-toggle">
     {% block body %}
+
+    <div class="centered">
+      <button class="button hidden" data-target="viewport-toggle.switchToMobile" data-action="viewport-toggle#switchToMobile">
+        Switch to mobile version
+      </button>
+    </div>
 
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
@@ -247,7 +253,9 @@
       </div>
 
       <div class="centered hide-on-desktop">
-        <button class="button button--footer">Desktop version</button>
+        <button class="button button--footer hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
+          Desktop version
+        </button>
       </div>
     </footer>
 
