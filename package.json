@@ -21,6 +21,7 @@
     "gulp": "3.9.1",
     "gulp-batch": "1.0.5",
     "gulp-brotli": "1.2.1",
+    "gulp-concat": "2.6.1",
     "gulp-cssnano": "2.1.2",
     "gulp-gzip": "1.4.0",
     "gulp-image": "4.1.0",

@@ -9,6 +9,7 @@ import gulpSass from "gulp-sass";
 import gulpSequence  from "gulp-sequence";
 import gulpWatch from "gulp-watch";
 import gulpWebpack  from "webpack-stream";
+import gulpConcat from "gulp-concat";
 import gzip from "gulp-gzip";
 import manifest from "gulp-rev-all";
 import manifestClean from "gulp-rev-napkin";
@@ -118,6 +119,22 @@ gulp.task("dist:noscript", () => {
     }))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join(distPath, "css")));
+});
+
+
+gulp.task("dist:admin:css", () => {
+  let files = [ // Order matters!
+    "warehouse/admin/static/css/bootstrap.min.css",
+    "warehouse/admin/static/css/font-awesome.min.css",
+    "warehouse/admin/static/css/ionicons.min.css",
+    "warehouse/admin/static/css/AdminLTE.min.css",
+    "warehouse/admin/static/css/skins/skin-purple.min.css",
+  ];
+  return gulp.src(files)
+    .pipe(gulpConcat("all.css"))
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write("."))
+    .pipe(gulp.dest("warehouse/admin/static/dist/css"));
 });
 
 
@@ -297,7 +314,15 @@ gulp.task("dist", (cb) => {
     // any previously built files.
     "clean",
     // Build all of our static assets.
-    ["dist:font-awesome", "dist:css", "dist:noscript", "dist:js", "dist:admin:js", "dist:vendor"],
+    [
+      "dist:font-awesome",
+      "dist:css",
+      "dist:noscript",
+      "dist:js",
+      "dist:admin:css",
+      "dist:admin:js",
+      "dist:vendor",
+    ],
     // We have this here, instead of in the list above even though there is no
     // ordering dependency so that all of it's output shows up together which
     // makes it easier to read.
