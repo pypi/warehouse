@@ -11,9 +11,11 @@
  * limitations under the License.
  */
 
-import unsupportedBrowser from "./unsupported_browser";
-
 let warningShown = false;
+
+function unsupportedBrowser() {
+  return navigator.appVersion.includes("MSIE 10");
+}
 
 function showUnsupportedBrowserWarning() {
   if (document.getElementById("unsupported-browser") !== null) return;
