@@ -122,6 +122,12 @@ gulp.task("dist:noscript", () => {
 });
 
 
+gulp.task("dist:admin:fonts", () => {
+  gulp.src("warehouse/admin/static/fonts/*.*")
+    .pipe(gulp.dest("warehouse/admin/static/dist/fonts"));
+});
+
+
 gulp.task("dist:admin:css", () => {
   let files = [ // Order matters!
     "warehouse/admin/static/css/bootstrap.min.css",
@@ -319,6 +325,7 @@ gulp.task("dist", (cb) => {
       "dist:css",
       "dist:noscript",
       "dist:js",
+      "dist:admin:fonts",
       "dist:admin:css",
       "dist:admin:js",
       "dist:vendor",
