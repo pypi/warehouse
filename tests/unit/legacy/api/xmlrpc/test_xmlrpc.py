@@ -451,10 +451,24 @@ def test_package_releases(db_request):
     releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
     project2 = ProjectFactory.create()
     [ReleaseFactory.create(project=project2) for _ in range(10)]
-    result = xmlrpc.package_releases(db_request, project1.name)
+    result = xmlrpc.package_releases(
+        db_request, project1.name, show_hidden=False)
     assert result == [
         r.version
-        for r in sorted(releases1, key=lambda x: x._pypi_ordering)
+        for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
+    ][:1]
+
+
+def test_package_releases_hidden(db_request):
+    project1 = ProjectFactory.create()
+    releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
+    project2 = ProjectFactory.create()
+    [ReleaseFactory.create(project=project2) for _ in range(10)]
+    result = xmlrpc.package_releases(
+        db_request, project1.name, show_hidden=True)
+    assert result == [
+        r.version
+        for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
     ]
 
 

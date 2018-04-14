@@ -188,17 +188,18 @@ def top_packages(request, num=None):
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
-    # concept of hidden releases, so it is just no-opd now and left here for
-    # compatibility's sake.
-    versions = (
-        request.db.query(Release.version)
-                  .join(Project)
+    # concept of hidden releases, so this parameter controls if the latest
+    # version or all_versions are returned.
+    project = (
+        request.db.query(Project)
                   .filter(Project.normalized_name ==
                           func.normalize_pep426_name(package_name))
-                  .order_by(Release._pypi_ordering)
-                  .all()
+                  .one()
     )
-    return [v[0] for v in versions]
+    if show_hidden:
+        return [v.version for v in project.all_versions]
+    else:
+        return [project.latest_version.version]
 
 
 @xmlrpc_method(method="package_data")
