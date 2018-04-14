@@ -336,6 +336,12 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "pypi_slash",
+            pattern="/pypi/",
+            header="Content-Type:text/xml",
+            domain=warehouse,
+        ),
+        pretend.call(
             "RPC2",
             pattern="/RPC2",
             header="Content-Type:text/xml",
