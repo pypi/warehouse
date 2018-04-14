@@ -527,6 +527,9 @@ def test_release_data(db_request):
             "last_week": -1,
             "last_month": -1,
         },
+        "cheesecake_code_kwalitee_id": None,
+        "cheesecake_documentation_id": None,
+        "cheesecake_installability_id": None,
     }
     db_request.route_url.calls == [
         pretend.call("packaging.project", name=project.name),

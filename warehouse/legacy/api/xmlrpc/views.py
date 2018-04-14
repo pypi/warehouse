@@ -274,6 +274,9 @@ def release_data(request, package_name, version):
             "last_week": -1,
             "last_month": -1,
         },
+        "cheesecake_code_kwalitee_id": None,
+        "cheesecake_documentation_id": None,
+        "cheesecake_installability_id": None,
     }
 
 
