@@ -18,7 +18,9 @@ def includeme(config):
     config.add_jinja2_search_path("templates", name=".html")
 
     # Setup our static assets
-    config.add_static_view("admin/static", "static", cache_max_age=0)
+    config.add_static_view(
+        "admin/static", "warehouse.admin:static/dist", cache_max_age=0
+    )
 
     # Add our routes
     config.include(".routes")
