@@ -1,4 +1,4 @@
-release: bin/release
+release: bin/release-cabotage
 web: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-cabotage.conf warehouse.wsgi:application
 tcp: bin/start-web-cabotage python -m twisted web -n -p tcp:port=8001:backlog=2048 --wsgi warehouse.wsgi.application
 web-uploads: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-uploads-cabotage.conf warehouse.wsgi:application
