@@ -154,5 +154,6 @@ RUN set -x \
 # the cache. This is most important in development, but it also useful for
 # deploying new code changes.
 COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
+COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
