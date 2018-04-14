@@ -42,7 +42,8 @@ def xmlrpc_method(**kwargs):
     def decorator(f):
         rpc2 = _xmlrpc_method(endpoint='RPC2', **kwargs)
         pypi = _xmlrpc_method(endpoint='pypi', **kwargs)
-        return rpc2(pypi(f))
+        pypi_slash = _xmlrpc_method(endpoint='pypi_slash', **kwargs)
+        return rpc2(pypi_slash(pypi(f)))
 
     return decorator
 
