@@ -17,14 +17,16 @@ from celery.schedules import crontab
 
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
 @pytest.mark.parametrize("with_trending", [True, False])
 def test_includme(monkeypatch, with_trending):
-    storage_class = pretend.stub(create_service=pretend.stub())
+    storage_class = pretend.stub(
+        create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
+    )
 
     def key_factory(keystring, iterate_on=None):
         return pretend.call(keystring, iterate_on=iterate_on)
@@ -51,8 +53,8 @@ def test_includme(monkeypatch, with_trending):
     packaging.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(storage_class.create_service, IFileStorage, name='files'),
-        pretend.call(storage_class.create_service, IFileStorage, name='docs'),
+        pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, IDocsStorage),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(

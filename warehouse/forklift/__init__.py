@@ -15,6 +15,11 @@
 #       project.
 
 
+def _help_url(request, **kwargs):
+    warehouse_domain = request.registry.settings.get("warehouse.domain")
+    return request.route_url('help', _host=warehouse_domain, **kwargs)
+
+
 def includeme(config):
     # We need to get the value of the Warehouse and Forklift domains, we'll use
     # these to segregate the Warehouse routes from the Forklift routes until
@@ -45,6 +50,7 @@ def includeme(config):
         "doc_upload",
         domain=forklift,
     )
+    config.add_request_method(_help_url, name="help_url")
 
     if forklift:
         config.add_template_view(

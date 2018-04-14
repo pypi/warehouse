@@ -21,9 +21,9 @@ html-linter==0.4.0 \
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
-pbr==3.1.1 \
-    --hash=sha256:60c25b7dfd054ef9bb0ae327af949dd4676aa09ac3a9471cdc871d8a9213f9ac \
-    --hash=sha256:05f61c71aaefc02d8e37c0a3eeb9815ff526ea28b3b76324769e6158d7f95be1
+pbr==4.0.2 \
+    --hash=sha256:4e8a0ed6a8705a26768f4c3da26026013b157821fe5f95881599556ea9d91c19 \
+    --hash=sha256:dae4aaa78eafcad10ce2581fc34d694faa616727837fd8e55c1a00951ad6744f
 pep8-naming==0.5.0 \
     --hash=sha256:0b82da414024f290e0e7aad80d9a7614d6a85bedd82304deeb2e4e0a74f8968b \
     --hash=sha256:5a2a085340b1d530605a7f4a96816433be43504c58eace799dbacdcfd6febe9d

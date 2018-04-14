@@ -35,7 +35,7 @@ import wtforms.validators
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPGone
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import exists, func
+from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
@@ -140,6 +140,11 @@ _valid_description_content_types = {
     'text/plain',
     'text/x-rst',
     'text/markdown',
+}
+
+_valid_markdown_variants = {
+    'CommonMark',
+    'GFM',
 }
 
 
@@ -296,8 +301,11 @@ def _validate_description_content_type(form, field):
         _raise("charset is not valid")
 
     variant = parameters.get('variant')
-    if content_type == 'text/markdown' and variant and variant != 'CommonMark':
-        _raise("variant is not valid")
+    if (content_type == 'text/markdown' and variant and
+            variant not in _valid_markdown_variants):
+        _raise(
+            "variant is not valid, expected one of {}".format(
+                ', '.join(_valid_markdown_variants)))
 
 
 def _construct_dependencies(form, types):
@@ -710,12 +718,20 @@ def file_upload(request):
             "Invalid or non-existent authentication information.",
         )
 
-    # distutils "helpfully" substitutes unknown, but "required" values with the
-    # string "UNKNOWN". This is basically never what anyone actually wants so
-    # we'll just go ahead and delete anything whose value is UNKNOWN.
+    # Do some cleanup of the various form fields
     for key in list(request.POST):
-        if request.POST.get(key) == "UNKNOWN":
-            del request.POST[key]
+        value = request.POST.get(key)
+        if isinstance(value, str):
+            # distutils "helpfully" substitutes unknown, but "required" values
+            # with the string "UNKNOWN". This is basically never what anyone
+            # actually wants so we'll just go ahead and delete anything whose
+            # value is UNKNOWN.
+            if value.strip() == "UNKNOWN":
+                del request.POST[key]
+
+            # Escape NUL characters, which psycopg doesn't like
+            if '\x00' in value:
+                request.POST[key] = value.replace('\x00', '\\x00')
 
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
@@ -752,19 +768,22 @@ def file_upload(request):
             field_name = sorted(form.errors.keys())[0]
 
         if field_name in form:
-            if form[field_name].description:
+            field = form[field_name]
+            if field.description and isinstance(field, wtforms.StringField):
                 error_message = (
                     "{value!r} is an invalid value for {field}. ".format(
-                        value=form[field_name].data,
-                        field=form[field_name].description) +
+                        value=field.data,
+                        field=field.description) +
                     "Error: {} ".format(form.errors[field_name][0]) +
                     "see "
                     "https://packaging.python.org/specifications/core-metadata"
                 )
             else:
-                error_message = "{field}: {msgs[0]}".format(
-                    field=field_name,
-                    msgs=form.errors[field_name],
+                error_message = (
+                    "Invalid value for {field}. Error: {msgs[0]}".format(
+                        field=field_name,
+                        msgs=form.errors[field_name],
+                    )
                 )
         else:
             error_message = "Error: {}".format(form.errors[field_name][0])
@@ -799,7 +818,10 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPForbidden,
                 ("New Project Registration Temporarily Disabled "
-                 "See https://pypi.org/help#admin-intervention for details"),
+                 "See {projecthelp} for details")
+                .format(
+                    projecthelp=request.help_url(_anchor='admin-intervention'),
+                ),
             ) from None
 
         # Ensure that user has at least one verified email address. This should
@@ -809,11 +831,13 @@ def file_upload(request):
         if not any(email.verified for email in request.user.emails):
             raise _exc_with_message(
                 HTTPBadRequest,
-                ("User {!r} has no verified email addresses, please verify "
-                 "at least one address before registering a new project on "
-                 "PyPI. See https://pypi.org/help/#verified-email "
-                 "for more information.")
-                .format(request.user.username),
+                ("User {!r} has no verified email addresses, "
+                 "please verify at least one address before registering "
+                 "a new project on PyPI. See {projecthelp} "
+                 "for more information.").format(
+                    request.user.username,
+                    projecthelp=request.help_url(_anchor='verified-email'),
+                ),
             ) from None
 
         # Before we create the project, we're going to check our blacklist to
@@ -828,8 +852,8 @@ def file_upload(request):
                  "See {projecthelp} "
                  "for more information.").format(
                     name=form.name.data,
-                    projecthelp=request.route_url(
-                        'help', _anchor='project-name')),
+                    projecthelp=request.help_url(_anchor='project-name'),
+                ),
             ) from None
 
         # Also check for collisions with Python Standard Library modules.
@@ -840,9 +864,9 @@ def file_upload(request):
                 ("The name {name!r} is not allowed (conflict with Python "
                  "Standard Library module name). See "
                  "{projecthelp} for more information.").format(
-                     name=form.name.data,
-                     projecthelp=request.route_url(
-                         'help', _anchor='project-name')),
+                    name=form.name.data,
+                    projecthelp=request.help_url(_anchor='project-name')
+                )
             ) from None
 
         # The project doesn't exist in our database, so we'll add it along with
@@ -880,8 +904,10 @@ def file_upload(request):
             HTTPForbidden,
             ("The user '{0}' is not allowed to upload to project '{1}'. "
              "See {2} for more information.")
-            .format(request.user.username, project.name, request.route_url(
-                'help', _anchor='project-name')
+            .format(
+                request.user.username,
+                project.name,
+                request.help_url(_anchor='project-name')
             )
         )
 
@@ -966,6 +992,9 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
                   .filter(Release.project == project)
+                  .options(orm.load_only(
+                      Release._pypi_ordering,
+                      Release._pypi_hidden))
                   .all()
     )
     for i, r in enumerate(sorted(
@@ -1048,9 +1077,7 @@ def file_upload(request):
                             name=project.name,
                             limit=file_size_limit // (1024 * 1024)) +
                         "See " +
-                        request.route_url(
-                            'help', _anchor='file-size-limit'
-                        ),
+                        request.help_url(_anchor='file-size-limit'),
                     )
                 fp.write(chunk)
                 for hasher in file_hashes.values():
@@ -1086,11 +1113,14 @@ def file_upload(request):
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
-                HTTPBadRequest, "The filename or contents already exist. "
-                                "See " +
-                                request.route_url(
-                                    'help', _anchor='file-name-reuse'
-                                )
+                HTTPBadRequest,
+                # Note: Changing this error message to something that doesn't
+                # start with "File already exists" will break the
+                # --skip-existing functionality in twine
+                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypa/twine/issues/332
+                "File already exists. See " +
+                request.help_url(_anchor='file-name-reuse')
             )
 
         # Check to see if the file that was uploaded exists in our filename log
@@ -1102,9 +1132,7 @@ def file_upload(request):
                 HTTPBadRequest,
                 "This filename has previously been used, you should use a "
                 "different version. "
-                "See " + request.route_url(
-                    'help', _anchor='file-name-reuse'
-                ),
+                "See " + request.help_url(_anchor='file-name-reuse'),
             )
 
         # Check to see if uploading this file would create a duplicate sdist
@@ -1216,7 +1244,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage, name='files')
+        storage = request.find_service(IFileStorage)
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),

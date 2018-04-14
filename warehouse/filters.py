@@ -59,8 +59,9 @@ def format_package_type(value):
         return value
 
 
-def _camo_url(camo_url, camo_key, url):
-    camo_key = camo_key.encode("utf8")
+def _camo_url(request, url):
+    camo_url = request.registry.settings["camo.url"].format(request=request)
+    camo_key = request.registry.settings["camo.key"].encode("utf8")
     url = url.encode("utf8")
 
     path = "/".join([
@@ -74,9 +75,6 @@ def _camo_url(camo_url, camo_key, url):
 @jinja2.contextfilter
 def readme(ctx, value, *, description_content_type):
     request = ctx.get("request") or get_current_request()
-
-    camo_url = request.registry.settings["camo.url"].format(request=request)
-    camo_key = request.registry.settings["camo.key"]
 
     content_type, parameters = cgi.parse_header(description_content_type or '')
 
@@ -100,7 +98,7 @@ def readme(ctx, value, *, description_content_type):
     for element in dom.getElementsByTagName("img"):
         src = element.getAttribute("src")
         if src:
-            element.setAttribute("src", _camo_url(camo_url, camo_key, src))
+            element.setAttribute("src", request.camo_url(src))
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
     html_serializer = html5lib.serializer.HTMLSerializer()
@@ -177,3 +175,7 @@ def contains_valid_uris(items):
 
 def parse_version(version_str):
     return packaging.version.parse(version_str)
+
+
+def includeme(config):
+    config.add_request_method(_camo_url, name="camo_url")

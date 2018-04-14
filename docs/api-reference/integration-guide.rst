@@ -13,8 +13,29 @@ recommendations
 Migrating to the new PyPI
 -------------------------
 
-If your site/service used to link or upload to pypi.python.org, you
-should start using pypi.org instead.
+Warehouse is `currently in beta <http://pypi.org/help/#beta>`_. If
+your site/service used to link or upload to pypi.python.org, you
+should prepare to start using pypi.org instead.
+
+If you have an automated tool that hits pypi.python.org less often
+than once a second, and/or you are fine with small service
+interruptions during the beta, then you should go ahead and start
+using pypi.org now, and subscribe to `the PyPI announcement list
+(low-traffic)
+<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+for further announcements.
+
+If you run a mission-critical automated production setup, or an
+automated tool that hits pypi.python.org with 1+ requests/second, then
+you should not explicitly point to pypi.org yet, but `you should test
+and prepare to switch
+<https://pyfound.blogspot.com/2018/03/warehouse-all-new-pypi-is-now-in-beta.html>`__. You
+should also watch `our status page <http://status.python.org/>`__,
+since we're occasionally redirecting portions of that traffic in load
+tests that we announce on the status page. Subscribe to `the PyPI
+announcement list (low-traffic)
+<https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
+to find out when you should switch permanently.
 
 Here are some tips.
 
@@ -45,7 +66,10 @@ Here are some tips.
 * JSON API: ``https://pypi.org/pypi/{name}/json`` returns the
   expected JSON response directly. See :doc:`json`.
 
-* XML-RPC API: see :ref:`changes-to-legacy-api`.
+* XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
+  the future; switch to the RSS or JSON APIs. If you depend on an
+  XML-RPC call that our other APIs do not support, please `tell us
+  <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and
@@ -57,6 +81,13 @@ Here are some tips.
 
 * Subscribe to `the PyPI announcement list (low-traffic)
   <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
+
+* ``User-Agent`` Filtering: Some client user agents have been filtered to
+  always use ``pypi.python.org`` regardless of brownouts or redirects, in order
+  to give them extra time to migrate. Once ``pypi.python.org`` is shut down,
+  all clients will use ``pypi.org`` regardless of their ``User-Agent``. See
+  `the Warehouse Roadmap <https://wiki.python.org/psf/WarehouseRoadmap>` for a
+  timeline.
 
 If you're a PyPI end user or packager looking to migrate to the new
 PyPI, please see `the official Python Packaging User Guide on

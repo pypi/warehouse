@@ -17,17 +17,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    <meta name="google" content="notranslate">
+
     <title>{% block title_base %}{% block title %}{% endblock %}{% if self.title() %} · {% endif %}Admin · {{ request.registry.settings['site.name'] }}{% endblock %}</title>
 
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
     <link rel="icon" href="{{ request.static_path('warehouse:static/dist/images/favicon.ico') }}" type="image/x-icon">
 
-    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/css/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/css/ionicons.min.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/css/AdminLTE.min.css') }}">
-    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/css/skins/skin-purple.min.css') }}">
+    <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/dist/css/all.css') }}">
 
   </head>
 
@@ -53,7 +51,7 @@
         <ul class="nav navbar-nav">
           <li class="user user-menu">
             <a>
-              <img src="{{ gravatar(request.user.email, size=160) }}" class="user-image" alt="User Image">
+              <img src="{{ gravatar(request, request.user.email, size=160) }}" class="user-image" alt="User Image">
               <span class="hidden-xs">{{ request.user.name|default(request.user.username, true) }}</span>
             </a>
           </li>
@@ -113,6 +111,11 @@
           </a>
         </li>
         <li>
+          <a href="{{ request.route_path('admin.emails.list') }}">
+            <i class="fa fa-envelope"></i> <span>Emails</span>
+          </a>
+        </li>
+        <li>
           <a href="{{ request.route_path('admin.flags') }}">
             <i class="fa fa-flag"></i> <span>Flags</span>
           </a>
@@ -168,11 +171,6 @@
 {% endblock %}
 
 <script src="{{ request.static_url('warehouse.admin:static/dist/js/admin.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/jquery-2.2.3.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/bootstrap.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/jquery.slimscroll.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/fastclick.min.js') }}"></script>
-<script src="{{ request.static_url('warehouse.admin:static/js/app.min.js') }}"></script>
 
 </body>
 </html>

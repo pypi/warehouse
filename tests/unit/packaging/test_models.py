@@ -289,6 +289,50 @@ class TestRelease:
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
 
+    @pytest.mark.parametrize(
+        ("home_page", "expected"),
+        [
+            (None, None),
+            (
+                "https://github.com/pypa/warehouse",
+                "https://api.github.com/repos/pypa/warehouse"
+            ),
+            (
+                "https://github.com/pypa/warehouse/",
+                "https://api.github.com/repos/pypa/warehouse"
+            ),
+            (
+                "https://github.com/pypa/warehouse/tree/master",
+                "https://api.github.com/repos/pypa/warehouse"
+            ),
+            (
+                "https://www.github.com/pypa/warehouse",
+                "https://api.github.com/repos/pypa/warehouse"
+            ),
+            (
+                "https://github.com/pypa/",
+                None
+            ),
+            (
+                "https://google.com/pypa/warehouse/tree/master",
+                None
+            ),
+            (
+                "https://google.com",
+                None
+            ),
+            (
+                "incorrect url",
+                None
+            ),
+        ],
+    )
+    def test_github_repo_info_url(self, db_session, home_page, expected):
+        release = DBReleaseFactory.create(
+            home_page=home_page
+        )
+        assert release.github_repo_info_url == expected
+
 
 class TestFile:
 

@@ -31,6 +31,9 @@
 
   &__close {
     display: none;
+    border: 0;
+    color: $white;
+    background: transparent;
   }
 
   @media only screen and (max-width: $desktop) {
@@ -42,7 +45,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    background-color: $brand-color;
+    background-color: $primary-color;
     width: 300px;
     max-width: 100%;
     z-index: index($z-index-scale, "filter-panel");

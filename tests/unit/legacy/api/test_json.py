@@ -274,4 +274,5 @@ class TestJSONRelease:
                     "url": "/the/fake/url/",
                 },
             ],
+            "last_serial": je.id,
         }

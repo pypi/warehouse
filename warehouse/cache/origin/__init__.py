@@ -18,6 +18,7 @@ from itertools import chain
 from sqlalchemy.orm.session import Session
 
 from warehouse import db
+from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
 
 
@@ -75,7 +76,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
                 request.add_response_callback(
                     functools.partial(
                         cacher.cache,
-                        sorted(context_keys + keys),
+                        context_keys + keys,
                         seconds=seconds,
                         stale_while_revalidate=stale_while_revalidate,
                         stale_if_error=stale_if_error,
@@ -152,6 +153,7 @@ def includeme(config):
             cache_class.create_service,
             IOriginCache,
         )
+        config.add_view_deriver(html_cache_deriver)
 
     config.add_directive(
         "register_origin_cache_keys",

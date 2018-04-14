@@ -96,11 +96,20 @@
     <div class="left-layout__sidebar">
       <div class="dark-overlay -js-dark-overlay"></div>
       <aside class="filter-panel -js-filter-panel">
-        <a class="filter-panel__close -js-close-panel">
+        <button type="button" class="filter-panel__close -js-close-panel">
           <i class="fa fa-close" aria-hidden="true"></i>
           <span class="sr-only">Close</span>
-        </a>
-        <h2 class="no-top-padding">Filter Projects</h2>
+        </button>
+        <h2 class="no-top-padding">
+          Filter by classifier
+          <a href="{{ request.route_path('help')}}#trove-classifier"
+             class="tooltipped tooltipped-s"
+             aria-label="What's a trove classifier?"
+             data-original-label="What's a trove classifier?">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+            <span class="sr-only">Classifier information<span>
+          </a>
+        </h2>
         <form id="classifiers">
         <input id="search" type="hidden" name="q" value="{{ term }}">
         <input type="hidden" name="o" value="{{ order }}">
@@ -108,7 +117,7 @@
         {% set applied_filters_str = applied_filters|join(' ') %}
         {% for top_level, classifiers in available_filters %}
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
-            <a class="accordion__link -js-accordion-trigger">By {{ top_level }}</a>
+            <button type="button" class="accordion__link -js-accordion-trigger">By {{ top_level }}</button>
             <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
@@ -130,7 +139,8 @@
     <div class="left-layout__main">
       {% if not term and not applied_filters %}
       <div class="callout-block no-top-margin">
-        <p>Enter a search query above, or select a filter from the list of classifiers on the left.</p>
+        <p class="hide-below-desktop">Enter a search query above, or select a filter from the list of classifiers on the left.</p>
+        <p class="hide-on-desktop">Enter a search query above, or add a filter by clicking on the button below.</p>
         <p>You can combine searches and classifier filters. Examples:</p>
         <ul class="no-bottom-margin">
           <li>
@@ -173,7 +183,7 @@
             <label for="order">Order by &nbsp;</label>
             <select class="-js-form-submit-trigger" id="order" name="o">
               {{ search_option("Relevance", "") }}
-              {{ search_option("Date Last Updated", "-created") }}
+              {{ search_option("Date last updated", "-created") }}
             </select>
             {% endif %}
           </div>
@@ -189,15 +199,15 @@
               <span class="sr-only">Filter</span>
             </span>
             <span class="filter-badge__description">{{ filter }}</span>
-            <a class="filter-badge__remove-button" href="#">
+            <button type="button" class="filter-badge__remove-button">
               <i class="fa fa-close" aria-hidden="true"></i>
               <span class="sr-only">Close</span>
-            </a>
+            </button>
           </div>
           {% endfor %}
         {% endif %}
           <span class="applied-filters__add-button">
-            <a class="-js-add-filter button button--small" href="#">Add Filter</a>
+            <button type="button" class="-js-add-filter button button--small">Add filter</button>
           </span>
         </div>
 
@@ -210,12 +220,12 @@
             <div class="callout-block">
               <p>
                 {% if term %}
-                  There were no results for '<em>{{ term }}</em>'.
+                  There were no results for '<em>{{ term }}</em>'
                 {% elif applied_filters %}
                   {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                    There were no results for '<em>{{ filters }}</em>' filter.
+                    There were no results for '<em>{{ filters }}</em>' filter
                   {% pluralize %}
-                    There were no results for '<em>{{ filters }}</em>' filters.
+                    There were no results for '<em>{{ filters }}</em>' filters
                   {% endtrans %}
                 {% endif %}
                 {% if page.collection.best_guess %}
