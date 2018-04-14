@@ -117,13 +117,23 @@ def search(request, spec, operator="and"):
 
     if "version" in spec.keys():
         return [
-            {"name": r.name, "summary": r.summary, "version": v}
+            {
+                "name": r.name,
+                "summary": r.summary,
+                "version": v,
+                "_pypi_ordering": False
+            }
             for r in results
             for v in r.version
             if v in spec.get("version", [v])
         ]
     return [
-        {"name": r.name, "summary": r.summary, "version": r.latest_version}
+        {
+            "name": r.name,
+            "summary": r.summary,
+            "version": r.latest_version,
+            "_pypi_ordering": False
+        }
         for r in results
     ]
 
@@ -178,17 +188,18 @@ def top_packages(request, num=None):
 def package_releases(request, package_name, show_hidden=False):
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
-    # concept of hidden releases, so it is just no-opd now and left here for
-    # compatibility's sake.
-    versions = (
-        request.db.query(Release.version)
-                  .join(Project)
+    # concept of hidden releases, so this parameter controls if the latest
+    # version or all_versions are returned.
+    project = (
+        request.db.query(Project)
                   .filter(Project.normalized_name ==
                           func.normalize_pep426_name(package_name))
-                  .order_by(Release._pypi_ordering)
-                  .all()
+                  .one()
     )
-    return [v[0] for v in versions]
+    if show_hidden:
+        return [v.version for v in project.all_versions]
+    else:
+        return [project.latest_version.version]
 
 
 @xmlrpc_method(method="package_data")
@@ -263,6 +274,9 @@ def release_data(request, package_name, version):
             "last_week": -1,
             "last_month": -1,
         },
+        "cheesecake_code_kwalitee_id": None,
+        "cheesecake_documentation_id": None,
+        "cheesecake_installability_id": None,
     }
 
 
@@ -298,6 +312,7 @@ def release_urls(request, package_name, version):
             "python_version": f.python_version,
             "size": f.size,
             "md5_digest": f.md5_digest,
+            "sha256_digest": f.sha256_digest,
             "digests": {
                 "md5": f.md5_digest,
                 "sha256": f.sha256_digest,
@@ -308,6 +323,7 @@ def release_urls(request, package_name, version):
             # TODO: Remove this once we've had a long enough time with it
             #       here to consider it no longer in use.
             "downloads": -1,
+            "path": f.path,
             "url": request.route_url("packaging.file", path=f.path),
         }
         for f in files

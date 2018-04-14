@@ -90,8 +90,10 @@ class TestSearch:
             {"name": "foo", "summary": ["one", "two"]},
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_default_search_operator_with_spaces_in_values(self):
@@ -138,8 +140,10 @@ class TestSearch:
             {"summary": ["fix code", "like this"]},
         )
         assert results == [
-            {"name": "foo", "summary": "fix code", "version": "1.0"},
-            {"name": "foo-bar", "summary": "like this", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "fix code", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "like this", "version": "2.0"},
         ]
 
     def test_searches_with_and(self):
@@ -192,8 +196,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_searches_with_or(self):
@@ -246,8 +252,10 @@ class TestSearch:
             "or",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
     def test_version_search(self):
@@ -293,8 +301,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "1.0"},
         ]
 
     def test_version_search_returns_latest(self):
@@ -339,8 +349,10 @@ class TestSearch:
             "and",
         )
         assert results == [
-            {"name": "foo", "summary": "my summary", "version": "1.0"},
-            {"name": "foo-bar", "summary": "other summary", "version": "2.0"},
+            {"_pypi_ordering": False, "name": "foo",
+             "summary": "my summary", "version": "1.0"},
+            {"_pypi_ordering": False, "name": "foo-bar",
+             "summary": "other summary", "version": "2.0"},
         ]
 
 
@@ -439,10 +451,24 @@ def test_package_releases(db_request):
     releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
     project2 = ProjectFactory.create()
     [ReleaseFactory.create(project=project2) for _ in range(10)]
-    result = xmlrpc.package_releases(db_request, project1.name)
+    result = xmlrpc.package_releases(
+        db_request, project1.name, show_hidden=False)
     assert result == [
         r.version
-        for r in sorted(releases1, key=lambda x: x._pypi_ordering)
+        for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
+    ][:1]
+
+
+def test_package_releases_hidden(db_request):
+    project1 = ProjectFactory.create()
+    releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
+    project2 = ProjectFactory.create()
+    [ReleaseFactory.create(project=project2) for _ in range(10)]
+    result = xmlrpc.package_releases(
+        db_request, project1.name, show_hidden=True)
+    assert result == [
+        r.version
+        for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
     ]
 
 
@@ -501,6 +527,9 @@ def test_release_data(db_request):
             "last_week": -1,
             "last_month": -1,
         },
+        "cheesecake_code_kwalitee_id": None,
+        "cheesecake_documentation_id": None,
+        "cheesecake_installability_id": None,
     }
     db_request.route_url.calls == [
         pretend.call("packaging.project", name=project.name),
@@ -534,6 +563,7 @@ def test_release_urls(db_request):
             "python_version": file_.python_version,
             "size": file_.size,
             "md5_digest": file_.md5_digest,
+            "sha256_digest": file_.sha256_digest,
             "digests": {
                 "md5": file_.md5_digest,
                 "sha256": file_.sha256_digest,
@@ -542,6 +572,7 @@ def test_release_urls(db_request):
             "upload_time": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
             "downloads": -1,
+            "path": file_.path,
             "url": urls[0],
         }
     ]
