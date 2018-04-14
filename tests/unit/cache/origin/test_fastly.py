@@ -138,6 +138,35 @@ class TestFastlyCache:
             ),
         }
 
+    def test_multiple_calls_to_cache_dont_overwrite_surrogate_keys(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={})
+
+        cacher = fastly.FastlyCache(api_key=None, service_id=None, purger=None)
+        cacher.cache(["abc"], request, response)
+        cacher.cache(["defg"], request, response)
+
+        assert response.headers == {
+            "Surrogate-Key": "abc defg",
+        }
+
+    def test_multiple_calls_with_different_requests(self):
+        request_a = pretend.stub()
+        request_b = pretend.stub()
+        response_a = pretend.stub(headers={})
+        response_b = pretend.stub(headers={})
+
+        cacher = fastly.FastlyCache(api_key=None, service_id=None, purger=None)
+        cacher.cache(["abc"], request_a, response_a)
+        cacher.cache(["defg"], request_b, response_b)
+
+        assert response_a.headers == {
+            "Surrogate-Key": "abc",
+        }
+        assert response_b.headers == {
+            "Surrogate-Key": "defg",
+        }
+
     def test_purge(self, monkeypatch):
         purge_delay = pretend.call_recorder(lambda *a, **kw: None)
         cacher = fastly.FastlyCache(

@@ -168,19 +168,19 @@
 // PYGMENTS THEME
 
 $blue:          $primary-color;
-$light-blue:    lighten($primary-color, 10);
+$light-blue:    #0078BD;
 $dark-blue:     darken($primary-color, 10);
 $darkest-blue:  darken($primary-color, 20);
-$green:         $success-color;
-$light-green:   lighten($success-color, 10);
+$green:         darken($success-color, 5);
+$light-green:   $success-color;
 $red:           $danger-color;
 $dark-red:      darken($danger-color, 20);
 $purple:        #bb0066;
-$orange:        #dd7700;
-$brown:         #aa6600;
+$orange:        #A36200;
+$brown:         darken($orange, 7);
 
-$light-grey:    $light-grey;
-$mid-grey:      #606060;
+$light-grey:    #737373;
+$mid-grey:      #575757;
 $dark-grey:     #303030;
 $black:         #000;
 

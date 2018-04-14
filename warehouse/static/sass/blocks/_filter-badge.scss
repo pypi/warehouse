@@ -56,6 +56,8 @@
   &__remove-button {
     display: table-cell;
     color: $white;
+    background: transparent;
+    border: 0;
     border-left: 1px solid transparentize($white, 0.8);
     padding: 6px;
 

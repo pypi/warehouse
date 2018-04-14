@@ -114,7 +114,11 @@ a {
     text-decoration: underline;
   }
 
-  @include link-focus
+  @include link-focus(underline);
+}
+
+button {
+  @include link-focus;
 }
 
 @include selection {

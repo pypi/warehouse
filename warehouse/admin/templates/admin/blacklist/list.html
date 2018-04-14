@@ -40,8 +40,8 @@
     <table class="table table-hover">
       <tr>
         <th>Name</th>
-        <th>Blacklisted By</th>
-        <th>Blackisted On</th>
+        <th>Blacklisted by</th>
+        <th>Blackisted on</th>
         <th>Comment</th>
         <th>Actions</th>
       </tr>
@@ -89,13 +89,13 @@
 
 <div class="box box-primary">
   <div class="box-header with-border">
-    <h3 class="box-title">Blacklist Project</h3>
+    <h3 class="box-title">Blacklist project</h3>
   </div>
 
   <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
     <div class="box-body">
       <div class="form-group col-sm-4">
-        <label for="blacklistedProject">Project Name</label>
+        <label for="blacklistedProject">Project name</label>
         <input name="project" class="form-control" id="blacklistedProject" placeholder="Enter project to blacklist" autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
 

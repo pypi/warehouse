@@ -23,14 +23,14 @@
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Your Account</h3>
+          <h3 class="sidebar-section__title">Your account</h3>
           <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block projects_active %}{% endblock %}">
             <i class="fa fa-cube" aria-hidden="true"></i>
-            Your Projects
+            Your projects
           </a>
           <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% block account_active %}{% endblock %}">
             <i class="fa fa-cog" aria-hidden="true"></i>
-            Account Settings
+            Account settings
           </a>
         </div>
       </div>
@@ -39,11 +39,11 @@
         <nav>
           <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% block projects_mobile_active %}{% endblock %}">
             <i class="fa fa-cube" aria-hidden="true"></i>
-            Your Projects
+            Your projects
           </a>
           <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% block account_mobile_active %}{% endblock %}">
             <i class="fa fa-cog" aria-hidden="true"></i>
-            Account Settings
+            Account settings
           </a>
         </nav>
 

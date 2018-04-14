@@ -29,7 +29,7 @@
       <div class="vertical-tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">
-            <a href="{{ request.route_path('manage.projects') }}">Your Projects ({{ projects|length }})</a>
+            <a href="{{ request.route_path('manage.projects') }}">Your projects ({{ projects|length }})</a>
           </h3>
           {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
         </div>
@@ -39,7 +39,7 @@
         <nav>
           <a href="{{ request.route_path('manage.projects') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border">
             <i class="fa fa-arrow-left" aria-hidden="true"></i>
-            Back to Projects
+            Back to projects
           </a>
         </nav>
         <div class="vertical-tabs__content">

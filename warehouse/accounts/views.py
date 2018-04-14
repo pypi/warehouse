@@ -250,7 +250,7 @@ def register(request, _form_class=RegistrationForm):
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
-        send_email_verification_email(request, email)
+        send_email_verification_email(request, user, email)
 
         return HTTPSeeOther(
             request.route_path("index"),
@@ -407,6 +407,9 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
+    email.unverify_reason = None
+    email.transient_bounces = 0
+
     request.user.is_active = True
 
     request.session.flash(

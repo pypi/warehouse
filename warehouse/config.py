@@ -161,12 +161,6 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "mail.host", "MAIL_HOST")
-    maybe_set(settings, "mail.port", "MAIL_PORT")
-    maybe_set(settings, "mail.username", "MAIL_USERNAME")
-    maybe_set(settings, "mail.password", "MAIL_PASSWORD")
-    maybe_set(settings, "mail.sender", "MAIL_SENDER")
-    maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
@@ -194,6 +188,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
+    maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -344,9 +339,6 @@ def configure(settings=None):
     # Register support for template views.
     config.add_directive("add_template_view", template_view, action_wrap=False)
 
-    # Register support for sendnging emails
-    config.include(".email")
-
     # Register support for internationalization and localization
     config.include(".i18n")
 
@@ -375,6 +367,9 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+
+    # Register support for sendnging emails
+    config.include(".email")
 
     # Register our authentication support.
     config.include(".accounts")
