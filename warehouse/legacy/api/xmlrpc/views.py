@@ -312,6 +312,7 @@ def release_urls(request, package_name, version):
             "python_version": f.python_version,
             "size": f.size,
             "md5_digest": f.md5_digest,
+            "sha256_digest": f.sha256_digest,
             "digests": {
                 "md5": f.md5_digest,
                 "sha256": f.sha256_digest,
@@ -322,6 +323,7 @@ def release_urls(request, package_name, version):
             # TODO: Remove this once we've had a long enough time with it
             #       here to consider it no longer in use.
             "downloads": -1,
+            "path": f.path,
             "url": request.route_url("packaging.file", path=f.path),
         }
         for f in files

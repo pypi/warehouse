@@ -563,6 +563,7 @@ def test_release_urls(db_request):
             "python_version": file_.python_version,
             "size": file_.size,
             "md5_digest": file_.md5_digest,
+            "sha256_digest": file_.sha256_digest,
             "digests": {
                 "md5": file_.md5_digest,
                 "sha256": file_.sha256_digest,
@@ -571,6 +572,7 @@ def test_release_urls(db_request):
             "upload_time": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
             "downloads": -1,
+            "path": file_.path,
             "url": urls[0],
         }
     ]
