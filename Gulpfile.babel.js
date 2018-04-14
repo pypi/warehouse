@@ -52,6 +52,8 @@ let webpackConfig = {
   plugins: [
     new webpack.ProvidePlugin({
       "fetch": "imports-loader?this=>global!exports-loader?global.fetch!whatwg-fetch",
+      "jQuery": "jquery",
+      "$": "jquery",
     }),
   ],
   // We tell it to use an inline source map, but only so that it can be loaded
@@ -120,19 +122,10 @@ gulp.task("dist:noscript", () => {
 
 
 gulp.task("dist:admin:js", () => {
-  let files = [
-    path.join("warehouse/admin/static/js/warehouse.js"),
-  ];
-
-  return gulp.src(files)
+  return gulp.src("warehouse/admin/static/js/*.js")
     .pipe(named(() => { return "admin"; }))
     .pipe(gulpWebpack(webpackConfig, webpack))
     .pipe(sourcemaps.init({ loadMaps: true }))
-    .pipe(uglify(
-      // We don't care about IE6-8 so there's no reason to have
-      // uglify contain to maintain compatability for it.
-      { compress: { ie8: false }, mangle: { ie8: false } }
-    ))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(path.join("warehouse/admin/static/dist/js")));
 });
