@@ -55,11 +55,11 @@ class Project(DocType):
 
     @classmethod
     def from_db(cls, release):
-        obj = cls(meta={"id": release.project.normalized_name})
-        obj["name"] = release.project.name
-        obj["normalized_name"] = release.project.normalized_name
-        obj["version"] = [r.version for r in release.project.all_versions]
-        obj["latest_version"] = release.project.latest_version.version
+        obj = cls(meta={"id": release.normalized_name})
+        obj["name"] = release.name
+        obj["normalized_name"] = release.normalized_name
+        obj["version"] = release.all_versions
+        obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description
         obj["author"] = release.author
@@ -71,6 +71,6 @@ class Project(DocType):
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
         obj["created"] = release.created
-        obj["classifiers"] = list(release.classifiers)
+        obj["classifiers"] = release.classifiers
 
         return obj
