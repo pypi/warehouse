@@ -14,7 +14,7 @@ endif
 define DEPCHECKER
 import sys
 
-from pip._internals.req import parse_requirements
+from pip._internal.req import parse_requirements
 
 left, right = sys.argv[1:3]
 left_reqs = {
