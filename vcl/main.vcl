@@ -1,3 +1,5 @@
+# Note: This is *ONLY* used for test.pypi.org, for the pypi.org, see python/pypi-infra
+
 # Note: It is VERY important to ensure that any changes to VCL will work
 #       properly with both the current version of ``master`` and the version in
 #       the pull request that adds any new changes. This is because the
