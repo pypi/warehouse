@@ -15,7 +15,7 @@ import enum
 import automat
 
 from sqlalchemy import sql, orm
-from sqlalchemy import Column, Enum, ForeignKey, DateTime, Text
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.session import object_session
@@ -107,28 +107,32 @@ class EmailStatus:
     @_machine.output()
     def _handle_bounce(self):
         email = self._get_email()
-        email.verified = False
-        email.unverify_reason = UnverifyReasons.HardBounce
+        if email is not None:
+            email.verified = False
+            email.unverify_reason = UnverifyReasons.HardBounce
 
     @_machine.output()
     def _handle_complaint(self):
         email = self._get_email()
-        email.verified = False
-        email.unverify_reason = UnverifyReasons.SpamComplaint
+        if email is not None:
+            email.verified = False
+            email.unverify_reason = UnverifyReasons.SpamComplaint
 
     @_machine.output()
     def _incr_transient_bounce(self):
         email = self._get_email()
-        email.transient_bounces += 1
+        if email is not None:
+            email.transient_bounces += 1
 
-        if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
-            email.verified = False
-            email.unverify_reason = UnverifyReasons.SoftBounce
+            if email.transient_bounces > MAX_TRANSIENT_BOUNCES:
+                email.verified = False
+                email.unverify_reason = UnverifyReasons.SoftBounce
 
     @_machine.output()
     def _reset_transient_bounce(self):
         email = self._get_email()
-        email.transient_bounces = 0
+        if email is not None:
+            email.transient_bounces = 0
 
     # Transitions
 
@@ -173,10 +177,22 @@ class EmailStatus:
 
     # Helper methods
     def _get_email(self):
+        # If the email was missing previously, then we don't want subsequent
+        # events to re-add it, so we'll just skip them.
+        if self._email_message.missing:
+            return
+
         db = object_session(self._email_message)
-        return (db.query(EmailAddress)
-                  .filter(EmailAddress.email == self._email_message.to)
-                  .one())
+        email = (db.query(EmailAddress)
+                   .filter(EmailAddress.email == self._email_message.to)
+                   .first())
+
+        # If our email is None, then we'll mark our log so that when we're
+        # viewing the log, we can tell that it wasn't recorded.
+        if email is None:
+            self._email_message.missing = True
+
+        return email
 
 
 class EmailMessage(db.Model):
@@ -194,6 +210,7 @@ class EmailMessage(db.Model):
     from_ = Column("from", Text, nullable=False)
     to = Column(Text, nullable=False, index=True)
     subject = Column(Text, nullable=False)
+    missing = Column(Boolean, nullable=False, server_default=sql.false())
 
     # Relationships!
     events = orm.relationship(
