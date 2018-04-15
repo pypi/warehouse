@@ -18,7 +18,32 @@ import elasticsearch
 from celery.schedules import crontab
 from elasticsearch_dsl import serializer
 
+from warehouse import db
 from warehouse.search.utils import get_index
+from warehouse.packaging.models import Project, Release
+
+
+@db.listens_for(db.Session, "after_flush")
+def store_projects_for_project_reindex(config, session, flush_context):
+    # We'll (ab)use the session.info dictionary to store a list of pending
+    # Project updates to the session.
+    purges = session.info.setdefault("warehouse.search.project_updates", set())
+
+    # Go through each new, changed, and deleted object and attempt to store
+    # a Project to reindex for when the session has been committed.
+    for obj in (session.new | session.dirty | session.deleted):
+        if obj.__class__ == Project:
+            purges.add(obj)
+        if obj.__class__ == Release:
+            purges.add(obj.project)
+
+
+@db.listens_for(db.Session, "after_commit")
+def execute_project_reindex(config, session):
+    purges = session.info.pop("warehouse.search.project_updates", set())
+    from warehouse.search.tasks import reindex_project
+    for project in purges:
+        config.task(reindex_project).delay(project.normalized_name)
 
 
 def es(request):

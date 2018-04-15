@@ -19,7 +19,7 @@ import pytest
 from first import first
 
 import warehouse.search.tasks
-from warehouse.search.tasks import reindex, _project_docs
+from warehouse.search.tasks import reindex, reindex_project, _project_docs
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -51,6 +51,37 @@ def test_project_docs(db_session):
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
+    ]
+
+
+def test_single_project_doc(db_session):
+    projects = [ProjectFactory.create() for _ in range(2)]
+    releases = {
+        p: sorted(
+            [ReleaseFactory.create(project=p) for _ in range(3)],
+            key=lambda r: packaging.version.parse(r.version),
+            reverse=True,
+        )
+        for p in projects
+    }
+
+    assert list(_project_docs(db_session, project_name=projects[1].name)) == [
+        {
+            "_id": p.normalized_name,
+            "_type": "project",
+            "_source": {
+                "created": p.created,
+                "name": p.name,
+                "normalized_name": p.normalized_name,
+                "version": [r.version for r in prs],
+                "latest_version": first(
+                    prs,
+                    key=lambda r: not r.is_prerelease,
+                ).version,
+            },
+        }
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
+        if p.name == projects[1].name
     ]
 
 
@@ -273,3 +304,85 @@ class TestReindex:
         assert es_client.indices.forcemerge.calls == [
             pretend.call(index='warehouse-cbcbcbcbcb')
         ]
+
+
+class TestPartialReindex:
+
+    def test_fails_when_raising(self, db_request, monkeypatch):
+        docs = pretend.stub()
+
+        def project_docs(db, project_name=None):
+            return docs
+
+        monkeypatch.setattr(
+            warehouse.search.tasks,
+            "_project_docs",
+            project_docs,
+        )
+
+        es_client = FakeESClient()
+
+        db_request.registry.update(
+            {
+                "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
+            },
+        )
+
+        class TestException(Exception):
+            pass
+
+        def parallel_bulk(client, iterable):
+            assert client is es_client
+            assert iterable is docs
+            raise TestException
+
+        monkeypatch.setattr(
+            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+
+        with pytest.raises(TestException):
+            reindex_project(db_request, 'foo')
+
+        assert es_client.indices.put_settings.calls == []
+        assert es_client.indices.forcemerge.calls == []
+
+    def test_successfully_indexes(self, db_request, monkeypatch):
+        docs = pretend.stub()
+
+        def project_docs(db, project_name=None):
+            return docs
+
+        monkeypatch.setattr(
+            warehouse.search.tasks,
+            "_project_docs",
+            project_docs,
+        )
+
+        es_client = FakeESClient()
+        es_client.indices.indices["warehouse-aaaaaaaaaa"] = None
+        es_client.indices.aliases["warehouse"] = ["warehouse-aaaaaaaaaa"]
+        db_engine = pretend.stub()
+
+        db_request.registry.update(
+            {
+                "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
+                "elasticsearch.shards": 42,
+                "sqlalchemy.engine": db_engine,
+            },
+        )
+
+        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        monkeypatch.setattr(
+            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+
+        reindex_project(db_request, 'foo')
+
+        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert es_client.indices.create.calls == []
+        assert es_client.indices.delete.calls == []
+        assert es_client.indices.aliases == {
+            "warehouse": ["warehouse-aaaaaaaaaa"],
+        }
+        assert es_client.indices.put_settings.calls == []
+        assert es_client.indices.forcemerge.calls == []
