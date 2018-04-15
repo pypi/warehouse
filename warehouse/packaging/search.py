@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import packaging.version
+
 from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
 
 from warehouse.search.utils import doc_type
@@ -58,7 +60,11 @@ class Project(DocType):
         obj = cls(meta={"id": release.normalized_name})
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
-        obj["version"] = release.all_versions
+        obj["version"] = sorted(
+            release.all_versions,
+            key=lambda r: packaging.version.parse(r),
+            reverse=True,
+        )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description
