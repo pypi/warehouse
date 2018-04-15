@@ -79,17 +79,22 @@ class User(SitemapMixin, db.Model):
         lazy=False,
     )
 
-    @hybrid_property
-    def email(self):
+    @property
+    def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
-            return primaries[0].email
+            return primaries[0]
+
+    @hybrid_property
+    def email(self):
+        primary_email = self.primary_email
+        return primary_email.email if primary_email else None
 
     @email.expression
     def email(self):
         return (
             select([Email.email])
-            .where((Email.user_id == self.id) & (Email.primary == True))  # noqa
+            .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .as_scalar()
         )
 
