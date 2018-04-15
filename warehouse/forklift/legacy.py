@@ -1267,17 +1267,6 @@ def file_upload(request):
                 },
             )
 
-        # TODO: Once we no longer have the legacy code base running PyPI we can
-        #       go ahead and delete this tiny bit of shim code, since it only
-        #       exists to purge stuff on legacy PyPI when uploaded to Warehouse
-        old_domain = request.registry.settings.get("warehouse.legacy_domain")
-        if old_domain:
-            request.tm.get().addAfterCommitHook(
-                _legacy_purge,
-                args=["https://{}/pypi".format(old_domain)],
-                kws={"data": {":action": "purge", "project": project.name}},
-            )
-
     return Response()
 
 
