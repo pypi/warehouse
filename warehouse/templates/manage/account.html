@@ -79,9 +79,9 @@
           <form method="POST">
             <input hidden name="reverify_email_id" value="{{ email.id }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button class="dropdown__link" type="submit" title="Resend verification email">
+            <button class="dropdown__link" type="submit" title="Send verification email">
               <i class="fa fa-envelope" aria-hidden="true"></i>
-              Resend verification email
+              Send verification email
             </button>
           </form>
           {% endif %}
