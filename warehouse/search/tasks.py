@@ -87,7 +87,7 @@ def _project_docs(db):
         .order_by(Release.name)
     )
 
-    for release in windowed_query(release_data, Release.name, 1000):
+    for release in windowed_query(release_data, Release.name, 50000):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         yield p.to_dict(include_meta=True)
