@@ -18,6 +18,20 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 
+{% block extra_notifications %}
+  {% if not request.user.primary_email.verified %}
+  <div class="notification-bar notification-bar--danger">
+    <span class="notification-bar__message">
+      <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      Your primary email address ({{ request.user.primary_email.email }}) is unverified.
+      <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
+        Verify your email or add a new address.
+      </a>
+    </span>
+  </div>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   <div class="tabs-container">
     <div class="vertical-tabs">
