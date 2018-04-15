@@ -187,16 +187,20 @@ def top_packages(request, num=None):
 
 @xmlrpc_cache_by_project(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
+    try:
+        project = (
+            request.db.query(Project)
+                      .filter(Project.normalized_name ==
+                              func.normalize_pep426_name(package_name))
+                      .one()
+        )
+    except NoResultFound:
+        return []
+
     # This used to support the show_hidden parameter to determine if it should
     # show hidden releases or not. However, Warehouse doesn't support the
     # concept of hidden releases, so this parameter controls if the latest
     # version or all_versions are returned.
-    project = (
-        request.db.query(Project)
-                  .filter(Project.normalized_name ==
-                          func.normalize_pep426_name(package_name))
-                  .one()
-    )
     if show_hidden:
         return [v.version for v in project.all_versions]
     else:
