@@ -51,7 +51,7 @@ default:
 	python3.6 -m venv .state/env
 
 	# install/upgrade general requirements
-	.state/env/bin/python -m pip install --upgrade 'pip<10' setuptools wheel
+	.state/env/bin/python -m pip install --upgrade pip setuptools wheel
 
 	# install various types of requirements
 	.state/env/bin/python -m pip install -r requirements/dev.txt
