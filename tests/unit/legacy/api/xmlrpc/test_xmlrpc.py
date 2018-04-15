@@ -472,6 +472,11 @@ def test_package_releases_hidden(db_request):
     ]
 
 
+def test_package_releases_no_project(db_request):
+    result = xmlrpc.package_releases(db_request, "foo")
+    assert result == []
+
+
 def test_release_data_no_project(db_request):
     assert xmlrpc.release_data(db_request, "foo", "1.0") == {}
 
