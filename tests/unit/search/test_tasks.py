@@ -12,6 +12,8 @@
 
 import os
 
+from contextlib import contextmanager
+
 import celery
 import elasticsearch
 import packaging.version
@@ -132,6 +134,11 @@ class FakeESClient:
         self.indices = FakeESIndices()
 
 
+@contextmanager
+def _not_lock(*a, **kw):
+    yield True
+
+
 class TestReindex:
 
     def test_fails_when_raising(self, db_request, monkeypatch):
@@ -167,6 +174,10 @@ class TestReindex:
             assert client is es_client
             assert iterable is docs
             raise TestException
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -232,6 +243,10 @@ class TestReindex:
         db_request.registry.settings = {
             "celery.scheduler_url": "redis://redis:6379/0",
         }
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
         monkeypatch.setattr(
@@ -304,6 +319,10 @@ class TestReindex:
         db_request.registry.settings = {
             "celery.scheduler_url": "redis://redis:6379/0",
         }
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
         monkeypatch.setattr(
@@ -386,6 +405,10 @@ class TestPartialReindex:
             raise TestException
 
         monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
+
+        monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         with pytest.raises(TestException):
@@ -394,7 +417,7 @@ class TestPartialReindex:
         assert es_client.indices.put_settings.calls == []
         assert es_client.indices.forcemerge.calls == []
 
-    def test_unindex_fails_when_raising(self, db_request):
+    def test_unindex_fails_when_raising(self, db_request, monkeypatch):
         class TestException(Exception):
             pass
 
@@ -412,6 +435,10 @@ class TestPartialReindex:
         db_request.registry.settings = {
             "celery.scheduler_url": "redis://redis:6379/0",
         }
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         with pytest.raises(TestException):
             unindex_project(task, db_request, 'foo')
@@ -462,7 +489,7 @@ class TestPartialReindex:
             pretend.call(countdown=60, exc=le)
         ]
 
-    def test_unindex_accepts_defeat(self, db_request):
+    def test_unindex_accepts_defeat(self, db_request, monkeypatch):
         task = pretend.stub()
         es_client = FakeESClient()
         es_client.delete = pretend.call_recorder(
@@ -478,6 +505,10 @@ class TestPartialReindex:
         db_request.registry.settings = {
             "celery.scheduler_url": "redis://redis:6379/0",
         }
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         unindex_project(task, db_request, 'foo')
 
@@ -515,6 +546,10 @@ class TestPartialReindex:
         db_request.registry.settings = {
             "celery.scheduler_url": "redis://redis:6379/0",
         }
+
+        monkeypatch.setattr(
+            redis.StrictRedis, "from_url",
+            lambda *a, **kw: pretend.stub(lock=_not_lock))
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
         monkeypatch.setattr(
