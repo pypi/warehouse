@@ -87,7 +87,9 @@
     </script>
     {% block extra_js %}
     {% endblock %}
-    <script async src="https://www.google-analytics.com/analytics.js"></script>
+    {% if request.registry.settings.get("ga.tracking_id") -%}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
+    {% endif -%}
   </head>
 
   <body>
