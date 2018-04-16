@@ -30,12 +30,13 @@
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
 {% macro statistics() %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endmacro %}
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
+{% macro tls_deprecation() %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <tt>pip install</tt>?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
-{% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
+{% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
 {% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
@@ -77,6 +78,7 @@
         <h2><a href="#problems">Problems</a></h2>
         <ul>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
+          <li><a href="#tls-deprecation">{{ tls_deprecation() }}</a></li>
           <li><a href="#accessibility">{{ accessibility() }}</a></li>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
@@ -180,6 +182,16 @@
         <h3 id="login-problem">{{ login_problem() }}</h3>
         <p>
           You should be able to <a href="{{ request.route_path('accounts.reset-password') }}">reset your password</a> on the site; you'll receive an email with a password reset link. If you no longer have access to the email address associated with your account, <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to help.
+        </p>
+        {{ code_of_conduct() }}
+
+        <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
+        <p>
+          Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure. It's a cryptographic protocol that's had several versions over time. PyPI <a href="https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a> in April 2018 (<a href="https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html" target="_blank" rel="noopener">reason</a>). If you are having trouble with <tt> pip install</tt> and get a <tt>No matching distribution found</tt> or <tt>Could not fetch URL</tt> error, try adding <tt>-v</tt> to the command to get more information:
+        </p>
+        <p><tt>pip install --upgrade -v pip</tt>
+        </p>
+        <p>If you see an error like <tt>There was a problem confirming the ssl certificate</tt> or <tt>tlsv1 alert protocol version</tt> or <tt>TLSV1_ALERT_PROTOCOL_VERSION</tt>, you need to be connecting to PyPI with a newer TLS support library. The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <tt>setuptools<tt>, and <tt>pip</tt>. For help, please go to <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">the <tt>#pypa</tt> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your OS and installation details and the output of <tt>pip install -vvv upgrade pip</tt>.
         </p>
         {{ code_of_conduct() }}
 
