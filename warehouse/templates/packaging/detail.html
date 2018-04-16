@@ -19,17 +19,15 @@
 
 {% if name|lower == "download" %}
    {% set icon = "cloud-download" %}
-{% elif parsed.netloc == "github.com" %}
+{% elif parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com") %}
   {% set icon = "github" %}
-{% elif parsed.netloc == "bitbucket.org" %}
+{% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
   {% set icon = "bitbucket" %}
-{% elif parsed.netloc == "gratipay.com" or parsed.netloc == "gittip.com" %}
-  {% set icon = "gratipay" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "reddit-alien" %}
 {% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "slack" %}
-{% elif parsed.netloc == "twitter.com" %}
+{% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "twitter" %}
 {% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
   {% set icon = "home" %}
@@ -163,7 +161,7 @@
           </a>
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
             <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <strong>Open issues: </strong>
+            <strong>Open issues/PRs: </strong>
             <span class="github-repo-info__item" data-key="open_issues_count"></span>
           </a>
         </div>
@@ -204,13 +202,18 @@
         </div>
         {% endif %}
 
-        <div class="sidebar-section sidebar-section--maintainers">
+        <div class="sidebar-section">
           <h3 class="sidebar-section__title">Maintainers</h3>
           {% for maintainer in maintainers %}
             {% set alt = "Avatar for {} from gravatar.com".format(maintainer.username) %}
-            <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="tooltipped tooltipped-e" aria-label="{{ maintainer.username}}" data-original-label="{{ maintainer.username}}">
-              <img src="{{ gravatar(maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
-            </a>
+            <span class="sidebar-section__maintainer">
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}" class="sidebar-section__user-gravatar">
+                <img src="{{ gravatar(request, maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+              </a>
+              <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="sidebar-section__user-gravatar-text">
+                {{ maintainer.username}}
+              </a>
+            </span>
           {% endfor %}
         </div>
 
@@ -319,7 +322,7 @@
                 <tr>
                   <th class="table__filename">
                     Filename, size &amp; hash
-                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?">
+                    <a href="https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode" class="tooltipped tooltipped-n" aria-label="what's this?" data-original-label="what's this?" target="_blank">
                       <i class="fa fa-question-circle" aria-hidden="true"></i>
                       <span class="sr-only">SHA256 hash help</span>
                     </a>
@@ -336,7 +339,6 @@
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
-                    <br>
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>

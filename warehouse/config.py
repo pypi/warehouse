@@ -241,6 +241,9 @@ def configure(settings=None):
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
 
+    # Include our filters
+    config.include(".filters")
+
     # Including pyramid_mailer for sending emails through SMTP.
     config.include("pyramid_mailer")
 

@@ -316,6 +316,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
+            pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),

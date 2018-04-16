@@ -97,6 +97,11 @@
             <dt>Subject</dt>
             <dd>{{ email.subject }}</dd>
 
+            {% if email.missing %}
+            <dt>Missing</dt>
+            <dd>"{{ email.to }}" was missing from the database during processing.</dd>
+            {% endif %}
+
             <dt>Status</dt>
             <dd class="text-{{ status_color(email.status) }}">{{ email.status.value }}</dd>
           </dl>

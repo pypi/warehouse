@@ -9,26 +9,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+Add a column to track if the email was missing
 
-import hashlib
-import urllib.parse
+Revision ID: 6714f3f04f0f
+Revises: 7f0d1b5af8c7
+Create Date: 2018-04-15 06:05:36.949018
+"""
 
-
-def _hash(email):
-    if email is None:
-        email = ""
-
-    return hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
-
-
-def gravatar(request, email, size=80):
-    url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
-    params = {
-        "size": size,
-    }
-
-    return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
+from alembic import op
+import sqlalchemy as sa
 
 
-def profile(email):
-    return "https://gravatar.com/{}".format(_hash(email))
+revision = "6714f3f04f0f"
+down_revision = "7f0d1b5af8c7"
+
+
+def upgrade():
+    op.add_column(
+        "ses_emails",
+        sa.Column(
+            "missing",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+        ),
+    )
+
+
+def downgrade():
+    op.drop_column("ses_emails", "missing")

@@ -136,6 +136,7 @@ class Project(SitemapMixin, db.ModelBase):
         backref="project",
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),
+        passive_deletes=True,
     )
 
     def __getitem__(self, version):
@@ -341,6 +342,7 @@ class Release(db.ModelBase):
         backref="project_releases",
         secondary=lambda: release_classifiers,
         order_by=Classifier.classifier,
+        passive_deletes=True,
     )
     classifiers = association_proxy("_classifiers", "classifier")
 
@@ -350,6 +352,7 @@ class Release(db.ModelBase):
         cascade="all, delete-orphan",
         lazy="dynamic",
         order_by=lambda: File.filename,
+        passive_deletes=True,
     )
 
     dependencies = orm.relationship("Dependency")
@@ -437,7 +440,8 @@ class Release(db.ModelBase):
     def github_repo_info_url(self):
         for parsed in [urlparse(url) for url in self.urls.values()]:
             segments = parsed.path.strip('/').rstrip('/').split('/')
-            if parsed.netloc == 'github.com' and len(segments) >= 2:
+            if (parsed.netloc == 'github.com' or
+                    parsed.netloc == 'www.github.com') and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
