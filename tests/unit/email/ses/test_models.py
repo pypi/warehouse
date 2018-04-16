@@ -47,6 +47,14 @@ class TestEmailStatus:
         assert status.save().status is EmailStatuses.Delivered
         assert email.transient_bounces == 0
 
+    def test_delivery_without_an_email_obj(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.deliver()
+
+        assert em.missing
+
     def test_soft_bounce_increments_transient_bounces(self, db_session):
         email = EmailFactory.create(transient_bounces=3)
         em = EmailMessageFactory.create(to=email.email)
@@ -79,6 +87,14 @@ class TestEmailStatus:
 
         assert status.save().status is EmailStatuses.Delivered
         assert email.transient_bounces == 0
+
+    def test_soft_bounce_without_an_email_obj(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.soft_bounce()
+
+        assert em.missing
 
     def test_hard_bounce_unverifies_email(self, db_session):
         email = EmailFactory.create()
@@ -123,6 +139,24 @@ class TestEmailStatus:
 
         assert email.transient_bounces == 0
 
+    def test_hard_bounce_without_an_email_obj(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.bounce()
+
+        assert em.missing
+
+    def test_hard_bounce_after_delivery_without_email_obj(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.deliver()
+        EmailFactory.create(email=em.to)
+        status.bounce()
+
+        assert em.missing
+
     def test_complain_unverifies_email(self, db_session):
         email = EmailFactory.create()
         em = EmailMessageFactory.create(to=email.email)
@@ -144,6 +178,25 @@ class TestEmailStatus:
         status.complain()
 
         assert email.transient_bounces == 0
+
+    def test_complain_without_an_email_obj(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.deliver()
+        status.complain()
+
+        assert em.missing
+
+    def test_complain_without_email_obj_and_with(self, db_session):
+        em = EmailMessageFactory.create()
+
+        status = EmailStatus.load(em)
+        status.deliver()
+        EmailFactory.create(email=em.to)
+        status.complain()
+
+        assert em.missing
 
     @pytest.mark.parametrize(
         "start_status",

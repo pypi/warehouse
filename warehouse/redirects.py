@@ -10,12 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
 
 
 def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
     def redirect_view(request):
-        return redirect(target.format(_request=request, **request.matchdict))
+        redirect_to = target.format(_request=request, **request.matchdict)
+
+        # Check to see if any of the characters that we can't represent in a
+        # header exist in our target, if so we'll raise a BadRequest
+        if set(redirect_to) & {"\n", "\r"}:
+            raise HTTPBadRequest("URL may not contain control characters")
+
+        return redirect(redirect_to)
     return redirect_view
 
 
