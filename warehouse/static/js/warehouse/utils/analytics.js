@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-/* global ga */
+/* global dataLayer */
 
 import * as cookie from "cookie";
 
@@ -21,17 +21,17 @@ export default () => {
   if (element) {
     // This is more or less taken straight from Google Analytics Control Panel
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    var gtag = function(){ dataLayer.push(arguments); };
 
-    gtag('js', new Date());
-    gtag('config', element.dataset.gaId, { 'anonymize_ip': true });
+    gtag("js", new Date());
+    gtag("config", element.dataset.gaId, { "anonymize_ip": true });
 
     // Determine if we have a user ID associated with this person, if so we'll
     // go ahead and tell Google it to enable better tracking of individual
     // users.
     let cookies = cookie.parse(document.cookie);
     if (cookies.user_id__insecure) {
-      gtag('set', {'user_id': cookies.user_id__insecure});
+      gtag("set", {"user_id": cookies.user_id__insecure});
     }
   }
 };
