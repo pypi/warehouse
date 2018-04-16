@@ -19,17 +19,15 @@
 
 {% if name|lower == "download" %}
    {% set icon = "cloud-download" %}
-{% elif parsed.netloc == "github.com" %}
+{% elif parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com") %}
   {% set icon = "github" %}
-{% elif parsed.netloc == "bitbucket.org" %}
+{% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
   {% set icon = "bitbucket" %}
-{% elif parsed.netloc == "gratipay.com" or parsed.netloc == "gittip.com" %}
-  {% set icon = "gratipay" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
   {% set icon = "reddit-alien" %}
 {% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
   {% set icon = "slack" %}
-{% elif parsed.netloc == "twitter.com" %}
+{% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "twitter" %}
 {% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
   {% set icon = "home" %}
@@ -163,7 +161,7 @@
           </a>
           <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
             <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <strong>Open issues: </strong>
+            <strong>Open issues/PRs: </strong>
             <span class="github-repo-info__item" data-key="open_issues_count"></span>
           </a>
         </div>

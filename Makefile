@@ -14,7 +14,7 @@ endif
 define DEPCHECKER
 import sys
 
-from pip.req import parse_requirements
+from pip._internal.req import parse_requirements
 
 left, right = sys.argv[1:3]
 left_reqs = {
@@ -46,7 +46,7 @@ default:
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
-	# Create our Python 3.5 virtual environment
+	# Create our Python 3.6 virtual environment
 	rm -rf .state/env
 	python3.6 -m venv .state/env
 

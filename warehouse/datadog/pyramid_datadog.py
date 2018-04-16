@@ -86,18 +86,20 @@ def on_before_render(before_render_event):
     request = before_render_event['request']
 
     timings = request.timings
-    timings['view_duration'] = time_ms() - timings['view_code_start']
+    if "view_code_start" in timings:
+        timings['view_duration'] = time_ms() - timings['view_code_start']
     timings['before_render_start'] = time_ms()
 
     route_tag = 'route:null'
     if request.matched_route:
         route_tag = 'route:%s' % request.matched_route.name
 
-    request.registry.datadog.timing(
-        'pyramid.request.duration.view',
-        timings['view_duration'],
-        tags=[route_tag],
-    )
+    if "view_duration" in timings:
+        request.registry.datadog.timing(
+            'pyramid.request.duration.view',
+            timings['view_duration'],
+            tags=[route_tag],
+        )
 
 
 def on_new_response(new_response_event):

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Fail fast and fail hard.
+set -eo pipefail
+
+# Migrate our database to the latest revision.
+python -m warehouse db upgrade head

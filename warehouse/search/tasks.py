@@ -13,47 +13,87 @@
 import binascii
 import os
 
-from elasticsearch.helpers import parallel_bulk
-from sqlalchemy import and_
-from sqlalchemy.orm import lazyload, joinedload, load_only
+import elasticsearch
 
-from warehouse.packaging.models import Release
+from elasticsearch.helpers import parallel_bulk
+from sqlalchemy import and_, func
+from sqlalchemy.orm import aliased
+
+from warehouse.packaging.models import (
+    Classifier, Project, Release, release_classifiers)
 from warehouse.packaging.search import Project as ProjectDocType
 from warehouse.search.utils import get_index
 from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
 
-def _project_docs(db):
+def _project_docs(db, project_name=None):
 
     releases_list = (
-        db.query(Release)
-          .options(load_only(
-                   "name", "version"))
-          .distinct(Release.name)
-          .order_by(
-              Release.name,
-              Release.is_prerelease.nullslast(),
-              Release._pypi_ordering.desc())
-    ).subquery('release_list')
-
-    release_data = (
-        db.query(Release)
-          .options(load_only(
-                   "summary", "description", "author",
-                   "author_email", "maintainer", "maintainer_email",
-                   "home_page", "download_url", "keywords", "platform",
-                   "created"))
-          .options(lazyload("*"),
-                   (joinedload(Release.project)
-                    .load_only("normalized_name", "name")),
-                   joinedload(Release._classifiers).load_only("classifier"))
-          .filter(and_(
-              Release.name == releases_list.c.name,
-              Release.version == releases_list.c.version))
+        db.query(Release.name, Release.version)
+        .order_by(
+            Release.name,
+            Release.is_prerelease.nullslast(),
+            Release._pypi_ordering.desc(),
+        )
+        .distinct(Release.name)
     )
 
-    for release in windowed_query(release_data, Release.name, 1000):
+    if project_name:
+        releases_list = releases_list.filter(Release.name == project_name)
+
+    releases_list = releases_list.subquery()
+
+    r = aliased(Release, name="r")
+
+    all_versions = (
+        db.query(func.array_agg(r.version))
+        .filter(r.name == Release.name)
+        .correlate(Release)
+        .as_scalar()
+        .label("all_versions")
+    )
+
+    classifiers = (
+        db.query(func.array_agg(Classifier.classifier))
+        .select_from(release_classifiers)
+        .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
+        .filter(Release.name == release_classifiers.c.name)
+        .filter(Release.version == release_classifiers.c.version)
+        .correlate(Release)
+        .as_scalar()
+        .label("classifiers")
+    )
+
+    release_data = (
+        db.query(
+            Release.description,
+            Release.name,
+            Release.version.label("latest_version"),
+            all_versions,
+            Release.author,
+            Release.author_email,
+            Release.maintainer,
+            Release.maintainer_email,
+            Release.home_page,
+            Release.summary,
+            Release.keywords,
+            Release.platform,
+            Release.download_url,
+            Release.created,
+            classifiers,
+            Project.normalized_name,
+            Project.name,
+        )
+        .select_from(releases_list)
+        .join(Release, and_(
+            Release.name == releases_list.c.name,
+            Release.version == releases_list.c.version))
+        .outerjoin(Release.project)
+        .order_by(Release.name)
+    )
+
+    for release in windowed_query(release_data, Release.name, 50000):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         yield p.to_dict(include_meta=True)
@@ -131,3 +171,30 @@ def reindex(request):
         client.indices.delete(",".join(to_delete))
     else:
         client.indices.put_alias(name=index_base, index=new_index_name)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def reindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    doc_types = request.registry.get("search.doc_types", set())
+    index_name = request.registry["elasticsearch.index"]
+    get_index(
+        index_name,
+        doc_types,
+        using=client,
+        shards=request.registry.get("elasticsearch.shards", 1),
+        replicas=request.registry.get("elasticsearch.replicas", 0),
+    )
+
+    for _ in parallel_bulk(client, _project_docs(request.db, project_name)):
+        pass
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def unindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    index_name = request.registry["elasticsearch.index"]
+    try:
+        client.delete(index=index_name, doc_type="project", id=project_name)
+    except elasticsearch.exceptions.NotFoundError:
+        pass

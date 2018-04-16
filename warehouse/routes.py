@@ -285,6 +285,12 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_xmlrpc_endpoint(
+        "pypi_slash",
+        pattern="/pypi/",
+        header="Content-Type:text/xml",
+        domain=warehouse,
+    )
+    config.add_xmlrpc_endpoint(
         "RPC2",
         pattern="/RPC2",
         header="Content-Type:text/xml",
