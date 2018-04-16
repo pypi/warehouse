@@ -306,7 +306,10 @@
 
         <h3 id="availability">{{ availability() }}</h3>
         <p>
-          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, as could be expected for a giant distributed system, things can and sometimes do go wrong. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
+          As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the legacy site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.
+        </p>
+        <p>
+          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. Please see <a href="http://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
         </p>
 
         <h3 id="contributing">{{ contributing() }}</h3>
