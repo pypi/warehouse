@@ -13,6 +13,8 @@
 import binascii
 import os
 
+import elasticsearch
+
 from elasticsearch.helpers import parallel_bulk
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -25,7 +27,7 @@ from warehouse import tasks
 from warehouse.utils.db import windowed_query
 
 
-def _project_docs(db):
+def _project_docs(db, project_name=None):
 
     releases_list = (
         db.query(Release.name, Release.version)
@@ -35,8 +37,12 @@ def _project_docs(db):
             Release._pypi_ordering.desc(),
         )
         .distinct(Release.name)
-        .subquery("release_list")
     )
+
+    if project_name:
+        releases_list = releases_list.filter(Release.name == project_name)
+
+    releases_list = releases_list.subquery()
 
     r = aliased(Release, name="r")
 
@@ -165,3 +171,30 @@ def reindex(request):
         client.indices.delete(",".join(to_delete))
     else:
         client.indices.put_alias(name=index_base, index=new_index_name)
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def reindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    doc_types = request.registry.get("search.doc_types", set())
+    index_name = request.registry["elasticsearch.index"]
+    get_index(
+        index_name,
+        doc_types,
+        using=client,
+        shards=request.registry.get("elasticsearch.shards", 1),
+        replicas=request.registry.get("elasticsearch.replicas", 0),
+    )
+
+    for _ in parallel_bulk(client, _project_docs(request.db, project_name)):
+        pass
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def unindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    index_name = request.registry["elasticsearch.index"]
+    try:
+        client.delete(index=index_name, doc_type="project", id=project_name)
+    except elasticsearch.exceptions.NotFoundError:
+        pass
