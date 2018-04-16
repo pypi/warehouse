@@ -86,7 +86,11 @@ def includeme(config):
                 SELF,
                 config.registry.settings["camo.url"],
             ],
-            "script-src": [SELF, "www.googletagmanager.com"],
+            "script-src": [
+                SELF,
+                "www.googletagmanager.com",
+                "www.google-analytics.com",
+            ],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
     })
