@@ -14,7 +14,6 @@ import binascii
 import os
 
 import elasticsearch
-import redis
 
 from elasticsearch.helpers import parallel_bulk
 from sqlalchemy import and_, func
@@ -100,128 +99,102 @@ def _project_docs(db, project_name=None):
         yield p.to_dict(include_meta=True)
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def reindex(self, request):
+@tasks.task(ignore_result=True, acks_late=True)
+def reindex(request):
     """
     Recreate the Search Index.
     """
-    r = redis.StrictRedis.from_url(
-        request.registry.settings["celery.scheduler_url"])
+    client = request.registry["elasticsearch.client"]
+    number_of_replicas = request.registry.get("elasticsearch.replicas", 0)
+    refresh_interval = request.registry.get("elasticsearch.interval", "1s")
+
+    # We use a randomly named index so that we can do a zero downtime reindex.
+    # Essentially we'll use a randomly named index which we will use until all
+    # of the data has been reindexed, at which point we'll point an alias at
+    # our randomly named index, and then delete the old randomly named index.
+
+    # Create the new index and associate all of our doc types with it.
+    index_base = request.registry["elasticsearch.index"]
+    random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
+    new_index_name = "{}-{}".format(index_base, random_token)
+    doc_types = request.registry.get("search.doc_types", set())
+    shards = request.registry.get("elasticsearch.shards", 1)
+
+    # Create the new index with zero replicas and index refreshes disabled
+    # while we are bulk indexing.
+    new_index = get_index(
+        new_index_name,
+        doc_types,
+        using=client,
+        shards=shards,
+        replicas=0,
+        interval="-1",
+    )
+    new_index.create(wait_for_active_shards=shards)
+
+    # From this point on, if any error occurs, we want to be able to delete our
+    # in progress index.
     try:
-        with r.lock('search-index', timeout=15 * 60, blocking_timeout=30):
-            client = request.registry["elasticsearch.client"]
-            number_of_replicas = request.registry.get(
-                "elasticsearch.replicas", 0)
-            refresh_interval = request.registry.get(
-                "elasticsearch.interval", "1s")
+        request.db.execute("SET statement_timeout = '600s'")
 
-            # We use a randomly named index so that we can do a zero downtime
-            # reindex. Essentially we'll use a randomly named index which we
-            # will use until all of the data has been reindexed, at which point
-            # we'll point an alias at our randomly named index, and then delete
-            # the old randomly named index.
+        for _ in parallel_bulk(client, _project_docs(request.db)):
+            pass
+    except:  # noqa
+        new_index.delete()
+        raise
+    finally:
+        request.db.rollback()
+        request.db.close()
 
-            # Create the new index and associate all of our doc types with it.
-            index_base = request.registry["elasticsearch.index"]
-            random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
-            new_index_name = "{}-{}".format(index_base, random_token)
-            doc_types = request.registry.get("search.doc_types", set())
-            shards = request.registry.get("elasticsearch.shards", 1)
+    # Now that we've finished indexing all of our data we can optimize it and
+    # update the replicas and refresh intervals.
+    client.indices.forcemerge(index=new_index_name)
+    client.indices.put_settings(
+        index=new_index_name,
+        body={
+            "index": {
+                "number_of_replicas": number_of_replicas,
+                "refresh_interval": refresh_interval,
+            }
+        }
+    )
 
-            # Create the new index with zero replicas and index refreshes
-            # disabled while we are bulk indexing.
-            new_index = get_index(
-                new_index_name,
-                doc_types,
-                using=client,
-                shards=shards,
-                replicas=0,
-                interval="-1",
-            )
-            new_index.create(wait_for_active_shards=shards)
-
-            # From this point on, if any error occurs, we want to be able to
-            # delete our in progress index.
-            try:
-                request.db.execute("SET statement_timeout = '600s'")
-
-                for _ in parallel_bulk(client, _project_docs(request.db)):
-                    pass
-            except:  # noqa
-                new_index.delete()
-                raise
-            finally:
-                request.db.rollback()
-                request.db.close()
-
-            # Now that we've finished indexing all of our data we can optimize
-            # it and update the replicas and refresh intervals.
-            client.indices.forcemerge(index=new_index_name)
-            client.indices.put_settings(
-                index=new_index_name,
-                body={
-                    "index": {
-                        "number_of_replicas": number_of_replicas,
-                        "refresh_interval": refresh_interval,
-                    }
-                }
-            )
-
-            # Point the alias at our new randomly named index and delete the
-            # old index.
-            if client.indices.exists_alias(name=index_base):
-                to_delete = set()
-                actions = []
-                for name in client.indices.get_alias(name=index_base):
-                    to_delete.add(name)
-                    actions.append(
-                        {"remove": {"index": name, "alias": index_base}})
-                actions.append(
-                    {"add": {"index": new_index_name, "alias": index_base}})
-                client.indices.update_aliases({"actions": actions})
-                client.indices.delete(",".join(to_delete))
-            else:
-                client.indices.put_alias(name=index_base, index=new_index_name)
-    except redis.exceptions.LockError as exc:
-        raise self.retry(countdown=60, exc=exc)
+    # Point the alias at our new randomly named index and delete the old index.
+    if client.indices.exists_alias(name=index_base):
+        to_delete = set()
+        actions = []
+        for name in client.indices.get_alias(name=index_base):
+            to_delete.add(name)
+            actions.append({"remove": {"index": name, "alias": index_base}})
+        actions.append({"add": {"index": new_index_name, "alias": index_base}})
+        client.indices.update_aliases({"actions": actions})
+        client.indices.delete(",".join(to_delete))
+    else:
+        client.indices.put_alias(name=index_base, index=new_index_name)
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def reindex_project(self, request, project_name):
-    r = redis.StrictRedis.from_url(
-        request.registry.settings["celery.scheduler_url"])
+@tasks.task(ignore_result=True, acks_late=True)
+def reindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    doc_types = request.registry.get("search.doc_types", set())
+    index_name = request.registry["elasticsearch.index"]
+    get_index(
+        index_name,
+        doc_types,
+        using=client,
+        shards=request.registry.get("elasticsearch.shards", 1),
+        replicas=request.registry.get("elasticsearch.replicas", 0),
+    )
+
+    for _ in parallel_bulk(client, _project_docs(request.db, project_name)):
+        pass
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def unindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    index_name = request.registry["elasticsearch.index"]
     try:
-        with r.lock('search-index', timeout=15, blocking_timeout=1):
-            client = request.registry["elasticsearch.client"]
-            doc_types = request.registry.get("search.doc_types", set())
-            index_name = request.registry["elasticsearch.index"]
-            get_index(
-                index_name,
-                doc_types,
-                using=client,
-                shards=request.registry.get("elasticsearch.shards", 1),
-                replicas=request.registry.get("elasticsearch.replicas", 0),
-            )
-
-            for _ in parallel_bulk(client,
-                                   _project_docs(request.db, project_name)):
-                pass
-    except redis.exceptions.LockError as exc:
-        raise self.retry(countdown=60, exc=exc)
-
-
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def unindex_project(self, request, project_name):
-    r = redis.StrictRedis.from_url(
-        request.registry.settings["celery.scheduler_url"])
-    try:
-        with r.lock('search-index', timeout=15, blocking_timeout=1):
-            client = request.registry["elasticsearch.client"]
-            index_name = request.registry["elasticsearch.index"]
-            try:
-                client.delete(
-                    index=index_name, doc_type="project", id=project_name)
-            except elasticsearch.exceptions.NotFoundError:
-                pass
-    except redis.exceptions.LockError as exc:
-        raise self.retry(countdown=60, exc=exc)
+        client.delete(index=index_name, doc_type="project", id=project_name)
+    except elasticsearch.exceptions.NotFoundError:
+        pass
