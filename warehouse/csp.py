@@ -85,6 +85,7 @@ def includeme(config):
             "img-src": [
                 SELF,
                 config.registry.settings["camo.url"],
+                "www.google-analytics.com",
             ],
             "script-src": [
                 SELF,
