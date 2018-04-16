@@ -76,7 +76,8 @@ class TestUnicodeRedirectTween:
         response = pretend.stub(location="/a/path/to/nowhere")
         handler = pretend.call_recorder(lambda request: response)
         registry = pretend.stub()
-        tween = warehouse.http.unicode_redirect_tween_factory(handler, registry)
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
         request = pretend.stub(
             path="/A/pAtH/tO/nOwHeRe/",
         )
@@ -86,7 +87,8 @@ class TestUnicodeRedirectTween:
         response = pretend.stub(location="/pypi/\u2603/json/")
         handler = pretend.call_recorder(lambda request: response)
         registry = pretend.stub()
-        tween = warehouse.http.unicode_redirect_tween_factory(handler, registry)
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
         request = pretend.stub(
             path="/pypi/snowman/json/",
         )
@@ -96,7 +98,8 @@ class TestUnicodeRedirectTween:
         response = pretend.stub()
         handler = pretend.call_recorder(lambda request: response)
         registry = pretend.stub()
-        tween = warehouse.http.unicode_redirect_tween_factory(handler, registry)
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
         request = pretend.stub(
             path="/wu/tang/",
         )
