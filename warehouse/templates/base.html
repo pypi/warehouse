@@ -96,7 +96,6 @@
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
     <section class="stick-to-top js-stick-to-top">
-      {% include "warehouse:templates/includes/warning-banner.html" %}
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--danger">
@@ -128,6 +127,8 @@
       <span class="notification-bar__message">{{ flag.description }}</span>
     </div>
     {% endfor %}
+
+    {% block session_notifications %}{% endblock %}
 
     <div class="notification-bar">
       <span class="notification-bar__message">Help us improve Python packaging – <a href="https://donate.pypi.org">donate today!</a></span>

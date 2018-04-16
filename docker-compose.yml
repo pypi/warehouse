@@ -64,10 +64,12 @@ services:
       context: .
       args:
         DEVEL: "yes"
-    command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
+    volumes:
+      - ./warehouse:/opt/warehouse/src/warehouse:z
     links:
       - db
       - redis
