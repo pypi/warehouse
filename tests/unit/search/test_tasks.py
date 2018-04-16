@@ -12,6 +12,7 @@
 
 import os
 
+import elasticsearch
 import packaging.version
 import pretend
 import pytest
@@ -19,7 +20,9 @@ import pytest
 from first import first
 
 import warehouse.search.tasks
-from warehouse.search.tasks import reindex, reindex_project, _project_docs
+from warehouse.search.tasks import (
+    reindex, reindex_project, unindex_project, _project_docs
+)
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -308,7 +311,7 @@ class TestReindex:
 
 class TestPartialReindex:
 
-    def test_fails_when_raising(self, db_request, monkeypatch):
+    def test_reindex_fails_when_raising(self, db_request, monkeypatch):
         docs = pretend.stub()
 
         def project_docs(db, project_name=None):
@@ -345,6 +348,41 @@ class TestPartialReindex:
 
         assert es_client.indices.put_settings.calls == []
         assert es_client.indices.forcemerge.calls == []
+
+    def test_unindex_fails_when_raising(self, db_request):
+        class TestException(Exception):
+            pass
+
+        es_client = FakeESClient()
+        es_client.delete = pretend.raiser(TestException)
+
+        db_request.registry.update(
+            {
+                "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
+            },
+        )
+
+        with pytest.raises(TestException):
+            unindex_project(db_request, 'foo')
+
+    def test_unindex_accepts_defeat(self, db_request):
+        es_client = FakeESClient()
+        es_client.delete = pretend.call_recorder(
+            pretend.raiser(elasticsearch.exceptions.NotFoundError))
+
+        db_request.registry.update(
+            {
+                "elasticsearch.client": es_client,
+                "elasticsearch.index": "warehouse",
+            },
+        )
+
+        unindex_project(db_request, 'foo')
+
+        assert es_client.delete.calls == [
+            pretend.call(index="warehouse", doc_type="project", id="foo")
+        ]
 
     def test_successfully_indexes(self, db_request, monkeypatch):
         docs = pretend.stub()

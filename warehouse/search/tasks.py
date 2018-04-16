@@ -13,6 +13,8 @@
 import binascii
 import os
 
+import elasticsearch
+
 from elasticsearch.helpers import parallel_bulk
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
@@ -184,4 +186,14 @@ def reindex_project(request, project_name):
     )
 
     for _ in parallel_bulk(client, _project_docs(request.db, project_name)):
+        pass
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def unindex_project(request, project_name):
+    client = request.registry["elasticsearch.client"]
+    index_name = request.registry["elasticsearch.index"]
+    try:
+        client.delete(index=index_name, doc_type="project", id=project_name)
+    except elasticsearch.exceptions.NotFoundError:
         pass

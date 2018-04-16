@@ -35,6 +35,28 @@ def test_store_projects(db_request):
         project0,
         project1,
     }
+    assert session.info["warehouse.search.project_deletes"] == set()
+
+
+def test_store_projects_unindex(db_request):
+    project0 = ProjectFactory.create()
+    project1 = ProjectFactory.create()
+    config = pretend.stub()
+    session = pretend.stub(
+        info={},
+        new={project0},
+        dirty=set(),
+        deleted={project1},
+    )
+
+    search.store_projects_for_project_reindex(config, session, pretend.stub())
+
+    assert session.info["warehouse.search.project_updates"] == {
+        project0,
+    }
+    assert session.info["warehouse.search.project_deletes"] == {
+        project1,
+    }
 
 
 def test_execute_reindex_success(app_config):
@@ -52,6 +74,23 @@ def test_execute_reindex_success(app_config):
 
     assert _delay.calls == [pretend.call("foo")]
     assert "warehouse.search.project_updates" not in session.info
+
+
+def test_execute_unindex_success(app_config):
+    _delay = pretend.call_recorder(lambda x: None)
+    app_config.task = lambda x: pretend.stub(delay=_delay)
+    session = pretend.stub(
+        info={
+            "warehouse.search.project_deletes": {
+                pretend.stub(normalized_name="foo"),
+            },
+        },
+    )
+
+    search.execute_project_reindex(app_config, session)
+
+    assert _delay.calls == [pretend.call("foo")]
+    assert "warehouse.search.project_deletes" not in session.info
 
 
 def test_es(monkeypatch):
