@@ -43,7 +43,7 @@ def unicode_redirect_tween_factory(handler, request):
 
     def unicode_redirect_tween(request):
         response = handler(request)
-        if hasattr(response, "location") and response.location:
+        if response.location:
             try:
                 response.location.encode('ascii')
             except UnicodeEncodeError:

@@ -95,7 +95,7 @@ class TestUnicodeRedirectTween:
         assert tween(request).location == "/pypi/%E2%98%83/json/"
 
     def test_not_redirect(self):
-        response = pretend.stub()
+        response = pretend.stub(location=None)
         handler = pretend.call_recorder(lambda request: response)
         registry = pretend.stub()
         tween = warehouse.http.unicode_redirect_tween_factory(
