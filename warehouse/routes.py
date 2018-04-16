@@ -209,6 +209,9 @@ def includeme(config):
     )
     config.add_route("packaging.file", files_url)
 
+    # SES Webhooks
+    config.add_route("ses.hook", "/_/ses-hook/", domain=warehouse)
+
     # RSS
     config.add_route("rss.updates", "/rss/updates.xml", domain=warehouse)
     config.add_route("rss.packages", "/rss/packages.xml", domain=warehouse)
@@ -278,6 +281,18 @@ def includeme(config):
     config.add_xmlrpc_endpoint(
         "pypi",
         pattern="/pypi",
+        header="Content-Type:text/xml",
+        domain=warehouse,
+    )
+    config.add_xmlrpc_endpoint(
+        "pypi_slash",
+        pattern="/pypi/",
+        header="Content-Type:text/xml",
+        domain=warehouse,
+    )
+    config.add_xmlrpc_endpoint(
+        "RPC2",
+        pattern="/RPC2",
         header="Content-Type:text/xml",
         domain=warehouse,
     )

@@ -119,6 +119,7 @@ def app_config(database):
             "elasticsearch.url": "https://localhost/warehouse",
             "files.backend": "warehouse.packaging.services.LocalFileStorage",
             "docs.backend": "warehouse.packaging.services.LocalFileStorage",
+            "mail.backend": "warehouse.email.services.SMTPEmailSender",
             "files.url": "http://localhost:7000/",
             "sessions.secret": "123456",
             "sessions.url": "redis://localhost:0/",

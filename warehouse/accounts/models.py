@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 from citext import CIText
 from sqlalchemy import (
-    CheckConstraint, Column, ForeignKey, Index, UniqueConstraint,
+    CheckConstraint, Column, Enum, ForeignKey, Index, UniqueConstraint,
     Boolean, DateTime, Integer, String,
 )
 from sqlalchemy import orm, select, sql
@@ -77,19 +79,31 @@ class User(SitemapMixin, db.Model):
         lazy=False,
     )
 
-    @hybrid_property
-    def email(self):
+    @property
+    def primary_email(self):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
-            return primaries[0].email
+            return primaries[0]
+
+    @hybrid_property
+    def email(self):
+        primary_email = self.primary_email
+        return primary_email.email if primary_email else None
 
     @email.expression
     def email(self):
         return (
             select([Email.email])
-            .where((Email.user_id == self.id) & (Email.primary == True))  # noqa
+            .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .as_scalar()
         )
+
+
+class UnverifyReasons(enum.Enum):
+
+    SpamComplaint = "spam complaint"
+    HardBounce = "hard bounce"
+    SoftBounce = "soft bounce"
 
 
 class Email(db.ModelBase):
@@ -111,3 +125,14 @@ class Email(db.ModelBase):
     email = Column(String(length=254), nullable=False)
     primary = Column(Boolean, nullable=False)
     verified = Column(Boolean, nullable=False)
+
+    # Deliverability information
+    unverify_reason = Column(
+        Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
+        nullable=True,
+    )
+    transient_bounces = Column(
+        Integer,
+        nullable=False,
+        server_default=sql.text("0"),
+    )

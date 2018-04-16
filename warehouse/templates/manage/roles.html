@@ -19,7 +19,7 @@
 
 {% block main %}
   <h2>Collaborators</h2>
-  <p class="lede-paragraph">Use this page to control which PyPI users can help you to manage '{{ project.name }}'.</p>
+  <p class="lede-paragraph">Use this page to control which PyPI users can help you to manage {{ project.name }}</p>
   <div class="callout-block">
     <p>There are two possible roles for collaborators:</p>
     <dl>
@@ -51,7 +51,7 @@
         <span class="table__user-details">
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-gravatar">
             {% set alt = "Avatar for {} from gravatar.com".format(role.user.username) %}
-            <img src="{{ gravatar(role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+            <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
           </a>
           <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}">
             <strong>{{ role.user.username }}</strong>

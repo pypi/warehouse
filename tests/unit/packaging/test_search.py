@@ -18,17 +18,16 @@ from warehouse.packaging.search import Project
 
 def test_build_search():
     release = pretend.stub(
-        project=pretend.stub(
-            name="Foobar",
-            normalized_name="foobar",
-            releases=[
-                pretend.stub(version="1.0", is_prerelease=False),
-                pretend.stub(version="2.0", is_prerelease=False),
-                pretend.stub(version="3.0", is_prerelease=False),
-                pretend.stub(version="4.0", is_prerelease=False),
-                pretend.stub(version="5.0.dev0", is_prerelease=True),
-            ],
-        ),
+        name="Foobar",
+        normalized_name="foobar",
+        all_versions=[
+            "5.0.dev0",
+            "4.0",
+            "3.0",
+            "2.0",
+            "1.0",
+        ],
+        latest_version="4.0",
         summary="This is my summary",
         description="This is my description",
         author="Jane Author",

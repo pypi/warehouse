@@ -18,11 +18,16 @@
   background-color: $white;
 }
 
-@mixin link-focus {
+@mixin link-focus($underline: "none") {
   &:focus {
     outline: 1px solid $primary-color-light;
-    background-color: transparentize($primary-color-light, 0.9            );
+    background-color: transparentize($primary-color-light, 0.9);
     cursor: pointer;
+    @if $underline == "none" {
+      text-decoration: none;
+    } @else {
+      text-decoration: underline;
+    }
   }
 }
 

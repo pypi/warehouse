@@ -12,6 +12,8 @@
 
 import urllib.parse
 
+from functools import partial
+
 import jinja2
 import packaging.version
 import pretend
@@ -22,9 +24,16 @@ from warehouse import filters
 
 
 def test_camo_url():
+    request = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "camo.url": "https://camo.example.net/",
+                "camo.key": "fake key",
+            },
+        ),
+    )
     c_url = filters._camo_url(
-        "https://camo.example.net/",
-        "fake key",
+        request,
         "http://example.com/image.jpg",
     )
     assert c_url == (
@@ -39,16 +48,18 @@ class TestReadmeRender:
         renderer = pretend.call_recorder(lambda raw: "rendered")
         monkeypatch.setattr(readme_renderer.rst, "render", renderer)
 
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/x-rst",
@@ -63,16 +74,18 @@ class TestReadmeRender:
         monkeypatch.setattr(readme_renderer.rst, "render", rst_renderer)
         monkeypatch.setattr(readme_renderer.txt, "render", txt_renderer)
 
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/x-rst",
@@ -86,16 +99,18 @@ class TestReadmeRender:
         renderer = pretend.call_recorder(lambda raw: "rendered")
         monkeypatch.setattr(readme_renderer.txt, "render", renderer)
 
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/plain",
@@ -108,16 +123,18 @@ class TestReadmeRender:
         renderer = pretend.call_recorder(lambda raw: "rendered")
         monkeypatch.setattr(readme_renderer.markdown, "render", renderer)
 
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/markdown",
@@ -130,16 +147,18 @@ class TestReadmeRender:
         renderer = pretend.call_recorder(lambda raw: "rendered")
         monkeypatch.setattr(readme_renderer.rst, "render", renderer)
 
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type=None,
@@ -152,56 +171,50 @@ class TestReadmeRender:
         html = "<img src=http://example.com/image.jpg>"
         monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
-        gen_camo_url = pretend.call_recorder(
-            lambda curl, ckey, url: "https://camo.example.net/image.jpg"
-        )
-        monkeypatch.setattr(filters, "_camo_url", gen_camo_url)
-
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
             ),
-        }
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/x-rst",
         )
 
         assert result == jinja2.Markup(
-            '<img src="https://camo.example.net/image.jpg">'
+            '<img src="https://camo.example.net/'
+            'b410d235a3d2fc44b50ccab827e531dece213062/'
+            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">'
         )
-        assert gen_camo_url.calls == [
-            pretend.call(
-                "https://camo.example.net/",
-                "fake key",
-                "http://example.com/image.jpg",
-            ),
-        ]
 
     def test_renders_camo_no_src(self, monkeypatch):
         html = "<img>"
         monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "camo.url": "https://camo.example.net/",
+                    "camo.key": "fake key",
+                },
+            ),
+        )
+        camo_url = partial(filters._camo_url, request)
+        request.camo_url = camo_url
+
+        ctx = {"request": request}
+
         gen_camo_url = pretend.call_recorder(
             lambda curl, ckey, url: "https://camo.example.net/image.jpg"
         )
         monkeypatch.setattr(filters, "_camo_url", gen_camo_url)
-
-        ctx = {
-            "request": pretend.stub(
-                registry=pretend.stub(
-                    settings={
-                        "camo.url": "https://camo.example.net/",
-                        "camo.key": "fake key",
-                    },
-                ),
-            ),
-        }
 
         result = filters.readme(
             ctx, "raw thing", description_content_type="text/x-rst",

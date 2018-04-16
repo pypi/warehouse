@@ -49,7 +49,7 @@
 
       {% for user in users %}
       <tr>
-        <td><img src="{{ gravatar(user.email, size=20) }}" class="img-circle" alt="User Image"></td>
+        <td><img src="{{ gravatar(request, user.email, size=20) }}" class="img-circle" alt="User Image"></td>
         <td>
           <a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">{{ user.username }}</a>
         </td>

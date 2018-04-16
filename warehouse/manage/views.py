@@ -122,7 +122,11 @@ class ManageAccountViews:
                 self.request.user.id, form.email.data,
             )
 
-            send_email_verification_email(self.request, email)
+            send_email_verification_email(
+                self.request,
+                self.request.user,
+                email,
+            )
 
             self.request.session.flash(
                 f'Email {email.email} added - check your email for ' +
@@ -219,7 +223,11 @@ class ManageAccountViews:
                 'Email is already verified.', queue='error'
             )
         else:
-            send_email_verification_email(self.request, email)
+            send_email_verification_email(
+                self.request,
+                self.request.user,
+                email,
+            )
 
             self.request.session.flash(
                 f'Verification email for {email.email} resent.',
@@ -583,8 +591,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 .join(Role.user)
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
-            owner_emails = [owner.user.email for owner in owners]
-            owner_emails.remove(request.user.email)
+            owner_users = [owner.user for owner in owners]
+            owner_users.remove(request.user)
 
             send_collaborator_added_email(
                 request,
@@ -592,7 +600,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 request.user,
                 project.name,
                 form.role_name.data,
-                owner_emails
+                owner_users,
             )
 
             send_added_as_collaborator_email(
@@ -600,7 +608,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 request.user,
                 project.name,
                 form.role_name.data,
-                user.email
+                user,
             )
 
             request.session.flash(
