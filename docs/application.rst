@@ -16,11 +16,12 @@ contains static files for the website, and the other which contains
 the Python web application code running in a virtual environment and
 the database.
 
-Since Warehouse was built on top of an existing database and
-developers had to fit our ORM to the existing tables, some of the code
-in the ORM may not look like code from the SQLAlchemy documentation. There
-are some places where joins are done using name-based logic instead of a
-foreign key (but this may change in the future).
+Since Warehouse was built on top of an existing database (for legacy
+PyPI) and developers had to fit our ORM to the existing tables, some
+of the code in the ORM may not look like code from the SQLAlchemy
+documentation. There are some places where joins are done using
+name-based logic instead of a foreign key (but this may change in the
+future).
 
 Warehouse also uses `hybrid URL traversal and dispatch`_. Using
 factory classes, resources are provided directly to the views based on the URL
@@ -107,3 +108,42 @@ Directories within the repository:
 .. _Docker: https://docs.docker.com/
 .. _hybrid URL traversal and dispatch: https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html
 .. _This article: https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/muchadoabouttraversal.html
+
+Historical context & deprecations
+---------------------------------
+
+For the history of Python packaging and distribution, please see `the
+PyPA history page <https://www.pypa.io/en/latest/history/>`_.
+
+From the early 2000s till April 2018, `the legacy PyPI codebase
+<https://github.com/pypa/pypi-legacy>`_, not Warehouse, powered
+PyPI. Warehouse deliberately does not provide some features that users
+may be used to from the legacy site, such as:
+
+- "hidden releases"
+
+- uploading to pythonhosted.com documentation hosting (`discussion and
+  plans <https://github.com/pypa/warehouse/issues/582>`_)
+
+- `download counts visible in the API <https://warehouse.readthedocs.io/api-reference/xml-rpc/#changes-to-legacy-api>`_:
+  instead, use `the Google BigQuery service <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_)
+
+- key management: PyPI no longer has a UI for users to manage GPG or
+  SSH public keys
+
+- uploading new releases via the web UI: instead, maintainers should
+  use the command-line tool `Twine <http://twine.readthedocs.io/>`_
+
+- updating release descriptions via the web UI: instead, to update
+  release metadata, you need to upload a new release (`discussion
+  <https://mail.python.org/pipermail/distutils-sig/2017-December/031826.html>`_)
+
+- `uploading a package without first verifying an email address <https://status.python.org/incidents/mgjw1g5yjy5j>`_
+
+- `HTTP access to APIs; now it's HTTPS-only <https://mail.python.org/pipermail/distutils-sig/2017-October/031712.html>`_
+
+- GPG/PGP signatures for packages (still visible in the :doc:`../api-reference/legacy/`
+  per `PEP 503 <https://www.python.org/dev/peps/pep-0503/>`_, but no
+  longer visible in the web UI)
+
+- `OpenID and Google auth login <https://mail.python.org/pipermail/distutils-sig/2018-January/031855.html>`_
