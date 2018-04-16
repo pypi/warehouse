@@ -18,7 +18,6 @@ import * as cookie from "cookie";
 
 export default () => {
   let element = document.querySelector("script[data-ga-id]");
-  console.log(element);
   if (element) {
     // This is more or less taken straight from Google Analytics Control Panel
     window.dataLayer = window.dataLayer || [];
