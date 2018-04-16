@@ -71,6 +71,41 @@ class TestSession:
         assert len(set(id(obj) for obj in objects)) == len(threads)
 
 
+class TestUnicodeRedirectTween:
+    def test_basic_redirect(self):
+        response = pretend.stub(location="/a/path/to/nowhere")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/A/pAtH/tO/nOwHeRe/",
+        )
+        assert tween(request) == response
+
+    def test_unicode_basic_redirect(self):
+        response = pretend.stub(location="/pypi/\u2603/json/")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/pypi/snowman/json/",
+        )
+        assert tween(request).location == "/pypi/%E2%98%83/json/"
+
+    def test_not_redirect(self):
+        response = pretend.stub(location=None)
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = warehouse.http.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/wu/tang/",
+        )
+        assert tween(request) == response
+
+
 def test_includeme():
     config = pretend.stub(
         registry=pretend.stub(
@@ -79,10 +114,17 @@ def test_includeme():
         add_request_method=pretend.call_recorder(
             lambda *args, **kwargs: None
         ),
+        add_tween=pretend.call_recorder(
+            lambda *args, **kwargs: None
+        ),
     )
     warehouse.http.includeme(config)
 
     assert len(config.add_request_method.calls) == 1
+    assert len(config.add_tween.calls) == 1
     call = config.add_request_method.calls[0]
     assert isinstance(call.args[0], warehouse.http.ThreadLocalSessionFactory)
     assert call.kwargs == {"name": "http", "reify": True}
+    assert config.add_tween.calls == [
+        pretend.call("warehouse.http.unicode_redirect_tween_factory")
+    ]
