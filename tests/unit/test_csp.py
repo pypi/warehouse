@@ -221,7 +221,11 @@ def test_includeme():
                     "'self'",
                     "camo.url.value",
                 ],
-                "script-src": ["'self'", "www.googletagmanager.com"],
+                "script-src": [
+                    "'self'",
+                    "www.googletagmanager.com",
+                    "www.google-analytics.com",
+                ],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })
