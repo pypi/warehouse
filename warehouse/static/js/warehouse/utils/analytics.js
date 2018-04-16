@@ -11,39 +11,27 @@
  * limitations under the License.
  */
 
-/* global ga */
+/* global dataLayer */
 
 import * as cookie from "cookie";
 
 
 export default () => {
-  // Here we want to ensure that our ga function exists in the global scope,
-  // using the one that exists if it already does, or creating a new one that
-  // just queues calls which will later be executed by Google's analytics.js
-  window.ga = window.ga || function() {
-    (ga.q = ga.q || []).push(arguments);
-  };
-
-  // Here we just set the current date for timing information.
-  ga.l = new Date;
-
-  // Now that we've ensured our ga object is setup, we'll get our script
-  // element to pull the configuration out of it and parametrize the ga calls.
   let element = document.querySelector("script[data-ga-id]");
   if (element) {
-    // Create the google tracker, ensuring that we tell Google to Anonymize our
-    // user's IP addresses.
-    ga("create", element.dataset.GaId, "auto", { anonymizeIp: true });
+    // This is more or less taken straight from Google Analytics Control Panel
+    window.dataLayer = window.dataLayer || [];
+    var gtag = function(){ dataLayer.push(arguments); };
+
+    gtag("js", new Date());
+    gtag("config", element.dataset.gaId, { "anonymize_ip": true });
 
     // Determine if we have a user ID associated with this person, if so we'll
     // go ahead and tell Google it to enable better tracking of individual
     // users.
     let cookies = cookie.parse(document.cookie);
     if (cookies.user_id__insecure) {
-      ga("set", "userId", cookies.user_id__insecure);
+      gtag("set", {"user_id": cookies.user_id__insecure});
     }
-
-    // Finally, we'll send an event to mark our page view.
-    ga("send", "pageview");
   }
 };
