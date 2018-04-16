@@ -37,8 +37,12 @@ def _project_docs(db, project_name=None):
             Release._pypi_ordering.desc(),
         )
         .distinct(Release.name)
-        .subquery("release_list")
     )
+
+    if project_name:
+        releases_list = releases_list.filter(Release.name == project_name)
+
+    releases_list = releases_list.subquery()
 
     r = aliased(Release, name="r")
 
@@ -88,9 +92,6 @@ def _project_docs(db, project_name=None):
         .outerjoin(Release.project)
         .order_by(Release.name)
     )
-
-    if project_name:
-        release_data = release_data.filter(Release.name == project_name)
 
     for release in windowed_query(release_data, Release.name, 50000):
         p = ProjectDocType.from_db(release)
