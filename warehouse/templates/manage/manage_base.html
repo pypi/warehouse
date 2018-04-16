@@ -18,7 +18,7 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 
-{% block extra_notifications %}
+{% block session_notifications %}
   {% if not request.user.primary_email.verified %}
   <div class="notification-bar notification-bar--danger">
     <span class="notification-bar__message">
