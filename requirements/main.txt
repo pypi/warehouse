@@ -501,5 +501,5 @@ zope.interface==4.4.3 \
     --hash=sha256:d6d26d5dfbfd60c65152938fcb82f949e8dada37c041f72916fef6621ba5c5ce
 zope.sqlalchemy==1.0 \
     --hash=sha256:9316a1a8bb9e4f9f59332acf1ad2cc8b664f19a4bde5f68be7f61f3e11f80514
-zxcvbn-python==4.4.24 \
-    --hash=sha256:900b28cc5e96be4091d8778f19f222832890264e338765a1c1c09fca2db64b2d
+zxcvbn==4.4.25 \
+    --hash=sha256:522dd6e7ac24c830f6115b82536e66a0ef6cbf046dc31693dadff503eb943a9a
