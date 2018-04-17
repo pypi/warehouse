@@ -61,8 +61,8 @@ rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 .. _`on Freenode`: https://webchat.freenode.net/?channels=%23pypa-dev,pypa
 .. _`pypa-dev mailing list`: https://groups.google.com/forum/#!forum/pypa-dev
 .. _`Running tests and linters section`: https://warehouse.readthedocs.io/development/getting-started/#running-tests-and-linters
-.. _BrowserStack: http://browserstack.com/
+.. _BrowserStack: https://browserstack.com/
 .. _`supported browsers`: https://warehouse.readthedocs.io/development/frontend/#browser-support
 .. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
-.. _BrowserStackImg: http://browserstack.com/
+.. _BrowserStackImg: https://browserstack.com/
 .. _`PyPA Code of Conduct`: https://www.pypa.io/en/latest/code-of-conduct/

@@ -14,17 +14,17 @@ Migrating to the new PyPI
 -------------------------
 
 Warehouse has now replaced `the legacy site pypi.python.org
-<http://pypi.python.org/>`_. If your site/service used to link or
+<https://pypi.python.org/>`_. If your site/service used to link or
 upload to pypi.python.org, it may continue to work due to redirects,
 but you should use pypi.org instead.
 
 A temporary installation of the legacy PyPI codebase is `available at
-legacy.pypi.org <http://legacy.pypi.org/>`_ until 30 April 2018, when
+legacy.pypi.org <https://legacy.pypi.org/>`_ until 30 April 2018, when
 it will be shut down. It reads from the same database backend and file
 store as pypi.org. See `the Warehouse roadmap
 <https://wiki.python.org/psf/WarehouseRoadmap>`_ for further details.
 
-You should also watch `our status page <http://status.python.org/>`__
+You should also watch `our status page <https://status.python.org/>`__
 and subscribe to `the PyPI announcement list (low-traffic)
 <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
 to find out about future changes.
