@@ -97,7 +97,8 @@
 
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
-    <section class="stick-to-top js-stick-to-top">
+    <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
+      {% include "warehouse:templates/includes/warning-banner.html" %}
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--danger">
