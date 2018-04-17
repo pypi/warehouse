@@ -51,6 +51,7 @@ def simple_index(request):
 
 @view_config(
     route_name="legacy.api.simple.detail",
+    context=Project,
     renderer="legacy/api/simple/detail.html",
     decorator=[
         cache_control(10 * 60),               # 10 minutes

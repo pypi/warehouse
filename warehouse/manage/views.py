@@ -30,7 +30,9 @@ from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Role
+from warehouse.packaging.models import (
+    File, JournalEntry, Project, Release, Role,
+)
 from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
@@ -348,6 +350,7 @@ def manage_projects(request):
 
 @view_config(
     route_name="manage.project.settings",
+    context=Project,
     renderer="manage/settings.html",
     uses_session=True,
     permission="manage",
@@ -359,6 +362,7 @@ def manage_project_settings(project, request):
 
 @view_config(
     route_name="manage.project.delete_project",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -372,6 +376,7 @@ def delete_project(project, request):
 
 @view_config(
     route_name="manage.project.destroy_docs",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -392,6 +397,7 @@ def destroy_project_docs(project, request):
 
 @view_config(
     route_name="manage.project.releases",
+    context=Project,
     renderer="manage/releases.html",
     uses_session=True,
     permission="manage",
@@ -403,6 +409,7 @@ def manage_project_releases(project, request):
 
 @view_defaults(
     route_name="manage.project.release",
+    context=Release,
     renderer="manage/release.html",
     uses_session=True,
     require_csrf=True,
@@ -547,6 +554,7 @@ class ManageProjectRelease:
 
 @view_config(
     route_name="manage.project.roles",
+    context=Project,
     renderer="manage/roles.html",
     uses_session=True,
     require_methods=False,
@@ -639,6 +647,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
 @view_config(
     route_name="manage.project.change_role",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -730,6 +739,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
 
 @view_config(
     route_name="manage.project.delete_role",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -775,6 +785,7 @@ def delete_project_role(project, request):
 
 @view_config(
     route_name="manage.project.history",
+    context=Project,
     renderer="manage/history.html",
     uses_session=True,
     permission="manage",
@@ -794,6 +805,7 @@ def manage_project_history(project, request):
 
 @view_config(
     route_name="manage.project.documentation",
+    context=Project,
     renderer="manage/documentation.html",
     uses_session=True,
     permission="manage",
