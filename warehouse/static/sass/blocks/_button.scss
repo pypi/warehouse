@@ -24,7 +24,8 @@
     - primary: Makes button bright blue.
     - danger: Makes button red.
     - disabled: Styles for when the button cannot be clicked.
-    - footer: Switch to desktop button found in site footer.
+    - switch-to-desktop: Switch to desktop button found in site footer.
+    - switch-to-mobile: Switch to mobile button found in site header.
 */
 
 .button {
@@ -116,7 +117,7 @@
     }
   }
 
-  &--footer {
+  &--switch-to-desktop {
     border: 2px solid transparentize($white, 0.3);
     color: $white;
     margin: $spacing-unit auto 0;
@@ -127,5 +128,15 @@
       border-color: $white;
       color: $white;
     }
+  }
+
+  &--switch-to-mobile {
+    font-size: 500%;
+    line-height: 1.2;
+    padding: 40px;
+    height: auto;
+    margin: 25px;
+    border-radius: 25px;
+    width: calc(100% - 50px);
   }
 }
