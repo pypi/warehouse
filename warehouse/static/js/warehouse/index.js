@@ -173,23 +173,29 @@ var bindDropdowns = function () {
     let trigger = dropdown.querySelector(".dropdown__trigger");
     let content = dropdown.querySelector(".dropdown__content");
 
-    // If the user has clicked the trigger (either with a mouse or by pressing
-    // space/enter on the keyboard) show the content
-    trigger.addEventListener("click", function () {
-      // Toggle the visibility of the content
-      if (content.classList.contains("display-block")) {
-        content.classList.remove("display-block");
-      } else {
-        content.classList.add("display-block");
-      }
-    });
+    if (!trigger.dataset.dropdownBound) {
+      // If the user has clicked the trigger (either with a mouse or by pressing
+      // space/enter on the keyboard) show the content
+      trigger.addEventListener("click", function () {
+        // Toggle the visibility of the content
+        if (content.classList.contains("display-block")) {
+          content.classList.remove("display-block");
+        } else {
+          content.classList.add("display-block");
+        }
+      });
 
-    // If the user has moused onto the trigger and has happened to click it,
-    // remove the `display-block` class so that it doesn't stay visable when
-    // they mouse out
-    trigger.addEventListener("mouseout", function() {
-      content.classList.remove("display-block");
-    });
+      // If the user has moused onto the trigger and has happened to click it,
+      // remove the `display-block` class so that it doesn't stay visable when
+      // they mouse out
+      trigger.addEventListener("mouseout", function() {
+        content.classList.remove("display-block");
+      });
+
+      // Set the 'data-dropdownBound' attribute so we don't bind multiple
+      // handlers to the same trigger after the client-side-includes load
+      trigger.dataset.dropdownBound = true;
+    }
   }
 };
 
