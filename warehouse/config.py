@@ -13,6 +13,7 @@
 import enum
 import os
 import shlex
+from urllib.parse import quote_plus
 
 import transaction
 
@@ -62,6 +63,22 @@ class RootFactory:
 
     def __init__(self, request):
         pass
+
+
+def unicode_redirect_tween_factory(handler, request):
+
+    def unicode_redirect_tween(request):
+        response = handler(request)
+        if response.location:
+            try:
+                response.location.encode('ascii')
+            except UnicodeEncodeError:
+                response.location = '/'.join(
+                    [quote_plus(x) for x in response.location.split('/')])
+
+        return response
+
+    return unicode_redirect_tween
 
 
 def require_https_tween_factory(handler, registry):
@@ -221,6 +238,9 @@ def configure(settings=None):
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
+
+    # Add some fixups for some encoding/decoding issues
+    config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 
     # Register DataDog metrics
     config.include(".datadog")

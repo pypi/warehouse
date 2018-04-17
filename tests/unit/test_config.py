@@ -22,6 +22,41 @@ from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
+class TestUnicodeRedirectTween:
+    def test_basic_redirect(self):
+        response = pretend.stub(location="/a/path/to/nowhere")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/A/pAtH/tO/nOwHeRe/",
+        )
+        assert tween(request) == response
+
+    def test_unicode_basic_redirect(self):
+        response = pretend.stub(location="/pypi/\u2603/json/")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/pypi/snowman/json/",
+        )
+        assert tween(request).location == "/pypi/%E2%98%83/json/"
+
+    def test_not_redirect(self):
+        response = pretend.stub(location=None)
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/wu/tang/",
+        )
+        assert tween(request) == response
+
+
 class TestRequireHTTPSTween:
 
     def test_noops_when_disabled(self):
@@ -384,6 +419,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
     assert configurator_obj.add_tween.calls == [
+        pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call(
             "warehouse.utils.compression.compression_tween_factory",
