@@ -204,7 +204,10 @@ def package_releases(request, package_name, show_hidden=False):
     if show_hidden:
         return [v.version for v in project.all_versions]
     else:
-        return [project.latest_version.version]
+        latest_version = project.latest_version
+        if latest_version is None:
+            return []
+        return [latest_version.version]
 
 
 @xmlrpc_method(method="package_data")

@@ -29,7 +29,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email
+from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
@@ -62,6 +62,7 @@ def failed_logins(exc, request):
 
 @view_config(
     route_name="accounts.profile",
+    context=User,
     renderer="accounts/profile.html",
     decorator=[
         origin_cache(
@@ -463,6 +464,7 @@ def _login_user(request, userid):
 
 @view_config(
     route_name="includes.current-user-profile-callout",
+    context=User,
     renderer="includes/accounts/profile-callout.html",
     uses_session=True,
 )
@@ -472,6 +474,7 @@ def profile_callout(user, request):
 
 @view_config(
     route_name="includes.edit-profile-button",
+    context=User,
     renderer="includes/accounts/edit-profile-button.html",
     uses_session=True,
 )
