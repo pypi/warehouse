@@ -16,11 +16,12 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import Release, Role
+from warehouse.packaging.models import Project, Release, Role
 
 
 @view_config(
     route_name="packaging.project",
+    context=Project,
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
@@ -54,6 +55,7 @@ def project_detail(project, request):
 
 @view_config(
     route_name="packaging.release",
+    context=Release,
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
@@ -129,6 +131,7 @@ def release_detail(release, request):
 
 @view_config(
     route_name="includes.edit-project-button",
+    context=Project,
     renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage",

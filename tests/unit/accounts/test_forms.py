@@ -287,6 +287,20 @@ class TestRegistrationForm:
             form.validate()
             assert (len(form.new_password.errors) == 0) == valid
 
+    def test_name_too_long(self):
+        form = forms.RegistrationForm(
+            data={"full_name": "hello " * 50},
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None),
+            ),
+        )
+        assert not form.validate()
+        assert (
+            form.full_name.errors.pop() ==
+            "The name you have chosen is too long. Please choose "
+            "a name with under 100 characters."
+        )
+
 
 class TestRequestPasswordResetForm:
 
