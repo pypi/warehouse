@@ -13,8 +13,6 @@
 import threading
 import requests
 
-from urllib.parse import quote_plus
-
 
 class ThreadLocalSessionFactory:
     def __init__(self, config=None):
@@ -39,25 +37,8 @@ class ThreadLocalSessionFactory:
             return session
 
 
-def unicode_redirect_tween_factory(handler, request):
-
-    def unicode_redirect_tween(request):
-        response = handler(request)
-        if response.location:
-            try:
-                response.location.encode('ascii')
-            except UnicodeEncodeError:
-                response.location = '/'.join(
-                    [quote_plus(x) for x in response.location.split('/')])
-
-        return response
-
-    return unicode_redirect_tween
-
-
 def includeme(config):
     config.add_request_method(
         ThreadLocalSessionFactory(config.registry.settings.get("http")),
         name="http", reify=True
     )
-    config.add_tween("warehouse.http.unicode_redirect_tween_factory")
