@@ -17,7 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Release
+from warehouse.packaging.models import File, Release, Project
 
 
 # Generate appropriate CORS headers for the JSON endpoint.
@@ -42,6 +42,7 @@ _CORS_HEADERS = {
 
 @view_config(
     route_name="legacy.api.json.project",
+    context=Project,
     renderer="json",
     decorator=[
         cache_control(15 * 60),               # 15 minutes
@@ -77,6 +78,7 @@ def json_project(project, request):
 
 @view_config(
     route_name="legacy.api.json.release",
+    context=Release,
     renderer="json",
     decorator=[
         cache_control(15 * 60),               # 15 minutes
