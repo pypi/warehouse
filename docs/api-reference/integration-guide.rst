@@ -18,6 +18,12 @@ Warehouse has now replaced `the legacy site pypi.python.org
 upload to pypi.python.org, it may continue to work due to redirects,
 but you should use pypi.org instead.
 
+A temporary installation of the legacy PyPI codebase is `available at
+legacy.pypi.org <http://legacy.pypi.org/>`_ until 30 April 2018, when
+it will be shut down. It reads from the same database backend and file
+store as pypi.org. See `the Warehouse roadmap
+<https://wiki.python.org/psf/WarehouseRoadmap>`_ for further details.
+
 You should also watch `our status page <http://status.python.org/>`__
 and subscribe to `the PyPI announcement list (low-traffic)
 <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_
@@ -48,9 +54,9 @@ Here are some tips.
   expected JSON response directly. See :doc:`json`.
 
 * XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
-  the future; switch to the RSS or JSON APIs. If you depend on an
-  XML-RPC call that our other APIs do not support, please `tell us
-  <https://pypi.org/help/#feedback>`_.
+  the future (no specific end date set yet); switch to the RSS or JSON
+  APIs. If you depend on an XML-RPC call that our other APIs do not
+  support, please `tell us <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and
@@ -66,9 +72,9 @@ Here are some tips.
   <https://github.com/pypa/warehouse/issues/509>`_).
 
 * ``User-Agent`` Filtering: Some client user agents have been filtered
-  to always use ``pypi.python.org`` regardless of brownouts or
+  to always use ``legacy.pypi.org`` regardless of brownouts or
   redirects, in order to give them extra time to migrate. Once
-  ``pypi.python.org`` is shut down on 30 April, all clients will use
+  ``legacy.pypi.org`` is shut down on 30 April, all clients will use
   ``pypi.org`` regardless of their ``User-Agent``. See `the Warehouse
   Roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`_ for a
   timeline.
