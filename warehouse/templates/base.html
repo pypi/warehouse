@@ -87,7 +87,9 @@
     </script>
     {% block extra_js %}
     {% endblock %}
-    <script async src="https://www.google-analytics.com/analytics.js"></script>
+    {% if request.registry.settings.get("ga.tracking_id") -%}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
+    {% endif -%}
   </head>
 
   <body>
@@ -220,7 +222,6 @@
             <h3>Contributing to PyPI</h3>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; feedback</a></li>
-          <li><a href="https://wiki.python.org/psf/WarehouseRoadmap">Development roadmap</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development credits</a></li>
         </ul>

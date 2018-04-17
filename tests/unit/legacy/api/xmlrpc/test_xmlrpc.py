@@ -477,6 +477,12 @@ def test_package_releases_no_project(db_request):
     assert result == []
 
 
+def test_package_releases_no_releases(db_request):
+    project = ProjectFactory.create()
+    result = xmlrpc.package_releases(db_request, project.name)
+    assert result == []
+
+
 def test_release_data_no_project(db_request):
     assert xmlrpc.release_data(db_request, "foo", "1.0") == {}
 

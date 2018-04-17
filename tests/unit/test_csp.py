@@ -220,8 +220,13 @@ def test_includeme():
                 "img-src": [
                     "'self'",
                     "camo.url.value",
+                    "www.google-analytics.com",
                 ],
-                "script-src": ["'self'", "www.google-analytics.com"],
+                "script-src": [
+                    "'self'",
+                    "www.googletagmanager.com",
+                    "www.google-analytics.com",
+                ],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })
