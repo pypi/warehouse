@@ -39,11 +39,6 @@ Here are some tips.
 * Shorter URL: ``https://pypi.org/p/{name}/`` will redirect to
   ``https://pypi.org/project/{name}/``.
 
-* Documentation upload: Users can no longer use ``doc_upload`` in the
-  API to upload documentation ZIP files, separate from packages, to be
-  hosted at pythonhosted.org (`discussion
-  <https://github.com/pypa/warehouse/issues/509>`_).
-
 * All APIs: `access is HTTPS-only
   <https://mail.python.org/pipermail/distutils-sig/2017-October/031712.html>`_
   (changed in October 2017). And pypi.org honors an ``Accept-Encoding:
@@ -65,8 +60,10 @@ Here are some tips.
   the new feeds are standards-compliant and fix inaccuracies in the
   publication date <https://github.com/pypa/warehouse/issues/3238>`_.
 
-* Subscribe to `the PyPI announcement list (low-traffic)
-  <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
+* Documentation upload: Users can no longer use ``doc_upload`` in the
+  API to upload documentation ZIP files, separate from packages, to be
+  hosted at pythonhosted.org (`discussion
+  <https://github.com/pypa/warehouse/issues/509>`_).
 
 * ``User-Agent`` Filtering: Some client user agents have been filtered
   to always use ``pypi.python.org`` regardless of brownouts or
@@ -75,6 +72,9 @@ Here are some tips.
   ``pypi.org`` regardless of their ``User-Agent``. See `the Warehouse
   Roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`_ for a
   timeline.
+
+* Subscribe to `the PyPI announcement list (low-traffic)
+  <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
 
 If you're a PyPI end user or packager looking to migrate to the new
 PyPI, please see `the official Python Packaging User Guide on
