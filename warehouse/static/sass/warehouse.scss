@@ -188,6 +188,10 @@
   }
 }
 
+.display-block {
+  display: block;
+}
+
 // Mobile specific visibility
 @media screen and (max-width: $mobile) {
   .hide-on-mobile {
