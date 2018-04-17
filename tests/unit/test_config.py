@@ -31,12 +31,15 @@ class TestJunkEncodingTween:
 
         tween = config.junk_encoding_tween_factory(handler, pretend.stub())
 
-        request = Request({"QUERY_STRING": ":action=browse"})
+        request = Request({
+            "QUERY_STRING": ":action=browse",
+            "PATH_INFO": "/pypi",
+        })
         resp = tween(request)
 
         assert resp is response
 
-    def test_invalid(self):
+    def test_invalid_qsl(self):
         response = pretend.stub()
         handler = pretend.call_recorder(lambda request: response)
 
@@ -48,6 +51,21 @@ class TestJunkEncodingTween:
         assert resp is not response
         assert resp.status_code == 400
         assert resp.detail == "Invalid bytes in query string."
+
+    def test_invalid_path(self):
+        response = pretend.stub()
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
+
+        request = Request({
+            "PATH_INFO": "/projects/abouÅt",
+        })
+        resp = tween(request)
+
+        assert resp is not response
+        assert resp.status_code == 400
+        assert resp.detail == "Invalid bytes in URL."
 
 
 class TestUnicodeRedirectTween:
@@ -447,7 +465,10 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
     assert configurator_obj.add_tween.calls == [
-        pretend.call("warehouse.config.junk_encoding_tween_factory"),
+        pretend.call(
+            "warehouse.config.junk_encoding_tween_factory",
+            over="warehouse.csp.content_security_policy_tween_factory",
+        ),
         pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call(

@@ -80,6 +80,12 @@ def junk_encoding_tween_factory(handler, request):
         except UnicodeDecodeError:
             return HTTPBadRequest("Invalid bytes in query string.")
 
+        # Look for invalid bytes in a path.
+        try:
+            request.path_info
+        except UnicodeDecodeError:
+            return HTTPBadRequest("Invalid bytes in URL.")
+
         # Everything worked! Handle this request as normal.
         return handler(request)
 
@@ -262,7 +268,10 @@ def configure(settings=None):
     config.set_root_factory(RootFactory)
 
     # Add some fixups for some encoding/decoding issues
-    config.add_tween("warehouse.config.junk_encoding_tween_factory")
+    config.add_tween(
+        "warehouse.config.junk_encoding_tween_factory",
+        over="warehouse.csp.content_security_policy_tween_factory",
+    )
     config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 
     # Register DataDog metrics
