@@ -166,7 +166,17 @@ class RegistrationForm(
         NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin,
         forms.Form):
 
-    full_name = wtforms.StringField()
+    full_name = wtforms.StringField(
+        validators=[
+            wtforms.validators.Length(
+                max=100,
+                message=(
+                    "The name you have chosen is too long. Please choose "
+                    "a name with under 100 characters."
+                )
+            ),
+        ]
+    )
 
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
