@@ -37,6 +37,7 @@ export default class extends Controller {
   _setViewport(width) {
     const content = `width=${width}`;
     document.getElementsByTagName("meta")["viewport"].content = content;
+    window.scrollTo(0, 0);
   }
 
   switchToDesktop() { // Toggle to the desktop viewport.
