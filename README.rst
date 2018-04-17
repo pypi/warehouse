@@ -48,7 +48,7 @@ Code of Conduct
 Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
-.. _`PyPI`: https://pypi.python.org/
+.. _`PyPI`: https://pypi.org/
 .. _`lives on GitHub`: https://github.com/pypa/pypi-legacy/
 .. _`our development roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
 .. _`documentation`: https://warehouse.readthedocs.io
