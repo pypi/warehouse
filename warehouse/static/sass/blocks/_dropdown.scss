@@ -78,14 +78,15 @@
     text-align: left;
     position: relative;
 
-    &:hover {
-      background-color: $base-grey;
-      color: $text-color;
+    &:hover,
+    &:focus {
+      background-color: mix($white, $primary-color-light, 90%);
+      color: $primary-color-dark;
       text-decoration: none;
     }
 
     &:focus {
-      @include link-focus;
+      border-bottom-color: $primary-color-light;
     }
 
     .fa {
@@ -121,9 +122,14 @@
         text-decoration: none;
       }
 
-      &:hover {
+      &:hover,
+      &:focus {
         background-color: darken($header-background-color, 1.5);
         color: $white;
+      }
+
+      &:focus {
+        border-bottom-color: $primary-color-light;
       }
     }
   }
