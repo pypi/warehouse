@@ -25,7 +25,6 @@ from warehouse.packaging.models import Classifier
 def get_classifiers(request):
     classifiers = (
         request.db.query(Classifier)
-        .filter(Classifier.l5 == 0)  # Can be a parent
         .order_by(Classifier.classifier)
         .all()
     )

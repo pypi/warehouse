@@ -22,9 +22,8 @@ from ....common.db.classifiers import ClassifierFactory
 class TestGetClassifiers:
 
     def test_get_classifiers(self, db_request):
-        classifier_a = ClassifierFactory(l5=0, classifier='I am first')
-        classifier_b = ClassifierFactory(l5=0, classifier='I am last')
-        ClassifierFactory(l5=1)  # Ignored because it has a nonzero L5
+        classifier_a = ClassifierFactory(classifier='I am first')
+        classifier_b = ClassifierFactory(classifier='I am last')
 
         assert views.get_classifiers(db_request) == {
             'classifiers': [classifier_a, classifier_b],
