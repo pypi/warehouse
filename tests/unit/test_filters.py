@@ -14,11 +14,9 @@ import urllib.parse
 
 from functools import partial
 
-import jinja2
 import packaging.version
 import pretend
 import pytest
-import readme_renderer.rst
 
 from warehouse import filters
 
@@ -42,134 +40,9 @@ def test_camo_url():
     )
 
 
-class TestReadmeRender:
-
-    def test_can_render_rst(self, monkeypatch):
-        renderer = pretend.call_recorder(lambda raw: "rendered")
-        monkeypatch.setattr(readme_renderer.rst, "render", renderer)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                },
-            ),
-        )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
-
-        ctx = {"request": request}
-
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/x-rst",
-        )
-
-        assert result == jinja2.Markup("rendered")
-        assert renderer.calls == [pretend.call('raw thing')]
-
-    def test_cant_render_rst(self, monkeypatch):
-        rst_renderer = pretend.call_recorder(lambda raw: None)
-        txt_renderer = pretend.call_recorder(lambda raw: "rendered<br>thing")
-        monkeypatch.setattr(readme_renderer.rst, "render", rst_renderer)
-        monkeypatch.setattr(readme_renderer.txt, "render", txt_renderer)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                },
-            ),
-        )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
-
-        ctx = {"request": request}
-
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/x-rst",
-        )
-
-        assert result == jinja2.Markup("rendered<br>thing")
-        assert rst_renderer.calls == [pretend.call('raw thing')]
-        assert txt_renderer.calls == [pretend.call('raw thing')]
-
-    def test_can_render_plaintext(self, monkeypatch):
-        renderer = pretend.call_recorder(lambda raw: "rendered")
-        monkeypatch.setattr(readme_renderer.txt, "render", renderer)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                },
-            ),
-        )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
-
-        ctx = {"request": request}
-
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/plain",
-        )
-
-        assert result == jinja2.Markup("rendered")
-        assert renderer.calls == [pretend.call('raw thing')]
-
-    def test_can_render_markdown(self, monkeypatch):
-        renderer = pretend.call_recorder(lambda raw: "rendered")
-        monkeypatch.setattr(readme_renderer.markdown, "render", renderer)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                },
-            ),
-        )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
-
-        ctx = {"request": request}
-
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/markdown",
-        )
-
-        assert result == jinja2.Markup("rendered")
-        assert renderer.calls == [pretend.call('raw thing')]
-
-    def test_can_render_missing_content_type(self, monkeypatch):
-        renderer = pretend.call_recorder(lambda raw: "rendered")
-        monkeypatch.setattr(readme_renderer.rst, "render", renderer)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                },
-            ),
-        )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
-
-        ctx = {"request": request}
-
-        result = filters.readme(
-            ctx, "raw thing", description_content_type=None,
-        )
-
-        assert result == jinja2.Markup("rendered")
-        assert renderer.calls == [pretend.call('raw thing')]
-
-    def test_renders_camo(self, monkeypatch):
+class TestCamoify:
+    def test_camoify(self):
         html = "<img src=http://example.com/image.jpg>"
-        monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
         request = pretend.stub(
             registry=pretend.stub(
@@ -184,19 +57,17 @@ class TestReadmeRender:
 
         ctx = {"request": request}
 
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/x-rst",
+        result = filters.camoify(
+            ctx, html
         )
 
-        assert result == jinja2.Markup(
+        assert result == (
             '<img src="https://camo.example.net/'
             'b410d235a3d2fc44b50ccab827e531dece213062/'
-            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">'
-        )
+            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">')
 
-    def test_renders_camo_no_src(self, monkeypatch):
+    def test_camoify_no_src(self, monkeypatch):
         html = "<img>"
-        monkeypatch.setattr(readme_renderer.rst, "render", lambda raw: html)
 
         request = pretend.stub(
             registry=pretend.stub(
@@ -216,11 +87,9 @@ class TestReadmeRender:
         )
         monkeypatch.setattr(filters, "_camo_url", gen_camo_url)
 
-        result = filters.readme(
-            ctx, "raw thing", description_content_type="text/x-rst",
-        )
+        result = filters.camoify(ctx, html)
 
-        assert result == jinja2.Markup("<img>")
+        assert result == "<img>"
         assert gen_camo_url.calls == []
 
 

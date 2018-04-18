@@ -180,6 +180,7 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "description": None,
             "latest_version": project.latest_version,
             "all_versions": [
                 (r.version, r.created, r.is_prerelease)
