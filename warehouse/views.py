@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import tracemalloc
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
@@ -370,3 +371,15 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
+
+
+@view_config(
+    route_name="memory",
+    permission="admin",
+    uses_session=True,
+    renderer='string',
+)
+def memory(request):
+    snapshot = tracemalloc.take_snapshot()
+    top_stats = snapshot.statistics('lineno')
+    return '\n'.join(str(s) for s in top_stats[:20])
