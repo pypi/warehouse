@@ -20,6 +20,7 @@ def includeme(config):
 
     # Simple Route for health checks.
     config.add_route("health", "/_health/")
+    config.add_route("memory", "/_memory/")
 
     # Internal route to make it easier to force a particular status for
     # debugging HTTPException templates.

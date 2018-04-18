@@ -10,6 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tracemalloc
+
+tracemalloc.start()
+
 from warehouse.config import configure
 
 application = configure().make_wsgi_app()

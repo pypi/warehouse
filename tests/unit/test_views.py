@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import tracemalloc
 
 import pretend
 import pytest
@@ -25,7 +26,7 @@ from warehouse import views
 from warehouse.views import (
     SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
     httpexception_view, index, robotstxt, opensearchxml, search, force_status,
-    flash_messages, forbidden_include
+    flash_messages, forbidden_include, memory
 )
 
 from ..common.db.accounts import UserFactory
@@ -551,6 +552,22 @@ def test_health():
 
     assert health(request) == "OK"
     assert request.db.execute.calls == [pretend.call("SELECT 1")]
+
+
+def test_memory(monkeypatch):
+    request = pretend.stub()
+    snapshot = pretend.stub(
+        statistics=pretend.call_recorder(
+            lambda x: ['a line', 'another line']
+        )
+    )
+    take_snapshot = pretend.call_recorder(
+        lambda: snapshot,
+    )
+    monkeypatch.setattr(tracemalloc, "take_snapshot", take_snapshot)
+    memory(request)
+    assert take_snapshot.calls == [pretend.call()]
+    assert snapshot.statistics.calls == [pretend.call('lineno')]
 
 
 class TestForceStatus:
