@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from pyramid.httpexceptions import HTTPSeeOther
-from pyramid.view import view_config
+from pyramid.view import view_config, view_defaults
 
 from warehouse.packaging.models import Classifier
 
@@ -35,35 +35,65 @@ def get_classifiers(request):
     }
 
 
-@view_config(
-    route_name="admin.classifiers.add",
-    permission="admin",
-    request_method="POST",
+@view_defaults(
+    route_name='admin.classifiers.add',
+    permission='admin',
+    request_method='POST',
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
-def add_classifier(request):
-    parent = request.db.query(Classifier).get(request.params.get('parent_id'))
+class AddClassifier:
 
-    classifier = Classifier(
-        l2=parent.l2,
-        l3=parent.l3,
-        l4=parent.l4,
-        l5=parent.l5,
-        classifier=parent.classifier + " :: " + request.params.get('child'),
-    )
-    request.db.add(classifier)
-    request.db.flush()  # To get the ID
+    def __init__(self, request):
+        self.request = request
 
-    for level in ['l3', 'l4', 'l5']:
-        if getattr(classifier, level) == 0:
-            setattr(classifier, level, classifier.id)
-            break
+    @view_config(request_param=['parent'])
+    def add_parent_classifier(self):
+        classifier = Classifier(
+            classifier=self.request.params.get('parent'), l3=0, l4=0, l5=0,
+        )
 
-    request.session.flash(
-        f"Successfully added classifier {classifier.classifier!r}",
-        queue="success",
-    )
+        self.request.db.add(classifier)
+        self.request.db.flush()  # To get the ID
 
-    return HTTPSeeOther(request.route_path("admin.classifiers"))
+        classifier.l2 = classifier.id
+
+        self.request.session.flash(
+            f'Successfully added classifier {classifier.classifier!r}',
+            queue='success',
+        )
+
+        return HTTPSeeOther(self.request.route_path('admin.classifiers'))
+
+    @view_config(request_param=['parent_id', 'child'])
+    def add_child_classifier(self):
+        parent = (
+            self.request.db
+            .query(Classifier)
+            .get(self.request.params.get('parent_id'))
+        )
+
+        classifier = Classifier(
+            l2=parent.l2,
+            l3=parent.l3,
+            l4=parent.l4,
+            l5=parent.l5,
+            classifier=(
+                parent.classifier + ' :: ' + self.request.params.get('child')
+            ),
+        )
+        self.request.db.add(classifier)
+        self.request.db.flush()  # To get the ID
+
+        for level in ['l3', 'l4', 'l5']:
+            if getattr(classifier, level) == 0:
+                setattr(classifier, level, classifier.id)
+                break
+
+        self.request.session.flash(
+            f'Successfully added classifier {classifier.classifier!r}',
+            queue='success',
+        )
+
+        return HTTPSeeOther(self.request.route_path('admin.classifiers'))
