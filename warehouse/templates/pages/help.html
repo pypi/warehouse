@@ -30,12 +30,13 @@
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
 {% macro statistics() %}Where can I see statistics about PyPI, downloads, and project/package usage?{% endmacro %}
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
+{% macro tls_deprecation() %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <tt>pip install</tt>?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
 {% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
-{% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" errors?{% endmacro %}
+{% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
 {% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
@@ -77,6 +78,7 @@
         <h2><a href="#problems">Problems</a></h2>
         <ul>
           <li><a href="#login-problem">{{ login_problem() }}</a></li>
+          <li><a href="#tls-deprecation">{{ tls_deprecation() }}</a></li>
           <li><a href="#accessibility">{{ accessibility() }}</a></li>
           <li><a href="#uploading">{{ uploading() }}</a></li>
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
@@ -171,7 +173,7 @@
       <h3 id="statistics">{{ statistics() }}</h3>
         <p>You can <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">analyze PyPI download usage statistics via Google BigQuery</a>.</p>
         <p><a href="https://libraries.io/pypi" target="_blank" rel="noopener">Libraries.io provides statistics for PyPI projects</a> (<a href="https://libraries.io/pypi/twine/" target="_blank" rel="noopener">example</a>, <a href="https://libraries.io/api" target="_blank" rel="noopener">API</a>) including GitHub stars and forks, dependency tracking (<a href="https://github.com/librariesio/bibliothecary/issues/415" target="_blank" rel="noopener">in progress</a>), and <a href="https://docs.libraries.io/overview#sourcerank" target="_blank" rel="noopener">other relevant factors</a>.</p>
-        <p>For recent statistics on uptime and performance, see <a href="http://status.python.org/" target="_blank" rel="noopener">our status page</a>.</p>
+        <p>For recent statistics on uptime and performance, see <a href="https://status.python.org/" target="_blank" rel="noopener">our status page</a>.</p>
       </section>
 
       <section class="faq-group" id="problems">
@@ -180,6 +182,16 @@
         <h3 id="login-problem">{{ login_problem() }}</h3>
         <p>
           You should be able to <a href="{{ request.route_path('accounts.reset-password') }}">reset your password</a> on the site; you'll receive an email with a password reset link. If you no longer have access to the email address associated with your account, <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to help.
+        </p>
+        {{ code_of_conduct() }}
+
+        <h3 id="tls-deprecation">{{ tls_deprecation() }}</h3>
+        <p>
+          Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure. It's a cryptographic protocol that's had several versions over time. PyPI <a href="https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html" target="_blank" rel="noopener">turned off support for TLS versions 1.0 and 1.1</a> in April 2018 (<a href="https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html" target="_blank" rel="noopener">reason</a>). If you are having trouble with <tt> pip install</tt> and get a <tt>No matching distribution found</tt> or <tt>Could not fetch URL</tt> error, try adding <tt>-v</tt> to the command to get more information:
+        </p>
+        <p><tt>pip install --upgrade -v pip</tt>
+        </p>
+        <p>If you see an error like <tt>There was a problem confirming the ssl certificate</tt> or <tt>tlsv1 alert protocol version</tt> or <tt>TLSV1_ALERT_PROTOCOL_VERSION</tt>, you need to be connecting to PyPI with a newer TLS support library. The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <tt>setuptools</tt>, and <tt>pip</tt>. For help, please go to <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">the <tt>#pypa</tt> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your OS and installation details and the output of <tt>pip install --upgrade -vvv pip</tt>.
         </p>
         {{ code_of_conduct() }}
 
@@ -290,7 +302,7 @@
 
         <h3 id="maintainers">{{ maintainers() }}</h3>
         <p>
-          The new PyPI is powered by the Warehouse project; <a href="http://warehouse.readthedocs.io/">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
+          The new PyPI is powered by the Warehouse project; <a href="https://warehouse.readthedocs.io/">Warehouse</a> is an open source project developed under the umbrella of the Python Packaging Authority (PyPA) and supported by the Python Packaging Working Group (PackagingWG).
         </p>
         <p>
           The <a href="https://www.pypa.io/en/latest/">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
@@ -301,7 +313,7 @@
 
         <h3 id="sponsors">{{ sponsors() }}</h3>
         <p>
-          PyPI is powered by <a href="http://warehouse.readthedocs.io/">Warehouse</a> and by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.
+          PyPI is powered by <a href="https://warehouse.readthedocs.io/">Warehouse</a> and by a variety of tools and services provided by our <a href="{{ request.route_path('sponsors') }}">generous sponsors</a>.
         </p>
 
         <h3 id="availability">{{ availability() }}</h3>
@@ -309,12 +321,12 @@
           As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the legacy site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.
         </p>
         <p>
-          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. Please see <a href="http://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
+          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. Please see <a href="https://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
         </p>
 
         <h3 id="contributing">{{ contributing() }}</h3>
         <p>
-          We have a huge amount of work to do to continue to maintain and improve PyPI (also known as <a href="http://warehouse.readthedocs.io/">the Warehouse project</a>).
+          We have a huge amount of work to do to continue to maintain and improve PyPI (also known as <a href="https://warehouse.readthedocs.io/">the Warehouse project</a>).
         </p>
         <p>
         <em>Financial</em>: We would deeply appreciate <a href="https://donate.pypi.org/">your donations to fund development and maintenance</a>.

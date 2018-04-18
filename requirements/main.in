@@ -49,4 +49,4 @@ transaction
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy
-zxcvbn-python
+zxcvbn
