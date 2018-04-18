@@ -48,6 +48,24 @@ class AddClassifier:
     def __init__(self, request):
         self.request = request
 
+    @view_config(request_param=['parent'])
+    def add_parent_classifier(self):
+        classifier = Classifier(
+            classifier=self.request.params.get('parent'), l3=0, l4=0, l5=0,
+        )
+
+        self.request.db.add(classifier)
+        self.request.db.flush()  # To get the ID
+
+        classifier.l2 = classifier.id
+
+        self.request.session.flash(
+            f'Successfully added classifier {classifier.classifier!r}',
+            queue='success',
+        )
+
+        return HTTPSeeOther(self.request.route_path('admin.classifiers'))
+
     @view_config(request_param=['parent_id', 'child'])
     def add_child_classifier(self):
         parent = (

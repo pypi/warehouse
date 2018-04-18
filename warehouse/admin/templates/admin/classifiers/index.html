@@ -22,6 +22,28 @@
 {% endblock %}
 
 {% block content %}
+<div class="box box-primary" data-controller="parent-classifier">
+  <div class="box-header with-border">
+    <h3 class="box-title">Add New Top-Level Classifier</h3>
+  </div>
+  <form method="POST" action="{{ request.route_path('admin.classifiers.add') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="box-body">
+      <div class="form-group col-sm-4">
+        <label for="parent">Classifier:</label>
+        <input name="parent" data-action="input->parent-classifier#update" data-target="parent-classifier.input" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off">
+      </div>
+    </div>
+    <div class="box-footer">
+      Add new classifier
+      <code data-target="parent-classifier.preview"></code>?
+      <div class="pull-right">
+        <button type="submit" class="btn btn-primary" data-target="parent-classifier.submit" disabled>Add</button>
+      </div>
+    </div>
+  </form>
+</div>
+
 <div class="box box-primary" data-controller="child-classifier">
   <div class="box-header with-border">
     <h3 class="box-title">Add Sub-Classifier</h3>
