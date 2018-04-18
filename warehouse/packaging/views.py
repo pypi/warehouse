@@ -89,6 +89,9 @@ def release_detail(release, request):
             request.current_route_path(name=project.name),
         )
 
+    # Get the release description, rendering it if needed.
+    description = release.html_description
+
     # Get all of the maintainers for this project.
     maintainers = [
         r.user
@@ -121,6 +124,7 @@ def release_detail(release, request):
     return {
         "project": project,
         "release": release,
+        "description": description,
         "files": release.files.all(),
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,

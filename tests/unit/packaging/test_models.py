@@ -17,6 +17,7 @@ import pytest
 
 from pyramid.security import Allow
 
+from warehouse.utils import readme
 from warehouse.packaging.models import (
     ProjectFactory, Dependency, DependencyKind, File,
 )
@@ -332,6 +333,41 @@ class TestRelease:
             home_page=home_page
         )
         assert release.github_repo_info_url == expected
+
+    def test_html_description_none(self, db_session):
+        release = DBReleaseFactory.create(
+            description=None)
+
+        assert release.html_description is None
+
+    def test_html_description_not_cached(self, db_session):
+        release = DBReleaseFactory.create(
+            description='text')
+
+        assert release.html_description == '<p>text</p>\n'
+        assert release.rendered_description == '<p>text</p>\n'
+        assert release.renderer_version is not None
+        assert release in db_session.dirty
+
+    def test_html_description_stale_cache(self, db_session):
+        release = DBReleaseFactory.create(
+            description='text',
+            rendered_description='rendered text',
+            renderer_version='invalid version')
+
+        assert release.html_description == '<p>text</p>\n'
+        assert release.rendered_description == '<p>text</p>\n'
+        assert release.renderer_version != 'invalid version'
+        assert release in db_session.dirty
+
+    def test_html_description_valid_cache(self, db_session):
+        release = DBReleaseFactory.create(
+            description='text',
+            rendered_description='rendered text',
+            renderer_version=readme.renderer_version())
+
+        assert release.html_description == 'rendered text'
+        assert release not in db_session.dirty
 
 
 class TestFile:

@@ -327,7 +327,7 @@ def configure(settings=None):
     )
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
-    filters.setdefault("readme", "warehouse.filters:readme")
+    filters.setdefault("camoify", "warehouse.filters:camoify")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
     filters.setdefault(

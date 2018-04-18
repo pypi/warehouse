@@ -33,6 +33,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
+from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.sitemap.models import SitemapMixin
@@ -328,14 +329,18 @@ class Release(db.ModelBase):
         server_default=sql.func.now(),
     )
 
-    # We defer this column because it is a very large column (it can be MB in
-    # size) and we very rarely actually want to access it. Typically we only
-    # need it when rendering the page for a single project, but many of our
-    # queries only need to access a few of the attributes of a Release. Instead
-    # of playing whack-a-mole and using load_only() or defer() on each of
-    # those queries, deferring this here makes the default case more
+    # We defer these column because they are potentially very large values (it
+    # can be MB in size) and we very rarely actually want to access them.
+    # Typically we only need it when rendering the page for a single project,
+    # but many of our queries only need to access a few of the attributes of a
+    # Release. Instead of playing whack-a-mole and using load_only() or defer()
+    # on each of those queries, deferring this here makes the default case more
     # performant.
-    description = orm.deferred(Column(Text))
+    description = orm.deferred(Column(Text), group='description')
+    rendered_description = orm.deferred(Column(Text), group='description')
+    # This contains the version of the readme-renderer used to render
+    # the readme, for example, "0.19".
+    renderer_version = orm.deferred(Column(Text), group='description')
 
     _classifiers = orm.relationship(
         Classifier,
@@ -419,6 +424,33 @@ class Release(db.ModelBase):
             else:
                 acls.append((Allow, str(role.user.id), ["upload"]))
         return acls
+
+    @property
+    def html_description(self):
+        """Returns the fully-rendered HTML description.
+
+        If the value is cached, it will return that. Otherwise it will render
+        and store the HTML.
+        """
+        session = orm.object_session(self)
+        current_renderer_version = readme.renderer_version()
+
+        if not self.description:
+            return None
+
+        if (self.rendered_description is not None and
+                self.renderer_version == current_renderer_version):
+            return self.rendered_description
+
+        rendered = readme.render(
+            self.description, self.description_content_type)
+
+        # Save the rendered html.
+        self.rendered_description = rendered
+        self.renderer_version = current_renderer_version
+        session.add(self)
+
+        return rendered
 
     @property
     def urls(self):
