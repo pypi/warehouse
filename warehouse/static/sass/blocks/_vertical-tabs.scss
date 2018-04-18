@@ -36,7 +36,6 @@
 
 .vertical-tabs {
   @include clearfix;
-  overflow: hidden;
   margin: $spacing-unit 0;
 
   @media only screen and (max-width: $tablet) {
