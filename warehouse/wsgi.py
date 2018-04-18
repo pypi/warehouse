@@ -12,8 +12,7 @@
 
 import tracemalloc
 
-tracemalloc.start()
-
 from warehouse.config import configure
 
+tracemalloc.start()
 application = configure().make_wsgi_app()
