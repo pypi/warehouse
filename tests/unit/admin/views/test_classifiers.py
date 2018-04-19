@@ -88,3 +88,18 @@ class TestAddClassifier:
         assert new.l3 == 0
         assert new.l4 == 0
         assert new.l5 == 0
+
+
+class TestDeprecateClassifier:
+
+    def test_deprecate_classifier(self, db_request):
+        classifier = ClassifierFactory(deprecated=False)
+
+        db_request.params = {'classifier_id': classifier.id}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: '/the/path'
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert classifier.deprecated
