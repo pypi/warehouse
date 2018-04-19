@@ -119,6 +119,7 @@ services:
         DEVEL: "yes"
         IPYTHON: "no"
     depends_on:
+      - db
       - selenium
       - web
     volumes:
