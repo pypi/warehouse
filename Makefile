@@ -95,7 +95,7 @@ tests:
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-tests_e2e: .state/docker-build
+tests_e2e: .state/docker-build mindb
 	docker-compose run --rm tests env -i ENCODING="C.UTF-8" \
 								PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								bin/tests-e2e --postgresql-host db $(T) $(TESTARGS)
