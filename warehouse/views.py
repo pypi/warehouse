@@ -309,6 +309,7 @@ def search(request):
     classifiers_q = (
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
+        .filter(Classifier.deprecated.is_(False))
         .filter(
             exists([release_classifiers.c.trove_id])
             .where(release_classifiers.c.trove_id == Classifier.id)
