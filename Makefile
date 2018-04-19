@@ -95,7 +95,9 @@ tests:
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-tests_e2e: .state/docker-build mindb
+tests_e2e: .state/docker-build
+	docker-compose up -d
+	$(MAKE) mindb
 	docker-compose run --rm tests env -i ENCODING="C.UTF-8" \
 								PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								bin/tests-e2e --postgresql-host db $(T) $(TESTARGS)
@@ -143,7 +145,7 @@ createdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 
-initdb: createdb
+initdb:
 	xz -d -k dev/$(DB).sql.xz
 	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
