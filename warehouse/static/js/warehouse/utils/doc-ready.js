@@ -30,7 +30,7 @@ function showUnsupportedBrowserWarning() {
 }
 
 export default (fn) => {
-  if (unsupportedBrowser) {
+  if (unsupportedBrowser()) {
     if (!warningShown) {
       document.addEventListener("DOMContentLoaded", showUnsupportedBrowserWarning);
     }
