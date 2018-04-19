@@ -24,6 +24,8 @@
     - primary: Makes button bright blue.
     - danger: Makes button red.
     - disabled: Styles for when the button cannot be clicked.
+    - switch-to-desktop: Switch to desktop button found in site footer.
+    - switch-to-mobile: Switch to mobile button found in site header.
 */
 
 .button {
@@ -50,12 +52,14 @@
   &:focus,
   &:hover,
   &:active {
-    border-color: $brand-color;
-    color: darken($brand-color, 10);
+    border-color: $primary-color;
+    color: darken($primary-color, 10);
     text-decoration: none;
     z-index: index($z-index-scale, "active-button"); // Needed for button groups
     outline: none;
   }
+
+  @include link-focus;
 
   &--small {
     font-size: $small-font-size;
@@ -64,16 +68,16 @@
   }
 
   &--primary {
-    border-color: $brand-color;
-    background-color: $brand-color;
+    border-color: $primary-color;
+    background-color: $primary-color;
     color: $white;
     z-index: index($z-index-scale, "primary-button"); // Needed for button groups
 
     &:focus,
     &:hover,
     &:active {
-      border-color: darken($brand-color, 10);
-      background-color: darken($brand-color, 9);
+      border-color: darken($primary-color, 10);
+      background-color: darken($primary-color, 9);
       text-decoration-color: transparentize($white, 0.8);
       color: $white;
     }
@@ -111,5 +115,28 @@
       color: darken($background-color, 12%);
       outline: none;
     }
+  }
+
+  &--switch-to-desktop {
+    border: 2px solid transparentize($white, 0.3);
+    color: $white;
+    margin: $spacing-unit auto 0;
+
+    &:hover,
+    &:focus,
+    &:active {
+      border-color: $white;
+      color: $white;
+    }
+  }
+
+  &--switch-to-mobile {
+    font-size: 500%;
+    line-height: 1.2;
+    padding: 40px;
+    height: auto;
+    margin: 25px;
+    border-radius: 25px;
+    width: calc(100% - 50px);
   }
 }

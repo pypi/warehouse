@@ -2,7 +2,7 @@ version: '3'
 
 services:
   db:
-    image: postgres:9.6
+    image: postgres:10.1
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
@@ -64,7 +64,9 @@ services:
       context: .
       args:
         DEVEL: "yes"
-    command: celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    volumes:
+      - ./warehouse:/opt/warehouse/src/warehouse:z
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"

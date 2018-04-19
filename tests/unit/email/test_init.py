@@ -14,57 +14,89 @@ import celery.exceptions
 import pretend
 import pytest
 
-from pyramid_mailer.message import Message
-from pyramid_mailer.interfaces import IMailer
-
 from warehouse import email
 from warehouse.accounts.interfaces import ITokenService
+from warehouse.email.interfaces import IEmailSender
+
+
+@pytest.mark.parametrize(
+    ("user", "address", "expected"),
+    [
+        (
+            pretend.stub(name="", username="", email="me@example.com"),
+            None,
+            "me@example.com",
+        ),
+        (
+            pretend.stub(name="", username="", email="me@example.com"),
+            "other@example.com",
+            "other@example.com",
+        ),
+        (
+            pretend.stub(name="", username="foo", email="me@example.com"),
+            None,
+            "foo <me@example.com>",
+        ),
+        (
+            pretend.stub(name="bar", username="foo", email="me@example.com"),
+            None,
+            "bar <me@example.com>",
+        ),
+        (
+            pretend.stub(name="bar", username="foo", email="me@example.com"),
+            "other@example.com",
+            "bar <other@example.com>",
+        ),
+    ],
+)
+def test_compute_recipient(user, address, expected):
+    assert email._compute_recipient(user, email=address) == expected
 
 
 class TestSendEmail:
 
     def test_send_email_success(self, monkeypatch):
-        message_obj = Message()
 
-        def mock_message(*args, **kwargs):
-            return message_obj
+        class FakeMailSender:
 
-        monkeypatch.setattr(email, "Message", mock_message)
+            def __init__(self):
+                self.emails = []
 
+            def send(self, subject, body, *, recipient):
+                self.emails.append(
+                    {"subject": subject, "body": body, "recipient": recipient},
+                )
+
+        sender = FakeMailSender()
         task = pretend.stub()
-        mailer = pretend.stub(
-            send_immediately=pretend.call_recorder(lambda i: None)
-        )
         request = pretend.stub(
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: 'SENDER'),
-                ),
-                getUtility=pretend.call_recorder(lambda mailr: mailer)
-            )
+            find_service=pretend.call_recorder(lambda *a, **kw: sender),
+            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
         )
 
         email.send_email(
             task,
             request,
-            "body",
             "subject",
-            recipients=["recipients"],
+            "body",
+            recipient="recipient",
         )
 
-        assert mailer.send_immediately.calls == [pretend.call(message_obj)]
-        assert request.registry.getUtility.calls == [pretend.call(IMailer)]
-        assert request.registry.settings.get.calls == [
-            pretend.call("mail.sender")]
+        assert request.find_service.calls == [pretend.call(IEmailSender)]
+        assert sender.emails == [
+            {
+                "subject": "[DevPyPI] subject",
+                "body": "body",
+                "recipient": "recipient",
+            },
+        ]
 
     def test_send_email_failure(self, monkeypatch):
         exc = Exception()
-        message_obj = Message()
 
-        class Mailer:
-            @staticmethod
-            @pretend.call_recorder
-            def send_immediately(message):
+        class FakeMailSender:
+
+            def send(self, subject, body, *, recipient):
                 raise exc
 
         class Task:
@@ -73,34 +105,21 @@ class TestSendEmail:
             def retry(exc):
                 raise celery.exceptions.Retry
 
-        def mock_message(*args, **kwargs):
-            return message_obj
-
-        monkeypatch.setattr(email, "Message", mock_message)
-
-        mailer, task = Mailer(), Task()
+        sender, task = FakeMailSender(), Task()
         request = pretend.stub(
-            registry=pretend.stub(
-                settings=pretend.stub(
-                    get=pretend.call_recorder(lambda k: 'SENDER'),
-                ),
-                getUtility=pretend.call_recorder(lambda mailr: mailer)
-            )
+            find_service=lambda *a, **kw: sender,
+            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
         )
 
         with pytest.raises(celery.exceptions.Retry):
             email.send_email(
                 task,
                 request,
-                "body",
                 "subject",
-                recipients=["recipients"],
+                "body",
+                recipient="recipient",
             )
 
-        assert mailer.send_immediately.calls == [pretend.call(message_obj)]
-        assert request.registry.getUtility.calls == [pretend.call(IMailer)]
-        assert request.registry.settings.get.calls == [
-            pretend.call("mail.sender")]
         assert task.retry.calls == [pretend.call(exc=exc)]
 
 
@@ -111,8 +130,9 @@ class TestSendPasswordResetEmail:
 
         stub_user = pretend.stub(
             id='id',
-            email='email',
+            email='email@example.com',
             username='username_value',
+            name="name_value",
             last_login='last_login',
             password_date='password_date',
         )
@@ -167,9 +187,9 @@ class TestSendPasswordResetEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=[stub_user.email],
+                'Email Body',
+                recipient="name_value <" + stub_user.email + ">",
             ),
         ]
 
@@ -181,7 +201,7 @@ class TestEmailVerificationEmail:
 
         stub_email = pretend.stub(
             id='id',
-            email='email',
+            email='email@example.com',
         )
         pyramid_request.method = 'POST'
         token_service.dumps = pretend.call_recorder(lambda a: 'TOKEN')
@@ -208,6 +228,7 @@ class TestEmailVerificationEmail:
 
         result = email.send_email_verification_email(
             pyramid_request,
+            pretend.stub(username=None, name=None, email="foo@example.com"),
             email=stub_email,
         )
 
@@ -232,9 +253,9 @@ class TestEmailVerificationEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=[stub_email.email],
+                'Email Body',
+                recipient=stub_email.email,
             ),
         ]
 
@@ -245,8 +266,9 @@ class TestPasswordChangeEmail:
             self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
-            email='email',
+            email='email@example.com',
             username='username',
+            name="",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             'email/password-change.subject.txt'
@@ -280,9 +302,9 @@ class TestPasswordChangeEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=[stub_user.email],
+                'Email Body',
+                recipient=f"{stub_user.username} <{stub_user.email}>",
             ),
         ]
 
@@ -293,8 +315,9 @@ class TestAccountDeletionEmail:
             self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
-            email='email',
+            email='email@example.com',
             username='username',
+            name="",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             'email/account-deleted.subject.txt'
@@ -328,9 +351,9 @@ class TestAccountDeletionEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=[stub_user.email],
+                'Email Body',
+                recipient=f"{stub_user.username} <{stub_user.email}>",
             ),
         ]
 
@@ -341,8 +364,9 @@ class TestPrimaryEmailChangeEmail:
             self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
-            email='new_email',
+            email='new_email@example.com',
             username='username',
+            name="",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             'email/primary-email-change.subject.txt'
@@ -364,12 +388,12 @@ class TestPrimaryEmailChangeEmail:
         result = email.send_primary_email_change_email(
             pyramid_request,
             stub_user,
-            "old_email"
+            "old_email@example.com",
         )
 
         assert result == {
             'username': stub_user.username,
-            'old_email': "old_email",
+            'old_email': "old_email@example.com",
             'new_email': stub_user.email
         }
         subject_renderer.assert_()
@@ -379,9 +403,9 @@ class TestPrimaryEmailChangeEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=['old_email'],
+                'Email Body',
+                recipient='username <old_email@example.com>',
             ),
         ]
 
@@ -392,12 +416,14 @@ class TestCollaboratorAddedEmail:
             self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
-            email='email',
+            email='email@example.com',
             username='username',
+            name="",
         )
         stub_submitter_user = pretend.stub(
-            email='submiteremail',
-            username='submitterusername'
+            email='submiteremail@example.com',
+            username='submitterusername',
+            name="",
         )
         subject_renderer = pyramid_config.testing_add_renderer(
             'email/collaborator-added.subject.txt'
@@ -422,7 +448,7 @@ class TestCollaboratorAddedEmail:
             submitter=stub_submitter_user,
             project_name='test_project',
             role='Owner',
-            email_recipients=[stub_user.email, stub_submitter_user.email]
+            email_recipients=[stub_user, stub_submitter_user]
         )
 
         assert result == {
@@ -439,12 +465,18 @@ class TestCollaboratorAddedEmail:
 
         assert pyramid_request.task.calls == [
             pretend.call(send_email),
+            pretend.call(send_email),
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                bcc=[stub_user.email, stub_submitter_user.email],
+                'Email Body',
+                recipient="username <email@example.com>",
+            ),
+            pretend.call(
+                'Email Subject',
+                'Email Body',
+                recipient="submitterusername <submiteremail@example.com>",
             ),
         ]
 
@@ -455,8 +487,9 @@ class TestAddedAsCollaboratorEmail:
             self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
-            email='email',
+            email='email@example.com',
             username='username',
+            name="",
         )
         stub_submitter_user = pretend.stub(
             email='submiteremail',
@@ -484,7 +517,7 @@ class TestAddedAsCollaboratorEmail:
             submitter=stub_submitter_user,
             project_name='test_project',
             role='Owner',
-            user_email=stub_user.email
+            user=stub_user,
         )
 
         assert result == {
@@ -502,8 +535,8 @@ class TestAddedAsCollaboratorEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                'Email Body',
                 'Email Subject',
-                recipients=[stub_user.email],
+                'Email Body',
+                recipient="username <email@example.com>",
             ),
         ]

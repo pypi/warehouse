@@ -1,3 +1,5 @@
+# Note: This is *ONLY* used for test.pypi.org, for the pypi.org, see python/pypi-infra
+
 # Note: It is VERY important to ensure that any changes to VCL will work
 #       properly with both the current version of ``master`` and the version in
 #       the pull request that adds any new changes. This is because the
@@ -160,7 +162,7 @@ sub vcl_recv {
 
     # Requests to /packages/ get dispatched to Amazon instead of to our typical
     # Origin. This requires a a bit of setup to make it work.
-    if (req.http.host ~ "^(test-)?files.pythonhosted.org$"
+    if (req.backend == F_S3 && req.http.host ~ "^(test-)?files.pythonhosted.org$"
             && req.url ~ "^/packages/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{60}/") {
         # Setup our environment to better match what S3 expects/needs
         set req.http.Host = req.http.AWS-Bucket-Name ".s3.amazonaws.com";

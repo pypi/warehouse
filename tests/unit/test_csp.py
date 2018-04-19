@@ -210,6 +210,7 @@ def test_includeme():
                 "connect-src": [
                     "'self'",
                     "https://2p66nmmycsj3.statuspage.io",
+                    "https://api.github.com/repos/",
                 ],
                 "default-src": ["'none'"],
                 "font-src": ["'self'", "fonts.gstatic.com"],
@@ -219,9 +220,13 @@ def test_includeme():
                 "img-src": [
                     "'self'",
                     "camo.url.value",
-                    "https://secure.gravatar.com",
+                    "www.google-analytics.com",
                 ],
-                "script-src": ["'self'", "www.google-analytics.com"],
+                "script-src": [
+                    "'self'",
+                    "www.googletagmanager.com",
+                    "www.google-analytics.com",
+                ],
                 "style-src": ["'self'", "fonts.googleapis.com"],
             },
         })

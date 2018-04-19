@@ -15,11 +15,13 @@ $tooltip-duration: 0.1s !default;
 
 // This is the tooltip bubble
 .tooltipped::after {
+  content: attr(aria-label);
   position: absolute;
   z-index: 1000000;
   display: none;
   padding: 5px 8px;
-  font-size: 11px/1.5;
+  font-size: $base-font-size;
+  font-weight: normal;
   -webkit-font-smoothing: subpixel-antialiased;
   color: $tooltip-text-color;
   text-align: center;
@@ -30,7 +32,6 @@ $tooltip-duration: 0.1s !default;
   word-wrap: break-word;
   white-space: pre;
   pointer-events: none;
-  content: attr(aria-label);
   background: $tooltip-background-color;
   border-radius: 2px;
   opacity: 0;

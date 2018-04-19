@@ -23,7 +23,7 @@
     <table class="table table--light table--releases no-top-margin">
       <thead>
         <th class="table__version">Version</th>
-        <th class="table__date">Release Date</th>
+        <th class="table__date">Release date</th>
         <th class="table__summary">Summary</th>
         <th class="table__options"></th>
       </thead>
@@ -44,31 +44,37 @@
             {% endif %}
             </td>
           <td class="table__options">
-            <div class="dropdown dropdown--with-icons">
-              <button class="dropdown__trigger button button--primary">
+            <nav class="dropdown dropdown--with-icons">
+              <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
                 Options
                 <span class="dropdown__trigger-caret">
                   <i class="fa fa-caret-down" aria-hidden="true"></i>
                   <span class="sr-only">view submenu</span>
                 </span>
               </button>
-              <div class="dropdown__content">
-                <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
-                  <i class="fa fa-pencil" aria-hidden="true"></i>
-                  Manage
-                </a>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
-                  <i class="fa fa-eye" aria-hidden="true"></i>
-                  View
-                </a>
-                {% set title = "Delete Release" %}
-                {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
-                <a href="#{{ slug }}" class="dropdown__link">
-                  <i class="fa fa-trash" aria-hidden="true"></i>
-                  Delete
-                </a>
-              </div>
-            </div>
+              <ul class="dropdown__content">
+                <li>
+                  <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
+                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                    Manage
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}" class="dropdown__link">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                    View
+                  </a>
+                </li>
+                <li>
+                  {% set title = "Delete Release" %}
+                  {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
+                  <a href="#{{ slug }}" class="dropdown__link">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            </nav>
             {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
             {{ confirm_modal(title, "Version", release.version, slug, index=loop.index, action=action) }}
           </td>
@@ -81,9 +87,9 @@
 
   <div class="callout-block">
     {% if project.releases %}
-    <h3>Creating a New Release</h3>
+    <h3>Creating a new release</h3>
     {% else %}
-    <h3>No Releases Found</h3>
+    <h3>No releases found</h3>
     {% endif %}
     <p>Learn how to create a new release on the <a href="https://packaging.python.org/tutorials/distributing-packages/">Python Packaging User Guide</a></p>
   </div>

@@ -21,13 +21,13 @@ def _hash(email):
     return hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
 
 
-def gravatar(email, size=80):
+def gravatar(request, email, size=80):
     url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
     params = {
         "size": size,
     }
 
-    return "?".join([url, urllib.parse.urlencode(params)])
+    return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
 
 
 def profile(email):

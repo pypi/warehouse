@@ -30,7 +30,9 @@ from warehouse.manage.forms import (
     AddEmailForm, ChangePasswordForm, CreateRoleForm, ChangeRoleForm,
     SaveAccountForm,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Role
+from warehouse.packaging.models import (
+    File, JournalEntry, Project, Release, Role,
+)
 from warehouse.utils.project import (
     confirm_project,
     destroy_docs,
@@ -122,7 +124,11 @@ class ManageAccountViews:
                 self.request.user.id, form.email.data,
             )
 
-            send_email_verification_email(self.request, email)
+            send_email_verification_email(
+                self.request,
+                self.request.user,
+                email,
+            )
 
             self.request.session.flash(
                 f'Email {email.email} added - check your email for ' +
@@ -219,7 +225,11 @@ class ManageAccountViews:
                 'Email is already verified.', queue='error'
             )
         else:
-            send_email_verification_email(self.request, email)
+            send_email_verification_email(
+                self.request,
+                self.request.user,
+                email,
+            )
 
             self.request.session.flash(
                 f'Verification email for {email.email} resent.',
@@ -340,6 +350,7 @@ def manage_projects(request):
 
 @view_config(
     route_name="manage.project.settings",
+    context=Project,
     renderer="manage/settings.html",
     uses_session=True,
     permission="manage",
@@ -351,6 +362,7 @@ def manage_project_settings(project, request):
 
 @view_config(
     route_name="manage.project.delete_project",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -364,6 +376,7 @@ def delete_project(project, request):
 
 @view_config(
     route_name="manage.project.destroy_docs",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -384,6 +397,7 @@ def destroy_project_docs(project, request):
 
 @view_config(
     route_name="manage.project.releases",
+    context=Project,
     renderer="manage/releases.html",
     uses_session=True,
     permission="manage",
@@ -395,6 +409,7 @@ def manage_project_releases(project, request):
 
 @view_defaults(
     route_name="manage.project.release",
+    context=Release,
     renderer="manage/release.html",
     uses_session=True,
     require_csrf=True,
@@ -473,7 +488,7 @@ class ManageProjectRelease:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_filename", "file_id"]
+        request_param=["confirm_project_name", "file_id"]
     )
     def delete_project_release_file(self):
 
@@ -487,9 +502,9 @@ class ManageProjectRelease:
                 )
             )
 
-        filename = self.request.POST.get('confirm_filename')
+        project_name = self.request.POST.get('confirm_project_name')
 
-        if not filename:
+        if not project_name:
             return _error("Must confirm the request.")
 
         try:
@@ -504,10 +519,11 @@ class ManageProjectRelease:
         except NoResultFound:
             return _error('Could not find file.')
 
-        if filename != release_file.filename:
+        if project_name != self.release.project.name:
             return _error(
                 "Could not delete file - " +
-                f"{filename!r} is not the same as {release_file.filename!r}",
+                f"{project_name!r} is not the same as "
+                f"{self.release.project.name!r}",
             )
 
         self.request.db.add(
@@ -538,6 +554,7 @@ class ManageProjectRelease:
 
 @view_config(
     route_name="manage.project.roles",
+    context=Project,
     renderer="manage/roles.html",
     uses_session=True,
     require_methods=False,
@@ -582,8 +599,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 .join(Role.user)
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
-            owner_emails = [owner.user.email for owner in owners]
-            owner_emails.remove(request.user.email)
+            owner_users = [owner.user for owner in owners]
+            owner_users.remove(request.user)
 
             send_collaborator_added_email(
                 request,
@@ -591,7 +608,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 request.user,
                 project.name,
                 form.role_name.data,
-                owner_emails
+                owner_users,
             )
 
             send_added_as_collaborator_email(
@@ -599,7 +616,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 request.user,
                 project.name,
                 form.role_name.data,
-                user.email
+                user,
             )
 
             request.session.flash(
@@ -630,6 +647,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
 @view_config(
     route_name="manage.project.change_role",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -721,6 +739,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
 
 @view_config(
     route_name="manage.project.delete_role",
+    context=Project,
     uses_session=True,
     require_methods=["POST"],
     permission="manage",
@@ -766,6 +785,7 @@ def delete_project_role(project, request):
 
 @view_config(
     route_name="manage.project.history",
+    context=Project,
     renderer="manage/history.html",
     uses_session=True,
     permission="manage",
@@ -774,7 +794,7 @@ def manage_project_history(project, request):
     journals = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc())
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
     )
     return {
@@ -785,6 +805,7 @@ def manage_project_history(project, request):
 
 @view_config(
     route_name="manage.project.documentation",
+    context=Project,
     renderer="manage/documentation.html",
     uses_session=True,
     permission="manage",

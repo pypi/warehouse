@@ -29,7 +29,7 @@ from warehouse.accounts.interfaces import (
     IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email
+from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_password_reset_email, send_email_verification_email,
@@ -62,6 +62,7 @@ def failed_logins(exc, request):
 
 @view_config(
     route_name="accounts.profile",
+    context=User,
     renderer="accounts/profile.html",
     decorator=[
         origin_cache(
@@ -250,7 +251,7 @@ def register(request, _form_class=RegistrationForm):
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
-        send_email_verification_email(request, email)
+        send_email_verification_email(request, user, email)
 
         return HTTPSeeOther(
             request.route_path("index"),
@@ -407,6 +408,9 @@ def verify_email(request):
         return _error("Email already verified")
 
     email.verified = True
+    email.unverify_reason = None
+    email.transient_bounces = 0
+
     request.user.is_active = True
 
     request.session.flash(
@@ -460,6 +464,7 @@ def _login_user(request, userid):
 
 @view_config(
     route_name="includes.current-user-profile-callout",
+    context=User,
     renderer="includes/accounts/profile-callout.html",
     uses_session=True,
 )
@@ -469,6 +474,7 @@ def profile_callout(user, request):
 
 @view_config(
     route_name="includes.edit-profile-button",
+    context=User,
     renderer="includes/accounts/edit-profile-button.html",
     uses_session=True,
 )

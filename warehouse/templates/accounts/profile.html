@@ -21,7 +21,7 @@
     <div class="left-layout__sidebar">
       <div class="author-profile">
         {% set alt = "Avatar for {} from gravatar.com".format(user.name|default(user.username, true)) %}
-        <img src="{{ gravatar(user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
+        <img src="{{ gravatar(request, user.email, size=225) }}" alt="{{ alt }}" title="{{ alt }}">
         <div class="author-profile__info">
           {% if user.name %}
           <h1 class="author-profile__name">{{ user.name }}</h1>
@@ -35,6 +35,11 @@
           {% csi request.route_path("includes.edit-profile-button", username=user.username) %}
           {% endcsi %}
         </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-section__title">Statistics</h3>
+          <p>View statistics for your projects via <a href="https://libraries.io/">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
+        </div>
       </div>
     </div>
 
@@ -42,12 +47,12 @@
       <h2>
         {% if projects %}
           {% trans count=projects|length %}
-            {{ count }} Project
+            {{ count }} project
           {% pluralize %}
-            {{ count }} Projects
+            {{ count }} projects
           {% endtrans %}
         {% else %}
-          No Projects
+          No projects
         {% endif %}
       </h2>
       <div class="package-list">
@@ -64,7 +69,7 @@
         {% else %}
           {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}
           <div class="callout-block no-top-margin">
-            <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet.</p>
+            <p>{{ user.name|default(user.username, true) }} has not uploaded any projects to PyPI, yet</p>
           </div>
           {% endcsi %}
         {% endif %}

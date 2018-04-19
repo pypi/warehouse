@@ -10,18 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from first import first
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import Release, Role
+from warehouse.packaging.models import Project, Release, Role
 
 
 @view_config(
     route_name="packaging.project",
+    context=Project,
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
@@ -55,6 +55,7 @@ def project_detail(project, request):
 
 @view_config(
     route_name="packaging.release",
+    context=Release,
     renderer="packaging/detail.html",
     decorator=[
         origin_cache(
@@ -87,27 +88,6 @@ def release_detail(release, request):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name),
         )
-
-    # Get all of the registered versions for this Project, in order of newest
-    # to oldest.
-    all_releases = (
-        request.db.query(Release)
-                  .filter(Release.project == project)
-                  .with_entities(
-                      Release.version,
-                      Release.is_prerelease,
-                      Release.created)
-                  .order_by(Release._pypi_ordering.desc())
-                  .all()
-    )
-
-    # Get the latest non-prerelease of this Project, or the latest release if
-    # all releases are prereleases.
-    latest_release = first(
-        all_releases,
-        key=lambda r: not r.is_prerelease,
-        default=all_releases[0],
-    )
 
     # Get all of the maintainers for this project.
     maintainers = [
@@ -142,8 +122,8 @@ def release_detail(release, request):
         "project": project,
         "release": release,
         "files": release.files.all(),
-        "latest_release": latest_release,
-        "all_releases": all_releases,
+        "latest_version": project.latest_version,
+        "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
     }
@@ -151,6 +131,7 @@ def release_detail(release, request):
 
 @view_config(
     route_name="includes.edit-project-button",
+    context=Project,
     renderer="includes/manage-project-button.html",
     uses_session=True,
     permission="manage",

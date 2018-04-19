@@ -56,7 +56,11 @@ class FastlyCache:
 
     def cache(self, keys, request, response, *, seconds=None,
               stale_while_revalidate=None, stale_if_error=None):
-        response.headers["Surrogate-Key"] = " ".join(keys)
+        existing_keys = set(response.headers.get("Surrogate-Key", "").split())
+
+        response.headers["Surrogate-Key"] = " ".join(
+            sorted(set(keys) | existing_keys)
+        )
 
         values = []
 

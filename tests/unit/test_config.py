@@ -16,10 +16,91 @@ import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.request import Request
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
+
+
+class TestJunkEncodingTween:
+
+    def test_valid(self):
+        response = pretend.stub()
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
+
+        request = Request({
+            "QUERY_STRING": ":action=browse",
+            "PATH_INFO": "/pypi",
+        })
+        resp = tween(request)
+
+        assert resp is response
+
+    def test_invalid_qsl(self):
+        response = pretend.stub()
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
+
+        request = Request({"QUERY_STRING": "%Aaction=browse"})
+        resp = tween(request)
+
+        assert resp is not response
+        assert resp.status_code == 400
+        assert resp.detail == "Invalid bytes in query string."
+
+    def test_invalid_path(self):
+        response = pretend.stub()
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
+
+        request = Request({
+            "PATH_INFO": "/projects/abouÅt",
+        })
+        resp = tween(request)
+
+        assert resp is not response
+        assert resp.status_code == 400
+        assert resp.detail == "Invalid bytes in URL."
+
+
+class TestUnicodeRedirectTween:
+    def test_basic_redirect(self):
+        response = pretend.stub(location="/a/path/to/nowhere")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/A/pAtH/tO/nOwHeRe/",
+        )
+        assert tween(request) == response
+
+    def test_unicode_basic_redirect(self):
+        response = pretend.stub(location="/pypi/\u2603/json/")
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/pypi/snowman/json/",
+        )
+        assert tween(request).location == "/pypi/%E2%98%83/json/"
+
+    def test_not_redirect(self):
+        response = pretend.stub(location=None)
+        handler = pretend.call_recorder(lambda request: response)
+        registry = pretend.stub()
+        tween = config.unicode_redirect_tween_factory(
+            handler, registry)
+        request = pretend.stub(
+            path="/wu/tang/",
+        )
+        assert tween(request) == response
 
 
 class TestRequireHTTPSTween:
@@ -255,7 +336,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "warehouse.env": environment,
         "warehouse.commit": None,
         "site.name": "Warehouse",
-        "mail.ssl": True,
         'token.default.max_age': 21600,
     }
 
@@ -317,6 +397,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         ] + [
             pretend.call(".logging"),
             pretend.call("pyramid_jinja2"),
+            pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
@@ -327,16 +408,17 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".domain"),
             pretend.call(".i18n"),
             pretend.call(".db"),
+            pretend.call(".tasks"),
             pretend.call(".rate_limiting"),
             pretend.call(".static"),
             pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".gcloud"),
-            pretend.call(".tasks"),
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".manage"),
             pretend.call(".packaging"),
@@ -383,6 +465,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is \
         transaction_manager
     assert configurator_obj.add_tween.calls == [
+        pretend.call(
+            "warehouse.config.junk_encoding_tween_factory",
+            over="warehouse.csp.content_security_policy_tween_factory",
+        ),
+        pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call(
             "warehouse.utils.compression.compression_tween_factory",

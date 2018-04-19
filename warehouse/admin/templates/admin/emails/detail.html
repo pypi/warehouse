@@ -1,0 +1,172 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% macro render_item(item) -%}
+  {% if item is mapping %}
+    <ul class="list-unstyled">
+      {% for key, value in item.items() %}
+      <li><em>{{ key }}</em>: {{ render_item(value) }}</li>
+      {% endfor %}
+    </ul>
+  {% elif item is sequence and item is not string %}
+    <ul>
+      {% for subitem in item %}
+      <li>{{ render_item(subitem) }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {{ item }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro render_data(data) -%}
+  <dl class="dl-horizontal">
+    {% for name, value in data.items() %}
+    <dt>{{ name }}</dt>
+
+    {# Normalize everything to a list, containing at least one item #}
+    {% if value is not sequence or value is string %}
+      {% set value = [value] %}
+    {% endif %}
+
+    {% for item in value %}
+    <dd>
+      {{ render_item(item) }}
+    </dd>
+    {% endfor %}
+
+    {% endfor %}
+  </dl>
+{%- endmacro %}
+
+{% macro status_color(status) -%}
+  {%- if status.value == "Delivered" -%}
+    green
+  {%- elif status.value == "Soft Bounced" -%}
+    yellow
+  {%- elif status.value == "Bounced" -%}
+    red
+  {%- elif status.value == "Complained" -%}
+    red
+  {%- else -%}
+    muted
+  {%- endif -%}
+{%- endmacro %}
+
+{% block title %}Message Details{% endblock %}
+
+{% block breadcrumb %}
+  <li><a href="{{ request.route_path('admin.emails.list') }}">Emails</a></li>
+  <li class="active">Message Details</li>
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box box-solid">
+        <div class="box-header with-border">
+          <i class="fa fa-envelope-open"></i>
+
+          <h3 class="box-title">Message</h3>
+        </div>
+
+        <div class="box-body">
+          <dl class="dl-horizontal">
+            <dt>Message Id</dt>
+            <dd>{{ email.message_id }}</dd>
+
+            <dt>From</dt>
+            <dd>{{ email.from_ }}</dd>
+
+            <dt>To</dt>
+            <dd>{{ email.to }}</dd>
+
+            <dt>Subject</dt>
+            <dd>{{ email.subject }}</dd>
+
+            {% if email.missing %}
+            <dt>Missing</dt>
+            <dd>"{{ email.to }}" was missing from the database during processing.</dd>
+            {% endif %}
+
+            <dt>Status</dt>
+            <dd class="text-{{ status_color(email.status) }}">{{ email.status.value }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box-solid">
+        <div class="box-header with-border">
+          <i class="fa fa-exchange"></i>
+
+          <h3 class="box-title">Events</h3>
+        </div>
+
+        <div class="box-body">
+          <ul class="timeline">
+            {% for event in email.events|reverse %}
+            <li>
+              {% if event.event_type.value == "Delivery" %}
+                {% set event_icon = "envelope" %}
+                {% set event_color = "green" %}
+              {% elif event.event_type.value == "Bounce" %}
+                {% set event_icon = "exclamation" %}
+
+                {% if event.data.bounceType == "Permanent" %}
+                  {% set event_color = "red" %}
+                {% else %}
+                  {% set event_color = "orange" %}
+                {% endif %}
+              {% elif event.event_type.value == "Complaint" %}
+                {% set event_icon = "ban" %}
+                {% set event_color = "red" %}
+              {% else %}
+                {% set event_icon = "asterisk" %}
+                {% set event_color = "blue" %}
+              {% endif %}
+
+              <i class="fa fa-{{ event_icon }} bg-{{ event_color }}"></i>
+              <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> {{ event.created|format_datetime }}</span>
+                <h3 class="timeline-header">{{ event.event_type.value }}</h3>
+                <div class="timeline-body">
+                  {{ render_data(event.data) }}
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+
+            <li>
+              <i class="fa fa-check bg-blue"></i>
+              <div class="timeline-item">
+                <span class="time"><i class="fa fa-clock-o"></i> {{ email.created|format_datetime }}</span>
+                <h3 class="timeline-header no-border">Accepted</h3>
+              </div>
+            </li>
+
+            <li>
+              <i class="fa fa-clock-o bg-gray"></i>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

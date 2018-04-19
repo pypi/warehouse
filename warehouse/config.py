@@ -13,11 +13,13 @@
 import enum
 import os
 import shlex
+import urllib.parse
 
 import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 from pyramid.security import Allow
 from pyramid.tweens import EXCVIEW
@@ -62,6 +64,49 @@ class RootFactory:
 
     def __init__(self, request):
         pass
+
+
+def junk_encoding_tween_factory(handler, request):
+
+    def junk_encoding_tween(request):
+        # We're going to test our request a bit, before we pass it into the
+        # handler. This will let us return a better error than a 500 if we
+        # can't decode these.
+
+        # Ref: https://github.com/Pylons/webob/issues/161
+        # Ref: https://github.com/Pylons/webob/issues/115
+        try:
+            request.GET.get("", None)
+        except UnicodeDecodeError:
+            return HTTPBadRequest("Invalid bytes in query string.")
+
+        # Look for invalid bytes in a path.
+        try:
+            request.path_info
+        except UnicodeDecodeError:
+            return HTTPBadRequest("Invalid bytes in URL.")
+
+        # Everything worked! Handle this request as normal.
+        return handler(request)
+
+    return junk_encoding_tween
+
+
+def unicode_redirect_tween_factory(handler, request):
+
+    def unicode_redirect_tween(request):
+        response = handler(request)
+        if response.location:
+            try:
+                response.location.encode('ascii')
+            except UnicodeEncodeError:
+                response.location = '/'.join(
+                    [urllib.parse.quote_plus(x)
+                     for x in response.location.split('/')])
+
+        return response
+
+    return unicode_redirect_tween
 
 
 def require_https_tween_factory(handler, registry):
@@ -161,12 +206,6 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "mail.host", "MAIL_HOST")
-    maybe_set(settings, "mail.port", "MAIL_PORT")
-    maybe_set(settings, "mail.username", "MAIL_USERNAME")
-    maybe_set(settings, "mail.password", "MAIL_PASSWORD")
-    maybe_set(settings, "mail.sender", "MAIL_SENDER")
-    maybe_set(settings, "mail.ssl", "MAIL_SSL", default=True)
     maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
@@ -194,6 +233,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
+    maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -227,6 +267,13 @@ def configure(settings=None):
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
 
+    # Add some fixups for some encoding/decoding issues
+    config.add_tween(
+        "warehouse.config.junk_encoding_tween_factory",
+        over="warehouse.csp.content_security_policy_tween_factory",
+    )
+    config.add_tween("warehouse.config.unicode_redirect_tween_factory")
+
     # Register DataDog metrics
     config.include(".datadog")
 
@@ -245,6 +292,9 @@ def configure(settings=None):
 
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
+
+    # Include our filters
+    config.include(".filters")
 
     # Including pyramid_mailer for sending emails through SMTP.
     config.include("pyramid_mailer")
@@ -350,6 +400,9 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
+    # Register the support for Celery Tasks
+    config.include(".tasks")
+
     # Register support for our rate limiting mechanisms
     config.include(".rate_limiting")
 
@@ -363,15 +416,15 @@ def configure(settings=None):
     config.include(".aws")
     config.include(".gcloud")
 
-    # Register the support for Celery Tasks
-    config.include(".tasks")
-
     # Register our session support
     config.include(".sessions")
 
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+
+    # Register support for sendnging emails
+    config.include(".email")
 
     # Register our authentication support.
     config.include(".accounts")

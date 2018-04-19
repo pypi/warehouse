@@ -69,6 +69,7 @@
 @import "blocks/button";
 @import "blocks/button-group";
 @import "blocks/callout-block";
+@import "blocks/centered-heading";
 @import "blocks/checkbox-tree";
 @import "blocks/dark-overlay";
 @import "blocks/dropdown";
@@ -99,6 +100,7 @@
 @import "blocks/sidebar-section";
 @import "blocks/site-header";
 @import "blocks/skip-to-content";
+@import "blocks/sponsor-grid";
 @import "blocks/sponsors";
 @import "blocks/status-badge";
 @import "blocks/statistics-bar";
@@ -114,6 +116,11 @@
   padding: 0;
   margin: 0;
   list-style-type: none;
+}
+
+// Make inline elements centered
+.centered {
+  text-align: center;
 }
 
 // Remove top padding on selected typography elements
@@ -136,6 +143,11 @@
   margin-bottom: 0;
 }
 
+// Add small margin to the top of elements
+.margin-top {
+  margin-top: $spacing-unit / 4;
+}
+
 // Make text or icons red to draw attention
 .danger {
   color: $danger-color;
@@ -151,10 +163,34 @@
   padding-bottom: 25px;
 }
 
+// Reset text to default
+.reset-text {
+  font-size: $base-font-size;
+  font-weight: normal;
+}
+
 // Visibility helpers
 .hidden,
 .confirm-form {
   display: none;
+}
+
+// Desktop specific visibility
+
+@media screen and (min-width: $desktop + 1px) {
+  .hide-on-desktop {
+    display: none;
+  }
+}
+
+@media screen and (max-width: $desktop) {
+  .hide-below-desktop {
+    display: none;
+  }
+}
+
+.display-block {
+  display: block;
 }
 
 // Mobile specific visibility

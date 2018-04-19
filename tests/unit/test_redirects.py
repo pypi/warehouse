@@ -11,21 +11,33 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
-from pyramid.httpexceptions import HTTPMovedPermanently
+from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
 
 from warehouse import redirects
 
 
-def test_redirect_view():
-    target = "/{wat}/{_request.method}"
-    view = redirects.redirect_view_factory(target)
+class TestRedirectView:
 
-    request = pretend.stub(method="GET", matchdict={"wat": "the-thing"})
-    resp = view(request)
+    def test_redirect_view(self):
+        target = "/{wat}/{_request.method}"
+        view = redirects.redirect_view_factory(target)
 
-    assert isinstance(resp, HTTPMovedPermanently)
-    assert resp.headers["Location"] == "/the-thing/GET"
+        request = pretend.stub(method="GET", matchdict={"wat": "the-thing"})
+        resp = view(request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/the-thing/GET"
+
+    def test_redirect_view_raises_for_invalid_chars(self):
+        target = "/{wat}/{_request.method}"
+        view = redirects.redirect_view_factory(target)
+        request = pretend.stub(method="GET", matchdict={"wat": "the-thing\n"})
+
+        with pytest.raises(HTTPBadRequest,
+                           matches="URL may not contain control characters"):
+            view(request)
 
 
 def test_add_redirect(monkeypatch):

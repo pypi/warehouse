@@ -28,7 +28,7 @@ const convertToReadableText = (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return numDays == 1 ? "Yesterday." : `About ${numDays} days ago.`;
+    return numDays == 1 ? "Yesterday." : `About ${numDays} days ago`;
   }
 
   if (numHours > 0) {
@@ -36,9 +36,9 @@ const convertToReadableText = (time) => {
     return `About ${numHours} ago.`;
   } else if (numMinutes > 0) {
     numMinutes = numMinutes > 1 ? `${numMinutes} minutes` : "a minute";
-    return `About ${numMinutes} ago.`;
+    return `About ${numMinutes} ago`;
   } else {
-    return "Just now.";
+    return "Just now";
   }
 };
 

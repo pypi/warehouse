@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
-from first import first
-from packaging.version import parse as parse_version
+import packaging.version
 
-from warehouse.search import doc_type
+from elasticsearch_dsl import DocType, Text, Keyword, analyzer, MetaField, Date
+
+from warehouse.search.utils import doc_type
 
 
 EmailAnalyzer = analyzer(
@@ -57,26 +57,15 @@ class Project(DocType):
 
     @classmethod
     def from_db(cls, release):
-        obj = cls(meta={"id": release.project.normalized_name})
-        obj["name"] = release.project.name
-        obj["normalized_name"] = release.project.normalized_name
-        obj["version"] = [
-            r.version
-            for r in sorted(
-                release.project.releases,
-                key=lambda r: parse_version(r.version),
-                reverse=True,
-            )
-        ]
-        obj["latest_version"] = first(
-            sorted(
-                release.project.releases,
-                key=lambda r: parse_version(r.version),
-                reverse=True,
-            ),
-            key=lambda r: not r.is_prerelease,
-            default=release.project.releases[0],
-        ).version
+        obj = cls(meta={"id": release.normalized_name})
+        obj["name"] = release.name
+        obj["normalized_name"] = release.normalized_name
+        obj["version"] = sorted(
+            release.all_versions,
+            key=lambda r: packaging.version.parse(r),
+            reverse=True,
+        )
+        obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description
         obj["author"] = release.author
@@ -88,6 +77,6 @@ class Project(DocType):
         obj["keywords"] = release.keywords
         obj["platform"] = release.platform
         obj["created"] = release.created
-        obj["classifiers"] = list(release.classifiers)
+        obj["classifiers"] = release.classifiers
 
         return obj

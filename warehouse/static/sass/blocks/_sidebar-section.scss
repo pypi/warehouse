@@ -33,30 +33,44 @@
     font-size: 18px;
   }
 
+  .sidebar-section__user-gravatar {
+    text-decoration: none;
+  }
+
   &:last-of-type {
     margin-bottom: 0;
     padding-bottom: 0;
     border: 0;
   }
 
-  &--maintainers {
-    @include clearfix;
+  &__maintainer {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+  }
 
-    h3 {
-      width: 100%
-    }
-
-    a {
-      margin: 0 5px 5px 0;
-    }
+  &__user-gravatar {
+    margin-right: 10px;
+    margin-bottom: 5px;
 
     img {
+      max-width: 50px;
+
       @media only screen and (max-width: $desktop) {
         max-width: 40px;
         max-height: 40px;
       }
+    }
+  }
+
+  &__user-gravatar-text {
+    margin-bottom: 5px;
+    word-break: break-word;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: calc(100% - 60px);
+
+    @media only screen and (max-width: $desktop) {
+      max-width: calc(100% - 50px);
     }
   }
 }

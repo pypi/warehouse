@@ -14,12 +14,15 @@
 
 // SETTINGS - COLOURS
 
-$brand-color:                 #006dad;
-$primary-color:               #ffd343;
-$success-color:               #169428;
-$warn-color:                  #f05d22;
+$primary-color:               #006dad;
+$primary-color-light:         lighten($primary-color, 45);
+$primary-color-dark:          darken($primary-color, 10);
+$success-color:               #148024;
+$warn-color:                  #ffdf76;
+$warn-text:                   #664e04;
+$warn-orange-color:           #ff9918;
 $danger-color:                #D52D40;
-$brand-color-soft:            lighten($brand-color, 45);
+$highlight-color:             #ffd343;
 
 $white:                       #fff;
 $black:                       #000;
@@ -30,5 +33,5 @@ $border-color:                darken($base-grey, 10);
 $text-color:                  #464646;
 $transparent-white:           transparentize($white, 0.6);
 
-$header-background-color:     lighten($brand-color, 2);
-$header-border-color:         darken($brand-color, 2);
+$header-background-color:     lighten($primary-color, 2);
+$header-border-color:         darken($primary-color, 2);

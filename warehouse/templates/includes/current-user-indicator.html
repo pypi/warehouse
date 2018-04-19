@@ -14,56 +14,70 @@
 
   {% if request.user %}
   <div id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <div class="dropdown dropdown--on-menu dropdown--with-icons">
-      <button class="horizontal-menu__link dropdown__trigger">
+    <nav aria-label="Main navigation" class="dropdown dropdown--on-menu dropdown--with-icons">
+      <button class="horizontal-menu__link dropdown__trigger" aria-haspopup="true" aria-expanded="false">
         <span class="hide-on-mobile">Welcome back, </span>{{ request.user.username }}
         <span class="dropdown__trigger-caret">
           <i class="fa fa-caret-down" aria-hidden="true"></i>
           <span class="sr-only">view submenu</span>
         </span>
       </button>
-      <div class="dropdown__content">
+      <ul class="dropdown__content">
         {% if request.has_permission("admin") %}
-        <a class="dropdown__link" href="{{ request.route_path('admin.dashboard') }}">
-          <i class="fa fa-wrench" aria-hidden="true"></i>
-          Admin
-        </a>
+        <li>
+          <a href="{{ request.route_path('admin.dashboard') }}" class="dropdown__link">
+            <i class="fa fa-wrench" aria-hidden="true"></i>
+            Admin
+          </a>
+        </li>
         {% endif %}
-        <a class="dropdown__link" href="{{ request.route_path('manage.projects') }}">
-          <i class="fa fa-cube" aria-hidden="true"></i>
-          Your Projects
-        </a>
-        <a class="dropdown__link" href="{{ request.route_path('manage.account') }}">
-          <i class="fa fa-cog" aria-hidden="true"></i>
-          Account Settings
-        </a>
-        <a class="dropdown__link" href="{{ request.route_path('accounts.profile', username=request.user.username) }}">
-          <i class="fa fa-user-circle" aria-hidden="true"></i>
-          Public Profile
-        </a>
-        <a class="dropdown__link" href="{{ request.route_path('help') }}">
-          <i class="fa fa-question-circle" aria-hidden="true"></i>
-          Get Help
-        </a>
-        <a class="dropdown__link" href="https://donate.pypi.org">
-          <i class="fa fa-heart" aria-hidden="true"></i>
-          Donate
-        </a>
-        <form method="POST" action="{{ request.route_path('accounts.logout') }}">
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-          <button type="submit" value="log out" class="dropdown__link">
-            <i class="fa fa-sign-out" aria-hidden="true"></i>
-            Log Out
-          </button>
-        </form>
-      </div>
-    </div>
+        <li>
+          <a href="{{ request.route_path('manage.projects') }}" class="dropdown__link">
+            <i class="fa fa-cube" aria-hidden="true"></i>
+            Your Projects
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('manage.account') }}" class="dropdown__link">
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            Account Settings
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('accounts.profile', username=request.user.username) }}" class="dropdown__link">
+            <i class="fa fa-user-circle" aria-hidden="true"></i>
+            Public Profile
+          </a>
+        </li>
+        <li>
+          <a href="{{ request.route_path('help') }}" class="dropdown__link">
+            <i class="fa fa-question-circle" aria-hidden="true"></i>
+            Get Help
+          </a>
+        </li>
+        <li>
+          <a href="https://donate.pypi.org" class="dropdown__link">
+            <i class="fa fa-heart" aria-hidden="true"></i>
+            Donate
+          </a>
+        </li>
+        <li>
+          <form method="POST" action="{{ request.route_path('accounts.logout') }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <button type="submit" value="log out" class="dropdown__link">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+              Log Out
+            </button>
+          </form>
+        </li>
+      </ul>
+    </nav>
   </div>
   {% else %}
-  <nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+  <nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
     <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
     <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log In</a>
+    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
     <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
   </nav>
   {% endif %}

@@ -18,7 +18,7 @@ import botocore.exceptions
 
 from zope.interface import implementer
 
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 
 
 @implementer(IFileStorage)
@@ -39,10 +39,8 @@ class LocalFileStorage:
         self.base = base
 
     @classmethod
-    def create_service(cls, context, request, name=None):
-        if name is None:
-            raise ValueError('name is required')
-        return cls(request.registry.settings[f"{name}.path"])
+    def create_service(cls, context, request):
+        return cls(request.registry.settings[f"files.path"])
 
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
@@ -53,6 +51,28 @@ class LocalFileStorage:
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
                 dest_fp.write(src_fp.read())
+
+
+@implementer(IDocsStorage)
+class LocalDocsStorage:
+
+    def __init__(self, base):
+        # This class should not be used in production, it's trivial for it to
+        # be used to read arbitrary files from the disk. It is intended ONLY
+        # for local development with trusted users. To make this clear, we'll
+        # raise a warning.
+        warnings.warn(
+            "LocalDocsStorage is intended only for use in development, you "
+            "should not use it in production due to the lack of safe guards "
+            "for safely locating files on disk.",
+            RuntimeWarning,
+        )
+
+        self.base = base
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.registry.settings[f"docs.path"])
 
     def remove_by_prefix(self, prefix):
         directory = os.path.join(self.base, prefix)
@@ -65,21 +85,17 @@ class LocalFileStorage:
 @implementer(IFileStorage)
 class S3FileStorage:
 
-    def __init__(self, s3_client, bucket, *, prefix=None):
-        self.s3_client = s3_client
+    def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
         self.prefix = prefix
 
     @classmethod
-    def create_service(cls, context, request, name=None):
-        if name is None:
-            raise ValueError('name is required')
+    def create_service(cls, context, request):
         session = request.find_service(name="aws.session")
-        s3_client = session.client("s3")
         s3 = session.resource("s3")
-        bucket = s3.Bucket(request.registry.settings[f"{name}.bucket"])
-        prefix = request.registry.settings.get(f"{name}.prefix")
-        return cls(s3_client, bucket, prefix=prefix)
+        bucket = s3.Bucket(request.registry.settings["files.bucket"])
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
 
     def _get_path(self, path):
         # Legacy paths will have a first directory of something like 2.7, we
@@ -112,23 +128,40 @@ class S3FileStorage:
 
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
 
+
+@implementer(IDocsStorage)
+class S3DocsStorage:
+
+    def __init__(self, s3_client, bucket_name, *, prefix=None):
+        self.s3_client = s3_client
+        self.bucket_name = bucket_name
+        self.prefix = prefix
+
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3_client = session.client("s3")
+        bucket_name = request.registry.settings["docs.bucket"]
+        prefix = request.registry.settings.get("docs.prefix")
+        return cls(s3_client, bucket_name, prefix=prefix)
+
     def remove_by_prefix(self, prefix):
         if self.prefix:
             prefix = os.path.join(self.prefix, prefix)
         keys_to_delete = []
         keys = self.s3_client.list_objects_v2(
-            Bucket=self.bucket.name, Prefix=prefix
+            Bucket=self.bucket_name, Prefix=prefix
         )
         for key in keys.get('Contents', []):
             keys_to_delete.append({'Key': key['Key']})
             if len(keys_to_delete) > 99:
                 self.s3_client.delete_objects(
-                    Bucket=self.bucket.name,
+                    Bucket=self.bucket_name,
                     Delete={'Objects': keys_to_delete}
                 )
                 keys_to_delete = []
         if len(keys_to_delete) > 0:
             self.s3_client.delete_objects(
-                Bucket=self.bucket.name,
+                Bucket=self.bucket_name,
                 Delete={'Objects': keys_to_delete}
             )

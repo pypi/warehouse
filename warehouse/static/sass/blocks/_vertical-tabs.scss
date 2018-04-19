@@ -36,7 +36,6 @@
 
 .vertical-tabs {
   @include clearfix;
-  overflow: hidden;
   margin: $spacing-unit 0;
 
   @media only screen and (max-width: $tablet) {
@@ -45,6 +44,7 @@
 
   &__tabs {
     @include span-columns(3);
+    padding-left: 1px;
 
     @media only screen and (max-width: $tablet) {
       display: none;
@@ -56,9 +56,10 @@
     padding: $spacing-unit / 2;
     cursor: pointer;
 
-    &:hover {
+    &:hover,
+    &:focus {
       text-decoration: none;
-      color: darken($brand-color, 10)
+      color: darken($primary-color, 10)
     }
 
     &--mobile {
@@ -81,7 +82,7 @@
 
     &--is-active,
     &--is-active:hover {
-      background: $brand-color;
+      background: $primary-color;
       color: $white;
       border-color: transparent;
     }
