@@ -58,7 +58,9 @@
           {% for classifier in classifiers %}
           {% if classifier.l5 == 0 %}
           {# Only show classifiers that can be parent classifiers #}
-          <option value="{{ classifier.id }}">{{ classifier.classifier }}</option>
+          <option value="{{ classifier.id }}" {{'disabled' if classifier.deprecated else ''}}>
+            {{ classifier.classifier }}{{ ' (Deprecated)' if classifier.deprecated else ''}}
+          </option>
           {% endif %}
           {% endfor %}
         </select>
