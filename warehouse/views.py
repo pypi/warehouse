@@ -236,6 +236,23 @@ def index(request):
 
 
 @view_config(
+    route_name="classifiers",
+    renderer="pages/classifiers.html",
+)
+def classifiers(request):
+    classifiers = (
+        request.db.query(Classifier.classifier)
+        .filter(Classifier.deprecated.is_(False))
+        .order_by(Classifier.classifier)
+        .all()
+    )
+
+    return {
+        'classifiers': classifiers
+    }
+
+
+@view_config(
     route_name="search",
     renderer="search/results.html",
     decorator=[
