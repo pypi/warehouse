@@ -72,7 +72,6 @@ class EmailField(forms.Form):
     email = wtforms.fields.html5.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
-            wtforms.validators.Email(),
         ],
     )
     primary = wtforms.fields.BooleanField()
