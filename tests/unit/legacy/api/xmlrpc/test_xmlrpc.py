@@ -858,3 +858,14 @@ class TestMulticall:
         assert exc.value.faultString == (
             'ValueError: Method name not provided'
         )
+
+    def test_too_many_multicalls_method(self):
+        request = pretend.stub()
+        args = [{'methodName': 'nah'}] * 21
+
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            xmlrpc.multicall(request, args)
+
+        assert exc.value.faultString == (
+            'ValueError: Multicall limit is 20 calls'
+        )

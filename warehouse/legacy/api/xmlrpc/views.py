@@ -33,6 +33,9 @@ from warehouse.packaging.models import (
 )
 
 
+_MAX_MULTICALLS = 20
+
+
 def xmlrpc_method(**kwargs):
     """
     Support multiple endpoints serving the same views by chaining calls to
@@ -453,8 +456,11 @@ def multicall(request, args):
         )
 
     if not all(arg.get('methodName') for arg in args):
+        raise XMLRPCWrappedError(ValueError('Method name not provided'))
+
+    if len(args) > _MAX_MULTICALLS:
         raise XMLRPCWrappedError(
-            ValueError('Method name not provided')
+            ValueError(f'Multicall limit is {_MAX_MULTICALLS} calls')
         )
 
     responses = []
