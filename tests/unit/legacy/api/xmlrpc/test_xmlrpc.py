@@ -792,3 +792,69 @@ def test_browse(db_request):
             "Programming Language :: Python",
         ],
     )) == {(expected_release.name, expected_release.version)}
+
+
+class TestMulticall:
+
+    def test_multicall(self, monkeypatch):
+        dumped = pretend.stub(encode=lambda: None)
+        dumps = pretend.call_recorder(lambda *a, **kw: dumped)
+        monkeypatch.setattr(xmlrpc.xmlrpc.client, 'dumps', dumps)
+
+        loaded = pretend.stub()
+        loads = pretend.call_recorder(lambda *a, **kw: loaded)
+        monkeypatch.setattr(xmlrpc.xmlrpc.client, 'loads', loads)
+
+        subreq = pretend.stub()
+        blank = pretend.call_recorder(lambda *a, **kw: subreq)
+        monkeypatch.setattr(xmlrpc.Request, 'blank', blank)
+
+        body = pretend.stub()
+        response = pretend.stub(body=body)
+
+        invoke_subrequest = pretend.call_recorder(lambda *a, **kw: response)
+        request = pretend.stub(invoke_subrequest=invoke_subrequest)
+
+        args = [
+            {'methodName': 'search', 'params': [{'name': 'foo'}]},
+            {'methodName': 'browse', 'params': [{'classifiers': ['bar']}]},
+        ]
+
+        responses = xmlrpc.multicall(request, args)
+
+        assert responses == [loaded, loaded]
+        assert blank.calls == [
+            pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
+            pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
+        ]
+        assert invoke_subrequest.calls == [
+            pretend.call(subreq, use_tweens=True),
+            pretend.call(subreq, use_tweens=True),
+        ]
+        assert dumps.calls == [
+            pretend.call(({'name': 'foo'},), methodname='search'),
+            pretend.call(({'classifiers': ['bar']},), methodname='browse'),
+        ]
+        assert loads.calls == [pretend.call(body), pretend.call(body)]
+
+    def test_recursive_multicall(self):
+        request = pretend.stub()
+        args = [
+            {'methodName': 'system.multicall', 'params': []},
+        ]
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            xmlrpc.multicall(request, args)
+
+        assert exc.value.faultString == (
+            'ValueError: Cannot use system.multicall inside a multicall'
+        )
+
+    def test_missing_multicall_method(self):
+        request = pretend.stub()
+        args = [{}]
+        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+            xmlrpc.multicall(request, args)
+
+        assert exc.value.faultString == (
+            'ValueError: Method name not provided'
+        )
