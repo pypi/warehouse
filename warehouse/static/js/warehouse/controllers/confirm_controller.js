@@ -3,43 +3,71 @@ import { Controller } from "stimulus";
 export default class extends Controller {
   static targets = [ "input", "button" ]
 
-  initialize() {
-    // Force tab key to cycle within the modal if the modal is active
-    let keys = [];
-    this.element.addEventListener("keydown", event => {
-      let modalForm = this.element.querySelector(".modal:target .modal__form");
-      keys[event.keyCode] = event.type === "keydown";
+  /**
+   * Returns first item in modal. This currently usually the close button.
+   */
+  getFirstItem() {
+    return this.element.querySelector(".modal__close");
+  }
 
-      if (modalForm && keys[9]) {
-        // `firstItem` assumes that the close button is the first tabbable element.
-        // `lastItem` assumes that `button.modal__action` is the confirm action and
-        // `a.modal_action` is the cancel action (and that confirm is last when enabled).
-        const firstItem = modalForm.querySelector(".modal__close");
+  /**
+   * Returns the last item in modal.
+   * This assumes that `button.modal__action` is the confirm action and
+   * `a.modal__action` is the cancel action.
+   */
+  getLastItem() {
+    return this.element.querySelector(
+      ".modal__footer button.modal__action").disabled
+      ? this.element.querySelector(".modal__footer a.modal__action")
+      : this.element.querySelector(".modal__footer button.modal__action")
+  }
 
-        // This needs to be a function in order to get the disabled state in
-        // case the user populates the confirm input.
-        const getLastItem = () => modalForm.querySelector(".modal__footer button.modal__action").disabled
-          ? modalForm.querySelector(".modal__footer a.modal__action")
-          : modalForm.querySelector(".modal__footer button.modal__action");
-
-        // Handle SHIFT+TAB
-        if (keys[9] && keys[16]) {
-          if (document.activeElement === firstItem) {
-            getLastItem().focus();
-            event.preventDefault();
-          }
-        } else if (keys[9]) {
-          if (document.activeElement === getLastItem()) {
-            firstItem.focus();
-            event.preventDefault();
-          }
-        }
+  handleFirstItemTab() {
+    const _this = this;
+    this.getFirstItem().addEventListener("keydown", event => {
+      _this.keys[event.keyCode] = event.type === "keydown";
+      // Handle SHIFT+TAB
+      if (_this.keys[9] && _this.keys[16]) {
+        _this.getLastItem().focus();
+        event.preventDefault();
       }
     });
 
-    this.element.addEventListener("keyup", event => {
-      keys[event.keyCode] = event.type === "keydown";
+    this.getFirstItem().addEventListener("keyup", event => {
+      _this.keys[event.keyCode] = event.type === "keydown";
     });
+  }
+
+  handleLastItemTab () {
+    const _this = this;
+    const elements = [
+      this.element.querySelector(".modal__footer a.modal__action"),
+      this.element.querySelector(".modal__footer button.modal__action"),
+    ];
+
+    elements.map(el => {
+      el.addEventListener("keydown", function (event) {
+        _this.keys[event.keyCode] = event.type === "keydown";
+
+        // Check if this is really the last item first
+        if (event.target === _this.getLastItem()) {
+          if (_this.keys[9] && !_this.keys[16]) {
+            _this.getFirstItem().focus();
+            event.preventDefault();
+          }
+        }
+      });
+
+      el.addEventListener("keyup", event => {
+        _this.keys[event.keyCode] = event.type === "keydown";
+      });
+    });
+  }
+
+  initialize() {
+    this.keys = [];
+    this.handleFirstItemTab();
+    this.handleLastItemTab();
   }
 
   connect() {
