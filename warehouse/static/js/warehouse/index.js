@@ -44,6 +44,19 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 
+
+// Show unsupported browser warning if necessary
+docReady(() => {
+  if (navigator.appVersion.includes("MSIE 10")) {
+    if (document.getElementById("unsupported-browser") !== null) return;
+
+    let warning_div = document.createElement("div");
+    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--danger'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
+
+    document.getElementById("sticky-notifications").appendChild(warning_div);
+  }
+});
+
 // Human-readable timestamps for project histories
 docReady(() => {
   timeAgo();

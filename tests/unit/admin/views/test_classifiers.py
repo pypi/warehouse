@@ -22,9 +22,8 @@ from ....common.db.classifiers import ClassifierFactory
 class TestGetClassifiers:
 
     def test_get_classifiers(self, db_request):
-        classifier_a = ClassifierFactory(l5=0, classifier='I am first')
-        classifier_b = ClassifierFactory(l5=0, classifier='I am last')
-        ClassifierFactory(l5=1)  # Ignored because it has a nonzero L5
+        classifier_a = ClassifierFactory(classifier='I am first')
+        classifier_b = ClassifierFactory(classifier='I am last')
 
         assert views.get_classifiers(db_request) == {
             'classifiers': [classifier_a, classifier_b],
@@ -89,3 +88,18 @@ class TestAddClassifier:
         assert new.l3 == 0
         assert new.l4 == 0
         assert new.l5 == 0
+
+
+class TestDeprecateClassifier:
+
+    def test_deprecate_classifier(self, db_request):
+        classifier = ClassifierFactory(deprecated=False)
+
+        db_request.params = {'classifier_id': classifier.id}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: '/the/path'
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert classifier.deprecated

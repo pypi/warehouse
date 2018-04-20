@@ -83,6 +83,9 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Classifier Routes
+    config.add_route("classifiers", "/classifiers/", domain=warehouse)
+
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
 

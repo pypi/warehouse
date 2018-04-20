@@ -1,0 +1,42 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}Classifiers{% endblock %}
+
+{% block content %}
+<section class="horizontal-section">
+  <div class="narrow-container">
+    <h1 class="page-title">Classifiers</h1>
+    <p>Each project's maintainers provide PyPI with a list of "trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.</p>
+    <p>These standardized classifiers can then be used by community members to find projects based on their desired criteria.</p>
+    <p>Instructions for how to add trove classifiers to a project can be found on the <a href="https://packaging.python.org/tutorials/distributing-packages/#classifiers">Python Packaging User Guide</a>. To read the original classifier specification, refer to <a href="https://www.python.org/dev/peps/pep-0301/#distutils-trove-classification">PEP 301</a>.</p>
+
+    <h2>List of classifiers</h2>
+    <ul>
+    {% for classifier in classifiers %}
+      <li>
+        <a href="{{ request.route_path('search', _query={'c': classifier.classifier}) }}">
+          {{ classifier.classifier }}&nbsp;
+          <a class="-js-copy-hash tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ classifier.classifier }}">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span class="sr-only">Copy classifier</span>
+          </a>
+        </a>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

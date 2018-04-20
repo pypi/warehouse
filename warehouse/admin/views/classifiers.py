@@ -25,7 +25,6 @@ from warehouse.packaging.models import Classifier
 def get_classifiers(request):
     classifiers = (
         request.db.query(Classifier)
-        .filter(Classifier.l5 == 0)  # Can be a parent
         .order_by(Classifier.classifier)
         .all()
     )
@@ -97,3 +96,28 @@ class AddClassifier:
         )
 
         return HTTPSeeOther(self.request.route_path('admin.classifiers'))
+
+
+@view_config(
+    route_name='admin.classifiers.deprecate',
+    permission='admin',
+    request_method='POST',
+    uses_session=True,
+    require_methods=False,
+    require_csrf=True,
+)
+def deprecate_classifier(request):
+    classifier = (
+        request.db
+        .query(Classifier)
+        .get(request.params.get('classifier_id'))
+    )
+
+    classifier.deprecated = True
+
+    request.session.flash(
+        f'Successfully deprecated classifier {classifier.classifier!r}',
+        queue='success',
+    )
+
+    return HTTPSeeOther(request.route_path('admin.classifiers'))

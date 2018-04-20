@@ -7,7 +7,7 @@ export default class extends Controller {
     // Set the preview
     this.previewTarget.innerHTML = this.inputTarget.value;
 
-    if (this.inputTarget.value.match(/^\w+(\s\w)* :: \w+(\s\w)*$/g)) {
+    if (this.inputTarget.value.match(/^\w+(\s\w*)* :: \w+(\s\w*)*$/g)) {
       // Enable the submit button
       this.submitTarget.disabled = false;
     } else {

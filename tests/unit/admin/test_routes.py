@@ -102,6 +102,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            'admin.classifiers.deprecate',
+            '/admin/classifiers/deprecate/',
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.blacklist.list",
             "/admin/blacklist/",
             domain=warehouse,

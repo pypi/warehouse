@@ -23,9 +23,9 @@ from pyramid.httpexceptions import (
 
 from warehouse import views
 from warehouse.views import (
-    SEARCH_BOOSTS, SEARCH_FIELDS, current_user_indicator, forbidden, health,
-    httpexception_view, index, robotstxt, opensearchxml, search, force_status,
-    flash_messages, forbidden_include
+    SEARCH_BOOSTS, SEARCH_FIELDS, classifiers, current_user_indicator,
+    forbidden, health, httpexception_view, index, robotstxt, opensearchxml,
+    search, force_status, flash_messages, forbidden_include
 )
 
 from ..common.db.accounts import UserFactory
@@ -543,6 +543,15 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == []
+
+
+def test_classifiers(db_request):
+    classifier_a = ClassifierFactory(classifier='I am first')
+    classifier_b = ClassifierFactory(classifier='I am last')
+
+    assert classifiers(db_request) == {
+        'classifiers': [(classifier_a.classifier,), (classifier_b.classifier,)]
+    }
 
 
 def test_health():
