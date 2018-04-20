@@ -72,6 +72,7 @@ def datadog():
     return pretend.stub(
         event=pretend.call_recorder(lambda *args, **kwargs: None),
         increment=pretend.call_recorder(lambda *args, **kwargs: None),
+        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
 

@@ -236,7 +236,7 @@ class TestSearch:
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -287,7 +287,7 @@ class TestSearch:
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -318,6 +318,9 @@ class TestSearch:
                 params["q"],
                 term={"field": "name"},
             ),
+        ]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call('warehouse.views.search.results', 1000)
         ]
 
     @pytest.mark.parametrize(
@@ -352,7 +355,7 @@ class TestSearch:
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -420,7 +423,7 @@ class TestSearch:
         release1._classifiers.append(classifier1)
         release1._classifiers.append(classifier2)
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -478,7 +481,7 @@ class TestSearch:
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -505,7 +508,7 @@ class TestSearch:
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
 
-        page_obj = pretend.stub(page_count=10)
+        page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -528,7 +531,7 @@ class TestSearch:
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
 
-        page_obj = pretend.stub(page_count=10)
+        page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
