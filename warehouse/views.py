@@ -344,6 +344,9 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
+    request.registry.datadog.histogram('warehouse.views.search.results',
+                                       page.item_count)
+
     return {
         "page": page,
         "term": q,

@@ -84,7 +84,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -134,7 +141,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"summary": ["fix code", "like this"]},
@@ -189,7 +203,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -245,7 +266,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -294,7 +322,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "version": "1.0"},
@@ -342,7 +377,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo"},
