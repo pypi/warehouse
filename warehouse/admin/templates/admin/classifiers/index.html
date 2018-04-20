@@ -56,7 +56,12 @@
         <select name="parent_id" data-target="child-classifier.parent" data-action="child-classifier#update">
           <option disabled selected>Select one</option>
           {% for classifier in classifiers %}
-          <option value="{{ classifier.id }}">{{ classifier.classifier }}</option>
+          {% if classifier.l5 == 0 %}
+          {# Only show classifiers that can be parent classifiers #}
+          <option value="{{ classifier.id }}" {{'disabled' if classifier.deprecated else ''}}>
+            {{ classifier.classifier }}{{ ' (Deprecated)' if classifier.deprecated else ''}}
+          </option>
+          {% endif %}
           {% endfor %}
         </select>
         <label for="child">Child:</label>
@@ -73,27 +78,30 @@
   </form>
 </div>
 
-{#
 <div class="box box-primary">
   <div class="box-header with-border">
     <h3 class="box-title">Deprecate Classifier</h3>
   </div>
-  <div class="box-body">
-    <select>
-      <option disabled selected>Select one</option>
-      {% for classifier in classifiers %}
-      <option value="{{ classifier.id }}">{{ classifier.classifier }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="box-footer">
-    Deprecate classifier
-    <code></code>?
-    <div class="pull-right">
-      <button type="submit" class="btn btn-primary">Deprecate</button>
+  <form method="POST" action="{{ request.route_path('admin.classifiers.deprecate') }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="box-body">
+      <div class="form-group col-sm-4">
+        <label for="parent_id">Classifier:</label>
+        <select name="classifier_id">
+          <option disabled selected>Select one</option>
+          {% for classifier in classifiers %}
+          <option value="{{ classifier.id }}" {{'disabled' if classifier.deprecated else ''}}>
+            {{ classifier.classifier }}{{ ' (Deprecated)' if classifier.deprecated else ''}}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
-  </div>
+    <div class="box-footer">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-primary">Deprecate</button>
+      </div>
+    </div>
+  </form>
 </div>
-#}
-
 {% endblock content %}
