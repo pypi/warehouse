@@ -25,12 +25,13 @@
 */
 
 .sidebar-section {
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   border-bottom: 2px solid $border-color;
 
   .sidebar-section__title {
     font-size: 18px;
+    padding-bottom: 6px;
   }
 
   .sidebar-section__user-gravatar {

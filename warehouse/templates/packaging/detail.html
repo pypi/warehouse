@@ -100,9 +100,9 @@
 
     <div class="package-header__description">
     {% if release.summary %}
-      <p class="package-description__summary">{{ release.summary }}</p>
+      <p class="package-header__description__summary">{{ release.summary }}</p>
     {% else %}
-      <p class="package-description__summary">No project description provided</p>
+      <p class="package-header__description__summary">No project description provided</p>
     {% endif %}
     <div class="package-header__description__manage">
       {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
@@ -112,37 +112,29 @@
   </div>
 </section>
 
-<!-- <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
-  <div class="site-container">
-    <div class="split-layout split-layout--middle package-description">
-    </div>
-  </div>
-</section> -->
+<section>
+  <div class="navigation-tabs">
+    <a id="description-tab" class="navigation-tabs__tab navigation-tabs__tab--is-active" href="#description" role="tab">
+                <i class="fa fa-align-left" aria-hidden="true"></i>
+                Project description
+              </a>
+    <a id="history-tab" class="navigation-tabs__tab" href="#history" role="tab">
+                <i class="fa fa-history" aria-hidden="true"></i>
+                Release history
+              </a>
+              {% if files %}
+    <a id="download-tab-js-navigation-tab-content" class="navigation-tabs__tab" href="#files" role="tab">
+                  <i class="fa fa-download" aria-hidden="true"></i>
+                  Download files
+                </a>
+              {% endif %}
+        </div>
+</section>
 
 <section>
   <div class="tabs-container">
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Navigation</h3>
-            <nav role="tablist">
-              <a id="description-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" href="#description" role="tab">
-                <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project description
-              </a>
-              <a id="history-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon" href="#history" role="tab">
-                <i class="fa fa-history" aria-hidden="true"></i>
-                Release history
-              </a>
-              {% if files %}
-                <a id="download-tab" class="-js-vertical-tab vertical-tabs__tab vertical-tabs__tab--with-icon" href="#files" role="tab">
-                  <i class="fa fa-download" aria-hidden="true"></i>
-                  Download files
-                </a>
-              {% endif %}
-            </nav>
-        </div>
-
         {% if release.urls.values() | contains_valid_uris %}
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Project links</h3>
@@ -251,24 +243,24 @@
         </div>
         {% endif %}
       </div>
-      <div class="vertical-tabs__panel">
+      <div class="navigation-tabs__panel">
         <!-- mobile menu -->
-        <nav>
-          <a id="mobile-description-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" href="#description">
+        <!-- <nav>
+          <a id="mobile-description-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile navigation-tabs__tab--no-top-border navigation-tabs__tab--is-active" href="#description">
             <i class="fa fa-align-left" aria-hidden="true"></i>
             Project description
           </a>
-          <a id="mobile-history-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#history">
+          <a id="mobile-history-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile" href="#history">
             <i class="fa fa-history" aria-hidden="true"></i>
             Release history
           </a>
           {% if files %}
-          <a id="mobile-files-tab" class="-js-vertical-tab-mobile-heading vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#files">
+          <a id="mobile-files-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile" href="#files">
             <i class="fa fa-download" aria-hidden="true"></i>
             Download files
           </a>
           {% endif %}
-        </nav>
+        </nav> -->
         {# Tab: Project description #}
         <div id="description" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
           <h2 class="page-title">Project Description</h2>

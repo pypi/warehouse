@@ -66,16 +66,13 @@
     }
 
     @media screen and (max-width: $tablet) {
-      display: block;
 
       &__left {
-        width: 50%;
-        padding-right: 0;
+        flex: 5 1 auto;
       }
 
       &__center {
-        width: 50%;
-        padding-right: 0;
+        flex: 0 1 auto;
       }
 
       &__right {
@@ -102,7 +99,7 @@
         background-color: transparentize($black, 0.85);
         padding: 10px;
         border: 1px dotted $transparent-white;
-        line-height: $spacing-unit;
+        line-height: 18px;
 
         @media only screen and (max-width: $tablet) {
           font-size: 20px;
@@ -120,7 +117,7 @@
         line-height: $spacing-unit;
         float: left;
         cursor: pointer;
-        padding: 10px ($spacing-unit / 2);
+        padding: 4px 10px;
         background-color: transparentize($black, 0.85);
         border-right: 1px dotted $transparent-white;
         border-top: 1px dotted $transparent-white;
@@ -153,6 +150,7 @@
     margin-top: 10px auto;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     &__summary {
       flex: 1 1 auto;

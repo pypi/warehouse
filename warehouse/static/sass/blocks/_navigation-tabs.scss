@@ -13,26 +13,23 @@
  */
 
 /*
-  The  description on the package detail page.
-
-  <div class="package-description">
-    <p class="package-description__summary">Summary here</p>
-    <a class="package-description__edit-button">Optional edit button for package maintainers</a>
-  </div>
+  TODO: description
 */
 
-.package-description {
-  min-height: 58px;
-  margin-top: -10px;
+.navigation-tabs {
+  @include site-container;
+  display: flex;
+  min-height: 40px;
 
-  &__summary {
-    font-size: 1.1rem;
-    font-style: italic;
-    padding: 0;
-    margin-top: 10px;
-  }
+  &__tab {
+    flex: 1 1 auto;
+    text-align: center;
+    padding-top: 8px;
+    border-bottom: 3px solid $primary-color;
 
-  &__edit-button {
-    margin-top: 10px;
+    &--is-active {
+      background-color: lighten($highlight-color, 25);
+      border-bottom: 3px solid $highlight-color;
+    }
   }
 }
