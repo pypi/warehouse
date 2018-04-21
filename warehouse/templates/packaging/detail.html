@@ -59,54 +59,65 @@
 {% block content %}
 <section class="banner">
   <div class="package-header">
-    <div class="package-header__left">
-      <h1 class="package-header__name">
-        {{ release.project.name }} {{ release.version }}
-      </h1>
+    <div class="package-header__release">
+      <div class="package-header__release__left">
+        <div class="package-header__release__release">
+          <h1 class="package-header__release__name">
+            {{ release.project.name }} {{ release.version }}
+          </h1>
+          <p class="package-header__release__date">{{ humanize(release.created) }}</p>
+        </div>
+      </div>
 
-      {% if files %}
-      <p class="package-header__pip-instructions">
-        <span id="pip-command">
-        {% if request.matched_route.name == "packaging.release" %}
-          pip install {{ release.project.name }}=={{ release.version }}
+      <div class="package-header__release__center">
+        {% if release.version|parse_version > latest_version.version|parse_version %}
+        <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_version.version }})</a>
+        {% elif release.version|parse_version != latest_version.version|parse_version %}
+        <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_version.version }})</a>
         {% else %}
-          pip install {{ release.project.name }}
+        <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
         {% endif %}
-        </span>
-        <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
-          <i class="fa fa-copy" aria-hidden="true"></i>
-          <span class="sr-only">Copy PIP instructions<span>
-        </button>
-      </p>
-      {% endif %}
+      </div>
+
+      <div class="package-header__release__right">
+        {% if files %}
+        <p class="package-header__release__pip-instructions">
+          <span id="pip-command">
+          {% if request.matched_route.name == "packaging.release" %}
+            pip install {{ release.project.name }}=={{ release.version }}
+          {% else %}
+            pip install {{ release.project.name }}
+          {% endif %}
+          </span>
+          <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span class="sr-only">Copy PIP instructions<span>
+          </button>
+        </p>
+        {% endif %}
+      </div>
     </div>
 
-    <div class="package-header__right">
-      {% if release.version|parse_version > latest_version.version|parse_version %}
-      <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_version.version }})</a>
-      {% elif release.version|parse_version != latest_version.version|parse_version %}
-      <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Newer version available ({{ latest_version.version }})</a>
-      {% else %}
-      <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
-      {% endif %}
-      <p class="package-header__date">{{ humanize(release.created) }}</p>
-    </div>
-  </div>
-</section>
-
-<section class="horizontal-section horizontal-section--grey horizontal-section--thin">
-  <div class="site-container">
-    <div class="split-layout split-layout--middle package-description">
+    <div class="package-header__description">
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>
     {% else %}
       <p class="package-description__summary">No project description provided</p>
     {% endif %}
-    {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
-    {% endcsi %}
+    <div class="package-header__description__manage">
+      {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+      {% endcsi %}
+    </div>
     </div>
   </div>
 </section>
+
+<!-- <section class="horizontal-section horizontal-section--grey horizontal-section--thin">
+  <div class="site-container">
+    <div class="split-layout split-layout--middle package-description">
+    </div>
+  </div>
+</section> -->
 
 <section>
   <div class="tabs-container">

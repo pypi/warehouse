@@ -39,7 +39,7 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   padding: 0 12px 0 0;
   text-align: left;
-  min-height: 40px;
+  min-height: 30px;
 
   &:hover {
     color: $text-color;
@@ -48,12 +48,16 @@
   &:before {
     content: "\f05a"; // Info icon
     font-family: "FontAwesome";
-    padding: 12px;
+    padding: 6px;
     margin-right: 12px;
-    width: 40px;
-    height: 42px;
+    width: 30px;
+    height: 30px;
     text-align: center;
     border-right: 1px solid rgba(255, 255, 255, 0.4);
+
+    &:hover {
+      text-decoration: none;
+    }
   }
 
   &--unknown {

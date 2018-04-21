@@ -83,6 +83,22 @@
     }
   }
 
+  &--primary-inverse {
+    border-color: $white;
+    background-color: $white;
+    color: $primary-color;
+    z-index: index($z-index-scale, "primary-button"); // Needed for button groups
+
+    &:focus,
+    &:hover,
+    &:active {
+      border-color: darken($white, 10);
+      background-color: darken($white, 9);
+      text-decoration-color: transparentize($primary-color, 0.8);
+      color: $primary-color;
+    }
+  }
+
   &--danger {
     border-color: $danger-color;
     background-color: $danger-color;

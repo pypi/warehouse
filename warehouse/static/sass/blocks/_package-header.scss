@@ -35,105 +35,135 @@
 
 .package-header {
   @include site-container;
-  display: flex;
 
-  button {
-    color: $white;
-    text-decoration: underline;
-    text-decoration-color: $transparent-white;
-
-    &:hover {
-      text-decoration-color: $white;
-    }
-
-    @include link-focus
-  }
-
-  &__left {
-    width: 75%;
-    padding-right: $spacing-unit;
-  }
-
-  &__right {
-    text-align: right;
-    width: 25%;
-  }
-
-  @media screen and (max-width: $tablet) {
-    display: block;
-
-    &__left {
-      width: 100%;
-      padding-right: 0;
-    }
-
-    &__right {
-      display: none;
-    }
-  }
-
-  &__name {
-    @include add-ellipsis;
-    padding: 0;
-    margin-top: -10px;
-  }
-
-  &__pip-instructions {
-    @include clearfix;
-    margin: 10px 0 0;
-    padding-bottom: 0;
-
-    span {
-      font-family: $code-font;
-      font-weight: 500;
-      font-size: 22px;
-      float: left;
-      background-color: transparentize($black, 0.85);
-      padding: 10px;
-      border: 1px dotted $transparent-white;
-      line-height: $spacing-unit;
-
-      @media only screen and (max-width: $tablet) {
-        font-size: 20px;
-        line-height: 25px;
-      }
-
-      @media only screen and (max-width: $mobile) {
-        font-size: 18px;
-        line-height: 22px;
-      }
-    }
+  &__release {
+    display: flex;
 
     button {
       color: $white;
-      line-height: $spacing-unit;
-      float: left;
-      cursor: pointer;
-      padding: 10px ($spacing-unit / 2);
-      background-color: transparentize($black, 0.85);
-      border-right: 1px dotted $transparent-white;
-      border-top: 1px dotted $transparent-white;
-      border-bottom: 1px dotted $transparent-white;
-      border-left: 1px;
+      text-decoration: underline;
+      text-decoration-color: $transparent-white;
 
       &:hover {
-        background-color: transparentize($black, 0.8);
+        text-decoration-color: $white;
       }
 
-      @media only screen and (max-width: $tablet) {
-        line-height: 25px;
-        padding: 10px;
+      @include link-focus
+    }
+
+    &__left {
+      flex: 1 1 auto;
+    }
+
+    &__center {
+      flex: 5 1 auto;
+      text-align: left;
+    }
+
+    &__right {
+      flex: 0 1 auto;
+      text-align: right;
+    }
+
+    @media screen and (max-width: $tablet) {
+      display: block;
+
+      &__left {
+        width: 50%;
+        padding-right: 0;
       }
 
-      @media only screen and (max-width: $mobile) {
+      &__center {
+        width: 50%;
+        padding-right: 0;
+      }
+
+      &__right {
         display: none;
       }
     }
+
+    &__name {
+      @include add-ellipsis;
+      padding: 0;
+      margin-top: -10px;
+    }
+
+    &__pip-instructions {
+      @include clearfix;
+      margin: 0;
+      padding-bottom: 0;
+
+      span {
+        font-family: $code-font;
+        font-weight: 500;
+        font-size: 22px;
+        float: left;
+        background-color: transparentize($black, 0.85);
+        padding: 10px;
+        border: 1px dotted $transparent-white;
+        line-height: $spacing-unit;
+
+        @media only screen and (max-width: $tablet) {
+          font-size: 20px;
+          line-height: 25px;
+        }
+
+        @media only screen and (max-width: $mobile) {
+          font-size: 18px;
+          line-height: 22px;
+        }
+      }
+
+      button {
+        color: $white;
+        line-height: $spacing-unit;
+        float: left;
+        cursor: pointer;
+        padding: 10px ($spacing-unit / 2);
+        background-color: transparentize($black, 0.85);
+        border-right: 1px dotted $transparent-white;
+        border-top: 1px dotted $transparent-white;
+        border-bottom: 1px dotted $transparent-white;
+        border-left: 1px;
+
+        &:hover {
+          background-color: transparentize($black, 0.8);
+        }
+
+        @media only screen and (max-width: $tablet) {
+          line-height: 25px;
+          padding: 10px;
+        }
+
+        @media only screen and (max-width: $mobile) {
+          display: none;
+        }
+      }
+    }
+
+    &__date {
+      font-size: $small-font-size;
+      font-style: italic;
+      margin-top: -10px;
+    }
   }
 
-  &__date {
-    font-style: italic;
-    margin-top: 20px;
-    padding-bottom: 5px;
+  &__description {
+    margin-top: 10px auto;
+    display: flex;
+    justify-content: space-between;
+
+    &__summary {
+      flex: 1 1 auto;
+      font-size: 1.1rem;
+      font-style: italic;
+      padding: 0;
+      margin-top: 10px;
+    }
+
+    &__manage {
+      flex: 0 1 auto;
+    }
   }
 }

@@ -20,13 +20,13 @@
 .banner {
   background-color: $primary-color;
   color: $white;
-  padding: 50px 0;
+  padding: 20px 0;
 
   @media only screen and (max-width: $tablet) {
-    padding: 40px 0;
+    padding: 15px 0;
   }
 
   @media only screen and (max-width: $mobile) {
-    padding: 25px 0;
+    padding: 10px 0;
   }
 }
