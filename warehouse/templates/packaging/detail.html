@@ -60,16 +60,16 @@
 <section class="banner">
   <div class="package-header">
     <div class="package-header__release">
-      <div class="package-header__release__left">
-        <div class="package-header__release__release">
-          <h1 class="package-header__release__name">
+      <div class="package-header__left">
+        <div>
+          <h1 class="package-header__name">
             {{ release.project.name }} {{ release.version }}
           </h1>
-          <p class="package-header__release__date">{{ humanize(release.created) }}</p>
+          <p class="package-header__date">{{ humanize(release.created) }}</p>
         </div>
       </div>
 
-      <div class="package-header__release__center">
+      <div class="package-header__center">
         {% if release.version|parse_version > latest_version.version|parse_version %}
         <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Stable version available ({{ latest_version.version }})</a>
         {% elif release.version|parse_version != latest_version.version|parse_version %}
@@ -79,9 +79,9 @@
         {% endif %}
       </div>
 
-      <div class="package-header__release__right">
+      <div class="package-header__right">
         {% if files %}
-        <p class="package-header__release__pip-instructions">
+        <p class="package-header__pip-instructions">
           <span id="pip-command">
           {% if request.matched_route.name == "packaging.release" %}
             pip install {{ release.project.name }}=={{ release.version }}
@@ -100,11 +100,11 @@
 
     <div class="package-header__description">
     {% if release.summary %}
-      <p class="package-header__description__summary">{{ release.summary }}</p>
+      <p class="package-header__summary">{{ release.summary }}</p>
     {% else %}
-      <p class="package-header__description__summary">No project description provided</p>
+      <p class="package-header__summary">No project description provided</p>
     {% endif %}
-    <div class="package-header__description__manage">
+    <div class="package-header__manage">
       {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
       {% endcsi %}
     </div>
