@@ -12,17 +12,11 @@
  */
 
 export default () => {
-  if (!document.querySelector(".-js-vertical-tab-content")) {
+  if (!document.querySelector(".-js-tab-content")) {
     return; // Nothing to tab on, just bail
   }
-  const mobileBtn = document.querySelector(".-js-vertical-tab-mobile-heading");
-  let inMobileState = false;
-  if (mobileBtn) {
-    const styleProps = getComputedStyle(mobileBtn, null);
-    inMobileState = (styleProps.getPropertyValue("display") === "block");
-  }
-  const btnClassName = inMobileState ? ".-js-vertical-tab-mobile-heading" : ".-js-vertical-tab";
-  const activeClass = "vertical-tabs__tab--is-active";
+  const btnClassName = ".-js-tab";
+  const activeClass = "navigation-tabs__tab--is-active";
   const getBtnByHref = (id) => document.querySelector(`${btnClassName}[href="#${id}"]`);
   const toggleTab = (clickedBtn, event) => {
     if (event) {
@@ -31,7 +25,7 @@ export default () => {
     }
     let id = clickedBtn.getAttribute("href").replace("#", "");
     // toggle display setting for the content related to the button
-    for (var elem of document.querySelectorAll(".-js-vertical-tab-content")) {
+    for (var elem of document.querySelectorAll(".-js-tab-content")) {
       var btn = getBtnByHref(elem.id);
       if (elem.id === id) {
         elem.style.display = "block";

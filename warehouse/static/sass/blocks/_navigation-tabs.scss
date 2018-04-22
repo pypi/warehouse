@@ -19,16 +19,21 @@
 .navigation-tabs {
   @include site-container;
   display: flex;
-  min-height: 40px;
+  min-height: 45px;
+
+  @media screen and (max-width: $desktop) {
+    max-width: 100%;
+    padding: 0;
+  }
 
   &__tab {
     flex: 1 1 auto;
     text-align: center;
-    padding-top: 8px;
+    padding-top: 10px;
     border-bottom: 3px solid $primary-color;
 
     &--is-active {
-      background-color: lighten($highlight-color, 25);
+      background-color: lighten($highlight-color, 30);
       border-bottom: 3px solid $highlight-color;
     }
   }

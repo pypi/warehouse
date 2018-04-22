@@ -113,22 +113,22 @@
 </section>
 
 <section>
-  <div class="navigation-tabs">
-    <a id="description-tab" class="navigation-tabs__tab navigation-tabs__tab--is-active" href="#description" role="tab">
-                <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project description
-              </a>
-    <a id="history-tab" class="navigation-tabs__tab" href="#history" role="tab">
-                <i class="fa fa-history" aria-hidden="true"></i>
-                Release history
-              </a>
-              {% if files %}
-    <a id="download-tab-js-navigation-tab-content" class="navigation-tabs__tab" href="#files" role="tab">
-                  <i class="fa fa-download" aria-hidden="true"></i>
-                  Download files
-                </a>
-              {% endif %}
-        </div>
+  <div class="navigation-tabs" role="tablist">
+    <a id="description-tab" class="-js-tab navigation-tabs__tab navigation-tabs__tab--is-active" href="#description" id="description" role="tab">
+      <i class="fa fa-align-left" aria-hidden="true"></i>
+      Project description
+    </a>
+    <a id="history-tab" class="-js-tab navigation-tabs__tab" href="#history" id="history" role="tab">
+      <i class="fa fa-history" aria-hidden="true"></i>
+      Release history
+    </a>
+    {% if files %}
+    <a id="download-tab-js-navigation-tab-content" class="-js-tab navigation-tabs__tab" href="#files" id="files" role="tab">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        Download files
+      </a>
+    {% endif %}
+  </div>
 </section>
 
 <section>
@@ -243,26 +243,9 @@
         </div>
         {% endif %}
       </div>
-      <div class="navigation-tabs__panel">
-        <!-- mobile menu -->
-        <!-- <nav>
-          <a id="mobile-description-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile navigation-tabs__tab--no-top-border navigation-tabs__tab--is-active" href="#description">
-            <i class="fa fa-align-left" aria-hidden="true"></i>
-            Project description
-          </a>
-          <a id="mobile-history-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile" href="#history">
-            <i class="fa fa-history" aria-hidden="true"></i>
-            Release history
-          </a>
-          {% if files %}
-          <a id="mobile-files-tab" class="-js-navigation-tab-mobile-heading navigation-tabs__tab navigation-tabs__tab--with-icon navigation-tabs__tab--mobile" href="#files">
-            <i class="fa fa-download" aria-hidden="true"></i>
-            Download files
-          </a>
-          {% endif %}
-        </nav> -->
+      <div class="vertical-tabs__panel">
         {# Tab: Project description #}
-        <div id="description" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
+        <div id="description" class="-js-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
           <h2 class="page-title">Project Description</h2>
           {% if release.description %}
           <div class="project-description">
@@ -276,7 +259,7 @@
         </div>
 
         {# Tab: Release history #}
-        <div id="history" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab">
+        <div id="history" class="-js-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab">
           <h2 class="page-title split-layout">
             <span>Release history</span>
             <a class="reset-text margin-top" href="{{ request.route_path('help')}}#project-release-notifications">Release notifications</a>
@@ -316,7 +299,7 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <div id="files" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab">
+          <div id="files" class="-js-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab">
             <h2 class="page-title">Download files</h2>
             <p>Download the file for your platform. If you're not sure which to choose, learn more about <a href="https://packaging.python.org/installing/">installing packages</a>.</p>
 
