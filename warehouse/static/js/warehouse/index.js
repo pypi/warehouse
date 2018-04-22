@@ -121,8 +121,8 @@ docReady(() => {
 // Close modals when escape button is pressed
 docReady(() => {
   document.addEventListener("keydown", event => {
-    if (event.keyCode === 27) {
-      window.location.href = "#modal-close";
+    // Only handle the escape key press when a modal is open
+    if (document.querySelector(".modal:target") && event.keyCode === 27) {
       for (let element of document.querySelectorAll(".modal")) {
         application
           .getControllerForElementAndIdentifier(element, "confirm")
