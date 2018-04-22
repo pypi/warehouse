@@ -2878,23 +2878,9 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
 
-        tm = pretend.stub(
-            addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        db_request.tm = pretend.stub(get=lambda: tm)
-
-        db_request.registry.settings["warehouse.legacy_domain"] = "example.com"
-
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert tm.addAfterCommitHook.calls == [
-            pretend.call(
-                legacy._legacy_purge,
-                args=["https://example.com/pypi"],
-                kws={"data": {":action": "purge", "project": "example"}},
-            ),
-        ]
 
     def test_fails_in_read_only_mode(self, pyramid_request):
         pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
