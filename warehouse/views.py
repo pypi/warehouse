@@ -236,6 +236,23 @@ def index(request):
 
 
 @view_config(
+    route_name="classifiers",
+    renderer="pages/classifiers.html",
+)
+def classifiers(request):
+    classifiers = (
+        request.db.query(Classifier.classifier)
+        .filter(Classifier.deprecated.is_(False))
+        .order_by(Classifier.classifier)
+        .all()
+    )
+
+    return {
+        'classifiers': classifiers
+    }
+
+
+@view_config(
     route_name="search",
     renderer="search/results.html",
     decorator=[
@@ -309,6 +326,7 @@ def search(request):
     classifiers_q = (
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
+        .filter(Classifier.deprecated.is_(False))
         .filter(
             exists([release_classifiers.c.trove_id])
             .where(release_classifiers.c.trove_id == Classifier.id)
@@ -325,6 +343,9 @@ def search(request):
             return 0, SEARCH_FILTER_ORDER.index(item[0]), item[0]
         except ValueError:
             return 1, 0, item[0]
+
+    request.registry.datadog.histogram('warehouse.views.search.results',
+                                       page.item_count)
 
     return {
         "page": page,

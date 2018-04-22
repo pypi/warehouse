@@ -102,6 +102,11 @@ def includeme(config):
         '/admin/classifiers/add/',
         domain=warehouse,
     )
+    config.add_route(
+        'admin.classifiers.deprecate',
+        '/admin/classifiers/deprecate/',
+        domain=warehouse,
+    )
 
     # Blacklist related Admin pages
     config.add_route(

@@ -696,6 +696,32 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _no_deprecated_classifiers(request):
+    deprecated_classifiers = {
+        classifier.classifier
+        for classifier in (
+            request.db.query(Classifier.classifier)
+            .filter(Classifier.deprecated.is_(True))
+            .all()
+        )
+    }
+
+    def validate_no_deprecated_classifiers(form, field):
+        invalid_classifiers = set(field.data or []) & deprecated_classifiers
+        if invalid_classifiers:
+            first_invalid_classifier = sorted(invalid_classifiers)[0]
+            host = request.registry.settings.get("warehouse.domain")
+            classifiers_url = request.route_url('classifiers', _host=host)
+
+            raise wtforms.validators.ValidationError(
+                f'Classifier {first_invalid_classifier!r} has been '
+                f'deprecated, see {classifiers_url} for a list of valid '
+                'classifiers.'
+            )
+
+    return validate_no_deprecated_classifiers
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -756,6 +782,9 @@ def file_upload(request):
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
+
+    # Add a validator for deprecated classifiers
+    form.classifiers.validators.append(_no_deprecated_classifiers(request))
 
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers

@@ -44,6 +44,19 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 
+
+// Show unsupported browser warning if necessary
+docReady(() => {
+  if (navigator.appVersion.includes("MSIE 10")) {
+    if (document.getElementById("unsupported-browser") !== null) return;
+
+    let warning_div = document.createElement("div");
+    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--danger'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
+
+    document.getElementById("sticky-notifications").appendChild(warning_div);
+  }
+});
+
 // Human-readable timestamps for project histories
 docReady(() => {
   timeAgo();
@@ -165,6 +178,46 @@ docReady(() => {
     }
   }
 });
+
+var bindDropdowns = function () {
+  // Bind click handlers to dropdowns for keyboard users
+  let dropdowns = document.querySelectorAll(".dropdown");
+  for (let dropdown of dropdowns) {
+    let trigger = dropdown.querySelector(".dropdown__trigger");
+    let content = dropdown.querySelector(".dropdown__content");
+
+    if (!trigger.dataset.dropdownBound) {
+      // If the user has clicked the trigger (either with a mouse or by pressing
+      // space/enter on the keyboard) show the content
+      trigger.addEventListener("click", function () {
+        // Toggle the visibility of the content
+        if (content.classList.contains("display-block")) {
+          content.classList.remove("display-block");
+        } else {
+          content.classList.add("display-block");
+        }
+      });
+
+      // If the user has moused onto the trigger and has happened to click it,
+      // remove the `display-block` class so that it doesn't stay visable when
+      // they mouse out
+      trigger.addEventListener("mouseout", function() {
+        content.classList.remove("display-block");
+      });
+
+      // Set the 'data-dropdownBound' attribute so we don't bind multiple
+      // handlers to the same trigger after the client-side-includes load
+      trigger.dataset.dropdownBound = true;
+    }
+  }
+};
+
+// Bind the dropdowns when the page is ready
+docReady(bindDropdowns);
+
+// Bind again when client-side includes have been loaded (for the logged-in
+// user dropdown)
+document.addEventListener("CSILoaded", bindDropdowns);
 
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);

@@ -66,49 +66,53 @@
     </td>
     <td class="table__action">
       {% if not email.verified or user.emails|length > 1 and not email.primary%}
-      <div class="dropdown dropdown--with-icons dropdown--wide">
-        <button type="button" class="dropdown__trigger button button--primary">
+      <nav class="dropdown dropdown--with-icons dropdown--wide">
+        <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
             <span class="sr-only">view submenu</span>
           </span>
         </button>
-        <div class="dropdown__content">
-          {% if not email.verified %}
-          <form method="POST">
-            <input hidden name="reverify_email_id" value="{{ email.id }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button class="dropdown__link" type="submit" title="Send verification email">
-              <i class="fa fa-envelope" aria-hidden="true"></i>
-              Send verification email
-            </button>
-          </form>
-          {% endif %}
-
-          {% if not email.primary and email.verified %}
-          <form method="POST">
-            <input hidden name="primary_email_id" value="{{ email.id }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button class="dropdown__link" type="submit" title="Set this email address as primary">
-              <i class="fa fa-cog" aria-hidden="true"></i>
-              Set as primary
-            </button>
-          </form>
-          {% endif %}
-
-          {% if user.emails|length > 1 and not email.primary %}
-          <form method="POST">
-            <input hidden name="delete_email_id" value="{{ email.id }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <button class="dropdown__link" type="submit" title="Remove this email address">
-              <i class="fa fa-trash" aria-hidden="true"></i>
-              Remove email
-            </button>
-          </form>
-          {% endif %}
-        </div>
-      </div>
+        <ul class="dropdown__content">
+          <li>
+            {% if not email.verified %}
+            <form method="POST">
+              <input hidden name="reverify_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button class="dropdown__link" type="submit" title="Resend verification email">
+                <i class="fa fa-envelope" aria-hidden="true"></i>
+                Resend Verification Email
+              </button>
+            </form>
+            {% endif %}
+          </li>
+          <li>
+            {% if not email.primary and email.verified %}
+            <form method="POST">
+              <input hidden name="primary_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button class="dropdown__link" type="submit" title="Set this email address as primary">
+                <i class="fa fa-cog" aria-hidden="true"></i>
+                Set as Primary
+              </button>
+            </form>
+            {% endif %}
+          </li>
+          <li>
+            {% if user.emails|length > 1 and not email.primary %}
+            <form method="POST">
+              <input hidden name="delete_email_id" value="{{ email.id }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+              <button class="dropdown__link" type="submit" title="Remove this email address">
+                <i class="fa fa-trash" aria-hidden="true"></i>
+                Remove Email
+              </button>
+            </form>
+            {% endif %}
+          </li>
+        </ul>
+      </nav>
       {% endif %}
     </td>
   </tr>

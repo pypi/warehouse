@@ -118,7 +118,7 @@
   list-style-type: none;
 }
 
-// Make text align in the middle
+// Make inline elements centered
 .centered {
   text-align: center;
 }
@@ -176,7 +176,8 @@
 }
 
 // Desktop specific visibility
-@media screen and (min-width: calc($desktop + 1px)) {
+
+@media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
     display: none;
   }
@@ -186,6 +187,10 @@
   .hide-below-desktop {
     display: none;
   }
+}
+
+.display-block {
+  display: block;
 }
 
 // Mobile specific visibility

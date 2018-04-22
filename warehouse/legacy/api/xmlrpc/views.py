@@ -116,6 +116,9 @@ def search(request, spec, operator="and"):
 
     results = query[:1000].execute()
 
+    request.registry.datadog.histogram('warehouse.xmlrpc.search.results',
+                                       len(results))
+
     if "version" in spec.keys():
         return [
             {

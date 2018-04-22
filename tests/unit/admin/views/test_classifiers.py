@@ -22,9 +22,8 @@ from ....common.db.classifiers import ClassifierFactory
 class TestGetClassifiers:
 
     def test_get_classifiers(self, db_request):
-        classifier_a = ClassifierFactory(l5=0, classifier='I am first')
-        classifier_b = ClassifierFactory(l5=0, classifier='I am last')
-        ClassifierFactory(l5=1)  # Ignored because it has a nonzero L5
+        classifier_a = ClassifierFactory(classifier='I am first')
+        classifier_b = ClassifierFactory(classifier='I am last')
 
         assert views.get_classifiers(db_request) == {
             'classifiers': [classifier_a, classifier_b],
@@ -44,7 +43,8 @@ class TestAddClassifier:
             ((2, 3, 4, 5), (2, 3, 4, 5)),
         ]
     )
-    def test_add_classifier(self, db_request, parent_levels, expected_levels):
+    def test_add_child_classifier(
+            self, db_request, parent_levels, expected_levels):
         l2, l3, l4, l5 = parent_levels
         parent = ClassifierFactory(
             l2=l2, l3=l3, l4=l4, l5=l5, classifier='Parent'
@@ -57,7 +57,7 @@ class TestAddClassifier:
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         db_request.route_path = lambda *a: '/the/path'
 
-        views.add_classifier(db_request)
+        views.AddClassifier(db_request).add_child_classifier()
 
         new = (
             db_request.db.query(Classifier)
@@ -70,3 +70,36 @@ class TestAddClassifier:
         assert new.l3 == new_l3 if new_l3 is not None else new.id
         assert new.l4 == new_l4 if new_l4 is not None else new.id
         assert new.l5 == new_l5 if new_l5 is not None else new.id
+
+    def test_add_parent_classifier(self, db_request):
+        db_request.params = {'parent': 'Foo :: Bar'}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: '/the/path'
+
+        views.AddClassifier(db_request).add_parent_classifier()
+
+        new = (
+            db_request.db.query(Classifier)
+            .filter(Classifier.classifier == 'Foo :: Bar')
+            .one()
+        )
+
+        assert new.l2 == new.id
+        assert new.l3 == 0
+        assert new.l4 == 0
+        assert new.l5 == 0
+
+
+class TestDeprecateClassifier:
+
+    def test_deprecate_classifier(self, db_request):
+        classifier = ClassifierFactory(deprecated=False)
+
+        db_request.params = {'classifier_id': classifier.id}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: '/the/path'
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert classifier.deprecated
