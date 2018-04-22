@@ -43,6 +43,7 @@ import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
+import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
 
 // Show unsupported browser warning if necessary
@@ -214,6 +215,9 @@ var bindDropdowns = function () {
 
 // Bind the dropdowns when the page is ready
 docReady(bindDropdowns);
+
+// Get modal keypress event listeners ready
+docReady(BindModalKeys);
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)
