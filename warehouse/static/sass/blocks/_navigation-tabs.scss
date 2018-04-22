@@ -32,9 +32,29 @@
     padding-top: 10px;
     border-bottom: 3px solid $primary-color;
 
+    &:focus,
+    &:hover,
+    &:active {
+      border-bottom: 3px solid $highlight-color;
+      background-color: $white;
+      text-decoration: none;
+      color: darken($primary-color, 10);
+      outline: none;
+    }
+
     &--is-active {
       background-color: lighten($highlight-color, 30);
       border-bottom: 3px solid $highlight-color;
+
+      &:focus,
+      &:hover,
+      &:active {
+        border-bottom: 3px solid $highlight-color;
+        background-color: lighten($highlight-color, 30);
+        text-decoration: none;
+        color: darken($primary-color, 10);
+        outline: none;
+      }
     }
   }
 }
