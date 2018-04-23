@@ -10,4 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pyramid.events import NewResponse
+
 import warehouse.legacy.api.xmlrpc.views  # noqa
+
+
+def on_new_response(new_response_event):
+    request = new_response_event.request
+    if not hasattr(request, 'content_length_metric_name'):
+        return
+
+    request.registry.datadog.histogram(
+        request.content_length_metric_name,
+        new_response_event.response.content_length
+    )
+
+
+def includeme(config):
+    config.add_subscriber(on_new_response, NewResponse)

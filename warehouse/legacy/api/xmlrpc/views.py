@@ -450,6 +450,10 @@ def browse(request, classifiers):
 
 @xmlrpc_method(method='system.multicall')
 def multicall(request, args):
+    request.content_length_metric_name = (
+        'warehouse.xmlrpc.system.multicall.content_length'
+    )
+
     if any(arg.get('methodName') == 'system.multicall' for arg in args):
         raise XMLRPCWrappedError(
             ValueError('Cannot use system.multicall inside a multicall')
