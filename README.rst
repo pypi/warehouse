@@ -27,8 +27,9 @@ You can also file specific types of issues:
 - `Visual Design Issue`_: An issue related to the visual design of the site
 - `Trove Classifier Issue`_: A request for a new trove classifier
 
-You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
-`pypa-dev mailing list`_, to ask questions or get involved.
+You can also join ``#pypa`` (general packaging discussion and user support) and
+``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_,
+or the `pypa-dev mailing list`_, to ask questions or get involved.
 
 Testing
 ----------
