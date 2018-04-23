@@ -411,11 +411,15 @@ def verify_email(request):
     email.unverify_reason = None
     email.transient_bounces = 0
 
+    if not email.primary:
+        confirm_message = 'You can now set this email as your primary address.'
+    else:
+        confirm_message = 'This is your primary address.'
+
     request.user.is_active = True
 
     request.session.flash(
-        f'Email address {email.email} verified. ' +
-        'You can now set this email as your primary address.',
+        f'Email address {email.email} verified. {confirm_message}',
         queue='success'
     )
     return HTTPSeeOther(request.route_path("manage.account"))
