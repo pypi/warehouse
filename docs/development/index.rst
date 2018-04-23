@@ -14,8 +14,9 @@ please check out `"What to put in your bug report"`_ for guidance.
                GitHub issue tracker. Please read the :ref:`security` documentation
                for details.
 
-You can also join ``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the
-`pypa-dev mailing list`_, to ask questions or get involved.
+You can also join ``#pypa`` (general packaging discussion and user support) and
+``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_,
+or the `pypa-dev mailing list`_, to ask questions or get involved.
 
 
 .. toctree::

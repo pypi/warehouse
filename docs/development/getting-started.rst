@@ -18,9 +18,13 @@ on it to say you're working on it, then submit a pull request. Use our
 
 Setting up a development environment to work on Warehouse should be a
 straightforward process. If you have any difficulty, please contact us
-so we can improve the process. You can find us via a `GitHub`_ issue,
-``#pypa`` or ``#pypa-dev`` `on Freenode`_, or the `pypa-dev mailing
-list`_, to ask questions or get involved.
+so we can improve the process:
+
+- For bug reports or general problems, file an issue on `GitHub`_;
+- For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
+  Freenode`_;
+- For longer-form questions or discussion, message the `pypa-dev mailing
+  list`_.
 
 
 Quickstart for Developers with Docker experience
