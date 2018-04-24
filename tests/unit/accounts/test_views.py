@@ -927,9 +927,18 @@ class TestResetPassword:
 
 class TestVerifyEmail:
 
-    def test_verify_email(self, db_request, user_service, token_service):
+    @pytest.mark.parametrize(
+        ("is_primary", "confirm_message"),
+        [
+            (True, "This is your primary address."),
+            (False, "You can now set this email as your primary address."),
+        ]
+    )
+    def test_verify_email(
+            self, db_request, user_service, token_service, is_primary,
+            confirm_message):
         user = UserFactory(is_active=False)
-        email = EmailFactory(user=user, verified=False)
+        email = EmailFactory(user=user, verified=False, primary=is_primary)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -958,7 +967,7 @@ class TestVerifyEmail:
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " +
-                "You can now set this email as your primary address.",
+                confirm_message,
                 queue="success"
             ),
         ]
