@@ -448,12 +448,18 @@ def browse(request, classifiers):
     return [(r.name, r.version) for r in releases]
 
 
+def measure_response_content_length(metric_name):
+
+    def _callback(request, response):
+        request.registry.datadog.histogram(
+            metric_name, response.content_length
+        )
+
+    return _callback
+
+
 @xmlrpc_method(method='system.multicall')
 def multicall(request, args):
-    request.content_length_metric_name = (
-        'warehouse.xmlrpc.system.multicall.content_length'
-    )
-
     if any(arg.get('methodName') == 'system.multicall' for arg in args):
         raise XMLRPCWrappedError(
             ValueError('Cannot use system.multicall inside a multicall')
@@ -478,4 +484,11 @@ def multicall(request, args):
         ).encode()
         response = request.invoke_subrequest(subreq, use_tweens=True)
         responses.append(xmlrpc.client.loads(response.body))
+
+    request.add_response_callback(
+        measure_response_content_length(
+            'warehouse.xmlrpc.system.multicall.content_length'
+        )
+    )
+
     return responses

@@ -812,8 +812,18 @@ class TestMulticall:
         body = pretend.stub()
         response = pretend.stub(body=body)
 
-        invoke_subrequest = pretend.call_recorder(lambda *a, **kw: response)
-        request = pretend.stub(invoke_subrequest=invoke_subrequest)
+        request = pretend.stub(
+            invoke_subrequest=pretend.call_recorder(lambda *a, **kw: response),
+            add_response_callback=pretend.call_recorder(
+                lambda *a, **kw: response),
+        )
+
+        callback = pretend.stub()
+        monkeypatch.setattr(
+            xmlrpc,
+            'measure_response_content_length',
+            pretend.call_recorder(lambda metric_name: callback)
+        )
 
         args = [
             {'methodName': 'search', 'params': [{'name': 'foo'}]},
@@ -827,9 +837,12 @@ class TestMulticall:
             pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
             pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
         ]
-        assert invoke_subrequest.calls == [
+        assert request.invoke_subrequest.calls == [
             pretend.call(subreq, use_tweens=True),
             pretend.call(subreq, use_tweens=True),
+        ]
+        assert request.add_response_callback.calls == [
+            pretend.call(callback),
         ]
         assert dumps.calls == [
             pretend.call(({'name': 'foo'},), methodname='search'),
@@ -869,3 +882,22 @@ class TestMulticall:
         assert exc.value.faultString == (
             'ValueError: Multicall limit is 20 calls'
         )
+
+    def test_measure_response_content_length(self):
+        metric_name = 'some_metric_name'
+        callback = xmlrpc.measure_response_content_length(metric_name)
+
+        request = pretend.stub(
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=pretend.call_recorder(lambda *a: None)
+                )
+            )
+        )
+        response = pretend.stub(content_length=pretend.stub())
+
+        callback(request, response)
+
+        assert request.registry.datadog.histogram.calls == [
+            pretend.call(metric_name, response.content_length),
+        ]
