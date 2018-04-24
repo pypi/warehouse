@@ -43,6 +43,7 @@ import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
+import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
 
 // Show unsupported browser warning if necessary
@@ -120,8 +121,8 @@ docReady(() => {
 // Close modals when escape button is pressed
 docReady(() => {
   document.addEventListener("keydown", event => {
-    if (event.keyCode === 27) {
-      window.location.href = "#modal-close";
+    // Only handle the escape key press when a modal is open
+    if (document.querySelector(".modal:target") && event.keyCode === 27) {
       for (let element of document.querySelectorAll(".modal")) {
         application
           .getControllerForElementAndIdentifier(element, "confirm")
@@ -214,6 +215,9 @@ var bindDropdowns = function () {
 
 // Bind the dropdowns when the page is ready
 docReady(bindDropdowns);
+
+// Get modal keypress event listeners ready
+docReady(BindModalKeys);
 
 // Bind again when client-side includes have been loaded (for the logged-in
 // user dropdown)

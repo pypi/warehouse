@@ -98,8 +98,8 @@
         <input name="{{ name }}" data-action="input->confirm#check" data-target="confirm.input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
         </div>
         <div class="modal__footer">
-          <a href="#modal-close" data-action="click->confirm#cancel" class="button modal__action">Cancel</a>
-          <button class="button button--danger modal__action" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
+          <button type="reset" class="button modal__action js-cancel" data-action="click->confirm#cancel">Cancel</button>
+          <button class="button button--danger modal__action js-confirm" data-target="confirm.button" data-expected="{{ confirm_string }}" type="submit">
             {{ confirm_button_label if confirm_button_label else title }}
           </button>
         </div>
