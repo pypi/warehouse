@@ -28,9 +28,9 @@ export default () => {
       // This needs to be a function in order to get the disabled state in
       // case the user populates the confirm input.
       const getLastItem = () => modalForm.querySelector(
-        ".modal__footer button.modal__action").disabled
-        ? modalForm.querySelector(".modal__footer a.modal__action")
-        : modalForm.querySelector(".modal__footer button.modal__action");
+        ".modal__footer button.js-confirm").disabled
+        ? modalForm.querySelector(".modal__footer .js-cancel")
+        : modalForm.querySelector(".modal__footer .js-confirm");
 
       // Handle SHIFT+TAB
       if (keys[9] && keys[16]) {
