@@ -322,6 +322,16 @@ def test_routes(warehouse):
             "list_classifiers",
             domain=warehouse,
         ),
+        pretend.call(
+            'legacy.api.pypi.search',
+            'search',
+            domain=warehouse,
+        ),
+        pretend.call(
+            'legacy.api.pypi.browse',
+            'browse',
+            domain=warehouse,
+        ),
     ]
 
     assert config.add_pypi_action_redirect.calls == [
