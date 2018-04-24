@@ -36,7 +36,7 @@ class TestRedirectView:
         request = pretend.stub(method="GET", matchdict={"wat": "the-thing\n"})
 
         with pytest.raises(HTTPBadRequest,
-                           matches="URL may not contain control characters"):
+                           match="URL may not contain control characters"):
             view(request)
 
 
