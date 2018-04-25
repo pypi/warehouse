@@ -482,7 +482,7 @@ def multicall(request, args):
             tuple(arg.get('params')),
             methodname=name,
         ).encode()
-        response = request.invoke_subrequest(subreq, use_tweens=True)
+        response = request.invoke_subrequest(subreq)
         responses.append(xmlrpc.client.loads(response.body))
 
     request.add_response_callback(

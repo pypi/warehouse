@@ -838,8 +838,8 @@ class TestMulticall:
             pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
         ]
         assert request.invoke_subrequest.calls == [
-            pretend.call(subreq, use_tweens=True),
-            pretend.call(subreq, use_tweens=True),
+            pretend.call(subreq),
+            pretend.call(subreq),
         ]
         assert request.add_response_callback.calls == [
             pretend.call(callback),
