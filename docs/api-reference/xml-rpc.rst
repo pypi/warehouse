@@ -111,7 +111,6 @@ Package Querying
   * maintainer_email
   * summary
   * description (string, sometimes the entirety of a ``README``)
-  * description_content_type
   * license
   * keywords
   * platform
