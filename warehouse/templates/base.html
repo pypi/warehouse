@@ -135,11 +135,12 @@
     </div>
     {% endfor %}
 
-    {% block session_notifications %}{% endblock %}
-
-    <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging – <a href="https://donate.pypi.org">donate today!</a></span>
-    </div>
+    {% block session_notifications %}
+      <div id="user-research" data-version="0" class="notification-bar notification-bar--warning notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
+        <button title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <span class="notification-bar__message">Help improve PyPI by participating in a <a href="https://t.co/aYpp2ve2iY">5-minute user interface survey</a>!</span>
+      </div>
+    {% endblock %}
 
     <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
