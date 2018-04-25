@@ -279,6 +279,16 @@ def includeme(config):
         "list_classifiers",
         domain=warehouse,
     )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.search',
+        'search',
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.browse',
+        'browse',
+        domain=warehouse,
+    )
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(

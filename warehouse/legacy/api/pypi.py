@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPGone
+from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
@@ -89,4 +89,32 @@ def list_classifiers(request):
     return Response(
         text='\n'.join(c[0] for c in classifiers),
         content_type='text/plain; charset=utf-8'
+    )
+
+
+@view_config(route_name='legacy.api.pypi.search')
+def search(request):
+    return HTTPMovedPermanently(
+        request.route_path(
+            'search', _query={'q': request.params.get('term')}
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.browse')
+def browse(request):
+    classifier_id = request.params.get('c')
+
+    if not classifier_id:
+        raise HTTPNotFound
+
+    classifier = request.db.query(Classifier).get(classifier_id)
+
+    if not classifier:
+        raise HTTPNotFound
+
+    return HTTPMovedPermanently(
+        request.route_path(
+            'search', _query={'c': classifier.classifier}
+        )
     )
