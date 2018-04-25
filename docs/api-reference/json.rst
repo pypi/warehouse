@@ -48,6 +48,7 @@ Project
                     "Topic :: Software Development :: Build Tools"
                 ],
                 "description": "...",
+                "description_content_type": null,
                 "docs_url": null,
                 "download_url": "",
                 "downloads": {
