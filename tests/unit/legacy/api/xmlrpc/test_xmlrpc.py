@@ -560,6 +560,7 @@ def test_release_data(db_request):
         "maintainer": release.maintainer,
         "maintainer_email": release.maintainer_email,
         "summary": release.summary,
+        "description_content_type": release.description_content_type,
         "description": release.description,
         "license": release.license,
         "keywords": release.keywords,

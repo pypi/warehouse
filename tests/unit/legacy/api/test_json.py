@@ -188,6 +188,7 @@ class TestJSONRelease:
                 "author_email": None,
                 "bugtrack_url": None,
                 "classifiers": [],
+                "description_content_type": None,
                 "description": None,
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
