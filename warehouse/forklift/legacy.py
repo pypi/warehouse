@@ -69,6 +69,19 @@ STDLIB_PROHIBITTED = {
 }
 
 # Wheel platform checking
+
+# Note: defining new platform ABI compatibility tags that don't
+#       have a python.org binary release to anchor them is a
+#       complex task that needs more than just OS+architecture info.
+#       For Linux specifically, the platform ABI is defined by each
+#       individual distro version, so wheels built on one version may
+#       not even work on older versions of the same distro, let alone
+#       a completely different distro.
+#
+#       That means new entries should only be added given an
+#       accompanying ABI spec that explains how to build a
+#       compatible binary (see the manylinux specs as examples).
+
 # These platforms can be handled by a simple static list:
 _allowed_platforms = {
     "any",
