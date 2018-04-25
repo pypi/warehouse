@@ -13,10 +13,12 @@
 import collections.abc
 import datetime
 import functools
+import xmlrpc.client
 import xmlrpc.server
 
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
+from pyramid.request import Request
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import (
     exception_view as _exception_view, xmlrpc_method as _xmlrpc_method
@@ -29,6 +31,9 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
+
+
+_MAX_MULTICALLS = 20
 
 
 def xmlrpc_method(**kwargs):
@@ -441,3 +446,49 @@ def browse(request, classifiers):
     )
 
     return [(r.name, r.version) for r in releases]
+
+
+def measure_response_content_length(metric_name):
+
+    def _callback(request, response):
+        request.registry.datadog.histogram(
+            metric_name, response.content_length
+        )
+
+    return _callback
+
+
+@xmlrpc_method(method='system.multicall')
+def multicall(request, args):
+    if any(arg.get('methodName') == 'system.multicall' for arg in args):
+        raise XMLRPCWrappedError(
+            ValueError('Cannot use system.multicall inside a multicall')
+        )
+
+    if not all(arg.get('methodName') for arg in args):
+        raise XMLRPCWrappedError(ValueError('Method name not provided'))
+
+    if len(args) > _MAX_MULTICALLS:
+        raise XMLRPCWrappedError(
+            ValueError(f'Multicall limit is {_MAX_MULTICALLS} calls')
+        )
+
+    responses = []
+    for arg in args:
+        name = arg.get('methodName')
+        subreq = Request.blank('/RPC2', headers={'Content-Type': 'text/xml'})
+        subreq.method = 'POST'
+        subreq.body = xmlrpc.client.dumps(
+            tuple(arg.get('params')),
+            methodname=name,
+        ).encode()
+        response = request.invoke_subrequest(subreq)
+        responses.append(xmlrpc.client.loads(response.body))
+
+    request.add_response_callback(
+        measure_response_content_length(
+            'warehouse.xmlrpc.system.multicall.content_length'
+        )
+    )
+
+    return responses

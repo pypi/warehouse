@@ -13,7 +13,9 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import (
+    HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound,
+)
 
 from warehouse.legacy.api import pypi
 
@@ -80,3 +82,52 @@ def test_list_classifiers(db_request):
 
     assert resp.status_code == 200
     assert resp.text == "fiz :: buz\nfoo :: bar\nfoo :: baz"
+
+
+def test_search():
+    term = pretend.stub()
+    request = pretend.stub(
+        params={'term': term},
+        route_path=pretend.call_recorder(lambda *a, **kw: '/the/path'),
+    )
+
+    result = pypi.search(request)
+
+    assert isinstance(result, HTTPMovedPermanently)
+    assert result.headers['Location'] == '/the/path'
+    assert result.status_code == 301
+    assert request.route_path.calls == [
+        pretend.call('search', _query={'q': term}),
+    ]
+
+
+class TestBrowse:
+
+    def test_browse(self, db_request):
+        classifier = ClassifierFactory.create(classifier="foo :: bar")
+
+        db_request.params = {'c': str(classifier.id)}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: '/the/path'
+        )
+
+        result = pypi.browse(db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers['Location'] == '/the/path'
+        assert result.status_code == 301
+        assert db_request.route_path.calls == [
+            pretend.call('search', _query={'c': classifier.classifier}),
+        ]
+
+    def test_browse_no_id(self):
+        request = pretend.stub(params={})
+
+        with pytest.raises(HTTPNotFound):
+            pypi.browse(request)
+
+    def test_browse_bad_id(self, db_request):
+        db_request.params = {'c': '99999'}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.browse(db_request)
