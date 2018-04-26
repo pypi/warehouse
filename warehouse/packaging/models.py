@@ -156,13 +156,20 @@ class Project(SitemapMixin, db.ModelBase):
             # There are multiple releases of this project which have the same
             # canonical version that were uploaded before we checked for
             # canonical version equivalence, so return the exact match instead
-            return (
-                session.query(Release)
-                .filter(
-                    (Release.project == self) & (Release.version == version)
+            try:
+                return (
+                    session.query(Release)
+                    .filter(
+                        (Release.project == self) &
+                        (Release.version == version)
+                    )
+                    .one()
                 )
-                .one()
-            )
+            except NoResultFound:
+                # There are multiple releases of this project which have the
+                # same canonical version, but none that have the exact version
+                # specified, so just 404
+                raise KeyError from None
         except NoResultFound:
             raise KeyError from None
 
