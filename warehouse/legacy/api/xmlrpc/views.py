@@ -30,6 +30,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import (
     Role, Project, Release, File, JournalEntry, release_classifiers,
 )
+from warehouse.search.queries import SEARCH_BOOSTS
 
 
 _MAX_MULTICALLS = 20
@@ -107,10 +108,13 @@ def search(request, spec, operator="and"):
     for field, value in sorted(spec.items()):
         q = None
         for item in value:
+            kw = {"query": item}
+            if field in SEARCH_BOOSTS:
+                kw["boost"] = SEARCH_BOOSTS[field]
             if q is None:
-                q = Q("term", **{field: item})
+                q = Q("match", **{field: kw})
             else:
-                q |= Q("term", **{field: item})
+                q |= Q("match", **{field: kw})
         queries.append(q)
 
     if operator == "and":
@@ -118,7 +122,7 @@ def search(request, spec, operator="and"):
     else:
         query = request.es.query("bool", should=queries)
 
-    results = query[:1000].execute()
+    results = query[:100].execute()
 
     request.registry.datadog.histogram('warehouse.xmlrpc.search.results',
                                        len(results))

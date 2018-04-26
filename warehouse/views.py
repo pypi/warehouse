@@ -36,32 +36,13 @@ from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import (
     Project, Release, File, release_classifiers,
 )
+from warehouse.search.queries import (
+    SEARCH_BOOSTS,
+    SEARCH_FIELDS,
+    SEARCH_FILTER_ORDER,
+)
 from warehouse.utils.row_counter import RowCount
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
-
-
-SEARCH_FIELDS = [
-    "author", "author_email", "description", "download_url", "home_page",
-    "keywords", "license", "maintainer", "maintainer_email", "normalized_name",
-    "platform", "summary",
-]
-SEARCH_BOOSTS = {
-    "normalized_name": 10,
-    "description": 5,
-    "keywords": 5,
-    "summary": 5,
-}
-SEARCH_FILTER_ORDER = (
-    "Framework",
-    "Topic",
-    "Development Status",
-    "License",
-    "Programming Language",
-    "Operating System",
-    "Environment",
-    "Intended Audience",
-    "Natural Language",
-)
 
 
 # 403, 404, 410, 500,
