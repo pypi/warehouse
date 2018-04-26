@@ -56,18 +56,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -119,12 +121,14 @@ class TestSearch:
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
                     {'bool': {'should': [
-                        {'term': {'summary': 'fix code'}},
-                        {'term': {'summary': 'like this'}}
+                        {'match':
+                            {'summary': {'boost': 5, 'query': 'fix code'}}},
+                        {'match':
+                            {'summary': {'boost': 5, 'query': 'like this'}}}
                     ]}}
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -175,18 +179,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -238,18 +244,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.should] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -301,11 +309,11 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
-                    {"term": {"version": "1.0"}},
+                    {"match": {"name": {"boost": 10, "query": "foo"}}},
+                    {"match": {"version": {"query": "1.0"}}},
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -357,10 +365,10 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -794,110 +802,12 @@ def test_browse(db_request):
     )) == {(expected_release.name, expected_release.version)}
 
 
-class TestMulticall:
+def test_multicall():
+    request = pretend.stub()
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.multicall(request, [])
 
-    def test_multicall(self, monkeypatch):
-        dumped = pretend.stub(encode=lambda: None)
-        dumps = pretend.call_recorder(lambda *a, **kw: dumped)
-        monkeypatch.setattr(xmlrpc.xmlrpc.client, 'dumps', dumps)
-
-        loaded = pretend.stub()
-        loads = pretend.call_recorder(lambda *a, **kw: loaded)
-        monkeypatch.setattr(xmlrpc.xmlrpc.client, 'loads', loads)
-
-        subreq = pretend.stub()
-        blank = pretend.call_recorder(lambda *a, **kw: subreq)
-        monkeypatch.setattr(xmlrpc.Request, 'blank', blank)
-
-        body = pretend.stub()
-        response = pretend.stub(body=body)
-
-        request = pretend.stub(
-            invoke_subrequest=pretend.call_recorder(lambda *a, **kw: response),
-            add_response_callback=pretend.call_recorder(
-                lambda *a, **kw: response),
-        )
-
-        callback = pretend.stub()
-        monkeypatch.setattr(
-            xmlrpc,
-            'measure_response_content_length',
-            pretend.call_recorder(lambda metric_name: callback)
-        )
-
-        args = [
-            {'methodName': 'search', 'params': [{'name': 'foo'}]},
-            {'methodName': 'browse', 'params': [{'classifiers': ['bar']}]},
-        ]
-
-        responses = xmlrpc.multicall(request, args)
-
-        assert responses == [loaded, loaded]
-        assert blank.calls == [
-            pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
-            pretend.call('/RPC2', headers={'Content-Type': 'text/xml'}),
-        ]
-        assert request.invoke_subrequest.calls == [
-            pretend.call(subreq),
-            pretend.call(subreq),
-        ]
-        assert request.add_response_callback.calls == [
-            pretend.call(callback),
-        ]
-        assert dumps.calls == [
-            pretend.call(({'name': 'foo'},), methodname='search'),
-            pretend.call(({'classifiers': ['bar']},), methodname='browse'),
-        ]
-        assert loads.calls == [pretend.call(body), pretend.call(body)]
-
-    def test_recursive_multicall(self):
-        request = pretend.stub()
-        args = [
-            {'methodName': 'system.multicall', 'params': []},
-        ]
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.multicall(request, args)
-
-        assert exc.value.faultString == (
-            'ValueError: Cannot use system.multicall inside a multicall'
-        )
-
-    def test_missing_multicall_method(self):
-        request = pretend.stub()
-        args = [{}]
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.multicall(request, args)
-
-        assert exc.value.faultString == (
-            'ValueError: Method name not provided'
-        )
-
-    def test_too_many_multicalls_method(self):
-        request = pretend.stub()
-        args = [{'methodName': 'nah'}] * 21
-
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.multicall(request, args)
-
-        assert exc.value.faultString == (
-            'ValueError: Multicall limit is 20 calls'
-        )
-
-    def test_measure_response_content_length(self):
-        metric_name = 'some_metric_name'
-        callback = xmlrpc.measure_response_content_length(metric_name)
-
-        request = pretend.stub(
-            registry=pretend.stub(
-                datadog=pretend.stub(
-                    histogram=pretend.call_recorder(lambda *a: None)
-                )
-            )
-        )
-        response = pretend.stub(content_length=pretend.stub())
-
-        callback(request, response)
-
-        assert request.registry.datadog.histogram.calls == [
-            pretend.call(metric_name, response.content_length),
-        ]
+    assert exc.value.faultString == (
+        'ValueError: MultiCall requests have been deprecated, use individual '
+        'requests instead.'
+    )
