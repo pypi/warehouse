@@ -5,5 +5,5 @@ A new collaborator has been added to a project you own on PyPI:
   Collaborator for: {{ project }}
   Added by: {{ submitter }}
 
-If this was a mistake, you can reply to this email directly to communicate with
+If this was a mistake, you can email admin@mail.pypi.org to communicate with
 the PyPI administrators.
