@@ -159,7 +159,7 @@ class TestAddBlacklist:
         result = views.add_blacklist(request)
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the blacklist request.", queue="error"),
+            pretend.call("Must confirm the blacklist request", queue="error"),
         ]
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
@@ -231,7 +231,7 @@ class TestAddBlacklist:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'.",
+                "Successfully deleted the project 'foo'",
                 queue='success'
             ),
             pretend.call("Successfully blacklisted 'foo'", queue="success"),

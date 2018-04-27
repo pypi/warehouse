@@ -158,7 +158,7 @@ class TestManageAccount:
             'save_account_form': save_account_obj,
         }
         assert request.session.flash.calls == [
-            pretend.call('Account details updated.', queue='success'),
+            pretend.call('Account details updated', queue='success'),
         ]
         assert update_user.calls == [
             pretend.call(request.user.id, **request.POST)
@@ -231,7 +231,7 @@ class TestManageAccount:
         assert request.session.flash.calls == [
             pretend.call(
                 f'Email {email_address} added - check your email for ' +
-                'a verification link.',
+                'a verification link',
                 queue='success',
             ),
         ]
@@ -304,7 +304,7 @@ class TestManageAccount:
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                f'Email address {email.email} removed.', queue='success'
+                f'Email address {email.email} removed', queue='success'
             )
         ]
         assert request.user.emails == [some_other_email]
@@ -339,7 +339,7 @@ class TestManageAccount:
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Email address not found.', queue='error'),
+            pretend.call('Email address not found', queue='error'),
         ]
         assert request.user.emails == [email]
 
@@ -371,7 +371,7 @@ class TestManageAccount:
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                'Cannot remove primary email address.', queue='error'
+                'Cannot remove primary email address', queue='error'
             ),
         ]
         assert request.user.emails == [email]
@@ -401,7 +401,7 @@ class TestManageAccount:
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
-                f'Email address {new_primary.email} set as primary.',
+                f'Email address {new_primary.email} set as primary',
                 queue='success',
             )
         ]
@@ -424,7 +424,7 @@ class TestManageAccount:
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
-            pretend.call(f'Email address not found.', queue='error')
+            pretend.call(f'Email address not found', queue='error')
         ]
         assert old_primary.primary
 
@@ -458,7 +458,7 @@ class TestManageAccount:
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                'Verification email for email_address resent.',
+                'Verification email for email_address resent',
                 queue='success',
             ),
         ]
@@ -490,7 +490,7 @@ class TestManageAccount:
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Email address not found.', queue='error'),
+            pretend.call('Email address not found', queue='error'),
         ]
         assert send_email.calls == []
 
@@ -519,7 +519,7 @@ class TestManageAccount:
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Email is already verified.', queue='error'),
+            pretend.call('Email is already verified', queue='error'),
         ]
         assert send_email.calls == []
 
@@ -565,7 +565,7 @@ class TestManageAccount:
             'change_password_form': change_pwd_obj,
         }
         assert request.session.flash.calls == [
-            pretend.call('Password updated.', queue='success'),
+            pretend.call('Password updated', queue='success'),
         ]
         assert send_email.calls == [pretend.call(request, request.user)]
         assert user_service.update_user.calls == [
@@ -661,7 +661,7 @@ class TestManageAccount:
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Must confirm the request.', queue='error')
+            pretend.call('Must confirm the request', queue='error')
         ]
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
@@ -711,7 +711,7 @@ class TestManageAccount:
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
             pretend.call(
-                "Cannot delete account with active project ownerships.",
+                "Cannot delete account with active project ownerships",
                 queue='error',
             )
         ]
@@ -780,7 +780,7 @@ class TestManageProjectSettings:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request.", queue="error"),
+            pretend.call("Must confirm the request", queue="error"),
         ]
 
     def test_delete_project_wrong_confirm(self):
@@ -822,7 +822,7 @@ class TestManageProjectSettings:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'.",
+                "Successfully deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -861,7 +861,7 @@ class TestManageProjectDocumentation:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request.", queue="error"),
+            pretend.call("Must confirm the request", queue="error"),
         ]
 
     def test_destroy_project_docs_wrong_confirm(self):
@@ -920,7 +920,7 @@ class TestManageProjectDocumentation:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted docs for project 'foo'.",
+                "Successfully deleted docs for project 'foo'",
                 queue="success"
             ),
         ]
@@ -1006,7 +1006,7 @@ class TestManageProjectRelease:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted release {release.version!r}.",
+                f"Successfully deleted release {release.version!r}",
                 queue="success",
             )
         ]
@@ -1041,7 +1041,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request.", queue='error'
+                "Must confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [
@@ -1131,7 +1131,7 @@ class TestManageProjectRelease:
 
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted file {release_file.filename!r}.",
+                f"Successfully deleted file {release_file.filename!r}",
                 queue="success",
             )
         ]
@@ -1178,7 +1178,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request.", queue='error'
+                "Must confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [
@@ -1222,7 +1222,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Could not find file.", queue='error'
+                "Could not find file", queue='error'
             )
         ]
         assert request.route_path.calls == [

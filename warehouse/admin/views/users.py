@@ -137,7 +137,7 @@ def user_delete(request):
     user = request.db.query(User).get(request.matchdict['user_id'])
 
     if user.username != request.params.get('username'):
-        request.session.flash(f'Wrong confirmation input.', queue='error')
+        request.session.flash(f'Wrong confirmation input', queue='error')
         return HTTPSeeOther(
             request.route_path('admin.user.detail', user_id=user.id)
         )
@@ -182,5 +182,5 @@ def user_delete(request):
             submitted_from=request.remote_addr,
         )
     )
-    request.session.flash(f'Nuked user {user.username!r}.', queue='success')
+    request.session.flash(f'Nuked user {user.username!r}', queue='success')
     return HTTPSeeOther(request.route_path('admin.user.list'))
