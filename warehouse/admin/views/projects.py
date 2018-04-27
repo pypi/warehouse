@@ -271,7 +271,7 @@ def set_upload_limit(project, request):
     project.upload_limit = upload_limit
 
     request.session.flash(
-        f"Successfully set the upload limit on {project.name!r}.",
+        f"Successfully set the upload limit on {project.name!r}",
         queue="success",
     )
 
