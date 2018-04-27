@@ -50,7 +50,7 @@ class TestHTTPExceptionView:
             "{}.html".format(status_code))
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status="{} My cool status".format(status_code),
             status_code=status_code,
             headers={},
         )
@@ -67,7 +67,7 @@ class TestHTTPExceptionView:
             "{}.html".format(status_code))
 
         context = pretend.stub(
-            status="{} My Cool Status".format(status_code),
+            status="{} My cool status".format(status_code),
             status_code=status_code,
             headers={"Foo": "Bar"},
         )
@@ -75,7 +75,7 @@ class TestHTTPExceptionView:
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
-        assert response.status == "{} My Cool Status".format(status_code)
+        assert response.status == "{} My cool status".format(status_code)
         assert response.headers["Foo"] == "Bar"
         renderer.assert_()
 

@@ -59,7 +59,7 @@ class TestPasswordStrengthValidator:
             validator({}, pretend.stub())
         assert str(exc.value) == "Invalid field name: 'foo'"
 
-    @pytest.mark.parametrize("password", ["this is a great password!"])
+    @pytest.mark.parametrize("password", ["This is a great password."])
     def test_good_passwords(self, password):
         validator = PasswordStrengthValidator()
         validator(pretend.stub(), pretend.stub(data=password))
@@ -69,12 +69,12 @@ class TestPasswordStrengthValidator:
         [
             (
                 "qwerty",
-                ("This is a top-10 common password. Add another word or two. "
+                ("This is a top-10 common password. Add another word or two."
                  "Uncommon words are better."),
             ),
             (
                 "bombo!b",
-                ("Password is too easily guessed. Add another word or two. "
+                ("Password is too easily guessed. Add another word or two."
                  "Uncommon words are better."),
             ),
             ("bombo!b asdadad", "Password is too easily guessed."),
@@ -100,10 +100,10 @@ class TestForm:
     def test_errors_is_cached(self):
         form = Form()
         assert form.errors == {}
-        form._form_errors.append("An Error")
+        form._form_errors.append("An error")
         assert form.errors == {}
         form._errors = None
-        assert form.errors == {"__all__": ["An Error"]}
+        assert form.errors == {"__all__": ["An error"]}
 
     def test_form_level_validation_no_validators(self):
         class TestForm(Form):
@@ -130,12 +130,12 @@ class TestForm:
         class TestForm(Form):
             @pretend.call_recorder
             def full_validate(self):
-                raise ValueError("A Value Error")
+                raise ValueError("A value error")
 
         form = TestForm()
 
         assert not form.validate()
-        assert form.errors == {"__all__": ["A Value Error"]}
+        assert form.errors == {"__all__": ["A value error"]}
         assert form.full_validate.calls == [pretend.call(form)]
 
     @pytest.mark.parametrize(
@@ -164,24 +164,24 @@ class TestForm:
         [
             (
                 [
-                    lambda f: _raiser(ValueError("An Error")),
+                    lambda f: _raiser(ValueError("An error")),
                     lambda f: None,
-                    lambda f: _raiser(ValueError("Another Error")),
+                    lambda f: _raiser(ValueError("Another error")),
                     lambda f: _raiser(StopValidation("Stop!")),
-                    lambda f: _raiser(ValueError("This Won't Show.")),
+                    lambda f: _raiser(ValueError("This won't show.")),
                 ],
-                ["An Error", "Another Error", "Stop!"],
+                ["An error", "Another error", "Stop!"],
                 3,
             ),
             (
                 [
-                    lambda f: _raiser(ValueError("An Error")),
+                    lambda f: _raiser(ValueError("An error")),
                     lambda f: None,
-                    lambda f: _raiser(ValueError("Another Error")),
+                    lambda f: _raiser(ValueError("Another error")),
                     lambda f: _raiser(StopValidation),
-                    lambda f: _raiser(ValueError("This Won't Show.")),
+                    lambda f: _raiser(ValueError("This won't show.")),
                 ],
-                ["An Error", "Another Error"],
+                ["An error", "Another error"],
                 3,
             ),
         ],
