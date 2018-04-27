@@ -38,8 +38,8 @@
   opacity: 0;
   visibility: hidden;
   display: flex;
+  flex-direction: column; // Required for ie11
   align-items: center;
-  justify-content: center;
   flex-grow: 1;
   text-align: left;
 
