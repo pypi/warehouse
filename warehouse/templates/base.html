@@ -90,6 +90,8 @@
     {% if request.registry.settings.get("ga.tracking_id") -%}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
     {% endif -%}
+
+    <script async type="text/javascript" src="https://cdn.statuspage.io/se-v2.js"></script>
   </head>
 
   <body data-controller="viewport-toggle">
@@ -122,6 +124,19 @@
         <span class="notification-bar__message">You are using testPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
       </div>
       {% endif %}
+
+      <div data-controller="statuspage" class="notification-bar notification-bar__status notification-bar--warning">
+        <div class="notification-bar__message">
+          <p>We are experiencing issues with the following services: [list of services].<br/>
+            Please refer to the <a href="https://status.python.org/">status page</a> for more information.</p>
+        </div>
+        <ul class="notification-bar__status__events" data-target="statuspage.events">
+        </ul>
+        <!--<span class="notification-bar__icon">-->
+          <!--<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>-->
+          <!--<span class="sr-only">Warning:</span>-->
+        <!--</span>-->
+      </div>
     </section>
 
     {% block flash_messages %}

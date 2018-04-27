@@ -120,4 +120,19 @@
   &--success {
     background-color: $success-color;
   }
+
+  &__status {
+    .notification-bar__message {
+      margin-bottom: 1rem;
+    }
+    &--critical {
+      margin-right: 0.25rem;
+      color: $danger-color;
+    }
+
+    &__events {
+      list-style-type: none;
+    }
+  }
+
 }
