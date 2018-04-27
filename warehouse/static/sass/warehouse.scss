@@ -41,15 +41,17 @@
 @import "settings/z-index";
 
 // RESETS LAYER: applies CSS resets and sensible defaults
+@import "resets/boxsizing";
 @import "resets/normalize";
 @import "resets/reset";
-@import "resets/boxsizing";
 
 // BASE LAYER: adds styles to anything without a class
-@import "base/typography";
 @import "base/images-figures";
-@import "base/lists";
 @import "base/forms";
+@import "base/lists";
+@import "base/tables";
+@import "base/typography";
+
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
 @import "layout-helpers/banner";
