@@ -154,6 +154,7 @@ def json_release(release, request):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
+            "description_content_type": release.description_content_type,
             "description": release.description,
             "keywords": release.keywords,
             "license": release.license,
