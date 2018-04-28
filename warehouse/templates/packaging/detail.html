@@ -89,12 +89,7 @@
       {% else %}
       <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
       {% endif %}
-      <p class="package-header__date">
-        <span class="status-badge">
-          Last released: {{ humanize(release.created) }}
-        </span>
-      </p>
-      </span>
+      <p class="package-header__date">Last released: {{ humanize(release.created) }}</p>
     </div>
   </div>
 </section>
