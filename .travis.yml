@@ -59,6 +59,7 @@ matrix:
     - script: make tests_e2e BINDIR="$(dirname $(which python))"
       env:
         - SUITE=End2end
+      install: []
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
