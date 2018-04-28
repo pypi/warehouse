@@ -96,7 +96,15 @@ tests:
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 tests_e2e:
+ifneq ($(TRAVIS), false)
+	# We're on Travis so use cached image if available
+	$(MAKE) base_image_tag
+	docker pull $(shell cat .state/base_image_tag) || $(MAKE) build_base_image
+	WAREHOUSE_BASE_IMAGE=$(shell cat .state/base_image_tag) docker-compose -f docker-compose.yml -f docker-compose.travis.yml up -d
+	docker push $(shell cat .state/base_image_tag)
+else
 	docker-compose up -d --build
+endif
 	$(MAKE) mindb
 	docker-compose run --rm tests env -i ENCODING="C.UTF-8" \
 								PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
@@ -173,4 +181,16 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
+base_image_tag:
+	mkdir -p .state
+	# The username should be `warehouse`
+	echo $(DOCKERHUB_USERNAME)/base:$(shell cat requirements/*.txt package-lock.json | md5) > .state/base_image_tag
+
+build_base_image: .state/base_image_tag
+	cat Dockerfile.build Dockerfile.static | docker build --build-arg DEVEL="yes" --build-arg IPYTHON="yes" --tag $(shell cat .state/base_image_tag) -f - .
+
+push_base_image: .state/base_image_tag
+	docker login --username $(DOCKERHUB_USERNAME) --password $(DOCKERHUB_PASSWORD)
+	docker push $(DOCKERHUB_USERNAME)/$(shell cat .state/base_image_tag)
+
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop base_image_tag build_base_image

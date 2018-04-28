@@ -59,6 +59,8 @@ matrix:
     - script: make tests_e2e BINDIR="$(dirname $(which python))"
       env:
         - SUITE=End2end
+      before_install:
+        - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
       install: []
 
 after_success:

@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  web:
+    build:
+      dockerfile: Dockerfile.travis
+
+  worker:
+    build:
+      dockerfile: Dockerfile.travis
+
+  static:
+    build:
+      dockerfile: Dockerfile.travis
+
+  tests:
+    build:
+      dockerfile: Dockerfile.travis
