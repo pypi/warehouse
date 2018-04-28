@@ -5,7 +5,7 @@ services:
     image: postgres:10.1
     ports:
       # 5432 may already in use by another PostgreSQL on host
-      - "5433:5432"
+      - "5434:5432"
 
   redis:
     image: redis:latest
@@ -15,6 +15,11 @@ services:
 
   elasticsearch:
     image: elasticsearch:5
+
+  selenium:
+    image: selenium/standalone-firefox-debug
+    ports:
+      - "4444:4444"
 
   camo:
     image: pypa/warehouse-camo:latest
@@ -106,3 +111,17 @@ services:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+
+  tests:
+    build:
+      context: .
+      args:
+        DEVEL: "yes"
+        IPYTHON: "no"
+    depends_on:
+      - db
+      - selenium
+      - web
+    volumes:
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./selenium-report:/opt/warehouse/src/selenium-report:z

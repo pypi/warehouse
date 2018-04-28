@@ -77,6 +77,7 @@ build:
 	docker-compose build --build-arg IPYTHON=$(IPYTHON) web
 	docker-compose build worker
 	docker-compose build static
+	docker-compose build tests
 
 	# Mark this state so that the other target will known it's recently been
 	# rebuilt.
@@ -93,6 +94,21 @@ tests:
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
+
+tests_e2e:
+ifneq ($(TRAVIS), false)
+	# We're on Travis so use cached image if available
+	$(MAKE) base_image_tag
+	docker pull $(shell cat .state/base_image_tag) || $(MAKE) build_base_image
+	WAREHOUSE_BASE_IMAGE=$(shell cat .state/base_image_tag) docker-compose -f docker-compose.yml -f docker-compose.travis.yml up -d
+	docker push $(shell cat .state/base_image_tag)
+else
+	docker-compose up -d --build
+endif
+	$(MAKE) mindb
+	docker-compose run --rm tests env -i ENCODING="C.UTF-8" \
+								PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+								bin/tests-e2e --postgresql-host db $(T) $(TESTARGS)
 
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
@@ -133,12 +149,18 @@ ifneq ($(PR), false)
 	git diff --name-only $(BRANCH) | grep '^requirements/' || exit 0 && $(MAKE) deps
 endif
 
-initdb:
+createdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+
+initdb:
 	xz -d -k dev/$(DB).sql.xz
 	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
+	docker-compose run --rm web python -m warehouse db upgrade head
+	$(MAKE) reindex
+
+mindb: createdb
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
@@ -159,4 +181,16 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
+base_image_tag:
+	mkdir -p .state
+	# The username should be `warehouse`
+	echo $(DOCKERHUB_USERNAME)/base:$(shell cat requirements/*.txt package-lock.json | md5) > .state/base_image_tag
+
+build_base_image: .state/base_image_tag
+	cat Dockerfile.build Dockerfile.static | docker build --build-arg DEVEL="yes" --build-arg IPYTHON="yes" --tag $(shell cat .state/base_image_tag) -f - .
+
+push_base_image: .state/base_image_tag
+	docker login --username $(DOCKERHUB_USERNAME) --password $(DOCKERHUB_PASSWORD)
+	docker push $(DOCKERHUB_USERNAME)/$(shell cat .state/base_image_tag)
+
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop base_image_tag build_base_image

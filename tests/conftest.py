@@ -48,6 +48,8 @@ def pytest_collection_modifyitems(items):
             item.add_marker(pytest.mark.functional)
         elif module_root_dir.startswith("unit"):
             item.add_marker(pytest.mark.unit)
+        elif module_root_dir.startswith("e2e"):
+            item.add_marker(pytest.mark.e2e)
         else:
             raise RuntimeError(
                 "Unknown test type (filename = {0})".format(module_path)

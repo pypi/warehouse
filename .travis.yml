@@ -56,6 +56,12 @@ matrix:
     - script: make licenses BINDIR="$(dirname $(which python))"
       env:
         - SUITE=Licenses
+    - script: make tests_e2e BINDIR="$(dirname $(which python))"
+      env:
+        - SUITE=End2end
+      before_install:
+        - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+      install: []
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

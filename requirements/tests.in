@@ -6,5 +6,6 @@ freezegun
 pretend
 pytest>=3.0.0
 pytest-postgresql
+pytest-selenium
 responses>=0.5.1
 webtest

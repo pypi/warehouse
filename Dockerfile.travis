@@ -1,0 +1,21 @@
+FROM ${WAREHOUSE_BASE_IMAGE}
+
+# Actually copy over our static files, we only copy over the static files to
+# save a small amount of space in our image and because we don't need them. We
+# copy Gulpfile.babel.js last even though it's least likely to change, because
+# it's very small so copying it needlessly isn't a big deal but it will save a
+# small amount of copying when only Gulpfile.babel.js is modified.
+COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
+COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
+COPY Gulpfile.babel.js /opt/warehouse/src/
+
+RUN gulp dist
+
+# Copy the directory into the container, this is done last so that changes to
+# Warehouse itself require the least amount of layers being invalidated from
+# the cache. This is most important in development, but it also useful for
+# deploying new code changes.
+COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
+COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
+COPY --from=build /opt/warehouse/ /opt/warehouse/
+COPY . /opt/warehouse/src/

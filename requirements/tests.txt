@@ -189,6 +189,12 @@ psycopg2==2.7.4 \
 py==1.5.3 \
     --hash=sha256:983f77f3331356039fdd792e9220b7b8ee1aa6bd2b25f567a963ff1de5a64f6a \
     --hash=sha256:29c9fab495d7528e80ba1e343b958684f4ace687327e6f789a94bf3d1915f881
+pytest-base-url==1.4.1 \
+    --hash=sha256:31e42366a5fc22f450b398837dc819bb7569f5e6bd5d74e494b2b9ec239876d1
+pytest-html==1.14.0 \
+    --hash=sha256:fcd90a13d41abcc69a0388bf5da8b81c78ed07f92789f8058a1b9da6d2cedb59
+pytest-metadata==1.6.0 \
+    --hash=sha256:8ed7659de1b986c3bd53349e9ae10dd2ec0a998bbfa9faecff1737418e156e75
 pytest-postgresql==1.3.4 \
     --hash=sha256:dd9585d02bdf971cf0fd9b7787133e1829f7bb7ec620943cf251e462588d0a93 \
     --hash=sha256:9085d04bc3cb920b3264c5dccb73a989846c2700771e682f8037fdbb02a43b1f
@@ -198,6 +204,10 @@ pytest==3.5.1 \
 python-dateutil==2.7.2 \
     --hash=sha256:3220490fb9741e2342e1cf29a503394fdac874bc39568288717ee67047ff29df \
     --hash=sha256:9d8074be4c993fbe4947878ce593052f71dac82932a677d49194d8ce9778002e
+pytest-selenium==1.12.0 \
+    --hash=sha256:050a357a8bc9d38241052a277a5da3d67ff4801a807e8918113a88defee11c97
+pytest-variables==1.5.0 \
+    --hash=sha256:6784a2bf8c6c22c7d04a0e43db754178442a3ae8c924fc7b9d9e351b7cb1a3c8
 requests==2.18.4 \
     --hash=sha256:6a1b267aa90cac58ac3a765d067950e7dbbf75b1da07e895d1f594193a40a38b \
     --hash=sha256:9c443e7324ba5b85070c4a818ade28bfabedf16ea10206da1132edaa6dda237e
