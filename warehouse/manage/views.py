@@ -104,7 +104,7 @@ class ManageAccountViews:
         if form.validate():
             self.user_service.update_user(self.request.user.id, **form.data)
             self.request.session.flash(
-                'Account details updated.', queue='success'
+                'Account details updated', queue='success'
             )
 
         return {
@@ -132,7 +132,7 @@ class ManageAccountViews:
 
             self.request.session.flash(
                 f'Email {email.email} added - check your email for ' +
-                'a verification link.',
+                'a verification link',
                 queue='success',
             )
             return self.default_response
@@ -154,18 +154,18 @@ class ManageAccountViews:
             ).one()
         except NoResultFound:
             self.request.session.flash(
-                'Email address not found.', queue='error'
+                'Email address not found', queue='error'
             )
             return self.default_response
 
         if email.primary:
             self.request.session.flash(
-                'Cannot remove primary email address.', queue='error'
+                'Cannot remove primary email address', queue='error'
             )
         else:
             self.request.user.emails.remove(email)
             self.request.session.flash(
-                f'Email address {email.email} removed.', queue='success'
+                f'Email address {email.email} removed', queue='success'
             )
         return self.default_response
 
@@ -183,7 +183,7 @@ class ManageAccountViews:
             ).one()
         except NoResultFound:
             self.request.session.flash(
-                'Email address not found.', queue='error'
+                'Email address not found', queue='error'
             )
             return self.default_response
 
@@ -195,7 +195,7 @@ class ManageAccountViews:
         new_primary_email.primary = True
 
         self.request.session.flash(
-            f'Email address {new_primary_email.email} set as primary.',
+            f'Email address {new_primary_email.email} set as primary',
             queue='success',
         )
 
@@ -216,13 +216,13 @@ class ManageAccountViews:
             ).one()
         except NoResultFound:
             self.request.session.flash(
-                'Email address not found.', queue='error'
+                'Email address not found', queue='error'
             )
             return self.default_response
 
         if email.verified:
             self.request.session.flash(
-                'Email is already verified.', queue='error'
+                'Email is already verified', queue='error'
             )
         else:
             send_email_verification_email(
@@ -232,7 +232,7 @@ class ManageAccountViews:
             )
 
             self.request.session.flash(
-                f'Verification email for {email.email} resent.',
+                f'Verification email for {email.email} resent',
                 queue='success',
             )
 
@@ -258,7 +258,7 @@ class ManageAccountViews:
             )
             send_password_change_email(self.request, self.request.user)
             self.request.session.flash(
-                'Password updated.', queue='success'
+                'Password updated', queue='success'
             )
 
         return {
@@ -275,7 +275,7 @@ class ManageAccountViews:
 
         if not username:
             self.request.session.flash(
-                "Must confirm the request.", queue='error'
+                "Must confirm the request", queue='error'
             )
             return self.default_response
 
@@ -289,7 +289,7 @@ class ManageAccountViews:
 
         if self.active_projects:
             self.request.session.flash(
-                "Cannot delete account with active project ownerships.",
+                "Cannot delete account with active project ownerships",
                 queue='error',
             )
             return self.default_response
@@ -438,7 +438,7 @@ class ManageProjectRelease:
         version = self.request.POST.get('confirm_version')
         if not version:
             self.request.session.flash(
-                "Must confirm the request.", queue='error'
+                "Must confirm the request", queue='error'
             )
             return HTTPSeeOther(
                 self.request.route_path(
@@ -475,7 +475,7 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Successfully deleted release {self.release.version!r}.",
+            f"Successfully deleted release {self.release.version!r}",
             queue="success",
         )
 
@@ -505,7 +505,7 @@ class ManageProjectRelease:
         project_name = self.request.POST.get('confirm_project_name')
 
         if not project_name:
-            return _error("Must confirm the request.")
+            return _error("Must confirm the request")
 
         try:
             release_file = (
@@ -517,7 +517,7 @@ class ManageProjectRelease:
                 .one()
             )
         except NoResultFound:
-            return _error('Could not find file.')
+            return _error('Could not find file')
 
         if project_name != self.release.project.name:
             return _error(
@@ -539,7 +539,7 @@ class ManageProjectRelease:
         self.request.db.delete(release_file)
 
         self.request.session.flash(
-            f"Successfully deleted file {release_file.filename!r}.",
+            f"Successfully deleted file {release_file.filename!r}",
             queue="success",
         )
 

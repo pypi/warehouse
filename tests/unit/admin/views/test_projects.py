@@ -375,7 +375,7 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo'.",
+                "Successfully set the upload limit on 'foo'",
                 queue="success"),
         ]
 
@@ -396,7 +396,7 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo'.",
+                "Successfully set the upload limit on 'foo'",
                 queue="success"),
         ]
 
@@ -439,7 +439,7 @@ class TestDeleteProject:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request.", queue="error"),
+            pretend.call("Must confirm the request", queue="error"),
         ]
 
     def test_wrong_confirm(self):
@@ -480,7 +480,7 @@ class TestDeleteProject:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'.",
+                "Successfully deleted the project 'foo'",
                 queue="success"),
         ]
 
