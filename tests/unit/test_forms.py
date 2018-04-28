@@ -69,12 +69,12 @@ class TestPasswordStrengthValidator:
         [
             (
                 "qwerty",
-                ("This is a top-10 common password. Add another word or two."
+                ("This is a top-10 common password. Add another word or two. "
                  "Uncommon words are better."),
             ),
             (
                 "bombo!b",
-                ("Password is too easily guessed. Add another word or two."
+                ("Password is too easily guessed. Add another word or two. "
                  "Uncommon words are better."),
             ),
             ("bombo!b asdadad", "Password is too easily guessed."),
