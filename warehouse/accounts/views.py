@@ -477,9 +477,9 @@ def profile_callout(user, request):
 
 
 @view_config(
-    route_name="includes.edit-profile-button",
+    route_name="includes.profile-actions",
     context=User,
-    renderer="includes/accounts/edit-profile-button.html",
+    renderer="includes/accounts/profile-actions.html",
     uses_session=True,
 )
 def edit_profile_button(user, request):
