@@ -119,6 +119,6 @@ zope.interface==4.5.0 \
     --hash=sha256:57c38470d9f57e37afb460c399eb254e7193ac7fb8042bd09bdc001981a9c74c
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==39.0.1 \
-    --hash=sha256:8010754433e3211b9cdbbf784b50f30e80bf40fc6b05eb5f865fab83300599b8 \
-    --hash=sha256:bec7badf0f60e7fc8153fac47836edc41b74e5d541d7692e614e635720d6a7c7
+setuptools==39.1.0 \
+    --hash=sha256:0cb8b8625bfdcc2d43ea4b9cdba0b39b2b7befc04f3088897031082aa16ce186 \
+    --hash=sha256:c5484e13b89927b44fd15897f7ce19dded8e7f035466a4fa7b946c0bdd86edd7
