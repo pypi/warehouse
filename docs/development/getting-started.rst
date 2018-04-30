@@ -161,11 +161,11 @@ Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started a reactor:
+``web`` service has started listening:
 
 .. code-block:: console
 
-    [twisted.application.runner._runner.Runner#info] Starting reactor...
+    web_1 | [2018-04-30 22:40:43 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000
 
 the web container is listening on port 80. It's accessible at
 ``http://localhost:80/``.
