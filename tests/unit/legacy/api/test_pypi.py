@@ -131,3 +131,105 @@ class TestBrowse:
 
         with pytest.raises(HTTPNotFound):
             pypi.browse(db_request)
+
+
+class TestFiles:
+
+    def test_files(self, db_request):
+        name = "pip"
+        version = "10.0.0"
+
+        db_request.params = {"name": name, "version": version}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: f'/project/{name}/{version}/#files'
+        )
+
+        result = pypi.files(db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers['Location'] == (
+            f'/project/{name}/{version}/#files'
+        )
+        assert result.status_code == 301
+        assert db_request.route_path.calls == [
+            pretend.call(
+                'packaging.release',
+                name=name,
+                version=version,
+                _anchor="files"
+            )
+        ]
+
+    def test_files_no_version(self, db_request):
+        name = "pip"
+
+        db_request.params = {"name": name}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.files(db_request)
+
+    def test_files_no_name(self, db_request):
+        version = "10.0.0"
+
+        db_request.params = {"version": version}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.files(db_request)
+
+
+class TestDisplay:
+
+    def test_display(self, db_request):
+        name = "pip"
+        version = "10.0.0"
+
+        db_request.params = {"name": name, "version": version}
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: f'/project/{name}/{version}/'
+        )
+
+        result = pypi.display(db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers['Location'] == (
+            f'/project/{name}/{version}/'
+        )
+        assert result.status_code == 301
+        assert db_request.route_path.calls == [
+            pretend.call(
+                'packaging.release',
+                name=name,
+                version=version,
+            )
+        ]
+
+    def test_display_no_version(self, db_request):
+        name = "pip"
+
+        db_request.params = {"name": name}
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: f'/project/{name}/'
+        )
+
+        result = pypi.display(db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers['Location'] == (
+            f'/project/{name}/'
+        )
+        assert result.status_code == 301
+        assert db_request.route_path.calls == [
+            pretend.call(
+                'packaging.project',
+                name=name,
+            )
+        ]
+
+    def test_display_no_name(self, db_request):
+        version = "10.0.0"
+
+        db_request.params = {"version": version}
+
+        with pytest.raises(HTTPNotFound):
+            pypi.display(db_request)

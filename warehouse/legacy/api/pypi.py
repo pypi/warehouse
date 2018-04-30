@@ -118,3 +118,39 @@ def browse(request):
             'search', _query={'c': classifier.classifier}
         )
     )
+
+
+@view_config(route_name='legacy.api.pypi.files')
+def files(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if (not name) or (not version):
+        raise HTTPNotFound
+
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.release', name=name, version=version, _anchor="files"
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.display')
+def display(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if not name:
+        raise HTTPNotFound
+
+    if version:
+        return HTTPMovedPermanently(
+            request.route_path(
+                'packaging.release', name=name, version=version
+            )
+        )
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.project', name=name
+        )
+    )
