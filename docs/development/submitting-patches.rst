@@ -1,6 +1,11 @@
 Submitting patches
 ==================
 
+Before you submit a patch, you may want to look at :doc:`our guide to the
+Warehouse codebase <../application>`.
+
+As you are working on your patch, please keep the following in mind:
+
 * Always make a new branch for your work.
 * Patches should be small to facilitate easier review. `Studies have shown`_
   that review quality falls off as patch size grows. Sometimes this will result
