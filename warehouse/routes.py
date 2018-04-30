@@ -289,6 +289,16 @@ def includeme(config):
         'browse',
         domain=warehouse,
     )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.files',
+        'files',
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.display',
+        'display',
+        domain=warehouse,
+    )
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(
