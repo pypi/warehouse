@@ -16,12 +16,13 @@
 {% block title %}{% if testPyPI %}Test{% endif %}PyPI – the Python Package Index{% endblock %}
 
 {% macro project_snippet(release) -%}
-<div class="package-snippet">
+<div class="package-snippet" data-target="show-more.release">
   <h3 class="package-snippet__title">
     <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
     <span class="package-snippet__version">{{ release.version }}</span>
   </h3>
-  <p class="package-snippet__description">{{ release.summary }}</p>
+  {% set summary = release.summary if release.summary else "No description provided" %}
+  <p class="package-snippet__description">{{ summary }}</p>
 </div>
 {%- endmacro %}
 
@@ -90,8 +91,8 @@
 </section>
 
 <section class="horizontal-section horizontal-section--grey">
-  <div class="site-container">
-    <div class="col-half">
+  <div class="site-container" >
+    <div class="col-half" data-controller="show-more">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">Trending projects</h2>
         <p class="heading-wsubtitle__subtitle">Trending projects as downloaded by the community</p>
@@ -101,11 +102,9 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      {#
-      <a class="button" href="TODO">Show more</a>
-      #}
+      <button class="button" type="button" data-action="click->show-more#addFive" data-target="show-more.showMoreButton">Show More</button>
     </div>
-    <div class="col-half">
+    <div class="col-half" data-controller="show-more">
       <div class="heading-wsubtitle">
         <h2 class="heading-wsubtitle__heading">New releases</h2>
         <p class="heading-wsubtitle__subtitle">Hot off the press: the newest project releases</p>
@@ -115,9 +114,7 @@
           {{ project_snippet(release) }}
         {% endfor %}
       </div>
-      {#
-      <a class="button" href="TODO">Show more</a>
-      #}
+      <button class="button" type="button" data-action="click->show-more#addFive" data-target="show-more.showMoreButton">Show More</button>
     </div>
   </div>
 </section>
