@@ -13,16 +13,10 @@ recommendations
 Migrating to the new PyPI
 -------------------------
 
-Warehouse has now replaced `the legacy site pypi.python.org
-<https://pypi.python.org/>`_. If your site/service used to link or
-upload to pypi.python.org, it may continue to work due to redirects,
-but you should use pypi.org instead.
-
-A temporary installation of the legacy PyPI codebase is `available at
-legacy.pypi.org <https://legacy.pypi.org/>`_ until 30 April 2018, when
-it will be shut down. It reads from the same database backend and file
-store as pypi.org. See `the Warehouse roadmap
-<https://wiki.python.org/psf/WarehouseRoadmap>`_ for further details.
+Warehouse has now replaced `the legacy PyPI site that was deployed at
+pypi.python.org <https://pypi.python.org/>`_. If your site/service
+used to link or upload to pypi.python.org, it may continue to work due
+to redirects, but you should use pypi.org instead.
 
 You should also watch `our status page <https://status.python.org/>`__
 and subscribe to `the PyPI announcement list (low-traffic)
@@ -71,13 +65,12 @@ Here are some tips.
   hosted at pythonhosted.org (`discussion
   <https://github.com/pypa/warehouse/issues/509>`_).
 
-* ``User-Agent`` Filtering: Some client user agents have been filtered
-  to always use ``legacy.pypi.org`` regardless of brownouts or
-  redirects, in order to give them extra time to migrate. Once
-  ``legacy.pypi.org`` is shut down on 30 April, all clients will use
-  ``pypi.org`` regardless of their ``User-Agent``. See `the Warehouse
-  Roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`_ for a
-  timeline.
+* ``User-Agent`` Filtering: Some client user agents were filtered to
+  always use ``legacy.pypi.org``, a temporary deployment of the legacy
+  PyPI codebase, regardless of brownouts or redirects, in order to
+  give them extra time to migrate. On 30 April 2018,
+  ``legacy.pypi.org`` was shut down, so all clients use ``pypi.org``
+  regardless of their ``User-Agent``.
 
 * Subscribe to `the PyPI announcement list (low-traffic)
   <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
