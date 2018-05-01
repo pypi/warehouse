@@ -194,7 +194,7 @@ or that the ``static`` container has finished compiling the static assets:
     static_1 | [20:28:37] Finished 'watch' after 11 ms
 
 This means that all the services are up, and web container is listening on port
-80. It's accessible at ``http://localhost:80/``.
+80. It's accessible at <http://localhost:80/>.
 
 .. note::
 
@@ -209,10 +209,10 @@ Logging in to Warehouse
 
 In the development environment, the password for every account has been set to
 the string ``password``. You can log in as any account at
-``http://localhost:80/account/login/``.
+<http://localhost:80/account/login/>.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at ``http://localhost:80/admin/login/``.
+``password`` at <http://localhost:80/admin/login/>.
 
 
 Stopping Warehouse and other services
@@ -249,7 +249,7 @@ access your developer environment, you'll:
 
     make serve
 
-View Warehouse in the browser at ``http://localhost:80/``.
+View Warehouse in the browser at <http://localhost:80/>.
 
 
 Troubleshooting
