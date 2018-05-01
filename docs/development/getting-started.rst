@@ -138,41 +138,61 @@ increase the memory allocated to Docker in
 or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
 (on Windows) by moving the slider to 4 GB in the GUI.
 
-Then, in one terminal run the command:
+Then, in a terminal run the command:
 
 .. code-block:: console
 
     make serve
 
-Next, you will:
-
-* create a new Postgres database,
-* install example data to the Postgres database,
-* run migrations, and
-* load some example data from `Test PyPI`_
-
-In a second terminal, separate from the ``make serve`` command above, run:
+This command will produce output for a while, and will not exit. While it runs,
+open a second terminal, and run:
 
 .. code-block:: console
 
     make initdb
 
-If you get an error about xz, you may need to install the ``xz`` utility. This
-is highly likely on Mac OS X and Windows.
+This command will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations,
+* load some example data from `Test PyPI`_, and
+* index all the data for the search database.
+
+.. note::
+
+    If you get an error about xz, you may need to install the ``xz`` utility.
+    This is highly likely on Mac OS X and Windows.
+
+Once the ``make initdb`` command has finished, you are ready to continue.
 
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started listening:
+Eventually the output of the ``make serve`` command will cease, and you will
+see a log message indicating that either the ``web`` service has started
+listening:
 
 .. code-block:: console
 
-    web_1 | [2018-04-30 22:40:43 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
+    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
 
-the web container is listening on port 80. It's accessible at
-``http://localhost:80/``.
+or that the ``static`` container has finished compiling the static assets:
+
+.. code-block:: console
+
+    static_1 | [20:28:37] Starting 'dist:compress'...
+    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
+    static_1 | [20:28:37] Finished 'dist' after 43 s
+    static_1 | [20:28:37] Starting 'watch'...
+    static_1 | [20:28:37] Finished 'watch' after 11 ms
+
+This means that all the services are up, and web container is listening on port
+80. It's accessible at ``http://localhost:80/``.
 
 .. note::
 
