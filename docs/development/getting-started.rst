@@ -95,6 +95,22 @@ Verifying Docker Compose Installation
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
+Verifying the Neccessary Ports are Available
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Warehouse needs access to a few local ports in order to run, namely ports
+``80``, ``5433``, and ``9000``. You can check if a port is in use by running
+the following command (in this example, checking port ``80``:
+
+.. code-block:: console
+
+    lsof -i:80 | grep LISTEN
+
+If the port is in use, the command will produce output, and you will need to
+determine what is occupying the port and shut down the service. Otherwise, the
+port is available for Warehouse to use, and you can continue.
+
+
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
