@@ -8,6 +8,7 @@ celery>=4
 celery-redbeat
 certifi
 click
+cryptography
 datadog>=0.19.0
 disposable-email-domains
 elasticsearch>=5.0.0,<6.0.0
