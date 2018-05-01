@@ -26,18 +26,6 @@ so we can improve the process:
 - For longer-form questions or discussion, message the `pypa-dev mailing
   list`_.
 
-
-Quickstart for Developers with Docker experience
-------------------------------------------------
-.. code-block:: console
-
-    git clone git@github.com:pypa/warehouse.git
-    cd warehouse
-    make serve
-    make initdb
-
-View Warehouse in the browser at ``http://localhost:80/``.
-
 .. _dev-env-install:
 
 Detailed Installation Instructions
