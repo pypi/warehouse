@@ -253,6 +253,20 @@ class TestRelease:
                     ("Download", "https://example.com/download2/"),
                 ]),
             ),
+            (
+                None,
+                None,
+                [
+                    "Getting Started,https://docs.example.com/quickstart",
+                    "Full Documentation,https://docs.example.com/index",
+                    "Discontinued Versions,https://legacy.example.com/",
+                ],
+                OrderedDict([
+                    ("Getting Started", "https://docs.example.com/quickstart"),
+                    ("Full Documentation", "https://docs.example.com/index"),
+                    ("Discontinued Versions", "https://legacy.example.com/"),
+                ]),
+            ),
         ],
     )
     def test_urls(self, db_session, home_page, download_url, project_urls,
@@ -272,8 +286,7 @@ class TestRelease:
                 )
             )
 
-        # TODO: It'd be nice to test for the actual ordering here.
-        assert dict(release.urls) == dict(expected)
+        assert release.urls == expected
 
     def test_acl(self, db_session):
         project = DBProjectFactory.create()

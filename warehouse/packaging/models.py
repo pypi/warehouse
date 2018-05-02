@@ -240,7 +240,7 @@ class DependencyKind(enum.IntEnum):
     requires_external = 7
 
     # TODO: Move project URLs into their own table, since they are not actually
-    #       a "dependency".
+    #       a "dependency". (And add position column: see Release.urls.)
     project_url = 8
 
 
@@ -434,7 +434,11 @@ class Release(db.ModelBase):
         if self.home_page:
             _urls["Homepage"] = self.home_page
 
-        for urlspec in self.project_urls:
+        # TODO: We have `reversed` here to show project URLs in metadata order
+        #       (which is db insertion order, which is reverse of query order).
+        #       Remove this when moving project URLs to own table (see note in
+        #       DependencyKind), by instead ordering with a position column.
+        for urlspec in reversed(self.project_urls):
             name, url = [x.strip() for x in urlspec.split(",", 1)]
             _urls[name] = url
 
