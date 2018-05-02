@@ -38,7 +38,9 @@ export default () => {
         btn.classList.add(activeClass);
       } else {
         elem.style.display = "none";
-        btn.classList.remove(activeClass);
+        if (btn != null) {
+          btn.classList.remove(activeClass);
+        }
       }
     }
   };
