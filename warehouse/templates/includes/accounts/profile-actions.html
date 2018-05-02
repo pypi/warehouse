@@ -14,4 +14,14 @@
 
 {% if request.user == user %}
   <a href="{{ request.route_path('manage.account') }}" class="button button--primary author-profile__edit-button">Edit profile</a>
+
+  <div class="sidebar-section">
+    <h3 class="sidebar-section__title">Statistics</h3>
+    <p>View statistics for your projects via <a href="https://libraries.io/">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
+  </div>
+{% else %}
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Statistics</h3>
+  <p>View statistics for {{ user.username }}'s projects via <a href="https://libraries.io/">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
+</div>
 {% endif %}
