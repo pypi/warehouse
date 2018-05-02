@@ -49,7 +49,7 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
-.. _`our development roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
+.. _`our development roadmap`: https://warehouse.readthedocs.io/roadmap/
 .. _`architectural overview`: https://warehouse.readthedocs.io/application/
 .. _`documentation`: https://warehouse.readthedocs.io
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/

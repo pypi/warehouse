@@ -453,8 +453,7 @@ Learn about Warehouse and packaging
 
 Resources to help you learn Warehouse's context:
 
--  `the Warehouse
-   roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`__
+-  :doc:`../roadmap`
 -  `blog posts, mailing list messages, and notes from our core developer
    meetings <https://wiki.python.org/psf/PackagingWG>`__
 - :doc:`../application`
