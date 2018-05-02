@@ -92,6 +92,14 @@ class TestProject:
         with pytest.raises(KeyError):
             project["1.0"]
 
+    def test_traversal_cant_find_if_multiple(self, db_request):
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(version='1.0.0', project=project)
+        DBReleaseFactory.create(version='1.0', project=project)
+
+        with pytest.raises(KeyError):
+            project["1"]
+
     def test_doc_url_doesnt_exist(self, db_request):
         project = DBProjectFactory.create()
         assert project.documentation_url is None

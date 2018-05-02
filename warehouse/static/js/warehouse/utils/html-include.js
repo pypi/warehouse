@@ -40,8 +40,15 @@ export default () => {
     promises.push(p);
   });
 
-  // Once all of our HTML includes have fired, then we'll go ahead and record
-  // the fact that our HTML includes have happened. This allows us to
-  // introspect the state of our includes inside of our Selenium tests.
-  Promise.all(promises).then(() => { window._WarehouseHTMLIncluded = true; });
+  Promise.all(promises).then(() => {
+
+    // Once all of our HTML includes have fired, then we'll go ahead and record
+    // the fact that our HTML includes have happened. This allows us to
+    // introspect the state of our includes inside of our Selenium tests.
+    window._WarehouseHTMLIncluded = true;
+
+    // Dispatch an event to any listeners that our CSI includes have loaded
+    var event = new Event("CSILoaded");
+    document.dispatchEvent(event);
+  });
 };

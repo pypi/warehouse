@@ -92,12 +92,17 @@
     {% endif -%}
   </head>
 
-  <body>
+  <body data-controller="viewport-toggle">
     {% block body %}
 
+    <!-- Accessibility: this link should always be the first piece of content inside the body-->
     <a href="#content" class="skip-to-content">Skip to main content</a>
 
-    <section class="stick-to-top js-stick-to-top">
+    <button class="button button--primary button--switch-to-mobile hidden" data-target="viewport-toggle.switchToMobile" data-action="viewport-toggle#switchToMobile">
+      Switch to mobile version
+    </button>
+
+    <section id="sticky-notifications" class="stick-to-top js-stick-to-top">
       <!-- Add browser warning. Will show for ie9 and below -->
       <!--[if IE]>
       <div class="notification-bar notification-bar--danger">
@@ -131,10 +136,6 @@
     {% endfor %}
 
     {% block session_notifications %}{% endblock %}
-
-    <div class="notification-bar">
-      <span class="notification-bar__message">Help us improve Python packaging – <a href="https://donate.pypi.org">donate today!</a></span>
-    </div>
 
     <header class="site-header {% if testPyPI %}site-header--test-pypi{% endif %}">
       <div class="site-container">
@@ -244,6 +245,12 @@
           <a href="https://donate.pypi.org">Donate today!</a>
         </p>
         <p>© {{ now()|format_date('yyyy') }} Python Software Foundation</p>
+      </div>
+
+      <div class="centered hide-on-desktop">
+        <button class="button button--switch-to-desktop hidden" data-target="viewport-toggle.switchToDesktop" data-action="viewport-toggle#switchToDesktop">
+          Desktop version
+        </button>
       </div>
     </footer>
 

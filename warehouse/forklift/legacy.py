@@ -696,6 +696,32 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _no_deprecated_classifiers(request):
+    deprecated_classifiers = {
+        classifier.classifier
+        for classifier in (
+            request.db.query(Classifier.classifier)
+            .filter(Classifier.deprecated.is_(True))
+            .all()
+        )
+    }
+
+    def validate_no_deprecated_classifiers(form, field):
+        invalid_classifiers = set(field.data or []) & deprecated_classifiers
+        if invalid_classifiers:
+            first_invalid_classifier = sorted(invalid_classifiers)[0]
+            host = request.registry.settings.get("warehouse.domain")
+            classifiers_url = request.route_url('classifiers', _host=host)
+
+            raise wtforms.validators.ValidationError(
+                f'Classifier {first_invalid_classifier!r} has been '
+                f'deprecated, see {classifiers_url} for a list of valid '
+                'classifiers.'
+            )
+
+    return validate_no_deprecated_classifiers
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -756,6 +782,9 @@ def file_upload(request):
 
     # Validate and process the incoming metadata.
     form = MetadataForm(request.POST)
+
+    # Add a validator for deprecated classifiers
+    form.classifiers.validators.append(_no_deprecated_classifiers(request))
 
     form.classifiers.choices = [
         (c.classifier, c.classifier) for c in all_classifiers
@@ -1265,17 +1294,6 @@ def file_upload(request):
                     "package-type": file_.packagetype,
                     "python-version": file_.python_version,
                 },
-            )
-
-        # TODO: Once we no longer have the legacy code base running PyPI we can
-        #       go ahead and delete this tiny bit of shim code, since it only
-        #       exists to purge stuff on legacy PyPI when uploaded to Warehouse
-        old_domain = request.registry.settings.get("warehouse.legacy_domain")
-        if old_domain:
-            request.tm.get().addAfterCommitHook(
-                _legacy_purge,
-                args=["https://{}/pypi".format(old_domain)],
-                kws={"data": {":action": "purge", "project": project.name}},
             )
 
     return Response()

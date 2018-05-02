@@ -146,7 +146,7 @@ def add_blacklist(request):
     confirm = request.POST.get("confirm")
     if not confirm:
         request.session.flash(
-            "Must confirm the blacklist request.",
+            "Must confirm the blacklist request",
             queue="error",
         )
         return HTTPSeeOther(request.current_route_path())
@@ -210,7 +210,7 @@ def remove_blacklist(request):
     request.db.delete(blacklist)
 
     request.session.flash(
-        f"{blacklist.name!r} successfully unblacklisted.",
+        f"{blacklist.name!r} successfully unblacklisted",
         queue="success",
     )
 

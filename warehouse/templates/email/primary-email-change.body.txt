@@ -10,5 +10,5 @@ to this address:
 
   {{ new_email }}
 
-If you did not make this change, you can reply to this email directly to
+If you did not make this change, you can email admin@mail.pypi.org to
 communicate with the PyPI administrators.

@@ -33,6 +33,17 @@
   position: relative;
   display: inline-block;
 
+  ul,
+  li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  &:hover .dropdown__content {
+    display: block;
+  }
+
   &__trigger {
     cursor: pointer;
   }
@@ -54,14 +65,6 @@
     display: none;
   }
 
-  // Show content if triggered
-  &__trigger:hover + &__content,
-  &__trigger:focus + &__content,
-  &__trigger:active + &__content,
-  &__content:hover {
-    display: block;
-  }
-
   &__link,
   button.dropdown__link {
     display: block;
@@ -75,10 +78,15 @@
     text-align: left;
     position: relative;
 
-    &:hover {
-      background-color: $base-grey;
-      color: $text-color;
+    &:hover,
+    &:focus {
+      background-color: mix($white, $primary-color-light, 90%);
+      color: $primary-color-dark;
       text-decoration: none;
+    }
+
+    &:focus {
+      border-bottom-color: $primary-color-light;
     }
 
     .fa {
@@ -109,9 +117,19 @@
       background-color: $header-background-color;
       color: $white;
 
-      &:hover {
+      a {
+        color: $white;
+        text-decoration: none;
+      }
+
+      &:hover,
+      &:focus {
         background-color: darken($header-background-color, 1.5);
         color: $white;
+      }
+
+      &:focus {
+        border-bottom-color: $primary-color-light;
       }
     }
   }

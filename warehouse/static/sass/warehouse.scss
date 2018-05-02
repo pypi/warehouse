@@ -41,15 +41,17 @@
 @import "settings/z-index";
 
 // RESETS LAYER: applies CSS resets and sensible defaults
+@import "resets/boxsizing";
 @import "resets/normalize";
 @import "resets/reset";
-@import "resets/boxsizing";
 
 // BASE LAYER: adds styles to anything without a class
-@import "base/typography";
 @import "base/images-figures";
-@import "base/lists";
 @import "base/forms";
+@import "base/lists";
+@import "base/tables";
+@import "base/typography";
+
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
 @import "layout-helpers/banner";
@@ -118,7 +120,7 @@
   list-style-type: none;
 }
 
-// Make text align in the middle
+// Make inline elements centered
 .centered {
   text-align: center;
 }
@@ -176,7 +178,8 @@
 }
 
 // Desktop specific visibility
-@media screen and (min-width: calc($desktop + 1px)) {
+
+@media screen and (min-width: $desktop + 1px) {
   .hide-on-desktop {
     display: none;
   }
@@ -186,6 +189,10 @@
   .hide-below-desktop {
     display: none;
   }
+}
+
+.display-block {
+  display: block;
 }
 
 // Mobile specific visibility

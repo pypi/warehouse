@@ -32,14 +32,10 @@
             <p><i class="fa fa-calendar-o" aria-hidden="true"></i>&nbsp;&nbsp;Joined on {{ user.date_joined|format_date() }}</p>
             {% endif %}
           </div>
-          {% csi request.route_path("includes.edit-profile-button", username=user.username) %}
+          {% csi request.route_path("includes.profile-actions", username=user.username) %}
           {% endcsi %}
         </div>
 
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Statistics</h3>
-          <p>View statistics for your projects via <a href="https://libraries.io/">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
-        </div>
       </div>
     </div>
 

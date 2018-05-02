@@ -38,8 +38,8 @@ class TestFailedLoginView:
 
     assert resp.status == "429 Too Many Failed Login Attempts"
     assert resp.detail == (
-        "There have been too many unsuccessful login attempts. Please try "
-        "again later."
+        "There have been too many unsuccessful login attempts. "
+        "Try again later."
     )
     assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -422,8 +422,8 @@ class TestRegister:
         assert isinstance(result, HTTPSeeOther)
         assert db_request.session.flash.calls == [
             pretend.call(
-                ("New User Registration Temporarily Disabled "
-                 "See https://pypi.org/help#admin-intervention for details"),
+                ("New user registration temporarily disabled. "
+                 "See https://pypi.org/help#admin-intervention for details."),
                 queue="error"
             ),
         ]
@@ -740,13 +740,13 @@ class TestResetPassword:
         [
             (
                 TokenInvalid,
-                "Invalid token - Request a new password reset link",
+                "Invalid token - request a new password reset link",
             ), (
                 TokenExpired,
-                "Expired token - Request a new password reset link",
+                "Expired token - request a new password reset link",
             ), (
                 TokenMissing,
-                "Invalid token - No token supplied"
+                "Invalid token - no token supplied"
             ),
         ],
     )
@@ -799,7 +799,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token - Not a password reset token", queue='error'
+                "Invalid token - not a password reset token", queue='error'
             ),
         ]
 
@@ -831,7 +831,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token - User not found", queue='error'
+                "Invalid token - user not found", queue='error'
             ),
         ]
         assert user_service.get_user.calls == [
@@ -870,7 +870,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token - User has logged in since this token was "
+                "Invalid token - user has logged in since this token was "
                 "requested",
                 queue='error',
             ),
@@ -909,7 +909,7 @@ class TestResetPassword:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token - Password has already been changed since this "
+                "Invalid token - password has already been changed since this "
                 "token was requested",
                 queue='error',
             ),
@@ -927,9 +927,18 @@ class TestResetPassword:
 
 class TestVerifyEmail:
 
-    def test_verify_email(self, db_request, user_service, token_service):
+    @pytest.mark.parametrize(
+        ("is_primary", "confirm_message"),
+        [
+            (True, "This is your primary address."),
+            (False, "You can now set this email as your primary address."),
+        ]
+    )
+    def test_verify_email(
+            self, db_request, user_service, token_service, is_primary,
+            confirm_message):
         user = UserFactory(is_active=False)
-        email = EmailFactory(user=user, verified=False)
+        email = EmailFactory(user=user, verified=False, primary=is_primary)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -958,7 +967,7 @@ class TestVerifyEmail:
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Email address {email.email} verified. " +
-                "You can now set this email as your primary address.",
+                confirm_message,
                 queue="success"
             ),
         ]
@@ -971,13 +980,13 @@ class TestVerifyEmail:
         [
             (
                 TokenInvalid,
-                "Invalid token - Request a new verification link",
+                "Invalid token - request a new verification link",
             ), (
                 TokenExpired,
-                "Expired token - Request a new verification link",
+                "Expired token - request a new verification link",
             ), (
                 TokenMissing,
-                "Invalid token - No token supplied"
+                "Invalid token - no token supplied"
             ),
         ],
     )
@@ -1025,7 +1034,7 @@ class TestVerifyEmail:
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                "Invalid token - Not an email verification token",
+                "Invalid token - not an email verification token",
                 queue='error',
             ),
         ]

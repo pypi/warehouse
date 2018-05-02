@@ -56,18 +56,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -84,7 +86,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -112,12 +121,14 @@ class TestSearch:
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
                     {'bool': {'should': [
-                        {'term': {'summary': 'fix code'}},
-                        {'term': {'summary': 'like this'}}
+                        {'match':
+                            {'summary': {'boost': 5, 'query': 'fix code'}}},
+                        {'match':
+                            {'summary': {'boost': 5, 'query': 'like this'}}}
                     ]}}
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -134,7 +145,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"summary": ["fix code", "like this"]},
@@ -161,18 +179,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -189,7 +209,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -217,18 +244,20 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.should] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                     {
                         "bool": {
                             "should": [
-                                {"term": {"summary": "one"}},
-                                {"term": {"summary": "two"}},
+                                {"match":
+                                    {"summary": {"query": "one", "boost": 5}}},
+                                {"match":
+                                    {"summary": {"query": "two", "boost": 5}}},
                             ],
                         },
                     },
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -245,7 +274,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "summary": ["one", "two"]},
@@ -273,11 +309,11 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
-                    {"term": {"version": "1.0"}},
+                    {"match": {"name": {"boost": 10, "query": "foo"}}},
+                    {"match": {"version": {"query": "1.0"}}},
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -294,7 +330,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo", "version": "1.0"},
@@ -322,10 +365,10 @@ class TestSearch:
             def execute(self):
                 assert self.type == "bool"
                 assert [q.to_dict() for q in self.must] == [
-                    {"term": {"name": "foo"}},
+                    {"match": {"name": {"query": "foo", "boost": 10}}},
                 ]
                 assert self.offset is None
-                assert self.limit == 1000
+                assert self.limit == 100
                 assert self.step is None
                 return [
                     pretend.stub(
@@ -342,7 +385,14 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(es=pretend.stub(query=FakeQuery))
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(
+                    histogram=lambda *a, **kw: None,
+                ),
+            ),
+        )
         results = xmlrpc.search(
             request,
             {"name": "foo"},
@@ -750,3 +800,14 @@ def test_browse(db_request):
             "Programming Language :: Python",
         ],
     )) == {(expected_release.name, expected_release.version)}
+
+
+def test_multicall():
+    request = pretend.stub()
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.multicall(request, [])
+
+    assert exc.value.faultString == (
+        'ValueError: MultiCall requests have been deprecated, use individual '
+        'requests instead.'
+    )

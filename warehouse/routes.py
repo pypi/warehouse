@@ -76,12 +76,15 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "includes.edit-profile-button",
-        "/_includes/edit-profile-button/{username}",
+        "includes.profile-actions",
+        "/_includes/profile-actions/{username}",
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
         domain=warehouse,
     )
+
+    # Classifier Routes
+    config.add_route("classifiers", "/classifiers/", domain=warehouse)
 
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
@@ -274,6 +277,26 @@ def includeme(config):
     config.add_pypi_action_route(
         "legacy.api.pypi.list_classifiers",
         "list_classifiers",
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.search',
+        'search',
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.browse',
+        'browse',
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.files',
+        'files',
+        domain=warehouse,
+    )
+    config.add_pypi_action_route(
+        'legacy.api.pypi.display',
+        'display',
         domain=warehouse,
     )
 

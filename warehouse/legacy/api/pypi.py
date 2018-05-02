@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPGone
+from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
 
@@ -81,11 +81,76 @@ def forbidden_legacy(exc, request):
 def list_classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
-               .order_by(Classifier.classifier)
-               .all()
+        .filter(Classifier.deprecated.is_(False))
+        .order_by(Classifier.classifier)
+        .all()
     )
 
     return Response(
         text='\n'.join(c[0] for c in classifiers),
         content_type='text/plain; charset=utf-8'
+    )
+
+
+@view_config(route_name='legacy.api.pypi.search')
+def search(request):
+    return HTTPMovedPermanently(
+        request.route_path(
+            'search', _query={'q': request.params.get('term')}
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.browse')
+def browse(request):
+    classifier_id = request.params.get('c')
+
+    if not classifier_id:
+        raise HTTPNotFound
+
+    classifier = request.db.query(Classifier).get(classifier_id)
+
+    if not classifier:
+        raise HTTPNotFound
+
+    return HTTPMovedPermanently(
+        request.route_path(
+            'search', _query={'c': classifier.classifier}
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.files')
+def files(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if (not name) or (not version):
+        raise HTTPNotFound
+
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.release', name=name, version=version, _anchor="files"
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.display')
+def display(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if not name:
+        raise HTTPNotFound
+
+    if version:
+        return HTTPMovedPermanently(
+            request.route_path(
+                'packaging.release', name=name, version=version
+            )
+        )
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.project', name=name
+        )
     )
