@@ -33,7 +33,7 @@ services:
         # working on pypi-theme, this is a private repository due to the fact
         # that other people's IP is contained in it.
         #THEME_REPO:
-    command: hupper -m twisted --log-format text web -p tcp:port=8000 --wsgi warehouse.wsgi.application
+    command: hupper -m gunicorn.app.wsgiapp -b 0.0.0.0:8000 -c gunicorn-cabotage.conf warehouse.wsgi:application
     env_file: dev/environment
     volumes:
       # We specify all of these directories instead of just . because we want to

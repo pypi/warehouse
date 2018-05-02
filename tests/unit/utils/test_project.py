@@ -61,7 +61,7 @@ def test_confirm_no_input():
         call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
-        call('Must confirm the request.', queue='error')
+        call('Must confirm the request', queue='error')
     ]
 
 
@@ -113,7 +113,7 @@ def test_remove_project(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted the project 'foo'.",
+                "Successfully deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -182,7 +182,7 @@ def test_destroy_docs(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted docs for project 'foo'.",
+                "Successfully deleted docs for project 'foo'",
                 queue="success"
             ),
         ]

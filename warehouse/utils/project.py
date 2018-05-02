@@ -33,7 +33,7 @@ def confirm_project(project, request, fail_route):
     project_name = project.normalized_name
     if not confirm:
         request.session.flash(
-            "Must confirm the request.",
+            "Must confirm the request",
             queue="error",
         )
         raise HTTPSeeOther(
@@ -70,7 +70,7 @@ def remove_project(project, request, flash=True):
 
     if flash:
         request.session.flash(
-            f"Successfully deleted the project {project.name!r}.",
+            f"Successfully deleted the project {project.name!r}",
             queue="success",
         )
 
@@ -91,6 +91,6 @@ def destroy_docs(project, request, flash=True):
 
     if flash:
         request.session.flash(
-            f"Successfully deleted docs for project {project.name!r}.",
+            f"Successfully deleted docs for project {project.name!r}",
             queue="success",
         )

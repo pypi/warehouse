@@ -2,16 +2,15 @@ Warehouse
 =========
 
 Warehouse is a next-generation Python Package Repository that powers
-`PyPI`_ (whose source code `lives on GitHub`_). See `our development
-roadmap`_.
-
-You can find more information in the `documentation`_.
+`PyPI`_. See `our development roadmap`_, `documentation`_, and
+`architectural overview`_.
 
 Getting Started
 ---------------
 
-You can run Warehouse locally using ``docker`` and ``docker-compose``. See
-`Getting started`_ in the documentation for instructions on how to set it up.
+You can run Warehouse locally in a development environment using
+``docker`` and ``docker-compose``. See `Getting started`_
+documentation for instructions on how to set it up.
 
 The canonical deployment of Warehouse is in production at `pypi.org`_.
 
@@ -27,19 +26,19 @@ You can also file specific types of issues:
 - `Visual Design Issue`_: An issue related to the visual design of the site
 - `Trove Classifier Issue`_: A request for a new trove classifier
 
-You can also join ``#pypa`` (general packaging discussion and user support) and
-``#pypa-dev`` (discussion about development of packaging tools) `on Freenode`_,
-or the `pypa-dev mailing list`_, to ask questions or get involved.
+You can also join the chat channels ``#pypa`` (general packaging
+discussion and user support) and ``#pypa-dev`` (discussion about
+development of packaging tools) `on Freenode`_, or the `pypa-dev
+mailing list`_, to ask questions or get involved.
 
 Testing
 ----------
 
-Help on how to test your code can be found in the
-`running tests and linters section`_ in the documentation.
-For cross browser testing, we use an open source account from
-`BrowserStack`_. If your pull request makes any change to the user
-interface, it will need to be tested to confirm it works in our
-`supported browsers`_.
+Read the `running tests and linters section`_ of our documentation to
+learn how to test your code.  For cross-browser testing, we use an
+open source account from `BrowserStack`_. If your pull request makes
+any change to the user interface, it will need to be tested to confirm
+it works in our `supported browsers`_.
 
 |BrowserStackImg|_
 
@@ -50,8 +49,8 @@ Everyone interacting in the Warehouse project's codebases, issue trackers, chat
 rooms, and mailing lists is expected to follow the `PyPA Code of Conduct`_.
 
 .. _`PyPI`: https://pypi.org/
-.. _`lives on GitHub`: https://github.com/pypa/pypi-legacy/
 .. _`our development roadmap`: https://wiki.python.org/psf/WarehouseRoadmap
+.. _`architectural overview`: https://warehouse.readthedocs.io/application/
 .. _`documentation`: https://warehouse.readthedocs.io
 .. _`Getting started`: https://warehouse.readthedocs.io/development/getting-started/
 .. _`issue tracker`: https://github.com/pypa/warehouse/issues

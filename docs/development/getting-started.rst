@@ -26,18 +26,6 @@ so we can improve the process:
 - For longer-form questions or discussion, message the `pypa-dev mailing
   list`_.
 
-
-Quickstart for Developers with Docker experience
-------------------------------------------------
-.. code-block:: console
-
-    git clone git@github.com:pypa/warehouse.git
-    cd warehouse
-    make serve
-    make initdb
-
-View Warehouse in the browser at ``http://localhost:80/``.
-
 .. _dev-env-install:
 
 Detailed Installation Instructions
@@ -107,6 +95,24 @@ Verifying Docker Compose Installation
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
+Verifying the Neccessary Ports are Available
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Warehouse needs access to a few local ports in order to run, namely ports
+``80``, ``5433``, and ``9000``. You should check each of these for availability
+with the ``lsof`` command.
+
+For example, checking port ``80``:
+
+.. code-block:: console
+
+    lsof -i:80 | grep LISTEN
+
+If the port is in use, the command will produce output, and you will need to
+determine what is occupying the port and shut down the corresponding service.
+Otherwise, the port is available for Warehouse to use, and you can continue.
+
+
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -134,41 +140,61 @@ increase the memory allocated to Docker in
 or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
 (on Windows) by moving the slider to 4 GB in the GUI.
 
-Then, in one terminal run the command:
+Then, in a terminal run the command:
 
 .. code-block:: console
 
     make serve
 
-Next, you will:
-
-* create a new Postgres database,
-* install example data to the Postgres database,
-* run migrations, and
-* load some example data from `Test PyPI`_
-
-In a second terminal, separate from the ``make serve`` command above, run:
+This command will produce output for a while, and will not exit. While it runs,
+open a second terminal, and run:
 
 .. code-block:: console
 
     make initdb
 
-If you get an error about xz, you may need to install the ``xz`` utility. This
-is highly likely on Mac OS X and Windows.
+This command will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations,
+* load some example data from `Test PyPI`_, and
+* index all the data for the search database.
+
+.. note::
+
+    If you get an error about xz, you may need to install the ``xz`` utility.
+    This is highly likely on Mac OS X and Windows.
+
+Once the ``make initdb`` command has finished, you are ready to continue.
 
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started a reactor:
+Eventually the output of the ``make serve`` command will cease, and you will
+see a log message indicating that either the ``web`` service has started
+listening:
 
 .. code-block:: console
 
-    [twisted.application.runner._runner.Runner#info] Starting reactor...
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
+    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
 
-the web container is listening on port 80. It's accessible at
-``http://localhost:80/``.
+or that the ``static`` container has finished compiling the static assets:
+
+.. code-block:: console
+
+    static_1 | [20:28:37] Starting 'dist:compress'...
+    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
+    static_1 | [20:28:37] Finished 'dist' after 43 s
+    static_1 | [20:28:37] Starting 'watch'...
+    static_1 | [20:28:37] Finished 'watch' after 11 ms
+
+This means that all the services are up, and web container is listening on port
+80. It's accessible at <http://localhost:80/>.
 
 .. note::
 
@@ -183,10 +209,10 @@ Logging in to Warehouse
 
 In the development environment, the password for every account has been set to
 the string ``password``. You can log in as any account at
-``http://localhost:80/account/login/``.
+<http://localhost:80/account/login/>.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at ``http://localhost:80/admin/login/``.
+``password`` at <http://localhost:80/admin/login/>.
 
 
 Stopping Warehouse and other services
@@ -223,7 +249,7 @@ access your developer environment, you'll:
 
     make serve
 
-View Warehouse in the browser at ``http://localhost:80/``.
+View Warehouse in the browser at <http://localhost:80/>.
 
 
 Troubleshooting

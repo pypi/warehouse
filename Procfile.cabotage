@@ -1,6 +1,5 @@
 release: bin/release-cabotage
 web: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-cabotage.conf warehouse.wsgi:application
-tcp: bin/start-web-cabotage python -m twisted web -n -p tcp:port=8001:backlog=2048 --wsgi warehouse.wsgi.application
 web-uploads: bin/start-web-cabotage python -m gunicorn.app.wsgiapp -c gunicorn-uploads-cabotage.conf warehouse.wsgi:application
 worker: bin/start-worker celery -A warehouse worker -l info --max-tasks-per-child 128
 worker-beat: bin/start-worker celery -A warehouse beat -S redbeat.RedBeatScheduler -l info
