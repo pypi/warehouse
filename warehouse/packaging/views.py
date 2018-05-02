@@ -14,6 +14,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
+from warehouse.utils import readme
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release, Role
@@ -89,6 +90,10 @@ def release_detail(release, request):
             request.current_route_path(name=project.name),
         )
 
+    # Render the release description.
+    description = readme.render(
+        release.description, release.description_content_type)
+
     # Get all of the maintainers for this project.
     maintainers = [
         r.user
@@ -121,6 +126,7 @@ def release_detail(release, request):
     return {
         "project": project,
         "release": release,
+        "description": description,
         "files": release.files.all(),
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,

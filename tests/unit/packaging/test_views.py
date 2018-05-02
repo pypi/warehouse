@@ -15,6 +15,7 @@ import pretend
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
+from warehouse.utils import readme
 
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -143,7 +144,7 @@ class TestReleaseDetail:
             pretend.call(name=release.project.name, version=release.version),
         ]
 
-    def test_detail_renders(self, db_request):
+    def test_detail_renders(self, monkeypatch, db_request):
         users = [
             UserFactory.create(),
             UserFactory.create(),
@@ -151,7 +152,11 @@ class TestReleaseDetail:
         ]
         project = ProjectFactory.create()
         releases = [
-            ReleaseFactory.create(project=project, version=v)
+            ReleaseFactory.create(
+                project=project,
+                version=v,
+                description="unrendered description",
+                description_content_type="text/plain")
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
         ]
         files = [
@@ -174,12 +179,18 @@ class TestReleaseDetail:
             role_name="another role",
         )
 
+        # patch the readme rendering logic.
+        render_description = pretend.call_recorder(
+            lambda raw, content_type: "rendered description")
+        monkeypatch.setattr(readme, "render", render_description)
+
         result = views.release_detail(releases[1], db_request)
 
         assert result == {
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
                 (r.version, r.created, r.is_prerelease)
@@ -188,6 +199,10 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None
         }
+
+        assert render_description.calls == [
+            pretend.call("unrendered description", "text/plain")
+        ]
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
