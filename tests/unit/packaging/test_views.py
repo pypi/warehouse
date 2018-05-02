@@ -201,7 +201,7 @@ class TestReleaseDetail:
         }
 
         assert render_description.calls == [
-            pretend.call("raw description", "text/plain")
+            pretend.call("unrendered description", "text/plain")
         ]
 
     def test_license_from_classifier(self, db_request):
