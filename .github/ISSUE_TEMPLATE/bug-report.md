@@ -4,6 +4,12 @@ about: Let us know if something is broken on PyPI
 
 ---
 
+<!--
+    NOTE: this is for problems with PyPI itself, not with the projects hosted
+    there. If you are having an issue with a specific package, you should
+    reach out to the maintainers of that project directly instead.
+-->
+
 **Describe the bug**
 <!-- A clear and concise description the bug -->
 
