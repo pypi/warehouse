@@ -5,9 +5,17 @@ about: Let us know if something is broken on PyPI
 ---
 
 <!--
-    NOTE: this is for problems with PyPI itself, not with the projects hosted
-    there. If you are having an issue with a specific package, you should
-    reach out to the maintainers of that project directly instead.
+    NOTE: This issue should be for problems with PyPI itself, including:
+    * pypi.org
+    * test.pypi.org
+    * files.pythonhosted.org
+
+    This issue should NOT be for a project hosted on PyPI.  If you are having
+    an issue with a specific package, you should reach out to the maintainers
+    of that project directly instead.
+
+    Furthermore, this issue should NOT be for any non-PyPI properties (like
+    python.org, docs.python.org, etc.)
 -->
 
 **Describe the bug**
