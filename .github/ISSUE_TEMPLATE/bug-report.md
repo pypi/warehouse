@@ -10,9 +10,9 @@ about: Let us know if something is broken on PyPI
     * test.pypi.org
     * files.pythonhosted.org
 
-    This issue should NOT be for a project hosted on PyPI.  If you are having
-    an issue with a specific package, you should reach out to the maintainers
-    of that project directly instead.
+    This issue should NOT be for a project installed from PyPI. If you are
+    having an issue with a specific package, you should reach out to the
+    maintainers of that project directly instead.
 
     Furthermore, this issue should NOT be for any non-PyPI properties (like
     python.org, docs.python.org, etc.)
