@@ -21,9 +21,12 @@ about: Let us know if something is broken on PyPI
 
 **My Platform**
 <!--
-Any details about your specific platform:
-* If the problem is in the browser, what browser, version, and OS?
-* If the problem is with a command-line tool, what version of that tool?
+    Any details about your specific platform:
+    * If the problem is in the browser, what browser, version, and OS?
+    * If the problem is with a command-line tool, what version of that tool?
+    * If the problem is with connecting to PyPI, include some details about
+      your network, including SSL/TLS implementation in use, internet service
+      provider, and if there are any firewalls or proxies in use.
 -->
 
 **Additional context**
