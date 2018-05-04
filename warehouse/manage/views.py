@@ -594,13 +594,18 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 ),
             )
 
-            owners = (
+            owner_roles = (
                 request.db.query(Role)
                 .join(Role.user)
                 .filter(Role.role_name == 'Owner', Role.project == project)
             )
-            owner_users = [owner.user for owner in owners]
-            owner_users.remove(request.user)
+            owner_users = {owner.user for owner in owner_roles}
+
+            # Don't send to the owner that added the new role
+            owner_users.discard(request.user)
+
+            # Don't send owners email to new user if they are now an owner
+            owner_users.discard(user)
 
             send_collaborator_added_email(
                 request,
