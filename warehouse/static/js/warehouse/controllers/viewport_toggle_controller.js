@@ -16,24 +16,11 @@ import { Controller } from "stimulus";
 
 // A constant value with represents a usual desktop viewport width
 const DESKTOP_WIDTH = 1280;
-// These values should be kept in sync with the CSS breakpoints
-const BREAKPOINTS = {
-  "mobile": 400,
-  "small-tablet": 600,
-  "tablet": 800,
-  "desktop": 1000,
-  "large-desktop": 1200,
-};
 
 export default class extends Controller {
   static targets = ["switchToDesktop", "switchToMobile"];
 
   connect() {
-    // Set initial breakpoint value
-    this._setBreakpointValue(window.innerWidth);
-    // Handle resizing events to update the value
-    window.addEventListener("resize", this._handleResize, false);
-    this.resizeTimeout = null;
     // Check if localStorage has already been set
     const showDesktop = localStorage.getItem("showDesktop");
     if (showDesktop) {
@@ -45,30 +32,6 @@ export default class extends Controller {
       // If we get here, JS is enabled, so show the "Switch To Desktop" button
       this.switchToDesktopTarget.classList.remove("hidden");
     }
-  }
-
-  _handleResize() {
-    if (!this.resizeTimeout) {
-      let resizeTimeout = this.resizeTimeout;
-      let _setBreakpointValue = this._setBreakpointValue;
-      this.resizeTimeout = setTimeout(function () {
-        resizeTimeout = null;
-        _setBreakpointValue(window.innerWidth);
-      }, 66);
-    }
-  }
-
-  _setBreakpointValue(width) {
-    let currentBreakpoint = BREAKPOINTS.mobile;
-    for (let breakpoint in BREAKPOINTS) {
-      console.log(breakpoint);
-      if (width > BREAKPOINTS[breakpoint]) {
-        currentBreakpoint = breakpoint;
-      } else {
-        break;
-      }
-    }
-    this.data.set("breakpoint", currentBreakpoint);
   }
 
   _setViewport(width) {
