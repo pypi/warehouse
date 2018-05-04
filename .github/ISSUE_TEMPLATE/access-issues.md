@@ -36,7 +36,7 @@ about: Let us know if you're having trouble reaching PyPI
     about your browser, public IP, and location.
 
     We'll remove this output from the issue before closing, but do not feel
-    comfortable making it requried for all users.
+    comfortable making it required for all users.
 
     If you have a browser that reproduces your access issue, go to
     https://fastly-debug.com, when the page has loaded copy and paste the
