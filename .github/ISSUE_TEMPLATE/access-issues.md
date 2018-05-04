@@ -1,5 +1,5 @@
 ---
-name: Access Issues
+name: Network Access Issues
 about: Let us know if you're having trouble reaching PyPI 
 
 ---
