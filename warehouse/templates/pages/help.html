@@ -209,7 +209,7 @@
 
         <h3 id="uploading">{{ uploading() }}</h3>
         <p>
-          On legacy PyPI, it used to be possible for maintainers to upload releases to PyPI using a form in the web browser. This feature was deprecated with the new version of PyPI – we instead recommend that you <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi">use twine to upload your project to PyPI</a>.
+          In a previous version of PyPI, it used to be possible for maintainers to upload releases to PyPI using a form in the web browser. This feature was deprecated with the new version of PyPI – we instead recommend that you <a href="https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi">use twine to upload your project to PyPI</a>.
         </p>
 
         <h3 id="private-indices">{{ private_indices() }}</h3>
@@ -312,7 +312,7 @@
           The <a href="https://www.pypa.io/en/latest/">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
         </p>
         <p>
-          The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html" target="_blank" rel="noopener">secured an award from Mozilla</a> whose funding enabled Warehouse maintainers to launch the new PyPI.
+          The <a href="https://wiki.python.org/psf/PackagingWG">PackagingWG</a> is a working group of the Python Software Foundation (PSF) whose goal is to raise and disburse funds to support the ongoing improvement of Python packaging. Most recently it <a href="https://pyfound.blogspot.com/2017/11/the-psf-awarded-moss-grant-pypi.html" target="_blank" rel="noopener">secured an award from Mozilla</a> whose funding enabled maintainers to improve Warehouse and launch the current version of PyPI.
         </p>
 
         <h3 id="sponsors">{{ sponsors() }}</h3>
@@ -322,7 +322,7 @@
 
         <h3 id="availability">{{ availability() }}</h3>
         <p>
-          As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the legacy site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.
+          As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.
         </p>
         <p>
           PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. Please see <a href="https://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
