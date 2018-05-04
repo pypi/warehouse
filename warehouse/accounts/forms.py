@@ -90,7 +90,7 @@ class PasswordMixin:
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
                     "There have been too many unsuccessful login attempts, "
-                    "Try again later."
+                    "try again later."
                 ) from None
 
 
@@ -150,7 +150,7 @@ class NewEmailMixin:
         domain = field.data.split('@')[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "Sorry, you cannot create an account with an email address "
+                "You cannot create an account with an email address "
                 "from this domain. Use a different email."
             )
 
