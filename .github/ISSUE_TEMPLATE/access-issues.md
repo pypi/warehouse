@@ -151,23 +151,23 @@ curl -vvv -I --ipv6 https://files.pythonhosted.org/packages/ae/e8/2340d46ecadb16
 #### IPv4
 
 ```shell
-openssl s_client -4 -connect pypi.org:443
+echo -n | openssl s_client -4 -connect pypi.org:443
 <Replace with your output>
 ```
 
 ```shell
-openssl s_client -4 -connect files.pythonhosted.org:443
+echo -n | openssl s_client -4 -connect files.pythonhosted.org:443
 <Replace with your output>
 ```
 
 #### IPv6 (If available)
 
 ```shell
-openssl s_client -6 -connect pypi.org:443
+echo -n | openssl s_client -6 -connect pypi.org:443
 <Replace with your output>
 ```
 
 ```shell
-openssl s_client -6 -connect files.pythonhosted.org:443
+echo -n | openssl s_client -6 -connect files.pythonhosted.org:443
 <Replace with your output>
 ```
