@@ -43,6 +43,9 @@ about: Let us know if you're having trouble reaching PyPI
     base64 encoded blob at the top of the page into the box below, and
     uncomment this section.
 
+    Note that you may need to disable ad-blockers and privacy protection
+    extensions in order for this page to operate, as it makes numerous calls
+    to servers on our CDN's network that look concerning to those tools.
 ```
 <Replace with your output>
 ```
