@@ -1411,7 +1411,7 @@ class TestManageProjectRoles:
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                [owner_2]
+                {owner_2}
             )
         ]
 
