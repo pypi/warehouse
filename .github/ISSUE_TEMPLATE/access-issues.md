@@ -32,7 +32,6 @@ about: Let us know if you're having trouble reaching PyPI
 
 <!--
 ### Fastly Debug
-<!--
     Note that this output is optional, as it encodes identifying information
     about your browser, public IP, and location.
 
@@ -43,14 +42,10 @@ about: Let us know if you're having trouble reaching PyPI
     https://fastly-debug.com, when the page has loaded copy and paste the
     base64 encoded blob at the top of the page into the box below, and
     uncomment this section.
--->
 
 ```
 <Replace with your output>
 ```
--->
-
-<!--
 -->
 
 ### DNS Resolution
