@@ -1,3 +1,9 @@
+---
+name: Trove Classifier Request
+about: Request a new trove classifier
+
+---
+
 Request to add a new Trove classifier.
 
 ## The name of the classifier you would like to add
