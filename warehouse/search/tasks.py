@@ -11,11 +11,15 @@
 # limitations under the License.
 
 import binascii
+import urllib
 import os
 
 from elasticsearch.helpers import parallel_bulk
+from elasticsearch_dsl import serializer
 from sqlalchemy import and_, func
 from sqlalchemy.orm import aliased
+import certifi
+import elasticsearch
 
 from warehouse.packaging.models import (
     Classifier, Project, Release, release_classifiers)
@@ -98,7 +102,15 @@ def reindex(request):
     """
     Recreate the Search Index.
     """
-    client = request.registry["elasticsearch.client"]
+    p = urllib.parse.urlparse(request.registry.settings["elasticsearch.url"])
+    client = elasticsearch.Elasticsearch(
+        [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+        verify_certs=True,
+        ca_certs=certifi.where(),
+        timeout=30,
+        retry_on_timeout=True,
+        serializer=serializer.serializer,
+    )
     number_of_replicas = request.registry.get("elasticsearch.replicas", 0)
     refresh_interval = request.registry.get("elasticsearch.interval", "1s")
 
