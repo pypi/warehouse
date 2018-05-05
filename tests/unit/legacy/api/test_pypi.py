@@ -132,6 +132,12 @@ class TestBrowse:
         with pytest.raises(HTTPNotFound):
             pypi.browse(db_request)
 
+    def test_brows_invalid_id(self, request):
+        request = pretend.stub(params={'c': '7"'})
+
+        with pytest.raises(HTTPNotFound):
+            pypi.browse(request)
+
 
 class TestFiles:
 

@@ -19,4 +19,14 @@ table {
   td {
     text-align: left; // Required for ie11 where it is centered by default
   }
+
+  th[align="right"],
+  td[align="right"] {
+    text-align: right; // Override the above when explicitly set
+  }
+
+  th[align="center"],
+  td[align="center"] {
+    text-align: center; // Override the above when explicitly set
+  }
 }

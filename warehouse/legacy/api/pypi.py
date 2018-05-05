@@ -108,6 +108,12 @@ def browse(request):
     if not classifier_id:
         raise HTTPNotFound
 
+    # Guard against the classifier_id not being a valid integer
+    try:
+        int(classifier_id)
+    except ValueError:
+        raise HTTPNotFound
+
     classifier = request.db.query(Classifier).get(classifier_id)
 
     if not classifier:
