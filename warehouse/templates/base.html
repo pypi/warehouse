@@ -125,17 +125,17 @@
       </div>
       {% endif %}
 
-      <div data-controller="statuspage" class="notification-bar notification-bar__status notification-bar--warning">
+      <div data-controller="statuspage" data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}"
+           class="notification-bar notification-bar__status notification-bar--warning">
         <div class="notification-bar__message">
-          <p>We are experiencing issues with the following services: [list of services].<br/>
-            Please refer to the <a href="https://status.python.org/">status page</a> for more information.</p>
+          <p>We are experiencing issues with the following services: <br>
+            <span class="notification-bar__status__components" data-target="statuspage.components"></span></p>
+
+          <p class="notification-bar__status__incidents__message">The following incident(s) have been reported: <br>
+            <span class="notification-bar__status__incidents" data-target="statuspage.incidents"></span></p>
+
+          <p>Please refer to the <a href="https://status.python.org/">status page</a> for more information.</p>
         </div>
-        <ul class="notification-bar__status__events" data-target="statuspage.events">
-        </ul>
-        <!--<span class="notification-bar__icon">-->
-          <!--<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>-->
-          <!--<span class="sr-only">Warning:</span>-->
-        <!--</span>-->
       </div>
     </section>
 

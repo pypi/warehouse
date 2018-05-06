@@ -122,6 +122,25 @@
   }
 
   &__status {
+    &__incidents__message {
+      display: none;
+      &--visible {
+        display: block;
+      }
+    }
+
+    &__components, &__incidents {
+      width: 20rem;
+      display: inline-block;
+      text-align: left;
+    }
+
+    &__component, &__incident {
+      &--indicator {
+        font-weight: bold;
+      }
+    }
+    
     .notification-bar__message {
       margin-bottom: 1rem;
     }

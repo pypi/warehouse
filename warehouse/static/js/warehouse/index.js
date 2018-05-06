@@ -37,7 +37,6 @@ import HTMLInclude from "warehouse/utils/html-include";
 import * as formUtils from "warehouse/utils/forms";
 import Clipboard from "clipboard";
 import PositionWarning from "warehouse/utils/position-warning";
-import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
 import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
@@ -83,8 +82,6 @@ docReady(Analytics);
 // Handle the JS based automatic form submission.
 docReady(formUtils.submitTriggers);
 docReady(formUtils.registerFormValidation);
-
-docReady(Statuspage);
 
 // Copy handler for
 //   - the pip command on package detail page

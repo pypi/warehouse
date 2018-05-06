@@ -1,92 +1,12 @@
 import { Controller } from "stimulus";
 
-const MockStatusPage = {
-  scheduled_maintenances: function (options) {
-    if (options.success) options.success();
-  },
-  incidents: function (options) {
-    if (options.success) options.success();
-  },
-};
-
-const mockIncidentResponse = {
-  "page": {
-    "id": "2p66nmmycsj3",
-    "name": "Python Infrastructure",
-    "url": "https://status.python.org",
-    "updated_at": "2018-04-27T05:29:29Z",
-  },
-  "incidents": [
-    {
-      "created_at": "2014-05-14T14:22:39.441-06:00",
-      "id": "cp306tmzcl0y",
-      "impact": "critical",
-      "incident_updates": [
-        {
-          "body": "Our master database has ham sandwiches flying out of the rack, and we're working our hardest to stop the bleeding. The whole site is down while we restore functionality, and we'll provide another update within 30 minutes.",
-          "created_at": "2014-05-14T14:22:40.301-06:00",
-          "display_at": "2014-05-14T14:22:40.301-06:00",
-          "id": "jdy3tw5mt5r5",
-          "incident_id": "cp306tmzcl0y",
-          "status": "identified",
-          "updated_at": "2014-05-14T14:22:40.301-06:00",
-        },
-      ],
-      "monitoring_at": null,
-      "name": "Unplanned Database Outage",
-      "page_id": "2p66nmmycsj3",
-      "resolved_at": null,
-      "shortlink": "http://stspg.dev:5000/Q0E",
-      "status": "identified",
-      "updated_at": "2014-05-14T14:35:21.711-06:00",
-    },
-  ],
-};
-
 export default class extends Controller {
-  static targets = ["title", "events"];
-
-  mock = true;
-
-  unhide(elementId) {
-    var x = document.getElementById(elementId);
-    if (x.style.display === "none") {
-      x.style.display = "block";
-    }
-  }
+  static targets = ["title", "components", "incidents"];
+  incidentLimit = 3;
+  statusPageDomain = null;
 
   jsUcfirst(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  _getIncidents() {
-    const _this = this;
-    this.warehouseStatus.incidents({
-      // filter: "unresolved",
-      success: function (data) {
-        if (_this.mock) {
-          let data = mockIncidentResponse;
-        }
-        for (let index in data.incidents) {
-          if (index >= 10) break;
-          _this._addIncident("active-incidents", data.incidents[index]);
-        }
-      },
-    });
-  }
-
-  _getScheduledMaintenance() {
-    this.warehouseStatus.scheduled_maintenances({
-      filter: "active",
-      success: function (data) {
-        for (incident in data.scheduled_maintenances) {
-          this.unhide("active-maintenance");
-          console.log(data);
-          this.addIncident("active-maintenance",
-            data.scheduled_maintenances[incident]);
-        }
-      },
-    });
   }
 
   _formatUtcDateTime(time) {
@@ -94,49 +14,93 @@ export default class extends Controller {
     return `${date.getUTCFullYear()}-${date.getUTCMonth()}-${date.getUTCDate()} ${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()} UTC`;
   }
 
-  _addIncident(type, incident) {
-    const li = document.createElement("li");
-    li.classList.add(`notification-bar__event`);
-
-    const indicator = document.createElement("span");
-    indicator.classList.add(`notification-bar__status--${incident.impact}`);
-    indicator.classList.add(`fa`);
-    indicator.classList.add(`fa-exclamation-circle`);
-
-    li.appendChild(indicator);
-    li.innerHTML += `[${incident.status}] - [Updated: ${this._formatUtcDateTime(incident.updated_at)}] - ${incident.name}`;
-    this.eventsTarget.appendChild(li);
-
-    // const x = document.getElementById(type);
-    // elem = document.createElement("span");
-    // link = document.createElement("a");
-    // link.innerHTML = this.jsUcfirst(incident.status) + ": " + incident.name;
-    // link.href = incident.shortlink;
-    // link.classList.add("callout-block__link");
-    // elem.appendChild(link);
-    // x.appendChild(elem);
-  }
-
-  _getStatus() {
-    this.warehouseStatus.status({
-      success(data) {
-        console.log(data);
-      },
-    });
-  }
-
   connect() {
-    if (this.mock) {
-      this.warehouseStatus = MockStatusPage;
+    if (typeof window.fetch !== "undefined") {
+      this.statusPageDomain = this.element.getAttribute("data-statuspage-domain");
+      if (this.statusPageDomain === null) {
+        return;
+      }
+
+      fetch(`${this.statusPageDomain}/api/v2/status.json`).then((response) => {
+        return response.json();
+      }).then((json) => {
+        const description = json.status.description;
+        // If we get something other than "none", this is not normal.
+        // if (json.status.indicator !== "none") {
+          return json.status.indicator;
+        // }
+      }).then((indicator) => {
+        console.log(this);
+        fetch(`${this.statusPageDomain}/api/v2/summary.json`)
+          .then((response) => {
+            return response.json();
+          })
+          .then((json) => {
+            // Iterate through components (assuming these are affected)
+            let componentElement;
+            let indicatorElement;
+            let incidentElement;
+
+            let numComponents = 0;
+            for (let index in json.components) {
+              if (numComponents >= this.incidentLimit) {
+                break;
+              }
+
+              let component = json.components[index];
+
+              indicatorElement = document.createElement("span");
+              indicatorElement.classList.add(
+                "notification-bar__status__component--indicator");
+              indicatorElement.innerHTML = `${component.status}: `;
+
+              componentElement = document.createElement("span");
+              componentElement.classList.add(
+                "notification-bar__status__component");
+              componentElement.appendChild(indicatorElement);
+              componentElement.innerHTML += `${component.name}`;
+              componentElement.appendChild(document.createElement("br"));
+
+              this.componentsTarget.appendChild(componentElement);
+
+              numComponents += 1;
+            }
+
+            // Iterate through incidents
+            let numIncidents = 0;
+            if (json.incidents.length) {
+              console.log(this.incidentsTarget.parentNode);
+              for (let index in json.incidents) {
+                if (numIncidents >= this.incidentLimit) {
+                  break;
+                }
+
+                let incident = json.incidents[index];
+
+                indicatorElement = document.createElement("span");
+                indicatorElement.classList.add(
+                  "notification-bar__status__incident--indicator");
+                indicatorElement.innerHTML = `${incident.impact}: `;
+
+                incidentElement = document.createElement("span");
+                incidentElement.classList.add(
+                  "notification-bar__status__incident");
+                incidentElement.appendChild(indicatorElement);
+                incidentElement.innerHTML += `${incident.name}`;
+                incidentElement.appendChild(document.createElement("br"));
+
+                this.incidentsTarget.appendChild(incidentElement);
+                numIncidents += 1;
+              }
+            }
+          });
+      });
     } else if (StatusPage) {
+      // StatusPage javascript fallback?
       this.warehouseStatus = new StatusPage.page({
         page: "2p66nmmycsj3",
         component: "xt7f24hjvspn",
       });
     }
-
-    this._getStatus();
-    // this._getIncidents();
-    // this._getScheduledMaintenance();
   }
 }
