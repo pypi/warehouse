@@ -41,7 +41,7 @@ export default class extends Controller {
     // Check if the target is dismissable, and if so:
     // * whether it has no notificationId (it's ephemeral)
     // * or it's not in localStorage (it hasn't been dismissed yet)
-    if (isDismissable && (!notificationId || !localStorage.getItem(notificationId))) {
+    if (!notificationId || (isDismissable && !localStorage.getItem(notificationId))) {
       this.notificationTarget.classList.add("notification-bar--visible");
     }
   }

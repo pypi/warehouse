@@ -110,7 +110,10 @@ services:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./karma.conf.js:/opt/warehouse/src/karma.conf.js:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./bin:/opt/warehouse/src/bin:z
 
   smtp:
     build:

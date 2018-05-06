@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+set -x
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+# Setup a virtual X framebuffer for Firefox to run in
+export DISPLAY=:10
+Xvfb $DISPLAY -screen 0 1024x768x16 &
+
+# Actually run the tests
+npm test

@@ -4,6 +4,11 @@
   "engines": {
     "node": "8.9.4"
   },
+  "scripts": {
+    "test": "karma start",
+    "test:watch": "karma start --auto-watch --no-single-run",
+    "test:browser": "karma start --browsers Firefox"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.1.1",
     "babel-core": "6.26.0",
@@ -46,7 +51,22 @@
   "devDependencies": {
     "babel-eslint": "8.2.2",
     "eslint": "4.12.1",
-    "sass-lint": "1.12.1"
+    "sass-lint": "1.12.1",
+    "chai": "^4.1.2",
+    "chai-dom": "^1.7.0",
+    "karma": "^2.0.0",
+    "karma-babel-preprocessor": "^7.0.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-fixture": "^0.2.6",
+    "karma-html2js-preprocessor": "^1.1.0",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.5",
+    "karma-sinon-chai": "^1.3.4",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^3.0.0",
+    "mocha": "^5.0.5",
+    "sinon": "^4.5.0",
+    "sinon-chai": "^3.0.0"
   },
   "eslintConfig": {
     "env": {
