@@ -62,15 +62,16 @@ export default class extends Controller {
 
   _hide(content) {
     content.style.display = "none";
-    let tab = this._getTabForContentId(content.getAttribute("id"));
-    if (tab) tab.classList.remove(activeClass);
+    let contentId = content.getAttribute("id");
+    this._getAllTabsForContentId(contentId)
+      .forEach(tab => tab.classList.remove(activeClass));
   }
 
   _show(content) {
     content.style.display = "block";
     let contentId = content.getAttribute("id");
-    let tab = this._getTabForContentId(contentId);
-    tab.classList.add(activeClass);
+    this._getAllTabsForContentId(contentId)
+      .forEach(tab => tab.classList.add(activeClass));
     this.data.set("content", contentId);
   }
 
@@ -79,12 +80,18 @@ export default class extends Controller {
     return tabs.find(tab => tab.getAttribute("href").substr(1) === contentId);
   }
 
+  _getAllTabsForContentId(contentId) {
+    return Array.of(...this.tabTargets, ...this.mobileTabTargets)
+      .filter(tab => tab.getAttribute("href").substr(1) === contentId);
+  }
+
   _getTabs() {
     return window.innerWidth <= BREAKPOINTS.tablet ?
       this.mobileTabTargets : this.tabTargets;
   }
 
   _handleResize() {
+    // throttle resize event to 15fps
     if (!this.resizeTimeout) {
       this.resizeTimeout = setTimeout(() => {
         this.resizeTimeout = null;
