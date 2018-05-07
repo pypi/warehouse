@@ -237,7 +237,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.email.errors.pop() ==
-            "Sorry, you can't create an account with an email address from "
+            "You cannot create an account with an email address from "
             "this domain. Use a different email."
         )
 
