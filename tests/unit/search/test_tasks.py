@@ -114,9 +114,16 @@ class TestReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
             },
+        )
+        db_request.registry.settings = {
+            "elasticsearch.url": "http://some.url",
+        }
+        monkeypatch.setattr(
+            warehouse.search.tasks.elasticsearch,
+            "Elasticsearch",
+            lambda *a, **kw: es_client
         )
 
         class TestException(Exception):
@@ -158,10 +165,17 @@ class TestReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
             }
+        )
+        db_request.registry.settings = {
+            "elasticsearch.url": "http://some.url",
+        }
+        monkeypatch.setattr(
+            warehouse.search.tasks.elasticsearch,
+            "Elasticsearch",
+            lambda *a, **kw: es_client
         )
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
@@ -224,11 +238,18 @@ class TestReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.client": es_client,
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             },
+        )
+        db_request.registry.settings = {
+            "elasticsearch.url": "http://some.url",
+        }
+        monkeypatch.setattr(
+            warehouse.search.tasks.elasticsearch,
+            "Elasticsearch",
+            lambda *a, **kw: es_client
         )
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])

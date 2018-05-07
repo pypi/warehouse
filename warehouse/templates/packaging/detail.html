@@ -89,7 +89,7 @@
       {% else %}
       <a class="status-badge status-badge--good" href="{{ request.route_path('packaging.project', name=release.project.name) }}">Latest version</a>
       {% endif %}
-      <p class="package-header__date">{{ humanize(release.created) }}</p>
+      <p class="package-header__date">Last released: {{ humanize(release.created) }}</p>
     </div>
   </div>
 </section>
@@ -261,9 +261,9 @@
         {# Tab: Project description #}
         <div id="description" class="-js-vertical-tab-content vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab">
           <h2 class="page-title">Project Description</h2>
-          {% if release.description %}
+          {% if description %}
           <div class="project-description">
-            {{ release.description|readme(description_content_type=release.description_content_type) }}
+            {{ description|camoify|safe }}
           </div>
           {% else %}
           <div class="callout-block">

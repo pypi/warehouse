@@ -40,7 +40,7 @@ def test_templates_for_empty_titles():
         "format_classifiers": "warehouse.filters:format_classifiers",
         "format_tags": "warehouse.filters:format_tags",
         "json": "warehouse.filters:tojson",
-        "readme": "warehouse.filters:readme",
+        "camoify": "warehouse.filters:camoify",
         "shorten_number": "warehouse.filters:shorten_number",
         "urlparse": "warehouse.filters:urlparse",
         "contains_valid_uris": "warehouse.filters:contains_valid_uris",

@@ -32,8 +32,9 @@ discussion of the differences between URL dispatch and traversal in Pyramid.
 Usage assumptions and concepts
 ------------------------------
 
-See `PyPI help <https://pypi.org/help/#packages>`_ to understand
-projects, releases, and packages.
+See `PyPI help <https://pypi.org/help/#packages>`_ and the glossary
+section of :doc:`ui-principles` to understand projects, releases,
+packages, maintainers, authors, and owners.
 
 Warehouse is specifically the codebase for the official Python Package
 Index, and thus focuses on architecture and features for PyPI and Test

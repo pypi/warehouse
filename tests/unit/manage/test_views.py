@@ -1342,11 +1342,19 @@ class TestManageProjectRoles:
 
     def test_post_new_role(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
-        user = UserFactory.create(username="testuser")
+        new_user = UserFactory.create(username="new_user")
+        owner_1 = UserFactory.create(username="owner_1")
+        owner_2 = UserFactory.create(username="owner_2")
+        owner_1_role = RoleFactory.create(
+            user=owner_1, project=project, role_name="Owner"
+        )
+        owner_2_role = RoleFactory.create(
+            user=owner_2, project=project, role_name="Owner"
+        )
 
         user_service = pretend.stub(
-            find_userid=lambda username: user.id,
-            get_user=lambda userid: user,
+            find_userid=lambda username: new_user.id,
+            get_user=lambda userid: new_user,
         )
         db_request.find_service = pretend.call_recorder(
             lambda iface, context: user_service
@@ -1354,10 +1362,10 @@ class TestManageProjectRoles:
         db_request.method = "POST"
         db_request.POST = pretend.stub()
         db_request.remote_addr = "10.10.10.10"
-        db_request.user = user
+        db_request.user = owner_1
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            username=pretend.stub(data=user.username),
+            username=pretend.stub(data=new_user.username),
             role_name=pretend.stub(data="Owner"),
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
@@ -1393,17 +1401,17 @@ class TestManageProjectRoles:
             pretend.call(user_service=user_service),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Added collaborator 'testuser'", queue="success"),
+            pretend.call("Added collaborator 'new_user'", queue="success"),
         ]
 
         assert send_collaborator_added_email.calls == [
             pretend.call(
                 db_request,
-                user,
+                new_user,
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                []
+                {owner_2}
             )
         ]
 
@@ -1413,23 +1421,27 @@ class TestManageProjectRoles:
                 db_request.user,
                 project.name,
                 form_obj.role_name.data,
-                user,
+                new_user,
             ),
         ]
 
         # Only one role is created
-        role = db_request.db.query(Role).one()
+        role = db_request.db.query(Role).filter(Role.user == new_user).one()
 
         assert result == {
             "project": project,
-            "roles_by_user": {user.username: [role]},
+            "roles_by_user": {
+                new_user.username: [role],
+                owner_1.username: [owner_1_role],
+                owner_2.username: [owner_2_role],
+            },
             "form": form_obj,
         }
 
         entry = db_request.db.query(JournalEntry).one()
 
         assert entry.name == project.name
-        assert entry.action == "add Owner testuser"
+        assert entry.action == "add Owner new_user"
         assert entry.submitted_by == db_request.user
         assert entry.submitted_from == db_request.remote_addr
 

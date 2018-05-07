@@ -108,6 +108,12 @@ def browse(request):
     if not classifier_id:
         raise HTTPNotFound
 
+    # Guard against the classifier_id not being a valid integer
+    try:
+        int(classifier_id)
+    except ValueError:
+        raise HTTPNotFound
+
     classifier = request.db.query(Classifier).get(classifier_id)
 
     if not classifier:
@@ -116,5 +122,41 @@ def browse(request):
     return HTTPMovedPermanently(
         request.route_path(
             'search', _query={'c': classifier.classifier}
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.files')
+def files(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if (not name) or (not version):
+        raise HTTPNotFound
+
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.release', name=name, version=version, _anchor="files"
+        )
+    )
+
+
+@view_config(route_name='legacy.api.pypi.display')
+def display(request):
+    name = request.params.get('name')
+    version = request.params.get('version')
+
+    if not name:
+        raise HTTPNotFound
+
+    if version:
+        return HTTPMovedPermanently(
+            request.route_path(
+                'packaging.release', name=name, version=version
+            )
+        )
+    return HTTPMovedPermanently(
+        request.route_path(
+            'packaging.project', name=name
         )
     )
