@@ -292,6 +292,7 @@ def test_routes(warehouse):
             "/project/{name}/{version}/",
             domain=warehouse,
         ),
+        pretend.call("/pypi/", "/", domain=warehouse),
         pretend.call(
             "/packages/{path:.*}",
             "https://files.example.com/packages/{path}",
