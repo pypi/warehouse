@@ -1,4 +1,4 @@
-A new collaborator has been added to a project you own on PyPI:
+A new collaborator has been added to a project you own:
 
   Username: {{ username }}
   Role: {{ role }}

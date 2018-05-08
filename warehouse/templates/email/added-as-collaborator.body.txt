@@ -1,4 +1,4 @@
-You have been added as a collaborator to the PyPI project {{ project }}
+You have been added as a collaborator to the project {{ project }}
 by {{ submitter }}.
 
 {% if role == 'Owner' -%}

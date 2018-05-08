@@ -22,20 +22,16 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
-<<<<<<< 40a982e23b95d76c6249d0b8beaedaf193808ae2
     send_account_deletion_email,
     send_added_as_collaborator_email,
     send_collaborator_added_email,
     send_email_verification_email,
     send_password_change_email,
     send_primary_email_change_email,
-=======
-    send_account_deletion_email, send_added_as_collaborator_email,
-    send_collaborator_added_email, send_email_verification_email,
-    send_password_change_email, send_primary_email_change_email,
-    send_removed_from_role_email, send_role_changed_for_user_email,
-    send_role_removed_from_user_email, send_user_role_changed_email,
->>>>>>> Email notification when user's role is changed/removed.
+    send_removed_from_role_email,
+    send_role_changed_for_user_email,
+    send_role_removed_from_user_email,
+    send_user_role_changed_email,
 )
 from warehouse.manage.forms import (
     AddEmailForm,
@@ -559,7 +555,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 request.user,
                 project.name,
                 form.role_name.data,
-                owner_users
+                owner_users,
             )
 
             send_added_as_collaborator_email(
@@ -658,24 +654,20 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     owners = (
                         request.db.query(Role)
                         .join(Role.user)
-                        .filter(
-                            Role.role_name == 'Owner',
-                            Role.project == role.project,
-                        )
+                        .filter(Role.role_name == "Owner", Role.project == role.project)
                     )
-                    owner_emails = [owner.user.email for owner in owners
-                                    if owner.user.email != role.user.email]
+                    owner_emails = [
+                        owner.user.email
+                        for owner in owners
+                        if owner.user.email != role.user.email
+                    ]
 
                     role.role_name = form.role_name.data
                     send_user_role_changed_email(request, role)
                     send_role_changed_for_user_email(
-                        request,
-                        role,
-                        sorted(owner_emails),
+                        request, role, sorted(owner_emails)
                     )
-                    request.session.flash(
-                        'Changed role', queue="success"
-                    )
+                    request.session.flash("Changed role", queue="success")
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
 
@@ -722,18 +714,13 @@ def delete_project_role(project, request):
             owners = (
                 request.db.query(Role)
                 .join(Role.user)
-                .filter(
-                    Role.role_name == 'Owner',
-                    Role.project == role.project,
-                )
+                .filter(Role.role_name == "Owner", Role.project == role.project)
             )
             owner_emails = [owner.user.email for owner in owners]
 
             send_removed_from_role_email(request, role)
-            send_role_removed_from_user_email(
-                request, role, sorted(owner_emails)
-            )
-        request.session.flash("Successfully removed role", queue="success")
+            send_role_removed_from_user_email(request, role, sorted(owner_emails))
+        request.session.flash("Removed role", queue="success")
 
     return HTTPSeeOther(
         request.route_path("manage.project.roles", project_name=project.name)
