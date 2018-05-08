@@ -36,6 +36,9 @@ These are small things that are not caught by the automated style checkers.
 * Does a variable need a better name?
 * Should this be a keyword argument?
 
+When using ``target="_blank_"`` for a hyperlink (usually to an external site),
+we should always set ``rel="noopener"``.
+
 Testing branches on your local machine
 --------------------------------------
 
