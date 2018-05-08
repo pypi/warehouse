@@ -57,7 +57,7 @@ def remove_project(project, request, flash=True):
     request.db.add(
         JournalEntry(
             name=project.name,
-            action="remove",
+            action="remove project",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
