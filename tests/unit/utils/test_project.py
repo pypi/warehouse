@@ -136,7 +136,7 @@ def test_remove_project(db_request, flash):
                      .filter(JournalEntry.name == "foo")
                      .one()
     )
-    assert journal_entry.action == "remove"
+    assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
     assert journal_entry.submitted_from == db_request.remote_addr
 

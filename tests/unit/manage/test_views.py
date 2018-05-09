@@ -998,7 +998,7 @@ class TestManageProjectRelease:
         assert journal_cls.calls == [
             pretend.call(
                 name=release.project.name,
-                action="remove",
+                action="remove release",
                 version=release.version,
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
