@@ -31,7 +31,7 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError(
-                "No user found with that username."
+                "No user found with that username"
             )
 
 
@@ -43,7 +43,7 @@ class NewUsernameMixin:
             wtforms.validators.Length(
                 max=50,
                 message=(
-                    "The username you have chosen is too long. Please choose "
+                    "The username you have chosen is too long. Choose "
                     "a username with under 50 characters."
                 )
             ),
@@ -56,7 +56,7 @@ class NewUsernameMixin:
                     "must be composed of letters, numbers, "
                     "dots, hyphens and underscores. And must "
                     "also start and finish with a letter or number. "
-                    "Please choose a different username."
+                    "Choose a different username."
                 )
             )
         ],
@@ -66,7 +66,7 @@ class NewUsernameMixin:
         if self.user_service.find_userid(field.data) is not None:
             raise wtforms.validators.ValidationError(
                 "This username is already being used by another "
-                "account. Please choose a different username."
+                "account. Choose a different username."
             )
 
 
@@ -84,13 +84,13 @@ class PasswordMixin:
             try:
                 if not self.user_service.check_password(userid, field.data):
                     raise wtforms.validators.ValidationError(
-                        "The password you have provided is invalid. Please "
-                        "try again."
+                        "The password you have provided is invalid. "
+                        "Try again."
                     )
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
                     "There have been too many unsuccessful login attempts, "
-                    "please try again later."
+                    "try again later."
                 ) from None
 
 
@@ -110,7 +110,7 @@ class NewPasswordMixin:
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
                 "new_password",
-                "Your passwords do not match. Please try again."
+                "Your passwords do not match. Try again."
             ),
         ],
     )
@@ -135,7 +135,7 @@ class NewEmailMixin:
             wtforms.validators.Email(
                 message=(
                     "The email address you have chosen is not a valid "
-                    "format. Please try again."
+                    "format. Try again."
                 )
             ),
         ],
@@ -145,13 +145,13 @@ class NewEmailMixin:
         if self.user_service.find_userid_by_email(field.data) is not None:
             raise wtforms.validators.ValidationError(
                 "This email address is already being used by another account. "
-                "Please use a different email."
+                "Use a different email."
             )
         domain = field.data.split('@')[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "Sorry, you cannot create an account with an email address "
-                "from this domain. Please use a different email."
+                "You cannot create an account with an email address "
+                "from this domain. Use a different email."
             )
 
 
@@ -171,7 +171,7 @@ class RegistrationForm(
             wtforms.validators.Length(
                 max=100,
                 message=(
-                    "The name you have chosen is too long. Please choose "
+                    "The name you have chosen is too long. Choose "
                     "a name with under 100 characters."
                 )
             ),
