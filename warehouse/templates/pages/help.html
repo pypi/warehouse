@@ -32,7 +32,7 @@
 {% macro login_problem() %}I forgot my PyPI password. Can you help me?{% endmacro %}
 {% macro tls_deprecation() %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <tt>pip install</tt>?{% endmacro %}
 {% macro accessibility() %}I am having trouble using the PyPI website. Can you help me?{% endmacro %}
-{% macro uploading() %}Why can't I upload files to PyPI manually?{% endmacro %}
+{% macro uploading() %}Why can't I manually upload files to PyPI, through the browser interface?{% endmacro %}
 {% macro private_indices() %}How can I publish my private packages to PyPI?{% endmacro %}
 {% macro admin_intervention() %}Why did my package or user registration get blocked?{% endmacro %}
 {% macro file_size_limit() %}How do I get a file size limit exemption or increase for my project?{% endmacro %}
@@ -238,7 +238,7 @@
           There is currently no established process for performing this administrative task that is explicit and fair for all parties. However, one is currently in development per <a href="https://www.python.org/dev/peps/pep-0541/">PEP 541</a>.
         </p>
         <p>
-          PEP 541 has been accepted, and the project is <a href="https://github.com/pypa/warehouse/issues/1506">creating a workflow</a> which will be documented here.
+          PEP 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506">creating a workflow</a> which will be documented here.
         </p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
