@@ -99,5 +99,5 @@ class FastlyCache:
 
         if resp.json().get("status") != "ok":
             raise UnsuccessfulPurge(
-                "Could not successfully purge {!r}".format(key)
+                "Could not purge {!r}".format(key)
             )

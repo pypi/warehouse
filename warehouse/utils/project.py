@@ -70,7 +70,7 @@ def remove_project(project, request, flash=True):
 
     if flash:
         request.session.flash(
-            f"Successfully deleted the project {project.name!r}",
+            f"Deleted the project {project.name!r}",
             queue="success",
         )
 
@@ -91,6 +91,6 @@ def destroy_docs(project, request, flash=True):
 
     if flash:
         request.session.flash(
-            f"Successfully deleted docs for project {project.name!r}",
+            f"Deleted docs for project {project.name!r}",
             queue="success",
         )

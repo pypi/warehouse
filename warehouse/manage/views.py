@@ -475,7 +475,7 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Successfully deleted release {self.release.version!r}",
+            f"Deleted release {self.release.version!r}",
             queue="success",
         )
 
@@ -539,7 +539,7 @@ class ManageProjectRelease:
         self.request.db.delete(release_file)
 
         self.request.session.flash(
-            f"Successfully deleted file {release_file.filename!r}",
+            f"Deleted file {release_file.filename!r}",
             queue="success",
         )
 
@@ -700,7 +700,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         ),
                     )
                 request.session.flash(
-                    'Successfully changed role', queue="success"
+                    'Changed role', queue="success"
                 )
         else:
             # This user only has one role, so get it and change the type.
@@ -732,7 +732,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     )
                     role.role_name = form.role_name.data
                     request.session.flash(
-                        'Successfully changed role', queue="success"
+                        'Changed role', queue="success"
                     )
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
@@ -781,7 +781,7 @@ def delete_project_role(project, request):
                     submitted_from=request.remote_addr,
                 ),
             )
-        request.session.flash("Successfully removed role", queue="success")
+        request.session.flash("Removed role", queue="success")
 
     return HTTPSeeOther(
         request.route_path('manage.project.roles', project_name=project.name)

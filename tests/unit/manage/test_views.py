@@ -822,7 +822,7 @@ class TestManageProjectSettings:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'",
+                "Deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -920,7 +920,7 @@ class TestManageProjectDocumentation:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted docs for project 'foo'",
+                "Deleted docs for project 'foo'",
                 queue="success"
             ),
         ]
@@ -1006,7 +1006,7 @@ class TestManageProjectRelease:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted release {release.version!r}",
+                f"Deleted release {release.version!r}",
                 queue="success",
             )
         ]
@@ -1131,7 +1131,7 @@ class TestManageProjectRelease:
 
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted file {release_file.filename!r}",
+                f"Deleted file {release_file.filename!r}",
                 queue="success",
             )
         ]
@@ -1531,7 +1531,7 @@ class TestChangeProjectRoles:
             pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully changed role", queue="success"),
+            pretend.call("Changed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -1596,7 +1596,7 @@ class TestChangeProjectRoles:
             pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully changed role", queue="success"),
+            pretend.call("Changed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -1721,7 +1721,7 @@ class TestDeleteProjectRoles:
         ]
         assert db_request.db.query(Role).all() == []
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully removed role", queue="success"),
+            pretend.call("Removed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

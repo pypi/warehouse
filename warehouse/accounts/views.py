@@ -357,7 +357,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
         # Flash a success message
         request.session.flash(
-            "You have successfully reset your password", queue="success"
+            "You have reset your password", queue="success"
         )
 
         # Perform login just after reset password and redirect to default view.
