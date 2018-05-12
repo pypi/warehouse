@@ -12,7 +12,7 @@ WORKDIR /opt/warehouse/src/
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libjpeg-dev
+        libjpeg-dev libpng-dev nasm
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
 # our package.json changes, so we'll ensure that we're copying that into our
