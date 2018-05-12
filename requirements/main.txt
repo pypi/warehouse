@@ -524,5 +524,5 @@ zope.interface==4.5.0 \
     --hash=sha256:57c38470d9f57e37afb460c399eb254e7193ac7fb8042bd09bdc001981a9c74c
 zope.sqlalchemy==1.0 \
     --hash=sha256:9316a1a8bb9e4f9f59332acf1ad2cc8b664f19a4bde5f68be7f61f3e11f80514
-zxcvbn==4.4.25 \
-    --hash=sha256:522dd6e7ac24c830f6115b82536e66a0ef6cbf046dc31693dadff503eb943a9a
+zxcvbn==4.4.26 \
+    --hash=sha256:b722650a7e331892b3d88b0f11822efcea95334391b2dcf3cd43edbcaebca9ab
