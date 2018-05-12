@@ -210,9 +210,9 @@
             <h3>About PyPI</h3>
           </li>
           {% if request.registry.settings.get("statuspage.url") %}
-          <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
+          <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">all systems operational</span></a></li>
           {% endif %}
-          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package Index Name Retention</a></li>
+          <li><a href="https://www.python.org/dev/peps/pep-0541/">Package index name retention</a></li>
           <li><a href="{{ request.route_path('sponsors') }}">Our sponsors</a></li>
         </ul>
 
