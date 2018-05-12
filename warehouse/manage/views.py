@@ -465,7 +465,7 @@ class ManageProjectRelease:
         self.request.db.add(
             JournalEntry(
                 name=self.release.project.name,
-                action="remove",
+                action="remove release",
                 version=self.release.version,
                 submitted_by=self.request.user,
                 submitted_from=self.request.remote_addr,
