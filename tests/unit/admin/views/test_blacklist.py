@@ -159,7 +159,7 @@ class TestAddBlacklist:
         result = views.add_blacklist(request)
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the blacklist request", queue="error"),
+            pretend.call("Confirm the blacklist request", queue="error"),
         ]
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"

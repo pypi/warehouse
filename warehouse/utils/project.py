@@ -33,7 +33,7 @@ def confirm_project(project, request, fail_route):
     project_name = project.normalized_name
     if not confirm:
         request.session.flash(
-            "Must confirm the request",
+            "Confirm the request",
             queue="error",
         )
         raise HTTPSeeOther(

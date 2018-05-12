@@ -78,7 +78,7 @@ def blacklist(request):
 def confirm_blacklist(request):
     project_name = request.GET.get("project")
     if project_name is None:
-        raise HTTPBadRequest("Must have a project to confirm.")
+        raise HTTPBadRequest("Have a project to confirm.")
 
     comment = request.GET.get("comment", "")
 
@@ -139,14 +139,14 @@ def confirm_blacklist(request):
 def add_blacklist(request):
     project_name = request.POST.get("project")
     if project_name is None:
-        raise HTTPBadRequest("Must have a project to confirm.")
+        raise HTTPBadRequest("Have a project to confirm.")
     comment = request.POST.get("comment", "")
 
     # Verify that the user has confirmed the request to blacklist.
     confirm = request.POST.get("confirm")
     if not confirm:
         request.session.flash(
-            "Must confirm the blacklist request",
+            "Confirm the blacklist request",
             queue="error",
         )
         return HTTPSeeOther(request.current_route_path())
@@ -196,7 +196,7 @@ def add_blacklist(request):
 def remove_blacklist(request):
     blacklist_id = request.POST.get("blacklist_id")
     if blacklist_id is None:
-        raise HTTPBadRequest("Must have a blacklist_id to remove.")
+        raise HTTPBadRequest("Have a blacklist_id to remove.")
 
     try:
         blacklist = (

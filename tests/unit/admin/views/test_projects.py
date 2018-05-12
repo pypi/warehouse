@@ -439,7 +439,7 @@ class TestDeleteProject:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error"),
         ]
 
     def test_wrong_confirm(self):

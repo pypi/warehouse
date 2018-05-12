@@ -61,7 +61,7 @@ def test_confirm_no_input():
         call('fail_route', project_name='foobar')
     ]
     assert request.session.flash.calls == [
-        call('Must confirm the request', queue='error')
+        call('Confirm the request', queue='error')
     ]
 
 

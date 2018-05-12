@@ -484,7 +484,7 @@ class TestFileValidation:
         f = str(tmpdir.join(filename))
 
         with open(f, "wb") as fp:
-            fp.write(b"this is not a valid zip file")
+            fp.write(b"this isn't a valid zip file")
 
         assert not legacy._is_valid_dist_file(f, filetype)
 
@@ -508,7 +508,7 @@ class TestFileValidation:
         f = str(tmpdir.join("test.msi"))
 
         with open(f, "wb") as fp:
-            fp.write(b"this is not the correct header for an msi")
+            fp.write(b"this isn't the correct header for an msi")
 
         assert not legacy._is_valid_dist_file(f, "bdist_msi")
 
@@ -783,14 +783,14 @@ class TestFileUpload:
                 {},
                 "None is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
-                "see "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {"metadata_version": "-1"},
                 "'-1' is an invalid value for Metadata-Version. "
-                "Error: Unknown Metadata Version "
-                "see "
+                "Error: Use known metadata version. "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
 
@@ -799,15 +799,15 @@ class TestFileUpload:
                 {"metadata_version": "1.2"},
                 "'' is an invalid value for Name. "
                 "Error: This field is required. "
-                "see "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
                 "'foo-' is an invalid value for Name. "
-                "Error: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'. "
-                "see "
+                "Error: Start and end with a letter or numeral containing "
+                "only ASCII numeric and '.', '_' and '-'. "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
 
@@ -816,7 +816,7 @@ class TestFileUpload:
                 {"metadata_version": "1.2", "name": "example"},
                 "'' is an invalid value for Version. "
                 "Error: This field is required. "
-                "see "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
             (
@@ -826,9 +826,9 @@ class TestFileUpload:
                     "version": "dog",
                 },
                 "'dog' is an invalid value for Version. "
-                "Error: Must start and end with a letter or numeral and "
-                "contain only ascii numeric and '.', '_' and '-'. "
-                "see "
+                "Error: Start and end with a letter or numeral "
+                "containing only ASCII numeric and '.', '_' and '-'. "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
 
@@ -861,7 +861,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: Unknown type of file.",
+                "Invalid value for filetype. Error: Use known file type.",
             ),
             (
                 {
@@ -871,8 +871,7 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Error: The only valid Python version for a sdist is "
-                "'source'."
+                "Error: Use 'source' as Python version for an sdist."
             ),
 
             # digest errors.
@@ -883,7 +882,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "filetype": "sdist",
                 },
-                "Error: Must include at least one message digest."
+                "Error: Include at least one message digest."
             ),
             (
                 {
@@ -894,7 +893,7 @@ class TestFileUpload:
                     "sha256_digest": "an invalid sha256 digest",
                 },
                 "Invalid value for sha256_digest. "
-                "Error: Must be a valid, hex encoded, SHA256 message digest."
+                "Error: Use a valid, hex-encoded, SHA256 message digest."
             ),
 
             # summary errors
@@ -909,7 +908,7 @@ class TestFileUpload:
                 },
                 "'" + "A" * 513 + "' is an invalid value for Summary. "
                 "Error: Field cannot be longer than 512 characters. "
-                "see "
+                "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
             (
@@ -922,8 +921,8 @@ class TestFileUpload:
                     "summary": "A\nB",
                 },
                 ("{!r} is an invalid value for Summary. ".format('A\nB') +
-                 "Error: Multiple lines are not allowed. "
-                 "see "
+                 "Error: Use single line only. "
+                 "See "
                  "https://packaging.python.org/specifications/core-metadata"),
             ),
 
@@ -999,7 +998,7 @@ class TestFileUpload:
         ]
 
         assert resp.status_code == 400
-        assert resp.status == ("400 The name {!r} is not allowed. "
+        assert resp.status == ("400 The name {!r} isn't allowed. "
                                "See /the/help/url/ "
                                "for more information.").format(name)
 
@@ -1045,7 +1044,7 @@ class TestFileUpload:
         ]
 
         assert resp.status_code == 400
-        assert resp.status == (("400 The name {!r} is not allowed (conflict "
+        assert resp.status == (("400 The name {!r} isn't allowed (conflict "
                                 "with Python Standard Library module name). "
                                 "See /the/help/url/ "
                                 "for more information.")).format(name)
@@ -1081,8 +1080,8 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 403
-        assert resp.status == ("403 New Project Registration Temporarily "
-                               "Disabled See "
+        assert resp.status == ("403 New project registration temporarily "
+                               "disabled. See "
                                "/the/help/url/ for "
                                "details")
 
@@ -1429,8 +1428,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension. PEP 527 requires one of: .egg, "
-            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+            "400 Invalid file extension. Use .egg, .tar.gz, .whl or .zip "
+            "extension (PEP 527 https://www.python.org/dev/peps/pep-0527)."
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -1506,7 +1505,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == "400 PGP signature is not ASCII armored."
+        assert resp.status == "400 PGP signature isn't ASCII armored."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config,
                                                   db_request):
@@ -1655,7 +1654,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The digest supplied does not match a digest calculated "
+            "400 The digest doesn't match a digest calculated "
             "from the uploaded file."
         )
 
@@ -1699,7 +1698,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name='foobar',
-            upload_limit=(60 * 1024 * 1024),  # 60MB
+            upload_limit=(60 * 1024 * 1024),  # 60 MB
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1732,7 +1731,7 @@ class TestFileUpload:
         ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 60MB. "
+            "400 File too large. Limit for project 'foobar' is 60 MB. "
             "See /the/help/url/"
         )
 
@@ -1814,7 +1813,7 @@ class TestFileUpload:
         ]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 This filename has previously been used, you should use a "
+            "400 This filename has already been used, use a "
             "different version. "
             "See /the/help/url/"
         )
@@ -2019,7 +2018,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The filename for {!r} must start with {!r}.".format(
+            "400 Start filename for {!r} with {!r}.".format(
                 project.name,
                 pkg_resources.safe_name(project.name).lower(),
             )
@@ -2057,8 +2056,8 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension. PEP 527 requires one of: .egg, "
-            ".tar.gz, .whl, .zip (https://www.python.org/dev/peps/pep-0527/)."
+            "400 Invalid file extension. Use .egg, .tar.gz, .whl or .zip "
+            "extension (PEP 527 https://www.python.org/dev/peps/pep-0527)."
         )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
@@ -2140,7 +2139,7 @@ class TestFileUpload:
         ]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{0}' is not allowed to upload to project '{1}'. "
+            "403 The user '{0}' isn't allowed to upload to project '{1}'. "
             "See /the/help/url/ for more information.").format(
             user2.username,
             project.name)
@@ -2892,7 +2891,7 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            '403 Read Only Mode: Uploads are temporarily disabled'
+            '403 Read-only mode: uploads are temporarily disabled'
         )
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
@@ -3084,8 +3083,8 @@ def test_submit(pyramid_request):
 
     assert resp.status_code == 410
     assert resp.status == \
-        ("410 Project pre-registration is no longer required or supported, so "
-         "continue directly to uploading files.")
+        ("410 Project pre-registration is no longer required or supported, "
+         "please upload your files.")
 
 
 def test_doc_upload(pyramid_request):

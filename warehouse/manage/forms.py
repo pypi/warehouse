@@ -27,7 +27,7 @@ class RoleNameMixin:
             ('Owner', 'Owner'),
         ],
         validators=[
-            wtforms.validators.DataRequired(message="Must select a role"),
+            wtforms.validators.DataRequired(message="Select a role"),
         ]
     )
 
@@ -36,7 +36,7 @@ class UsernameMixin:
 
     username = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Must specify a username"),
+            wtforms.validators.DataRequired(message="Specify a username"),
         ]
     )
 

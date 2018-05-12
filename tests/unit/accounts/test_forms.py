@@ -160,7 +160,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.password_confirm.errors.pop() ==
-            "Your passwords do not match. Try again."
+            "Your passwords don't match. Try again."
         )
 
     def test_passwords_match_success(self):
@@ -205,8 +205,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.email.errors.pop() ==
-            "The email address you have chosen is not a valid format. "
-            "Try again."
+            "The email address isn't valid. Try again."
         )
 
     def test_email_exists_error(self):
@@ -237,7 +236,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.email.errors.pop() ==
-            "You cannot create an account with an email address from "
+            "You can't create an account with an email address from "
             "this domain. Use a different email."
         )
 
@@ -297,8 +296,7 @@ class TestRegistrationForm:
         assert not form.validate()
         assert (
             form.full_name.errors.pop() ==
-            "The name you have chosen is too long. Choose "
-            "a name with under 100 characters."
+            "The name is too long. Choose a name with 100 characters or less."
         )
 
 
@@ -370,7 +368,7 @@ class TestResetPasswordForm:
         assert not form.validate()
         assert (
             form.password_confirm.errors.pop() ==
-            "Your passwords do not match. Try again."
+            "Your passwords don't match. Try again."
         )
 
     @pytest.mark.parametrize(("password", "expected"), [

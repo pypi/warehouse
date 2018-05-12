@@ -51,7 +51,7 @@ class TestCreateRoleForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     @pytest.mark.parametrize(("value", "expected"), [
-        ("", "Must select a role"),
+        ("", "Select a role"),
         ("invalid", "Not a valid choice"),
         (None, "Not a valid choice"),
     ])

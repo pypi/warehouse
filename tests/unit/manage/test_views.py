@@ -661,7 +661,7 @@ class TestManageAccount:
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Must confirm the request', queue='error')
+            pretend.call('Confirm the request', queue='error')
         ]
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
@@ -780,7 +780,7 @@ class TestManageProjectSettings:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error"),
         ]
 
     def test_delete_project_wrong_confirm(self):
@@ -861,7 +861,7 @@ class TestManageProjectDocumentation:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error"),
         ]
 
     def test_destroy_project_docs_wrong_confirm(self):
@@ -1041,7 +1041,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [
@@ -1178,7 +1178,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [

@@ -29,7 +29,7 @@ def upgrade():
         INSERT INTO warehouse_admin_flag(id, description, enabled, notify)
         VALUES (
             'read-only',
-            'Read Only Mode: Any write operations will have no effect',
+            'Read-only mode: Any write operations will have no effect',
             FALSE,
             TRUE
         )
