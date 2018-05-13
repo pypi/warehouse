@@ -734,7 +734,7 @@ def file_upload(request):
     if request.flags.enabled('read-only'):
         raise _exc_with_message(
             HTTPForbidden,
-            'Read-only mode: uploads are temporarily disabled',
+            'Read-only mode: Uploads are temporarily disabled',
         )
 
     # Before we do anything, if there isn't an authenticated user with this
