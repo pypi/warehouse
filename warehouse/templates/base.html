@@ -198,7 +198,7 @@
       <div class="footer__menus">
         <ul class="footer__menu">
           <li>
-            <h3>Get help</h3>
+            <h2>Get help</h2>
           </li>
           <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
           <li><a href="https://packaging.python.org/distributing/">Uploading packages</a></li>
@@ -207,7 +207,7 @@
         </ul>
         <ul class="footer__menu">
           <li>
-            <h3>About PyPI</h3>
+            <h2>About PyPI</h2>
           </li>
           {% if request.registry.settings.get("statuspage.url") %}
           <li><a href="https://status.python.org/">Status: <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">All Systems Operational</span></a></li>
@@ -219,7 +219,7 @@
 
         <ul class="footer__menu">
           <li>
-            <h3>Contributing to PyPI</h3>
+            <h2>Contributing to PyPI</h2>
           </li>
           <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; feedback</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
@@ -227,7 +227,7 @@
         </ul>
         <ul class="footer__menu">
           <li>
-            <h3>Using PyPI</h3>
+            <h2>Using PyPI</h2>
           </li>
           <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of conduct</a></li>
           <li><a href="{{ request.route_path('security') }}">Security policy</a></li>
