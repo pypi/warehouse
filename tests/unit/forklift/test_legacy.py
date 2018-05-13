@@ -861,7 +861,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: Use known file type.",
+                "Invalid value for filetype. Error: Use a known file type.",
             ),
             (
                 {

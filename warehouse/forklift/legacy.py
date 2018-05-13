@@ -466,7 +466,7 @@ class MetadataForm(forms.Form):
                     "bdist_dmg", "bdist_dumb", "bdist_egg", "bdist_msi",
                     "bdist_rpm", "bdist_wheel", "bdist_wininst", "sdist",
                 ],
-                message="Use known file type.",
+                message="Use a known file type.",
             ),
         ]
     )
