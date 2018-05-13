@@ -299,6 +299,17 @@ This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container and run ``make initdb`` again.
 
+
+``make initdb`` complains about PostgreSQL Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You built a Warehouse install some time ago and PostgreSQL has been updated.
+If you do not need the data in your databases, it might be best to just blow
+away your builds + ``docker`` containers and start again:
+``make purge``
+``docker volume rm $(docker volume ls -q --filter dangling=true)``
+
+
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
 
