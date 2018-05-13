@@ -1080,7 +1080,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 403
-        assert resp.status == ("403 New project registration temporarily "
+        assert resp.status == ("403 New Project Registration temporarily "
                                "disabled. See "
                                "/the/help/url/ for "
                                "details")
