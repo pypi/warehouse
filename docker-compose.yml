@@ -44,6 +44,7 @@ services:
       # or any file not in these directories will require a rebuild.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
+      - ./bin:/opt/warehouse/src/bin:z
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
       - ./warehouse:/opt/warehouse/src/warehouse:z

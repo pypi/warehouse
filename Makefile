@@ -90,8 +90,6 @@ debug: .state/docker-build
 	docker-compose run --rm --service-ports web
 
 tests:
-	ls -l ./warehouse/static/dist/manifest.json || (mkdir -p ./warehouse/static/dist/ && echo "{}" >> ./warehouse/static/dist/manifest.json)
-	ls -l ./warehouse/static/dist/manifest.json.gz || gzip < ./warehouse/static/dist/manifest.json > ./warehouse/static/dist/manifest.json.gz
 	docker-compose run --rm web env -i ENCODING="C.UTF-8" \
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)

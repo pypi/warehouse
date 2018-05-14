@@ -8,6 +8,13 @@ set -x
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
+# Assert manifest.json exists, and if not, create one with empty json structure
+# (needed my many tests)
+ls -l ./warehouse/static/dist/manifest.json > /dev/null 2>&1 || (mkdir -p ./warehouse/static/dist/ && echo "{}" >> ./warehouse/static/dist/manifest.json)
+# Assert manifest.json.gz exists,  and if not, create one from the manifest.json
+# (needed by test_static:whitenoise)
+ls -l ./warehouse/static/dist/manifest.json.gz > /dev/null 2>&1 || gzip < ./warehouse/static/dist/manifest.json > ./warehouse/static/dist/manifest.json.gz
+
 # Actually run our tests.
 python -m coverage run -m pytest --strict $@
 python -m coverage report -m
