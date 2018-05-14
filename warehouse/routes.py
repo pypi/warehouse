@@ -326,6 +326,17 @@ def includeme(config):
     # Legacy Redirects
     config.add_redirect("/pypi/{name}/", "/project/{name}/", domain=warehouse)
     config.add_redirect(
+        "/pypi/{name}/{version}/json/",
+        "/pypi/{name}/{version}/json",
+        domain=warehouse,
+    )
+    config.add_redirect(
+        "/pypi/{name}/json/",
+        "/pypi/{name}/json",
+        domain=warehouse,
+    )
+
+    config.add_redirect(
         "/pypi/{name}/{version}/",
         "/project/{name}/{version}/",
         domain=warehouse,
