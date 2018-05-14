@@ -33,6 +33,10 @@ def content_security_policy_tween_factory(handler, registry):
             policy = request.find_service(name="csp")
         except ValueError:
             policy = collections.defaultdict(list)
+        
+        # Add sandbox to CSP headers on /simple/ pages.
+        if request.path.startswith("/simple/"):
+            policy["sandbox"] = []
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
@@ -88,7 +92,6 @@ def includeme(config):
                 config.registry.settings["camo.url"],
                 "www.google-analytics.com",
             ],
-            "sandbox": [],
             "script-src": [
                 SELF,
                 "www.googletagmanager.com",
@@ -96,5 +99,6 @@ def includeme(config):
             ],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
+            
     })
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")
