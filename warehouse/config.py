@@ -193,6 +193,7 @@ def configure(settings=None):
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
+    # maybe_set(settings, "warehouse.github_access_token", "WAREHOUSE_GITHUB_ACCESS_TOKEN")
     maybe_set(settings, "celery.broker_url", "AMQP_URL")
     maybe_set(settings, "celery.result_url", "REDIS_URL")
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
@@ -446,6 +447,9 @@ def configure(settings=None):
 
     # Register forklift, at least until we split it out into it's own project.
     config.include(".forklift")
+
+    # Include the contributor credits tasks
+    config.include(".credits")
 
     # Block non HTTPS requests for the legacy ?:action= routes when they are
     # sent via POST.
