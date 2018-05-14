@@ -67,7 +67,7 @@ def includeme(config):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
-            "allow-top-navigation": [NONE],
+            "allow-top-navigation": [],
             "base-uri": [SELF],
             "block-all-mixed-content": [],
             "connect-src": [
@@ -88,7 +88,7 @@ def includeme(config):
                 config.registry.settings["camo.url"],
                 "www.google-analytics.com",
             ],
-            "sandbox": [NONE],
+            "sandbox": [],
             "script-src": [
                 SELF,
                 "www.googletagmanager.com",
