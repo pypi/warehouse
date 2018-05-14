@@ -45,7 +45,7 @@ from warehouse.packaging.models import (
     Project, Release, Dependency, DependencyKind, Role, File, Filename,
     JournalEntry, BlacklistedProject,
 )
-from warehouse.utils import http
+from warehouse.utils import http, readme
 
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
@@ -939,6 +939,26 @@ def file_upload(request):
                 request.help_url(_anchor='project-name')
             )
         )
+
+    # Uploading should prevent broken rendered descriptions.
+    if form.description.data:
+        description_content_type = form.description_content_type.data
+        if not description_content_type:
+            description_content_type = 'text/x-rst'
+        rendered = readme.render(
+            form.description.data, description_content_type,
+            use_fallback=False)
+        if rendered is None:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                ("The description failed to render "
+                 "for '{description_content_type}'. "
+                 "See {projecthelp} "
+                 "for more information.").format(
+                    description_content_type=description_content_type,
+                    projecthelp=request.help_url(_anchor='project-name'),
+                ),
+            ) from None
 
     try:
         canonical_version = packaging.utils.canonicalize_version(

@@ -1003,6 +1003,62 @@ class TestFileUpload:
                                "See /the/help/url/ "
                                "for more information.").format(name)
 
+    @pytest.mark.parametrize(
+        ("description_content_type", "description", "message"), [
+            (
+                "text/x-rst",
+                ".. invalid-directive::",
+                "400 The description failed to render for 'text/x-rst'. "
+                "See /the/help/url/ for more information."
+            ),
+            (
+                "",
+                ".. invalid-directive::",
+                "400 The description failed to render for 'text/x-rst'. "
+                "See /the/help/url/ for more information."
+            ),
+        ],
+    )
+    def test_fails_invalid_render(self, pyramid_config, db_request,
+                                  description_content_type, description,
+                                  message):
+        pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
+        db_request.remote_addr = "10.10.10.30"
+
+        db_request.POST = MultiDict({
+            "metadata_version": "1.2",
+            "name": "example",
+            "version": "1.0",
+            "filetype": "sdist",
+            "md5_digest": "a fake md5 digest",
+            "content": pretend.stub(
+                filename="example-1.0.tar.gz",
+                file=io.BytesIO(b"A fake file."),
+                type="application/tar",
+            ),
+            "description_content_type": description_content_type,
+            "description": description,
+        })
+
+        db_request.help_url = pretend.call_recorder(
+            lambda **kw: "/the/help/url/"
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert db_request.help_url.calls == [
+            pretend.call(_anchor='project-name')
+        ]
+
+        assert resp.status_code == 400
+        assert resp.status == message
+
     @pytest.mark.parametrize("name", ["xml", "XML", "pickle", "PiCKle",
                                       "main", "future", "al", "uU", "test",
                                       "encodings.utf_8_sig",
@@ -1215,6 +1271,7 @@ class TestFileUpload:
             "filetype": "sdist",
             "pyversion": "source",
             "content": content,
+            "description": "an example description",
         })
         db_request.POST.extend([
             ("classifiers", "Environment :: Other Environment"),
