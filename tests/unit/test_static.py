@@ -185,7 +185,9 @@ class TestWhitenoiseTween:
             set(i.strip() for i in resp.headers["Cache-Control"].split(",")) ==
             {"public", "max-age=60"}
         )
-        assert resp.headers["Vary"] == "Accept-Encoding"
+        # This header may exist. if it does, it should be as such
+        if resp.headers.get("Vary"):
+            assert resp.headers["Vary"] == "Accept-Encoding"
 
         with open(path, "rb") as fp:
             assert resp.body == fp.read()
