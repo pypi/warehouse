@@ -406,7 +406,7 @@ class TestSearch:
 
         es_query = pretend.stub(
             suggest=pretend.call_recorder(lambda *a, **kw: es_query),
-            filter=pretend.call_recorder(lambda *a, **kw: es_query),
+            query=pretend.call_recorder(lambda *a, **kw: es_query),
             sort=pretend.call_recorder(lambda *a, **kw: es_query),
         )
         db_request.es = pretend.stub(
@@ -466,9 +466,9 @@ class TestSearch:
                 term={"field": "name"},
             ),
         ]
-        assert es_query.filter.calls == [
-            pretend.call('terms', classifiers=['foo :: bar']),
-            pretend.call('terms', classifiers=['fiz :: buz'])
+        assert es_query.query.calls == [
+            pretend.call('prefix', classifiers='foo :: bar'),
+            pretend.call('prefix', classifiers='fiz :: buz')
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
