@@ -146,32 +146,30 @@
         </div>
         {% endif %}
 
-        {% if release.github_repo_info_url %}
-        <div class="sidebar-section github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
-          <h3 class="sidebar-section__title">GitHub statistics</h3>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener" target="_blank">
-            <i class="fa fa-star" aria-hidden="true"></i>
-            <strong>Stars: </strong>
-            <span class="github-repo-info__item" data-key="stargazers_count"></span>
-          </a>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener" target="_blank">
-            <i class="fa fa-code-fork" aria-hidden="true"></i>
-            <strong>Forks: </strong>
-            <span class="github-repo-info__item" data-key="forks"></span>
-          </a>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
-            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <strong>Open issues/PRs: </strong>
-            <span class="github-repo-info__item" data-key="open_issues_count"></span>
-          </a>
-          <p>View additional statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
-        </div>
-        {% else %}
-         <div class="sidebar-section">
+        <div class="sidebar-section">
           <h3 class="sidebar-section__title">Statistics</h3>
+          {% if release.github_repo_info_url %}
+          <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
+            <em>GitHub statistics:</em>
+            <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener" target="_blank">
+              <i class="fa fa-star" aria-hidden="true"></i>
+              <strong>Stars: </strong>
+              <span class="github-repo-info__item" data-key="stargazers_count"></span>
+            </a>
+            <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener" target="_blank">
+              <i class="fa fa-code-fork" aria-hidden="true"></i>
+              <strong>Forks: </strong>
+              <span class="github-repo-info__item" data-key="forks"></span>
+            </a>
+            <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item" data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener" target="_blank">
+              <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              <strong>Open issues/PRs: </strong>
+              <span class="github-repo-info__item" data-key="open_issues_count"></span>
+            </a>
+          </div>
+          {% endif %}
           <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
         </div>
-        {% endif %}
 
         {% if release.has_meta %}
         <div class="sidebar-section">
