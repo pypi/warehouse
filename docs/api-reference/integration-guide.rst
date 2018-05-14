@@ -83,7 +83,7 @@ migrating to PyPI
 
 
 Querying PyPI for Package URLS
--------------------------
+------------------------------
 When copying a download link from https://pypi.org, you might get a URL with a random hash value in it.
 
 This hash value is calculated from the checksum of the file. The URLs on PyPI are static and do not change.
