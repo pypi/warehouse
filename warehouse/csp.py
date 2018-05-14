@@ -34,9 +34,10 @@ def content_security_policy_tween_factory(handler, registry):
         except ValueError:
             policy = collections.defaultdict(list)
         
-        # Add sandbox to CSP headers on /simple/ pages.
+        # Add sandbox and top navigation to CSP headers on /simple/ pages.
         if request.path.startswith("/simple/"):
             policy["sandbox"] = []
+            policy["allow-top-navigation"] = []
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
@@ -71,7 +72,6 @@ def includeme(config):
     # Enable a Content Security Policy
     config.add_settings({
         "csp": {
-            "allow-top-navigation": [],
             "base-uri": [SELF],
             "block-all-mixed-content": [],
             "connect-src": [
