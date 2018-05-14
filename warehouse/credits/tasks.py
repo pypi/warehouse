@@ -61,6 +61,10 @@ def get_contributors(request):
     except requests.exceptions.RequestException as e:
         print(e)
 
+    # print("contributors dict:")
+    # for key, val in contributors.items():
+    #     print("{}: {} {}".format(key, val["name"], val["html_url"]))
+
     query = request.db.query(Contributor.id, Contributor.contributor_login, Contributor.contributor_name, Contributor.contributor_url).all()
     # for id1, login, name, url in query:
     #     print("query return: {}:{}:{}:{}".format(id1, login, name, url))
@@ -68,13 +72,25 @@ def get_contributors(request):
     clist = []
     print("query field 1:")
     print("length: {}".format(len(query)))
-    for i in range(len(query)):
-        print("{}".format(query[i][1]))
-        new_users = list(set(contributors.keys()).difference(query[i][1]))
+    # for i in range(len(query)):
+    #     print("{}".format(query[i][1]))
+    new_users = list(set(contributors.keys()).difference([q[1] for q in query]))
 
     print("New users length: {}".format(len(new_users)))
     for item in new_users:
         print("{}".format(item))
+
+    for username in new_users:
+        # print('Creating Contributor object for username: {}'.format(username))
+
+        print("Adding items from contributors.items() using request.db.add")
+        request.db.add(
+            Contributor(contributor_login=username,
+                        contributor_name=contributors[username]["name"],
+                        contributor_url=contributors[username]["html_url"])
+        )
+        # request.db.commit()
+
     # for key, val in contributors.items():
     #     if key not in query
         #### NEW IDEA FROM DAVE/ADAM
