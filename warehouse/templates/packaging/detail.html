@@ -164,6 +164,7 @@
             <strong>Open issues/PRs: </strong>
             <span class="github-repo-info__item" data-key="open_issues_count"></span>
           </a>
+          <p>View additional statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
         </div>
         {% endif %}
 
@@ -215,11 +216,6 @@
               </a>
             </span>
           {% endfor %}
-        </div>
-
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Statistics</h3>
-          <p>View statistics for this project via <a href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google BigQuery</a></p>
         </div>
 
         {% if release.classifiers %}
