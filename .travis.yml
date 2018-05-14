@@ -37,7 +37,7 @@ install:
 script:
   - node -v
   - npm -v
-  - ./node_modules/.bin/gulp dist
+  #- ./node_modules/.bin/gulp dist
   - bin/tests --postgresql-host 127.0.0.1
 
 matrix:
