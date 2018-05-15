@@ -113,7 +113,7 @@ def test_remove_project(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted the project 'foo'",
+                "Deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -182,7 +182,7 @@ def test_destroy_docs(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted docs for project 'foo'",
+                "Deleted docs for project 'foo'",
                 queue="success"
             ),
         ]
