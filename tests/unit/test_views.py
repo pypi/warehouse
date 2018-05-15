@@ -14,7 +14,6 @@ import datetime
 
 import pretend
 import pytest
-from elasticsearch_dsl import Q
 from webob.multidict import MultiDict
 
 from pyramid.httpexceptions import (
@@ -207,20 +206,6 @@ def test_esi_flash_messages():
 
 class TestSearch:
 
-    def _gather_es_queries(self, q):
-        quoted_strings, unquoted_strings = views.filter_query(q)
-        queries = [
-            views.form_query("phrase", i) for i in quoted_strings
-        ] + [
-            views.form_query("best_fields", i) for i in unquoted_strings
-        ]
-
-        query = Q('bool', must=queries)
-
-        if len(q) > 1:
-            query = query | Q("prefix", normalized_name=q)
-        return query
-
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(self, monkeypatch, db_request, page):
         params = MultiDict({"q": "foo bar"})
@@ -260,7 +245,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                self._gather_es_queries(params["q"])
+                views.gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -289,7 +274,9 @@ class TestSearch:
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
 
-        page_obj = pretend.stub(page_count=(page or 1) + 10)
+        page_obj = pretend.stub(page_count=(page or 1) + 10,
+                                item_count=(page or 1) + 10
+                                )
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
 
@@ -310,7 +297,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                self._gather_es_queries(params["q"])
+                views.gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -360,7 +347,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                self._gather_es_queries(params["q"])
+                views.gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -431,7 +418,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                self._gather_es_queries(params["q"])
+                views.gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [
@@ -505,7 +492,7 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert db_request.es.query.calls == [
             pretend.call(
-                self._gather_es_queries(params["q"])
+                views.gather_es_queries(params["q"])
             )
         ]
         assert es_query.suggest.calls == [

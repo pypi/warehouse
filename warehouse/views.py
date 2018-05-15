@@ -252,19 +252,7 @@ def search(request):
     q = q.replace("'", '"')
 
     if q:
-        quoted_string, unquoted_string = filter_query(q)
-        must = [
-            form_query("phrase", i) for i in quoted_string
-        ] + [
-            form_query("best_fields", i) for i in unquoted_string
-        ]
-
-        bool_query = Q('bool', must=must)
-
-        # Allow to optionally match on prefix
-        # if ``q`` is longer than one character.
-        if len(q) > 1:
-            bool_query = bool_query | Q('prefix', normalized_name=q)
+        bool_query = gather_es_queries(q)
 
         query = request.es.query(bool_query)
 
@@ -403,3 +391,20 @@ def form_query(query_type, query):
     return Q('multi_match', fields=fields,
              query=query, type=query_type
              )
+
+
+def gather_es_queries(q):
+    quoted_string, unquoted_string = filter_query(q)
+    must = [
+        form_query("phrase", i) for i in quoted_string
+    ] + [
+        form_query("best_fields", i) for i in unquoted_string
+    ]
+
+    bool_query = Q('bool', must=must)
+
+    # Allow to optionally match on prefix
+    # if ``q`` is longer than one character.
+    if len(q) > 1:
+        bool_query = bool_query | Q("prefix", normalized_name=q)
+    return bool_query
