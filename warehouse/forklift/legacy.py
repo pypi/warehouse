@@ -847,7 +847,7 @@ def file_upload(request):
         if request.flags.enabled('disallow-new-project-registration'):
             raise _exc_with_message(
                 HTTPForbidden,
-                ("New Project Registration temporarily disabled. "
+                ("New project registration temporarily disabled. "
                  "See {projecthelp} for details")
                 .format(
                     projecthelp=request.help_url(_anchor='admin-intervention'),
