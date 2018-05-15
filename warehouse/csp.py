@@ -33,10 +33,12 @@ def content_security_policy_tween_factory(handler, registry):
             policy = request.find_service(name="csp")
         except ValueError:
             policy = collections.defaultdict(list)
-        
-        # Add sandbox and top navigation to CSP headers on /simple/ pages.
+
+        # Replace CSP headers on /simple/ pages.
         if request.path.startswith("/simple/"):
+            policy = collections.defaultdict(list)
             policy["sandbox"] = []
+            policy["default-src"] = []
             policy["allow-top-navigation"] = []
 
         # We don't want to apply our Content Security Policy to the debug
@@ -99,6 +101,6 @@ def includeme(config):
             ],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
-            
+
     })
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")
