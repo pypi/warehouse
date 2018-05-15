@@ -101,6 +101,5 @@ def includeme(config):
             ],
             "style-src": [SELF, "fonts.googleapis.com"],
         },
-
     })
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")
