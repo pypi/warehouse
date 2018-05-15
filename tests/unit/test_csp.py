@@ -188,7 +188,7 @@ class TestCSPTween:
         assert tween(request) is response
         assert response.headers == {
             "Content-Security-Policy":
-                 "default-src 'none'; sandbox allow-top-navigation",
+                "default-src 'none'; sandbox allow-top-navigation",
         }
 
 
