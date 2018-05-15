@@ -164,7 +164,7 @@ This command will:
 .. note::
 
     If you get an error about xz, you may need to install the ``xz`` utility.
-    This is highly likely on Mac OS X and Windows.
+    This is highly likely on macOS and Windows.
 
 Once the ``make initdb`` command has finished, you are ready to continue.
 
@@ -198,7 +198,7 @@ This means that all the services are up, and web container is listening on port
 
 .. note::
 
-    If you are using ``docker-machine`` on an older version of Mac OS or
+    If you are using ``docker-machine`` on an older version of macOS or
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
