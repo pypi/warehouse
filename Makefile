@@ -151,6 +151,7 @@ shell:
 clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
+	rm -rf dev/*.sql
 
 purge: stop clean
 	rm -rf .state
