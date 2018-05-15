@@ -143,7 +143,7 @@
           </a>
           <a id="mobile-data-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#data">
             <i class="fa fa-info-circle" aria-hidden="true"></i>
-            Project data
+            Project details
           </a>
           <a id="mobile-history-tab" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" href="#history">
             <i class="fa fa-history" aria-hidden="true"></i>
@@ -171,9 +171,9 @@
           {% endif %}
         </div>
 
-        {# Tab: project data #}
+        {# Tab: project details #}
         <div id="data" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab">
-          <h2 class="page-title">Project data</h2>
+          <h2 class="page-title">Project details</h2>
           {% include "warehouse:templates/includes/packaging/project-data.html" %}
           <br>
         </div>
