@@ -111,8 +111,7 @@ class TestCSPTween:
         assert tween(request) is response
         assert response.headers == {
             "Content-Security-Policy":
-                                      "default-src * example.com; "
-                                      "style-src 'self'",
+                "default-src * example.com; style-src 'self'",
         }
 
     def test_csp_policy_default_inject(self):
