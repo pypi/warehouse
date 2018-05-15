@@ -1319,7 +1319,7 @@ def submit(request):
     return _exc_with_message(
         HTTPGone,
         ("Project pre-registration is no longer required or supported, "
-         "upload your files."),
+         "upload your files instead."),
     )
 
 
