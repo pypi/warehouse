@@ -155,8 +155,8 @@ Package querying
 
   Arguments for different fields are combined using either "and" (the default)
   or "or". Example: `search({'name': 'foo', 'description': 'bar'}, 'or')`.
-  The results are returned as a list of dicts `{'name': package name, 'version':
-  package release version, 'summary': package release summary}`
+  The results are returned as a list of dicts `{'name': package name,
+  'version': package release version, 'summary': package release summary}`
 
 ``browse(classifiers)``
   Retrieve a list of `[name, version]` of all releases classified with all of
