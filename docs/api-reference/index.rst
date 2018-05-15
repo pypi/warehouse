@@ -1,4 +1,4 @@
-API Reference
+API reference
 =============
 
 Warehouse has several API endpoints. See :doc:`../application` for the
@@ -6,7 +6,7 @@ parts of Warehouse that generate them.
 
 .. contents:: :local:
 
-API Policies
+API policies
 ------------
 
 Please be aware of these PyPI API policies:
@@ -24,7 +24,7 @@ this header to determine whether to actually repeat a request or not.
 
 The XML-RPC API does not have the ability to indicate cached responses.
 
-Rate Limiting
+Rate limiting
 ~~~~~~~~~~~~~
 
 Due to the heavy caching and CDN use, there is currently no rate limiting of

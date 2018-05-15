@@ -28,7 +28,7 @@ improve the process:
 
 .. _dev-env-install:
 
-Detailed Installation Instructions
+Detailed installation instructions
 ----------------------------------
 
 Getting the Warehouse source code
@@ -72,7 +72,7 @@ for Linux Quirks`_ for extra configuration instructions.
 .. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
 
-Verifying Docker Installation
+Verifying Docker installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker is installed: ``docker -v``
@@ -89,13 +89,13 @@ Install Docker Compose using the Docker-provided
    `Docker for Windows`_ automatically.
 
 
-Verifying Docker Compose Installation
+Verifying Docker Compose installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
-Verifying the Neccessary Ports are Available
+Verifying the neccessary ports are available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Warehouse needs access to a few local ports in order to run, namely ports
@@ -129,7 +129,7 @@ Warehouse and run all of the needed services. The Warehouse repository will be
 mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
-Running the Warehouse Container and Services
+Running the Warehouse container and services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to start the Docker services that make up the Warehouse

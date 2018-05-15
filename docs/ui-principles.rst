@@ -1,10 +1,10 @@
-UI Principles
+UI principles
 =============
 
 The Warehouse UI aims to be clean, clear and easy to use. Changes and
 additions to the UI should follow these four principles:
 
-1. Be Consistent
+1. Be consistent
 ----------------
 
 Creating **consistent** interfaces is more aesthetically pleasing, improves
@@ -17,7 +17,7 @@ layout to make it more generic.
 Following this principle can also help to reduce the footprint of our frontend
 code, which will make Warehouse easier to maintain in the long term.
 
-2. Consider Usability and Accessibility
+2. Consider usability and accessibility
 ---------------------------------------
 
 Ensuring Warehouse follows usability and accessibility best practices will make
@@ -45,7 +45,7 @@ the site easier to use for everybody. At a minimum:
   convey the same meaning.
 
 
-3. Provide Help
+3. Provide help
 ---------------
 
 Never assume that all Warehouse users are as familiar with the Python
@@ -57,7 +57,7 @@ as standard text on the page, or by adding a help icon (that links to
 help content).
 
 
-4. Write Clearly, with Consistent Style and Terminology
+4. Write clearly, with consistent style and terminology
 -------------------------------------------------------
 
 Warehouse follows the `Material design writing style guide
