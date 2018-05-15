@@ -789,7 +789,7 @@ class TestFileUpload:
             (
                 {"metadata_version": "-1"},
                 "'-1' is an invalid value for Metadata-Version. "
-                "Error: Use known metadata version. "
+                "Error: Use a known metadata version. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata",
             ),
@@ -921,7 +921,7 @@ class TestFileUpload:
                     "summary": "A\nB",
                 },
                 ("{!r} is an invalid value for Summary. ".format('A\nB') +
-                 "Error: Use single line only. "
+                 "Error: Use a single line only. "
                  "See "
                  "https://packaging.python.org/specifications/core-metadata"),
             ),

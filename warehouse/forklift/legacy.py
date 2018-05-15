@@ -280,7 +280,7 @@ def _validate_project_url_list(form, field):
 
 def _validate_rfc822_email_field(form, field):
     email_validator = wtforms.validators.Email(
-        message='Use valid email address')
+        message='Use a valid email address')
     addresses = email.utils.getaddresses([field.data])
 
     for real_name, address in addresses:
@@ -299,13 +299,13 @@ def _validate_description_content_type(form, field):
 
     charset = parameters.get('charset')
     if charset and charset != 'UTF-8':
-        _raise("Use valid charset")
+        _raise("Use a valid charset")
 
     variant = parameters.get('variant')
     if (content_type == 'text/markdown' and variant and
             variant not in _valid_markdown_variants):
         _raise(
-            "Use valid variant, expected one of {}".format(
+            "Use a valid variant, expected one of {}".format(
                 ', '.join(_valid_markdown_variants)))
 
 
@@ -336,7 +336,7 @@ class MetadataForm(forms.Form):
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
                 ["1.0", "1.1", "1.2", "2.0", "2.1"],
-                message="Use known metadata version.",
+                message="Use a known metadata version.",
             ),
         ],
     )
@@ -376,7 +376,7 @@ class MetadataForm(forms.Form):
             wtforms.validators.Length(max=512),
             wtforms.validators.Regexp(
                 r"^.+$",  # Rely on the fact that . doesn't match a newline.
-                message="Use single line only.",
+                message="Use a single line only.",
             )
         ],
     )
