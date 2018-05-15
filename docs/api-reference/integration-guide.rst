@@ -84,15 +84,16 @@ migrating to PyPI
 
 Querying PyPI for Package URLS
 ------------------------------
-When copying a download link from https://pypi.org, you might get a URL with a random hash value in it.
+When copying a download link from https://pypi.org, you get a URL with a random hash value in it.
 
-This hash value is calculated from the checksum of the file. The URLs on PyPI are static and do not change.
+This hash value is calculated from the checksum of the file. The URLs on PyPI for individual files are static and do not change.
 
 ## Official guidance
-Query PyPI's index to determine where to download files from.
+Query PyPI's [JSON API](https://warehouse.readthedocs.io/api-reference/json/) to determine where to download files from.
 
 ## If you so choose
-You can use our conveyor service to fetch this file, but this realistically exists primarily to support old build systems and others that refuse to query the index.
+You can use our conveyor service to fetch this file, but this realistically exists primarily to support that historical predictable URLs still work.
+
 
 ### Example:
 ```
@@ -108,8 +109,4 @@ You should generally query the index for package URLs rather than guessing, but 
 /packages/{python_version}/{project_l}/{project_name}/{filename}
 ```
 
-where `project_l` is the first letter of the project name.
-
-`python_version` can be one of many things, akin to the old file structure PyPI used to hold on disk.
-
-In general this is only a good idea for `source` as a `python_version` to fetch tar and zip files.
+where `project_l` is the first letter of the project name. `python_version` can be one of many things, akin to the old file structure PyPI used to hold on disk. In general this is only a good idea for `source` as a `python_version` to fetch tar and zip files.
