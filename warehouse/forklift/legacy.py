@@ -74,6 +74,7 @@ _allowed_platforms = {
     "any",
     "win32", "win_amd64", "win_ia64",
     "manylinux1_x86_64", "manylinux1_i686",
+    "manylinux2010_x86_64", "manylinux2010_i686",
     "linux_armv6l", "linux_armv7l",
 }
 # macosx is a little more complicated:

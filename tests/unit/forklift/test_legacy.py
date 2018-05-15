@@ -2149,6 +2149,7 @@ class TestFileUpload:
         "plat",
         ["any", "win32", "win_amd64", "win_ia64",
          "manylinux1_i686", "manylinux1_x86_64",
+         "manylinux2010_i686", "manylinux2010_x86_64",
          "macosx_10_6_intel", "macosx_10_13_x86_64",
          # A real tag used by e.g. some numpy wheels
          ("macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
