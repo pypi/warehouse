@@ -15,7 +15,7 @@ def credits_page(request):
     contrib_count = contributors.count()
 
     # separate the list into two lists to be used in the two column layout
-    separated = [contributors[0:int(contrib_count/2)+1],
-                 contributors[int(contrib_count/2)+1:contrib_count]]
+    separated = [contributors[0:int(contrib_count/2)],
+                 contributors[int(contrib_count/2):contrib_count]]
 
     return {'contributors': separated}
