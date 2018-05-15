@@ -20,9 +20,15 @@
       <h2>Development Credits</h2>
         <p>The following people have helped develop the PyPI Warehouse application for the Python community:</p>
         <ul>
-            {% for item in contributors %}
-                <li><a href="{{ item.contributor_url }}">{{  item.contributor_name }}</a></li>
-            {% endfor %}
+            <div class="row">
+                {% for row in contributors %}
+                    <div class="col-half">
+                        {% for item in row %}
+                            <li><a href="{{ item.contributor_url }}">{{  item.contributor_name }}</a></li>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
         </ul>
     </div>
   </section>

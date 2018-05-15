@@ -12,4 +12,10 @@ def credits_page(request):
     # get all items from Contributors table
     contributors = request.db.query(Contributor).order_by(Contributor.contributor_name)
 
-    return {'contributors': contributors}
+    contrib_count = contributors.count()
+
+    # separate the list into two lists to be used in the two column layout
+    separated = [contributors[0:int(contrib_count/2)],
+                 contributors[int(contrib_count/2)+1:contrib_count]]
+
+    return {'contributors': separated}
