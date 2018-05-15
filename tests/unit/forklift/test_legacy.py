@@ -2891,7 +2891,7 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            '403 Read-only mode: uploads are temporarily disabled'
+            '403 Read-only mode: Uploads are temporarily disabled'
         )
 
     def test_fails_without_user(self, pyramid_config, pyramid_request):
