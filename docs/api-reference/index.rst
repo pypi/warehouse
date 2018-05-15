@@ -9,7 +9,7 @@ parts of Warehouse that generate them.
 API Policies
 ------------
 
-Please be aware of the following PyPI API Policies:
+Please be aware of these PyPI API policies:
 
 Caching
 ~~~~~~~

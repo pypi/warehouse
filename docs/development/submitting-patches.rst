@@ -70,8 +70,8 @@ the ``master`` branch in the main Warehouse repository, which moves forward as
 the maintainers merge pull requests. Most people working on the project use
 the following workflow.
 
-The following documentation assumes that you have git configured so that when
-you run the following command:
+This assumes that you have Git configured so that when you run the following
+command:
 
 .. code-block:: console
 
