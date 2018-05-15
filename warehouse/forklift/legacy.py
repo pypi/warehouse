@@ -1052,7 +1052,7 @@ def file_upload(request):
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. (PEP 527 https://www.python.org/dev/peps/pep-0527)"
+            "extension. (https://www.python.org/dev/peps/pep-0527)"
         )
 
     # Make sure that our filename matches the project that it is being uploaded
