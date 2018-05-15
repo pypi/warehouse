@@ -1654,7 +1654,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The digest doesn't match a digest calculated "
+            "400 The digest supplied does not match a digest calculated "
             "from the uploaded file."
         )
 

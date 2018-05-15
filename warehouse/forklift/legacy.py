@@ -1133,7 +1133,7 @@ def file_upload(request):
         ]):
             raise _exc_with_message(
                 HTTPBadRequest,
-                "The digest doesn't match a digest calculated "
+                "The digest supplied does not match a digest calculated "
                 "from the uploaded file."
             )
 
