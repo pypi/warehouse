@@ -37,9 +37,8 @@ def content_security_policy_tween_factory(handler, registry):
         # Replace CSP headers on /simple/ pages.
         if request.path.startswith("/simple/"):
             policy = collections.defaultdict(list)
-            policy["sandbox"] = []
+            policy["sandbox"] = ["allow-top-navigation"]
             policy["default-src"] = [NONE]
-            policy["allow-top-navigation"] = []
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
