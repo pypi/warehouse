@@ -113,8 +113,8 @@ Directories within the repository:
 Historical context & deprecations
 ---------------------------------
 
-For the history of Python packaging and distribution, please see `the
-PyPA history page <https://www.pypa.io/en/latest/history/>`_.
+For the history of Python packaging and distribution, see `the PyPA history
+page <https://www.pypa.io/en/latest/history/>`_.
 
 From the early 2000s till April 2018, `the legacy PyPI codebase
 <https://github.com/pypa/pypi-legacy>`_, not Warehouse, powered

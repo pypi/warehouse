@@ -19,8 +19,8 @@ cached by our CDN provider. You can determine if you've hit the cache based on
 the ``X-Cache`` and ``X-Cache-Hits`` headers in the response.
 
 Requests to the JSON, RSS and Legacy APIs also provide an ``ETag`` header. If
-you're making a lot of repeated requests, please ensure your API consumer will
-respect this header to determine whether to actually repeat a request or not.
+you're making a lot of repeated requests, ensure your API consumer will respect
+this header to determine whether to actually repeat a request or not.
 
 The XML-RPC API does not have the ability to indicate cached responses.
 
@@ -34,8 +34,8 @@ degradation of service.
 In addition, PyPI reserves the right to temporarily or permanently prohibit a
 consumer based on irresponsible activity.
 
-If you plan to make a lot of requests to a PyPI API, please adhere to
-the following suggestions:
+If you plan to make a lot of requests to a PyPI API, adhere to these
+suggestions:
 
 * Set your consumer's ``User-Agent`` header to uniquely identify your requests.
   Adding your contact information to this value would be helpful as well.
@@ -51,7 +51,7 @@ API Preference
 ~~~~~~~~~~~~~~
 
 For periodically checking for new packages or updates to existing packages,
-please use our RSS feeds.
+use our RSS feeds.
 
 No new integrations should use the XML-RPC APIs as they are planned for
 deprecation. Existing consumers should migrate to JSON/RSS/Legacy APIs.

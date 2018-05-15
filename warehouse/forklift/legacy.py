@@ -862,7 +862,7 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 ("User {!r} has no verified email addresses, "
-                 "please verify at least one address before registering "
+                 "verify at least one address before registering "
                  "a new project on PyPI. See {projecthelp} "
                  "for more information.").format(
                     request.user.username,

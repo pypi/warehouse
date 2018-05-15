@@ -192,7 +192,7 @@ def user_packages(request, username):
 @xmlrpc_method(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
-        RuntimeError("This API has been removed. Please Use BigQuery instead.")
+        RuntimeError("This API has been removed. Use BigQuery instead.")
     )
 
 

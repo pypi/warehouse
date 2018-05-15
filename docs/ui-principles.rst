@@ -65,8 +65,8 @@ Warehouse follows the `Material design writing style guide
 
 When writing interfaces use direct, clear and simple language. This is
 especially important as Warehouse caters to an international audience with
-varying proficiency in English. If you're unsure, please `check the readability
-of your text <http://www.webpagefx.com/tools/read-able/>`_.
+varying proficiency in English. If you're unsure, `check the readability of
+your text <http://www.webpagefx.com/tools/read-able/>`_.
 
 Be consistent, particularly when it comes to domain specific words. Use this
 glossary as a guide:

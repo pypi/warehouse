@@ -2846,7 +2846,7 @@ class TestFileUpload:
             assert resp.status_code == 400
             assert resp.status == (
                 ("400 User {!r} has no verified email "
-                 "addresses, please verify at least one "
+                 "addresses, verify at least one "
                  "address before registering a new project "
                  "on PyPI. See /the/help/url/ "
                  "for more information.").format(user.username)

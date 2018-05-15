@@ -10,15 +10,15 @@ Your first pull request
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), please take a look at :doc:`our guide to the Warehouse
-codebase <../application>`. Then, look at our `open issues that are
-labelled "good first issue"`_, find one you want to work on, comment
-on it to say you're working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+document), take a look at :doc:`our guide to the Warehouse codebase
+<../application>`. Then, look at our `open issues that are labelled "good first
+issue"`_, find one you want to work on, comment on it to say you're working on
+it, then submit a pull request. Use our :doc:`submitting-patches` documentation
+to help.
 
 Setting up a development environment to work on Warehouse should be a
-straightforward process. If you have any difficulty, please contact us
-so we can improve the process:
+straightforward process. If you have any difficulty, contact us so we can
+improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
@@ -436,10 +436,9 @@ Building the docs requires Python 3.6. If it is not installed, the
 What next?
 ----------
 
-Please look at our `open issues that are labelled "good first
-issue"`_, find one you want to work on, comment on it to say you're
-working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+Look at our `open issues that are labelled "good first issue"`_, find one you
+want to work on, comment on it to say you're working on it, then submit a pull
+request. Use our :doc:`submitting-patches` documentation to help.
 
 Talk with us
 ^^^^^^^^^^^^

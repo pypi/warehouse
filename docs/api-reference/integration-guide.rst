@@ -47,10 +47,10 @@ Here are some tips.
 * JSON API: ``https://pypi.org/pypi/{name}/json`` returns the
   expected JSON response directly. See :doc:`json`.
 
-* XML-RPC API: see :ref:`changes-to-legacy-api`. Will be deprecated in
+* XML-RPC API: See :ref:`changes-to-legacy-api`. Will be deprecated in
   the future (no specific end date set yet); switch to the RSS or JSON
   APIs. If you depend on an XML-RPC call that our other APIs do not
-  support, please `tell us <https://pypi.org/help/#feedback>`_.
+  support, `tell us <https://pypi.org/help/#feedback>`_.
 
 * Packages/updates RSS feeds: ``https://pypi.org/pypi?%3Aaction=rss``
   redirects to ``https://pypi.org/rss/updates.xml``, and
@@ -76,6 +76,5 @@ Here are some tips.
   <https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/>`_.
 
 If you're a PyPI end user or packager looking to migrate to the new
-PyPI, please see `the official Python Packaging User Guide on
-migrating to PyPI
+PyPI, see `the official Python Packaging User Guide on migrating to PyPI
 <https://packaging.python.org/guides/migrating-to-pypi-org/>`_.
