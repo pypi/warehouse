@@ -39,6 +39,7 @@ def content_security_policy_tween_factory(handler, registry):
             policy = collections.defaultdict(list)
             policy["sandbox"] = []
             policy["default-src"] = [NONE]
+            policy["allow-top-navigation"] = []
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with

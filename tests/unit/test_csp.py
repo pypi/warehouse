@@ -167,6 +167,7 @@ class TestCSPTween:
     def test_simple_csp(self):
         settings = {
             "csp": {
+                "allow-top-navigation": [],
                 "default-src": ["'none'"],
                 "sandbox": [],
             }
@@ -188,7 +189,7 @@ class TestCSPTween:
 
         assert tween(request) is response
         assert response.headers == {
-            "Content-Security-Policy": "default-src 'none'; sandbox",
+            "Content-Security-Policy": "allow-top-navigation; default-src 'none'; sandbox",
         }
 
 
