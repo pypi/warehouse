@@ -38,7 +38,7 @@ def test_project_docs(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "project",
+            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
