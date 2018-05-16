@@ -84,6 +84,11 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
+	# Pull any updates to the base images since we've built
+	# Use --no-parallel to avoid https://github.com/docker/for-mac/issues/2153
+	docker-compose pull --no-parallel
+
+	# Bring the containers up
 	docker-compose up
 
 debug: .state/docker-build
