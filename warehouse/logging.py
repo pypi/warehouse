@@ -15,8 +15,8 @@ import threading
 import uuid
 
 import structlog
-import structlog.stdlib
 
+request_logger = structlog.get_logger("warehouse.request")
 
 RENDERER = structlog.processors.JSONRenderer()
 
@@ -48,13 +48,9 @@ def _create_id(request):
 
 
 def _create_logger(request):
-    logger = structlog.get_logger("warehouse.request")
-
     # This has to use **{} instead of just a kwarg because request.id is not
     # an allowed kwarg name.
-    logger = logger.bind(**{"request.id": request.id})
-
-    return logger
+    return request_logger.bind(**{"request.id": request.id})
 
 
 def includeme(config):
@@ -100,6 +96,7 @@ def includeme(config):
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
+        cache_logger_on_first_use=True,
     )
 
     # Give every request a unique identifier

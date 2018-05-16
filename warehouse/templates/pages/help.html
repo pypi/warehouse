@@ -15,7 +15,7 @@
 
 {% macro code_of_conduct() %}
   <div class="callout-block">
-    <p><strong>Please note:</strong> All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="https://www.pypa.io/en/latest/code-of-conduct/">PyPA Code of Conduct</a>.</p>
+    <p><strong>Note:</strong> All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the <a href="https://www.pypa.io/en/latest/code-of-conduct/">PyPA Code of Conduct</a>.</p>
   </div>
 {% endmacro %}
 
@@ -162,7 +162,7 @@
 
         <h3 id="APIs">{{ APIs() }}</h3>
         <p>
-          Yes, including RSS feeds of new packages and new releases. <a href="https://warehouse.readthedocs.io/api-reference/">Please see the API reference.</a>
+          Yes, including RSS feeds of new packages and new releases. <a href="https://warehouse.readthedocs.io/api-reference/">See the API reference.</a>
         </p>
 
         <h3 id="mirroring">{{ mirroring() }}</h3>
@@ -194,7 +194,7 @@
         </p>
         <p><tt>pip install --upgrade -v pip</tt>
         </p>
-        <p>If you see an error like <tt>There was a problem confirming the ssl certificate</tt> or <tt>tlsv1 alert protocol version</tt> or <tt>TLSV1_ALERT_PROTOCOL_VERSION</tt>, you need to be connecting to PyPI with a newer TLS support library. The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <tt>setuptools</tt>, and <tt>pip</tt>. For help, please go to <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">the <tt>#pypa</tt> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your OS and installation details and the output of <tt>pip install --upgrade -vvv pip</tt>.
+        <p>If you see an error like <tt>There was a problem confirming the ssl certificate</tt> or <tt>tlsv1 alert protocol version</tt> or <tt>TLSV1_ALERT_PROTOCOL_VERSION</tt>, you need to be connecting to PyPI with a newer TLS support library. The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, <tt>setuptools</tt>, and <tt>pip</tt>. For help, go to <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">the <tt>#pypa</tt> IRC channel on Freenode</a>, file an issue at <a href="https://github.com/pypa/packaging-problems/issues" target="_blank" rel="noopener">pypa/packaging-problems/issues</a>, or <a href="https://www.python.org/community/lists/" target="_blank" rel="noopener">post to the python-help mailing list</a>, including your OS and installation details and the output of <tt>pip install --upgrade -vvv pip</tt>.
         </p>
         {{ code_of_conduct() }}
 
@@ -203,7 +203,7 @@
           We take <a href="https://en.wikipedia.org/wiki/Web_accessibility" target="_blank" rel="noopener">accessibility</a> very seriously and want to make the website easy to use for everyone.
         </p>
         <p>
-          If you are experiencing an accessibility problem, please <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
+          If you are experiencing an accessibility problem, <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">report it to us on GitHub</a>, so we can try to fix the problem, for you and others.
         </p>
         {{ code_of_conduct() }}
 
@@ -243,7 +243,7 @@
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
         <p>
-          If you can't upload your project's release to PyPI because you're hitting the upload file size limit, we can sometimes increase your limit. Please make sure you've uploaded at least one release for the project that's <i>under</i> the limit (a <a href="https://www.python.org/dev/peps/pep-0440/#developmental-releases">developmental release version number</a> is fine). Then, please <a href="https://github.com/pypa/warehouse/issues/new" target="_blank" rel="noopener">file an issue</a> and tell us:</p>
+          If you can't upload your project's release to PyPI because you're hitting the upload file size limit, we can sometimes increase your limit. Make sure you've uploaded at least one release for the project that's <i>under</i> the limit (a <a href="https://www.python.org/dev/peps/pep-0440/#developmental-releases">developmental release version number</a> is fine). Then, <a href="https://github.com/pypa/warehouse/issues/new" target="_blank" rel="noopener">file an issue</a> and tell us:</p>
         <ul>
           <li>The name of the project</li>
           <li>The size of your release, in megabytes</li>
@@ -277,16 +277,16 @@
 
         <h3 id="new-classifier">{{ new_classifier() }}</h3>
         <p>
-          If you would like to request a new trove classifier please file a bug on our <a href="https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md" target="_blank" rel="noopener">issue tracker</a>. Please include the name of the requested classifier and a brief justification of why it is important.
+          If you would like to request a new trove classifier file a bug on our <a href="https://github.com/pypa/warehouse/issues/new?title=Request+trove+classifier&template=new-trove-classifier.md" target="_blank" rel="noopener">issue tracker</a>. Include the name of the requested classifier and a brief justification of why it is important.
         </p>
         {{ code_of_conduct() }}
 
         <h3 id="feedback">{{ feedback() }}</h3>
         <p>
-          We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. Before writing a new issue, please first check that a similar issue does not already exist.
+          We welcome <em>constructive</em> feedback and bug reports via our <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. Before writing a new issue, first check that a similar issue does not already exist.
         </p>
         <p>
-          If you <a href="https://github.com/pypa/warehouse/issues/new?template=bug-report.md" target="_blank" rel="noopener">report a bug</a>, please provide as much detail as you can. For example:
+          If you <a href="https://github.com/pypa/warehouse/issues/new?template=bug-report.md" target="_blank" rel="noopener">report a bug</a>, provide as much detail as you can. For example:
         </p>
         <ul>
           <li>Your operating system</li>
@@ -325,7 +325,7 @@
           As of April 16, 2018, PyPI.org is at "production" status, meaning that it has moved out of beta and replaced the old site (pypi.python.org). It is now robust, tested, and ready for expected browser and API traffic.
         </p>
         <p>
-          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. Please see <a href="https://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
+          PyPI is heavily cached and distributed via CDN thanks to our sponsor <a href="https://www.fastly.com/" target="_blank" rel="noopener">Fastly</a> and thus is generally available globally. However, the site is mostly maintained by volunteers, we do not provide any specific Service Level Agreement, and as could be expected for a giant distributed system, things can and sometimes do go wrong. See <a href="https://status.python.org/">our status page</a> for current and past outages and incidents. If you have high availability requirements for your package index, consider either a <a href="#mirroring">mirror</a> or a <a href="#private-indices">private index</a>.
         </p>
 
         <h3 id="contributing">{{ contributing() }}</h3>
@@ -339,7 +339,7 @@
           <em>Development</em>: Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!
         </p>
         <p>
-          If you have skills in Python, ElasticSearch, HTML, SCSS, or JavaScript, then please skim our <a href="https://warehouse.readthedocs.io/development/getting-started/" target="_blank" rel="noopener">"Getting started" guide</a>, then take a look at the <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
+          If you have skills in Python, ElasticSearch, HTML, SCSS, or JavaScript, then skim our <a href="https://warehouse.readthedocs.io/development/getting-started/" target="_blank" rel="noopener">"Getting started" guide</a>, then take a look at the <a href="https://github.com/pypa/warehouse/issues" target="_blank" rel="noopener">issue tracker</a>. We've created a <a href="https://github.com/pypa/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.
         </p>
         <p>
           Issues are grouped into <a href="https://github.com/pypa/warehouse/milestones" target="_blank" rel="noopener">milestones</a>; working on issues in the current milestone is a great way to help push the project forward. If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.
@@ -373,7 +373,7 @@
 
       <h3>Contact</h3>
 
-      <p>The <a href="https://pypa.io">Python Packaging Authority (PyPA)</a> is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer, please use <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>, or <a href="https://mail.python.org/mailman/listinfo/distutils-sig">join the distutils-sig mailing list</a>.</p>
+      <p>The <a href="https://pypa.io">Python Packaging Authority (PyPA)</a> is a working group who work together to improve Python packaging. If you'd like to get in touch with a core packaging developer, use <a href="https://webchat.freenode.net/?channels=%23pypa" target="_blank" rel="noopener">#pypa on IRC (freenode)</a>, or <a href="https://mail.python.org/mailman/listinfo/distutils-sig">join the distutils-sig mailing list</a>.</p>
     </div>
   </section>
 {% endblock %}
