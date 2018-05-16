@@ -74,6 +74,7 @@ _allowed_platforms = {
     "any",
     "win32", "win_amd64", "win_ia64",
     "manylinux1_x86_64", "manylinux1_i686",
+    "manylinux2010_x86_64", "manylinux2010_i686",
     "linux_armv6l", "linux_armv7l",
 }
 # macosx is a little more complicated:
@@ -861,7 +862,7 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 ("User {!r} has no verified email addresses, "
-                 "please verify at least one address before registering "
+                 "verify at least one address before registering "
                  "a new project on PyPI. See {projecthelp} "
                  "for more information.").format(
                     request.user.username,
