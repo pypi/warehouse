@@ -39,7 +39,6 @@ import Clipboard from "clipboard";
 import PositionWarning from "warehouse/utils/position-warning";
 import Statuspage from "warehouse/utils/statuspage";
 import timeAgo from "warehouse/utils/timeago";
-import projectTabs from "warehouse/utils/project-tabs";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
@@ -61,12 +60,6 @@ docReady(() => {
 // Human-readable timestamps for project histories
 docReady(() => {
   timeAgo();
-});
-
-// project detail tabs
-docReady(() => {
-  projectTabs();
-  window.addEventListener("resize", projectTabs, false);
 });
 
 // toggle search panel behavior

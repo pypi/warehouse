@@ -4,7 +4,7 @@ Submitting patches
 Before you submit a patch, you may want to look at :doc:`our guide to the
 Warehouse codebase <../application>`.
 
-As you are working on your patch, please keep the following in mind:
+As you work on your patch, keep this in mind:
 
 * Always make a new branch for your work.
 * Patches should be small to facilitate easier review. `Studies have shown`_
@@ -14,8 +14,8 @@ As you are working on your patch, please keep the following in mind:
   Warehouse, and it must be available under the Apache Software License Version
   2.0.
 
-If you believe you've identified a security issue in Warehouse, please
-follow the directions on the :doc:`security page </security>`.
+If you believe you've identified a security issue in Warehouse, follow the
+directions on the :doc:`security page </security>`.
 
 Code
 ----
@@ -70,8 +70,8 @@ the ``master`` branch in the main Warehouse repository, which moves forward as
 the maintainers merge pull requests. Most people working on the project use
 the following workflow.
 
-The following documentation assumes that you have git configured so that when
-you run the following command:
+This assumes that you have Git configured so that when you run the following
+command:
 
 .. code-block:: console
 

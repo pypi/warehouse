@@ -113,7 +113,7 @@ def test_remove_project(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted the project 'foo'",
+                "Deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -136,7 +136,7 @@ def test_remove_project(db_request, flash):
                      .filter(JournalEntry.name == "foo")
                      .one()
     )
-    assert journal_entry.action == "remove"
+    assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
     assert journal_entry.submitted_from == db_request.remote_addr
 
@@ -182,7 +182,7 @@ def test_destroy_docs(db_request, flash):
     if flash:
         assert db_request.session.flash.calls == [
             call(
-                "Successfully deleted docs for project 'foo'",
+                "Deleted docs for project 'foo'",
                 queue="success"
             ),
         ]

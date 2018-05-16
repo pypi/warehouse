@@ -45,7 +45,7 @@ class UsernameMixin:
 
         if userid is None:
             raise wtforms.validators.ValidationError(
-                "No user found with that username. Please try again."
+                "No user found with that username. Try again."
             )
 
 
