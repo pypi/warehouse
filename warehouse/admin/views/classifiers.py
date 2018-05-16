@@ -59,7 +59,7 @@ class AddClassifier:
         classifier.l2 = classifier.id
 
         self.request.session.flash(
-            f'Successfully added classifier {classifier.classifier!r}',
+            f'Added classifier {classifier.classifier!r}',
             queue='success',
         )
 
@@ -91,7 +91,7 @@ class AddClassifier:
                 break
 
         self.request.session.flash(
-            f'Successfully added classifier {classifier.classifier!r}',
+            f'Added classifier {classifier.classifier!r}',
             queue='success',
         )
 
@@ -116,7 +116,7 @@ def deprecate_classifier(request):
     classifier.deprecated = True
 
     request.session.flash(
-        f'Successfully deprecated classifier {classifier.classifier!r}',
+        f'Deprecated classifier {classifier.classifier!r}',
         queue='success',
     )
 
