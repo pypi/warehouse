@@ -21,7 +21,6 @@ from unittest import mock
 import pretend
 import pytest
 import structlog
-import structlog.stdlib
 
 from warehouse import logging as wlogging
 
@@ -68,13 +67,11 @@ def test_create_logging(monkeypatch):
     logger = pretend.stub(
         bind=pretend.call_recorder(lambda **kw: bound_logger),
     )
-    get_logger = pretend.call_recorder(lambda name: logger)
-    monkeypatch.setattr(structlog, "get_logger", get_logger)
+    monkeypatch.setattr(wlogging, "request_logger", logger)
 
     request = pretend.stub(id="request id")
 
     assert wlogging._create_logger(request) is bound_logger
-    assert get_logger.calls == [pretend.call("warehouse.request")]
     assert logger.bind.calls == [pretend.call(**{"request.id": "request id"})]
 
 
@@ -141,6 +138,7 @@ def test_includeme(monkeypatch, settings, expected_level):
             ],
             logger_factory=mock.ANY,
             wrapper_class=structlog.stdlib.BoundLogger,
+            cache_logger_on_first_use=True,
         ),
     ]
     assert isinstance(
