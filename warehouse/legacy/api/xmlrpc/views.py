@@ -131,7 +131,7 @@ def search(request, spec, operator="and"):
         return [
             {
                 "name": r.name,
-                "summary": r.summary,
+                "summary": getattr(r, 'summary'),
                 "version": v,
                 "_pypi_ordering": False
             }
@@ -142,7 +142,7 @@ def search(request, spec, operator="and"):
     return [
         {
             "name": r.name,
-            "summary": r.summary,
+            "summary": getattr(r, 'summary'),
             "version": r.latest_version,
             "_pypi_ordering": False
         }
