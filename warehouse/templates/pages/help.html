@@ -39,6 +39,7 @@
 {% macro file_name_reuse() %}Why am I getting a "Filename or contents already exists" or "Filename has been previously used" error?{% endmacro %}
 {% macro project_name() %}Why isn't my desired project name available?{% endmacro %}
 {% macro project_name_claim() %}How do I claim an abandoned or previously registered project name?{% endmacro %}
+{% macro description_content_type() %}How can I upload a description in a different format?{% endmacro %}
 {% macro new_classifier() %}How do I request a new trove classifier?{% endmacro %}
 {% macro feedback() %}Where can I report a bug or provide feedback?{% endmacro %}
 {% macro maintainers() %}Who maintains PyPI?{% endmacro %}
@@ -84,6 +85,7 @@
           <li><a href="#private-indices">{{ private_indices() }}</a></li>
           <li><a href="#project-name">{{ project_name() }}</a></li>
           <li><a href="#project-name-claim">{{ project_name_claim() }}</a></li>
+          <li><a href="#description-content-type">{{ description_content_type() }}</a></li>
           <li><a href="#file-size-limit">{{ file_size_limit() }}</a></li>
           <li><a href="#admin-intervention">{{ admin_intervention() }}</a></li>
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
@@ -239,6 +241,27 @@
         </p>
         <p>
           PEP 541 has been accepted, and PyPI is <a href="https://github.com/pypa/warehouse/issues/1506">creating a workflow</a> which will be documented here.
+        </p>
+
+        <h3 id="description-content-type">{{ description_content_type() }}</h3>
+        <p>
+          By default,
+          an upload's description will render
+          with <a href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>.
+          If the description is in an alternate format
+          like Markdown,
+          a package may set the <tt>long_description_content_type</tt>
+          in <tt>setup.py</tt>
+          to the alternate format.
+          Refer to the <a href="https://packaging.python.org/tutorials/distributing-packages/#description">Python Packaging User Guide</a>
+          for details on the available formats.
+        </p>
+        <p>
+          PyPI will reject uploads
+          if the description fails to render.
+          To check a description locally for validity,
+          you may use <a href="https://github.com/pypa/readme_renderer">readme_renderer</a>,
+          which is the same description renderer used by PyPI.
         </p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>

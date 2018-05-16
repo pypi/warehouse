@@ -1014,7 +1014,8 @@ class TestFileUpload:
             (
                 "",
                 ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
+                "400 The description failed to render in the default format "
+                "of reStructuredText. "
                 "See /the/help/url/ for more information."
             ),
         ],
@@ -1053,7 +1054,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert db_request.help_url.calls == [
-            pretend.call(_anchor='project-name')
+            pretend.call(_anchor='description-content-type')
         ]
 
         assert resp.status_code == 400
