@@ -14,7 +14,7 @@ services:
     image: rabbitmq:latest
 
   elasticsearch:
-    image: elasticsearch:5
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
 
   camo:
     image: pypa/warehouse-camo:latest
