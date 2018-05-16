@@ -14,6 +14,8 @@ import os
 import os.path
 import xmlrpc.client
 
+from contextlib import contextmanager
+
 import alembic.command
 import click.testing
 import pretend
@@ -66,12 +68,20 @@ def pyramid_config(pyramid_request):
         yield config
 
 
+@contextmanager
+def datadog_timing(*args, **kwargs):
+    yield None
+
+
 @pytest.yield_fixture
 def datadog():
     return pretend.stub(
         event=pretend.call_recorder(lambda *args, **kwargs: None),
         increment=pretend.call_recorder(lambda *args, **kwargs: None),
         histogram=pretend.call_recorder(lambda *args, **kwargs: None),
+        timed=pretend.call_recorder(
+            lambda *args, **kwargs: datadog_timing(*args, **kwargs)
+        ),
     )
 
 
