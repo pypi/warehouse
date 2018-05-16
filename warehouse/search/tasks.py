@@ -95,8 +95,7 @@ def _project_docs(db):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         doc = p.to_dict(include_meta=True)
-        if '_index' in doc:
-            del doc['_index']
+        doc.pop('_index', None)
         yield doc
 
 

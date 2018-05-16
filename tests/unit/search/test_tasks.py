@@ -128,9 +128,10 @@ class TestReindex:
         class TestException(Exception):
             pass
 
-        def parallel_bulk(client, iterable):
+        def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
+            assert index == "warehouse-cbcbcbcbcb"
             raise TestException
 
         monkeypatch.setattr(
@@ -176,7 +177,9 @@ class TestReindex:
             lambda *a, **kw: es_client
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index: [None]
+        )
         monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -184,7 +187,9 @@ class TestReindex:
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
@@ -247,7 +252,9 @@ class TestReindex:
             lambda *a, **kw: es_client
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index: [None]
+        )
         monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -255,7 +262,9 @@ class TestReindex:
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
