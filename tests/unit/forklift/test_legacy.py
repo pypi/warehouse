@@ -2148,6 +2148,7 @@ class TestFileUpload:
         "plat",
         ["any", "win32", "win_amd64", "win_ia64",
          "manylinux1_i686", "manylinux1_x86_64",
+         "manylinux2010_i686", "manylinux2010_x86_64",
          "macosx_10_6_intel", "macosx_10_13_x86_64",
          # A real tag used by e.g. some numpy wheels
          ("macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
@@ -2844,7 +2845,7 @@ class TestFileUpload:
             assert resp.status_code == 400
             assert resp.status == (
                 ("400 User {!r} has no verified email "
-                 "addresses, please verify at least one "
+                 "addresses, verify at least one "
                  "address before registering a new project "
                  "on PyPI. See /the/help/url/ "
                  "for more information.").format(user.username)

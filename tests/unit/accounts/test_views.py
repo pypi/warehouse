@@ -726,7 +726,7 @@ class TestResetPassword:
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
-                "You have successfully reset your password", queue="success"
+                "You have reset your password", queue="success"
             ),
         ]
         assert db_request.find_service.calls == [

@@ -179,7 +179,7 @@ def add_blacklist(request):
         remove_project(project, request)
 
     request.session.flash(
-        f"Successfully blacklisted {project_name!r}",
+        f"Blacklisted {project_name!r}",
         queue="success",
     )
 
@@ -210,7 +210,7 @@ def remove_blacklist(request):
     request.db.delete(blacklist)
 
     request.session.flash(
-        f"{blacklist.name!r} successfully unblacklisted",
+        f"{blacklist.name!r} unblacklisted",
         queue="success",
     )
 

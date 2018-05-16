@@ -375,7 +375,7 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo'",
+                "Set the upload limit on 'foo'",
                 queue="success"),
         ]
 
@@ -396,7 +396,7 @@ class TestProjectSetLimit:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully set the upload limit on 'foo'",
+                "Set the upload limit on 'foo'",
                 queue="success"),
         ]
 
@@ -480,7 +480,7 @@ class TestDeleteProject:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'",
+                "Deleted the project 'foo'",
                 queue="success"),
         ]
 

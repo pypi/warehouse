@@ -38,7 +38,7 @@ def test_project_docs(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "project",
+            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
@@ -61,7 +61,6 @@ class FakeESIndices:
         self.aliases = {}
 
         self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
-        self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
         self.delete = pretend.call_recorder(lambda *a, **kw: None)
         self.create = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -129,9 +128,10 @@ class TestReindex:
         class TestException(Exception):
             pass
 
-        def parallel_bulk(client, iterable):
+        def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
+            assert index == "warehouse-cbcbcbcbcb"
             raise TestException
 
         monkeypatch.setattr(
@@ -146,7 +146,6 @@ class TestReindex:
             pretend.call(index='warehouse-cbcbcbcbcb'),
         ]
         assert es_client.indices.put_settings.calls == []
-        assert es_client.indices.forcemerge.calls == []
 
     def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
 
@@ -178,7 +177,9 @@ class TestReindex:
             lambda *a, **kw: es_client
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index: [None]
+        )
         monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -186,7 +187,9 @@ class TestReindex:
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
@@ -214,9 +217,6 @@ class TestReindex:
                     },
                 },
             )
-        ]
-        assert es_client.indices.forcemerge.calls == [
-            pretend.call(index='warehouse-cbcbcbcbcb')
         ]
 
     def test_successfully_indexes_and_replaces(self, db_request, monkeypatch):
@@ -252,7 +252,9 @@ class TestReindex:
             lambda *a, **kw: es_client
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index: [None]
+        )
         monkeypatch.setattr(
             warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -260,7 +262,9 @@ class TestReindex:
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
@@ -290,7 +294,4 @@ class TestReindex:
                     },
                 },
             )
-        ]
-        assert es_client.indices.forcemerge.calls == [
-            pretend.call(index='warehouse-cbcbcbcbcb')
         ]
