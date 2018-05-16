@@ -42,7 +42,7 @@ if extra_in_left or extra_in_right:
 endef
 
 default:
-	@echo "Must call a specific subcommand"
+	@echo "Call a specific subcommand"
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
