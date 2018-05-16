@@ -152,9 +152,8 @@ def reindex(request):
         request.db.rollback()
         request.db.close()
 
-    # Now that we've finished indexing all of our data we can optimize it and
-    # update the replicas and refresh intervals.
-    client.indices.forcemerge(index=new_index_name)
+    # Now that we've finished indexing all of our data we can update the
+    # replicas and refresh intervals.
     client.indices.put_settings(
         index=new_index_name,
         body={
