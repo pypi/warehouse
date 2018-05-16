@@ -42,7 +42,7 @@ def edit_flag(request):
     flag.enabled = bool(request.POST.get('enabled'))
 
     request.session.flash(
-        f'Successfully edited flag {flag.id!r}',
+        f'Edited flag {flag.id!r}',
         queue='success',
     )
 
