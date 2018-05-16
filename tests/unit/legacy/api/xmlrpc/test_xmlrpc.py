@@ -461,7 +461,7 @@ def test_top_packages(num):
         xmlrpc.top_packages(pretend.stub(), num)
 
     assert exc.value.faultString == \
-        "RuntimeError: This API has been removed. Please Use BigQuery instead."
+        "RuntimeError: This API has been removed. Use BigQuery instead."
 
 
 @pytest.mark.parametrize("domain", [None, 'example.com'])

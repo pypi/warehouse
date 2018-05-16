@@ -42,7 +42,7 @@ def includeme(config):
         [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
         verify_certs=True,
         ca_certs=certifi.where(),
-        timeout=1,
+        timeout=2,
         retry_on_timeout=False,
         serializer=serializer.serializer,
     )

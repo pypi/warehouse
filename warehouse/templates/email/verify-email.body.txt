@@ -2,8 +2,8 @@ Someone, perhaps you, has added this email address to their PyPI account:
 
   {{ email_address }}
 
-If you wish to proceed with this request, please follow the link below to
-verify your email address:
+If you wish to proceed with this request, follow the link below to verify your
+email address:
 
   {{ request.route_url('accounts.verify-email', _query={'token': token}) }}
 
