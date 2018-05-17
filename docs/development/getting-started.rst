@@ -368,6 +368,24 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
        to connect to the database.
 ====== ========================================================================
 
+To use the ``db`` object in the interactive shell, import the class you're
+planning to use. For example, if I wanted to use the User object, I would
+do this:
+
+.. code-block:: console
+
+    $ make shell
+    docker-compose run --rm web python -m warehouse shell
+    Starting warehouse_redis_1 ...
+    ...
+    (InteractiveConsole)
+    >>>
+    >>> from warehouse.accounts.models import User
+    >>> from warehouse.db import Session
+    >>> session = Session(bind=config.registry["sqlalchemy.engine"])
+    >>> session.query(User).filter_by(username='test').all()
+    [User(username='test')]
+
 You can also run the IPython shell as the interactive shell. To do so export
 the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
 ``make build`` *step*:
