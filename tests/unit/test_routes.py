@@ -288,16 +288,6 @@ def test_routes(warehouse):
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
-            "/pypi/{name}/{version}/json/",
-            "/pypi/{name}/{version}/json",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "/pypi/{name}/json/",
-            "/pypi/{name}/json",
-            domain=warehouse,
-        ),
-        pretend.call(
             "/pypi/{name}/{version}/",
             "/project/{name}/{version}/",
             domain=warehouse,
