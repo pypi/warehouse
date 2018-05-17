@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import re
 
 from pyramid.httpexceptions import (
     HTTPException, HTTPSeeOther, HTTPMovedPermanently, HTTPNotFound,
@@ -248,20 +249,13 @@ def classifiers(request):
 def search(request):
 
     q = request.params.get("q", '')
+    q = q.replace("'", '"')
 
     if q:
-        should = []
-        for field in SEARCH_FIELDS:
-            kw = {"query": q}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
-            should.append(Q("match", **{field: kw}))
+        bool_query = gather_es_queries(q)
 
-        # Add a prefix query if ``q`` is longer than one character.
-        if len(q) > 1:
-            should.append(Q('prefix', normalized_name=q))
+        query = request.es.query(bool_query)
 
-        query = request.es.query("dis_max", queries=should)
         query = query.suggest("name_suggestion", q, term={"field": "name"})
     else:
         query = request.es.query()
@@ -372,3 +366,45 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
+
+
+def filter_query(s):
+    """
+    Filters given query with the below regex
+    and returns lists of quoted and unquoted strings
+    """
+    matches = re.findall(r'(?:"([^"]*)")|([^"]*)', s)
+    result_quoted = [t[0].strip() for t in matches if t[0]]
+    result_unquoted = [t[1].strip() for t in matches if t[1]]
+    return result_quoted, result_unquoted
+
+
+def form_query(query_type, query):
+    """
+    Returns a multi match query
+    """
+    fields = [
+        field + "^" + str(SEARCH_BOOSTS[field])
+        if field in SEARCH_BOOSTS else field
+        for field in SEARCH_FIELDS
+    ]
+    return Q('multi_match', fields=fields,
+             query=query, type=query_type
+             )
+
+
+def gather_es_queries(q):
+    quoted_string, unquoted_string = filter_query(q)
+    must = [
+        form_query("phrase", i) for i in quoted_string
+    ] + [
+        form_query("best_fields", i) for i in unquoted_string
+    ]
+
+    bool_query = Q('bool', must=must)
+
+    # Allow to optionally match on prefix
+    # if ``q`` is longer than one character.
+    if len(q) > 1:
+        bool_query = bool_query | Q("prefix", normalized_name=q)
+    return bool_query
