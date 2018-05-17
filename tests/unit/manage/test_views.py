@@ -661,7 +661,7 @@ class TestManageAccount:
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
-            pretend.call('Must confirm the request', queue='error')
+            pretend.call('Confirm the request', queue='error')
         ]
 
     def test_delete_account_wrong_confirm(self, monkeypatch):
@@ -780,7 +780,7 @@ class TestManageProjectSettings:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error"),
         ]
 
     def test_delete_project_wrong_confirm(self):
@@ -822,7 +822,7 @@ class TestManageProjectSettings:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted the project 'foo'",
+                "Deleted the project 'foo'",
                 queue="success"
             ),
         ]
@@ -861,7 +861,7 @@ class TestManageProjectDocumentation:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error"),
         ]
 
     def test_destroy_project_docs_wrong_confirm(self):
@@ -920,7 +920,7 @@ class TestManageProjectDocumentation:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Successfully deleted docs for project 'foo'",
+                "Deleted docs for project 'foo'",
                 queue="success"
             ),
         ]
@@ -998,7 +998,7 @@ class TestManageProjectRelease:
         assert journal_cls.calls == [
             pretend.call(
                 name=release.project.name,
-                action="remove",
+                action="remove release",
                 version=release.version,
                 submitted_by=request.user,
                 submitted_from=request.remote_addr,
@@ -1006,7 +1006,7 @@ class TestManageProjectRelease:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted release {release.version!r}",
+                f"Deleted release {release.version!r}",
                 queue="success",
             )
         ]
@@ -1041,7 +1041,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [
@@ -1131,7 +1131,7 @@ class TestManageProjectRelease:
 
         assert request.session.flash.calls == [
             pretend.call(
-                f"Successfully deleted file {release_file.filename!r}",
+                f"Deleted file {release_file.filename!r}",
                 queue="success",
             )
         ]
@@ -1178,7 +1178,7 @@ class TestManageProjectRelease:
         assert request.db.delete.calls == []
         assert request.session.flash.calls == [
             pretend.call(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
         ]
         assert request.route_path.calls == [
@@ -1531,7 +1531,7 @@ class TestChangeProjectRoles:
             pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully changed role", queue="success"),
+            pretend.call("Changed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -1596,7 +1596,7 @@ class TestChangeProjectRoles:
             pretend.call('manage.project.roles', project_name=project.name),
         ]
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully changed role", queue="success"),
+            pretend.call("Changed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -1721,7 +1721,7 @@ class TestDeleteProjectRoles:
         ]
         assert db_request.db.query(Role).all() == []
         assert db_request.session.flash.calls == [
-            pretend.call("Successfully removed role", queue="success"),
+            pretend.call("Removed role", queue="success"),
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"

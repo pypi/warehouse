@@ -275,7 +275,7 @@ class ManageAccountViews:
 
         if not username:
             self.request.session.flash(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
             return self.default_response
 
@@ -438,7 +438,7 @@ class ManageProjectRelease:
         version = self.request.POST.get('confirm_version')
         if not version:
             self.request.session.flash(
-                "Must confirm the request", queue='error'
+                "Confirm the request", queue='error'
             )
             return HTTPSeeOther(
                 self.request.route_path(
@@ -465,7 +465,7 @@ class ManageProjectRelease:
         self.request.db.add(
             JournalEntry(
                 name=self.release.project.name,
-                action="remove",
+                action="remove release",
                 version=self.release.version,
                 submitted_by=self.request.user,
                 submitted_from=self.request.remote_addr,
@@ -475,7 +475,7 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Successfully deleted release {self.release.version!r}",
+            f"Deleted release {self.release.version!r}",
             queue="success",
         )
 
@@ -505,7 +505,7 @@ class ManageProjectRelease:
         project_name = self.request.POST.get('confirm_project_name')
 
         if not project_name:
-            return _error("Must confirm the request")
+            return _error("Confirm the request")
 
         try:
             release_file = (
@@ -539,7 +539,7 @@ class ManageProjectRelease:
         self.request.db.delete(release_file)
 
         self.request.session.flash(
-            f"Successfully deleted file {release_file.filename!r}",
+            f"Deleted file {release_file.filename!r}",
             queue="success",
         )
 
@@ -700,7 +700,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         ),
                     )
                 request.session.flash(
-                    'Successfully changed role', queue="success"
+                    'Changed role', queue="success"
                 )
         else:
             # This user only has one role, so get it and change the type.
@@ -732,7 +732,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     )
                     role.role_name = form.role_name.data
                     request.session.flash(
-                        'Successfully changed role', queue="success"
+                        'Changed role', queue="success"
                     )
             except NoResultFound:
                 request.session.flash("Could not find role", queue="error")
@@ -781,7 +781,7 @@ def delete_project_role(project, request):
                     submitted_from=request.remote_addr,
                 ),
             )
-        request.session.flash("Successfully removed role", queue="success")
+        request.session.flash("Removed role", queue="success")
 
     return HTTPSeeOther(
         request.route_path('manage.project.roles', project_name=project.name)
