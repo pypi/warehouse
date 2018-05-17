@@ -381,9 +381,7 @@ do this:
     (InteractiveConsole)
     >>>
     >>> from warehouse.accounts.models import User
-    >>> from warehouse.db import Session
-    >>> session = Session(bind=config.registry["sqlalchemy.engine"])
-    >>> session.query(User).filter_by(username='test').all()
+    >>> db.query(User).filter_by(username='test').all()
     [User(username='test')]
 
 You can also run the IPython shell as the interactive shell. To do so export
