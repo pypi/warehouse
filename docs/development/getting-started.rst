@@ -251,6 +251,11 @@ access your developer environment, you'll:
 
 View Warehouse in the browser at http://localhost:80/.
 
+Debugging the webserver
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you would like to use a debugger like pdb that allows you to drop
+into a shell, you can use ``make debug`` instead of ``make serve``.
 
 Troubleshooting
 ---------------
