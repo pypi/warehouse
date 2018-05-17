@@ -48,7 +48,6 @@ export default class extends Controller {
   }
 
   toggleTab(btn) {
-    history.pushState(null, "", btn.getAttribute("href"));
     let contentId = btn.getAttribute("href").substr(1);
     // toggle display setting for the content related to the tab button
     this.contentTargets.forEach(content => {
