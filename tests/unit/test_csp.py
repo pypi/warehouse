@@ -163,6 +163,34 @@ class TestCSPTween:
             "Content-Security-Policy": "script-src https://example.com",
         }
 
+    def test_simple_csp(self):
+        settings = {
+            "csp": {
+                "default-src": ["'none'"],
+                "sandbox": ["allow-top-navigation"],
+            }
+        }
+        response = pretend.stub(headers={})
+        registry = pretend.stub(settings=settings)
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = csp.content_security_policy_tween_factory(handler, registry)
+
+        request = pretend.stub(
+            scheme="https",
+            host="example.com",
+            path="/simple/",
+            find_service=pretend.call_recorder(
+                lambda *args, **kwargs: settings["csp"],
+            ),
+        )
+
+        assert tween(request) is response
+        assert response.headers == {
+            "Content-Security-Policy":
+                "default-src 'none'; sandbox allow-top-navigation",
+        }
+
 
 class TestCSPPolicy:
     def test_create(self):

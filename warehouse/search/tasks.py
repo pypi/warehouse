@@ -94,7 +94,9 @@ def _project_docs(db):
     for release in windowed_query(release_data, Release.name, 50000):
         p = ProjectDocType.from_db(release)
         p.full_clean()
-        yield p.to_dict(include_meta=True)
+        doc = p.to_dict(include_meta=True)
+        doc.pop('_index', None)
+        yield doc
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -143,7 +145,8 @@ def reindex(request):
     try:
         request.db.execute("SET statement_timeout = '600s'")
 
-        for _ in parallel_bulk(client, _project_docs(request.db)):
+        for _ in parallel_bulk(client, _project_docs(request.db),
+                               index=new_index_name):
             pass
     except:  # noqa
         new_index.delete()
@@ -152,9 +155,8 @@ def reindex(request):
         request.db.rollback()
         request.db.close()
 
-    # Now that we've finished indexing all of our data we can optimize it and
-    # update the replicas and refresh intervals.
-    client.indices.forcemerge(index=new_index_name)
+    # Now that we've finished indexing all of our data we can update the
+    # replicas and refresh intervals.
     client.indices.put_settings(
         index=new_index_name,
         body={

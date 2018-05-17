@@ -42,7 +42,7 @@ if extra_in_left or extra_in_right:
 endef
 
 default:
-	@echo "Must call a specific subcommand"
+	@echo "Call a specific subcommand"
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
@@ -136,7 +136,7 @@ endif
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -k dev/$(DB).sql.xz
+	xz -d -f -k dev/$(DB).sql.xz
 	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
 	rm dev/$(DB).sql
 	docker-compose run --rm web python -m warehouse db upgrade head
@@ -151,6 +151,7 @@ shell:
 clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
+	rm -rf dev/*.sql
 
 purge: stop clean
 	rm -rf .state
