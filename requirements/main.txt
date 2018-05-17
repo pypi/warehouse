@@ -99,9 +99,9 @@ boto3==1.7.21 \
 botocore==1.10.21 \
     --hash=sha256:c4e4f35d955bacdb98e220a7dcf457f0f32cf42ada36f67fe7e4bb8a639e225e \
     --hash=sha256:be3e7067912342b4af144afd720d16cf5a0f24d773e202695dffaca96ab11d04
-cachetools==2.0.1 \
-    --hash=sha256:4319bbb78172e7bcf99423e1ecd6914b32336ccfe97d2058ffe62e641a7f3abe \
-    --hash=sha256:ede01f2d3cbd6ddc9e35e16c2b0ce011d8bb70ce0dbaf282f5b4df24b213bc5d
+cachetools==2.1.0 \
+    --hash=sha256:d1c398969c478d336f767ba02040fa22617333293fb0b8968e79b16028dfee35 \
+    --hash=sha256:90f1d559512fc073483fe573ef5ceb39bf6ad3d39edc98dc55178a2b2b176fa3
 celery==4.1.0 \
     --hash=sha256:81a67f0d53a688ec2bc8557bd5d6d7218f925a6f2e6df80e01560de9e28997ec \
     --hash=sha256:77ff3730198d6a17b3c1f05579ebe570b579efb35f6d7e13dba3b1368d068b35
