@@ -39,12 +39,6 @@
 
   button {
     color: $white;
-    text-decoration: underline;
-    text-decoration-color: $transparent-white;
-
-    &:hover {
-      text-decoration-color: $white;
-    }
 
     @include link-focus
   }
