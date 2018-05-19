@@ -426,6 +426,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".routes"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
+            pretend.call(".credits"),
             pretend.call(".raven"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),

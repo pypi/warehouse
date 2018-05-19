@@ -278,6 +278,11 @@ def test_routes(warehouse):
         pretend.call("help", "/help/", "pages/help.html"),
         pretend.call("security", "/security/", "pages/security.html"),
         pretend.call(
+            "credits",
+            "/credits/",
+            "templates/pages/credits.html"
+        ),
+        pretend.call(
             "sponsors",
             "/sponsors/",
             "warehouse:templates/pages/sponsors.html",
