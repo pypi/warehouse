@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Text
 
 from warehouse import db
 
@@ -14,6 +14,6 @@ class Contributor(db.Model):
 
     def __repr__(self):
         return "<{}(name='{}', url='{}')>".format(
-                self.contributor_login, self.contributor_name,
-                self.contributor_url)
-
+            self.contributor_login, self.contributor_name,
+            self.contributor_url
+        )

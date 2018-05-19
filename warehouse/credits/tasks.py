@@ -28,16 +28,19 @@ def get_contributors(request):
     access_token = request.registry.settings["warehouse.github_access_token"]
 
     try:
-        r = requests.get(api_url + "/repos/pypa/warehouse/stats/contributors"
-                         + "?access_token=" + access_token)
+        r = requests.get(api_url +
+                         "/repos/pypa/warehouse/stats/contributors" +
+                         "?access_token=" + access_token)
         if r.status_code is 200:
             json_data = json.loads(r.text)
             for item in json_data:
-                r2 = requests.get(api_url + "/users/" + item["author"]["login"]
-                                  + "?access_token=" + access_token)
+                r2 = requests.get(api_url + "/users/" +
+                                  item["author"]["login"] +
+                                  "?access_token=" + access_token)
                 if r2.status_code is 200:
                     json_data2 = json.loads(r2.text)
-                    if json_data2["name"] is None or len(json_data2["name"]) < 2:
+                    if json_data2["name"] is None or \
+                       len(json_data2["name"]) < 2:
                         json_data2["name"] = item["author"]["login"]
                     contributors[item["author"]["login"]] = {
                         "name": json_data2["name"],
@@ -63,7 +66,8 @@ def get_contributors(request):
                              Contributor.contributor_name,
                              Contributor.contributor_url).all()
 
-    new_users = list(set(contributors.keys()).difference([q[1] for q in query]))
+    new_users = list(set(contributors.keys()).difference([q[1] for
+                                                          q in query]))
 
     for username in new_users:
         # print("{}".format(item))
