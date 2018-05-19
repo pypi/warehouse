@@ -64,6 +64,19 @@
 </a>
 {%- endmacro %}
 
+
+{%- macro pip_command(release, request_route, test_environment) -%}
+  {%- if test_environment -%}
+    {% set index_url = " --index-url https://test.pypi.org/simple/" %}
+  {%- endif -%}
+
+  {%- if request_route == "packaging.release" -%}
+    {% set project_version = "==" + release.version %}
+  {%- endif -%}
+
+  pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+{%- endmacro -%}
+
 {% block title %}{{ release.project.name }}{% endblock %}
 
 {% block description %}{{ release.summary }}{% endblock %}
@@ -79,13 +92,8 @@
       </h1>
 
       {% if files %}
-        {% if request.matched_route.name == "packaging.release" %}
-          {% set pip_command = "pip install {release.project.name}=={release.version}".format(release=release) %}
-        {% else %}
-          {% set pip_command = "pip install {release.project.name}".format(release=release) %}
-        {% endif %}
       <p class="package-header__pip-instructions">
-        <span id="pip-command">{{ pip_command }}</span>
+        <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
         <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
