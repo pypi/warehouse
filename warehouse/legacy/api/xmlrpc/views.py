@@ -131,7 +131,7 @@ def search(request, spec, operator="and"):
         return [
             {
                 "name": r.name,
-                "summary": r.summary,
+                "summary": getattr(r, 'summary'),
                 "version": v,
                 "_pypi_ordering": False
             }
@@ -142,7 +142,7 @@ def search(request, spec, operator="and"):
     return [
         {
             "name": r.name,
-            "summary": r.summary,
+            "summary": getattr(r, 'summary'),
             "version": r.latest_version,
             "_pypi_ordering": False
         }
@@ -192,7 +192,7 @@ def user_packages(request, username):
 @xmlrpc_method(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
-        RuntimeError("This API has been removed. Please Use BigQuery instead.")
+        RuntimeError("This API has been removed. Use BigQuery instead.")
     )
 
 
