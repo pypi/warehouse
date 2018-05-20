@@ -149,7 +149,7 @@ class TestJSONRelease:
         releases += [
             ReleaseFactory.create(
                 project=project,
-                version="3.0",
+                version="10.0",
                 description_content_type=description_content_type,
             )
         ]
@@ -220,7 +220,7 @@ class TestJSONRelease:
                 "requires_dist": None,
                 "requires_python": None,
                 "summary": None,
-                "version": "3.0",
+                "version": "10.0",
             },
             "releases": {
                 "0.1": [],
@@ -264,7 +264,7 @@ class TestJSONRelease:
                         "url": "/the/fake/url/",
                     },
                 ],
-                "3.0": [
+                "10.0": [
                     {
                         "comment_text": None,
                         "downloads": -1,
@@ -307,6 +307,7 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
         }
+        assert tuple(result['releases']) == ('0.1', '1.0', '2.0', '10.0')
 
     def test_minimal_renders(self, pyramid_config, db_request):
         project = ProjectFactory.create(has_docs=False)
