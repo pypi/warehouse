@@ -42,9 +42,9 @@ pep8-naming==0.7.0 \
 pycodestyle==2.3.1 \
     --hash=sha256:6c4245ade1edfad79c3446fadfc96b0de2759662dc29d07d80a6f27ad1ca6ba9 \
     --hash=sha256:682256a5b318149ca0d2a9185d365d8864a768a28db66a84a2ea946bcc426766
-pyflakes==1.6.0 \
-    --hash=sha256:08bd6a50edf8cffa9fa09a463063c425ecaaf10d1eb0335a7e8b1401aef89e6f \
-    --hash=sha256:8d616a382f243dbf19b54743f280b80198be0bca3a5396f1d2e1fca6223e8805
+pyflakes==2.0.0 \
+    --hash=sha256:f661252913bc1dbe7fcfcbf0af0db3f42ab65aabd1a6ca68fe5d466bace94dae \
+    --hash=sha256:9a7662ec724d0120012f6e29d6248ae3727d821bba522a0e6b356eff19126a49
 restructuredtext-lint==1.1.3 \
     --hash=sha256:c48ca9a84c312b262809f041fe47dcfaedc9ee4879b3e1f9532f745c182b4037
 six==1.11.0 \
