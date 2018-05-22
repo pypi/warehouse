@@ -78,8 +78,11 @@
     font-weight: $bold-font-weight;
   }
 
-  em,
   i {
+    font-style: italic
+  }
+
+  em {
     font-style: normal
   }
 
