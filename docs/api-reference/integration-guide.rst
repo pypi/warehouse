@@ -82,7 +82,7 @@ migrating to PyPI
 
 
 
-Querying PyPI for Package URLS
+Querying PyPI for Package URLs
 ------------------------------
 When copying a download link from https://pypi.org, you get a URL with a random hash value in it.
 
@@ -104,7 +104,7 @@ location: https://files.pythonhosted.org/packages/b1/72/2d70c5a1de409ceb3a27ff2e
 
 But as you'll note, it is just a redirect to the canonical file.
 
-You should generally query the index for package URLs rather than guessing, but the url structure for the redirect service is:
+You should generally query the index for package URLs rather than guessing, but the URL structure for the redirect service is:
 ```
 /packages/{python_version}/{project_l}/{project_name}/{filename}
 ```
