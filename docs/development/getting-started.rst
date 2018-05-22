@@ -10,15 +10,15 @@ Your first pull request
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), please take a look at :doc:`our guide to the Warehouse
-codebase <../application>`. Then, look at our `open issues that are
-labelled "good first issue"`_, find one you want to work on, comment
-on it to say you're working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+document), take a look at :doc:`our guide to the Warehouse codebase
+<../application>`. Then, look at our `open issues that are labelled "good first
+issue"`_, find one you want to work on, comment on it to say you're working on
+it, then submit a pull request. Use our :doc:`submitting-patches` documentation
+to help.
 
 Setting up a development environment to work on Warehouse should be a
-straightforward process. If you have any difficulty, please contact us
-so we can improve the process:
+straightforward process. If you have any difficulty, contact us so we can
+improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
@@ -28,7 +28,7 @@ so we can improve the process:
 
 .. _dev-env-install:
 
-Detailed Installation Instructions
+Detailed installation instructions
 ----------------------------------
 
 Getting the Warehouse source code
@@ -72,7 +72,7 @@ for Linux Quirks`_ for extra configuration instructions.
 .. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
 
-Verifying Docker Installation
+Verifying Docker installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker is installed: ``docker -v``
@@ -89,13 +89,13 @@ Install Docker Compose using the Docker-provided
    `Docker for Windows`_ automatically.
 
 
-Verifying Docker Compose Installation
+Verifying Docker Compose installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker Compose is installed: ``docker-compose -v``
 
 
-Verifying the Neccessary Ports are Available
+Verifying the neccessary ports are available
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Warehouse needs access to a few local ports in order to run, namely ports
@@ -129,7 +129,7 @@ Warehouse and run all of the needed services. The Warehouse repository will be
 mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
-Running the Warehouse Container and Services
+Running the Warehouse container and services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to start the Docker services that make up the Warehouse
@@ -164,7 +164,7 @@ This command will:
 .. note::
 
     If you get an error about xz, you may need to install the ``xz`` utility.
-    This is highly likely on Mac OS X and Windows.
+    This is highly likely on macOS and Windows.
 
 Once the ``make initdb`` command has finished, you are ready to continue.
 
@@ -198,7 +198,7 @@ This means that all the services are up, and web container is listening on port
 
 .. note::
 
-    If you are using ``docker-machine`` on an older version of Mac OS or
+    If you are using ``docker-machine`` on an older version of macOS or
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
@@ -299,6 +299,17 @@ This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop ``make_serve`` and run ``make initdb`` again.
 
+
+``make initdb`` complains about PostgreSQL Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You built a Warehouse install some time ago and PostgreSQL has been updated.
+If you do not need the data in your databases, it might be best to just blow
+away your builds + ``docker`` containers and start again:
+``make purge``
+``docker volume rm $(docker volume ls -q --filter dangling=true)``
+
+
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
 
@@ -356,6 +367,22 @@ config The Pyramid ``Configurator`` object which has already been configured by
 db     The SQLAlchemy ORM ``Session`` object which has already been configured
        to connect to the database.
 ====== ========================================================================
+
+To use the ``db`` object in the interactive shell, import the class you're
+planning to use. For example, if I wanted to use the User object, I would
+do this:
+
+.. code-block:: console
+
+    $ make shell
+    docker-compose run --rm web python -m warehouse shell
+    Starting warehouse_redis_1 ...
+    ...
+    (InteractiveConsole)
+    >>>
+    >>> from warehouse.accounts.models import User
+    >>> db.query(User).filter_by(username='test').all()
+    [User(username='test')]
 
 You can also run the IPython shell as the interactive shell. To do so export
 the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
@@ -436,10 +463,9 @@ Building the docs requires Python 3.6. If it is not installed, the
 What next?
 ----------
 
-Please look at our `open issues that are labelled "good first
-issue"`_, find one you want to work on, comment on it to say you're
-working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+Look at our `open issues that are labelled "good first issue"`_, find one you
+want to work on, comment on it to say you're working on it, then submit a pull
+request. Use our :doc:`submitting-patches` documentation to help.
 
 Talk with us
 ^^^^^^^^^^^^

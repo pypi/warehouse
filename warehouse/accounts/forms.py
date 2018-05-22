@@ -43,8 +43,7 @@ class NewUsernameMixin:
             wtforms.validators.Length(
                 max=50,
                 message=(
-                    "The username you have chosen is too long. Choose "
-                    "a username with under 50 characters."
+                    "Choose a username with 50 characters or less."
                 )
             ),
             # the regexp below must match the CheckConstraint
@@ -84,8 +83,7 @@ class PasswordMixin:
             try:
                 if not self.user_service.check_password(userid, field.data):
                     raise wtforms.validators.ValidationError(
-                        "The password you have provided is invalid. "
-                        "Try again."
+                        "The password is invalid. Try again."
                     )
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
@@ -110,7 +108,7 @@ class NewPasswordMixin:
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
                 "new_password",
-                "Your passwords do not match. Try again."
+                "Your passwords don't match. Try again."
             ),
         ],
     )
@@ -134,8 +132,7 @@ class NewEmailMixin:
             wtforms.validators.DataRequired(),
             wtforms.validators.Email(
                 message=(
-                    "The email address you have chosen is not a valid "
-                    "format. Try again."
+                    "The email address isn't valid. Try again."
                 )
             ),
         ],
@@ -150,7 +147,7 @@ class NewEmailMixin:
         domain = field.data.split('@')[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You cannot create an account with an email address "
+                "You can't create an account with an email address "
                 "from this domain. Use a different email."
             )
 
@@ -171,8 +168,8 @@ class RegistrationForm(
             wtforms.validators.Length(
                 max=100,
                 message=(
-                    "The name you have chosen is too long. Choose "
-                    "a name with under 100 characters."
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
                 )
             ),
         ]

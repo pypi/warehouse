@@ -34,7 +34,7 @@ NameAnalyzer = analyzer(
 class Project(DocType):
 
     name = Text()
-    normalized_name = Text(analyzer=NameAnalyzer, index_options="docs")
+    normalized_name = Text(analyzer=NameAnalyzer)
     version = Keyword(multi=True)
     latest_version = Keyword()
     summary = Text(analyzer="snowball")
