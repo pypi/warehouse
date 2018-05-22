@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from packaging.version import parse
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.orm import Load
@@ -105,13 +106,17 @@ def json_release(release, request):
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
 
     # Get all of the releases and files for this project.
-    release_files = (
+    release_files = sorted(
         request.db.query(Release, File)
                .options(Load(Release).load_only('version'))
                .outerjoin(File)
                .filter(Release.project == project)
-               .order_by(Release._pypi_ordering.desc(), File.filename)
-               .all()
+               .all(),
+        key=lambda r_f: (
+            r_f[0]._pypi_ordering,
+            parse(r_f[0].version),
+            r_f[1].filename if r_f[1] is not None else None,
+        ),
     )
 
     # Map our releases + files into a dictionary that maps each release to a
