@@ -80,7 +80,7 @@
 
   em,
   i {
-    font-style: italic
+    font-style: normal
   }
 
   pre {
@@ -127,7 +127,7 @@
   blockquote {
     margin: ($spacing-unit / 2) 0 0 ($spacing-unit / 2);
     border-left: 3px solid $light-grey;
-    font-style: italic;
+    font-style: normal;
     padding-left: ($spacing-unit / 2);
     color: lighten($text-color, 20);
 
@@ -221,7 +221,7 @@ $black:         #000;
   }
 
   .ge { /* Generic.Emph */
-    font-style: italic;
+    font-style: normal;
   }
 
   .gr { /* Generic.Error */
@@ -328,7 +328,7 @@ $black:         #000;
 
   .nl { /* Name.Label */
     color: $light-blue;
-    font-style: italic;
+    font-style: normal;
   }
 
   .nn { /* Name.Namespace */

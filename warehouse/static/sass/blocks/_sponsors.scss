@@ -36,7 +36,7 @@
 
   &__title {
     display: none;
-    font-style: italic;
+    font-style: normal;
     padding-bottom: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid transparentize($white, 0.8);
@@ -100,7 +100,7 @@
   }
 
   &__service {
-    font-style: italic;
+    font-style: normal;
 
     @media only screen and (max-width: $small-tablet) {
       display: none;
