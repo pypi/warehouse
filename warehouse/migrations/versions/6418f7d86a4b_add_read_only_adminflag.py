@@ -20,12 +20,13 @@ Create Date: 2018-03-23 20:51:31.558587
 from alembic import op
 
 
-revision = '6418f7d86a4b'
-down_revision = 'bf73e785eed9'
+revision = "6418f7d86a4b"
+down_revision = "bf73e785eed9"
 
 
 def upgrade():
-    op.execute("""
+    op.execute(
+        """
         INSERT INTO warehouse_admin_flag(id, description, enabled, notify)
         VALUES (
             'read-only',
@@ -33,7 +34,8 @@ def upgrade():
             FALSE,
             TRUE
         )
-    """)
+    """
+    )
 
 
 def downgrade():

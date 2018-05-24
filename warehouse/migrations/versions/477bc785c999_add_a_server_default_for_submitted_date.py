@@ -27,10 +27,7 @@ down_revision = "6a03266b2d"
 
 def upgrade():
     op.alter_column(
-        "journals",
-        "submitted_date",
-        server_default=sa.func.now(),
-        nullable=False,
+        "journals", "submitted_date", server_default=sa.func.now(), nullable=False
     )
 
 

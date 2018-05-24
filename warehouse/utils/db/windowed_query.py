@@ -38,8 +38,7 @@ def column_windows(session, column, windowsize):
             return column >= start_id
 
     q = session.query(
-        column,
-        func.row_number().over(order_by=column).label('rownum')
+        column, func.row_number().over(order_by=column).label("rownum")
     ).from_self(column)
 
     if windowsize > 1:

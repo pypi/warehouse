@@ -48,9 +48,9 @@ def includeme(config):
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
-    config.registry["elasticsearch.replicas"] = \
-        int(qs.get("replicas", ["0"])[0])
+    config.registry["elasticsearch.replicas"] = int(qs.get("replicas", ["0"])[0])
     config.add_request_method(es, name="es", reify=True)
 
     from warehouse.search.tasks import reindex
-    config.add_periodic_task(crontab(minute=0, hour='*/3'), reindex)
+
+    config.add_periodic_task(crontab(minute=0, hour="*/3"), reindex)

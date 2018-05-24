@@ -29,14 +29,11 @@ down_revision = "477bc785c999"
 
 def upgrade():
     op.add_column(
-        "release_files",
-        sa.Column("sha256_digest", citext.CIText(), nullable=True),
+        "release_files", sa.Column("sha256_digest", citext.CIText(), nullable=True)
     )
     op.create_unique_constraint(None, "release_files", ["sha256_digest"])
     op.create_check_constraint(
-        None,
-        "release_files",
-        "sha256_digest ~* '^[A-F0-9]{64}$'",
+        None, "release_files", "sha256_digest ~* '^[A-F0-9]{64}$'"
     )
 
 

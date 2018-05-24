@@ -17,17 +17,10 @@ def add_legacy_action_route(config, name, action, **kwargs):
     custom_predicates = kwargs.pop("custom_predicates", [])
     custom_predicates += [pypi_action(action)]
 
-    config.add_route(
-        name,
-        "/legacy/",
-        custom_predicates=custom_predicates,
-        **kwargs
-    )
+    config.add_route(name, "/legacy/", custom_predicates=custom_predicates, **kwargs)
 
 
 def includeme(config):
     config.add_directive(
-        "add_legacy_action_route",
-        add_legacy_action_route,
-        action_wrap=False,
+        "add_legacy_action_route", add_legacy_action_route, action_wrap=False
     )

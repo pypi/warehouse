@@ -37,13 +37,12 @@ def test_tls_redis_backend():
 class TestWarehouseTask:
 
     def test_header(self):
+
         def header(request, thing):
             pass
 
         task_type = type(
-            "Foo",
-            (tasks.WarehouseTask,),
-            {"__header__": staticmethod(header)},
+            "Foo", (tasks.WarehouseTask,), {"__header__": staticmethod(header)}
         )
 
         obj = task_type()
@@ -57,7 +56,7 @@ class TestWarehouseTask:
         prepared = {
             "registry": registry,
             "request": request,
-            "closer": pretend.call_recorder(lambda: None)
+            "closer": pretend.call_recorder(lambda: None),
         }
         prepare = pretend.call_recorder(lambda *a, **kw: prepared)
         monkeypatch.setattr(scripting, "prepare", prepare)
@@ -79,7 +78,7 @@ class TestWarehouseTask:
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
         super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result),
+            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
         )
         real_super = __builtins__["super"]
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
@@ -107,7 +106,7 @@ class TestWarehouseTask:
     def test_request_without_tm(self, monkeypatch):
         async_result = pretend.stub()
         super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: async_result),
+            apply_async=pretend.call_recorder(lambda *a, **kw: async_result)
         )
         real_super = __builtins__["super"]
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
@@ -135,10 +134,10 @@ class TestWarehouseTask:
 
     def test_request_after_commit(self, monkeypatch):
         manager = pretend.stub(
-            addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None),
+            addAfterCommitHook=pretend.call_recorder(lambda *a, **kw: None)
         )
         request = pretend.stub(
-            tm=pretend.stub(get=pretend.call_recorder(lambda: manager)),
+            tm=pretend.stub(get=pretend.call_recorder(lambda: manager))
         )
         get_current_request = pretend.call_recorder(lambda: request)
         monkeypatch.setattr(tasks, "get_current_request", get_current_request)
@@ -153,7 +152,7 @@ class TestWarehouseTask:
         assert get_current_request.calls == [pretend.call()]
         assert request.tm.get.calls == [pretend.call()]
         assert manager.addAfterCommitHook.calls == [
-            pretend.call(task._after_commit_hook, args=args, kws=kwargs),
+            pretend.call(task._after_commit_hook, args=args, kws=kwargs)
         ]
 
     @pytest.mark.parametrize("success", [True, False])
@@ -162,7 +161,7 @@ class TestWarehouseTask:
         kwargs = {"foo": pretend.stub(), "bar": pretend.stub()}
 
         super_class = pretend.stub(
-            apply_async=pretend.call_recorder(lambda *a, **kw: None),
+            apply_async=pretend.call_recorder(lambda *a, **kw: None)
         )
         real_super = __builtins__["super"]
         inner_super = pretend.call_recorder(lambda *a, **kw: super_class)
@@ -217,7 +216,7 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            )
         )
 
         @pretend.call_recorder
@@ -226,11 +225,7 @@ class TestWarehouseTask:
             assert kwarg_ is kwarg
             return result
 
-        task_type = type(
-            "Foo",
-            (tasks.WarehouseTask,),
-            {"run": staticmethod(run)},
-        )
+        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
 
         obj = task_type()
         obj.get_request = lambda: request
@@ -241,6 +236,7 @@ class TestWarehouseTask:
         assert request.tm.__exit__.calls == [pretend.call(None, None, None)]
 
     def test_run_retries_failed_transaction(self):
+
         class RetryThisException(RetryableException):
             pass
 
@@ -260,7 +256,7 @@ class TestWarehouseTask:
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            )
         )
 
         obj = task_type()
@@ -270,28 +266,23 @@ class TestWarehouseTask:
             obj.run()
 
         assert request.tm.__enter__.calls == [pretend.call()]
-        assert request.tm.__exit__.calls == [
-            pretend.call(Retry, mock.ANY, mock.ANY),
-        ]
+        assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
 
     def test_run_doesnt_retries_failed_transaction(self):
+
         class DontRetryThisException(Exception):
             pass
 
         def run():
             raise DontRetryThisException
 
-        task_type = type(
-            "Foo",
-            (tasks.WarehouseTask,),
-            {"run": staticmethod(run)},
-        )
+        task_type = type("Foo", (tasks.WarehouseTask,), {"run": staticmethod(run)})
 
         request = pretend.stub(
             tm=pretend.stub(
                 __enter__=pretend.call_recorder(lambda *a, **kw: None),
                 __exit__=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            )
         )
 
         obj = task_type()
@@ -302,27 +293,28 @@ class TestWarehouseTask:
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
-            pretend.call(DontRetryThisException, mock.ANY, mock.ANY),
+            pretend.call(DontRetryThisException, mock.ANY, mock.ANY)
         ]
 
     def test_after_return_without_pyramid_env(self):
         obj = tasks.WarehouseTask()
-        assert obj.after_return(
-            pretend.stub(),
-            pretend.stub(),
-            pretend.stub(),
-            pretend.stub(),
-            pretend.stub(),
-            pretend.stub(),
-        ) is None
+        assert (
+            obj.after_return(
+                pretend.stub(),
+                pretend.stub(),
+                pretend.stub(),
+                pretend.stub(),
+                pretend.stub(),
+                pretend.stub(),
+            )
+            is None
+        )
 
     def test_after_return_closes_env_runs_request_callbacks(self):
         obj = tasks.WarehouseTask()
         obj.request.pyramid_env = {
             "request": pretend.stub(
-                _process_finished_callbacks=pretend.call_recorder(
-                    lambda: None
-                ),
+                _process_finished_callbacks=pretend.call_recorder(lambda: None)
             ),
             "closer": pretend.call_recorder(lambda: None),
         }
@@ -336,9 +328,9 @@ class TestWarehouseTask:
             pretend.stub(),
         )
 
-        assert (
-            obj.request.pyramid_env["request"]
-                       ._process_finished_callbacks.calls == [pretend.call()])
+        assert obj.request.pyramid_env["request"]._process_finished_callbacks.calls == [
+            pretend.call()
+        ]
         assert obj.request.pyramid_env["closer"].calls == [pretend.call()]
 
 
@@ -383,7 +375,7 @@ def test_add_periodic_task():
     signature = pretend.stub()
     task_obj = pretend.stub(s=lambda: signature)
     celery_app = pretend.stub(
-        add_periodic_task=pretend.call_recorder(lambda *a, **k: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **k: None)
     )
     actions = []
     config = pretend.stub(
@@ -403,7 +395,7 @@ def test_add_periodic_task():
     assert config.action.calls == [pretend.call(None, mock.ANY, order=100)]
     assert config.task.calls == [pretend.call(func)]
     assert celery_app.add_periodic_task.calls == [
-        pretend.call(schedule, signature, args=(), kwargs=(), name=None),
+        pretend.call(schedule, signature, args=(), kwargs=(), name=None)
     ]
 
 
@@ -415,11 +407,7 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl"),
-    [
-        (Environment.development, False),
-        (Environment.production, True),
-    ],
+    ("env", "ssl"), [(Environment.development, False), (Environment.production, True)]
 )
 def test_includeme(env, ssl):
     registry_dict = {}
@@ -445,31 +433,21 @@ def test_includeme(env, ssl):
     assert app.Task is tasks.WarehouseTask
     assert app.pyramid_config is config
     for key, value in {
-            "broker_url": config.registry.settings["celery.broker_url"],
-            "broker_use_ssl": ssl,
-            "worker_disable_rate_limits": True,
-            "task_serializer": "json",
-            "accept_content": ["json", "msgpack"],
-            "task_queue_ha_policy": "all",
-            "REDBEAT_REDIS_URL": (
-                config.registry.settings["celery.scheduler_url"])}.items():
+        "broker_url": config.registry.settings["celery.broker_url"],
+        "broker_use_ssl": ssl,
+        "worker_disable_rate_limits": True,
+        "task_serializer": "json",
+        "accept_content": ["json", "msgpack"],
+        "task_queue_ha_policy": "all",
+        "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
+    }.items():
         assert app.conf[key] == value
-    assert config.action.calls == [
-        pretend.call(("celery", "finalize"), app.finalize),
-    ]
+    assert config.action.calls == [pretend.call(("celery", "finalize"), app.finalize)]
     assert config.add_directive.calls == [
-        pretend.call(
-            "add_periodic_task",
-            tasks._add_periodic_task,
-            action_wrap=False,
-        ),
-        pretend.call(
-            "make_celery_app",
-            tasks._get_celery_app,
-            action_wrap=False,
-        ),
+        pretend.call("add_periodic_task", tasks._add_periodic_task, action_wrap=False),
+        pretend.call("make_celery_app", tasks._get_celery_app, action_wrap=False),
         pretend.call("task", tasks._get_task_from_config, action_wrap=False),
     ]
     assert config.add_request_method.calls == [
-        pretend.call(tasks._get_task_from_request, name="task", reify=True),
+        pretend.call(tasks._get_task_from_request, name="task", reify=True)
     ]

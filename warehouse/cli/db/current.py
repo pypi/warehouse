@@ -22,6 +22,7 @@ def current(config, **kwargs):
     """
     Display the current revision for a database.
     """
-    with alembic_lock(config.registry["sqlalchemy.engine"],
-                      config.alembic_config()) as alembic_config:
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
         alembic.command.current(alembic_config, **kwargs)

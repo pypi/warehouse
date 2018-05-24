@@ -23,11 +23,11 @@ from warehouse.xml import XML_CSP
     renderer="rss/updates.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,                         # 1 day
+            1 * 24 * 60 * 60,  # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            stale_if_error=5 * 24 * 60 * 60,  # 5 days
             keys=["all-projects"],
-        ),
+        )
     ],
 )
 def rss_updates(request):
@@ -37,10 +37,10 @@ def rss_updates(request):
 
     latest_releases = (
         request.db.query(Release)
-                  .options(joinedload(Release.project))
-                  .order_by(Release.created.desc())
-                  .limit(40)
-                  .all()
+        .options(joinedload(Release.project))
+        .order_by(Release.created.desc())
+        .limit(40)
+        .all()
     )
 
     return {"latest_releases": latest_releases}
@@ -51,11 +51,11 @@ def rss_updates(request):
     renderer="rss/packages.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60,                         # 1 day
+            1 * 24 * 60 * 60,  # 1 day
             stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
-            stale_if_error=5 * 24 * 60 * 60,          # 5 days
+            stale_if_error=5 * 24 * 60 * 60,  # 5 days
             keys=["all-projects"],
-        ),
+        )
     ],
 )
 def rss_packages(request):
@@ -65,10 +65,10 @@ def rss_packages(request):
 
     newest_projects = (
         request.db.query(Project)
-                  .options(joinedload(Project.releases, innerjoin=True))
-                  .order_by(Project.created.desc())
-                  .limit(40)
-                  .all()
+        .options(joinedload(Project.releases, innerjoin=True))
+        .order_by(Project.created.desc())
+        .limit(40)
+        .all()
     )
 
     return {"newest_projects": newest_projects}

@@ -18,6 +18,7 @@ from .base import WarehouseFactory
 
 
 class AdminFlagFactory(WarehouseFactory):
+
     class Meta:
         model = AdminFlag
 

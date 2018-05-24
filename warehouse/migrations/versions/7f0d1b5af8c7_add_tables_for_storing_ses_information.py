@@ -26,19 +26,19 @@ down_revision = "6418f7d86a4b"
 
 
 SESEmailStatuses = sa.Enum(
-    "Accepted", "Delivered", "Soft Bounced", "Bounced", "Complained",
+    "Accepted",
+    "Delivered",
+    "Soft Bounced",
+    "Bounced",
+    "Complained",
     name="ses_email_statuses",
 )
 
 
-SESEventTypes = sa.Enum(
-    "Delivery", "Bounce", "Complaint",
-    name="ses_event_types",
-)
+SESEventTypes = sa.Enum("Delivery", "Bounce", "Complaint", name="ses_event_types")
 
 EmailFailureTypes = sa.Enum(
-    "spam complaint", "hard bounce", "soft bounce",
-    name="accounts_email_failure_types",
+    "spam complaint", "hard bounce", "soft bounce", name="accounts_email_failure_types"
 )
 
 
@@ -52,16 +52,10 @@ def upgrade():
             nullable=False,
         ),
         sa.Column(
-            "created",
-            sa.DateTime(),
-            server_default=sa.text("now()"),
-            nullable=False,
+            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column(
-            "status",
-            SESEmailStatuses,
-            nullable=False,
-            server_default="Accepted",
+            "status", SESEmailStatuses, nullable=False, server_default="Accepted"
         ),
         sa.Column("message_id", sa.Text(), nullable=False),
         sa.Column("from", sa.Text(), nullable=False),
@@ -71,18 +65,10 @@ def upgrade():
     )
 
     op.create_index(
-        op.f("ix_ses_emails_message_id"),
-        "ses_emails",
-        ["message_id"],
-        unique=True,
+        op.f("ix_ses_emails_message_id"), "ses_emails", ["message_id"], unique=True
     )
 
-    op.create_index(
-        op.f("ix_ses_emails_to"),
-        "ses_emails",
-        ["to"],
-        unique=False,
-    )
+    op.create_index(op.f("ix_ses_emails_to"), "ses_emails", ["to"], unique=False)
 
     op.create_table(
         "ses_events",
@@ -93,10 +79,7 @@ def upgrade():
             nullable=False,
         ),
         sa.Column(
-            "created",
-            sa.DateTime(),
-            server_default=sa.text("now()"),
-            nullable=False,
+            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("email_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("event_id", sa.Text(), nullable=False),
@@ -108,26 +91,19 @@ def upgrade():
             nullable=False,
         ),
         sa.ForeignKeyConstraint(
-            ["email_id"],
-            ["ses_emails.id"],
-            initially="DEFERRED",
-            deferrable=True,
+            ["email_id"], ["ses_emails.id"], initially="DEFERRED", deferrable=True
         ),
         sa.PrimaryKeyConstraint("id"),
     )
 
     op.create_index(
-        op.f("ix_ses_events_event_id"),
-        "ses_events",
-        ["event_id"],
-        unique=True,
+        op.f("ix_ses_events_event_id"), "ses_events", ["event_id"], unique=True
     )
 
     EmailFailureTypes.create(op.get_bind(), checkfirst=True)
 
     op.add_column(
-        "accounts_email",
-        sa.Column("unverify_reason", EmailFailureTypes, nullable=True),
+        "accounts_email", sa.Column("unverify_reason", EmailFailureTypes, nullable=True)
     )
 
     op.add_column(
@@ -143,7 +119,7 @@ def upgrade():
 
 def downgrade():
     op.drop_column("accounts_email", "transient_bounces")
-    op.drop_column('accounts_email', 'unverify_reason')
+    op.drop_column("accounts_email", "unverify_reason")
     op.drop_index(op.f("ix_ses_events_event_id"), table_name="ses_events")
     op.drop_table("ses_events")
     op.drop_index(op.f("ix_ses_emails_message_id"), table_name="ses_emails")

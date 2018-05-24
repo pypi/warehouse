@@ -21,9 +21,9 @@ def test_aws_session_factory(monkeypatch):
     bigquery = pretend.stub(
         Client=pretend.stub(
             from_service_account_json=pretend.call_recorder(
-                lambda path, project: client,
-            ),
-        ),
+                lambda path, project: client
+            )
+        )
     )
     monkeypatch.setattr(gcloud, "bigquery", bigquery)
 
@@ -32,25 +32,23 @@ def test_aws_session_factory(monkeypatch):
             settings={
                 "gcloud.credentials": "/the/path/to/gcloud.json",
                 "gcloud.project": "my-cool-project",
-            },
-        ),
+            }
+        )
     )
 
     assert gcloud.gcloud_bigquery_factory(None, request) is client
     assert bigquery.Client.from_service_account_json.calls == [
-        pretend.call("/the/path/to/gcloud.json", project="my-cool-project"),
+        pretend.call("/the/path/to/gcloud.json", project="my-cool-project")
     ]
 
 
 def test_includeme():
     config = pretend.stub(
-        register_service_factory=pretend.call_recorder(
-            lambda factory, name: None
-        )
+        register_service_factory=pretend.call_recorder(lambda factory, name: None)
     )
 
     gcloud.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(gcloud.gcloud_bigquery_factory, name="gcloud.bigquery"),
+        pretend.call(gcloud.gcloud_bigquery_factory, name="gcloud.bigquery")
     ]

@@ -80,8 +80,7 @@ def upgrade():
 
     op.drop_constraint("accounts_gpgkey_user_id_fkey", "accounts_gpgkey")
     op.drop_column("accounts_gpgkey", "user_id")
-    op.alter_column(
-        "accounts_gpgkey", "new_user_id", new_column_name="user_id")
+    op.alter_column("accounts_gpgkey", "new_user_id", new_column_name="user_id")
 
     # Switch the primary key from the old to the new field, drop the old name,
     # and rename the new field into it's place.
@@ -92,20 +91,10 @@ def upgrade():
 
     # Finally, Setup our foreign key constraints for our referring tables.
     op.create_foreign_key(
-        None,
-        "accounts_email",
-        "accounts_user",
-        ["user_id"],
-        ["id"],
-        deferrable=True,
+        None, "accounts_email", "accounts_user", ["user_id"], ["id"], deferrable=True
     )
     op.create_foreign_key(
-        None,
-        "accounts_gpgkey",
-        "accounts_user",
-        ["user_id"],
-        ["id"],
-        deferrable=True,
+        None, "accounts_gpgkey", "accounts_user", ["user_id"], ["id"], deferrable=True
     )
 
 

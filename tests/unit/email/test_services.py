@@ -19,20 +19,14 @@ from pyramid_mailer.mailer import DummyMailer
 from zope.interface.verify import verifyClass
 
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.services import (
-    SMTPEmailSender, SESEmailSender, _format_sender,
-)
+from warehouse.email.services import SMTPEmailSender, SESEmailSender, _format_sender
 from warehouse.email.ses.models import EmailMessage
 
 
 @pytest.mark.parametrize(
     ("sitename", "sender", "expected"),
     [
-        (
-            "My Site Name",
-            "noreply@example.com",
-            "My Site Name <noreply@example.com>",
-        ),
+        ("My Site Name", "noreply@example.com", "My Site Name <noreply@example.com>"),
         ("My Site Name", None, None),
     ],
 )
@@ -50,10 +44,7 @@ class TestSMTPEmailSender:
         context = pretend.stub()
         request = pretend.stub(
             registry=pretend.stub(
-                settings={
-                    "site.name": "DevPyPI",
-                    "mail.sender": "noreply@example.com",
-                },
+                settings={"site.name": "DevPyPI", "mail.sender": "noreply@example.com"},
                 getUtility=lambda mailr: mailer,
             )
         )
@@ -66,8 +57,7 @@ class TestSMTPEmailSender:
 
     def test_send(self):
         mailer = DummyMailer()
-        service = SMTPEmailSender(mailer,
-                                  sender="DevPyPI <noreply@example.com>")
+        service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send("a subject", "a body", recipient="sombody@example.com")
 
@@ -89,7 +79,7 @@ class TestSESEmailSender:
     def test_creates_service(self):
         aws_client = pretend.stub()
         aws_session = pretend.stub(
-            client=pretend.call_recorder(lambda name, region_name: aws_client),
+            client=pretend.call_recorder(lambda name, region_name: aws_client)
         )
         request = pretend.stub(
             find_service=lambda name: {"aws.session": aws_session}[name],
@@ -98,7 +88,7 @@ class TestSESEmailSender:
                     "site.name": "DevPyPI",
                     "mail.region": "us-west-2",
                     "mail.sender": "noreply@example.com",
-                },
+                }
             ),
             db=pretend.stub(),
         )
@@ -106,7 +96,7 @@ class TestSESEmailSender:
         sender = SESEmailSender.create_service(pretend.stub(), request)
 
         assert aws_session.client.calls == [
-            pretend.call("ses", region_name="us-west-2"),
+            pretend.call("ses", region_name="us-west-2")
         ]
 
         assert sender._client is aws_client
@@ -116,11 +106,11 @@ class TestSESEmailSender:
     def test_send(self, db_session):
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
         aws_client = pretend.stub(
-            send_email=pretend.call_recorder(lambda *a, **kw: resp),
+            send_email=pretend.call_recorder(lambda *a, **kw: resp)
         )
-        sender = SESEmailSender(aws_client,
-                                sender="DevPyPI <noreply@example.com>",
-                                db=db_session)
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
 
         sender.send(
             "This is a Subject",
@@ -133,20 +123,15 @@ class TestSESEmailSender:
                 Source="DevPyPI <noreply@example.com>",
                 Destination={"ToAddresses": ["FooBar <somebody@example.com>"]},
                 Message={
-                    "Subject": {
-                        "Data": "This is a Subject",
-                        "Charset": "UTF-8",
-                    },
-                    "Body": {
-                        "Text": {"Data": "This is a Body", "Charset": "UTF-8"},
-                    },
+                    "Subject": {"Data": "This is a Subject", "Charset": "UTF-8"},
+                    "Body": {"Text": {"Data": "This is a Body", "Charset": "UTF-8"}},
                 },
-            ),
+            )
         ]
 
-        em = (db_session.query(EmailMessage)
-                        .filter_by(message_id=resp["MessageId"])
-                        .one())
+        em = (
+            db_session.query(EmailMessage).filter_by(message_id=resp["MessageId"]).one()
+        )
 
         assert em.from_ == "noreply@example.com"
         assert em.to == "somebody@example.com"

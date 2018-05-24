@@ -60,4 +60,4 @@ class ClientSideIncludeExtension(Extension):
         return n
 
     def _csi(self, url, caller):
-        return f"<div data-html-include=\"{url}\">{caller()}</div>"
+        return f'<div data-html-include="{url}">{caller()}</div>'

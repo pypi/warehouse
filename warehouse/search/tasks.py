@@ -21,8 +21,7 @@ from sqlalchemy.orm import aliased
 import certifi
 import elasticsearch
 
-from warehouse.packaging.models import (
-    Classifier, Project, Release, release_classifiers)
+from warehouse.packaging.models import Classifier, Project, Release, release_classifiers
 from warehouse.packaging.search import Project as ProjectDocType
 from warehouse.search.utils import get_index
 from warehouse import tasks
@@ -84,9 +83,13 @@ def _project_docs(db):
             Project.name,
         )
         .select_from(releases_list)
-        .join(Release, and_(
-            Release.name == releases_list.c.name,
-            Release.version == releases_list.c.version))
+        .join(
+            Release,
+            and_(
+                Release.name == releases_list.c.name,
+                Release.version == releases_list.c.version,
+            ),
+        )
         .outerjoin(Release.project)
         .order_by(Release.name)
     )
@@ -95,7 +98,7 @@ def _project_docs(db):
         p = ProjectDocType.from_db(release)
         p.full_clean()
         doc = p.to_dict(include_meta=True)
-        doc.pop('_index', None)
+        doc.pop("_index", None)
         yield doc
 
 
@@ -145,8 +148,7 @@ def reindex(request):
     try:
         request.db.execute("SET statement_timeout = '600s'")
 
-        for _ in parallel_bulk(client, _project_docs(request.db),
-                               index=new_index_name):
+        for _ in parallel_bulk(client, _project_docs(request.db), index=new_index_name):
             pass
     except:  # noqa
         new_index.delete()
@@ -164,7 +166,7 @@ def reindex(request):
                 "number_of_replicas": number_of_replicas,
                 "refresh_interval": refresh_interval,
             }
-        }
+        },
     )
 
     # Point the alias at our new randomly named index and delete the old index.

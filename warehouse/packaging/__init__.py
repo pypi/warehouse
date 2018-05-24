@@ -21,13 +21,13 @@ from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.tasks import compute_trending
 
 
-@db.listens_for(User.name, 'set')
+@db.listens_for(User.name, "set")
 def user_name_receive_set(config, target, value, oldvalue, initiator):
     if oldvalue is not NO_VALUE:
         receive_set(User.name, config, target)
 
 
-@db.listens_for(Email.primary, 'set')
+@db.listens_for(Email.primary, "set")
 def email_primary_receive_set(config, target, value, oldvalue, initiator):
     if oldvalue is not NO_VALUE:
         receive_set(Email.primary, config, target)
@@ -36,34 +36,24 @@ def email_primary_receive_set(config, target, value, oldvalue, initiator):
 def includeme(config):
     # Register whatever file storage backend has been configured for storing
     # our package files.
-    files_storage_class = config.maybe_dotted(
-        config.registry.settings["files.backend"],
-    )
-    config.register_service_factory(
-        files_storage_class.create_service, IFileStorage
-    )
+    files_storage_class = config.maybe_dotted(config.registry.settings["files.backend"])
+    config.register_service_factory(files_storage_class.create_service, IFileStorage)
 
-    docs_storage_class = config.maybe_dotted(
-        config.registry.settings["docs.backend"],
-    )
-    config.register_service_factory(
-        docs_storage_class.create_service, IDocsStorage
-    )
+    docs_storage_class = config.maybe_dotted(config.registry.settings["docs.backend"])
+    config.register_service_factory(docs_storage_class.create_service, IDocsStorage)
 
     # Register our origin cache keys
     config.register_origin_cache_keys(
         File,
         cache_keys=["project/{obj.release.project.normalized_name}"],
-        purge_keys=[
-            key_factory("project/{obj.release.project.normalized_name}"),
-        ],
+        purge_keys=[key_factory("project/{obj.release.project.normalized_name}")],
     )
     config.register_origin_cache_keys(
         Project,
         cache_keys=["project/{obj.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.normalized_name}"),
-            key_factory("user/{itr.username}", iterate_on='users'),
+            key_factory("user/{itr.username}", iterate_on="users"),
             key_factory("all-projects"),
         ],
     )
@@ -72,7 +62,7 @@ def includeme(config):
         cache_keys=["project/{obj.project.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.project.normalized_name}"),
-            key_factory("user/{itr.username}", iterate_on='project.users'),
+            key_factory("user/{itr.username}", iterate_on="project.users"),
             key_factory("all-projects"),
         ],
     )
@@ -80,28 +70,22 @@ def includeme(config):
         Role,
         purge_keys=[
             key_factory("user/{obj.user.username}"),
-            key_factory("project/{obj.project.normalized_name}")
+            key_factory("project/{obj.project.normalized_name}"),
         ],
     )
-    config.register_origin_cache_keys(
-        User,
-        cache_keys=["user/{obj.username}"],
-    )
+    config.register_origin_cache_keys(User, cache_keys=["user/{obj.username}"])
     config.register_origin_cache_keys(
         User.name,
         purge_keys=[
             key_factory("user/{obj.username}"),
-            key_factory("project/{itr.normalized_name}", iterate_on='projects')
+            key_factory("project/{itr.normalized_name}", iterate_on="projects"),
         ],
     )
     config.register_origin_cache_keys(
         Email.primary,
         purge_keys=[
             key_factory("user/{obj.user.username}"),
-            key_factory(
-                "project/{itr.normalized_name}",
-                iterate_on='user.projects',
-            )
+            key_factory("project/{itr.normalized_name}", iterate_on="user.projects"),
         ],
     )
 

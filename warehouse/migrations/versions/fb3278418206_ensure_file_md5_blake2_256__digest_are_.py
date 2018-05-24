@@ -35,19 +35,13 @@ def upgrade():
         nullable=False,
     )
     op.alter_column(
-        "release_files",
-        "md5_digest",
-        existing_type=sa.TEXT(),
-        nullable=False,
+        "release_files", "md5_digest", existing_type=sa.TEXT(), nullable=False
     )
 
 
 def downgrade():
     op.alter_column(
-        "release_files",
-        "md5_digest",
-        existing_type=sa.TEXT(),
-        nullable=True,
+        "release_files", "md5_digest", existing_type=sa.TEXT(), nullable=True
     )
     op.alter_column(
         "release_files",

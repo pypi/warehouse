@@ -26,15 +26,10 @@ down_revision = "99291f0fe9c2"
 
 def upgrade():
     op.create_index(
-        "accounts_email_user_id",
-        "accounts_email",
-        ["user_id"],
-        unique=False,
+        "accounts_email_user_id", "accounts_email", ["user_id"], unique=False
     )
     op.drop_constraint(
-        "accounts_email_user_id_fkey",
-        "accounts_email",
-        type_="foreignkey",
+        "accounts_email_user_id_fkey", "accounts_email", type_="foreignkey"
     )
     op.create_foreign_key(
         None,
@@ -46,15 +41,10 @@ def upgrade():
         deferrable=True,
     )
     op.create_index(
-        "accounts_gpgkey_user_id",
-        "accounts_gpgkey",
-        ["user_id"],
-        unique=False,
+        "accounts_gpgkey_user_id", "accounts_gpgkey", ["user_id"], unique=False
     )
     op.drop_constraint(
-        "accounts_gpgkey_user_id_fkey",
-        "accounts_gpgkey",
-        type_="foreignkey",
+        "accounts_gpgkey_user_id_fkey", "accounts_gpgkey", type_="foreignkey"
     )
     op.create_foreign_key(
         None,
