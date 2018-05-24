@@ -102,9 +102,9 @@ botocore==1.10.26 \
 cachetools==2.1.0 \
     --hash=sha256:d1c398969c478d336f767ba02040fa22617333293fb0b8968e79b16028dfee35 \
     --hash=sha256:90f1d559512fc073483fe573ef5ceb39bf6ad3d39edc98dc55178a2b2b176fa3
-celery==4.1.0 \
-    --hash=sha256:81a67f0d53a688ec2bc8557bd5d6d7218f925a6f2e6df80e01560de9e28997ec \
-    --hash=sha256:77ff3730198d6a17b3c1f05579ebe570b579efb35f6d7e13dba3b1368d068b35
+celery==4.1.1 \
+    --hash=sha256:6fc4678d1692af97e137b2a9f1c04efd8e7e2fb7134c5c5ad60738cdd927762f \
+    --hash=sha256:d1f2a3359bdbdfb344edce98b8e891f5fe64f8a11c5a45538ec20ac237c971f5
 celery-redbeat==0.11.1 \
     --hash=sha256:fa1951cee7dfb8e185f53ce6dfb78f53b66ace76d5799f67ddac75ae1550aa87
 certifi==2018.4.16 \
