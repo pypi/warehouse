@@ -36,23 +36,26 @@ class RateLimiter:
         return [str(i) for i in list(self._identifiers) + list(identifiers)]
 
     def test(self, *identifiers):
-        return all([
-            self._window.test(limit, *self._get_identifiers(identifiers))
-            for limit in self._limits
-        ])
+        return all(
+            [
+                self._window.test(limit, *self._get_identifiers(identifiers))
+                for limit in self._limits
+            ]
+        )
 
     def hit(self, *identifiers):
-        return all([
-            self._window.hit(limit, *self._get_identifiers(identifiers))
-            for limit in self._limits
-        ])
+        return all(
+            [
+                self._window.hit(limit, *self._get_identifiers(identifiers))
+                for limit in self._limits
+            ]
+        )
 
     def resets_in(self, *identifiers):
         resets = []
         for limit in self._limits:
             resets_at, remaining = self._window.get_window_stats(
-                limit,
-                *self._get_identifiers(identifiers),
+                limit, *self._get_identifiers(identifiers)
             )
 
             # If this limit has any remaining limits left, then we will skip it
@@ -108,5 +111,5 @@ class RateLimit:
 
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
-        config.registry.settings["ratelimit.url"],
+        config.registry.settings["ratelimit.url"]
     )

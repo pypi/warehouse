@@ -14,7 +14,7 @@ other tools and on the API redesign.
 
 See `sprint-tagged issues`_ on GitHub.
 
-Post Legacy Shutdown
+Post legacy shutdown
 --------------------
 Issues that are unblocked now that legacy is dead (RIP).
 

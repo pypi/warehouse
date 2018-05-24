@@ -14,6 +14,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
 
 
 def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
+
     def redirect_view(request):
         redirect_to = target.format(_request=request, **request.matchdict)
 
@@ -23,6 +24,7 @@ def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
             raise HTTPBadRequest("URL may not contain control characters")
 
         return redirect(redirect_to)
+
     return redirect_view
 
 

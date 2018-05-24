@@ -24,16 +24,11 @@ class TestCLISearch:
             get_request=pretend.call_recorder(lambda *a, **kw: request),
             run=pretend.call_recorder(lambda *a, **kw: None),
         )
-        config = pretend.stub(
-            task=pretend.call_recorder(lambda *a, **kw: task)
-        )
+        config = pretend.stub(task=pretend.call_recorder(lambda *a, **kw: task))
 
         result = cli.invoke(reindex, obj=config)
 
         assert result.exit_code == 0
-        assert config.task.calls == [
-            pretend.call(_reindex),
-            pretend.call(_reindex),
-        ]
+        assert config.task.calls == [pretend.call(_reindex), pretend.call(_reindex)]
         assert task.get_request.calls == [pretend.call()]
         assert task.run.calls == [pretend.call(request)]

@@ -16,16 +16,15 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import IUserService, ITokenService
-from warehouse.accounts.services import (
-    database_login_factory, TokenServiceFactory
-)
+from warehouse.accounts.services import database_login_factory, TokenServiceFactory
 from warehouse.accounts.auth_policy import (
-    BasicAuthAuthenticationPolicy, SessionAuthenticationPolicy,
+    BasicAuthAuthenticationPolicy,
+    SessionAuthenticationPolicy,
 )
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 
-REDIRECT_FIELD_NAME = 'next'
+REDIRECT_FIELD_NAME = "next"
 
 
 def _login(username, password, request):
@@ -33,10 +32,7 @@ def _login(username, password, request):
     userid = login_service.find_userid(username)
     if userid is not None:
         if login_service.check_password(userid, password):
-            login_service.update_user(
-                userid,
-                last_login=datetime.datetime.utcnow(),
-            )
+            login_service.update_user(userid, last_login=datetime.datetime.utcnow())
             return _authenticate(userid, request)
 
 
@@ -71,22 +67,20 @@ def includeme(config):
 
     # Register our token services
     config.register_service_factory(
-        TokenServiceFactory(name="password"),
-        ITokenService,
-        name="password",
+        TokenServiceFactory(name="password"), ITokenService, name="password"
     )
     config.register_service_factory(
-        TokenServiceFactory(name="email"),
-        ITokenService,
-        name="email",
+        TokenServiceFactory(name="email"), ITokenService, name="email"
     )
 
     # Register our authentication and authorization policies
     config.set_authentication_policy(
-        MultiAuthenticationPolicy([
-            SessionAuthenticationPolicy(callback=_authenticate),
-            BasicAuthAuthenticationPolicy(check=_login),
-        ]),
+        MultiAuthenticationPolicy(
+            [
+                SessionAuthenticationPolicy(callback=_authenticate),
+                BasicAuthAuthenticationPolicy(check=_login),
+            ]
+        )
     )
     config.set_authorization_policy(ACLAuthorizationPolicy())
 
@@ -96,12 +90,8 @@ def includeme(config):
     # Register the rate limits that we're going to be using for our login
     # attempts
     config.register_service_factory(
-        RateLimit("10 per 5 minutes"),
-        IRateLimiter,
-        name="user.login",
+        RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"
     )
     config.register_service_factory(
-        RateLimit("1000 per 5 minutes"),
-        IRateLimiter,
-        name="global.login",
+        RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
     )

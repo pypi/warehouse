@@ -22,14 +22,14 @@ import sqlalchemy as sa
 from packaging.utils import canonicalize_version
 
 
-revision = '1fdf5dc6bbf3'
-down_revision = 'f7577b6938c1'
+revision = "1fdf5dc6bbf3"
+down_revision = "f7577b6938c1"
 
 releases = sa.Table(
-    'releases',
+    "releases",
     sa.MetaData(),
-    sa.Column('version', sa.Text(), primary_key=True),
-    sa.Column('canonical_version', sa.Text()),
+    sa.Column("version", sa.Text(), primary_key=True),
+    sa.Column("canonical_version", sa.Text()),
 )
 
 
@@ -39,21 +39,18 @@ def upgrade():
 
     for release in connection.execute(version_query):
         connection.execute(
-            releases
-            .update()
+            releases.update()
             .where(
                 sa.and_(
                     releases.c.version == release.version,
                     releases.c.canonical_version.is_(None),
                 )
             )
-            .values(
-                canonical_version=canonicalize_version(release.version),
-            )
+            .values(canonical_version=canonicalize_version(release.version))
         )
 
-    op.alter_column('releases', 'canonical_version', nullable=False)
+    op.alter_column("releases", "canonical_version", nullable=False)
 
 
 def downgrade():
-    raise RuntimeError('No such thing as decanonicalization!')
+    raise RuntimeError("No such thing as decanonicalization!")

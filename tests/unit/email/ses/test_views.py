@@ -19,9 +19,7 @@ import pytest
 from pyramid.httpexceptions import HTTPBadRequest
 
 from warehouse.email.ses import views
-from warehouse.email.ses.models import (
-    EmailMessage, EmailStatuses, Event, EventTypes,
-)
+from warehouse.email.ses.models import EmailMessage, EmailStatuses, Event, EventTypes
 
 from ....common.db.accounts import EmailFactory
 from ....common.db.ses import EmailMessageFactory, EventFactory
@@ -30,6 +28,7 @@ from ....common.db.ses import EmailMessageFactory, EventFactory
 class TestVerifySNSMessageHelper:
 
     def test_valid(self, monkeypatch):
+
         class FakeMessageVerifier:
 
             @staticmethod
@@ -47,22 +46,19 @@ class TestVerifySNSMessageHelper:
 
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "mail.topic": "this is a topic",
-                },
-            ),
+            registry=pretend.stub(settings={"mail.topic": "this is a topic"}),
         )
         message = pretend.stub()
 
         views._verify_sns_message(request, message)
 
         assert FakeMessageVerifier.__init__.calls == [
-            pretend.call(topics=["this is a topic"], session=request.http),
+            pretend.call(topics=["this is a topic"], session=request.http)
         ]
         assert FakeMessageVerifier.verify.calls == [pretend.call(message)]
 
     def test_invalid(self, monkeypatch):
+
         class FakeMessageVerifier:
 
             @staticmethod
@@ -80,11 +76,7 @@ class TestVerifySNSMessageHelper:
 
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "mail.topic": "this is a topic",
-                },
-            ),
+            registry=pretend.stub(settings={"mail.topic": "this is a topic"}),
         )
         message = pretend.stub()
 
@@ -92,7 +84,7 @@ class TestVerifySNSMessageHelper:
             views._verify_sns_message(request, message)
 
         assert FakeMessageVerifier.__init__.calls == [
-            pretend.call(topics=["this is a topic"], session=request.http),
+            pretend.call(topics=["this is a topic"], session=request.http)
         ]
         assert FakeMessageVerifier.verify.calls == [pretend.call(message)]
 
@@ -113,20 +105,16 @@ class TestConfirmSubscription:
         }
 
         aws_client = pretend.stub(
-            confirm_subscription=pretend.call_recorder(lambda *a, **kw: None),
+            confirm_subscription=pretend.call_recorder(lambda *a, **kw: None)
         )
         aws_session = pretend.stub(
-            client=pretend.call_recorder(lambda c, region_name: aws_client),
+            client=pretend.call_recorder(lambda c, region_name: aws_client)
         )
 
         request = pretend.stub(
             json_body=data,
             find_service=lambda name: {"aws.session": aws_session}[name],
-            registry=pretend.stub(
-                settings={
-                    "mail.region": "us-west-2",
-                },
-            ),
+            registry=pretend.stub(settings={"mail.region": "us-west-2"}),
         )
 
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
@@ -137,14 +125,14 @@ class TestConfirmSubscription:
         assert response.status_code == 200
         assert verify_sns_message.calls == [pretend.call(request, data)]
         assert aws_session.client.calls == [
-            pretend.call("sns", region_name="us-west-2"),
+            pretend.call("sns", region_name="us-west-2")
         ]
         assert aws_client.confirm_subscription.calls == [
             pretend.call(
                 TopicArn=data["TopicArn"],
                 Token=data["Token"],
                 AuthenticateOnUnsubscribe="true",
-            ),
+            )
         ]
 
 
@@ -162,15 +150,12 @@ class TestNotification:
 
         event = EventFactory.create()
 
-        db_request.json_body = {
-            "Type": "Notification",
-            "MessageId": event.event_id,
-        }
+        db_request.json_body = {"Type": "Notification", "MessageId": event.event_id}
 
         resp = views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert resp.status_code == 200
         assert db_request.db.query(Event).all() == [event]
@@ -182,16 +167,14 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": str(uuid.uuid4()),
-            "Message": json.dumps({
-                "mail": {"messageId": str(uuid.uuid4())},
-            }),
+            "Message": json.dumps({"mail": {"messageId": str(uuid.uuid4())}}),
         }
 
         with pytest.raises(HTTPBadRequest, match="Unknown messageId"):
             views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert db_request.db.query(EmailMessage).count() == 0
         assert db_request.db.query(Event).count() == 0
@@ -207,26 +190,25 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": event_id,
-            "Message": json.dumps({
-                "notificationType": "Delivery",
-                "mail": {"messageId": em.message_id},
-                "delivery": {"someData": "this is some data"},
-            }),
+            "Message": json.dumps(
+                {
+                    "notificationType": "Delivery",
+                    "mail": {"messageId": em.message_id},
+                    "delivery": {"someData": "this is some data"},
+                }
+            ),
         }
 
         resp = views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Delivered
 
-        event = (
-            db_request.db.query(Event)
-                         .filter(Event.event_id == event_id)
-                         .one())
+        event = db_request.db.query(Event).filter(Event.event_id == event_id).one()
 
         assert event.email == em
         assert event.event_type is EventTypes.Delivery
@@ -243,29 +225,28 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": event_id,
-            "Message": json.dumps({
-                "notificationType": "Bounce",
-                "mail": {"messageId": em.message_id},
-                "bounce": {
-                    "bounceType": "Permanent",
-                    "someData": "this is some bounce data",
-                },
-            }),
+            "Message": json.dumps(
+                {
+                    "notificationType": "Bounce",
+                    "mail": {"messageId": em.message_id},
+                    "bounce": {
+                        "bounceType": "Permanent",
+                        "someData": "this is some bounce data",
+                    },
+                }
+            ),
         }
 
         resp = views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Bounced
 
-        event = (
-            db_request.db.query(Event)
-                         .filter(Event.event_id == event_id)
-                         .one())
+        event = db_request.db.query(Event).filter(Event.event_id == event_id).one()
 
         assert event.email == em
         assert event.event_type is EventTypes.Bounce
@@ -285,29 +266,28 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": event_id,
-            "Message": json.dumps({
-                "notificationType": "Bounce",
-                "mail": {"messageId": em.message_id},
-                "bounce": {
-                    "bounceType": "Transient",
-                    "someData": "this is some soft bounce data",
-                },
-            }),
+            "Message": json.dumps(
+                {
+                    "notificationType": "Bounce",
+                    "mail": {"messageId": em.message_id},
+                    "bounce": {
+                        "bounceType": "Transient",
+                        "someData": "this is some soft bounce data",
+                    },
+                }
+            ),
         }
 
         resp = views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.SoftBounced
 
-        event = (
-            db_request.db.query(Event)
-                         .filter(Event.event_id == event_id)
-                         .one())
+        event = db_request.db.query(Event).filter(Event.event_id == event_id).one()
 
         assert event.email == em
         assert event.event_type is EventTypes.Bounce
@@ -321,8 +301,7 @@ class TestNotification:
         monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
 
         e = EmailFactory.create()
-        em = EmailMessageFactory.create(to=e.email,
-                                        status=EmailStatuses.Delivered)
+        em = EmailMessageFactory.create(to=e.email, status=EmailStatuses.Delivered)
 
         EventFactory.create(email=em, event_type=EventTypes.Delivery)
 
@@ -330,34 +309,29 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": event_id,
-            "Message": json.dumps({
-                "notificationType": "Complaint",
-                "mail": {"messageId": em.message_id},
-                "complaint": {
-                    "someData": "this is some complaint data",
-                },
-            }),
+            "Message": json.dumps(
+                {
+                    "notificationType": "Complaint",
+                    "mail": {"messageId": em.message_id},
+                    "complaint": {"someData": "this is some complaint data"},
+                }
+            ),
         }
 
         resp = views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]
         assert resp.status_code == 200
 
         assert em.status is EmailStatuses.Complained
 
-        event = (
-            db_request.db.query(Event)
-                         .filter(Event.event_id == event_id)
-                         .one())
+        event = db_request.db.query(Event).filter(Event.event_id == event_id).one()
 
         assert event.email == em
         assert event.event_type is EventTypes.Complaint
-        assert event.data == {
-            "someData": "this is some complaint data",
-        }
+        assert event.data == {"someData": "this is some complaint data"}
 
     def test_returns_400_unknown_type(self, db_request, monkeypatch):
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
@@ -370,15 +344,17 @@ class TestNotification:
         db_request.json_body = {
             "Type": "Notification",
             "MessageId": event_id,
-            "Message": json.dumps({
-                "notificationType": "Not Really A Type",
-                "mail": {"messageId": em.message_id},
-            }),
+            "Message": json.dumps(
+                {
+                    "notificationType": "Not Really A Type",
+                    "mail": {"messageId": em.message_id},
+                }
+            ),
         }
 
         with pytest.raises(HTTPBadRequest, match="Unknown notificationType"):
             views.notification(db_request)
 
         assert verify_sns_message.calls == [
-            pretend.call(db_request, db_request.json_body),
+            pretend.call(db_request, db_request.json_body)
         ]

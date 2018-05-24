@@ -18,6 +18,7 @@ from warehouse.utils.attrs import make_repr
 class TestMakeRepr:
 
     def test_on_class(self):
+
         class Fake:
             foo = "bar"
             __repr__ = make_repr("foo")
@@ -25,6 +26,7 @@ class TestMakeRepr:
         assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
 
     def test_with_function(self):
+
         class Fake:
             foo = "bar"
 
@@ -35,6 +37,7 @@ class TestMakeRepr:
         assert repr(Fake()) == "Fake(foo={})".format(repr("bar"))
 
     def test_with_raise(self):
+
         class Fake:
             __repr__ = make_repr("foo")
 

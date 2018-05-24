@@ -66,8 +66,8 @@ class IUserService(Interface):
         """
 
     def create_user(
-            username, name, password,
-            is_active=False, is_staff=False, is_superuser=False):
+        username, name, password, is_active=False, is_staff=False, is_superuser=False
+    ):
         """
         Accepts a user object, and attempts to create a user with those
         attributes.

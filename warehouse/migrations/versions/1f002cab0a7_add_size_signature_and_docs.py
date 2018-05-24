@@ -26,20 +26,13 @@ down_revision = "283c68f2ab2"
 
 
 def upgrade():
-    op.add_column(
-        "packages",
-        sa.Column("has_docs", sa.Boolean(), nullable=True),
-    )
+    op.add_column("packages", sa.Column("has_docs", sa.Boolean(), nullable=True))
 
     op.add_column(
-        "release_files",
-        sa.Column("has_signature", sa.Boolean(), nullable=True),
+        "release_files", sa.Column("has_signature", sa.Boolean(), nullable=True)
     )
 
-    op.add_column(
-        "release_files",
-        sa.Column("size", sa.Integer(), nullable=True),
-    )
+    op.add_column("release_files", sa.Column("size", sa.Integer(), nullable=True))
 
 
 def downgrade():

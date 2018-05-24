@@ -30,11 +30,7 @@ def includeme(config):
     config.add_route("robots.txt", "/robots.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
-    config.add_route(
-        "bucket.sitemap.xml",
-        "/{bucket}.sitemap.xml",
-        domain=warehouse,
-    )
+    config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
 
     # Some static, template driven pages
     config.add_template_view("help", "/help/", "pages/help.html")
@@ -57,9 +53,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "includes.flash-messages",
-        "/_includes/flash-messages/",
-        domain=warehouse,
+        "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
     )
     config.add_route(
         "includes.current-user-profile-callout",
@@ -99,25 +93,17 @@ def includeme(config):
     )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
-    config.add_route(
-        "accounts.register",
-        "/account/register/",
-        domain=warehouse,
-    )
+    config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(
         "accounts.request-password-reset",
         "/account/request-password-reset/",
         domain=warehouse,
     )
     config.add_route(
-        "accounts.reset-password",
-        "/account/reset-password/",
-        domain=warehouse,
+        "accounts.reset-password", "/account/reset-password/", domain=warehouse
     )
     config.add_route(
-        "accounts.verify-email",
-        "/account/verify-email/",
-        domain=warehouse,
+        "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
 
     # Management (views for logged-in users)
@@ -195,7 +181,7 @@ def includeme(config):
     )
 
     # Packaging
-    config.add_redirect('/p/{name}/', '/project/{name}/', domain=warehouse)
+    config.add_redirect("/p/{name}/", "/project/{name}/", domain=warehouse)
     config.add_route(
         "packaging.project",
         "/project/{name}/",
@@ -250,74 +236,33 @@ def includeme(config):
     # TODO: We should probably add Warehouse routes for these that just error
     #       and direct people to use upload.pypi.io
     config.add_pypi_action_route(
-        "legacy.api.pypi.file_upload",
-        "file_upload",
-        domain=warehouse,
+        "legacy.api.pypi.file_upload", "file_upload", domain=warehouse
+    )
+    config.add_pypi_action_route("legacy.api.pypi.submit", "submit", domain=warehouse)
+    config.add_pypi_action_route(
+        "legacy.api.pypi.submit_pkg_info", "submit_pkg_info", domain=warehouse
     )
     config.add_pypi_action_route(
-        "legacy.api.pypi.submit",
-        "submit",
-        domain=warehouse,
+        "legacy.api.pypi.doc_upload", "doc_upload", domain=warehouse
     )
+    config.add_pypi_action_route("legacy.api.pypi.doap", "doap", domain=warehouse)
     config.add_pypi_action_route(
-        "legacy.api.pypi.submit_pkg_info",
-        "submit_pkg_info",
-        domain=warehouse,
+        "legacy.api.pypi.list_classifiers", "list_classifiers", domain=warehouse
     )
-    config.add_pypi_action_route(
-        "legacy.api.pypi.doc_upload",
-        "doc_upload",
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        "legacy.api.pypi.doap",
-        "doap",
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        "legacy.api.pypi.list_classifiers",
-        "list_classifiers",
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        'legacy.api.pypi.search',
-        'search',
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        'legacy.api.pypi.browse',
-        'browse',
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        'legacy.api.pypi.files',
-        'files',
-        domain=warehouse,
-    )
-    config.add_pypi_action_route(
-        'legacy.api.pypi.display',
-        'display',
-        domain=warehouse,
-    )
+    config.add_pypi_action_route("legacy.api.pypi.search", "search", domain=warehouse)
+    config.add_pypi_action_route("legacy.api.pypi.browse", "browse", domain=warehouse)
+    config.add_pypi_action_route("legacy.api.pypi.files", "files", domain=warehouse)
+    config.add_pypi_action_route("legacy.api.pypi.display", "display", domain=warehouse)
 
     # Legacy XMLRPC
     config.add_xmlrpc_endpoint(
-        "pypi",
-        pattern="/pypi",
-        header="Content-Type:text/xml",
-        domain=warehouse,
+        "pypi", pattern="/pypi", header="Content-Type:text/xml", domain=warehouse
     )
     config.add_xmlrpc_endpoint(
-        "pypi_slash",
-        pattern="/pypi/",
-        header="Content-Type:text/xml",
-        domain=warehouse,
+        "pypi_slash", pattern="/pypi/", header="Content-Type:text/xml", domain=warehouse
     )
     config.add_xmlrpc_endpoint(
-        "RPC2",
-        pattern="/RPC2",
-        header="Content-Type:text/xml",
-        domain=warehouse,
+        "RPC2", pattern="/RPC2", header="Content-Type:text/xml", domain=warehouse
     )
 
     # Legacy Documentation
@@ -326,20 +271,13 @@ def includeme(config):
     # Legacy Redirects
     config.add_redirect("/pypi/{name}/", "/project/{name}/", domain=warehouse)
     config.add_redirect(
-        "/pypi/{name}/{version}/",
-        "/project/{name}/{version}/",
-        domain=warehouse,
+        "/pypi/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse
     )
+    config.add_redirect("/pypi/", "/", domain=warehouse)
     config.add_redirect("/packages/{path:.*}", files_url, domain=warehouse)
 
     # Legacy Action Redirects
+    config.add_pypi_action_redirect("rss", "/rss/updates.xml", domain=warehouse)
     config.add_pypi_action_redirect(
-        "rss",
-        "/rss/updates.xml",
-        domain=warehouse,
-    )
-    config.add_pypi_action_redirect(
-        "packages_rss",
-        "/rss/packages.xml",
-        domain=warehouse,
+        "packages_rss", "/rss/packages.xml", domain=warehouse
     )

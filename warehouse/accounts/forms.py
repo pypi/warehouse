@@ -20,19 +20,13 @@ from warehouse.accounts.interfaces import TooManyFailedLogins
 
 class UsernameMixin:
 
-    username = wtforms.StringField(
-        validators=[
-            wtforms.validators.DataRequired(),
-        ],
-    )
+    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
     def validate_username(self, field):
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
-            raise wtforms.validators.ValidationError(
-                "No user found with that username"
-            )
+            raise wtforms.validators.ValidationError("No user found with that username")
 
 
 class NewUsernameMixin:
@@ -41,25 +35,21 @@ class NewUsernameMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Length(
-                max=50,
-                message=(
-                    "The username you have chosen is too long. Choose "
-                    "a username with under 50 characters."
-                )
+                max=50, message=("Choose a username with 50 characters or less.")
             ),
             # the regexp below must match the CheckConstraint
             # for the username field in accounts.models.User
             wtforms.validators.Regexp(
-                r'^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$',
+                r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
                 message=(
                     "The username is invalid. Usernames "
                     "must be composed of letters, numbers, "
                     "dots, hyphens and underscores. And must "
                     "also start and finish with a letter or number. "
                     "Choose a different username."
-                )
-            )
-        ],
+                ),
+            ),
+        ]
     )
 
     def validate_username(self, field):
@@ -72,11 +62,7 @@ class NewUsernameMixin:
 
 class PasswordMixin:
 
-    password = wtforms.PasswordField(
-        validators=[
-            wtforms.validators.DataRequired(),
-        ],
-    )
+    password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
 
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
@@ -84,8 +70,7 @@ class PasswordMixin:
             try:
                 if not self.user_service.check_password(userid, field.data):
                     raise wtforms.validators.ValidationError(
-                        "The password you have provided is invalid. "
-                        "Try again."
+                        "The password is invalid. Try again."
                     )
             except TooManyFailedLogins:
                 raise wtforms.validators.ValidationError(
@@ -100,31 +85,26 @@ class NewPasswordMixin:
         validators=[
             wtforms.validators.DataRequired(),
             forms.PasswordStrengthValidator(
-                user_input_fields=["full_name", "username", "email"],
+                user_input_fields=["full_name", "username", "email"]
             ),
-        ],
+        ]
     )
 
     password_confirm = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.EqualTo(
-                "new_password",
-                "Your passwords do not match. Try again."
+                "new_password", "Your passwords don't match. Try again."
             ),
-        ],
+        ]
     )
 
     # These fields are here to provide the various user-defined fields to the
     # PasswordStrengthValidator of the new_password field, to ensure that the
     # newly set password doesn't contain any of them
     full_name = wtforms.StringField()  # May be empty
-    username = wtforms.StringField(validators=[
-        wtforms.validators.DataRequired(),
-    ])
-    email = wtforms.StringField(validators=[
-        wtforms.validators.DataRequired(),
-    ])
+    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    email = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
 
 class NewEmailMixin:
@@ -133,12 +113,9 @@ class NewEmailMixin:
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Email(
-                message=(
-                    "The email address you have chosen is not a valid "
-                    "format. Try again."
-                )
+                message=("The email address isn't valid. Try again.")
             ),
-        ],
+        ]
     )
 
     def validate_email(self, field):
@@ -147,10 +124,10 @@ class NewEmailMixin:
                 "This email address is already being used by another account. "
                 "Use a different email."
             )
-        domain = field.data.split('@')[-1]
+        domain = field.data.split("@")[-1]
         if domain in disposable_email_domains.blacklist:
             raise wtforms.validators.ValidationError(
-                "You cannot create an account with an email address "
+                "You can't create an account with an email address "
                 "from this domain. Use a different email."
             )
 
@@ -163,18 +140,18 @@ class HoneypotMixin:
 
 
 class RegistrationForm(
-        NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin,
-        forms.Form):
+    NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin, forms.Form
+):
 
     full_name = wtforms.StringField(
         validators=[
             wtforms.validators.Length(
                 max=100,
                 message=(
-                    "The name you have chosen is too long. Choose "
-                    "a name with under 100 characters."
-                )
-            ),
+                    "The name is too long. "
+                    "Choose a name with 100 characters or less."
+                ),
+            )
         ]
     )
 

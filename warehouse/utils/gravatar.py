@@ -23,9 +23,7 @@ def _hash(email):
 
 def gravatar(request, email, size=80):
     url = "https://secure.gravatar.com/avatar/{}".format(_hash(email))
-    params = {
-        "size": size,
-    }
+    params = {"size": size}
 
     return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
 
