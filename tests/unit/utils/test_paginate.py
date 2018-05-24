@@ -154,10 +154,8 @@ def test_elasticsearch_page_has_wrapper(monkeypatch):
     assert paginate.ElasticsearchPage("first", second="foo") is page_obj
     assert page_cls.calls == [
         pretend.call(
-            "first",
-            second="foo",
-            wrapper_class=paginate._ElasticsearchWrapper,
-        ),
+            "first", second="foo", wrapper_class=paginate._ElasticsearchWrapper
+        )
     ]
 
 
@@ -166,12 +164,11 @@ def test_paginate_url(pyramid_request):
     pyramid_request.GET["foo"] = "bar"
 
     url = pretend.stub()
-    pyramid_request.current_route_path = \
-        pretend.call_recorder(lambda _query: url)
+    pyramid_request.current_route_path = pretend.call_recorder(lambda _query: url)
 
     url_maker = paginate.paginate_url_factory(pyramid_request)
 
     assert url_maker(5) is url
     assert pyramid_request.current_route_path.calls == [
-        pretend.call(_query=[("foo", "bar"), ("page", 5)]),
+        pretend.call(_query=[("foo", "bar"), ("page", 5)])
     ]

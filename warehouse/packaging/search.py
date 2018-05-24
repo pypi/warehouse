@@ -61,9 +61,7 @@ class Project(DocType):
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
         obj["version"] = sorted(
-            release.all_versions,
-            key=lambda r: packaging.version.parse(r),
-            reverse=True,
+            release.all_versions, key=lambda r: packaging.version.parse(r), reverse=True
         )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary

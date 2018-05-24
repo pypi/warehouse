@@ -15,18 +15,15 @@ import pytest
 from warehouse.accounts.models import User, UserFactory
 
 from ...common.db.accounts import (
-    UserFactory as DBUserFactory, EmailFactory as DBEmailFactory,
+    UserFactory as DBUserFactory,
+    EmailFactory as DBEmailFactory,
 )
 
 
 class TestUserFactory:
 
     @pytest.mark.parametrize(
-        ("username", "normalized"),
-        [
-            ("foo", "foo"),
-            ("Bar", "bar"),
-        ],
+        ("username", "normalized"), [("foo", "foo"), ("Bar", "bar")]
     )
     def test_traversal_finds(self, db_request, username, normalized):
         user = DBUserFactory.create(username=username)
@@ -59,9 +56,7 @@ class TestUser:
         user = DBUserFactory.create()
         email = DBEmailFactory.create(user=user, primary=True)
 
-        result = db_session.query(User).filter(
-            User.email == email.email
-        ).first()
+        result = db_session.query(User).filter(User.email == email.email).first()
 
         assert result == user
 
@@ -69,8 +64,6 @@ class TestUser:
         user = DBUserFactory.create()
         email = DBEmailFactory.create(user=user, primary=False)
 
-        result = db_session.query(User).filter(
-            User.email == email.email
-        ).first()
+        result = db_session.query(User).filter(User.email == email.email).first()
 
         assert result is None

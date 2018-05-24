@@ -22,7 +22,9 @@ import pytest
 import webtest as _webtest
 
 from pytest_postgresql.factories import (
-    init_postgresql_database, drop_postgresql_database, get_config,
+    init_postgresql_database,
+    drop_postgresql_database,
+    get_config,
 )
 from sqlalchemy import event
 
@@ -39,19 +41,16 @@ def pytest_collection_modifyitems(items):
             continue
 
         module_path = os.path.relpath(
-            item.module.__file__,
-            os.path.commonprefix([__file__, item.module.__file__]),
+            item.module.__file__, os.path.commonprefix([__file__, item.module.__file__])
         )
 
         module_root_dir = module_path.split(os.pathsep)[0]
-        if (module_root_dir.startswith("functional")):
+        if module_root_dir.startswith("functional"):
             item.add_marker(pytest.mark.functional)
         elif module_root_dir.startswith("unit"):
             item.add_marker(pytest.mark.unit)
         else:
-            raise RuntimeError(
-                "Unknown test type (filename = {0})".format(module_path)
-            )
+            raise RuntimeError("Unknown test type (filename = {0})".format(module_path))
 
 
 @pytest.fixture
@@ -87,7 +86,7 @@ def cli():
 def database(request):
     config = get_config(request)
     pg_host = config.get("host")
-    pg_port = config.get("port") or os.environ.get('PGPORT', 5432)
+    pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
     pg_version = config.get("version", 10.1)
@@ -126,7 +125,7 @@ def app_config(database):
             "sessions.url": "redis://localhost:0/",
             "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
             "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
-        },
+        }
     )
 
     # Ensure our migrations have been ran.
@@ -163,18 +162,12 @@ def db_session(app_config):
 
 @pytest.yield_fixture
 def user_service(db_session, app_config):
-    return services.DatabaseUserService(
-        db_session, app_config.registry.settings
-    )
+    return services.DatabaseUserService(db_session, app_config.registry.settings)
 
 
 @pytest.yield_fixture
 def token_service(app_config):
-    return services.TokenService(
-        secret="secret",
-        salt="salt",
-        max_age=21600,
-    )
+    return services.TokenService(secret="secret", salt="salt", max_age=21600)
 
 
 class QueryRecorder:
@@ -257,13 +250,9 @@ def pytest_runtest_makereport(item, call):
     if rep.when == "call" and rep.failed:
         if "browser" in item.fixturenames:
             browser = item.funcargs["browser"]
-            for log_type in (set(browser.log_types) - {"har"}):
+            for log_type in set(browser.log_types) - {"har"}:
                 data = "\n\n".join(
-                    filter(
-                        None,
-                        (l.get("message") for l in browser.get_log(log_type)))
+                    filter(None, (l.get("message") for l in browser.get_log(log_type)))
                 )
                 if data:
-                    rep.sections.append(
-                        ("Captured {} log".format(log_type), data)
-                    )
+                    rep.sections.append(("Captured {} log".format(log_type), data))

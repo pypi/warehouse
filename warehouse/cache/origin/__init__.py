@@ -32,7 +32,7 @@ def store_purge_keys(config, session, flush_context):
 
     # Go through each new, changed, and deleted object and attempt to store
     # a cache key that we'll want to purge when the session has been committed.
-    for obj in (session.new | session.dirty | session.deleted):
+    for obj in session.new | session.dirty | session.deleted:
         try:
             key_maker = cache_keys[obj.__class__]
         except KeyError:
@@ -54,12 +54,12 @@ def execute_purge(config, session):
     cacher.purge(purges)
 
 
-def origin_cache(seconds, keys=None, stale_while_revalidate=None,
-                 stale_if_error=None):
+def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error=None):
     if keys is None:
         keys = []
 
     def inner(view):
+
         @functools.wraps(view)
         def wrapped(context, request):
             cache_keys = request.registry["cache_keys"]
@@ -84,6 +84,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None,
                 )
 
             return view(context, request)
+
         return wrapped
 
     return inner
@@ -126,13 +127,9 @@ def key_maker_factory(cache_keys, purge_keys):
     return key_maker
 
 
-def register_origin_cache_keys(config, klass, cache_keys=None,
-                               purge_keys=None):
+def register_origin_cache_keys(config, klass, cache_keys=None, purge_keys=None):
     key_makers = config.registry.setdefault("cache_keys", {})
-    key_makers[klass] = key_maker_factory(
-        cache_keys=cache_keys,
-        purge_keys=purge_keys,
-    )
+    key_makers[klass] = key_maker_factory(cache_keys=cache_keys, purge_keys=purge_keys)
 
 
 def receive_set(attribute, config, target):
@@ -147,15 +144,9 @@ def receive_set(attribute, config, target):
 def includeme(config):
     if "origin_cache.backend" in config.registry.settings:
         cache_class = config.maybe_dotted(
-            config.registry.settings["origin_cache.backend"],
+            config.registry.settings["origin_cache.backend"]
         )
-        config.register_service_factory(
-            cache_class.create_service,
-            IOriginCache,
-        )
+        config.register_service_factory(cache_class.create_service, IOriginCache)
         config.add_view_deriver(html_cache_deriver)
 
-    config.add_directive(
-        "register_origin_cache_keys",
-        register_origin_cache_keys,
-    )
+    config.add_directive("register_origin_cache_keys", register_origin_cache_keys)

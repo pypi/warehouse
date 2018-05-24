@@ -21,9 +21,7 @@ from ...common.db.packaging import ProjectFactory, ReleaseFactory
 def test_rss_updates(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
-            enabled=False,
-            csp_policy=pretend.stub(),
-            merge=lambda _: None,
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
         )
     )
 
@@ -40,7 +38,7 @@ def test_rss_updates(db_request):
     release3.created = datetime.date(2013, 1, 1)
 
     assert rss.rss_updates(db_request) == {
-        "latest_releases": [release3, release2, release1],
+        "latest_releases": [release3, release2, release1]
     }
     assert db_request.response.content_type == "text/xml"
 
@@ -48,9 +46,7 @@ def test_rss_updates(db_request):
 def test_rss_packages(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
-            enabled=False,
-            csp_policy=pretend.stub(),
-            merge=lambda _: None,
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
         )
     )
 
@@ -67,7 +63,5 @@ def test_rss_packages(db_request):
     project3.created = datetime.date(2013, 1, 1)
     ReleaseFactory.create(project=project3)
 
-    assert rss.rss_packages(db_request) == {
-        "newest_projects": [project3, project1],
-    }
+    assert rss.rss_packages(db_request) == {"newest_projects": [project3, project1]}
     assert db_request.response.content_type == "text/xml"

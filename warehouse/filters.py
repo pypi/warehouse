@@ -53,10 +53,12 @@ def _camo_url(request, url):
     camo_key = request.registry.settings["camo.key"].encode("utf8")
     url = url.encode("utf8")
 
-    path = "/".join([
-        hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
-        binascii.hexlify(url).decode("utf8"),
-    ])
+    path = "/".join(
+        [
+            hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
+            binascii.hexlify(url).decode("utf8"),
+        ]
+    )
 
     return urllib.parse.urljoin(camo_url, path)
 
@@ -105,15 +107,15 @@ def urlparse(value):
 
 def format_tags(tags):
     # split tags
-    if re.search(r',', tags):
-        split_tags = re.split(r'\s*,\s*', tags)
-    elif re.search(r';', tags):
-        split_tags = re.split(r'\s*;\s*', tags)
+    if re.search(r",", tags):
+        split_tags = re.split(r"\s*,\s*", tags)
+    elif re.search(r";", tags):
+        split_tags = re.split(r"\s*;\s*", tags)
     else:
-        split_tags = re.split(r'\s+', tags)
+        split_tags = re.split(r"\s+", tags)
 
     # strip whitespace, quotes, double quotes
-    stripped_tags = [re.sub(r'^["\'\s]+|["\'\s]+$', '', t) for t in split_tags]
+    stripped_tags = [re.sub(r'^["\'\s]+|["\'\s]+$', "", t) for t in split_tags]
 
     # remove any empty tags
     formatted_tags = [t for t in stripped_tags if t]

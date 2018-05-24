@@ -24,7 +24,8 @@ down_revision = "111d8fc0443"
 
 
 def upgrade():
-    op.execute("""
+    op.execute(
+        """
         CREATE FUNCTION normalize_pep426_name(text) RETURNS text AS $$
                 SELECT lower(
                     regexp_replace(
@@ -39,7 +40,8 @@ def upgrade():
             LANGUAGE SQL
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
-    """)
+    """
+    )
 
 
 def downgrade():

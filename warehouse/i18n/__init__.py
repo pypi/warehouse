@@ -27,15 +27,8 @@ def includeme(config):
     # Register our i18n/l10n filters for Jinja2
     filters = config.get_settings().setdefault("jinja2.filters", {})
     filters.setdefault("format_date", "warehouse.i18n.filters:format_date")
+    filters.setdefault("format_datetime", "warehouse.i18n.filters:format_datetime")
     filters.setdefault(
-        "format_datetime",
-        "warehouse.i18n.filters:format_datetime",
+        "format_rfc822_datetime", "warehouse.i18n.filters:format_rfc822_datetime"
     )
-    filters.setdefault(
-        "format_rfc822_datetime",
-        "warehouse.i18n.filters:format_rfc822_datetime",
-    )
-    filters.setdefault(
-        "format_number",
-        "warehouse.i18n.filters:format_number",
-    )
+    filters.setdefault("format_number", "warehouse.i18n.filters:format_number")
