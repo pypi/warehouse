@@ -27,15 +27,20 @@ def cleanup(request):
     # We clean these up quicker than failures because we don't really
     # need them, and this limits the amount of data stored in the
     # database.
-    (request.db.query(EmailMessage)
-               .filter(EmailMessage.status.in_(["Accepted", "Delivered"]))
-               .filter(EmailMessage.created <
-                       (datetime.datetime.utcnow() - CLEANUP_DELIVERED_AFTER))
-               .delete(synchronize_session="fetch"))
+    (
+        request.db.query(EmailMessage)
+        .filter(EmailMessage.status.in_(["Accepted", "Delivered"]))
+        .filter(
+            EmailMessage.created
+            < (datetime.datetime.utcnow() - CLEANUP_DELIVERED_AFTER)
+        )
+        .delete(synchronize_session="fetch")
+    )
 
     # Cleanup *all* messages, this is our hard limit after which we
     # will not continue to save the email message data.
-    (request.db.query(EmailMessage)
-               .filter(EmailMessage.created <
-                       (datetime.datetime.utcnow() - CLEANUP_AFTER))
-               .delete())
+    (
+        request.db.query(EmailMessage)
+        .filter(EmailMessage.created < (datetime.datetime.utcnow() - CLEANUP_AFTER))
+        .delete()
+    )

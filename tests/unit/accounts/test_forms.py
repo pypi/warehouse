@@ -28,7 +28,7 @@ class TestLoginForm:
 
     def test_validate_username_with_no_user(self):
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
+            find_userid=pretend.call_recorder(lambda userid: None)
         )
         form = forms.LoginForm(user_service=user_service)
         field = pretend.stub(data="my_username")
@@ -39,9 +39,7 @@ class TestLoginForm:
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
     def test_validate_username_with_user(self):
-        user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: 1),
-        )
+        user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         form = forms.LoginForm(user_service=user_service)
         field = pretend.stub(data="my_username")
 
@@ -51,11 +49,10 @@ class TestLoginForm:
 
     def test_validate_password_no_user(self):
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda userid: None),
+            find_userid=pretend.call_recorder(lambda userid: None)
         )
         form = forms.LoginForm(
-            data={"username": "my_username"},
-            user_service=user_service,
+            data={"username": "my_username"}, user_service=user_service
         )
         field = pretend.stub(data="password")
 
@@ -66,13 +63,10 @@ class TestLoginForm:
     def test_validate_password_ok(self):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=pretend.call_recorder(
-                lambda userid, password: True
-            ),
+            check_password=pretend.call_recorder(lambda userid, password: True),
         )
         form = forms.LoginForm(
-            data={"username": "my_username"},
-            user_service=user_service,
+            data={"username": "my_username"}, user_service=user_service
         )
         field = pretend.stub(data="pw")
 
@@ -84,13 +78,10 @@ class TestLoginForm:
     def test_validate_password_notok(self, db_session):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=pretend.call_recorder(
-                lambda userid, password: False
-            ),
+            check_password=pretend.call_recorder(lambda userid, password: False),
         )
         form = forms.LoginForm(
-            data={"username": "my_username"},
-            user_service=user_service,
+            data={"username": "my_username"}, user_service=user_service
         )
         field = pretend.stub(data="pw")
 
@@ -101,6 +92,7 @@ class TestLoginForm:
         assert user_service.check_password.calls == [pretend.call(1, "pw")]
 
     def test_validate_password_too_many_failed(self):
+
         @pretend.call_recorder
         def check_password(userid, password):
             raise TooManyFailedLogins(resets_in=None)
@@ -110,8 +102,7 @@ class TestLoginForm:
             check_password=check_password,
         )
         form = forms.LoginForm(
-            data={"username": "my_username"},
-            user_service=user_service,
+            data={"username": "my_username"}, user_service=user_service
         )
         field = pretend.stub(data="pw")
 
@@ -134,9 +125,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"password_confirm": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
         )
 
@@ -145,29 +134,22 @@ class TestRegistrationForm:
 
     def test_passwords_mismatch_error(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(
-                lambda _: pretend.stub()
-            ),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
         )
         form = forms.RegistrationForm(
-            data={
-                "new_password": "password",
-                "password_confirm": "mismatch",
-            },
+            data={"new_password": "password", "password_confirm": "mismatch"},
             user_service=user_service,
         )
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop() ==
-            "Your passwords don't match. Try again."
+            form.password_confirm.errors.pop()
+            == "Your passwords don't match. Try again."
         )
 
     def test_passwords_match_success(self):
         user_service = pretend.stub(
-            find_userid_by_email=pretend.call_recorder(
-                lambda _: pretend.stub()
-            ),
+            find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
         )
         form = forms.RegistrationForm(
             data={
@@ -185,9 +167,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": ""},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
         )
 
@@ -198,30 +178,25 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "bad"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
         )
 
         assert not form.validate()
-        assert (
-            form.email.errors.pop() ==
-            "The email address isn't valid. Try again."
-        )
+        assert form.email.errors.pop() == "The email address isn't valid. Try again."
 
     def test_email_exists_error(self):
         form = forms.RegistrationForm(
             data={"email": "foo@bar.com"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(
-                    lambda _: pretend.stub()
-                ),
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
         )
 
         assert not form.validate()
         assert (
-            form.email.errors.pop() ==
-            "This email address is already being used by another account. "
+            form.email.errors.pop()
+            == "This email address is already being used by another account. "
             "Use a different email."
         )
 
@@ -229,14 +204,14 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(
-                find_userid_by_email=pretend.call_recorder(lambda _: None),
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
         )
 
         assert not form.validate()
         assert (
-            form.email.errors.pop() ==
-            "You can't create an account with an email address from "
+            form.email.errors.pop()
+            == "You can't create an account with an email address from "
             "this domain. Use a different email."
         )
 
@@ -244,28 +219,27 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"username": "foo"},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda name: 1),
+                find_userid=pretend.call_recorder(lambda name: 1)
             ),
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop() ==
-            "This username is already being used by another account. "
+            form.username.errors.pop()
+            == "This username is already being used by another account. "
             "Choose a different username."
         )
 
-    @pytest.mark.parametrize("username", ['_foo', 'bar_', 'foo^bar'])
+    @pytest.mark.parametrize("username", ["_foo", "bar_", "foo^bar"])
     def test_username_is_valid(self, username):
         form = forms.RegistrationForm(
             data={"username": username},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None)
             ),
         )
         assert not form.validate()
         assert (
-            form.username.errors.pop() ==
-            "The username is invalid. Usernames "
+            form.username.errors.pop() == "The username is invalid. Usernames "
             "must be composed of letters, numbers, "
             "dots, hyphens and underscores. And must "
             "also start and finish with a letter or number. "
@@ -290,13 +264,13 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             data={"full_name": "hello " * 50},
             user_service=pretend.stub(
-                find_userid=pretend.call_recorder(lambda _: None),
+                find_userid=pretend.call_recorder(lambda _: None)
             ),
         )
         assert not form.validate()
         assert (
-            form.full_name.errors.pop() ==
-            "The name is too long. Choose a name with 100 characters or less."
+            form.full_name.errors.pop()
+            == "The name is too long. Choose a name with 100 characters or less."
         )
 
 
@@ -310,7 +284,7 @@ class TestRequestPasswordResetForm:
     def test_no_password_field(self):
         user_service = pretend.stub()
         form = forms.RequestPasswordResetForm(user_service=user_service)
-        assert 'password' not in form._fields
+        assert "password" not in form._fields
 
     def test_validate_username_or_email(self):
         user_service = pretend.stub(
@@ -362,20 +336,19 @@ class TestResetPasswordForm:
                 "username": "username",
                 "full_name": "full_name",
                 "email": "email",
-            },
+            }
         )
 
         assert not form.validate()
         assert (
-            form.password_confirm.errors.pop() ==
-            "Your passwords don't match. Try again."
+            form.password_confirm.errors.pop()
+            == "Your passwords don't match. Try again."
         )
 
-    @pytest.mark.parametrize(("password", "expected"), [
-        ("foobar", False),
-        ("somethingalittlebetter9", True),
-        ("1aDeCent!1", True),
-    ])
+    @pytest.mark.parametrize(
+        ("password", "expected"),
+        [("foobar", False), ("somethingalittlebetter9", True), ("1aDeCent!1", True)],
+    )
     def test_password_strength(self, password, expected):
         form = forms.ResetPasswordForm(
             data={
@@ -384,7 +357,7 @@ class TestResetPasswordForm:
                 "username": "username",
                 "full_name": "full_name",
                 "email": "email",
-            },
+            }
         )
 
         assert form.validate() == expected
@@ -397,7 +370,7 @@ class TestResetPasswordForm:
                 "username": "username",
                 "full_name": "full_name",
                 "email": "email",
-            },
+            }
         )
 
         assert form.validate()

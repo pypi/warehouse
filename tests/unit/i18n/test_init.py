@@ -17,9 +17,7 @@ from warehouse import i18n
 
 def test_sets_locale(monkeypatch):
     locale_obj = pretend.stub()
-    locale_cls = pretend.stub(
-        parse=pretend.call_recorder(lambda l: locale_obj),
-    )
+    locale_cls = pretend.stub(parse=pretend.call_recorder(lambda l: locale_obj))
     monkeypatch.setattr(i18n, "Locale", locale_cls)
     request = pretend.stub(locale_name=pretend.stub())
 
@@ -37,14 +35,13 @@ def test_includeme():
     i18n.includeme(config)
 
     assert config.add_request_method.calls == [
-        pretend.call(i18n._locale, name="locale", reify=True),
+        pretend.call(i18n._locale, name="locale", reify=True)
     ]
     assert config_settings == {
         "jinja2.filters": {
             "format_date": "warehouse.i18n.filters:format_date",
             "format_datetime": "warehouse.i18n.filters:format_datetime",
-            "format_rfc822_datetime":
-                "warehouse.i18n.filters:format_rfc822_datetime",
+            "format_rfc822_datetime": "warehouse.i18n.filters:format_rfc822_datetime",
             "format_number": "warehouse.i18n.filters:format_number",
-        },
+        }
     }

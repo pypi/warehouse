@@ -15,6 +15,7 @@ import requests
 
 
 class ThreadLocalSessionFactory:
+
     def __init__(self, config=None):
         self.config = config
         self._local = threading.local()
@@ -40,5 +41,6 @@ class ThreadLocalSessionFactory:
 def includeme(config):
     config.add_request_method(
         ThreadLocalSessionFactory(config.registry.settings.get("http")),
-        name="http", reify=True
+        name="http",
+        reify=True,
     )

@@ -21,8 +21,15 @@ class IOriginCache(Interface):
         created for.
         """
 
-    def cache(keys, request, response, *, seconds=None,
-              stale_while_revalidate=None, stale_if_error=None):
+    def cache(
+        keys,
+        request,
+        response,
+        *,
+        seconds=None,
+        stale_while_revalidate=None,
+        stale_if_error=None
+    ):
         """
         A hook that will be called after the request has been processed, used
         to associate the request and/or the response with the origin cache

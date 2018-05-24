@@ -27,8 +27,14 @@ down_revision = "5988e3e8d2e"
 
 def upgrade():
     package_type = ENUM(
-        "bdist_dmg", "bdist_dumb", "bdist_egg", "bdist_msi", "bdist_rpm",
-        "bdist_wheel", "bdist_wininst", "sdist",
+        "bdist_dmg",
+        "bdist_dumb",
+        "bdist_egg",
+        "bdist_msi",
+        "bdist_rpm",
+        "bdist_wheel",
+        "bdist_wininst",
+        "sdist",
         name="package_type",
         create_type=False,
     )
@@ -51,7 +57,4 @@ def downgrade():
         """
     )
 
-    ENUM(name="package_type", create_type=False).drop(
-        op.get_bind(),
-        checkfirst=False,
-    )
+    ENUM(name="package_type", create_type=False).drop(op.get_bind(), checkfirst=False)

@@ -31,22 +31,20 @@ def test_includme(monkeypatch, with_trending):
     def key_factory(keystring, iterate_on=None):
         return pretend.call(keystring, iterate_on=iterate_on)
 
-    monkeypatch.setattr(packaging, 'key_factory', key_factory)
+    monkeypatch.setattr(packaging, "key_factory", key_factory)
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
         register_service_factory=pretend.call_recorder(
-            lambda factory, iface, name=None: None,
+            lambda factory, iface, name=None: None
         ),
         registry=pretend.stub(
-            settings={
-                "files.backend": "foo.bar",
-                "docs.backend": "wu.tang",
-            },
+            settings={"files.backend": "foo.bar", "docs.backend": "wu.tang"}
         ),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: (
-            {"warehouse.trending_table": "foobar"} if with_trending else {}),
+            {"warehouse.trending_table": "foobar"} if with_trending else {}
+        ),
         add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
@@ -60,16 +58,14 @@ def test_includme(monkeypatch, with_trending):
         pretend.call(
             File,
             cache_keys=["project/{obj.release.project.normalized_name}"],
-            purge_keys=[
-                key_factory("project/{obj.release.project.normalized_name}"),
-            ],
+            purge_keys=[key_factory("project/{obj.release.project.normalized_name}")],
         ),
         pretend.call(
             Project,
             cache_keys=["project/{obj.normalized_name}"],
             purge_keys=[
                 key_factory("project/{obj.normalized_name}"),
-                key_factory("user/{itr.username}", iterate_on='users'),
+                key_factory("user/{itr.username}", iterate_on="users"),
                 key_factory("all-projects"),
             ],
         ),
@@ -78,7 +74,7 @@ def test_includme(monkeypatch, with_trending):
             cache_keys=["project/{obj.project.normalized_name}"],
             purge_keys=[
                 key_factory("project/{obj.project.normalized_name}"),
-                key_factory("user/{itr.username}", iterate_on='project.users'),
+                key_factory("user/{itr.username}", iterate_on="project.users"),
                 key_factory("all-projects"),
             ],
         ),
@@ -86,21 +82,15 @@ def test_includme(monkeypatch, with_trending):
             Role,
             purge_keys=[
                 key_factory("user/{obj.user.username}"),
-                key_factory("project/{obj.project.normalized_name}")
+                key_factory("project/{obj.project.normalized_name}"),
             ],
         ),
-        pretend.call(
-            User,
-            cache_keys=["user/{obj.username}"],
-        ),
+        pretend.call(User, cache_keys=["user/{obj.username}"]),
         pretend.call(
             User.name,
             purge_keys=[
                 key_factory("user/{obj.username}"),
-                key_factory(
-                    "project/{itr.normalized_name}",
-                    iterate_on='projects',
-                ),
+                key_factory("project/{itr.normalized_name}", iterate_on="projects"),
             ],
         ),
         pretend.call(
@@ -108,8 +98,7 @@ def test_includme(monkeypatch, with_trending):
             purge_keys=[
                 key_factory("user/{obj.user.username}"),
                 key_factory(
-                    "project/{itr.normalized_name}",
-                    iterate_on='user.projects',
+                    "project/{itr.normalized_name}", iterate_on="user.projects"
                 ),
             ],
         ),
@@ -117,5 +106,5 @@ def test_includme(monkeypatch, with_trending):
 
     if with_trending:
         assert config.add_periodic_task.calls == [
-            pretend.call(crontab(minute=0, hour=3), compute_trending),
+            pretend.call(crontab(minute=0, hour=3), compute_trending)
         ]

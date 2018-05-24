@@ -20,21 +20,18 @@ Create Date: 2018-03-23 21:20:05.834821
 from alembic import op
 import sqlalchemy as sa
 
-revision = 'bf73e785eed9'
-down_revision = '5dda74213989'
+revision = "bf73e785eed9"
+down_revision = "5dda74213989"
 
 
 def upgrade():
     op.add_column(
-        'warehouse_admin_flag',
+        "warehouse_admin_flag",
         sa.Column(
-            'notify',
-            sa.Boolean(),
-            server_default=sa.text('false'),
-            nullable=False,
+            "notify", sa.Boolean(), server_default=sa.text("false"), nullable=False
         ),
     )
 
 
 def downgrade():
-    op.drop_column('warehouse_admin_flag', 'notify')
+    op.drop_column("warehouse_admin_flag", "notify")

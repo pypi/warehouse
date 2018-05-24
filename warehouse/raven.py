@@ -67,10 +67,7 @@ def includeme(config):
     # Add a tween that will handle catching any exceptions that get raised.
     config.add_tween(
         "warehouse.raven.raven_tween_factory",
-        under=[
-            "pyramid_debugtoolbar.toolbar_tween_factory",
-            INGRESS,
-        ],
+        under=["pyramid_debugtoolbar.toolbar_tween_factory", INGRESS],
         over=EXCVIEW,
     )
 

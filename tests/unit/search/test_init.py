@@ -33,7 +33,7 @@ def test_es(monkeypatch):
             "elasticsearch.client": client,
             "elasticsearch.index": "warehouse",
             "search.doc_types": doc_types,
-        },
+        }
     )
 
     es = search.es(request)
@@ -42,10 +42,6 @@ def test_es(monkeypatch):
     assert index_cls.calls == [pretend.call("warehouse", using=client)]
     assert index_obj.doc_type.calls == [pretend.call(d) for d in doc_types]
     assert index_obj.settings.calls == [
-        pretend.call(
-            number_of_shards=1,
-            number_of_replicas=0,
-            refresh_interval="1s",
-        )
+        pretend.call(number_of_shards=1, number_of_replicas=0, refresh_interval="1s")
     ]
     assert index_obj.search.calls == [pretend.call()]

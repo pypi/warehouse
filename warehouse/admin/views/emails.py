@@ -36,10 +36,9 @@ def email_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    email_query = (
-        request.db.query(EmailMessage)
-               .order_by(EmailMessage.created.desc(),
-                         EmailMessage.id))
+    email_query = request.db.query(EmailMessage).order_by(
+        EmailMessage.created.desc(), EmailMessage.id
+    )
 
     if q:
         terms = shlex.split(q)
@@ -70,8 +69,8 @@ def email_detail(request):
     try:
         email = (
             request.db.query(EmailMessage)
-                      .filter(EmailMessage.id == request.matchdict["email_id"])
-                      .one()
+            .filter(EmailMessage.id == request.matchdict["email_id"])
+            .one()
         )
     except NoResultFound:
         raise HTTPNotFound

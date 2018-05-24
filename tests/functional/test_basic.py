@@ -15,17 +15,10 @@ import webtest
 
 
 @pytest.mark.parametrize(
-    ('domain', 'indexable'),
-    [
-        ('pypi.org', True),
-        ('test.pypi.org', False),
-    ]
+    ("domain", "indexable"), [("pypi.org", True), ("test.pypi.org", False)]
 )
 def test_robots_txt(app_config, domain, indexable):
-    app_config.add_settings({
-        'warehouse.domain': domain,
-        'enforce_https': False,
-    })
+    app_config.add_settings({"warehouse.domain": domain, "enforce_https": False})
     testapp = webtest.TestApp(app_config.make_wsgi_app())
     resp = testapp.get("/robots.txt")
     assert resp.status_code == 200

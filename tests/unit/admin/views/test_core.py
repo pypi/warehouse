@@ -27,7 +27,7 @@ class TestForbidden:
 
         assert views.forbidden(exc, request) is response
         assert forbidden_view.calls == [
-            pretend.call(exc, request, redirect_to="admin.login"),
+            pretend.call(exc, request, redirect_to="admin.login")
         ]
 
 

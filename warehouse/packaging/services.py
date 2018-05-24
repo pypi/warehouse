@@ -149,19 +149,15 @@ class S3DocsStorage:
         if self.prefix:
             prefix = os.path.join(self.prefix, prefix)
         keys_to_delete = []
-        keys = self.s3_client.list_objects_v2(
-            Bucket=self.bucket_name, Prefix=prefix
-        )
-        for key in keys.get('Contents', []):
-            keys_to_delete.append({'Key': key['Key']})
+        keys = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
+        for key in keys.get("Contents", []):
+            keys_to_delete.append({"Key": key["Key"]})
             if len(keys_to_delete) > 99:
                 self.s3_client.delete_objects(
-                    Bucket=self.bucket_name,
-                    Delete={'Objects': keys_to_delete}
+                    Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
                 )
                 keys_to_delete = []
         if len(keys_to_delete) > 0:
             self.s3_client.delete_objects(
-                Bucket=self.bucket_name,
-                Delete={'Objects': keys_to_delete}
+                Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
             )

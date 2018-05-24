@@ -27,8 +27,7 @@ down_revision = "f404a67e0370"
 
 def upgrade():
     op.add_column(
-        "release_files",
-        sa.Column("allow_multiple_sdist", sa.Boolean(), nullable=True),
+        "release_files", sa.Column("allow_multiple_sdist", sa.Boolean(), nullable=True)
     )
 
     # This is a bit complicated, but essentially we're going to find any set of
