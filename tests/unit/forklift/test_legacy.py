@@ -914,7 +914,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} is not allowed. "
+            "400 The name {!r} isn't allowed. "
             "See /the/help/url/ "
             "for more information."
         ).format(name)
