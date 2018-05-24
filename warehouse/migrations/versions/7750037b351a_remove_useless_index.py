@@ -29,9 +29,4 @@ def upgrade():
 
 
 def downgrade():
-    op.create_index(
-        "release_files_name_idx",
-        "release_files",
-        ["name"],
-        unique=False,
-    )
+    op.create_index("release_files_name_idx", "release_files", ["name"], unique=False)

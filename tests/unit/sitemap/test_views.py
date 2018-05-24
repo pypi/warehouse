@@ -21,17 +21,12 @@ from ...common.db.packaging import ProjectFactory
 def test_sitemap_index(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
-            enabled=False,
-            csp_policy=pretend.stub(),
-            merge=lambda _: None,
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
         )
     )
 
     project = ProjectFactory.create(name="foobar")
-    users = [
-        UserFactory.create(username="a"),
-        UserFactory.create(username="b"),
-    ]
+    users = [UserFactory.create(username="a"), UserFactory.create(username="b")]
 
     # Have to pass this here, because passing date_joined=None to the create
     # function above makes the factory think it needs to generate a random
@@ -44,7 +39,7 @@ def test_sitemap_index(db_request):
             sitemap.Bucket("0", modified=project.created),
             sitemap.Bucket("1", modified=users[0].date_joined),
             sitemap.Bucket("5", modified=None),
-        ],
+        ]
     }
     assert db_request.response.content_type == "text/xml"
 
@@ -52,17 +47,13 @@ def test_sitemap_index(db_request):
 def test_sitemap_bucket(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
-            enabled=False,
-            csp_policy=pretend.stub(),
-            merge=lambda _: None,
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
         )
     )
 
     expected = ["/project/foobar/"]
     expected_iter = iter(expected)
-    db_request.route_url = pretend.call_recorder(
-        lambda *a, **kw: next(expected_iter)
-    )
+    db_request.route_url = pretend.call_recorder(lambda *a, **kw: next(expected_iter))
 
     db_request.matchdict["bucket"] = "0"
 
@@ -77,9 +68,7 @@ def test_sitemap_bucket(db_request):
 def test_sitemap_bucket_too_many(monkeypatch, db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
-            enabled=False,
-            csp_policy=pretend.stub(),
-            merge=lambda _: None,
+            enabled=False, csp_policy=pretend.stub(), merge=lambda _: None
         )
     )
 

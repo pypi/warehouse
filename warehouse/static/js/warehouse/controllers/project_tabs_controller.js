@@ -44,11 +44,10 @@ export default class extends Controller {
   onTabClick(event) {
     event.preventDefault();
     let btn = event.target;
-    this.toggleTab(btn);
+    this.toggleTabAndPushState(btn);
   }
 
   toggleTab(btn) {
-    history.pushState(null, "", btn.getAttribute("href"));
     let contentId = btn.getAttribute("href").substr(1);
     // toggle display setting for the content related to the tab button
     this.contentTargets.forEach(content => {
@@ -58,6 +57,11 @@ export default class extends Controller {
         this._show(content);
       }
     });
+  }
+
+  toggleTabAndPushState(btn) {
+    this.toggleTab(btn);
+    history.pushState(null, "", btn.getAttribute("href"));
   }
 
   _hide(content) {
@@ -96,7 +100,10 @@ export default class extends Controller {
       this.resizeTimeout = setTimeout(() => {
         this.resizeTimeout = null;
         let tab = this._getTabForContentId(this.data.get("content"));
-        if (!tab) this.toggleTab(this._getTabs()[0]);
+        if (!tab) {
+          let btn = this._getTabs()[0];
+          this.toggleTabAndPushState(btn);
+        }
       }, 66);
     }
   }
@@ -104,6 +111,8 @@ export default class extends Controller {
   _handleHashChange() {
     let contentId = window.location.hash.substr(1);
     let tab = this._getTabForContentId(contentId);
-    if (tab) this.toggleTab(tab);
+    if (tab) {
+      this.toggleTabAndPushState(tab);
+    }
   }
 }

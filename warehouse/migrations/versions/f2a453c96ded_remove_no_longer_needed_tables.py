@@ -36,10 +36,7 @@ def upgrade():
     op.drop_table("openids")
     op.drop_table("csrf_tokens")
     op.drop_index("description_urls_name_idx", table_name="description_urls")
-    op.drop_index(
-        "description_urls_name_version_idx",
-        table_name="description_urls",
-    )
+    op.drop_index("description_urls_name_version_idx", table_name="description_urls")
     op.drop_table("description_urls")
     op.drop_table("mirrors")
     op.drop_table("oauth_nonce")
@@ -52,18 +49,11 @@ def upgrade():
     op.drop_table("oauth_consumers")
     op.drop_table("comments")
     op.drop_table("ratings")
+    op.drop_index("rel_req_python_name_idx", table_name="release_requires_python")
     op.drop_index(
-        "rel_req_python_name_idx",
-        table_name="release_requires_python",
+        "rel_req_python_name_version_idx", table_name="release_requires_python"
     )
-    op.drop_index(
-        "rel_req_python_name_version_idx",
-        table_name="release_requires_python",
-    )
-    op.drop_index(
-        "rel_req_python_version_id_idx",
-        table_name="release_requires_python",
-    )
+    op.drop_index("rel_req_python_version_id_idx", table_name="release_requires_python")
     op.drop_table("release_requires_python")
     op.drop_index("release_urls_name_idx", table_name="release_urls")
     op.drop_index("release_urls_packagetype_idx", table_name="release_urls")
@@ -79,19 +69,13 @@ def upgrade():
     op.drop_index("openid_nonces_nonce", table_name="openid_nonces")
     op.drop_table("openid_nonces")
     op.drop_constraint(
-        "releases_cheesecake_installability_id_fkey",
-        "releases",
-        type_="foreignkey",
+        "releases_cheesecake_installability_id_fkey", "releases", type_="foreignkey"
     )
     op.drop_constraint(
-        "releases_cheesecake_code_kwalitee_id_fkey",
-        "releases",
-        type_="foreignkey",
+        "releases_cheesecake_code_kwalitee_id_fkey", "releases", type_="foreignkey"
     )
     op.drop_constraint(
-        "releases_cheesecake_documentation_id_fkey",
-        "releases",
-        type_="foreignkey",
+        "releases_cheesecake_documentation_id_fkey", "releases", type_="foreignkey"
     )
     op.drop_column("releases", "cheesecake_documentation_id")
     op.drop_column("releases", "cheesecake_code_kwalitee_id")

@@ -18,8 +18,14 @@ import factory.fuzzy
 import packaging.utils
 
 from warehouse.packaging.models import (
-    BlacklistedProject, Dependency, DependencyKind, File, JournalEntry,
-    Project, Release, Role,
+    BlacklistedProject,
+    Dependency,
+    DependencyKind,
+    File,
+    JournalEntry,
+    Project,
+    Release,
+    Role,
 )
 
 from .accounts import UserFactory
@@ -27,6 +33,7 @@ from .base import WarehouseFactory
 
 
 class ProjectFactory(WarehouseFactory):
+
     class Meta:
         model = Project
 
@@ -34,6 +41,7 @@ class ProjectFactory(WarehouseFactory):
 
 
 class ReleaseFactory(WarehouseFactory):
+
     class Meta:
         model = Release
 
@@ -49,6 +57,7 @@ class ReleaseFactory(WarehouseFactory):
 
 
 class FileFactory(WarehouseFactory):
+
     class Meta:
         model = File
 
@@ -62,23 +71,23 @@ class FileFactory(WarehouseFactory):
         lambda o: hashlib.sha256(o.filename.encode("utf8")).hexdigest()
     )
     blake2_256_digest = factory.LazyAttribute(
-        lambda o: hashlib.blake2b(o.filename.encode("utf8"),
-                                  digest_size=32).hexdigest()
+        lambda o: hashlib.blake2b(o.filename.encode("utf8"), digest_size=32).hexdigest()
     )
-    upload_time = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2008, 1, 1)
-    )
+    upload_time = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     path = factory.LazyAttribute(
-        lambda o: "/".join([
-            o.blake2_256_digest[:2],
-            o.blake2_256_digest[2:4],
-            o.blake2_256_digest[4:],
-            o.filename,
-        ])
+        lambda o: "/".join(
+            [
+                o.blake2_256_digest[:2],
+                o.blake2_256_digest[2:4],
+                o.blake2_256_digest[4:],
+                o.filename,
+            ]
+        )
     )
 
 
 class RoleFactory(WarehouseFactory):
+
     class Meta:
         model = Role
 
@@ -88,6 +97,7 @@ class RoleFactory(WarehouseFactory):
 
 
 class DependencyFactory(WarehouseFactory):
+
     class Meta:
         model = Dependency
 
@@ -98,19 +108,19 @@ class DependencyFactory(WarehouseFactory):
 
 
 class JournalEntryFactory(WarehouseFactory):
+
     class Meta:
         model = JournalEntry
 
     id = factory.Sequence(lambda n: n)
     name = factory.fuzzy.FuzzyText(length=12)
     version = factory.Sequence(lambda n: str(n) + ".0")
-    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2008, 1, 1)
-    )
+    submitted_date = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2008, 1, 1))
     submitted_by = factory.SubFactory(UserFactory)
 
 
 class BlacklistedProjectFactory(WarehouseFactory):
+
     class Meta:
         model = BlacklistedProject
 

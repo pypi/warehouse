@@ -15,9 +15,7 @@ import pytest
 
 from wtforms.validators import StopValidation, ValidationError
 
-from warehouse.forms import (
-    Form, DBForm, URIValidator, PasswordStrengthValidator,
-)
+from warehouse.forms import Form, DBForm, URIValidator, PasswordStrengthValidator
 
 
 class TestURIValidator:
@@ -34,12 +32,7 @@ class TestURIValidator:
         URIValidator()(pretend.stub(), pretend.stub(data=uri))
 
     @pytest.mark.parametrize(
-        "uri",
-        [
-            "javascript:alert(0)",
-            "UNKNOWN",
-            "ftp://example.com/",
-        ],
+        "uri", ["javascript:alert(0)", "UNKNOWN", "ftp://example.com/"]
     )
     def test_invalid(self, uri):
         validator = URIValidator()
@@ -69,13 +62,17 @@ class TestPasswordStrengthValidator:
         [
             (
                 "qwerty",
-                ("This is a top-10 common password. Add another word or two. "
-                 "Uncommon words are better."),
+                (
+                    "This is a top-10 common password. Add another word or two. "
+                    "Uncommon words are better."
+                ),
             ),
             (
                 "bombo!b",
-                ("Password is too easily guessed. Add another word or two. "
-                 "Uncommon words are better."),
+                (
+                    "Password is too easily guessed. Add another word or two. "
+                    "Uncommon words are better."
+                ),
             ),
             ("bombo!b asdadad", "Password is too easily guessed."),
         ],
@@ -106,6 +103,7 @@ class TestForm:
         assert form.errors == {"__all__": ["An Error"]}
 
     def test_form_level_validation_no_validators(self):
+
         class TestForm(Form):
             pass
 
@@ -115,7 +113,9 @@ class TestForm:
         assert form.errors == {}
 
     def test_form_level_validation_full_validate(self):
+
         class TestForm(Form):
+
             @pretend.call_recorder
             def full_validate(self):
                 pass
@@ -127,7 +127,9 @@ class TestForm:
         assert form.full_validate.calls == [pretend.call(form)]
 
     def test_form_level_validation_full_validate_fails(self):
+
         class TestForm(Form):
+
             @pretend.call_recorder
             def full_validate(self):
                 raise ValueError("A Value Error")
@@ -138,17 +140,12 @@ class TestForm:
         assert form.errors == {"__all__": ["A Value Error"]}
         assert form.full_validate.calls == [pretend.call(form)]
 
-    @pytest.mark.parametrize(
-        "validator_funcs",
-        [
-            [],
-            [lambda f: None]
-        ],
-    )
+    @pytest.mark.parametrize("validator_funcs", [[], [lambda f: None]])
     def test_form_level_validation_meta_works(self, validator_funcs):
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
+
             class Meta:
                 validators = validator_funcs
 
@@ -186,11 +183,13 @@ class TestForm:
             ),
         ],
     )
-    def test_form_level_validation_meta_fails(self, validator_funcs, errors,
-                                              stop_after):
+    def test_form_level_validation_meta_fails(
+        self, validator_funcs, errors, stop_after
+    ):
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
+
             class Meta:
                 validators = validator_funcs
 

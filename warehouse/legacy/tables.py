@@ -19,7 +19,13 @@
 
 from citext import CIText
 from sqlalchemy import (
-    Column, ForeignKey, Index, Table, UniqueConstraint, DateTime, Text,
+    Column,
+    ForeignKey,
+    Index,
+    Table,
+    UniqueConstraint,
+    DateTime,
+    Text,
 )
 
 from warehouse import db
@@ -31,18 +37,9 @@ from warehouse import db
 rego_otk = Table(
     "rego_otk",
     db.metadata,
-
-    Column(
-        "name",
-        CIText(),
-        ForeignKey(
-            "accounts_user.username",
-            ondelete="CASCADE",
-        ),
-    ),
+    Column("name", CIText(), ForeignKey("accounts_user.username", ondelete="CASCADE")),
     Column("otk", Text()),
     Column("date", DateTime(timezone=False)),
-
     UniqueConstraint("otk", name="rego_otk_unique"),
 )
 

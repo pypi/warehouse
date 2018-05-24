@@ -55,33 +55,31 @@ def _create_logger(request):
 
 def includeme(config):
     # Configure the standard library logging
-    logging.config.dictConfig({
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "structlog": {
-                "()": "warehouse.logging.StructlogFormatter",
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {"structlog": {"()": "warehouse.logging.StructlogFormatter"}},
+            "handlers": {
+                "primary": {
+                    "class": "logging.StreamHandler",
+                    "stream": "ext://sys.stdout",
+                    "formatter": "structlog",
+                },
+                "sentry": {
+                    "class": "raven.handlers.logging.SentryHandler",
+                    "level": "ERROR",
+                    "dsn": config.registry.settings.get("sentry.dsn"),
+                    "release": config.registry.settings.get("warehouse.commit"),
+                    "transport": config.registry.settings.get("sentry.transport"),
+                },
             },
-        },
-        "handlers": {
-            "primary": {
-                "class": "logging.StreamHandler",
-                "stream": "ext://sys.stdout",
-                "formatter": "structlog",
+            "root": {
+                "level": config.registry.settings.get("logging.level", "INFO"),
+                "handlers": ["primary", "sentry"],
             },
-            "sentry": {
-                "class": "raven.handlers.logging.SentryHandler",
-                "level": "ERROR",
-                "dsn": config.registry.settings.get("sentry.dsn"),
-                "release": config.registry.settings.get("warehouse.commit"),
-                "transport": config.registry.settings.get("sentry.transport"),
-            },
-        },
-        "root": {
-            "level": config.registry.settings.get("logging.level", "INFO"),
-            "handlers": ["primary", "sentry"],
-        },
-    })
+        }
+    )
 
     # Configure structlog
     structlog.configure(

@@ -14,6 +14,7 @@ from sqlalchemy.orm.exc import DetachedInstanceError
 
 
 def make_repr(*attrs, _self=None):
+
     def _repr(self=None):
         if self is None and _self is not None:
             self = _self
@@ -21,9 +22,7 @@ def make_repr(*attrs, _self=None):
         try:
             return "{}({})".format(
                 self.__class__.__name__,
-                ", ".join(
-                    "{}={}".format(a, repr(getattr(self, a))) for a in attrs
-                ),
+                ", ".join("{}={}".format(a, repr(getattr(self, a))) for a in attrs),
             )
         except DetachedInstanceError:
             return "{}(<detached>)".format(self.__class__.__name__)

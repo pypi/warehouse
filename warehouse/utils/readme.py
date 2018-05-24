@@ -22,10 +22,10 @@ import readme_renderer.txt
 
 _RENDERERS = {
     None: readme_renderer.rst,  # Default if description_content_type is None
-    '': readme_renderer.rst,  # Default if description_content_type is None
-    'text/plain': readme_renderer.txt,
-    'text/x-rst': readme_renderer.rst,
-    'text/markdown': readme_renderer.markdown,
+    "": readme_renderer.rst,  # Default if description_content_type is None
+    "text/plain": readme_renderer.txt,
+    "text/x-rst": readme_renderer.rst,
+    "text/markdown": readme_renderer.markdown,
 }
 
 
@@ -33,7 +33,7 @@ def render(value, content_type=None):
     if value is None:
         return value
 
-    content_type, parameters = cgi.parse_header(content_type or '')
+    content_type, parameters = cgi.parse_header(content_type or "")
 
     # Get the appropriate renderer
     renderer = _RENDERERS.get(content_type, readme_renderer.txt)
@@ -52,4 +52,4 @@ def render(value, content_type=None):
 
 
 def renderer_version():
-    return pkg_resources.get_distribution('readme-renderer').version
+    return pkg_resources.get_distribution("readme-renderer").version

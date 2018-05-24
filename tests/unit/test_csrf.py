@@ -46,6 +46,7 @@ class TestRequireMethodView:
 
     @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
     def test_disallows_unsafe_by_default(self, method):
+
         @pretend.call_recorder
         def view(context, request):
             pass
@@ -94,6 +95,7 @@ class TestRequireMethodView:
         assert view.calls == [pretend.call(context, request)]
 
     def test_explicit_controls_exception_views(self):
+
         @pretend.call_recorder
         def view(context, request):
             pass
@@ -118,14 +120,8 @@ def test_includeme():
 
     csrf.includeme(config)
 
-    assert config.set_default_csrf_options.calls == [
-        pretend.call(require_csrf=True),
-    ]
+    assert config.set_default_csrf_options.calls == [pretend.call(require_csrf=True)]
     assert config.add_view_deriver.calls == [
         pretend.call(csrf_view, under=INGRESS, over="secured_view"),
-        pretend.call(
-            csrf.require_method_view,
-            under=INGRESS,
-            over="csrf_view",
-        ),
+        pretend.call(csrf.require_method_view, under=INGRESS, over="csrf_view"),
     ]

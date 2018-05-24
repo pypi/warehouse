@@ -30,9 +30,7 @@ class TestStructlogFormatter:
     def test_warehouse_logger_no_renderer(self):
         formatter = wlogging.StructlogFormatter()
         record = logging.LogRecord(
-            "warehouse.request",
-            logging.INFO,
-            None, None, "the message", None, None,
+            "warehouse.request", logging.INFO, None, None, "the message", None, None
         )
 
         assert formatter.format(record) == "the message"
@@ -40,9 +38,7 @@ class TestStructlogFormatter:
     def test_non_warehouse_logger_renders(self):
         formatter = wlogging.StructlogFormatter()
         record = logging.LogRecord(
-            "another.logger",
-            logging.INFO,
-            None, None, "the message", None, None,
+            "another.logger", logging.INFO, None, None, "the message", None, None
         )
 
         assert json.loads(formatter.format(record)) == {
@@ -64,9 +60,7 @@ def test_create_id(monkeypatch):
 
 def test_create_logging(monkeypatch):
     bound_logger = pretend.stub()
-    logger = pretend.stub(
-        bind=pretend.call_recorder(lambda **kw: bound_logger),
-    )
+    logger = pretend.stub(bind=pretend.call_recorder(lambda **kw: bound_logger))
     monkeypatch.setattr(wlogging, "request_logger", logger)
 
     request = pretend.stub(id="request id")
@@ -77,10 +71,7 @@ def test_create_logging(monkeypatch):
 
 @pytest.mark.parametrize(
     ("settings", "expected_level"),
-    [
-        ({"logging.level": "DEBUG"}, "DEBUG"),
-        ({}, "INFO"),
-    ],
+    [({"logging.level": "DEBUG"}, "DEBUG"), ({}, "INFO")],
 )
 def test_includeme(monkeypatch, settings, expected_level):
     dict_config = pretend.call_recorder(lambda c: None)
@@ -97,33 +88,30 @@ def test_includeme(monkeypatch, settings, expected_level):
     wlogging.includeme(config)
 
     assert dict_config.calls == [
-        pretend.call({
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "structlog": {
-                    "()": "warehouse.logging.StructlogFormatter",
+        pretend.call(
+            {
+                "version": 1,
+                "disable_existing_loggers": False,
+                "formatters": {
+                    "structlog": {"()": "warehouse.logging.StructlogFormatter"}
                 },
-            },
-            "handlers": {
-                "primary": {
-                    "class": "logging.StreamHandler",
-                    "stream": "ext://sys.stdout",
-                    "formatter": "structlog",
+                "handlers": {
+                    "primary": {
+                        "class": "logging.StreamHandler",
+                        "stream": "ext://sys.stdout",
+                        "formatter": "structlog",
+                    },
+                    "sentry": {
+                        "class": "raven.handlers.logging.SentryHandler",
+                        "level": "ERROR",
+                        "release": None,
+                        "dsn": None,
+                        "transport": None,
+                    },
                 },
-                "sentry": {
-                    "class": "raven.handlers.logging.SentryHandler",
-                    "level": "ERROR",
-                    "release": None,
-                    "dsn": None,
-                    "transport": None,
-                },
-            },
-            "root": {
-                "level": expected_level,
-                "handlers": ["primary", "sentry"],
-            },
-        }),
+                "root": {"level": expected_level, "handlers": ["primary", "sentry"]},
+            }
+        )
     ]
     assert configure.calls == [
         pretend.call(
@@ -139,7 +127,7 @@ def test_includeme(monkeypatch, settings, expected_level):
             logger_factory=mock.ANY,
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
-        ),
+        )
     ]
     assert isinstance(
         configure.calls[0].kwargs["processors"][3],
@@ -150,8 +138,7 @@ def test_includeme(monkeypatch, settings, expected_level):
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(
-        configure.calls[0].kwargs["logger_factory"],
-        structlog.stdlib.LoggerFactory,
+        configure.calls[0].kwargs["logger_factory"], structlog.stdlib.LoggerFactory
     )
     assert config.add_request_method.calls == [
         pretend.call(wlogging._create_id, name="id", reify=True),

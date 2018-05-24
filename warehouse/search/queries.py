@@ -11,9 +11,18 @@
 # limitations under the License.
 
 SEARCH_FIELDS = [
-    "author", "author_email", "description", "download_url", "home_page",
-    "keywords", "license", "maintainer", "maintainer_email", "normalized_name",
-    "platform", "summary",
+    "author",
+    "author_email",
+    "description",
+    "download_url",
+    "home_page",
+    "keywords",
+    "license",
+    "maintainer",
+    "maintainer_email",
+    "normalized_name",
+    "platform",
+    "summary",
 ]
 SEARCH_BOOSTS = {
     "name": 10,

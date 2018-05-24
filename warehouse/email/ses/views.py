@@ -18,16 +18,13 @@ from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 
-from warehouse.email.ses.models import (
-    EmailMessage, EmailStatus, Event, EventTypes,
-)
+from warehouse.email.ses.models import EmailMessage, EmailStatus, Event, EventTypes
 from warehouse.utils import sns
 
 
 def _verify_sns_message(request, message):
     verifier = sns.MessageVerifier(
-        topics=[request.registry.settings["mail.topic"]],
-        session=request.http,
+        topics=[request.registry.settings["mail.topic"]], session=request.http
     )
 
     try:
@@ -53,14 +50,11 @@ def confirm_subscription(request):
 
     aws_session = request.find_service(name="aws.session")
     sns_client = aws_session.client(
-        "sns",
-        region_name=request.registry.settings.get("mail.region"),
+        "sns", region_name=request.registry.settings.get("mail.region")
     )
 
     sns_client.confirm_subscription(
-        TopicArn=data["TopicArn"],
-        Token=data["Token"],
-        AuthenticateOnUnsubscribe='true',
+        TopicArn=data["TopicArn"], Token=data["Token"], AuthenticateOnUnsubscribe="true"
     )
 
     return Response()
@@ -81,9 +75,9 @@ def notification(request):
 
     _verify_sns_message(request, data)
 
-    event_exists = (
-        request.db.query(exists().where(Event.event_id == data["MessageId"]))
-                  .scalar())
+    event_exists = request.db.query(
+        exists().where(Event.event_id == data["MessageId"])
+    ).scalar()
     if event_exists:
         return Response()
 
@@ -93,8 +87,9 @@ def notification(request):
     try:
         email = (
             request.db.query(EmailMessage)
-                      .filter(EmailMessage.message_id == message_id)
-                      .one())
+            .filter(EmailMessage.message_id == message_id)
+            .one()
+        )
     except NoResultFound:
         raise HTTPBadRequest("Unknown messageId")
 
@@ -103,8 +98,10 @@ def notification(request):
     machine = EmailStatus.load(email)
     if message["notificationType"] == "Delivery":
         machine.deliver()
-    elif (message["notificationType"] == "Bounce" and
-            message["bounce"]["bounceType"] == "Permanent"):
+    elif (
+        message["notificationType"] == "Bounce"
+        and message["bounce"]["bounceType"] == "Permanent"
+    ):
         machine.bounce()
     elif message["notificationType"] == "Bounce":
         machine.soft_bounce()
