@@ -1,4 +1,5 @@
 alembic>=0.7.0
+apispec
 Automat
 argon2-cffi
 Babel
@@ -21,6 +22,7 @@ itsdangerous
 Jinja2>=2.8
 limits
 lxml
+marshmallow
 mistune
 msgpack
 packaging>=15.2
@@ -36,6 +38,7 @@ pyramid_retry>=0.3
 pyramid_rpc>=0.7
 pyramid_services
 pyramid_tm>=0.12
+PyYaml
 raven
 readme_renderer>=0.7.0
 requests

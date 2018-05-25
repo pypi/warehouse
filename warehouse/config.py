@@ -181,6 +181,7 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.theme", "WAREHOUSE_THEME")
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
+    maybe_set(settings, "hypermedia.domain", "HYPERMEDIA_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
@@ -261,6 +262,9 @@ def configure(settings=None):
         over="warehouse.csp.content_security_policy_tween_factory",
     )
     config.add_tween("warehouse.config.unicode_redirect_tween_factory")
+
+    # Register Hypermedia API
+    config.include(".api")
 
     # Register DataDog metrics
     config.include(".datadog")

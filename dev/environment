@@ -33,3 +33,5 @@ TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 DATADOG_HOST=notdatadog
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
+
+HYPERMEDIA_API=api.pypi.org
