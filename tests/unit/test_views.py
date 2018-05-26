@@ -420,9 +420,9 @@ class TestSearch:
             "applied_filters": params.getall("c"),
             "available_filters": [
                 {
-                    'foo': {
-                        classifier1.classifier.split(' :: ')[1]: {},
-                        classifier2.classifier.split(' :: ')[1]: {}
+                    "foo": {
+                        classifier1.classifier.split(" :: ")[1]: {},
+                        classifier2.classifier.split(" :: ")[1]: {},
                     }
                 }
             ],

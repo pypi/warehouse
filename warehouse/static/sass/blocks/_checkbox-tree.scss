@@ -46,53 +46,45 @@
 
 
 .markup {
-
-  ul.tree {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  ul.tree ul {
-    list-style: none;
-    margin: 6px 0 0 20px;
-  }
-
-  ul.tree li {
-    margin: 0;
-    padding: 0 3px;
-    line-height: 20px;
-    color: $text-color;
-    border-left: 2px solid $light-grey;
-    @media only screen and (max-width: $desktop) {
-      border-left-color: $primary-color-light;
-    }
-
-  }
-
-  ul.tree li:before {
+  li {
     position: relative;
-    top: -3px;
-    height: 14px;
-    width: 13px;
+    padding-left: 5px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 5px 0 0 12px;
+    position: relative;
+    padding-left: 5px;
+  }
+
+  li::before {
     content: "";
-    display: inline-block;
-    left: -3px;
-    border-bottom: 2px solid $light-grey;
+    position: absolute;
+    left: -12px;
+    top: 13px;
+    width: 12px;
+    height: 0;
+    border-top: 2px solid $light-grey;
     @media only screen and (max-width: $desktop) {
-      border-left-color: $primary-color-light;
-      border-bottom-color: $primary-color-light;
+      border-top-color: $primary-color-light;
     }
   }
 
-  ul.tree li:last-child {
-    border-left: 0;
-  }
-
-  ul.tree li:last-child:before {
+  li::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+    height: 100%;
+    width: 0px;
+    top: -2px;
     border-left: 2px solid $light-grey;
     @media only screen and (max-width: $desktop) {
       border-left-color: $primary-color-light;
     }
   }
-}
+
+  ul > li:last-child::after {
+    height: 17px;
+  }
+  }

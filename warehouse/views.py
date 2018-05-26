@@ -329,18 +329,19 @@ def search(request):
         output = []
         for f in sorted_filters:
             classifier_list = f[1]
-            split_list = [i.split(' :: ') for i in classifier_list]
+            split_list = [i.split(" :: ") for i in classifier_list]
             tree = form_filters_tree(split_list)
             output.append(tree)
         return output
 
-    request.registry.datadog.histogram('warehouse.views.search.results',
-                                       page.item_count)
+    request.registry.datadog.histogram(
+        "warehouse.views.search.results", page.item_count
+    )
 
     return {
         "page": page,
         "term": q,
-        "order": request.params.get("o", ''),
+        "order": request.params.get("o", ""),
         "available_filters": process_available_filters(),
         "applied_filters": request.params.getall("c"),
     }
