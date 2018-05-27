@@ -34,7 +34,7 @@ NameAnalyzer = analyzer(
 class Project(DocType):
 
     name = Text()
-    normalized_name = Text(analyzer=NameAnalyzer, index_options="docs")
+    normalized_name = Text(analyzer=NameAnalyzer)
     version = Keyword(multi=True)
     latest_version = Keyword()
     summary = Text(analyzer="snowball")
@@ -61,9 +61,7 @@ class Project(DocType):
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
         obj["version"] = sorted(
-            release.all_versions,
-            key=lambda r: packaging.version.parse(r),
-            reverse=True,
+            release.all_versions, key=lambda r: packaging.version.parse(r), reverse=True
         )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary

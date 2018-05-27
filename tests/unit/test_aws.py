@@ -25,11 +25,8 @@ def test_aws_session_factory(monkeypatch, region):
 
     request = pretend.stub(
         registry=pretend.stub(
-            settings={
-                "aws.key_id": "my key",
-                "aws.secret_key": "my secret",
-            },
-        ),
+            settings={"aws.key_id": "my key", "aws.secret_key": "my secret"}
+        )
     )
 
     if region is not None:
@@ -47,13 +44,11 @@ def test_aws_session_factory(monkeypatch, region):
 
 def test_includeme():
     config = pretend.stub(
-        register_service_factory=pretend.call_recorder(
-            lambda factory, name: None
-        )
+        register_service_factory=pretend.call_recorder(lambda factory, name: None)
     )
 
     aws.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(aws.aws_session_factory, name="aws.session"),
+        pretend.call(aws.aws_session_factory, name="aws.session")
     ]

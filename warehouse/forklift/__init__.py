@@ -17,7 +17,7 @@
 
 def _help_url(request, **kwargs):
     warehouse_domain = request.registry.settings.get("warehouse.domain")
-    return request.route_url('help', _host=warehouse_domain, **kwargs)
+    return request.route_url("help", _host=warehouse_domain, **kwargs)
 
 
 def includeme(config):
@@ -31,33 +31,20 @@ def includeme(config):
 
     # Add the routes that we'll be using in Forklift.
     config.add_legacy_action_route(
-        "forklift.legacy.file_upload",
-        "file_upload",
-        domain=forklift,
+        "forklift.legacy.file_upload", "file_upload", domain=forklift
+    )
+    config.add_legacy_action_route("forklift.legacy.submit", "submit", domain=forklift)
+    config.add_legacy_action_route(
+        "forklift.legacy.submit_pkg_info", "submit_pkg_info", domain=forklift
     )
     config.add_legacy_action_route(
-        "forklift.legacy.submit",
-        "submit",
-        domain=forklift,
-    )
-    config.add_legacy_action_route(
-        "forklift.legacy.submit_pkg_info",
-        "submit_pkg_info",
-        domain=forklift,
-    )
-    config.add_legacy_action_route(
-        "forklift.legacy.doc_upload",
-        "doc_upload",
-        domain=forklift,
+        "forklift.legacy.doc_upload", "doc_upload", domain=forklift
     )
     config.add_request_method(_help_url, name="help_url")
 
     if forklift:
         config.add_template_view(
-            "forklift.index",
-            "/",
-            "upload.html",
-            route_kw={"domain": forklift},
+            "forklift.index", "/", "upload.html", route_kw={"domain": forklift}
         )
 
         # Any call to /legacy/ not handled by another route (e.g. no :action

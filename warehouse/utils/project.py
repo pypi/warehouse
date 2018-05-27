@@ -32,22 +32,15 @@ def confirm_project(project, request, fail_route):
     confirm = request.POST.get("confirm_project_name")
     project_name = project.normalized_name
     if not confirm:
-        request.session.flash(
-            "Must confirm the request",
-            queue="error",
-        )
-        raise HTTPSeeOther(
-            request.route_path(fail_route, project_name=project_name)
-        )
+        request.session.flash("Confirm the request", queue="error")
+        raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
     if canonicalize_name(confirm) != project.normalized_name:
         request.session.flash(
-            "Could not delete project - " +
-            f"{confirm!r} is not the same as {project.normalized_name!r}",
+            "Could not delete project - "
+            + f"{confirm!r} is not the same as {project.normalized_name!r}",
             queue="error",
         )
-        raise HTTPSeeOther(
-            request.route_path(fail_route, project_name=project_name)
-        )
+        raise HTTPSeeOther(request.route_path(fail_route, project_name=project_name))
 
 
 def remove_project(project, request, flash=True):
@@ -69,10 +62,7 @@ def remove_project(project, request, flash=True):
     request.db.flush()
 
     if flash:
-        request.session.flash(
-            f"Successfully deleted the project {project.name!r}",
-            queue="success",
-        )
+        request.session.flash(f"Deleted the project {project.name!r}", queue="success")
 
 
 def destroy_docs(project, request, flash=True):
@@ -91,6 +81,5 @@ def destroy_docs(project, request, flash=True):
 
     if flash:
         request.session.flash(
-            f"Successfully deleted docs for project {project.name!r}",
-            queue="success",
+            f"Deleted docs for project {project.name!r}", queue="success"
         )

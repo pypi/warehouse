@@ -13,9 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.httpexceptions import (
-    HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther,
-)
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project
@@ -38,10 +36,7 @@ class TestProjectList:
         )
         result = views.project_list(db_request)
 
-        assert result == {
-            "projects": projects[:25],
-            "query": None,
-        }
+        assert result == {"projects": projects[:25], "query": None}
 
     def test_with_page(self, db_request):
         projects = sorted(
@@ -51,10 +46,7 @@ class TestProjectList:
         db_request.GET["page"] = "2"
         result = views.project_list(db_request)
 
-        assert result == {
-            "projects": projects[25:],
-            "query": None,
-        }
+        assert result == {"projects": projects[25:], "query": None}
 
     def test_with_invalid_page(self):
         request = pretend.stub(params={"page": "not an integer"})
@@ -64,21 +56,16 @@ class TestProjectList:
 
     def test_basic_query(self, db_request):
         projects = sorted(
-            [ProjectFactory.create() for _ in range(5)],
-            key=lambda p: p.normalized_name,
+            [ProjectFactory.create() for _ in range(5)], key=lambda p: p.normalized_name
         )
         db_request.GET["q"] = projects[0].name
         result = views.project_list(db_request)
 
-        assert result == {
-            "projects": [projects[0]],
-            "query": projects[0].name,
-        }
+        assert result == {"projects": [projects[0]], "query": projects[0].name}
 
     def test_wildcard_query(self, db_request):
         projects = sorted(
-            [ProjectFactory.create() for _ in range(5)],
-            key=lambda p: p.normalized_name,
+            [ProjectFactory.create() for _ in range(5)], key=lambda p: p.normalized_name
         )
         db_request.GET["q"] = projects[0].name[:-1] + "%"
         result = views.project_list(db_request)
@@ -94,8 +81,7 @@ class TestProjectDetail:
     def test_gets_project(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(75)],
+            [JournalEntryFactory(name=project.name) for _ in range(75)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -126,9 +112,7 @@ class TestReleaseDetail:
         release = pretend.stub()
         request = pretend.stub()
 
-        assert views.release_detail(release, request) == {
-            'release': release,
-        }
+        assert views.release_detail(release, request) == {"release": release}
 
 
 class TestProjectReleasesList:
@@ -136,29 +120,19 @@ class TestProjectReleasesList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [
-                ReleaseFactory.create(project=project)
-                for _ in range(30)
-            ],
+            [ReleaseFactory.create(project=project) for _ in range(30)],
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
         result = views.releases_list(project, db_request)
 
-        assert result == {
-            "releases": releases[:25],
-            "project": project,
-            "query": None,
-        }
+        assert result == {"releases": releases[:25], "project": project, "query": None}
 
     def test_with_page(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [
-                ReleaseFactory.create(project=project)
-                for _ in range(30)
-            ],
+            [ReleaseFactory.create(project=project) for _ in range(30)],
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -166,11 +140,7 @@ class TestProjectReleasesList:
         db_request.GET["page"] = "2"
         result = views.releases_list(project, db_request)
 
-        assert result == {
-            "releases": releases[25:],
-            "project": project,
-            "query": None,
-        }
+        assert result == {"releases": releases[25:], "project": project, "query": None}
 
     def test_with_invalid_page(self, db_request):
         project = ProjectFactory.create()
@@ -183,10 +153,7 @@ class TestProjectReleasesList:
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [
-                ReleaseFactory.create(project=project)
-                for _ in range(30)
-            ],
+            [ReleaseFactory.create(project=project) for _ in range(30)],
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -203,10 +170,7 @@ class TestProjectReleasesList:
     def test_invalid_key_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [
-                ReleaseFactory.create(project=project)
-                for _ in range(30)
-            ],
+            [ReleaseFactory.create(project=project) for _ in range(30)],
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -223,10 +187,7 @@ class TestProjectReleasesList:
     def test_basic_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [
-                ReleaseFactory.create(project=project)
-                for _ in range(30)
-            ],
+            [ReleaseFactory.create(project=project) for _ in range(30)],
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -255,25 +216,19 @@ class TestProjectJournalsList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(30)],
+            [JournalEntryFactory(name=project.name) for _ in range(30)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         db_request.matchdict["project_name"] = project.normalized_name
         result = views.journals_list(project, db_request)
 
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": None,
-        }
+        assert result == {"journals": journals[:25], "project": project, "query": None}
 
     def test_with_page(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(30)],
+            [JournalEntryFactory(name=project.name) for _ in range(30)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -281,11 +236,7 @@ class TestProjectJournalsList:
         db_request.GET["page"] = "2"
         result = views.journals_list(project, db_request)
 
-        assert result == {
-            "journals": journals[25:],
-            "project": project,
-            "query": None,
-        }
+        assert result == {"journals": journals[25:], "project": project, "query": None}
 
     def test_with_invalid_page(self, db_request):
         project = ProjectFactory.create()
@@ -298,8 +249,7 @@ class TestProjectJournalsList:
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(30)],
+            [JournalEntryFactory(name=project.name) for _ in range(30)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -316,8 +266,7 @@ class TestProjectJournalsList:
     def test_invalid_key_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(30)],
+            [JournalEntryFactory(name=project.name) for _ in range(30)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -334,8 +283,7 @@ class TestProjectJournalsList:
     def test_basic_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name)
-             for _ in range(30)],
+            [JournalEntryFactory(name=project.name) for _ in range(30)],
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -360,13 +308,15 @@ class TestProjectJournalsList:
 
 
 class TestProjectSetLimit:
+
     def test_sets_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/")
+            lambda *a, **kw: "/admin/projects/"
+        )
         db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST["upload_limit"] = "90"
@@ -374,9 +324,7 @@ class TestProjectSetLimit:
         views.set_upload_limit(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(
-                "Successfully set the upload limit on 'foo'",
-                queue="success"),
+            pretend.call("Set the upload limit on 'foo'", queue="success")
         ]
 
         assert project.upload_limit == 90 * views.ONE_MB
@@ -386,18 +334,17 @@ class TestProjectSetLimit:
         project.upload_limit = 90 * views.ONE_MB
 
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/")
+            lambda *a, **kw: "/admin/projects/"
+        )
         db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
 
         views.set_upload_limit(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(
-                "Successfully set the upload limit on 'foo'",
-                queue="success"),
+            pretend.call("Set the upload limit on 'foo'", queue="success")
         ]
 
         assert project.upload_limit is None
@@ -424,12 +371,10 @@ class TestProjectSetLimit:
 class TestDeleteProject:
 
     def test_no_confirm(self):
-        project = pretend.stub(normalized_name='foo')
+        project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
@@ -439,16 +384,14 @@ class TestDeleteProject:
             assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
-            pretend.call("Must confirm the request", queue="error"),
+            pretend.call("Confirm the request", queue="error")
         ]
 
     def test_wrong_confirm(self):
-        project = pretend.stub(normalized_name='foo')
+        project = pretend.stub(normalized_name="foo")
         request = pretend.stub(
             POST={"confirm_project_name": "bar"},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
@@ -460,17 +403,18 @@ class TestDeleteProject:
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not delete project - 'bar' is not the same as 'foo'",
-                queue="error"
-            ),
+                queue="error",
+            )
         ]
 
     def test_deletes_project(self, db_request):
         project = ProjectFactory.create(name="foo")
 
         db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/")
+            lambda *a, **kw: "/admin/projects/"
+        )
         db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST["confirm_project_name"] = project.normalized_name
         db_request.user = UserFactory.create()
@@ -479,10 +423,7 @@ class TestDeleteProject:
         views.delete_project(project, db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(
-                "Successfully deleted the project 'foo'",
-                queue="success"),
+            pretend.call("Deleted the project 'foo'", queue="success")
         ]
 
-        assert not (db_request.db.query(Project)
-                                 .filter(Project.name == "foo").count())
+        assert not (db_request.db.query(Project).filter(Project.name == "foo").count())

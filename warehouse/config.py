@@ -58,9 +58,7 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [
-        (Allow, "group:admins", "admin"),
-    ]
+    __acl__ = [(Allow, "group:admins", "admin")]
 
     def __init__(self, request):
         pass
@@ -98,11 +96,11 @@ def unicode_redirect_tween_factory(handler, request):
         response = handler(request)
         if response.location:
             try:
-                response.location.encode('ascii')
+                response.location.encode("ascii")
             except UnicodeEncodeError:
-                response.location = '/'.join(
-                    [urllib.parse.quote_plus(x)
-                     for x in response.location.split('/')])
+                response.location = "/".join(
+                    [urllib.parse.quote_plus(x) for x in response.location.split("/")]
+                )
 
         return response
 
@@ -118,11 +116,7 @@ def require_https_tween_factory(handler, registry):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
         if request.params.get(":action", None) and request.scheme != "https":
-            resp = Response(
-                "SSL is required.",
-                status=403,
-                content_type="text/plain",
-            )
+            resp = Response("SSL is required.", status=403, content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
             return resp
@@ -175,7 +169,10 @@ def configure(settings=None):
     # Set the environment from an environment variable, if one hasn't already
     # been set.
     maybe_set(
-        settings, "warehouse.env", "WAREHOUSE_ENV", Environment,
+        settings,
+        "warehouse.env",
+        "WAREHOUSE_ENV",
+        Environment,
         default=Environment.production,
     )
 
@@ -198,6 +195,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
+    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
@@ -211,18 +209,8 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL")
-    maybe_set(
-        settings,
-        "token.password.max_age",
-        "TOKEN_PASSWORD_MAX_AGE",
-        coercer=int,
-    )
-    maybe_set(
-        settings,
-        "token.email.max_age",
-        "TOKEN_EMAIL_MAX_AGE",
-        coercer=int,
-    )
+    maybe_set(settings, "token.password.max_age", "TOKEN_PASSWORD_MAX_AGE", coercer=int)
+    maybe_set(settings, "token.email.max_age", "TOKEN_EMAIL_MAX_AGE", coercer=int)
     maybe_set(
         settings,
         "token.default.max_age",
@@ -315,29 +303,19 @@ def configure(settings=None):
 
     # We need to enable our Client Side Include extension
     config.get_settings().setdefault(
-        "jinja2.extensions",
-        ["warehouse.utils.html.ClientSideIncludeExtension"],
+        "jinja2.extensions", ["warehouse.utils.html.ClientSideIncludeExtension"]
     )
 
     # We'll want to configure some filters for Jinja2 as well.
     filters = config.get_settings().setdefault("jinja2.filters", {})
-    filters.setdefault(
-        "format_classifiers",
-        "warehouse.filters:format_classifiers",
-    )
+    filters.setdefault("format_classifiers", "warehouse.filters:format_classifiers")
     filters.setdefault("format_tags", "warehouse.filters:format_tags")
     filters.setdefault("json", "warehouse.filters:tojson")
     filters.setdefault("camoify", "warehouse.filters:camoify")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
-    filters.setdefault(
-        "contains_valid_uris",
-        "warehouse.filters:contains_valid_uris"
-    )
-    filters.setdefault(
-        "format_package_type",
-        "warehouse.filters:format_package_type"
-    )
+    filters.setdefault("contains_valid_uris", "warehouse.filters:contains_valid_uris")
+    filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
 
     # We also want to register some global functions for Jinja
@@ -355,10 +333,7 @@ def configure(settings=None):
 
     # We want to configure our JSON renderer to sort the keys, and also to use
     # an ultra compact serialization format.
-    config.add_renderer(
-        "json",
-        renderers.JSON(sort_keys=True, separators=(",", ":")),
-    )
+    config.add_renderer("json", renderers.JSON(sort_keys=True, separators=(",", ":")))
 
     # Configure retry support.
     config.add_settings({"retry.attempts": 3})
@@ -367,11 +342,13 @@ def configure(settings=None):
     # Configure our transaction handling so that each request gets its own
     # transaction handler and the lifetime of the transaction is tied to the
     # lifetime of the request.
-    config.add_settings({
-        "tm.manager_hook": lambda request: transaction.TransactionManager(),
-        "tm.activate_hook": activate_hook,
-        "tm.annotate_user": False,
-    })
+    config.add_settings(
+        {
+            "tm.manager_hook": lambda request: transaction.TransactionManager(),
+            "tm.activate_hook": activate_hook,
+            "tm.annotate_user": False,
+        }
+    )
     config.include("pyramid_tm")
 
     # Register support for services
@@ -463,8 +440,7 @@ def configure(settings=None):
     )
 
     # Enable Warehouse to serve our static files
-    prevent_http_cache = \
-        config.get_settings().get("pyramid.prevent_http_cache", False)
+    prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
         "static",
         "warehouse:static/dist/",
@@ -515,11 +491,7 @@ def configure(settings=None):
     # Register Referrer-Policy service
     config.include(".referrer_policy")
 
-    config.add_settings({
-        "http": {
-            "verify": "/etc/ssl/certs/",
-        },
-    })
+    config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
 
     # Add our theme if one was configured
@@ -528,11 +500,7 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=[
-            "warehouse.migrations.env",
-            "warehouse.celery",
-            "warehouse.wsgi",
-        ],
+        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
     )
 
     # Finally, commit all of our changes

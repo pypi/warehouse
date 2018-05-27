@@ -27,8 +27,7 @@ down_revision = "8c8be2c0e69e"
 
 def upgrade():
     op.add_column(
-        "packages",
-        sa.Column("allow_legacy_files", sa.Boolean(), nullable=True),
+        "packages", sa.Column("allow_legacy_files", sa.Boolean(), nullable=True)
     )
 
     op.execute("UPDATE packages SET allow_legacy_files = 't'")
@@ -42,4 +41,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column('packages', 'allow_legacy_files')
+    op.drop_column("packages", "allow_legacy_files")

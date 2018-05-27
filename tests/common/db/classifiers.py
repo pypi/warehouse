@@ -19,6 +19,7 @@ from .base import WarehouseFactory
 
 
 class ClassifierFactory(WarehouseFactory):
+
     class Meta:
         model = Classifier
 

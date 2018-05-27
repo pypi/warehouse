@@ -16,8 +16,9 @@ from warehouse.cache.origin.interfaces import IOriginCache
 
 
 def html_cache_deriver(view, info):
-    renderer = info.options.get('renderer')
-    if renderer and renderer.name.endswith('.html'):
+    renderer = info.options.get("renderer")
+    if renderer and renderer.name.endswith(".html"):
+
         def wrapper_view(context, request):
             try:
                 cacher = request.find_service(IOriginCache)
@@ -25,11 +26,9 @@ def html_cache_deriver(view, info):
                 pass
             else:
                 request.add_response_callback(
-                    functools.partial(
-                        cacher.cache,
-                        ['all-html', renderer.name],
-                    )
+                    functools.partial(cacher.cache, ["all-html", renderer.name])
                 )
             return view(context, request)
+
         return wrapper_view
     return view

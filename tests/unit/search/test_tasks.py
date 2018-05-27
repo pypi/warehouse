@@ -38,16 +38,13 @@ def test_project_docs(db_session):
     assert list(_project_docs(db_session)) == [
         {
             "_id": p.normalized_name,
-            "_type": "project",
+            "_type": "doc",
             "_source": {
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
                 "version": [r.version for r in prs],
-                "latest_version": first(
-                    prs,
-                    key=lambda r: not r.is_prerelease,
-                ).version,
+                "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
             },
         }
         for p, prs in sorted(releases.items(), key=lambda x: x[0].name.lower())
@@ -61,7 +58,6 @@ class FakeESIndices:
         self.aliases = {}
 
         self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
-        self.forcemerge = pretend.call_recorder(lambda *a, **kw: None)
         self.delete = pretend.call_recorder(lambda *a, **kw: None)
         self.create = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -104,38 +100,28 @@ class TestReindex:
         def project_docs(db):
             return docs
 
-        monkeypatch.setattr(
-            warehouse.search.tasks,
-            "_project_docs",
-            project_docs,
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
 
         es_client = FakeESClient()
 
-        db_request.registry.update(
-            {
-                "elasticsearch.index": "warehouse",
-            },
-        )
-        db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
-        }
+        db_request.registry.update({"elasticsearch.index": "warehouse"})
+        db_request.registry.settings = {"elasticsearch.url": "http://some.url"}
         monkeypatch.setattr(
             warehouse.search.tasks.elasticsearch,
             "Elasticsearch",
-            lambda *a, **kw: es_client
+            lambda *a, **kw: es_client,
         )
 
         class TestException(Exception):
             pass
 
-        def parallel_bulk(client, iterable):
+        def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
+            assert index == "warehouse-cbcbcbcbcb"
             raise TestException
 
-        monkeypatch.setattr(
-            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
@@ -143,10 +129,9 @@ class TestReindex:
             reindex(db_request)
 
         assert es_client.indices.delete.calls == [
-            pretend.call(index='warehouse-cbcbcbcbcb'),
+            pretend.call(index="warehouse-cbcbcbcbcb")
         ]
         assert es_client.indices.put_settings.calls == []
-        assert es_client.indices.forcemerge.calls == []
 
     def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
 
@@ -155,68 +140,50 @@ class TestReindex:
         def project_docs(db):
             return docs
 
-        monkeypatch.setattr(
-            warehouse.search.tasks,
-            "_project_docs",
-            project_docs,
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
 
         es_client = FakeESClient()
 
         db_request.registry.update(
-            {
-                "elasticsearch.index": "warehouse",
-                "elasticsearch.shards": 42,
-            }
+            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
         )
-        db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
-        }
+        db_request.registry.settings = {"elasticsearch.url": "http://some.url"}
         monkeypatch.setattr(
             warehouse.search.tasks.elasticsearch,
             "Elasticsearch",
-            lambda *a, **kw: es_client
+            lambda *a, **kw: es_client,
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
-        monkeypatch.setattr(
-            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
-                    'settings': {
-                        'number_of_shards': 42,
-                        'number_of_replicas': 0,
-                        'refresh_interval': '-1',
+                    "settings": {
+                        "number_of_shards": 42,
+                        "number_of_replicas": 0,
+                        "refresh_interval": "-1",
                     }
                 },
                 wait_for_active_shards=42,
-                index='warehouse-cbcbcbcbcb',
+                index="warehouse-cbcbcbcbcb",
             )
         ]
         assert es_client.indices.delete.calls == []
-        assert es_client.indices.aliases == {
-            "warehouse": ["warehouse-cbcbcbcbcb"],
-        }
+        assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
         assert es_client.indices.put_settings.calls == [
             pretend.call(
-                index='warehouse-cbcbcbcbcb',
-                body={
-                    'index': {
-                        'number_of_replicas': 0,
-                        'refresh_interval': '1s',
-                    },
-                },
+                index="warehouse-cbcbcbcbcb",
+                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
             )
-        ]
-        assert es_client.indices.forcemerge.calls == [
-            pretend.call(index='warehouse-cbcbcbcbcb')
         ]
 
     def test_successfully_indexes_and_replaces(self, db_request, monkeypatch):
@@ -225,11 +192,7 @@ class TestReindex:
         def project_docs(db):
             return docs
 
-        monkeypatch.setattr(
-            warehouse.search.tasks,
-            "_project_docs",
-            project_docs,
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
 
         es_client = FakeESClient()
         es_client.indices.indices["warehouse-aaaaaaaaaa"] = None
@@ -241,56 +204,43 @@ class TestReindex:
                 "elasticsearch.index": "warehouse",
                 "elasticsearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
-            },
+            }
         )
-        db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
-        }
+        db_request.registry.settings = {"elasticsearch.url": "http://some.url"}
         monkeypatch.setattr(
             warehouse.search.tasks.elasticsearch,
             "Elasticsearch",
-            lambda *a, **kw: es_client
+            lambda *a, **kw: es_client,
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
-        monkeypatch.setattr(
-            warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
+        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
 
         reindex(db_request)
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [
+            pretend.call(es_client, docs, index="warehouse-cbcbcbcbcb")
+        ]
         assert es_client.indices.create.calls == [
             pretend.call(
                 body={
-                    'settings': {
-                        'number_of_shards': 42,
-                        'number_of_replicas': 0,
-                        'refresh_interval': '-1',
+                    "settings": {
+                        "number_of_shards": 42,
+                        "number_of_replicas": 0,
+                        "refresh_interval": "-1",
                     }
                 },
                 wait_for_active_shards=42,
-                index='warehouse-cbcbcbcbcb',
+                index="warehouse-cbcbcbcbcb",
             )
         ]
-        assert es_client.indices.delete.calls == [
-            pretend.call('warehouse-aaaaaaaaaa'),
-        ]
-        assert es_client.indices.aliases == {
-            "warehouse": ["warehouse-cbcbcbcbcb"],
-        }
+        assert es_client.indices.delete.calls == [pretend.call("warehouse-aaaaaaaaaa")]
+        assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
         assert es_client.indices.put_settings.calls == [
             pretend.call(
-                index='warehouse-cbcbcbcbcb',
-                body={
-                    'index': {
-                        'number_of_replicas': 0,
-                        'refresh_interval': '1s',
-                    },
-                },
+                index="warehouse-cbcbcbcbcb",
+                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
             )
-        ]
-        assert es_client.indices.forcemerge.calls == [
-            pretend.call(index='warehouse-cbcbcbcbcb')
         ]

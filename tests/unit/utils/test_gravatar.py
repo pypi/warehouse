@@ -81,11 +81,8 @@ from warehouse.utils.gravatar import gravatar, profile
 def test_gravatar(email, size, expected, monkeypatch):
     request = pretend.stub(
         registry=pretend.stub(
-            settings={
-                "camo.url": "https://camo.example.net/",
-                "camo.key": "fake key",
-            },
-        ),
+            settings={"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
+        )
     )
     camo_url = partial(_camo_url, request)
     request.camo_url = camo_url

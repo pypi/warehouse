@@ -31,8 +31,7 @@ def alembic_lock(engine, alembic_config):
             yield alembic_config
         finally:
             # Finally we need to release the lock we've acquired.
-            connection.execute(
-                "SELECT pg_advisory_unlock(hashtext('alembic'))")
+            connection.execute("SELECT pg_advisory_unlock(hashtext('alembic'))")
 
 
 @warehouse.group()  # pragma: no branch

@@ -21,19 +21,17 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = 'be4cf6b58557'
-down_revision = '3d2b8a42219a'
+revision = "be4cf6b58557"
+down_revision = "3d2b8a42219a"
 
 
 def upgrade():
     """
     Add column `requires_python` in the `release_files` table.
     """
-    op.add_column("release_files",
-                  sa.Column("requires_python",
-                            sa.Text(),
-                            nullable=True)
-                  )
+    op.add_column(
+        "release_files", sa.Column("requires_python", sa.Text(), nullable=True)
+    )
 
     # Populate the column with content from release.requires_python.
     op.execute(

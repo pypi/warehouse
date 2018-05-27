@@ -24,23 +24,13 @@ def includeme(config):
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
+    config.add_route("admin.user.detail", "/admin/users/{user_id}/", domain=warehouse)
     config.add_route(
-        "admin.user.detail",
-        "/admin/users/{user_id}/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.user.delete",
-        "/admin/users/{user_id}/delete/",
-        domain=warehouse,
+        "admin.user.delete", "/admin/users/{user_id}/delete/", domain=warehouse
     )
 
     # Project related Admin pages
-    config.add_route(
-        "admin.project.list",
-        "/admin/projects/",
-        domain=warehouse,
-    )
+    config.add_route("admin.project.list", "/admin/projects/", domain=warehouse)
     config.add_route(
         "admin.project.detail",
         "/admin/projects/{project_name}/",
@@ -85,66 +75,30 @@ def includeme(config):
     )
 
     # Journal related Admin pages
-    config.add_route(
-        "admin.journals.list",
-        "/admin/journals/",
-        domain=warehouse,
-    )
+    config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 
     # Classifier related Admin pages
+    config.add_route("admin.classifiers", "/admin/classifiers/", domain=warehouse)
     config.add_route(
-        'admin.classifiers',
-        '/admin/classifiers/',
-        domain=warehouse,
+        "admin.classifiers.add", "/admin/classifiers/add/", domain=warehouse
     )
     config.add_route(
-        'admin.classifiers.add',
-        '/admin/classifiers/add/',
-        domain=warehouse,
-    )
-    config.add_route(
-        'admin.classifiers.deprecate',
-        '/admin/classifiers/deprecate/',
-        domain=warehouse,
+        "admin.classifiers.deprecate", "/admin/classifiers/deprecate/", domain=warehouse
     )
 
     # Blacklist related Admin pages
+    config.add_route("admin.blacklist.list", "/admin/blacklist/", domain=warehouse)
+    config.add_route("admin.blacklist.add", "/admin/blacklist/add/", domain=warehouse)
     config.add_route(
-        "admin.blacklist.list",
-        "/admin/blacklist/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.blacklist.add",
-        "/admin/blacklist/add/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.blacklist.remove",
-        "/admin/blacklist/remove/",
-        domain=warehouse,
+        "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
     )
 
     # Email related Admin pages
+    config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
     config.add_route(
-        "admin.emails.list",
-        "/admin/emails/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.emails.detail",
-        "/admin/emails/{email_id}/",
-        domain=warehouse,
+        "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
     )
 
     # Flags
-    config.add_route(
-        "admin.flags",
-        "/admin/flags/",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.flags.edit",
-        "/admin/flags/edit/",
-        domain=warehouse,
-    )
+    config.add_route("admin.flags", "/admin/flags/", domain=warehouse)
+    config.add_route("admin.flags.edit", "/admin/flags/edit/", domain=warehouse)

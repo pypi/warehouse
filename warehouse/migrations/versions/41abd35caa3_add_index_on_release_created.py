@@ -27,10 +27,7 @@ down_revision = "3af8d0006ba"
 
 def upgrade():
     op.create_index(
-        "release_created_idx",
-        "releases",
-        [sa.text("created DESC")],
-        unique=False,
+        "release_created_idx", "releases", [sa.text("created DESC")], unique=False
     )
 
 

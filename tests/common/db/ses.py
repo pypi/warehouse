@@ -21,11 +21,12 @@ from .base import WarehouseFactory, FuzzyEmail
 
 
 class EmailMessageFactory(WarehouseFactory):
+
     class Meta:
         model = EmailMessage
 
     created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14),
+        datetime.datetime.utcnow() - datetime.timedelta(days=14)
     )
     message_id = factory.fuzzy.FuzzyText(length=12)
     from_ = FuzzyEmail()
@@ -34,11 +35,12 @@ class EmailMessageFactory(WarehouseFactory):
 
 
 class EventFactory(WarehouseFactory):
+
     class Meta:
         model = Event
 
     created = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime.utcnow() - datetime.timedelta(days=14),
+        datetime.datetime.utcnow() - datetime.timedelta(days=14)
     )
     email = factory.SubFactory(EmailMessageFactory)
     event_id = factory.fuzzy.FuzzyText(length=12)

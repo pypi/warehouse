@@ -23,10 +23,7 @@ class TestCSPTween:
         response = pretend.stub(headers={})
         handler = pretend.call_recorder(lambda request: response)
         settings = {
-            "csp": {
-                "default-src": ["*"],
-                "style-src": ["'self'", "example.net"],
-            },
+            "csp": {"default-src": ["*"], "style-src": ["'self'", "example.net"]}
         }
         registry = pretend.stub(settings=settings)
 
@@ -34,15 +31,12 @@ class TestCSPTween:
 
         request = pretend.stub(
             path="/project/foobar/",
-            find_service=pretend.call_recorder(
-                lambda *args, **kwargs: settings["csp"]
-            ),
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
         )
 
         assert tween(request) is response
         assert response.headers == {
-            "Content-Security-Policy":
-                "default-src *; style-src 'self' example.net",
+            "Content-Security-Policy": "default-src *; style-src 'self' example.net"
         }
 
     def test_csp_policy_default(self):
@@ -53,8 +47,7 @@ class TestCSPTween:
         tween = csp.content_security_policy_tween_factory(handler, registry)
 
         request = pretend.stub(
-            path="/path/to/nowhere/",
-            find_service=pretend.raiser(ValueError),
+            path="/path/to/nowhere/", find_service=pretend.raiser(ValueError)
         )
 
         assert tween(request) is response
@@ -64,10 +57,7 @@ class TestCSPTween:
         response = pretend.stub(headers={})
         handler = pretend.call_recorder(lambda request: response)
         settings = {
-            "csp": {
-                "default-src": ["*"],
-                "style-src": ["'self'", "example.net"],
-            },
+            "csp": {"default-src": ["*"], "style-src": ["'self'", "example.net"]}
         }
 
         registry = pretend.stub(settings=settings)
@@ -76,9 +66,7 @@ class TestCSPTween:
 
         request = pretend.stub(
             path="/_debug_toolbar/foo/",
-            find_service=pretend.call_recorder(
-                lambda *args, **kwargs: settings["csp"]
-            ),
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
         )
 
         assert tween(request) is response
@@ -91,27 +79,19 @@ class TestCSPTween:
             request.find_service("csp")["default-src"].append("example.com")
             return response
 
-        settings = {
-            "csp": {
-                "default-src": ["*"],
-                "style-src": ["'self'"],
-            },
-        }
+        settings = {"csp": {"default-src": ["*"], "style-src": ["'self'"]}}
 
         registry = pretend.stub(settings=settings)
         tween = csp.content_security_policy_tween_factory(handler, registry)
 
         request = pretend.stub(
             path="/example",
-            find_service=pretend.call_recorder(
-                lambda *args, **kwargs: settings["csp"]
-            ),
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
         )
 
         assert tween(request) is response
         assert response.headers == {
-            "Content-Security-Policy":
-                "default-src * example.com; style-src 'self'",
+            "Content-Security-Policy": "default-src * example.com; style-src 'self'"
         }
 
     def test_csp_policy_default_inject(self):
@@ -127,9 +107,7 @@ class TestCSPTween:
 
         request = pretend.stub(
             path="/path/to/nowhere/",
-            find_service=pretend.call_recorder(
-                lambda *args, **kwargs: settings
-            ),
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings),
         )
 
         assert tween(request) is response
@@ -138,11 +116,7 @@ class TestCSPTween:
         }
 
     def test_devel_csp(self):
-        settings = {
-            "csp": {
-                "script-src": ["{request.scheme}://{request.host}"],
-            }
-        }
+        settings = {"csp": {"script-src": ["{request.scheme}://{request.host}"]}}
         response = pretend.stub(headers={})
         registry = pretend.stub(settings=settings)
         handler = pretend.call_recorder(lambda request: response)
@@ -153,44 +127,62 @@ class TestCSPTween:
             scheme="https",
             host="example.com",
             path="/path/to/nowhere",
-            find_service=pretend.call_recorder(
-                lambda *args, **kwargs: settings["csp"],
-            ),
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
         )
 
         assert tween(request) is response
         assert response.headers == {
-            "Content-Security-Policy": "script-src https://example.com",
+            "Content-Security-Policy": "script-src https://example.com"
+        }
+
+    def test_simple_csp(self):
+        settings = {
+            "csp": {"default-src": ["'none'"], "sandbox": ["allow-top-navigation"]}
+        }
+        response = pretend.stub(headers={})
+        registry = pretend.stub(settings=settings)
+        handler = pretend.call_recorder(lambda request: response)
+
+        tween = csp.content_security_policy_tween_factory(handler, registry)
+
+        request = pretend.stub(
+            scheme="https",
+            host="example.com",
+            path="/simple/",
+            find_service=pretend.call_recorder(lambda *args, **kwargs: settings["csp"]),
+        )
+
+        assert tween(request) is response
+        assert response.headers == {
+            "Content-Security-Policy": (
+                "default-src 'none'; sandbox allow-top-navigation"
+            )
         }
 
 
 class TestCSPPolicy:
+
     def test_create(self):
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
 
     def test_merge(self):
         policy = csp.CSPPolicy({"foo": ["bar"]})
-        policy.merge({
-            "foo": ["baz"],
-            "something": ["else"],
-        })
-        assert policy == {
-            "foo": ["bar", "baz"],
-            "something": ["else"],
-        }
+        policy.merge({"foo": ["baz"], "something": ["else"]})
+        assert policy == {"foo": ["bar", "baz"], "something": ["else"]}
 
 
 def test_includeme():
     config = pretend.stub(
-        register_service_factory=pretend.call_recorder(
-            lambda fact, name: None),
+        register_service_factory=pretend.call_recorder(lambda fact, name: None),
         add_settings=pretend.call_recorder(lambda settings: None),
         add_tween=pretend.call_recorder(lambda tween: None),
-        registry=pretend.stub(settings={
-            "camo.url": "camo.url.value",
-            "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
-        }),
+        registry=pretend.stub(
+            settings={
+                "camo.url": "camo.url.value",
+                "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+            }
+        ),
     )
     csp.includeme(config)
 
@@ -199,52 +191,43 @@ def test_includeme():
     ]
 
     assert config.add_tween.calls == [
-        pretend.call("warehouse.csp.content_security_policy_tween_factory"),
+        pretend.call("warehouse.csp.content_security_policy_tween_factory")
     ]
 
     assert config.add_settings.calls == [
-        pretend.call({
-            "csp": {
-                "base-uri": ["'self'"],
-                "block-all-mixed-content": [],
-                "connect-src": [
-                    "'self'",
-                    "https://2p66nmmycsj3.statuspage.io",
-                    "https://api.github.com/repos/",
-                ],
-                "default-src": ["'none'"],
-                "font-src": ["'self'", "fonts.gstatic.com"],
-                "form-action": ["'self'"],
-                "frame-ancestors": ["'none'"],
-                "frame-src": ["'none'"],
-                "img-src": [
-                    "'self'",
-                    "camo.url.value",
-                    "www.google-analytics.com",
-                ],
-                "script-src": [
-                    "'self'",
-                    "www.googletagmanager.com",
-                    "www.google-analytics.com",
-                ],
-                "style-src": ["'self'", "fonts.googleapis.com"],
-            },
-        })
+        pretend.call(
+            {
+                "csp": {
+                    "base-uri": ["'self'"],
+                    "block-all-mixed-content": [],
+                    "connect-src": [
+                        "'self'",
+                        "https://2p66nmmycsj3.statuspage.io",
+                        "https://api.github.com/repos/",
+                    ],
+                    "default-src": ["'none'"],
+                    "font-src": ["'self'", "fonts.gstatic.com"],
+                    "form-action": ["'self'"],
+                    "frame-ancestors": ["'none'"],
+                    "frame-src": ["'none'"],
+                    "img-src": ["'self'", "camo.url.value", "www.google-analytics.com"],
+                    "script-src": [
+                        "'self'",
+                        "www.googletagmanager.com",
+                        "www.google-analytics.com",
+                    ],
+                    "style-src": ["'self'", "fonts.googleapis.com"],
+                }
+            }
+        )
     ]
 
 
 class TestFactory:
+
     def test_copy(self):
-        settings = {
-            "csp": {
-                "foo": "bar",
-            },
-        }
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings=settings
-            )
-        )
+        settings = {"csp": {"foo": "bar"}}
+        request = pretend.stub(registry=pretend.stub(settings=settings))
         result = csp.csp_factory(None, request)
         assert isinstance(result, csp.CSPPolicy)
         assert result == settings["csp"]
@@ -256,11 +239,7 @@ class TestFactory:
         assert settings == {"csp": {"foo": "bar"}}
 
     def test_default(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={}
-            )
-        )
+        request = pretend.stub(registry=pretend.stub(settings={}))
         result = csp.csp_factory(None, request)
         assert isinstance(result, csp.CSPPolicy)
         assert result == {}

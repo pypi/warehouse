@@ -36,16 +36,12 @@ class SMTPEmailSender:
     @classmethod
     def create_service(cls, context, request):
         sitename = request.registry.settings["site.name"]
-        sender = _format_sender(sitename,
-                                request.registry.settings.get("mail.sender"))
+        sender = _format_sender(sitename, request.registry.settings.get("mail.sender"))
         return cls(get_mailer(request), sender=sender)
 
     def send(self, subject, body, *, recipient):
         message = Message(
-            subject=subject,
-            body=body,
-            recipients=[recipient],
-            sender=self.sender,
+            subject=subject, body=body, recipients=[recipient], sender=self.sender
         )
         self.mailer.send_immediately(message)
 
@@ -61,15 +57,13 @@ class SESEmailSender:
     @classmethod
     def create_service(cls, context, request):
         sitename = request.registry.settings["site.name"]
-        sender = _format_sender(sitename,
-                                request.registry.settings.get("mail.sender"))
+        sender = _format_sender(sitename, request.registry.settings.get("mail.sender"))
 
         aws_session = request.find_service(name="aws.session")
 
         return cls(
             aws_session.client(
-                "ses",
-                region_name=request.registry.settings.get("mail.region"),
+                "ses", region_name=request.registry.settings.get("mail.region")
             ),
             sender=sender,
             db=request.db,
@@ -81,9 +75,7 @@ class SESEmailSender:
             Destination={"ToAddresses": [recipient]},
             Message={
                 "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {
-                    "Text": {"Data": body, "Charset": "UTF-8"},
-                },
+                "Body": {"Text": {"Data": body, "Charset": "UTF-8"}},
             },
         )
 
@@ -93,5 +85,5 @@ class SESEmailSender:
                 from_=parseaddr(self._sender)[1],
                 to=parseaddr(recipient)[1],
                 subject=subject,
-            ),
+            )
         )

@@ -19,9 +19,7 @@ from warehouse.admin import includeme
 def test_includeme():
     config = pretend.stub(
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
-        add_static_view=pretend.call_recorder(
-            lambda name, path, cache_max_age: None,
-        ),
+        add_static_view=pretend.call_recorder(lambda name, path, cache_max_age: None),
         include=pretend.call_recorder(lambda name: None),
         add_view=pretend.call_recorder(lambda *a, **kw: None),
     )
@@ -29,17 +27,12 @@ def test_includeme():
     includeme(config)
 
     assert config.add_jinja2_search_path.calls == [
-        pretend.call("templates", name=".html"),
+        pretend.call("templates", name=".html")
     ]
     assert config.add_static_view.calls == [
-        pretend.call(
-            "admin/static", "warehouse.admin:static/dist", cache_max_age=0
-        ),
+        pretend.call("admin/static", "warehouse.admin:static/dist", cache_max_age=0)
     ]
-    assert config.include.calls == [
-        pretend.call(".routes"),
-        pretend.call(".flags"),
-    ]
+    assert config.include.calls == [pretend.call(".routes"), pretend.call(".flags")]
     assert config.add_view.calls == [
         pretend.call(
             accounts_views.login,

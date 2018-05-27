@@ -26,11 +26,7 @@ def test_markdown_view(tmpdir):
 
     view = policy.markdown_view_factory(filename=filename)
 
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={"policy.directory": tmpdir},
-        ),
-    )
+    request = pretend.stub(registry=pretend.stub(settings={"policy.directory": tmpdir}))
 
     result = view(request)
 
@@ -53,25 +49,19 @@ def test_add_policy_view(monkeypatch):
     policy.add_policy_view(config, "my-policy", "mine.md")
 
     assert config.add_route.calls == [
-        pretend.call("policy.my-policy", "/policy/my-policy/"),
+        pretend.call("policy.my-policy", "/policy/my-policy/")
     ]
     assert config.add_view.calls == [
-        pretend.call(
-            md_view,
-            route_name="policy.my-policy",
-            renderer="policy.html",
-        ),
+        pretend.call(md_view, route_name="policy.my-policy", renderer="policy.html")
     ]
     assert markdown_view_factory.calls == [pretend.call(filename="mine.md")]
 
 
 def test_includeme():
-    config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda *a, **kw: None),
-    )
+    config = pretend.stub(add_directive=pretend.call_recorder(lambda *a, **kw: None))
 
     policy.includeme(config)
 
     assert config.add_directive.calls == [
-        pretend.call("add_policy", policy.add_policy_view, action_wrap=False),
+        pretend.call("add_policy", policy.add_policy_view, action_wrap=False)
     ]

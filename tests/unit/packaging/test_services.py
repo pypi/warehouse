@@ -22,8 +22,10 @@ from zope.interface.verify import verifyClass
 
 from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 from warehouse.packaging.services import (
-    LocalFileStorage, S3FileStorage,
-    LocalDocsStorage, S3DocsStorage,
+    LocalFileStorage,
+    S3FileStorage,
+    LocalDocsStorage,
+    S3DocsStorage,
 )
 
 
@@ -38,9 +40,7 @@ class TestLocalFileStorage:
 
     def test_create_service(self):
         request = pretend.stub(
-            registry=pretend.stub(
-                settings={"files.path": "/the/one/two/"},
-            ),
+            registry=pretend.stub(settings={"files.path": "/the/one/two/"})
         )
         storage = LocalFileStorage.create_service(None, request)
         assert storage.base == "/the/one/two/"
@@ -98,17 +98,15 @@ class TestLocalDocsStorage:
 
     def test_create_service(self):
         request = pretend.stub(
-            registry=pretend.stub(
-                settings={"docs.path": "/the/one/two/"},
-            ),
+            registry=pretend.stub(settings={"docs.path": "/the/one/two/"})
         )
         storage = LocalDocsStorage.create_service(None, request)
         assert storage.base == "/the/one/two/"
 
     def test_delete_by_prefix(self, tmpdir):
         storage_dir = str(tmpdir.join("storage"))
-        os.makedirs(os.path.join(storage_dir, 'foo'), exist_ok=True)
-        os.makedirs(os.path.join(storage_dir, 'bar'), exist_ok=True)
+        os.makedirs(os.path.join(storage_dir, "foo"), exist_ok=True)
+        os.makedirs(os.path.join(storage_dir, "bar"), exist_ok=True)
 
         filename0 = str(tmpdir.join("storage/foo/testfile0.txt"))
         with open(filename0, "wb") as fp:
@@ -123,9 +121,9 @@ class TestLocalDocsStorage:
             fp.write(b"Second Test File!")
 
         storage = LocalDocsStorage(storage_dir)
-        storage.remove_by_prefix('foo')
+        storage.remove_by_prefix("foo")
 
-        assert not os.path.exists(os.path.join(storage_dir, 'foo'))
+        assert not os.path.exists(os.path.join(storage_dir, "foo"))
 
         with open(os.path.join(storage_dir, "bar/testfile2.txt"), "rb") as fp:
             assert fp.read() == b"Second Test File!"
@@ -134,7 +132,7 @@ class TestLocalDocsStorage:
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalDocsStorage(storage_dir)
 
-        response = storage.remove_by_prefix('foo')
+        response = storage.remove_by_prefix("foo")
         assert response is None
 
 
@@ -170,10 +168,10 @@ class TestS3FileStorage:
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
     def test_raises_when_key_non_existant(self):
+
         def raiser():
             raise botocore.exceptions.ClientError(
-                {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}},
-                "some operation",
+                {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}}, "some operation"
             )
 
         s3key = pretend.stub(get=raiser)
@@ -186,6 +184,7 @@ class TestS3FileStorage:
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
     def test_passes_up_error_when_not_no_such_key(self):
+
         def raiser():
             raise botocore.exceptions.ClientError(
                 {"Error": {"Code": "SomeOtherError", "Message": "Who Knows!"}},
@@ -205,15 +204,13 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
+            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
 
         assert bucket.upload_file.calls == [
-            pretend.call(filename, "foo/bar.txt", ExtraArgs={}),
+            pretend.call(filename, "foo/bar.txt", ExtraArgs={})
         ]
 
     def test_stores_two_files(self, tmpdir):
@@ -226,9 +223,7 @@ class TestS3FileStorage:
             fp.write(b"Second Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
+            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/first.txt", filename1)
@@ -245,19 +240,15 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(
-                lambda filename, key, ExtraArgs: None,
-            ),
+            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
 
         assert bucket.upload_file.calls == [
             pretend.call(
-                filename,
-                "foo/bar.txt",
-                ExtraArgs={"Metadata": {"foo": "bar"}},
-            ),
+                filename, "foo/bar.txt", ExtraArgs={"Metadata": {"foo": "bar"}}
+            )
         ]
 
     def test_hashed_path_with_prefix(self):
@@ -297,108 +288,84 @@ class TestS3DocsStorage:
         assert request.find_service.calls == [pretend.call(name="aws.session")]
         assert storage.bucket_name == "froblob"
 
-    @pytest.mark.parametrize('file_count', [66, 100])
+    @pytest.mark.parametrize("file_count", [66, 100])
     def test_delete_by_prefix(self, file_count):
-        files = {
-            'Contents': [
-                {'Key': f'foo/{i}.html'} for i in range(file_count)
-            ],
-        }
+        files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(file_count)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files),
-            delete_objects=pretend.call_recorder(
-                lambda Bucket=None, Delete=None: None),
+                lambda Bucket=None, Prefix=None: files
+            ),
+            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
         )
-        storage = S3DocsStorage(s3_client, 'bucket-name')
+        storage = S3DocsStorage(s3_client, "bucket-name")
 
-        storage.remove_by_prefix('foo')
+        storage.remove_by_prefix("foo")
 
         assert s3_client.list_objects_v2.calls == [
-            pretend.call(Bucket='bucket-name', Prefix='foo'),
+            pretend.call(Bucket="bucket-name", Prefix="foo")
         ]
 
         assert s3_client.delete_objects.calls == [
             pretend.call(
-                Bucket='bucket-name',
+                Bucket="bucket-name",
                 Delete={
-                    'Objects': [
-                        {'Key': f'foo/{i}.html'} for i in range(file_count)
-                    ]
+                    "Objects": [{"Key": f"foo/{i}.html"} for i in range(file_count)]
                 },
-            ),
+            )
         ]
 
     def test_delete_by_prefix_more_files(self):
-        files = {
-            'Contents': [{'Key': f'foo/{i}.html'} for i in range(150)]
-        }
+        files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files),
-            delete_objects=pretend.call_recorder(
-                lambda Bucket=None, Delete=None: None),
+                lambda Bucket=None, Prefix=None: files
+            ),
+            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
         )
-        storage = S3DocsStorage(s3_client, 'bucket-name')
+        storage = S3DocsStorage(s3_client, "bucket-name")
 
-        storage.remove_by_prefix('foo')
+        storage.remove_by_prefix("foo")
 
         assert s3_client.list_objects_v2.calls == [
-            pretend.call(Bucket='bucket-name', Prefix='foo'),
+            pretend.call(Bucket="bucket-name", Prefix="foo")
         ]
 
         assert s3_client.delete_objects.calls == [
             pretend.call(
-                Bucket='bucket-name',
-                Delete={
-                    'Objects': [
-                        {'Key': f'foo/{i}.html'} for i in range(100)
-                    ]
-                },
+                Bucket="bucket-name",
+                Delete={"Objects": [{"Key": f"foo/{i}.html"} for i in range(100)]},
             ),
             pretend.call(
-                Bucket='bucket-name',
-                Delete={
-                    'Objects': [
-                        {'Key': f'foo/{i}.html'} for i in range(100, 150)
-                    ]
-                },
-            )
+                Bucket="bucket-name",
+                Delete={"Objects": [{"Key": f"foo/{i}.html"} for i in range(100, 150)]},
+            ),
         ]
 
     def test_delete_by_prefix_with_storage_prefix(self):
-        files = {
-            'Contents': [{'Key': f'docs/foo/{i}.html'} for i in range(150)]
-        }
+        files = {"Contents": [{"Key": f"docs/foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files),
-            delete_objects=pretend.call_recorder(
-                lambda Bucket=None, Delete=None: None),
+                lambda Bucket=None, Prefix=None: files
+            ),
+            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
         )
-        storage = S3DocsStorage(s3_client, 'bucket-name', prefix='docs')
+        storage = S3DocsStorage(s3_client, "bucket-name", prefix="docs")
 
-        storage.remove_by_prefix('foo')
+        storage.remove_by_prefix("foo")
 
         assert s3_client.list_objects_v2.calls == [
-            pretend.call(Bucket='bucket-name', Prefix='docs/foo'),
+            pretend.call(Bucket="bucket-name", Prefix="docs/foo")
         ]
 
         assert s3_client.delete_objects.calls == [
             pretend.call(
-                Bucket='bucket-name',
-                Delete={
-                    'Objects': [
-                        {'Key': f'docs/foo/{i}.html'} for i in range(100)
-                    ]
-                },
+                Bucket="bucket-name",
+                Delete={"Objects": [{"Key": f"docs/foo/{i}.html"} for i in range(100)]},
             ),
             pretend.call(
-                Bucket='bucket-name',
+                Bucket="bucket-name",
                 Delete={
-                    'Objects': [
-                        {'Key': f'docs/foo/{i}.html'} for i in range(100, 150)
-                    ]
+                    "Objects": [{"Key": f"docs/foo/{i}.html"} for i in range(100, 150)]
                 },
-            )
+            ),
         ]
