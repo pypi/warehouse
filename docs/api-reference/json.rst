@@ -17,7 +17,7 @@ Project
 
     .. code:: http
 
-        GET /pypi/visidata/json HTTP/1.1
+        GET /pypi/sampleproject/json HTTP/1.1
         Host: pypi.org
         Accept: application/json
 
@@ -30,64 +30,75 @@ Project
 
         {
             'info': {
-                'author': 'Saul Pwanson',
-                'author_email': 'visidata@saul.pw',
-                'bugtrack_url': None,
-                'classifiers': [
-                        'Development Status :: 5 - Production/Stable',
-                        'Environment :: Console',
-                        'Environment :: Console :: Curses',
-                        'Intended Audience :: Developers',
-                        'Intended Audience :: Science/Research',
-                        'Intended Audience :: System Administrators',
-                        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-                        'Operating System :: OS Independent',
-                        'Programming Language :: Python :: 3',
-                        'Topic :: Database :: Front-Ends',
-                        'Topic :: Office/Business :: Financial :: Spreadsheet',
-                        'Topic :: Scientific/Engineering',
-                        'Topic :: Scientific/Engineering :: Visualization',
-                        'Topic :: Utilities'
-                ],
+                'author': 'The Python Packaging Authority',
+                'author_email': 'pypa-dev@googlegroups.com',
+                'bugtrack_url': '',
+                'classifiers': ['Development Status :: 3 - Alpha',
+                'Intended Audience :: Developers',
+                'License :: OSI Approved :: MIT License',
+                'Programming Language :: Python :: 2',
+                'Programming Language :: Python :: 2.6',
+                'Programming Language :: Python :: 2.7',
+                'Programming Language :: Python :: 3',
+                'Programming Language :: Python :: 3.2',
+                'Programming Language :: Python :: 3.3',
+                'Programming Language :: Python :: 3.4',
+                'Topic :: Software Development :: Build Tools'],
                 'description': '...',
-                'description_content_type': '',
+                'description_content_type': None,
                 'docs_url': None,
-                'download_url': 'https://github.com/saulpw/visidata/tarball/1.2',
+                'download_url': 'UNKNOWN',
                 'downloads': {'last_day': -1, 'last_month': -1, 'last_week': -1},
-                'home_page': 'http://visidata.org',
-                'keywords': 'console tabular data spreadsheet terminal viewer textpunkcurses csv hdf5 h5 xlsx excel tsv',
-                'license': 'GPLv3',
-                'maintainer': '',
-                'maintainer_email': '',
-                'name': 'visidata',
-                'package_url': 'https://pypi.org/project/visidata/',
-                'platform': '',
-                'project_url': 'https://pypi.org/project/visidata/',
-                'release_url': 'https://pypi.org/project/visidata/1.2/',
+                'home_page': 'https://github.com/pypa/sampleproject',
+                'keywords': 'sample setuptools development',
+                'license': 'MIT',
+                'maintainer': None,
+                'maintainer_email': None,
+                'name': 'sampleproject',
+                'package_url': 'https://pypi.org/project/sampleproject/',
+                'platform': 'UNKNOWN',
+                'project_url': 'https://pypi.org/project/sampleproject/',
+                'release_url': 'https://pypi.org/project/sampleproject/1.2.0/',
                 'requires_dist': None,
-                'requires_python': '>=3.4',
-                'summary': 'curses interface for exploring and arranging tabular data',
-                'version': '1.2'
+                'requires_python': None,
+                'summary': 'A sample Python project',
+                'version': '1.2.0'
             },
-            'last_serial': 3829208,
+            'last_serial': 1591652,
             'releases': {
-                ...,
-                '1.2': [
+                '1.0': [],
+                '1.2.0': [
                     {
                         'comment_text': '',
                         'digests': {
-                            'md5': '2f6622b458e6be388e941067984add54',
-                            'sha256': '042efc2c43edaf3c3f8bd1bbf3c5d515663db66c41e81eea5f8b09200c2744e1'
+                            'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                            'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
                         },
                         'downloads': -1,
-                        'filename': 'visidata-1.2.tar.gz',
+                        'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
                         'has_sig': False,
-                        'md5_digest': '2f6622b458e6be388e941067984add54',
+                        'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'packagetype': 'bdist_wheel',
+                        'python_version': '2.7',
+                        'size': 3795,
+                        'upload_time': '2015-06-14T14:38:05',
+                        'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
+                    },
+                    {
+                        'comment_text': '',
+                        'digests': {
+                            'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                            'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
+                        },
+                        'downloads': -1,
+                        'filename': 'sampleproject-1.2.0.tar.gz',
+                        'has_sig': False,
+                        'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
                         'packagetype': 'sdist',
                         'python_version': 'source',
-                        'size': 89712,
-                        'upload_time': '2018-05-03T01:28:21',
-                        'url': 'https://files.pythonhosted.org/packages/4f/f6/01acfae53ae901756bc7778fc8c6f1ee70d442b5190f8bfe7d54dd35bb19/visidata-1.2.tar.gz'
+                        'size': 3148,
+                        'upload_time': '2015-06-14T14:37:56',
+                        'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
                     }
                 ]
             },
@@ -95,18 +106,34 @@ Project
                 {
                     'comment_text': '',
                     'digests': {
-                        'md5': '2f6622b458e6be388e941067984add54',
-                        'sha256': '042efc2c43edaf3c3f8bd1bbf3c5d515663db66c41e81eea5f8b09200c2744e1'
-                    },
+                        'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
+                        },
                     'downloads': -1,
-                    'filename': 'visidata-1.2.tar.gz',
+                    'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
                     'has_sig': False,
-                    'md5_digest': '2f6622b458e6be388e941067984add54',
+                    'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                    'packagetype': 'bdist_wheel',
+                    'python_version': '2.7',
+                    'size': 3795,
+                    'upload_time': '2015-06-14T14:38:05',
+                    'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
+                },
+                {
+                    'comment_text': '',
+                    'digests': {
+                        'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                        'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
+                        },
+                    'downloads': -1,
+                    'filename': 'sampleproject-1.2.0.tar.gz',
+                    'has_sig': False,
+                    'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
                     'packagetype': 'sdist',
                     'python_version': 'source',
-                    'size': 89712,
-                    'upload_time': '2018-05-03T01:28:21',
-                    'url': 'https://files.pythonhosted.org/packages/4f/f6/01acfae53ae901756bc7778fc8c6f1ee70d442b5190f8bfe7d54dd35bb19/visidata-1.2.tar.gz'
+                    'size': 3148,
+                    'upload_time': '2015-06-14T14:37:56',
+                    'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
                 }
             ]
         }
@@ -125,7 +152,7 @@ Release
 
     .. code:: http
 
-        GET /pypi/visidata/0.9/json HTTP/1.1
+        GET /pypi/sampleproject/1.0/json HTTP/1.1
         Host: pypi.org
         Accept: application/json
 
@@ -138,104 +165,70 @@ Release
 
         {
             'info': {
-                'author': 'Saul Pwanson',
-                'author_email': 'vd@saul.pw',
-                'bugtrack_url': None,
-                'classifiers': [
-                    'Development Status :: 3 - Alpha',
-                    'Environment :: Console',
-                    'Environment :: Console :: Curses',
-                    'Intended Audience :: Developers',
-                    'Intended Audience :: Science/Research',
-                    'Intended Audience :: System Administrators',
-                    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-                    'Operating System :: OS Independent',
-                    'Programming Language :: Python :: 3',
-                    'Topic :: Database :: Front-Ends',
-                    'Topic :: Office/Business :: Financial :: Spreadsheet',
-                    'Topic :: Scientific/Engineering',
-                    'Topic :: Scientific/Engineering :: Visualization',
-                    'Topic :: Utilities'
-                ],
+                'author': '',
+                'author_email': '',
+                'bugtrack_url': '',
+                'classifiers': [],
                 'description': '...',
                 'description_content_type': None,
                 'docs_url': None,
-                'download_url': 'https://github.com/saulpw/visidata/tarball/0.9',
+                'download_url': '',
                 'downloads': {'last_day': -1, 'last_month': -1, 'last_week': -1},
-                'home_page': 'http://github.com/saulpw/visidata',
-                'keywords': 'console tabular data spreadsheet viewer textpunkcurses csv hdf5 h5 xlsx',
-                'license': 'GPLv3',
-                'maintainer': None,
-                'maintainer_email': None,
-                'name': 'visidata',
-                'package_url': 'https://pypi.org/project/visidata/',
-                'platform': 'UNKNOWN',
-                'project_url': 'https://pypi.org/project/visidata/',
-                'release_url': 'https://pypi.org/project/visidata/0.9/',
+                'home_page': '',
+                'keywords': '',
+                'license': '',
+                'maintainer': '',
+                'maintainer_email': '',
+                'name': 'sampleproject',
+                'package_url': 'https://pypi.org/project/sampleproject/',
+                'platform': '',
+                'project_url': 'https://pypi.org/project/sampleproject/',
+                'release_url': 'https://pypi.org/project/sampleproject/1.0/',
                 'requires_dist': None,
                 'requires_python': None,
-                'summary': 'curses interface for exploring and arranging tabular data',
-                'version': '0.9'
+                'summary': '',
+                'version': '1.0'
             },
-            'last_serial': 3829208,
+            'last_serial': 1591652,
             'releases': {
-                ...,
-                '0.9': [
+                '1.0': [],
+                '1.2.0': [
                     {
                         'comment_text': '',
                         'digests': {
-                            'md5': '245dce35444551badceca00952ed3a93',
-                            'sha256': '0d867db6ce49235f2e7a4529baac091819a97e263f1829a80c87642c12de051d'
+                            'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                            'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
                         },
                         'downloads': -1,
-                        'filename': 'visidata-0.9.tar.gz',
+                        'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
                         'has_sig': False,
-                        'md5_digest': '245dce35444551badceca00952ed3a93',
-                        'packagetype': 'sdist',
-                        'python_version': 'source',
-                        'size': 38553,
-                        'upload_time': '2017-06-29T02:09:14',
-                        'url': 'https://files.pythonhosted.org/packages/68/10/713cd5b49453c091c6bdb9dc457b6ef2ed48712ddd1b7da2dbdae7dfc959/visidata-0.9.tar.gz'
-                    }
-                ],
-                ..., # 'releases' will also show versions that were released after the one that you requested.
-                '1.2': [
+                        'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'packagetype': 'bdist_wheel',
+                        'python_version': '2.7',
+                        'size': 3795,
+                        'upload_time': '2015-06-14T14:38:05',
+                        'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
+                    },
+                    ..., # 'releases' will also show versions that were released after the version that you requested.
                     {
                         'comment_text': '',
                         'digests': {
-                            'md5': '2f6622b458e6be388e941067984add54',
-                            'sha256': '042efc2c43edaf3c3f8bd1bbf3c5d515663db66c41e81eea5f8b09200c2744e1'
+                            'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                            'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
                         },
                         'downloads': -1,
-                        'filename': 'visidata-1.2.tar.gz',
+                        'filename': 'sampleproject-1.2.0.tar.gz',
                         'has_sig': False,
-                        'md5_digest': '2f6622b458e6be388e941067984add54',
+                        'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
                         'packagetype': 'sdist',
                         'python_version': 'source',
-                        'size': 89712,
-                        'upload_time': '2018-05-03T01:28:21',
-                        'url': 'https://files.pythonhosted.org/packages/4f/f6/01acfae53ae901756bc7778fc8c6f1ee70d442b5190f8bfe7d54dd35bb19/visidata-1.2.tar.gz'
+                        'size': 3148,
+                        'upload_time': '2015-06-14T14:37:56',
+                        'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
                     }
                 ]
             },
-            'urls': [
-                {
-                    'comment_text': '',
-                    'digests': {
-                        'md5': '245dce35444551badceca00952ed3a93',
-                        'sha256': '0d867db6ce49235f2e7a4529baac091819a97e263f1829a80c87642c12de051d'
-                    },
-                    'downloads': -1,
-                    'filename': 'visidata-0.9.tar.gz',
-                    'has_sig': False,
-                    'md5_digest': '245dce35444551badceca00952ed3a93',
-                    'packagetype': 'sdist',
-                    'python_version': 'source',
-                    'size': 38553,
-                    'upload_time': '2017-06-29T02:09:14',
-                    'url': 'https://files.pythonhosted.org/packages/68/10/713cd5b49453c091c6bdb9dc457b6ef2ed48712ddd1b7da2dbdae7dfc959/visidata-0.9.tar.gz'
-                }
-            ]
+            'urls': []
         }
 
     :statuscode 200: no error
