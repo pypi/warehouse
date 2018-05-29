@@ -919,6 +919,7 @@ class TestFileUpload:
             "for more information."
         ).format(name)
 
+    @pytest.mark.xfail(reason='https://github.com/pypa/warehouse/issues/4079')
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
         [
