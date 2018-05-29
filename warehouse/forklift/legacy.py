@@ -288,7 +288,6 @@ def _validate_rfc822_email_field(form, field):
 
 
 def _validate_description_content_type(form, field):
-
     def _raise(message):
         raise wtforms.validators.ValidationError(
             f"Invalid description content type: {message}"
@@ -322,7 +321,6 @@ def _construct_dependencies(form, types):
 
 
 class ListField(wtforms.Field):
-
     def process_formdata(self, valuelist):
         self.data = [v.strip() for v in valuelist if v.strip()]
 

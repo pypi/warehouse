@@ -14,7 +14,6 @@ from pyramid.util import is_same_domain
 
 
 class DomainPredicate:
-
     def __init__(self, val, config):
         self.val = val
 

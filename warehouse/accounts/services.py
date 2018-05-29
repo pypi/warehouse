@@ -40,7 +40,6 @@ PASSWORD_FIELD = "password"
 
 @implementer(IUserService)
 class DatabaseUserService:
-
     def __init__(self, session, ratelimiters=None):
         if ratelimiters is None:
             ratelimiters = {}
@@ -186,7 +185,6 @@ class DatabaseUserService:
 
 @implementer(ITokenService)
 class TokenService:
-
     def __init__(self, secret, salt, max_age):
         self.serializer = URLSafeTimedSerializer(secret, salt=salt)
         self.max_age = max_age
@@ -221,7 +219,6 @@ def database_login_factory(context, request):
 
 
 class TokenServiceFactory:
-
     def __init__(self, name, service_class=TokenService):
         self.name = name
         self.service_class = service_class

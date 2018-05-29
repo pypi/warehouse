@@ -16,7 +16,6 @@ from elasticsearch_dsl import Index
 
 
 def doc_type(cls):
-
     def callback(scanner, _name, item):
         types_ = scanner.config.registry.setdefault("search.doc_types", set())
         types_.add(item)

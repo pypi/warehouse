@@ -43,7 +43,6 @@ def func_test(arg0, arg1, kwarg0=0, kwarg1=1):
 
 
 class TestXMLRPCCache:
-
     def test_null_cache(self):
         purger = pretend.call_recorder(lambda tags: None)
         service = NullXMLRPCCache("null://", purger)
@@ -56,7 +55,6 @@ class TestXMLRPCCache:
 
 
 class TestRedisXMLRPCCache:
-
     def test_redis_cache(self, monkeypatch):
         strict_redis_obj = pretend.stub()
         strict_redis_cls = pretend.stub(
@@ -105,7 +103,6 @@ class TestRedisXMLRPCCache:
 
 
 class TestIncludeMe:
-
     @pytest.mark.parametrize(
         ("url", "cache_class"),
         [
@@ -219,7 +216,6 @@ class TestIncludeMe:
 
 
 class TestRedisLru:
-
     def test_redis_lru(self, fakeredis):
         redis_lru = RedisLru(fakeredis)
 
@@ -314,7 +310,6 @@ class TestRedisLru:
 
 
 class TestDeriver:
-
     @pytest.mark.parametrize(
         ("service_available", "xmlrpc_cache"),
         [(True, True), (True, False), (False, True), (False, False)],
@@ -412,7 +407,6 @@ class TestDeriver:
 
 
 class TestPurgeTask:
-
     def test_purges_successfully(self, monkeypatch):
         task = pretend.stub()
         service = pretend.stub(purge=pretend.call_recorder(lambda k: None))
@@ -432,14 +426,12 @@ class TestPurgeTask:
         exc = exception_type()
 
         class Cache:
-
             @staticmethod
             @pretend.call_recorder
             def purge(key):
                 raise exc
 
         class Task:
-
             @staticmethod
             @pretend.call_recorder
             def retry(exc):
@@ -467,7 +459,6 @@ class TestPurgeTask:
         ]
 
     def test_store_purge_keys(self):
-
         class Type1:
             pass
 
@@ -526,7 +517,6 @@ class TestPurgeTask:
         assert "warehouse.legacy.api.xmlrpc.cache.purges" not in session.info
 
     def test_execute_unsuccessful_purge(self):
-
         @pretend.call_recorder
         def find_service_factory(interface):
             raise ValueError

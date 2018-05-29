@@ -20,7 +20,6 @@ from warehouse.manage import forms
 
 
 class TestCreateRoleForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.CreateRoleForm(user_service=user_service)
@@ -68,7 +67,6 @@ class TestCreateRoleForm:
 
 
 class TestAddEmailForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.AddEmailForm(user_service=user_service)
@@ -77,7 +75,6 @@ class TestAddEmailForm:
 
 
 class TestChangePasswordForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.ChangePasswordForm(user_service=user_service)

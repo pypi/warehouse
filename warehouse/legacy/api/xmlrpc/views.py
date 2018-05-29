@@ -70,7 +70,6 @@ xmlrpc_cache_by_project = functools.partial(
 
 
 class XMLRPCWrappedError(xmlrpc.server.Fault):
-
     def __init__(self, exc):
         self.faultCode = -32500
         self.wrapped_exception = exc

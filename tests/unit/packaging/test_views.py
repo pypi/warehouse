@@ -28,7 +28,6 @@ from ...common.db.packaging import (
 
 
 class TestProjectDetail:
-
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
@@ -106,7 +105,6 @@ class TestProjectDetail:
 
 
 class TestReleaseDetail:
-
     def test_normalizing_name_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
@@ -255,7 +253,6 @@ class TestReleaseDetail:
 
 
 class TestEditProjectButton:
-
     def test_edit_project_button_returns_project(self):
         project = pretend.stub()
         assert views.edit_project_button(project, pretend.stub()) == {
