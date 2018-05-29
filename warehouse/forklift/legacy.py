@@ -892,34 +892,34 @@ def file_upload(request):
         )
 
     # Uploading should prevent broken rendered descriptions.
-    if form.description.data:
-        description_content_type = form.description_content_type.data
-        if not description_content_type:
-            description_content_type = "text/x-rst"
-        rendered = readme.render(
-            form.description.data, description_content_type, use_fallback=False
-        )
+    # Temporarily disabled, see
+    # https://github.com/pypa/warehouse/issues/4079
+    # if form.description.data:
+    #     description_content_type = form.description_content_type.data
+    #     if not description_content_type:
+    #         description_content_type = "text/x-rst"
+    #     rendered = readme.render(
+    #         form.description.data, description_content_type, use_fallback=False
+    #     )
 
-        # Temporarily disabled, see
-        # https://github.com/pypa/warehouse/issues/4079
-        # if rendered is None:
-        #     if form.description_content_type.data:
-        #         message = (
-        #             "The description failed to render "
-        #             "for '{description_content_type}'."
-        #         ).format(description_content_type=description_content_type)
-        #     else:
-        #         message = (
-        #             "The description failed to render "
-        #             "in the default format of reStructuredText."
-        #         )
-        #     raise _exc_with_message(
-        #         HTTPBadRequest,
-        #         "{message} See {projecthelp} for more information.".format(
-        #             message=message,
-        #             projecthelp=request.help_url(_anchor="description-content-type"),
-        #         ),
-        #     ) from None
+    #     if rendered is None:
+    #         if form.description_content_type.data:
+    #             message = (
+    #                 "The description failed to render "
+    #                 "for '{description_content_type}'."
+    #             ).format(description_content_type=description_content_type)
+    #         else:
+    #             message = (
+    #                 "The description failed to render "
+    #                 "in the default format of reStructuredText."
+    #             )
+    #         raise _exc_with_message(
+    #             HTTPBadRequest,
+    #             "{message} See {projecthelp} for more information.".format(
+    #                 message=message,
+    #                 projecthelp=request.help_url(_anchor="description-content-type"),
+    #             ),
+    #         ) from None
 
     try:
         canonical_version = packaging.utils.canonicalize_version(form.version.data)
