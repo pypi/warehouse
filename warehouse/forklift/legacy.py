@@ -52,7 +52,7 @@ from warehouse.packaging.models import (
     JournalEntry,
     BlacklistedProject,
 )
-from warehouse.utils import http, readme
+from warehouse.utils import http
 
 
 MAX_FILESIZE = 60 * 1024 * 1024  # 60M
