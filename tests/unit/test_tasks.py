@@ -35,9 +35,7 @@ def test_tls_redis_backend():
 
 
 class TestWarehouseTask:
-
     def test_header(self):
-
         def header(request, thing):
             pass
 
@@ -236,7 +234,6 @@ class TestWarehouseTask:
         assert request.tm.__exit__.calls == [pretend.call(None, None, None)]
 
     def test_run_retries_failed_transaction(self):
-
         class RetryThisException(RetryableException):
             pass
 
@@ -269,7 +266,6 @@ class TestWarehouseTask:
         assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
 
     def test_run_doesnt_retries_failed_transaction(self):
-
         class DontRetryThisException(Exception):
             pass
 
@@ -335,7 +331,6 @@ class TestWarehouseTask:
 
 
 class TestCeleryTaskGetter:
-
     def test_gets_task(self):
         task_func = pretend.stub(__name__="task_func", __module__="tests.foo")
         task_obj = pretend.stub()

@@ -18,7 +18,6 @@ from warehouse import csp
 
 
 class TestCSPTween:
-
     def test_csp_policy(self):
         response = pretend.stub(headers={})
         handler = pretend.call_recorder(lambda request: response)
@@ -161,7 +160,6 @@ class TestCSPTween:
 
 
 class TestCSPPolicy:
-
     def test_create(self):
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
@@ -224,7 +222,6 @@ def test_includeme():
 
 
 class TestFactory:
-
     def test_copy(self):
         settings = {"csp": {"foo": "bar"}}
         request = pretend.stub(registry=pretend.stub(settings=settings))

@@ -62,7 +62,6 @@ def test_exc_with_message():
 
 
 class TestValidation:
-
     @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1"])
     def test_validates_valid_pep440_version(self, version):
         form, field = pretend.stub(), pretend.stub(data=version)
@@ -340,7 +339,6 @@ def test_construct_dependencies():
 
 
 class TestListField:
-
     @pytest.mark.parametrize(
         ("data", "expected"),
         [
@@ -359,7 +357,6 @@ class TestListField:
 
     @pytest.mark.parametrize(("value", "expected"), [("", []), ("wutang", ["wutang"])])
     def test_coerce_string_into_list(self, value, expected):
-
         class MyForm(Form):
             test = legacy.ListField()
 
@@ -369,7 +366,6 @@ class TestListField:
 
 
 class TestMetadataForm:
-
     @pytest.mark.parametrize(
         "data",
         [
@@ -404,7 +400,6 @@ class TestMetadataForm:
 
 
 class TestFileValidation:
-
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "")
 
@@ -538,7 +533,6 @@ class TestFileValidation:
 
 
 class TestIsDuplicateFile:
-
     def test_is_duplicate_true(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
 
@@ -686,7 +680,6 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
-
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_config.testing_securitypolicy(userid=1)

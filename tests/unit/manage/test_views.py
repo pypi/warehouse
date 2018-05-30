@@ -36,7 +36,6 @@ from ...common.db.packaging import (
 
 
 class TestManageAccount:
-
     def test_default_response(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
@@ -398,7 +397,6 @@ class TestManageAccount:
         assert send_email.calls == [pretend.call(request, request.user, email)]
 
     def test_reverify_email_not_found(self, monkeypatch):
-
         def raise_no_result():
             raise NoResultFound
 
@@ -634,7 +632,6 @@ class TestManageAccount:
 
 
 class TestManageProjects:
-
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
         project_with_older_release = ProjectFactory(releases=[older_release])
@@ -668,7 +665,6 @@ class TestManageProjects:
 
 
 class TestManageProjectSettings:
-
     def test_manage_project_settings(self):
         request = pretend.stub()
         project = pretend.stub()
@@ -735,7 +731,6 @@ class TestManageProjectSettings:
 
 
 class TestManageProjectDocumentation:
-
     def test_manage_project_documentation(self):
         request = pretend.stub()
         project = pretend.stub()
@@ -817,7 +812,6 @@ class TestManageProjectDocumentation:
 
 
 class TestManageProjectReleases:
-
     def test_manage_project_releases(self):
         request = pretend.stub()
         project = pretend.stub()
@@ -826,7 +820,6 @@ class TestManageProjectReleases:
 
 
 class TestManageProjectRelease:
-
     def test_manage_project_release(self):
         files = pretend.stub()
         project = pretend.stub()
@@ -1102,7 +1095,6 @@ class TestManageProjectRelease:
 
 
 class TestManageProjectRoles:
-
     def test_get_manage_project_roles(self, db_request):
         user_service = pretend.stub()
         db_request.find_service = pretend.call_recorder(
@@ -1304,7 +1296,6 @@ class TestManageProjectRoles:
 
 
 class TestChangeProjectRoles:
-
     def test_change_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -1474,7 +1465,6 @@ class TestChangeProjectRoles:
 
 
 class TestDeleteProjectRoles:
-
     def test_delete_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -1551,7 +1541,6 @@ class TestDeleteProjectRoles:
 
 
 class TestManageProjectHistory:
-
     def test_get(self, db_request):
         project = ProjectFactory.create()
         older_journal = JournalEntryFactory.create(

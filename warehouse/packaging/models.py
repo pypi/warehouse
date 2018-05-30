@@ -83,7 +83,6 @@ class Role(db.Model):
 
 
 class ProjectFactory:
-
     def __init__(self, request):
         self.request = request
 
