@@ -23,7 +23,6 @@ from ....common.db.ses import EmailMessageFactory
 
 
 class TestEmailList:
-
     def test_no_query(self, db_request):
         emails = sorted(
             [EmailMessageFactory.create() for _ in range(30)],
@@ -75,7 +74,6 @@ class TestEmailList:
 
 
 class TestEmailDetail:
-
     def test_existing_email(self, db_session):
         em = EmailMessageFactory.create()
 

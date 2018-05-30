@@ -32,7 +32,6 @@ from warehouse.utils import crypto
 
 
 class TestInvalidSession:
-
     @pytest.mark.parametrize(
         "method",
         [
@@ -79,7 +78,6 @@ class TestInvalidSession:
 
 
 class TestSession:
-
     @pytest.mark.parametrize(
         ("data", "expected"), [(None, {}), ({}, {}), ({"foo": "bar"}, {"foo": "bar"})]
     )
@@ -253,7 +251,6 @@ class TestSession:
 
 
 class TestSessionFactory:
-
     def test_initialize(self, monkeypatch):
         timestamp_signer_obj = pretend.stub()
         timestamp_signer_create = pretend.call_recorder(
@@ -502,7 +499,6 @@ class TestSessionFactory:
 
 
 class TestSessionView:
-
     def test_has_options(self):
         assert set(session_view.options) == {"uses_session"}
 

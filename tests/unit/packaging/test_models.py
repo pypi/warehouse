@@ -28,7 +28,6 @@ from ...common.db.packaging import (
 
 
 class TestRole:
-
     def test_role_ordering(self, db_request):
         project = DBProjectFactory.create()
         owner_role = DBRoleFactory.create(project=project, role_name="Owner")
@@ -37,7 +36,6 @@ class TestRole:
 
 
 class TestProjectFactory:
-
     @pytest.mark.parametrize(("name", "normalized"), [("foo", "foo"), ("Bar", "bar")])
     def test_traversal_finds(self, db_request, name, normalized):
         project = DBProjectFactory.create(name=name)
@@ -54,7 +52,6 @@ class TestProjectFactory:
 
 
 class TestProject:
-
     def test_traversal_finds(self, db_request):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
@@ -121,7 +118,6 @@ class TestProject:
 
 
 class TestRelease:
-
     def test_has_meta_true_with_keywords(self, db_session):
         release = DBReleaseFactory.create(keywords="foo, bar")
         assert release.has_meta
@@ -309,7 +305,6 @@ class TestRelease:
 
 
 class TestFile:
-
     def test_requires_python(self, db_session):
         """ Attempt to write a File by setting requires_python directly,
             which should fail to validate (it should only be set in Release).

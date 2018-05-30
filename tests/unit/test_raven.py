@@ -27,7 +27,6 @@ def test_invalid_serializer():
 
 
 class TestRavenTween:
-
     def test_with_error(self):
         request = pretend.stub(
             raven=pretend.stub(captureException=pretend.call_recorder(lambda: None))
@@ -83,9 +82,7 @@ def test_raven_request_method():
 
 
 def test_includeme(monkeypatch):
-
     class Registry(dict):
-
         def __init__(self):
             self.settings = {}
 

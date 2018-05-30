@@ -18,7 +18,6 @@ class CacheError(Exception):
 
 
 class IXMLRPCCache(Interface):
-
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
