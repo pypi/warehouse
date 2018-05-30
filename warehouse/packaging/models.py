@@ -303,15 +303,6 @@ class Release(db.ModelBase):
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
     _pypi_hidden = Column(Boolean)
-    cheesecake_installability_id = Column(
-        Integer, ForeignKey("cheesecake_main_indices.id")
-    )
-    cheesecake_documentation_id = Column(
-        Integer, ForeignKey("cheesecake_main_indices.id")
-    )
-    cheesecake_code_kwalitee_id = Column(
-        Integer, ForeignKey("cheesecake_main_indices.id")
-    )
     requires_python = Column(Text)
     description_from_readme = Column(Boolean)
     created = Column(
