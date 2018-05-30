@@ -18,7 +18,6 @@ BUFFER_MAX = 1 * 1024 * 1024  # We'll buffer up to 1MB
 
 
 def add_vary_callback(*varies):
-
     def inner(request, response):
         vary = set(response.vary if response.vary is not None else [])
         vary |= set(varies)
@@ -28,9 +27,7 @@ def add_vary_callback(*varies):
 
 
 def add_vary(*varies):
-
     def inner(view):
-
         @functools.wraps(view)
         def wrapped(context, request):
             request.add_response_callback(add_vary_callback(*varies))
@@ -44,9 +41,7 @@ def add_vary(*varies):
 def cache_control(
     seconds, *, public=True, stale_while_revalidate=None, stale_if_error=None
 ):
-
     def inner(view):
-
         @functools.wraps(view)
         def wrapped(context, request):
             response = view(context, request)
@@ -76,7 +71,6 @@ def cache_control(
 
 
 def conditional_http_tween_factory(handler, registry):
-
     def conditional_http_tween(request):
         response = handler(request)
 

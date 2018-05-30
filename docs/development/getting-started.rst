@@ -434,6 +434,13 @@ You can run linters, programs that check the code, with:
 
     make lint
 
+Warehouse uses `black <https://github.com/ambv/black>`_ for opinionated
+formatting and linting. You can reformat with:
+
+.. code-block:: console
+
+    make reformat
+
 
 Building documentation
 ----------------------

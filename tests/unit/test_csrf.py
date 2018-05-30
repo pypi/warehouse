@@ -20,7 +20,6 @@ from warehouse import csrf
 
 
 class TestRequireMethodView:
-
     def test_passes_through_on_falsey(self):
         view = pretend.stub()
         info = pretend.stub(options={"require_methods": False})
@@ -46,7 +45,6 @@ class TestRequireMethodView:
 
     @pytest.mark.parametrize("method", ["POST", "PUT", "DELETE"])
     def test_disallows_unsafe_by_default(self, method):
-
         @pretend.call_recorder
         def view(context, request):
             pass
@@ -95,7 +93,6 @@ class TestRequireMethodView:
         assert view.calls == [pretend.call(context, request)]
 
     def test_explicit_controls_exception_views(self):
-
         @pretend.call_recorder
         def view(context, request):
             pass

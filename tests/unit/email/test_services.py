@@ -35,7 +35,6 @@ def test_format_sender(sitename, sender, expected):
 
 
 class TestSMTPEmailSender:
-
     def test_verify_service(self):
         assert verifyClass(IEmailSender, SMTPEmailSender)
 
@@ -72,7 +71,6 @@ class TestSMTPEmailSender:
 
 
 class TestSESEmailSender:
-
     def test_verify_service(self):
         assert verifyClass(IEmailSender, SESEmailSender)
 

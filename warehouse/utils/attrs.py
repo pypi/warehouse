@@ -14,7 +14,6 @@ from sqlalchemy.orm.exc import DetachedInstanceError
 
 
 def make_repr(*attrs, _self=None):
-
     def _repr(self=None):
         if self is None and _self is not None:
             self = _self

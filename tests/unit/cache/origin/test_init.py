@@ -19,7 +19,6 @@ from warehouse.cache.origin.interfaces import IOriginCache
 
 
 def test_store_purge_keys():
-
     class Type1:
         pass
 
@@ -72,7 +71,6 @@ def test_execute_purge_success(app_config):
 
 
 def test_execute_purge_no_backend():
-
     @pretend.call_recorder
     def find_service_factory(interface):
         raise ValueError
@@ -89,7 +87,6 @@ def test_execute_purge_no_backend():
 
 
 class TestOriginCache:
-
     def test_no_cache_key(self):
         response = pretend.stub()
 
@@ -106,7 +103,6 @@ class TestOriginCache:
         assert view(context, request) is response
 
     def test_no_origin_cache(self):
-
         class Fake:
             pass
 
@@ -133,12 +129,10 @@ class TestOriginCache:
 
     @pytest.mark.parametrize(("seconds", "keys"), [(745, None), (823, ["nope", "yup"])])
     def test_response_hook(self, seconds, keys):
-
         class Fake:
             pass
 
         class Cache:
-
             @staticmethod
             @pretend.call_recorder
             def cache(
@@ -185,7 +179,6 @@ class TestOriginCache:
 
 
 class TestKeyMaker:
-
     def test_both_cache_and_purge(self):
         key_maker = origin.key_maker_factory(
             cache_keys=["foo", "foo/{obj.attr}"],
@@ -240,7 +233,6 @@ class TestKeyMaker:
 
 
 def test_register_origin_keys(monkeypatch):
-
     class Fake1:
         pass
 

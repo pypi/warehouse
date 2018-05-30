@@ -21,7 +21,6 @@ def test_routes(warehouse):
     docs_route_url = pretend.stub()
 
     class FakeConfig:
-
         def __init__(self):
             self.registry = pretend.stub(
                 settings={

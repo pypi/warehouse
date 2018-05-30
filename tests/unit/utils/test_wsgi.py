@@ -16,7 +16,6 @@ from warehouse.utils import wsgi
 
 
 class TestProxyFixer:
-
     def test_skips_headers(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
@@ -142,7 +141,6 @@ class TestProxyFixer:
 
 
 class TestVhmRootRemover:
-
     def test_removes_header(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
@@ -167,7 +165,6 @@ class TestVhmRootRemover:
 
 
 class TestHostRewrite:
-
     def test_rewrites_host(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)

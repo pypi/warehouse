@@ -19,7 +19,6 @@ from warehouse import redirects
 
 
 class TestRedirectView:
-
     def test_redirect_view(self):
         target = "/{wat}/{_request.method}"
         view = redirects.redirect_view_factory(target)
