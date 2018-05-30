@@ -52,7 +52,6 @@ def test_project_docs(db_session):
 
 
 class FakeESIndices:
-
     def __init__(self):
         self.indices = {}
         self.aliases = {}
@@ -87,13 +86,11 @@ class FakeESIndices:
 
 
 class FakeESClient:
-
     def __init__(self):
         self.indices = FakeESIndices()
 
 
 class TestReindex:
-
     def test_fails_when_raising(self, db_request, monkeypatch):
         docs = pretend.stub()
 

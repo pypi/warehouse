@@ -25,7 +25,6 @@ from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFac
 
 
 class TestUserList:
-
     def test_no_query(self, db_request):
         users = sorted(
             [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
@@ -105,7 +104,6 @@ class TestUserList:
 
 
 class TestUserDetail:
-
     def test_404s_on_nonexistant_user(self, db_request):
         user = UserFactory.create()
         user_id = uuid.uuid4()
@@ -145,7 +143,6 @@ class TestUserDetail:
 
 
 class TestUserDelete:
-
     def test_deletes_user(self, db_request, monkeypatch):
         user = UserFactory.create()
         project = ProjectFactory.create()

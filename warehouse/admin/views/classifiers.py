@@ -37,7 +37,6 @@ def get_classifiers(request):
     require_csrf=True,
 )
 class AddClassifier:
-
     def __init__(self, request):
         self.request = request
 

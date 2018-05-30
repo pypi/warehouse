@@ -22,7 +22,6 @@ from warehouse.accounts.services import database_login_factory
 
 
 class TestLogin:
-
     def test_with_no_user(self):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
         request = pretend.stub(
@@ -74,7 +73,6 @@ class TestLogin:
 
 
 class TestAuthenticate:
-
     @pytest.mark.parametrize(
         ("is_superuser", "expected"), [(False, []), (True, ["group:admins"])]
     )
@@ -95,7 +93,6 @@ class TestAuthenticate:
 
 
 class TestUser:
-
     def test_with_user(self):
         user = pretend.stub()
         service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))

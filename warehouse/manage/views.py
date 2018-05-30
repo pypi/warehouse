@@ -49,7 +49,6 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     effective_principals=Authenticated,
 )
 class ManageAccountViews:
-
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -276,7 +275,6 @@ class ManageAccountViews:
     effective_principals=Authenticated,
 )
 def manage_projects(request):
-
     def _key(project):
         if project.releases:
             return project.releases[0].created
@@ -365,7 +363,6 @@ def manage_project_releases(project, request):
     effective_principals=Authenticated,
 )
 class ManageProjectRelease:
-
     def __init__(self, release, request):
         self.release = release
         self.request = request
@@ -431,7 +428,6 @@ class ManageProjectRelease:
         request_method="POST", request_param=["confirm_project_name", "file_id"]
     )
     def delete_project_release_file(self):
-
         def _error(message):
             self.request.session.flash(message, queue="error")
             return HTTPSeeOther(

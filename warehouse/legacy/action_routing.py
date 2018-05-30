@@ -12,7 +12,6 @@
 
 
 def pypi_action(action):
-
     def predicate(info, request):
         return action == request.params.get(":action", None)
 

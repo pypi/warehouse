@@ -21,7 +21,6 @@ from warehouse.rate_limiting import RateLimiter, DummyRateLimiter, RateLimit
 
 
 class TestRateLimiter:
-
     def test_basic(self):
         limiter = RateLimiter(
             storage.MemoryStorage(), "1 per minute", identifiers=["foo"]
@@ -84,7 +83,6 @@ class TestRateLimiter:
 
 
 class TestDummyRateLimiter:
-
     def test_basic(self):
         limiter = DummyRateLimiter()
 
@@ -94,7 +92,6 @@ class TestDummyRateLimiter:
 
 
 class TestRateLimit:
-
     def test_basic(self):
         limiter_obj = pretend.stub()
         limiter_class = pretend.call_recorder(lambda *a, **kw: limiter_obj)
