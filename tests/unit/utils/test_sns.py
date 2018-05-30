@@ -92,7 +92,6 @@ def sns_certificate(sns_privatekey, sns_publickey):
 
 
 class TestMessageVerifier:
-
     @pytest.mark.parametrize(
         ("topics", "data", "error"),
         [

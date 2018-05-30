@@ -16,7 +16,6 @@ from warehouse.utils.static import ManifestCacheBuster
 
 
 class TestManifestCacheBuster:
-
     def test_returns_when_valid(self):
         cb = ManifestCacheBuster("warehouse:static/dist/manifest.json")
         cb._manifest = {"/the/path/style.css": "/the/busted/path/style.css"}

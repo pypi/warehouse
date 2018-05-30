@@ -17,7 +17,6 @@ from warehouse.search.tasks import reindex as _reindex
 
 
 class TestCLISearch:
-
     def test_reindex(self, cli):
         request = pretend.stub()
         task = pretend.stub(

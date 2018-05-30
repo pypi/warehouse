@@ -25,7 +25,6 @@ DEFAULT_POLICY_DIRECTORY = os.path.abspath(
 
 
 def markdown_view_factory(*, filename):
-
     def markdown_view(request):
         directory = request.registry.settings.get(
             "policy.directory", DEFAULT_POLICY_DIRECTORY

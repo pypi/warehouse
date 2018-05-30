@@ -22,7 +22,6 @@ from ....common.db.packaging import JournalEntryFactory, ProjectFactory
 
 
 class TestProjectList:
-
     def test_no_query(self, db_request):
         journals = sorted(
             [JournalEntryFactory.create() for _ in range(30)],

@@ -21,7 +21,6 @@ from ...common.db.accounts import (
 
 
 class TestUserFactory:
-
     @pytest.mark.parametrize(
         ("username", "normalized"), [("foo", "foo"), ("Bar", "bar")]
     )
@@ -40,7 +39,6 @@ class TestUserFactory:
 
 
 class TestUser:
-
     def test_get_primary_email_when_no_emails(self, db_session):
         user = DBUserFactory.create()
         assert user.email is None

@@ -33,7 +33,6 @@ from warehouse.config import Environment
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
-
     def _params_from_url(self, url, defaults):
         params = super()._params_from_url(url, defaults)
         params.update({"connection_class": self.redis.SSLConnection})
@@ -41,7 +40,6 @@ class TLSRedisBackend(celery.backends.redis.RedisBackend):
 
 
 class WarehouseTask(celery.Task):
-
     def __new__(cls, *args, **kwargs):
         obj = super().__new__(cls, *args, **kwargs)
         if getattr(obj, "__header__", None) is not None:
@@ -114,7 +112,6 @@ def task(**kwargs):
     kwargs.setdefault("shared", False)
 
     def deco(wrapped):
-
         def callback(scanner, name, wrapped):
             celery_app = scanner.config.registry["celery.app"]
             celery_app.task(**kwargs)(wrapped)
@@ -146,7 +143,6 @@ def _get_celery_app(config):
 
 
 def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **opts):
-
     def add_task():
         config.registry["celery.app"].add_periodic_task(
             schedule, config.task(func).s(), args=args, kwargs=kwargs, name=name, **opts

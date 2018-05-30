@@ -36,7 +36,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class UserFactory:
-
     def __init__(self, request):
         self.request = request
 

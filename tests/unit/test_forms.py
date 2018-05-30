@@ -19,7 +19,6 @@ from warehouse.forms import Form, DBForm, URIValidator, PasswordStrengthValidato
 
 
 class TestURIValidator:
-
     @pytest.mark.parametrize(
         "uri",
         [
@@ -45,7 +44,6 @@ class TestURIValidator:
 
 
 class TestPasswordStrengthValidator:
-
     def test_invalid_fields(self):
         validator = PasswordStrengthValidator(user_input_fields=["foo"])
         with pytest.raises(ValidationError) as exc:
@@ -89,7 +87,6 @@ def _raiser(exc):
 
 
 class TestForm:
-
     def test_empty_form_no_errors(self):
         form = Form()
         assert form.errors == {}
@@ -103,7 +100,6 @@ class TestForm:
         assert form.errors == {"__all__": ["An Error"]}
 
     def test_form_level_validation_no_validators(self):
-
         class TestForm(Form):
             pass
 
@@ -113,9 +109,7 @@ class TestForm:
         assert form.errors == {}
 
     def test_form_level_validation_full_validate(self):
-
         class TestForm(Form):
-
             @pretend.call_recorder
             def full_validate(self):
                 pass
@@ -127,9 +121,7 @@ class TestForm:
         assert form.full_validate.calls == [pretend.call(form)]
 
     def test_form_level_validation_full_validate_fails(self):
-
         class TestForm(Form):
-
             @pretend.call_recorder
             def full_validate(self):
                 raise ValueError("A Value Error")
@@ -145,7 +137,6 @@ class TestForm:
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
-
             class Meta:
                 validators = validator_funcs
 
@@ -189,7 +180,6 @@ class TestForm:
         validator_funcs = [pretend.call_recorder(v) for v in validator_funcs]
 
         class TestForm(Form):
-
             class Meta:
                 validators = validator_funcs
 
@@ -204,7 +194,6 @@ class TestForm:
 
 
 class TestDBForm:
-
     def test_form_requires_db(self):
         with pytest.raises(TypeError):
             DBForm()

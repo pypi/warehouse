@@ -40,7 +40,6 @@ from ..common.db.packaging import ProjectFactory, ReleaseFactory, FileFactory
 
 
 class TestHTTPExceptionView:
-
     def test_returns_context_when_no_template(self, pyramid_config):
         pyramid_config.testing_add_renderer("non-existent.html")
 
@@ -113,7 +112,6 @@ class TestHTTPExceptionView:
 
 
 class TestForbiddenView:
-
     def test_logged_in_returns_exception(self, pyramid_config):
         renderer = pyramid_config.testing_add_renderer("403.html")
 
@@ -140,7 +138,6 @@ class TestForbiddenView:
 
 
 class TestForbiddenIncludeView:
-
     def test_forbidden_include(self):
         exc = pretend.stub()
         request = pretend.stub()
@@ -163,7 +160,6 @@ def test_opensearchxml(pyramid_request):
 
 
 class TestIndex:
-
     def test_index(self, db_request):
 
         project = ProjectFactory.create()
@@ -198,7 +194,6 @@ def test_esi_flash_messages():
 
 
 class TestSearch:
-
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_a_query(self, monkeypatch, db_request, page):
         params = MultiDict({"q": "foo bar"})
@@ -531,7 +526,6 @@ def test_health():
 
 
 class TestForceStatus:
-
     def test_valid(self):
         with pytest.raises(HTTPBadRequest):
             force_status(pretend.stub(matchdict={"status": "400"}))

@@ -19,7 +19,6 @@ from warehouse.accounts.interfaces import TooManyFailedLogins
 
 
 class TestLoginForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.LoginForm(user_service=user_service)
@@ -92,7 +91,6 @@ class TestLoginForm:
         assert user_service.check_password.calls == [pretend.call(1, "pw")]
 
     def test_validate_password_too_many_failed(self):
-
         @pretend.call_recorder
         def check_password(userid, password):
             raise TooManyFailedLogins(resets_in=None)
@@ -114,7 +112,6 @@ class TestLoginForm:
 
 
 class TestRegistrationForm:
-
     def test_create(self):
         user_service = pretend.stub()
 
@@ -275,7 +272,6 @@ class TestRegistrationForm:
 
 
 class TestRequestPasswordResetForm:
-
     def test_creation(self):
         user_service = pretend.stub()
         form = forms.RequestPasswordResetForm(user_service=user_service)
@@ -321,7 +317,6 @@ class TestRequestPasswordResetForm:
 
 
 class TestResetPasswordForm:
-
     def test_password_confirm_required_error(self):
         form = forms.ResetPasswordForm(data={"password_confirm": ""})
 

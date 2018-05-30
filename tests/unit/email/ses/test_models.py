@@ -25,7 +25,6 @@ from ....common.db.ses import EmailMessageFactory
 
 
 class TestEmailStatus:
-
     def test_starts_out_accepted(self, db_session):
         em = EmailStatus(EmailMessage()).save()
         assert em.status is EmailStatuses.Accepted
