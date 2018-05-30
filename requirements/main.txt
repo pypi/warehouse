@@ -197,9 +197,9 @@ google-api-core==1.2.0 \
 google-cloud-bigquery==1.2.0 \
     --hash=sha256:7c776972d1353dd8ef43daeb0de4e0ee28f55899686030b080ceb7b158bac7bb \
     --hash=sha256:0757f485141b468fbd026e06dbd511ef3eef4ebc663e7fac1afb570151a58643
-google-auth==1.4.1 \
-    --hash=sha256:34088434cb2a2409360b8f3cbc04195a465df1fb2aafad71ebbded77cbf08803 \
-    --hash=sha256:9051802d3dae256036cca9e34633a32c0ed1427730d4ebc513dff91ec8b6dd45
+google-auth==1.4.2 \
+    --hash=sha256:eedf258e04ca8582aca3b6f41e1a582f4fd36c132cbce5abcfc212172636cb37 \
+    --hash=sha256:e67a59f29a68c44a135328b28992a072cde67ac5646a173b7009047ba994de7d
 google-cloud-core==0.28.1 \
     --hash=sha256:0090df83dbc5cb2405fa90844366d13176d1c0b48181c1807ab15f53be403f73 \
     --hash=sha256:89e8140a288acec20c5e56159461d3afa4073570c9758c05d4e6cb7f2f8cc440
