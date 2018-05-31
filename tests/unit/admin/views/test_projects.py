@@ -28,7 +28,6 @@ from ....common.db.packaging import (
 
 
 class TestProjectList:
-
     def test_no_query(self, db_request):
         projects = sorted(
             [ProjectFactory.create() for _ in range(30)],
@@ -77,7 +76,6 @@ class TestProjectList:
 
 
 class TestProjectDetail:
-
     def test_gets_project(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
@@ -107,7 +105,6 @@ class TestProjectDetail:
 
 
 class TestReleaseDetail:
-
     def test_gets_release(self):
         release = pretend.stub()
         request = pretend.stub()
@@ -116,7 +113,6 @@ class TestReleaseDetail:
 
 
 class TestProjectReleasesList:
-
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
@@ -212,7 +208,6 @@ class TestProjectReleasesList:
 
 
 class TestProjectJournalsList:
-
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
@@ -308,7 +303,6 @@ class TestProjectJournalsList:
 
 
 class TestProjectSetLimit:
-
     def test_sets_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
@@ -369,7 +363,6 @@ class TestProjectSetLimit:
 
 
 class TestDeleteProject:
-
     def test_no_confirm(self):
         project = pretend.stub(normalized_name="foo")
         request = pretend.stub(

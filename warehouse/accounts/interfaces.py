@@ -14,7 +14,6 @@ from zope.interface import Interface
 
 
 class TooManyFailedLogins(Exception):
-
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 
@@ -34,7 +33,6 @@ class TokenMissing(Exception):
 
 
 class IUserService(Interface):
-
     def get_user(user_id):
         """
         Return the user object that represents the given userid, or None if
@@ -87,7 +85,6 @@ class IUserService(Interface):
 
 
 class ITokenService(Interface):
-
     def dumps(data):
         """
         Generates a unique token based on the data provided

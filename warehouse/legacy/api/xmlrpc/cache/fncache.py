@@ -19,7 +19,6 @@ DEFAULT_EXPIRES = 86400
 
 
 class StubMetricReporter(object):
-
     def increment(self, metric_name):
         return
 

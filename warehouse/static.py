@@ -62,7 +62,6 @@ class WhiteNoise(_WhiteNoise):
 
 
 def whitenoise_tween_factory(handler, registry):
-
     def whitenoise_tween(request):
         whn = request.registry.whitenoise
 
@@ -112,7 +111,6 @@ def whitenoise_serve_static(config, **kwargs):
 
 
 def whitenoise_add_files(config, path, prefix=None):
-
     def add_files():
         config.registry.whitenoise.add_files(
             resolver.resolve(path).abspath(), prefix=prefix

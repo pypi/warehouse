@@ -23,7 +23,6 @@ from warehouse import static
 
 
 class TestWhiteNose:
-
     def test_resolves_manifest_path(self, monkeypatch):
         resolver = pretend.stub(
             resolve=pretend.call_recorder(
@@ -99,7 +98,6 @@ class TestWhiteNose:
 
 
 class TestWhitenoiseTween:
-
     @pytest.mark.parametrize("autorefresh", [True, False])
     def test_bypasses(self, autorefresh):
         whitenoise = static.WhiteNoise(None, autorefresh=autorefresh)
@@ -182,7 +180,6 @@ class TestWhitenoiseTween:
 
 
 class TestDirectives:
-
     def test_whitenoise_serve_static_unsupported_kwarg(self):
         with pytest.raises(TypeError):
             static.whitenoise_serve_static(pretend.stub(), lol_fake=True)

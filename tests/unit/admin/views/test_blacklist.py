@@ -32,7 +32,6 @@ from ....common.db.packaging import (
 
 
 class TestBlacklistList:
-
     def test_no_query(self, db_request):
         db_request.db.query(BlacklistedProject).delete()
         blacklisted = sorted(
@@ -87,7 +86,6 @@ class TestBlacklistList:
 
 
 class TestConfirmBlacklist:
-
     def test_no_project(self):
         request = pretend.stub(GET={})
 
@@ -115,7 +113,6 @@ class TestConfirmBlacklist:
 
 
 class TestAddBlacklist:
-
     def test_no_project(self):
         request = pretend.stub(POST={})
 
@@ -217,7 +214,6 @@ class TestAddBlacklist:
 
 
 class TestRemoveBlacklist:
-
     def test_no_blacklist_id(self):
         request = pretend.stub(POST={})
 

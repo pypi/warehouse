@@ -18,7 +18,6 @@ from warehouse.utils.http import is_valid_uri
 
 
 class URIValidator:
-
     def __init__(
         self,
         require_scheme=True,
@@ -77,7 +76,6 @@ class PasswordStrengthValidator:
 
 
 class Form(BaseForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._form_errors = []
@@ -117,7 +115,6 @@ class Form(BaseForm):
 
 
 class DBForm(Form):
-
     def __init__(self, *args, db, **kwargs):
         super().__init__(*args, **kwargs)
         self.db = db
