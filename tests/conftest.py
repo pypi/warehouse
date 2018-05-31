@@ -171,7 +171,6 @@ def token_service(app_config):
 
 
 class QueryRecorder:
-
     def __init__(self):
         self.queries = []
         self.recording = False
@@ -218,7 +217,6 @@ def db_request(pyramid_request, db_session, datadog):
 
 
 class _TestApp(_webtest.TestApp):
-
     def xmlrpc(self, path, method, *args):
         body = xmlrpc.client.dumps(args, methodname=method)
         resp = self.post(path, body, headers={"Content-Type": "text/xml"})

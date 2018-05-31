@@ -32,7 +32,6 @@ class InvalidMessage(Exception):
 
 
 class MessageVerifier:
-
     def __init__(self, *, topics, session=None):
         self.topics = topics
         self.http = session if session is not None else requests.session()

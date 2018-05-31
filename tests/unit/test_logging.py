@@ -26,7 +26,6 @@ from warehouse import logging as wlogging
 
 
 class TestStructlogFormatter:
-
     def test_warehouse_logger_no_renderer(self):
         formatter = wlogging.StructlogFormatter()
         record = logging.LogRecord(

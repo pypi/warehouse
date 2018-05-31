@@ -50,9 +50,7 @@ def test_no_origin_cache_found():
 
 
 def test_response_hook():
-
     class Cache:
-
         @staticmethod
         @pretend.call_recorder
         def cache(keys, request, response):

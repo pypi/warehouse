@@ -26,11 +26,8 @@ from ....common.db.ses import EmailMessageFactory, EventFactory
 
 
 class TestVerifySNSMessageHelper:
-
     def test_valid(self, monkeypatch):
-
         class FakeMessageVerifier:
-
             @staticmethod
             @pretend.call_recorder
             def __init__(topics, session):
@@ -58,9 +55,7 @@ class TestVerifySNSMessageHelper:
         assert FakeMessageVerifier.verify.calls == [pretend.call(message)]
 
     def test_invalid(self, monkeypatch):
-
         class FakeMessageVerifier:
-
             @staticmethod
             @pretend.call_recorder
             def __init__(topics, session):
@@ -90,7 +85,6 @@ class TestVerifySNSMessageHelper:
 
 
 class TestConfirmSubscription:
-
     def test_raises_when_invalid_type(self):
         request = pretend.stub(json_body={"Type": "Notification"})
 
@@ -137,7 +131,6 @@ class TestConfirmSubscription:
 
 
 class TestNotification:
-
     def test_raises_when_invalid_type(self):
         request = pretend.stub(json_body={"Type": "SubscriptionConfirmation"})
 

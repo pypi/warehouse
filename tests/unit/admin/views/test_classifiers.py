@@ -20,7 +20,6 @@ from ....common.db.classifiers import ClassifierFactory
 
 
 class TestGetClassifiers:
-
     def test_get_classifiers(self, db_request):
         classifier_a = ClassifierFactory(classifier="I am first")
         classifier_b = ClassifierFactory(classifier="I am last")
@@ -31,7 +30,6 @@ class TestGetClassifiers:
 
 
 class TestAddClassifier:
-
     @pytest.mark.parametrize(
         "parent_levels, expected_levels",
         [
@@ -84,7 +82,6 @@ class TestAddClassifier:
 
 
 class TestDeprecateClassifier:
-
     def test_deprecate_classifier(self, db_request):
         classifier = ClassifierFactory(deprecated=False)
 

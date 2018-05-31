@@ -14,7 +14,6 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPBadRequest
 
 
 def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
-
     def redirect_view(request):
         redirect_to = target.format(_request=request, **request.matchdict)
 

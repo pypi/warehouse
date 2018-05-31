@@ -33,7 +33,6 @@ from .base import WarehouseFactory
 
 
 class ProjectFactory(WarehouseFactory):
-
     class Meta:
         model = Project
 
@@ -41,7 +40,6 @@ class ProjectFactory(WarehouseFactory):
 
 
 class ReleaseFactory(WarehouseFactory):
-
     class Meta:
         model = Release
 
@@ -57,7 +55,6 @@ class ReleaseFactory(WarehouseFactory):
 
 
 class FileFactory(WarehouseFactory):
-
     class Meta:
         model = File
 
@@ -87,7 +84,6 @@ class FileFactory(WarehouseFactory):
 
 
 class RoleFactory(WarehouseFactory):
-
     class Meta:
         model = Role
 
@@ -97,7 +93,6 @@ class RoleFactory(WarehouseFactory):
 
 
 class DependencyFactory(WarehouseFactory):
-
     class Meta:
         model = Dependency
 
@@ -108,7 +103,6 @@ class DependencyFactory(WarehouseFactory):
 
 
 class JournalEntryFactory(WarehouseFactory):
-
     class Meta:
         model = JournalEntry
 
@@ -120,7 +114,6 @@ class JournalEntryFactory(WarehouseFactory):
 
 
 class BlacklistedProjectFactory(WarehouseFactory):
-
     class Meta:
         model = BlacklistedProject
 
