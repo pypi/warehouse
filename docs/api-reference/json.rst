@@ -17,7 +17,7 @@ Project
 
     .. code:: http
 
-        GET /pypi/pip/json HTTP/1.1
+        GET /pypi/sampleproject/json HTTP/1.1
         Host: pypi.org
         Accept: application/json
 
@@ -29,93 +29,113 @@ Project
         Content-Type: application/json; charset="UTF-8"
 
         {
-            "info": {
-                "author": "The pip developers",
-                "author_email": "python-virtualenv@groups.google.com",
-                "bugtrack_url": "",
-                "classifiers": [
-                    "Development Status :: 5 - Production/Stable",
-                    "Intended Audience :: Developers",
-                    "License :: OSI Approved :: MIT License",
-                    "Programming Language :: Python :: 2",
-                    "Programming Language :: Python :: 2.6",
-                    "Programming Language :: Python :: 2.7",
-                    "Programming Language :: Python :: 3",
-                    "Programming Language :: Python :: 3.3",
-                    "Programming Language :: Python :: 3.4",
-                    "Programming Language :: Python :: 3.5",
-                    "Programming Language :: Python :: Implementation :: PyPy",
-                    "Topic :: Software Development :: Build Tools"
-                ],
-                "description": "...",
-                "description_content_type": null,
-                "docs_url": null,
-                "download_url": "",
-                "downloads": {
-                    "last_day": 0,
-                    "last_month": 0,
-                    "last_week": 0
-                },
-                "home_page": "https://pip.pypa.io/",
-                "keywords": "easy_install distutils setuptools egg virtualenv",
-                "license": "MIT",
-                "maintainer": "",
-                "maintainer_email": "",
-                "name": "pip",
-                "platform": "",
-                "project_url": "https://pypi.org/project/pip/",
-                "release_url": "https://pypi.org/project/pip/9.0.1/",
-                "requires_dist": [
-                    "mock; extra == 'testing'",
-                    "pretend; extra == 'testing'",
-                    "pytest; extra == 'testing'",
-                    "scripttest (>=1.3); extra == 'testing'",
-                    "virtualenv (>=1.10); extra == 'testing'"
-                ],
-                "requires_python": ">=2.6,!=3.0.*,!=3.1.*,!=3.2.*",
-                "summary": "The PyPA recommended tool for installing Python packages.",
-                "version": "9.0.1"
+            'info': {
+                'author': 'The Python Packaging Authority',
+                'author_email': 'pypa-dev@googlegroups.com',
+                'bugtrack_url': '',
+                'classifiers': ['Development Status :: 3 - Alpha',
+                'Intended Audience :: Developers',
+                'License :: OSI Approved :: MIT License',
+                'Programming Language :: Python :: 2',
+                'Programming Language :: Python :: 2.6',
+                'Programming Language :: Python :: 2.7',
+                'Programming Language :: Python :: 3',
+                'Programming Language :: Python :: 3.2',
+                'Programming Language :: Python :: 3.3',
+                'Programming Language :: Python :: 3.4',
+                'Topic :: Software Development :: Build Tools'],
+                'description': '...',
+                'description_content_type': None,
+                'docs_url': None,
+                'download_url': 'UNKNOWN',
+                'downloads': {'last_day': -1, 'last_month': -1, 'last_week': -1},
+                'home_page': 'https://github.com/pypa/sampleproject',
+                'keywords': 'sample setuptools development',
+                'license': 'MIT',
+                'maintainer': None,
+                'maintainer_email': None,
+                'name': 'sampleproject',
+                'package_url': 'https://pypi.org/project/sampleproject/',
+                'platform': 'UNKNOWN',
+                'project_url': 'https://pypi.org/project/sampleproject/',
+                'release_url': 'https://pypi.org/project/sampleproject/1.2.0/',
+                'requires_dist': None,
+                'requires_python': None,
+                'summary': 'A sample Python project',
+                'version': '1.2.0'
             },
-            "releases": {
-                ...,
-                "9.0.1": [
+            'last_serial': 1591652,
+            'releases': {
+                '1.0': [],
+                '1.2.0': [
                     {
-                        "comment_text": "",
-                        "digests": {
-                            "md5": "297dbd16ef53bcef0447d245815f5144",
-                            "sha256": "690b762c0a8460c303c089d5d0be034fb15a5ea2b75bdf565f40421f542fefb0"
+                        'comment_text': '',
+                        'digests': {
+                            'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                            'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
                         },
-                        "downloads": -1,
-                        "filename": "pip-9.0.1-py2.py3-none-any.whl",
-                        "has_sig": true,
-                        "md5_digest": "297dbd16ef53bcef0447d245815f5144",
-                        "packagetype": "bdist_wheel",
-                        "python_version": "py2.py3",
-                        "size": 1254803,
-                        "upload_time": "2016-11-06T18:51:46",
-                        "url": "https://files.pythonhosted.org/packages/b6/ac/7015eb97dc749283ffdec1c3a88ddb8ae03b8fad0f0e611408f196358da3/pip-9.0.1-py2.py3-none-any.whl"
+                        'downloads': -1,
+                        'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
+                        'has_sig': False,
+                        'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'packagetype': 'bdist_wheel',
+                        'python_version': '2.7',
+                        'size': 3795,
+                        'upload_time': '2015-06-14T14:38:05',
+                        'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
                     },
                     {
-                        "comment_text": "",
-                        "digests": {
-                            "md5": "35f01da33009719497f01a4ba69d63c9",
-                            "sha256": "09f243e1a7b461f654c26a725fa373211bb7ff17a9300058b205c61658ca940d"
+                        'comment_text': '',
+                        'digests': {
+                            'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                            'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
                         },
-                        "downloads": -1,
-                        "filename": "pip-9.0.1.tar.gz",
-                        "has_sig": true,
-                        "md5_digest": "35f01da33009719497f01a4ba69d63c9",
-                        "packagetype": "sdist",
-                        "python_version": "source",
-                        "size": 1197370,
-                        "upload_time": "2016-11-06T18:51:51",
-                        "url": "https://files.pythonhosted.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz"
+                        'downloads': -1,
+                        'filename': 'sampleproject-1.2.0.tar.gz',
+                        'has_sig': False,
+                        'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                        'packagetype': 'sdist',
+                        'python_version': 'source',
+                        'size': 3148,
+                        'upload_time': '2015-06-14T14:37:56',
+                        'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
                     }
                 ]
             },
-            "urls": {
-                ...
-            }
+            'urls': [
+                {
+                    'comment_text': '',
+                    'digests': {
+                        'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
+                        },
+                    'downloads': -1,
+                    'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
+                    'has_sig': False,
+                    'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                    'packagetype': 'bdist_wheel',
+                    'python_version': '2.7',
+                    'size': 3795,
+                    'upload_time': '2015-06-14T14:38:05',
+                    'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
+                },
+                {
+                    'comment_text': '',
+                    'digests': {
+                        'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                        'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
+                        },
+                    'downloads': -1,
+                    'filename': 'sampleproject-1.2.0.tar.gz',
+                    'has_sig': False,
+                    'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                    'packagetype': 'sdist',
+                    'python_version': 'source',
+                    'size': 3148,
+                    'upload_time': '2015-06-14T14:37:56',
+                    'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
+                }
+            ]
         }
 
     :statuscode 200: no error
@@ -127,3 +147,88 @@ Release
 
     Returns metadata about an individual release at a specific version,
     otherwise identical to ``/pypi/<project_name>/json``.
+
+    **Example Request**:
+
+    .. code:: http
+
+        GET /pypi/sampleproject/1.0/json HTTP/1.1
+        Host: pypi.org
+        Accept: application/json
+
+    **Example response**:
+
+    .. code:: http
+
+        HTTP/1.1 200 OK
+        Content-Type: application/json; charset="UTF-8"
+
+        {
+            'info': {
+                'author': '',
+                'author_email': '',
+                'bugtrack_url': '',
+                'classifiers': [],
+                'description': '...',
+                'description_content_type': None,
+                'docs_url': None,
+                'download_url': '',
+                'downloads': {'last_day': -1, 'last_month': -1, 'last_week': -1},
+                'home_page': '',
+                'keywords': '',
+                'license': '',
+                'maintainer': '',
+                'maintainer_email': '',
+                'name': 'sampleproject',
+                'package_url': 'https://pypi.org/project/sampleproject/',
+                'platform': '',
+                'project_url': 'https://pypi.org/project/sampleproject/',
+                'release_url': 'https://pypi.org/project/sampleproject/1.0/',
+                'requires_dist': None,
+                'requires_python': None,
+                'summary': '',
+                'version': '1.0'
+            },
+            'last_serial': 1591652,
+            'releases': {
+                '1.0': [],
+                '1.2.0': [
+                    {
+                        'comment_text': '',
+                        'digests': {
+                            'md5': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                            'sha256': '7a7a8b91086deccc54cac8d631e33f6a0e232ce5775c6be3dc44f86c2154019d'
+                        },
+                        'downloads': -1,
+                        'filename': 'sampleproject-1.2.0-py2.py3-none-any.whl',
+                        'has_sig': False,
+                        'md5_digest': 'bab8eb22e6710eddae3c6c7ac3453bd9',
+                        'packagetype': 'bdist_wheel',
+                        'python_version': '2.7',
+                        'size': 3795,
+                        'upload_time': '2015-06-14T14:38:05',
+                        'url': 'https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl'
+                    },
+                    ..., # 'releases' will also show versions that were released after the version that you requested.
+                    {
+                        'comment_text': '',
+                        'digests': {
+                            'md5': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                            'sha256': '3427a8a5dd0c1e176da48a44efb410875b3973bd9843403a0997e4187c408dc1'
+                        },
+                        'downloads': -1,
+                        'filename': 'sampleproject-1.2.0.tar.gz',
+                        'has_sig': False,
+                        'md5_digest': 'd3bd605f932b3fb6e91f49be2d6f9479',
+                        'packagetype': 'sdist',
+                        'python_version': 'source',
+                        'size': 3148,
+                        'upload_time': '2015-06-14T14:37:56',
+                        'url': 'https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz'
+                    }
+                ]
+            },
+            'urls': []
+        }
+
+    :statuscode 200: no error
