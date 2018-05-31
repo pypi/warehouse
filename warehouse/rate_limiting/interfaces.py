@@ -14,7 +14,6 @@ from zope.interface import Interface
 
 
 class IRateLimiter(Interface):
-
     def test(*identifiers):
         """
         Checks if the rate limit identified by the identifiers has been

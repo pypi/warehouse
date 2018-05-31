@@ -35,7 +35,6 @@ DEFAULT_ISOLATION = "READ COMMITTED"
 # We'll add a basic predicate that won't do anything except allow marking a
 # route as read only (or not).
 class ReadOnlyPredicate:
-
     def __init__(self, val, config):
         self.val = val
 
@@ -51,7 +50,6 @@ class ReadOnlyPredicate:
 
 
 class ModelBase:
-
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
@@ -86,9 +84,7 @@ Session = sessionmaker()
 
 
 def listens_for(target, identifier, *args, **kwargs):
-
     def deco(wrapped):
-
         def callback(scanner, _name, wrapped):
             wrapped = functools.partial(wrapped, scanner.config)
             event.listen(target, identifier, wrapped, *args, **kwargs)

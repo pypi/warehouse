@@ -28,7 +28,6 @@ def _serialize(policy):
 
 
 def content_security_policy_tween_factory(handler, registry):
-
     def content_security_policy_tween(request):
         resp = handler(request)
 
@@ -56,7 +55,6 @@ def content_security_policy_tween_factory(handler, registry):
 
 
 class CSPPolicy(collections.defaultdict):
-
     def __init__(self, policy=None):
         super().__init__(list, policy or {})
 

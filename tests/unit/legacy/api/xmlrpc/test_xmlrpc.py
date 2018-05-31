@@ -29,7 +29,6 @@ from .....common.db.packaging import (
 
 
 class TestSearch:
-
     def test_fails_with_invalid_operator(self):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pretend.stub(), {}, "lol nope")
@@ -49,9 +48,7 @@ class TestSearch:
         )
 
     def test_default_search_operator(self):
-
         class FakeQuery:
-
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -116,9 +113,7 @@ class TestSearch:
         ]
 
     def test_default_search_operator_with_spaces_in_values(self):
-
         class FakeQuery:
-
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -190,9 +185,7 @@ class TestSearch:
         ]
 
     def test_searches_with_and(self):
-
         class FakeQuery:
-
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -259,9 +252,7 @@ class TestSearch:
         ]
 
     def test_searches_with_or(self):
-
         class FakeQuery:
-
             def __init__(self, type, should):
                 self.type = type
                 self.should = should
@@ -328,9 +319,7 @@ class TestSearch:
         ]
 
     def test_version_search(self):
-
         class FakeQuery:
-
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
@@ -388,9 +377,7 @@ class TestSearch:
         ]
 
     def test_version_search_returns_latest(self):
-
         class FakeQuery:
-
             def __init__(self, type, must):
                 self.type = type
                 self.must = must
