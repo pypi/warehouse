@@ -26,7 +26,6 @@ from ....common.db.packaging import (
 
 
 class TestSimpleIndex:
-
     def test_no_results_no_serial(self, db_request):
         assert simple.simple_index(db_request) == {"projects": []}
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
@@ -62,7 +61,6 @@ class TestSimpleIndex:
 
 
 class TestSimpleDetail:
-
     def test_redirects(self, pyramid_request):
         project = pretend.stub(normalized_name="foo")
 

@@ -20,7 +20,6 @@ from warehouse.cli import shell
 
 
 class TestAutoDetection:
-
     def test_bpython(self, monkeypatch):
         monkeypatch.setitem(sys.modules, "bpython", pretend.stub())
         assert shell.autodetect() == "bpython"
@@ -40,7 +39,6 @@ class TestAutoDetection:
 
 
 class TestShells:
-
     def test_bpython(self, monkeypatch):
         bpython_mod = pretend.stub(embed=pretend.call_recorder(lambda a: None))
         monkeypatch.setitem(sys.modules, "bpython", bpython_mod)
@@ -68,7 +66,6 @@ class TestShells:
 
 
 class TestCLIShell:
-
     def test_autodetects(self, monkeypatch, cli):
         autodetect = pretend.call_recorder(lambda: "plain")
         monkeypatch.setattr(shell, "autodetect", autodetect)

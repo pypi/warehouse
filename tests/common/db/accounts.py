@@ -21,7 +21,6 @@ from .base import WarehouseFactory, FuzzyEmail
 
 
 class UserFactory(WarehouseFactory):
-
     class Meta:
         model = User
 
@@ -38,7 +37,6 @@ class UserFactory(WarehouseFactory):
 
 
 class EmailFactory(WarehouseFactory):
-
     class Meta:
         model = Email
 

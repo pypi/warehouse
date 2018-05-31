@@ -19,7 +19,6 @@ from ....common.db.admin import AdminFlagFactory
 
 
 class TestGetFlags:
-
     def test_get_classifiers(self, db_request):
         # Clear out any existing flags added from migrations
         db_request.db.query(AdminFlag).delete()
@@ -31,7 +30,6 @@ class TestGetFlags:
 
 
 class TestEditFlag:
-
     @pytest.mark.parametrize(
         "description, enabled, post, expected_description, expected_enabled",
         [

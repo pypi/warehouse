@@ -54,11 +54,8 @@ def test_compute_recipient(user, address, expected):
 
 
 class TestSendEmail:
-
     def test_send_email_success(self, monkeypatch):
-
         class FakeMailSender:
-
             def __init__(self):
                 self.emails = []
 
@@ -85,12 +82,10 @@ class TestSendEmail:
         exc = Exception()
 
         class FakeMailSender:
-
             def send(self, subject, body, *, recipient):
                 raise exc
 
         class Task:
-
             @staticmethod
             @pretend.call_recorder
             def retry(exc):
@@ -109,7 +104,6 @@ class TestSendEmail:
 
 
 class TestSendPasswordResetEmail:
-
     def test_send_password_reset_email(
         self, pyramid_request, pyramid_config, token_service, monkeypatch
     ):
@@ -176,7 +170,6 @@ class TestSendPasswordResetEmail:
 
 
 class TestEmailVerificationEmail:
-
     def test_email_verification_email(
         self, pyramid_request, pyramid_config, token_service, monkeypatch
     ):
@@ -229,7 +222,6 @@ class TestEmailVerificationEmail:
 
 
 class TestPasswordChangeEmail:
-
     def test_password_change_email(self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
@@ -266,7 +258,6 @@ class TestPasswordChangeEmail:
 
 
 class TestAccountDeletionEmail:
-
     def test_account_deletion_email(self, pyramid_request, pyramid_config, monkeypatch):
 
         stub_user = pretend.stub(
@@ -303,7 +294,6 @@ class TestAccountDeletionEmail:
 
 
 class TestPrimaryEmailChangeEmail:
-
     def test_primary_email_change_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
@@ -348,7 +338,6 @@ class TestPrimaryEmailChangeEmail:
 
 
 class TestCollaboratorAddedEmail:
-
     def test_collaborator_added_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
@@ -412,7 +401,6 @@ class TestCollaboratorAddedEmail:
 
 
 class TestAddedAsCollaboratorEmail:
-
     def test_added_as_collaborator_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):

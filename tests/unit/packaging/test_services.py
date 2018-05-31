@@ -30,7 +30,6 @@ from warehouse.packaging.services import (
 
 
 class TestLocalFileStorage:
-
     def test_verify_service(self):
         assert verifyClass(IFileStorage, LocalFileStorage)
 
@@ -92,7 +91,6 @@ class TestLocalFileStorage:
 
 
 class TestLocalDocsStorage:
-
     def test_verify_service(self):
         assert verifyClass(IDocsStorage, LocalDocsStorage)
 
@@ -137,7 +135,6 @@ class TestLocalDocsStorage:
 
 
 class TestS3FileStorage:
-
     def test_verify_service(self):
         assert verifyClass(IFileStorage, S3FileStorage)
 
@@ -168,7 +165,6 @@ class TestS3FileStorage:
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
     def test_raises_when_key_non_existant(self):
-
         def raiser():
             raise botocore.exceptions.ClientError(
                 {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}}, "some operation"
@@ -184,7 +180,6 @@ class TestS3FileStorage:
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
     def test_passes_up_error_when_not_no_such_key(self):
-
         def raiser():
             raise botocore.exceptions.ClientError(
                 {"Error": {"Code": "SomeOtherError", "Message": "Who Knows!"}},
@@ -273,7 +268,6 @@ class TestS3FileStorage:
 
 
 class TestS3DocsStorage:
-
     def test_verify_service(self):
         assert verifyClass(IDocsStorage, S3DocsStorage)
 

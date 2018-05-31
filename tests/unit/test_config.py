@@ -24,7 +24,6 @@ from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
 class TestJunkEncodingTween:
-
     def test_valid(self):
         response = pretend.stub()
         handler = pretend.call_recorder(lambda request: response)
@@ -64,7 +63,6 @@ class TestJunkEncodingTween:
 
 
 class TestUnicodeRedirectTween:
-
     def test_basic_redirect(self):
         response = pretend.stub(location="/a/path/to/nowhere")
         handler = pretend.call_recorder(lambda request: response)
@@ -91,7 +89,6 @@ class TestUnicodeRedirectTween:
 
 
 class TestRequireHTTPSTween:
-
     def test_noops_when_disabled(self):
         handler = pretend.stub()
         registry = pretend.stub(
@@ -229,7 +226,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         monkeypatch.setenv("WAREHOUSE_ENV", "development")
 
     class FakeRegistry(dict):
-
         def __init__(self):
             self.settings = {
                 "warehouse.token": "insecure token",

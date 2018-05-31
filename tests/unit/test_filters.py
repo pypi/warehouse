@@ -35,7 +35,6 @@ def test_camo_url():
 
 
 class TestCamoify:
-
     def test_camoify(self):
         html = "<img src=http://example.com/image.jpg>"
 

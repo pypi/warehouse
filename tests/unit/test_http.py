@@ -23,7 +23,6 @@ _REQUEST = pretend.stub(
 
 
 class TestSession:
-
     def test_create(self):
         config = {"verify": "foo"}
 
@@ -33,7 +32,6 @@ class TestSession:
         assert session_a.verify == session_b.verify == config["verify"]
 
     def test_threads(self):
-
         def _test_factory(fifo, start):
             start.wait()
             factory = warehouse.http.ThreadLocalSessionFactory()

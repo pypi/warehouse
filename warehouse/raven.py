@@ -35,7 +35,6 @@ serializer_registry.insert(0, InvalidSessionSerializer)
 
 
 def raven_tween_factory(handler, registry):
-
     def raven_tween(request):
         try:
             return handler(request)

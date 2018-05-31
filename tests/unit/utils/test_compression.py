@@ -22,7 +22,6 @@ from warehouse.utils.compression import compression_tween_factory
 
 
 class TestCompressor:
-
     @pytest.mark.parametrize(
         "vary", [["Cookie"], ["Authorization"], ["Cookie", "Authorization"]]
     )

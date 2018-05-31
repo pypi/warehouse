@@ -36,7 +36,6 @@ class Environment(enum.Enum):
 
 
 class Configurator(_Configurator):
-
     def add_wsgi_middleware(self, middleware, *args, **kwargs):
         middlewares = self.get_settings().setdefault("wsgi.middlewares", [])
         middlewares.append((middleware, args, kwargs))
@@ -65,7 +64,6 @@ class RootFactory:
 
 
 def junk_encoding_tween_factory(handler, request):
-
     def junk_encoding_tween(request):
         # We're going to test our request a bit, before we pass it into the
         # handler. This will let us return a better error than a 500 if we
@@ -91,7 +89,6 @@ def junk_encoding_tween_factory(handler, request):
 
 
 def unicode_redirect_tween_factory(handler, request):
-
     def unicode_redirect_tween(request):
         response = handler(request)
         if response.location:

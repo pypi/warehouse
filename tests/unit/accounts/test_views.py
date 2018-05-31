@@ -48,7 +48,6 @@ class TestFailedLoginView:
 
 
 class TestUserProfile:
-
     def test_user_redirects_username(self, db_request):
         user = UserFactory.create()
 
@@ -76,7 +75,6 @@ class TestUserProfile:
 
 
 class TestLogin:
-
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_form(self, pyramid_request, next_url):
         user_service = pretend.stub()
@@ -251,7 +249,6 @@ class TestLogin:
 
 
 class TestLogout:
-
     @pytest.mark.parametrize("next_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_empty(self, pyramid_request, next_url):
         if next_url is not None:
@@ -298,7 +295,6 @@ class TestLogout:
 
 
 class TestRegister:
-
     def test_get(self, db_request):
         form_inst = pretend.stub()
         form = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -413,7 +409,6 @@ class TestRegister:
 
 
 class TestRequestPasswordReset:
-
     def test_get(self, pyramid_request, user_service):
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
@@ -578,7 +573,6 @@ class TestRequestPasswordReset:
 
 
 class TestResetPassword:
-
     def test_get(self, db_request, user_service, token_service):
         user = UserFactory.create()
         form_inst = pretend.stub()
@@ -688,7 +682,6 @@ class TestResetPassword:
         ],
     )
     def test_reset_password_loads_failure(self, pyramid_request, exception, message):
-
         def loads(token):
             raise exception
 
@@ -827,7 +820,6 @@ class TestResetPassword:
 
 
 class TestVerifyEmail:
-
     @pytest.mark.parametrize(
         ("is_primary", "confirm_message"),
         [
@@ -879,7 +871,6 @@ class TestVerifyEmail:
         ],
     )
     def test_verify_email_loads_failure(self, pyramid_request, exception, message):
-
         def loads(token):
             raise exception
 
@@ -953,7 +944,6 @@ class TestVerifyEmail:
 
 
 class TestProfileCallout:
-
     def test_profile_callout_returns_user(self):
         user = pretend.stub()
         request = pretend.stub()
@@ -962,7 +952,6 @@ class TestProfileCallout:
 
 
 class TestEditProfileButton:
-
     def test_edit_profile_button(self):
         user = pretend.stub()
         request = pretend.stub()
