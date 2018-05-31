@@ -18,9 +18,7 @@ from warehouse.cli.db import db, alembic_lock
 
 @db.command()
 @click.option(
-    "--message", "-m",
-    metavar="MESSAGE",
-    help="Message string to use with the revision",
+    "--message", "-m", metavar="MESSAGE", help="Message string to use with the revision"
 )
 @click.option(
     "--branch-label",
@@ -36,6 +34,7 @@ def merge(config, revisions, **kwargs):
     Takes one or more revisions or "heads" for all heads and merges them into
     a single revision.
     """
-    with alembic_lock(config.registry["sqlalchemy.engine"],
-                      config.alembic_config()) as alembic_config:
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
         alembic.command.merge(alembic_config, revisions, **kwargs)

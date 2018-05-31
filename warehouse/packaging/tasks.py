@@ -54,7 +54,9 @@ def compute_trending(request):
             GROUP BY project, todays_downloads
             HAVING SUM(downloads) >= 5000
             ORDER BY zscore DESC
-        """.format(table=request.registry.settings["warehouse.trending_table"])
+        """.format(
+            table=request.registry.settings["warehouse.trending_table"]
+        )
     )
 
     zscores = {}
@@ -65,9 +67,11 @@ def compute_trending(request):
     # We're going to "reset" all of our zscores to a steady state where they
     # are all equal to ``None``. The next query will then set any that have a
     # value back to the expected value.
-    (request.db.query(Project)
-               .filter(Project.zscore != None)  # noqa
-               .update({Project.zscore: None}))
+    (
+        request.db.query(Project)
+        .filter(Project.zscore != None)  # noqa
+        .update({Project.zscore: None})
+    )
 
     # We need to convert the normalized name that we get out of BigQuery and
     # turn it into the primary key of the Project object and construct a list

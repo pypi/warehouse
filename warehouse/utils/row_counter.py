@@ -21,8 +21,4 @@ class RowCount(db.Model):
     __tablename__ = "row_counts"
 
     table_name = Column(Text, nullable=False, unique=True)
-    count = Column(
-        BigInteger,
-        nullable=False,
-        server_default=sql.text("0"),
-    )
+    count = Column(BigInteger, nullable=False, server_default=sql.text("0"))

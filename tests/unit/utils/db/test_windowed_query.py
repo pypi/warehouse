@@ -27,7 +27,6 @@ def test_windowed_query(db_session, query_recorder, window_size):
 
     query = db_session.query(Project)
     with query_recorder:
-        assert set(windowed_query(query, Project.name, window_size)) \
-            == projects
+        assert set(windowed_query(query, Project.name, window_size)) == projects
 
     assert len(query_recorder.queries) == expected

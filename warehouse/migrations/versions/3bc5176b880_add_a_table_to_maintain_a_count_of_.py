@@ -36,10 +36,7 @@ def upgrade():
         ),
         sa.Column("table_name", sa.Text(), nullable=False, unique=True),
         sa.Column(
-            "count",
-            sa.BigInteger(),
-            server_default=sa.text("0"),
-            nullable=False,
+            "count", sa.BigInteger(), server_default=sa.text("0"), nullable=False
         ),
         sa.PrimaryKeyConstraint("id"),
     )

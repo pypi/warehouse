@@ -30,8 +30,7 @@ class WhiteNoise(_WhiteNoise):
 
     def __init__(self, *args, manifest=None, **kwargs):
         self.manifest_path = (
-            resolver.resolve(manifest).abspath()
-            if manifest is not None else None
+            resolver.resolve(manifest).abspath() if manifest is not None else None
         )
         return super().__init__(*args, **kwargs)
 
@@ -63,7 +62,6 @@ class WhiteNoise(_WhiteNoise):
 
 
 def whitenoise_tween_factory(handler, registry):
-
     def whitenoise_tween(request):
         whn = request.registry.whitenoise
 
@@ -77,8 +75,9 @@ def whitenoise_tween_factory(handler, registry):
         if static_file is None:
             return handler(request)
 
-        request_headers = dict(kv for kv in request.environ.items()
-                               if kv[0].startswith("HTTP_"))
+        request_headers = dict(
+            kv for kv in request.environ.items() if kv[0].startswith("HTTP_")
+        )
 
         if request.method not in {"GET", "HEAD"}:
             return HTTPMethodNotAllowed()
@@ -103,8 +102,7 @@ def whitenoise_tween_factory(handler, registry):
 def whitenoise_serve_static(config, **kwargs):
     unsupported = kwargs.keys() - set(WhiteNoise.config_attrs)
     if unsupported:
-        raise TypeError(
-            "Unexpected keyword arguments: {!r}".format(unsupported))
+        raise TypeError("Unexpected keyword arguments: {!r}".format(unsupported))
 
     def register():
         config.registry.whitenoise = WhiteNoise(None, **kwargs)
@@ -115,8 +113,7 @@ def whitenoise_serve_static(config, **kwargs):
 def whitenoise_add_files(config, path, prefix=None):
     def add_files():
         config.registry.whitenoise.add_files(
-            resolver.resolve(path).abspath(),
-            prefix=prefix,
+            resolver.resolve(path).abspath(), prefix=prefix
         )
 
     config.action(("whitenoise", "add files", path, prefix), add_files)
@@ -127,10 +124,7 @@ def includeme(config):
     config.add_directive("whitenoise_add_files", whitenoise_add_files)
     config.add_tween(
         "warehouse.static.whitenoise_tween_factory",
-        over=[
-            "warehouse.utils.compression.compression_tween_factory",
-            EXCVIEW,
-        ],
+        over=["warehouse.utils.compression.compression_tween_factory", EXCVIEW],
         under=[
             "warehouse.csp.content_security_policy_tween_factory",
             "warehouse.referrer_policy.referrer_policy_tween_factory",

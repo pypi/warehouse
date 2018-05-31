@@ -94,8 +94,13 @@ tests:
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+
+reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/black warehouse/ tests/
+
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
+	$(BINDIR)/black --check warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
@@ -122,8 +127,10 @@ deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 

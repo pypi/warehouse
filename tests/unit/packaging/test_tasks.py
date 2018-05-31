@@ -23,32 +23,20 @@ from ...common.db.packaging import ProjectFactory
 
 
 class TestComputeTrending:
-
     @pytest.mark.parametrize("with_purges", [True, False])
     def test_computes_trending(self, db_request, with_purges):
         projects = [
-            ProjectFactory.create(zscore=1 if not i else None)
-            for i in range(3)
+            ProjectFactory.create(zscore=1 if not i else None) for i in range(3)
         ]
 
-        results = iter([
-            Row(
-                (projects[1].normalized_name, 2),
-                {'project': 0, 'zscore': 1},
-            ),
-            Row(
-                (projects[2].normalized_name, -1),
-                {'project': 0, 'zscore': 1},
-            ),
-        ])
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: results,
-            )
+        results = iter(
+            [
+                Row((projects[1].normalized_name, 2), {"project": 0, "zscore": 1}),
+                Row((projects[2].normalized_name, -1), {"project": 0, "zscore": 1}),
+            ]
         )
-        bigquery = pretend.stub(
-            query=pretend.call_recorder(lambda q: query),
-        )
+        query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
+        bigquery = pretend.stub(query=pretend.call_recorder(lambda q: query))
 
         cacher = pretend.stub(purge=pretend.call_recorder(lambda keys: None))
 
@@ -63,13 +51,14 @@ class TestComputeTrending:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.trending_table": "example.pypi.downloads*",
+            "warehouse.trending_table": "example.pypi.downloads*"
         }
 
         compute_trending(db_request)
 
         assert bigquery.query.calls == [
-            pretend.call(""" SELECT project,
+            pretend.call(
+                """ SELECT project,
                    IF(
                         STDDEV(downloads) > 0,
                         (todays_downloads - AVG(downloads))/STDDEV(downloads),
@@ -104,11 +93,13 @@ class TestComputeTrending:
             GROUP BY project, todays_downloads
             HAVING SUM(downloads) >= 5000
             ORDER BY zscore DESC
-        """),
+        """
+            )
         ]
         assert query.result.calls == [pretend.call()]
-        assert (cacher.purge.calls ==
-                ([pretend.call(["trending"])] if with_purges else []))
+        assert cacher.purge.calls == (
+            [pretend.call(["trending"])] if with_purges else []
+        )
 
         results = dict(db_request.db.query(Project.name, Project.zscore).all())
 

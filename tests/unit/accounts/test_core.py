@@ -22,55 +22,42 @@ from warehouse.accounts.services import database_login_factory
 
 
 class TestLogin:
-
     def test_with_no_user(self):
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: None),
-        )
+        service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service),
+            find_service=pretend.call_recorder(lambda iface, context: service)
         )
         assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-        ]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
 
     def test_with_invalid_password(self):
         userid = pretend.stub()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: userid),
-            check_password=pretend.call_recorder(
-                lambda userid, password: False
-            ),
+            check_password=pretend.call_recorder(lambda userid, password: False),
         )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service),
+            find_service=pretend.call_recorder(lambda iface, context: service)
         )
         assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-        ]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
 
     def test_with_valid_password(self, monkeypatch):
         principals = pretend.stub()
-        authenticate = pretend.call_recorder(
-            lambda userid, request: principals
-        )
+        authenticate = pretend.call_recorder(lambda userid, request: principals)
         monkeypatch.setattr(accounts, "_authenticate", authenticate)
 
         userid = pretend.stub()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: userid),
-            check_password=pretend.call_recorder(
-                lambda userid, password: True
-            ),
+            check_password=pretend.call_recorder(lambda userid, password: True),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
         )
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service),
+            find_service=pretend.call_recorder(lambda iface, context: service)
         )
 
         now = datetime.datetime.utcnow()
@@ -78,40 +65,27 @@ class TestLogin:
         with freezegun.freeze_time(now):
             assert accounts._login("myuser", "mypass", request) is principals
 
-        assert request.find_service.calls == [
-            pretend.call(IUserService, context=None),
-        ]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.check_password.calls == [pretend.call(userid, "mypass")]
-        assert service.update_user.calls == [
-            pretend.call(userid, last_login=now),
-        ]
+        assert service.update_user.calls == [pretend.call(userid, last_login=now)]
         assert authenticate.calls == [pretend.call(userid, request)]
 
 
 class TestAuthenticate:
-
     @pytest.mark.parametrize(
-        ("is_superuser", "expected"),
-        [
-            (False, []),
-            (True, ["group:admins"]),
-        ],
+        ("is_superuser", "expected"), [(False, []), (True, ["group:admins"])]
     )
     def test_with_user(self, is_superuser, expected):
         user = pretend.stub(is_superuser=is_superuser)
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: user)
-        )
+        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         request = pretend.stub(find_service=lambda iface, context: service)
 
         assert accounts._authenticate(1, request) == expected
         assert service.get_user.calls == [pretend.call(1)]
 
     def test_without_user(self):
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: None)
-        )
+        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))
         request = pretend.stub(find_service=lambda iface, context: service)
 
         assert accounts._authenticate(1, request) is None
@@ -119,29 +93,22 @@ class TestAuthenticate:
 
 
 class TestUser:
-
     def test_with_user(self):
         user = pretend.stub()
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: user)
-        )
+        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
 
         request = pretend.stub(
-            find_service=lambda iface, context: service,
-            authenticated_userid=100,
+            find_service=lambda iface, context: service, authenticated_userid=100
         )
 
         assert accounts._user(request) is user
         assert service.get_user.calls == [pretend.call(100)]
 
     def test_without_users(self):
-        service = pretend.stub(
-            get_user=pretend.call_recorder(lambda userid: None)
-        )
+        service = pretend.stub(get_user=pretend.call_recorder(lambda userid: None))
 
         request = pretend.stub(
-            find_service=lambda iface, context: service,
-            authenticated_userid=100,
+            find_service=lambda iface, context: service, authenticated_userid=100
         )
 
         assert accounts._user(request) is None
@@ -172,10 +139,10 @@ def test_includeme(monkeypatch):
     accounts.includeme(config)
 
     config.register_service_factory.calls == [
-        pretend.call(database_login_factory, IUserService),
+        pretend.call(database_login_factory, IUserService)
     ]
     config.add_request_method.calls == [
-        pretend.call(accounts._user, name="user", reify=True),
+        pretend.call(accounts._user, name="user", reify=True)
     ]
     config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     config.set_authorization_policy.calls == [pretend.call(authz_obj)]

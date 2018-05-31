@@ -42,4 +42,4 @@ class Flags:
 
 
 def includeme(config):
-    config.add_request_method(Flags, name='flags', reify=True)
+    config.add_request_method(Flags, name="flags", reify=True)

@@ -20,7 +20,6 @@ from warehouse import csrf
 
 
 class TestRequireMethodView:
-
     def test_passes_through_on_falsey(self):
         view = pretend.stub()
         info = pretend.stub(options={"require_methods": False})
@@ -118,14 +117,8 @@ def test_includeme():
 
     csrf.includeme(config)
 
-    assert config.set_default_csrf_options.calls == [
-        pretend.call(require_csrf=True),
-    ]
+    assert config.set_default_csrf_options.calls == [pretend.call(require_csrf=True)]
     assert config.add_view_deriver.calls == [
         pretend.call(csrf_view, under=INGRESS, over="secured_view"),
-        pretend.call(
-            csrf.require_method_view,
-            under=INGRESS,
-            over="csrf_view",
-        ),
+        pretend.call(csrf.require_method_view, under=INGRESS, over="csrf_view"),
     ]

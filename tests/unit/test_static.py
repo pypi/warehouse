@@ -23,26 +23,18 @@ from warehouse import static
 
 
 class TestWhiteNose:
-
     def test_resolves_manifest_path(self, monkeypatch):
         resolver = pretend.stub(
             resolve=pretend.call_recorder(
-                lambda p: pretend.stub(
-                    abspath=lambda: "/path/to/manifest.json",
-                ),
-            ),
+                lambda p: pretend.stub(abspath=lambda: "/path/to/manifest.json")
+            )
         )
         monkeypatch.setattr(static, "resolver", resolver)
 
-        whitenoise = static.WhiteNoise(
-            None,
-            manifest="warehouse:manifest.json",
-        )
+        whitenoise = static.WhiteNoise(None, manifest="warehouse:manifest.json")
 
         assert whitenoise.manifest_path == "/path/to/manifest.json"
-        assert resolver.resolve.calls == [
-            pretend.call("warehouse:manifest.json"),
-        ]
+        assert resolver.resolve.calls == [pretend.call("warehouse:manifest.json")]
 
     def test_empty_manifest_when_no_manifest_provided(self):
         whitenoise = static.WhiteNoise(None)
@@ -65,9 +57,7 @@ class TestWhiteNose:
             json.dump({"file.txt": "file.hash.txt"}, fp)
 
         whitenoise = static.WhiteNoise(
-            None,
-            manifest=manifest_path,
-            autorefresh=autorefresh,
+            None, manifest=manifest_path, autorefresh=autorefresh
         )
 
         assert whitenoise.manifest_path == manifest_path
@@ -76,8 +66,9 @@ class TestWhiteNose:
         with open(manifest_path, "w", encoding="utf8") as fp:
             json.dump({"file.txt": "file.newhash.txt"}, fp)
 
-        assert whitenoise.manifest == \
-            ({"file.newhash.txt"} if autorefresh else {"file.hash.txt"})
+        assert whitenoise.manifest == (
+            {"file.newhash.txt"} if autorefresh else {"file.hash.txt"}
+        )
 
     def test_is_immutable_file_no_manifest(self):
         whitenoise = static.WhiteNoise(None)
@@ -86,8 +77,7 @@ class TestWhiteNose:
     def test_is_immutable_file_wrong_path(self):
         whitenoise = static.WhiteNoise(None, manifest="/path/to/manifest.json")
         assert not whitenoise.is_immutable_file(
-            "/path/in/another/dir",
-            "/static/another/dir",
+            "/path/in/another/dir", "/static/another/dir"
         )
 
     def test_is_immutable_file_not_in_manifest(self):
@@ -95,8 +85,7 @@ class TestWhiteNose:
         whitenoise._manifest = {"another/file.txt"}
 
         assert not whitenoise.is_immutable_file(
-            "/path/to/the/file.txt",
-            "static/the/file.txt",
+            "/path/to/the/file.txt", "static/the/file.txt"
         )
 
     def test_is_immutable_file_in_manifest(self):
@@ -104,13 +93,11 @@ class TestWhiteNose:
         whitenoise._manifest = {"the/file.txt"}
 
         assert whitenoise.is_immutable_file(
-            "/path/to/the/file.txt",
-            "static/the/file.txt",
+            "/path/to/the/file.txt", "static/the/file.txt"
         )
 
 
 class TestWhitenoiseTween:
-
     @pytest.mark.parametrize("autorefresh", [True, False])
     def test_bypasses(self, autorefresh):
         whitenoise = static.WhiteNoise(None, autorefresh=autorefresh)
@@ -161,8 +148,9 @@ class TestWhitenoiseTween:
             prefix="/static/",
         )
 
-        path, headers = (whitenoise.find_file("/static/manifest.json")
-                                   .get_path_and_headers({}))
+        path, headers = whitenoise.find_file(
+            "/static/manifest.json"
+        ).get_path_and_headers({})
         headers = dict(headers)
 
         response = pretend.stub()
@@ -181,10 +169,10 @@ class TestWhitenoiseTween:
 
         assert resp.status_code == 200
         assert resp.headers["Content-Type"] == "application/json"
-        assert (
-            set(i.strip() for i in resp.headers["Cache-Control"].split(",")) ==
-            {"public", "max-age=60"}
-        )
+        assert set(i.strip() for i in resp.headers["Cache-Control"].split(",")) == {
+            "public",
+            "max-age=60",
+        }
         assert resp.headers["Vary"] == "Accept-Encoding"
 
         with open(path, "rb") as fp:
@@ -192,7 +180,6 @@ class TestWhitenoiseTween:
 
 
 class TestDirectives:
-
     def test_whitenoise_serve_static_unsupported_kwarg(self):
         with pytest.raises(TypeError):
             static.whitenoise_serve_static(pretend.stub(), lol_fake=True)
@@ -204,14 +191,13 @@ class TestDirectives:
         monkeypatch.setattr(static, "WhiteNoise", whitenoise_cls)
 
         config = pretend.stub(
-            action=pretend.call_recorder(lambda d, f: None),
-            registry=pretend.stub(),
+            action=pretend.call_recorder(lambda d, f: None), registry=pretend.stub()
         )
 
         static.whitenoise_serve_static(config, autorefresh=True)
 
         assert config.action.calls == [
-            pretend.call(("whitenoise", "create instance"), mock.ANY),
+            pretend.call(("whitenoise", "create instance"), mock.ANY)
         ]
 
         config.action.calls[0].args[1]()
@@ -224,24 +210,21 @@ class TestDirectives:
             action=pretend.call_recorder(lambda d, f: None),
             registry=pretend.stub(
                 whitenoise=pretend.stub(
-                    add_files=pretend.call_recorder(lambda path, prefix: None),
-                ),
+                    add_files=pretend.call_recorder(lambda path, prefix: None)
+                )
             ),
         )
 
         static.whitenoise_add_files(config, "/static/foo/", "/lol/")
 
         assert config.action.calls == [
-            pretend.call(
-                ("whitenoise", "add files", "/static/foo/", "/lol/"),
-                mock.ANY,
-            ),
+            pretend.call(("whitenoise", "add files", "/static/foo/", "/lol/"), mock.ANY)
         ]
 
         config.action.calls[0].args[1]()
 
         assert config.registry.whitenoise.add_files.calls == [
-            pretend.call("/static/foo", prefix="/lol/"),
+            pretend.call("/static/foo", prefix="/lol/")
         ]
 
 
@@ -254,27 +237,18 @@ def test_includeme():
     static.includeme(config)
 
     assert config.add_directive.calls == [
-        pretend.call(
-            "whitenoise_serve_static",
-            static.whitenoise_serve_static,
-        ),
-        pretend.call(
-            "whitenoise_add_files",
-            static.whitenoise_add_files,
-        ),
+        pretend.call("whitenoise_serve_static", static.whitenoise_serve_static),
+        pretend.call("whitenoise_add_files", static.whitenoise_add_files),
     ]
     assert config.add_tween.calls == [
         pretend.call(
             "warehouse.static.whitenoise_tween_factory",
-            over=[
-                "warehouse.utils.compression.compression_tween_factory",
-                EXCVIEW,
-            ],
+            over=["warehouse.utils.compression.compression_tween_factory", EXCVIEW],
             under=[
                 "warehouse.csp.content_security_policy_tween_factory",
                 "warehouse.referrer_policy.referrer_policy_tween_factory",
                 "warehouse.config.require_https_tween_factory",
                 INGRESS,
             ],
-        ),
+        )
     ]

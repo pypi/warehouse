@@ -19,20 +19,15 @@ import mistune
 import warehouse
 
 
-DEFAULT_POLICY_DIRECTORY = \
-    os.path.abspath(
-        os.path.join(
-            os.path.dirname(os.path.dirname(warehouse.__file__)),
-            "policies",
-        ),
-    )
+DEFAULT_POLICY_DIRECTORY = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.dirname(warehouse.__file__)), "policies")
+)
 
 
 def markdown_view_factory(*, filename):
     def markdown_view(request):
         directory = request.registry.settings.get(
-            "policy.directory",
-            DEFAULT_POLICY_DIRECTORY,
+            "policy.directory", DEFAULT_POLICY_DIRECTORY
         )
 
         filepath = os.path.join(directory, filename)
@@ -41,11 +36,7 @@ def markdown_view_factory(*, filename):
             unrendered = fp.read()
 
         rendered = mistune.markdown(unrendered)
-        html = html5lib.parse(
-            rendered,
-            namespaceHTMLElements=False,
-            treebuilder="lxml",
-        )
+        html = html5lib.parse(rendered, namespaceHTMLElements=False, treebuilder="lxml")
 
         title = html.find("//h1[1]").text
 

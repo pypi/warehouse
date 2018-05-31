@@ -32,7 +32,6 @@ from ....common.db.packaging import (
 
 
 class TestBlacklistList:
-
     def test_no_query(self, db_request):
         db_request.db.query(BlacklistedProject).delete()
         blacklisted = sorted(
@@ -41,10 +40,7 @@ class TestBlacklistList:
         )
         result = views.blacklist(db_request)
 
-        assert result == {
-            "blacklist": blacklisted[:25],
-            "query": None,
-        }
+        assert result == {"blacklist": blacklisted[:25], "query": None}
 
     def test_with_page(self, db_request):
         db_request.db.query(BlacklistedProject).delete()
@@ -55,10 +51,7 @@ class TestBlacklistList:
         db_request.GET["page"] = "2"
         result = views.blacklist(db_request)
 
-        assert result == {
-            "blacklist": blacklisted[25:],
-            "query": None,
-        }
+        assert result == {"blacklist": blacklisted[25:], "query": None}
 
     def test_with_invalid_page(self):
         request = pretend.stub(params={"page": "not an integer"})
@@ -75,10 +68,7 @@ class TestBlacklistList:
         db_request.GET["q"] = blacklisted[0].name
         result = views.blacklist(db_request)
 
-        assert result == {
-            "blacklist": [blacklisted[0]],
-            "query": blacklisted[0].name,
-        }
+        assert result == {"blacklist": [blacklisted[0]], "query": blacklisted[0].name}
 
     def test_wildcard_query(self, db_request):
         db_request.db.query(BlacklistedProject).delete()
@@ -96,7 +86,6 @@ class TestBlacklistList:
 
 
 class TestConfirmBlacklist:
-
     def test_no_project(self):
         request = pretend.stub(GET={})
 
@@ -108,16 +97,8 @@ class TestConfirmBlacklist:
         result = views.confirm_blacklist(db_request)
 
         assert result == {
-            "blacklist": {
-                "project": "foo",
-                "comment": "",
-            },
-            "existing": {
-                "project": None,
-                "releases": [],
-                "files": [],
-                "roles": [],
-            }
+            "blacklist": {"project": "foo", "comment": ""},
+            "existing": {"project": None, "releases": [], "files": [], "roles": []},
         }
 
     def test_stuff_to_delete(self, db_request):
@@ -126,21 +107,12 @@ class TestConfirmBlacklist:
         result = views.confirm_blacklist(db_request)
 
         assert result == {
-            "blacklist": {
-                "project": project.name,
-                "comment": "",
-            },
-            "existing": {
-                "project": project,
-                "releases": [],
-                "files": [],
-                "roles": [],
-            }
+            "blacklist": {"project": project.name, "comment": ""},
+            "existing": {"project": project, "releases": [], "files": [], "roles": []},
         }
 
 
 class TestAddBlacklist:
-
     def test_no_project(self):
         request = pretend.stub(POST={})
 
@@ -150,16 +122,14 @@ class TestAddBlacklist:
     def test_no_confirm(self):
         request = pretend.stub(
             POST={"project": "foo"},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             current_route_path=lambda: "/foo/bar/",
         )
 
         result = views.add_blacklist(request)
 
         assert request.session.flash.calls == [
-            pretend.call("Confirm the blacklist request", queue="error"),
+            pretend.call("Confirm the blacklist request", queue="error")
         ]
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
@@ -167,16 +137,14 @@ class TestAddBlacklist:
     def test_wrong_confirm(self):
         request = pretend.stub(
             POST={"project": "foo", "confirm": "bar"},
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             current_route_path=lambda: "/foo/bar/",
         )
 
         result = views.add_blacklist(request)
 
         assert request.session.flash.calls == [
-            pretend.call("'bar' is not the same as 'foo'", queue="error"),
+            pretend.call("'bar' is not the same as 'foo'", queue="error")
         ]
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
@@ -187,20 +155,20 @@ class TestAddBlacklist:
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
         db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = lambda a: "/admin/blacklist/"
 
         views.add_blacklist(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call("Blacklisted 'foo'", queue="success"),
+            pretend.call("Blacklisted 'foo'", queue="success")
         ]
 
         blacklist = (
             db_request.db.query(BlacklistedProject)
-                         .filter(BlacklistedProject.name == "foo")
-                         .one()
+            .filter(BlacklistedProject.name == "foo")
+            .one()
         )
 
         assert blacklist.name == "foo"
@@ -213,7 +181,7 @@ class TestAddBlacklist:
         db_request.POST["confirm"] = "foo"
         db_request.POST["comment"] = "This is a comment"
         db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None),
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.route_path = lambda a: "/admin/blacklist/"
         db_request.remote_addr = "192.168.1.1"
@@ -221,38 +189,31 @@ class TestAddBlacklist:
         project = ProjectFactory.create(name="foo")
         release = ReleaseFactory.create(project=project)
         FileFactory.create(
-            name=project.name,
-            version=release.version,
-            filename="who cares",
+            name=project.name, version=release.version, filename="who cares"
         )
         RoleFactory.create(project=project, user=db_request.user)
 
         views.add_blacklist(db_request)
 
         assert db_request.session.flash.calls == [
-            pretend.call(
-                "Deleted the project 'foo'",
-                queue='success'
-            ),
+            pretend.call("Deleted the project 'foo'", queue="success"),
             pretend.call("Blacklisted 'foo'", queue="success"),
         ]
 
         blacklist = (
             db_request.db.query(BlacklistedProject)
-                         .filter(BlacklistedProject.name == "foo")
-                         .one()
+            .filter(BlacklistedProject.name == "foo")
+            .one()
         )
 
         assert blacklist.name == "foo"
         assert blacklist.blacklisted_by == db_request.user
         assert blacklist.comment == "This is a comment"
 
-        assert not (db_request.db.query(Project)
-                                 .filter(Project.name == "foo").count())
+        assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
 
 
 class TestRemoveBlacklist:
-
     def test_no_blacklist_id(self):
         request = pretend.stub(POST={})
 
@@ -274,9 +235,11 @@ class TestRemoveBlacklist:
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/admin/blacklist/"
-        assert not (db_request.db.query(BlacklistedProject)
-                                 .filter(BlacklistedProject.id == blacklist.id)
-                                 .count())
+        assert not (
+            db_request.db.query(BlacklistedProject)
+            .filter(BlacklistedProject.id == blacklist.id)
+            .count()
+        )
 
     def test_deletes_blacklist_with_redirect(self, db_request):
         blacklist = BlacklistedProjectFactory.create()
@@ -288,6 +251,8 @@ class TestRemoveBlacklist:
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/another/url/"
-        assert not (db_request.db.query(BlacklistedProject)
-                                 .filter(BlacklistedProject.id == blacklist.id)
-                                 .count())
+        assert not (
+            db_request.db.query(BlacklistedProject)
+            .filter(BlacklistedProject.id == blacklist.id)
+            .count()
+        )

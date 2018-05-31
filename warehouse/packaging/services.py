@@ -23,7 +23,6 @@ from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 
 @implementer(IFileStorage)
 class LocalFileStorage:
-
     def __init__(self, base):
         # This class should not be used in production, it's trivial for it to
         # be used to read arbitrary files from the disk. It is intended ONLY
@@ -55,7 +54,6 @@ class LocalFileStorage:
 
 @implementer(IDocsStorage)
 class LocalDocsStorage:
-
     def __init__(self, base):
         # This class should not be used in production, it's trivial for it to
         # be used to read arbitrary files from the disk. It is intended ONLY
@@ -84,7 +82,6 @@ class LocalDocsStorage:
 
 @implementer(IFileStorage)
 class S3FileStorage:
-
     def __init__(self, bucket, *, prefix=None):
         self.bucket = bucket
         self.prefix = prefix
@@ -131,7 +128,6 @@ class S3FileStorage:
 
 @implementer(IDocsStorage)
 class S3DocsStorage:
-
     def __init__(self, s3_client, bucket_name, *, prefix=None):
         self.s3_client = s3_client
         self.bucket_name = bucket_name
@@ -149,19 +145,15 @@ class S3DocsStorage:
         if self.prefix:
             prefix = os.path.join(self.prefix, prefix)
         keys_to_delete = []
-        keys = self.s3_client.list_objects_v2(
-            Bucket=self.bucket_name, Prefix=prefix
-        )
-        for key in keys.get('Contents', []):
-            keys_to_delete.append({'Key': key['Key']})
+        keys = self.s3_client.list_objects_v2(Bucket=self.bucket_name, Prefix=prefix)
+        for key in keys.get("Contents", []):
+            keys_to_delete.append({"Key": key["Key"]})
             if len(keys_to_delete) > 99:
                 self.s3_client.delete_objects(
-                    Bucket=self.bucket_name,
-                    Delete={'Objects': keys_to_delete}
+                    Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
                 )
                 keys_to_delete = []
         if len(keys_to_delete) > 0:
             self.s3_client.delete_objects(
-                Bucket=self.bucket_name,
-                Delete={'Objects': keys_to_delete}
+                Bucket=self.bucket_name, Delete={"Objects": keys_to_delete}
             )

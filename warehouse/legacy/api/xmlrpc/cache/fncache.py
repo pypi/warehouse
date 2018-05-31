@@ -19,7 +19,6 @@ DEFAULT_EXPIRES = 86400
 
 
 class StubMetricReporter(object):
-
     def increment(self, metric_name):
         return
 
@@ -47,49 +46,46 @@ class RedisLru(object):
 
     def format_key(self, func_name, tag):
         if tag is not None:
-            return ':'.join([self.name, tag, func_name])
-        return ':'.join([self.name, 'tag', func_name])
+            return ":".join([self.name, tag, func_name])
+        return ":".join([self.name, "tag", func_name])
 
     def get(self, func_name, key, tag):
         try:
             value = self.conn.hget(self.format_key(func_name, tag), key)
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
-            self.metric_reporter.increment(f'{self.name}.cache.error')
+            self.metric_reporter.increment(f"{self.name}.cache.error")
             return None
         if value:
-            self.metric_reporter.increment(f'{self.name}.cache.hit')
+            self.metric_reporter.increment(f"{self.name}.cache.hit")
             value = json.loads(value)
         return value
 
     def add(self, func_name, key, value, tag, expires):
         try:
-            self.metric_reporter.increment(f'{self.name}.cache.miss')
+            self.metric_reporter.increment(f"{self.name}.cache.miss")
             pipeline = self.conn.pipeline()
-            pipeline.hset(
-                self.format_key(func_name, tag), key, json.dumps(value)
-            )
+            pipeline.hset(self.format_key(func_name, tag), key, json.dumps(value))
             ttl = expires if expires else self.expires
             pipeline.expire(self.format_key(func_name, tag), ttl)
             pipeline.execute()
             return value
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
-            self.metric_reporter.increment(f'{self.name}.cache.error')
+            self.metric_reporter.increment(f"{self.name}.cache.error")
             return value
 
     def purge(self, tag):
         try:
-            keys = self.conn.scan_iter(":".join([self.name, tag, '*']))
+            keys = self.conn.scan_iter(":".join([self.name, tag, "*"]))
             pipeline = self.conn.pipeline()
             for key in keys:
                 pipeline.delete(key)
             pipeline.execute()
-            self.metric_reporter.increment(f'{self.name}.cache.purge')
+            self.metric_reporter.increment(f"{self.name}.cache.purge")
         except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
-            self.metric_reporter.increment(f'{self.name}.cache.error')
+            self.metric_reporter.increment(f"{self.name}.cache.error")
             raise CacheError()
 
     def fetch(self, func, args, kwargs, key, tag, expires):
-        return self.get(func.__name__, key, tag) or \
-            self.add(
-                func.__name__, key, func(*args, **kwargs), tag, expires
+        return self.get(func.__name__, key, tag) or self.add(
+            func.__name__, key, func(*args, **kwargs), tag, expires
         )
