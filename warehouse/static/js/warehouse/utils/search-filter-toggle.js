@@ -14,17 +14,19 @@
 export default () => {
   var showPanel = document.querySelector(".-js-add-filter");
   var hidePanel = document.querySelector(".-js-close-panel");
+  var firstFilter = document.querySelector('#classifiers > .accordion > button');
 
-  const togglePanelDisplay = (display, event) => {
+  const togglePanelDisplay = (display, focusOn, event) => {
     event.preventDefault();
     var elements = document.querySelectorAll(".-js-dark-overlay, .-js-filter-panel");
     for (var el of elements) {
       el.style.display = display;
     }
+    focusOn.focus();
   };
 
-  const toggleEvent = (element, display) => {
-    element.addEventListener("click", togglePanelDisplay.bind(null, display), false);
+  const toggleEvent = (element, display, focusOn) => {
+    element.addEventListener("click", togglePanelDisplay.bind(null, display, focusOn), false);
   };
 
   const toggleAccordion = (event) => {
@@ -36,6 +38,6 @@ export default () => {
     trigger.addEventListener("click", toggleAccordion, false);
   }
 
-  toggleEvent(showPanel, "block");
-  toggleEvent(hidePanel, "");
+  toggleEvent(showPanel, "block", firstFilter);
+  toggleEvent(hidePanel, "", showPanel);
 };
