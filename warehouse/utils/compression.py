@@ -89,7 +89,6 @@ def _compressor(request, response):
 
 
 def compression_tween_factory(handler, registry):
-
     def compression_tween(request):
         response = handler(request)
 

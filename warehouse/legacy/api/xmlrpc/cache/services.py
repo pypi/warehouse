@@ -32,7 +32,6 @@ def purge_tag(task, request, tag):
 
 @implementer(interfaces.IXMLRPCCache)
 class RedisXMLRPCCache:
-
     def __init__(
         self,
         redis_url,
@@ -74,7 +73,6 @@ class RedisXMLRPCCache:
 
 @implementer(interfaces.IXMLRPCCache)
 class NullXMLRPCCache:
-
     def __init__(self, url, purger, **kwargs):
         self._purger = purger
 

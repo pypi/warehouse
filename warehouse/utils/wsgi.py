@@ -20,7 +20,6 @@ def _forwarded_value(values, num_proxies):
 
 
 class ProxyFixer:
-
     def __init__(self, app, token, num_proxies=1):
         self.app = app
         self.token = token
@@ -73,7 +72,6 @@ class ProxyFixer:
 
 
 class VhmRootRemover:
-
     def __init__(self, app):
         self.app = app
 

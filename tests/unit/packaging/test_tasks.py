@@ -23,7 +23,6 @@ from ...common.db.packaging import ProjectFactory
 
 
 class TestComputeTrending:
-
     @pytest.mark.parametrize("with_purges", [True, False])
     def test_computes_trending(self, db_request, with_purges):
         projects = [

@@ -26,7 +26,6 @@ from warehouse.utils import crypto
 
 
 def _invalid_method(method):
-
     @functools.wraps(method)
     def wrapped(self, *args, **kwargs):
         self._error_message()
@@ -69,7 +68,6 @@ class InvalidSession(dict):
 
 
 def _changed_method(method):
-
     @functools.wraps(method)
     def wrapped(self, *args, **kwargs):
         self.changed()

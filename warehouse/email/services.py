@@ -28,7 +28,6 @@ def _format_sender(sitename, sender):
 
 @implementer(IEmailSender)
 class SMTPEmailSender:
-
     def __init__(self, mailer, sender=None):
         self.mailer = mailer
         self.sender = sender
@@ -48,7 +47,6 @@ class SMTPEmailSender:
 
 @implementer(IEmailSender)
 class SESEmailSender:
-
     def __init__(self, client, *, sender=None, db):
         self._client = client
         self._sender = sender

@@ -16,7 +16,6 @@ from warehouse import referrer_policy
 
 
 class TestReferrerPolicyTween:
-
     def test_referrer_policy(self):
         response = pretend.stub(headers={})
         handler = pretend.call_recorder(lambda request: response)

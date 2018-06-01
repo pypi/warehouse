@@ -34,7 +34,6 @@ from ...common.db.accounts import UserFactory, EmailFactory
 
 
 class TestDatabaseUserService:
-
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)
 
@@ -221,7 +220,6 @@ class TestDatabaseUserService:
 
 
 class TestTokenService:
-
     def test_verify_service(self):
         assert verifyClass(ITokenService, services.TokenService)
 

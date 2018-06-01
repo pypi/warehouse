@@ -61,7 +61,6 @@ def ElasticsearchPage(*args, **kwargs):  # noqa
 
 
 def paginate_url_factory(request, query_arg="page"):
-
     def make_url(page):
         query_seq = [
             (k, v)

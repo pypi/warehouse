@@ -14,7 +14,6 @@ from zope.interface import Interface
 
 
 class IFileStorage(Interface):
-
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
@@ -36,7 +35,6 @@ class IFileStorage(Interface):
 
 
 class IDocsStorage(Interface):
-
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being

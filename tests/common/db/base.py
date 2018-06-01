@@ -20,7 +20,6 @@ from . import Session
 
 
 class WarehouseFactory(SQLAlchemyModelFactory):
-
     class Meta:
         abstract = True
         sqlalchemy_session = Session
@@ -38,7 +37,6 @@ class WarehouseFactory(SQLAlchemyModelFactory):
 
 
 class FuzzyEmail(fuzzy.BaseFuzzyAttribute):
-
     def __init__(self, domain="example.com", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.domain = domain

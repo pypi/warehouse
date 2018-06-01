@@ -36,7 +36,6 @@ from warehouse.db import (
 
 
 def test_model_base_repr(monkeypatch):
-
     @pretend.call_recorder
     def inspect(item):
         return pretend.stub(mapper=pretend.stub(column_attrs=[pretend.stub(key="foo")]))
@@ -280,7 +279,6 @@ def test_readonly_predicate():
 
 
 def test_includeme(monkeypatch):
-
     class FakeRegistry(dict):
         settings = {"database.url": pretend.stub()}
 
