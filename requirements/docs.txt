@@ -59,9 +59,9 @@ Sphinx==1.7.5 \
 sphinxcontrib-httpdomain==1.6.1 \
     --hash=sha256:2572c10bf84fab856999667369e3604eb209d8dda7321556bfee93fddcfc33b5 \
     --hash=sha256:029f596deb7b4246148a8e8a7d041764d0cad545cf4f3bb6252ac90c785ab221
-sphinxcontrib-websupport==1.0.1 \
-    --hash=sha256:f4932e95869599b89bf4f80fc3989132d83c9faa5bf633e7b5e0c25dffb75da2 \
-    --hash=sha256:7a85961326aa3a400cd4ad3c816d70ed6f7c740acd7ce5d78cd0a67825072eb9
+sphinxcontrib-websupport==1.1.0 \
+    --hash=sha256:68ca7ff70785cbe1e7bccc71a48b5b6d965d79ca50629606c7861a21b206d9dd \
+    --hash=sha256:9de47f375baf1ea07cdb3436ff39d7a9c76042c10a769c52353ec46e4e8fc3b9
 urllib3==1.22 \
     --hash=sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b \
     --hash=sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f
