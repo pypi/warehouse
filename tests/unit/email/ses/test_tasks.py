@@ -13,9 +13,7 @@
 import datetime
 
 from warehouse.email.ses.models import EmailMessage
-from warehouse.email.ses.tasks import (
-    CLEANUP_DELIVERED_AFTER, CLEANUP_AFTER, cleanup,
-)
+from warehouse.email.ses.tasks import CLEANUP_DELIVERED_AFTER, CLEANUP_AFTER, cleanup
 
 from ....common.db.ses import EmailMessageFactory
 
@@ -28,15 +26,13 @@ def test_cleanup_cleans_correctly(db_request):
         created=(now - CLEANUP_DELIVERED_AFTER - datetime.timedelta(hours=1)),
     )
     EmailMessageFactory.create(
-        status="Bounced",
-        created=(now - CLEANUP_AFTER - datetime.timedelta(hours=1)),
+        status="Bounced", created=(now - CLEANUP_AFTER - datetime.timedelta(hours=1))
     )
 
     to_be_kept = [
         EmailMessageFactory.create(
             status="Delivered",
-            created=(now - CLEANUP_DELIVERED_AFTER +
-                     datetime.timedelta(hours=1)),
+            created=(now - CLEANUP_DELIVERED_AFTER + datetime.timedelta(hours=1)),
         ),
         EmailMessageFactory.create(
             status="Bounced",

@@ -14,7 +14,10 @@ import pytest
 
 from warehouse.accounts.models import UnverifyReasons
 from warehouse.email.ses.models import (
-    MAX_TRANSIENT_BOUNCES, EmailStatus, EmailStatuses, EmailMessage,
+    MAX_TRANSIENT_BOUNCES,
+    EmailStatus,
+    EmailStatuses,
+    EmailMessage,
 )
 
 from ....common.db.accounts import EmailFactory
@@ -22,7 +25,6 @@ from ....common.db.ses import EmailMessageFactory
 
 
 class TestEmailStatus:
-
     def test_starts_out_accepted(self, db_session):
         em = EmailStatus(EmailMessage()).save()
         assert em.status is EmailStatuses.Accepted
@@ -128,8 +130,7 @@ class TestEmailStatus:
         assert not email.verified
         assert email.unverify_reason is UnverifyReasons.HardBounce
 
-    def test_hard_bounce_after_delivery_resets_transient_bounces(self,
-                                                                 db_session):
+    def test_hard_bounce_after_delivery_resets_transient_bounces(self, db_session):
         email = EmailFactory.create(transient_bounces=3)
         em = EmailMessageFactory.create(to=email.email)
 

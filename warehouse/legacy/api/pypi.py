@@ -31,9 +31,7 @@ def _exc_with_message(exc, message):
     require_methods=["POST"],
 )
 @view_config(
-    route_name="legacy.api.pypi.submit",
-    require_csrf=False,
-    require_methods=["POST"],
+    route_name="legacy.api.pypi.submit", require_csrf=False, require_methods=["POST"]
 )
 @view_config(
     route_name="legacy.api.pypi.submit_pkg_info",
@@ -48,19 +46,16 @@ def _exc_with_message(exc, message):
 def forklifted(request):
     settings = request.registry.settings
     domain = settings.get(
-        "forklift.domain",
-        settings.get(
-            "warehouse.domain",
-            request.domain,
-        ),
+        "forklift.domain", settings.get("warehouse.domain", request.domain)
     )
 
     information_url = "TODO"
 
     return _exc_with_message(
         HTTPGone,
-        ("This API has moved to https://{}/legacy/. See {} for more "
-         "information.").format(domain, information_url),
+        (
+            "This API has moved to https://{}/legacy/. See {} for more " "information."
+        ).format(domain, information_url),
     )
 
 
@@ -87,23 +82,21 @@ def list_classifiers(request):
     )
 
     return Response(
-        text='\n'.join(c[0] for c in classifiers),
-        content_type='text/plain; charset=utf-8'
+        text="\n".join(c[0] for c in classifiers),
+        content_type="text/plain; charset=utf-8",
     )
 
 
-@view_config(route_name='legacy.api.pypi.search')
+@view_config(route_name="legacy.api.pypi.search")
 def search(request):
     return HTTPMovedPermanently(
-        request.route_path(
-            'search', _query={'q': request.params.get('term')}
-        )
+        request.route_path("search", _query={"q": request.params.get("term")})
     )
 
 
-@view_config(route_name='legacy.api.pypi.browse')
+@view_config(route_name="legacy.api.pypi.browse")
 def browse(request):
-    classifier_id = request.params.get('c')
+    classifier_id = request.params.get("c")
 
     if not classifier_id:
         raise HTTPNotFound
@@ -120,43 +113,35 @@ def browse(request):
         raise HTTPNotFound
 
     return HTTPMovedPermanently(
-        request.route_path(
-            'search', _query={'c': classifier.classifier}
-        )
+        request.route_path("search", _query={"c": classifier.classifier})
     )
 
 
-@view_config(route_name='legacy.api.pypi.files')
+@view_config(route_name="legacy.api.pypi.files")
 def files(request):
-    name = request.params.get('name')
-    version = request.params.get('version')
+    name = request.params.get("name")
+    version = request.params.get("version")
 
     if (not name) or (not version):
         raise HTTPNotFound
 
     return HTTPMovedPermanently(
         request.route_path(
-            'packaging.release', name=name, version=version, _anchor="files"
+            "packaging.release", name=name, version=version, _anchor="files"
         )
     )
 
 
-@view_config(route_name='legacy.api.pypi.display')
+@view_config(route_name="legacy.api.pypi.display")
 def display(request):
-    name = request.params.get('name')
-    version = request.params.get('version')
+    name = request.params.get("name")
+    version = request.params.get("version")
 
     if not name:
         raise HTTPNotFound
 
     if version:
         return HTTPMovedPermanently(
-            request.route_path(
-                'packaging.release', name=name, version=version
-            )
+            request.route_path("packaging.release", name=name, version=version)
         )
-    return HTTPMovedPermanently(
-        request.route_path(
-            'packaging.project', name=name
-        )
-    )
+    return HTTPMovedPermanently(request.route_path("packaging.project", name=name))

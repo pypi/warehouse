@@ -31,12 +31,9 @@ class UserFactory(WarehouseFactory):
     is_staff = False
     is_superuser = False
     date_joined = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2005, 1, 1),
-        datetime.datetime(2010, 1, 1),
+        datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
     )
-    last_login = factory.fuzzy.FuzzyNaiveDateTime(
-        datetime.datetime(2011, 1, 1),
-    )
+    last_login = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2011, 1, 1))
 
 
 class EmailFactory(WarehouseFactory):

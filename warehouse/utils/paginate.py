@@ -29,9 +29,7 @@ class _ElasticsearchWrapper:
         # consistent slice.
         if range.start > self.max_results:
             range = slice(
-                self.max_results,
-                max(range.stop, self.max_results),
-                range.step,
+                self.max_results, max(range.stop, self.max_results), range.step
             )
 
         # If we're being asked for a range that extends past our maximum result
@@ -72,4 +70,5 @@ def paginate_url_factory(request, query_arg="page"):
         ]
         query_seq += [(query_arg, page)]
         return request.current_route_path(_query=query_seq)
+
     return make_url

@@ -30,6 +30,7 @@ class LazyConfig:
     def __getattr__(self, name):
         if self.__config is None:
             from warehouse.config import configure
+
             self.__config = configure(*self.__args, **self.__kwargs)
         return getattr(self.__config, name)
 

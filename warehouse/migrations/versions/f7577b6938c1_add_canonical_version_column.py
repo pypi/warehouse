@@ -21,15 +21,13 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = 'f7577b6938c1'
-down_revision = 'b75709859292'
+revision = "f7577b6938c1"
+down_revision = "b75709859292"
 
 
 def upgrade():
-    op.add_column(
-        'releases', sa.Column('canonical_version', sa.Text(), nullable=True)
-    )
+    op.add_column("releases", sa.Column("canonical_version", sa.Text(), nullable=True))
 
 
 def downgrade():
-    op.drop_column('releases', 'canonical_version')
+    op.drop_column("releases", "canonical_version")

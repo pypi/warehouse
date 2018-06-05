@@ -21,7 +21,11 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
-    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    IUserService,
+    ITokenService,
+    TokenExpired,
+    TokenInvalid,
+    TokenMissing,
     TooManyFailedLogins,
 )
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -30,15 +34,12 @@ from ...common.db.accounts import UserFactory, EmailFactory
 
 
 class TestDatabaseUserService:
-
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)
 
     def test_service_creation(self, monkeypatch):
         crypt_context_obj = pretend.stub()
-        crypt_context_cls = pretend.call_recorder(
-            lambda **kwargs: crypt_context_obj
-        )
+        crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
         session = pretend.stub()
@@ -60,7 +61,7 @@ class TestDatabaseUserService:
                 argon2__memory_cost=1024,
                 argon2__parallelism=6,
                 argon2__time_cost=6,
-            ),
+            )
         ]
 
     def test_find_userid_nonexistant_user(self, user_service):
@@ -102,48 +103,42 @@ class TestDatabaseUserService:
     def test_check_password_invalid(self, user_service):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(
-                lambda l, r: (False, None)
-            ),
+            verify_and_update=pretend.call_recorder(lambda l, r: (False, None))
         )
 
         assert not user_service.check_password(user.id, "user password")
         assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", user.password),
+            pretend.call("user password", user.password)
         ]
 
     def test_check_password_valid(self, user_service):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda l, r: (True, None)),
+            verify_and_update=pretend.call_recorder(lambda l, r: (True, None))
         )
 
         assert user_service.check_password(user.id, "user password")
         assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", user.password),
+            pretend.call("user password", user.password)
         ]
 
     def test_check_password_updates(self, user_service):
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(
-                lambda l, r: (True, "new password")
-            ),
+            verify_and_update=pretend.call_recorder(lambda l, r: (True, "new password"))
         )
 
         assert user_service.check_password(user.id, "user password")
         assert user_service.hasher.verify_and_update.calls == [
-            pretend.call("user password", password),
+            pretend.call("user password", password)
         ]
         assert user.password == "new password"
 
     def test_create_user(self, user_service):
         user = UserFactory.build()
         new_user = user_service.create_user(
-            username=user.username,
-            name=user.name,
-            password=user.password,
+            username=user.username, name=user.name, password=user.password
         )
         user_service.db.flush()
         user_from_db = user_service.get_user(new_user.id)
@@ -183,18 +178,14 @@ class TestDatabaseUserService:
         assert user_service.find_userid_by_email("something") is None
 
     def test_create_login_success(self, user_service):
-        user = user_service.create_user(
-            "test_user", "test_name", "test_password",
-        )
+        user = user_service.create_user("test_user", "test_name", "test_password")
 
         assert user.id is not None
         # now make sure that we can log in as that user
         assert user_service.check_password(user.id, "test_password")
 
     def test_create_login_error(self, user_service):
-        user = user_service.create_user(
-            "test_user", "test_name", "test_password",
-        )
+        user = user_service.create_user("test_user", "test_name", "test_password")
 
         assert user.id is not None
         assert not user_service.check_password(user.id, "bad_password")
@@ -229,7 +220,6 @@ class TestDatabaseUserService:
 
 
 class TestTokenService:
-
     def test_verify_service(self):
         assert verifyClass(ITokenService, services.TokenService)
 
@@ -244,18 +234,16 @@ class TestTokenService:
         service = services.TokenService(secret, salt, max_age)
 
         assert service.serializer == serializer_obj
-        assert serializer_cls.calls == [
-            pretend.call(secret, salt=salt)
-        ]
+        assert serializer_cls.calls == [pretend.call(secret, salt=salt)]
 
     def test_dumps(self, token_service):
-        assert token_service.dumps({'foo': 'bar'})
+        assert token_service.dumps({"foo": "bar"})
 
     def test_loads(self, token_service):
-        token = token_service.dumps({'foo': 'bar'})
-        assert token_service.loads(token) == {'foo': 'bar'}
+        token = token_service.dumps({"foo": "bar"})
+        assert token_service.loads(token) == {"foo": "bar"}
 
-    @pytest.mark.parametrize('token', ['', None])
+    @pytest.mark.parametrize("token", ["", None])
     def test_loads_token_is_none(self, token_service, token):
         with pytest.raises(TokenMissing):
             token_service.loads(token)
@@ -264,10 +252,10 @@ class TestTokenService:
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now) as frozen_time:
-            token = token_service.dumps({'foo': 'bar'})
+            token = token_service.dumps({"foo": "bar"})
 
             frozen_time.tick(
-                delta=datetime.timedelta(seconds=token_service.max_age + 1),
+                delta=datetime.timedelta(seconds=token_service.max_age + 1)
             )
 
             with pytest.raises(TokenExpired):
@@ -280,9 +268,7 @@ class TestTokenService:
 
 def test_database_login_factory(monkeypatch):
     service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(
-        lambda session, ratelimiters: service_obj,
-    )
+    service_cls = pretend.call_recorder(lambda session, ratelimiters: service_obj)
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
 
     global_ratelimiter = pretend.stub()
@@ -293,31 +279,24 @@ def test_database_login_factory(monkeypatch):
         assert context is None
         assert name in {"global.login", "user.login"}
 
-        return ({
-            "global.login": global_ratelimiter,
-            "user.login": user_ratelimiter
-        }).get(name)
+        return (
+            {"global.login": global_ratelimiter, "user.login": user_ratelimiter}
+        ).get(name)
 
     context = pretend.stub()
-    request = pretend.stub(
-        db=pretend.stub(),
-        find_service=find_service,
-    )
+    request = pretend.stub(db=pretend.stub(), find_service=find_service)
 
     assert services.database_login_factory(context, request) is service_obj
     assert service_cls.calls == [
         pretend.call(
             request.db,
-            ratelimiters={
-                "global": global_ratelimiter,
-                "user": user_ratelimiter,
-            },
-        ),
+            ratelimiters={"global": global_ratelimiter, "user": user_ratelimiter},
+        )
     ]
 
 
 def test_token_service_factory_default_max_age(monkeypatch):
-    name = 'name'
+    name = "name"
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(lambda *args: service_obj)
 
@@ -330,20 +309,20 @@ def test_token_service_factory_default_max_age(monkeypatch):
     secret = pretend.stub()
     default_max_age = pretend.stub()
     request = pretend.stub(
-        registry=pretend.stub(settings={
-            'token.name.secret': secret,
-            'token.default.max_age': default_max_age,
-        })
+        registry=pretend.stub(
+            settings={
+                "token.name.secret": secret,
+                "token.default.max_age": default_max_age,
+            }
+        )
     )
 
     assert service_factory(context, request) is service_obj
-    assert service_cls.calls == [
-        pretend.call(secret, name, default_max_age),
-    ]
+    assert service_cls.calls == [pretend.call(secret, name, default_max_age)]
 
 
 def test_token_service_factory_custom_max_age(monkeypatch):
-    name = 'name'
+    name = "name"
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(lambda *args: service_obj)
 
@@ -357,14 +336,14 @@ def test_token_service_factory_custom_max_age(monkeypatch):
     default_max_age = pretend.stub()
     custom_max_age = pretend.stub()
     request = pretend.stub(
-        registry=pretend.stub(settings={
-            'token.name.secret': secret,
-            'token.default.max_age': default_max_age,
-            'token.name.max_age': custom_max_age,
-        })
+        registry=pretend.stub(
+            settings={
+                "token.name.secret": secret,
+                "token.default.max_age": default_max_age,
+                "token.name.max_age": custom_max_age,
+            }
+        )
     )
 
     assert service_factory(context, request) is service_obj
-    assert service_cls.calls == [
-        pretend.call(secret, name, custom_max_age),
-    ]
+    assert service_cls.calls == [pretend.call(secret, name, custom_max_age)]

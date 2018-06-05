@@ -28,10 +28,7 @@ down_revision = "4ec0adada10"
 def upgrade():
     # We need to add the column as nullable at first, because we need to
     # backfill our data.
-    op.add_column(
-        "packages",
-        sa.Column("sitemap_bucket", sa.Text(), nullable=True),
-    )
+    op.add_column("packages", sa.Column("sitemap_bucket", sa.Text(), nullable=True))
 
     op.execute(
         """

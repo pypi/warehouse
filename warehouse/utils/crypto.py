@@ -15,15 +15,23 @@ import hashlib
 import os
 
 from itsdangerous import (
-    BadData, BadSignature, SignatureExpired, Signer as _Signer,
+    BadData,
+    BadSignature,
+    SignatureExpired,
+    Signer as _Signer,
     TimestampSigner as _TimestampSigner,
-    URLSafeTimedSerializer as _URLSafeTimedSerializer
+    URLSafeTimedSerializer as _URLSafeTimedSerializer,
 )
 
 
 __all__ = [
-    "BadData", "BadSignature", "Signer", "SignatureExpired", "TimestampSigner",
-    "URLSafeTimedSerializer", "random_token"
+    "BadData",
+    "BadSignature",
+    "Signer",
+    "SignatureExpired",
+    "TimestampSigner",
+    "URLSafeTimedSerializer",
+    "random_token",
 ]
 
 

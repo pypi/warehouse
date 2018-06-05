@@ -19,10 +19,12 @@ NONE = "'none'"
 
 
 def _serialize(policy):
-    return "; ".join([
-        " ".join([k] + [v2 for v2 in v if v2 is not None])
-        for k, v in sorted(policy.items())
-    ])
+    return "; ".join(
+        [
+            " ".join([k] + [v2 for v2 in v if v2 is not None])
+            for k, v in sorted(policy.items())
+        ]
+    )
 
 
 def content_security_policy_tween_factory(handler, registry):
@@ -71,34 +73,37 @@ def csp_factory(_, request):
 def includeme(config):
     config.register_service_factory(csp_factory, name="csp")
     # Enable a Content Security Policy
-    config.add_settings({
-        "csp": {
-            "base-uri": [SELF],
-            "block-all-mixed-content": [],
-            "connect-src": [
-                item for item in [
+    config.add_settings(
+        {
+            "csp": {
+                "base-uri": [SELF],
+                "block-all-mixed-content": [],
+                "connect-src": [
+                    item
+                    for item in [
+                        SELF,
+                        config.registry.settings.get("statuspage.url"),
+                        "https://api.github.com/repos/",
+                    ]
+                    if item
+                ],
+                "default-src": [NONE],
+                "font-src": [SELF, "fonts.gstatic.com"],
+                "form-action": [SELF],
+                "frame-ancestors": [NONE],
+                "frame-src": [NONE],
+                "img-src": [
                     SELF,
-                    config.registry.settings.get("statuspage.url"),
-                    "https://api.github.com/repos/",
-                ]
-                if item
-            ],
-            "default-src": [NONE],
-            "font-src": [SELF, "fonts.gstatic.com"],
-            "form-action": [SELF],
-            "frame-ancestors": [NONE],
-            "frame-src": [NONE],
-            "img-src": [
-                SELF,
-                config.registry.settings["camo.url"],
-                "www.google-analytics.com",
-            ],
-            "script-src": [
-                SELF,
-                "www.googletagmanager.com",
-                "www.google-analytics.com",
-            ],
-            "style-src": [SELF, "fonts.googleapis.com"],
-        },
-    })
+                    config.registry.settings["camo.url"],
+                    "www.google-analytics.com",
+                ],
+                "script-src": [
+                    SELF,
+                    "www.googletagmanager.com",
+                    "www.google-analytics.com",
+                ],
+                "style-src": [SELF, "fonts.googleapis.com"],
+            }
+        }
+    )
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")

@@ -18,12 +18,11 @@ from warehouse.cli.db import db, alembic_lock
 
 @db.command()
 @click.option(
-    "--message", "-m",
-    metavar="MESSAGE",
-    help="Message string to use with the revision",
+    "--message", "-m", metavar="MESSAGE", help="Message string to use with the revision"
 )
 @click.option(
-    "--autogenerate", "-a",
+    "--autogenerate",
+    "-a",
     is_flag=True,
     help=(
         "Populate revision script with candidate migration operations, based "
@@ -33,9 +32,7 @@ from warehouse.cli.db import db, alembic_lock
 @click.option(
     "--head",
     metavar="HEAD",
-    help=(
-        "Specify a head revision or <brachname>@head to base new revision on."
-    ),
+    help=("Specify a head revision or <brachname>@head to base new revision on."),
 )
 @click.option(
     "--splice",
@@ -52,6 +49,7 @@ def revision(config, **kwargs):
     """
     Create a new revision file.
     """
-    with alembic_lock(config.registry["sqlalchemy.engine"],
-                      config.alembic_config()) as alembic_config:
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
         alembic.command.revision(alembic_config, **kwargs)

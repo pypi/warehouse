@@ -14,11 +14,10 @@ from ...common.db.admin import AdminFlagFactory
 
 
 class TestAdminFlag:
-
     def test_default(self, db_request):
-        assert not db_request.flags.enabled('not-a-real-flag')
+        assert not db_request.flags.enabled("not-a-real-flag")
 
     def test_enabled(self, db_request):
-        AdminFlagFactory(id='this-flag-is-enabled')
+        AdminFlagFactory(id="this-flag-is-enabled")
 
-        assert db_request.flags.enabled('this-flag-is-enabled')
+        assert db_request.flags.enabled("this-flag-is-enabled")

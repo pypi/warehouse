@@ -21,37 +21,26 @@ from warehouse.admin.views import users as views
 from warehouse.packaging.models import Project
 
 from ....common.db.accounts import User, UserFactory, EmailFactory
-from ....common.db.packaging import (
-    JournalEntryFactory, ProjectFactory, RoleFactory,
-)
+from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
 
 
 class TestUserList:
-
     def test_no_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(30)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
         )
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": users[:25],
-            "query": None,
-        }
+        assert result == {"users": users[:25], "query": None}
 
     def test_with_page(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(30)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
         )
         db_request.GET["page"] = "2"
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": users[25:],
-            "query": None,
-        }
+        assert result == {"users": users[25:], "query": None}
 
     def test_with_invalid_page(self):
         request = pretend.stub(params={"page": "not an integer"})
@@ -61,79 +50,60 @@ class TestUserList:
 
     def test_basic_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(5)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
         )
         db_request.GET["q"] = users[0].username
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": [users[0]],
-            "query": users[0].username,
-        }
+        assert result == {"users": [users[0]], "query": users[0].username}
 
     def test_wildcard_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(5)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
         )
         db_request.GET["q"] = users[0].username[:-1] + "%"
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": [users[0]],
-            "query": users[0].username[:-1] + "%",
-        }
+        assert result == {"users": [users[0]], "query": users[0].username[:-1] + "%"}
 
     def test_email_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(5)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
         )
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
         db_request.GET["q"] = "email:" + emails[0].email
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": [users[0]],
-            "query": "email:" + emails[0].email,
-        }
+        assert result == {"users": [users[0]], "query": "email:" + emails[0].email}
 
     def test_or_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(5)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
         )
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
-        db_request.GET["q"] = " ".join([
-            users[0].username,
-            users[1].username[:-1] + "%",
-            "email:" + emails[2].email,
-            "email:" + emails[3].email[:-5] + "%",
-        ])
+        db_request.GET["q"] = " ".join(
+            [
+                users[0].username,
+                users[1].username[:-1] + "%",
+                "email:" + emails[2].email,
+                "email:" + emails[3].email[:-5] + "%",
+            ]
+        )
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": users[:4],
-            "query": db_request.GET["q"],
-        }
+        assert result == {"users": users[:4], "query": db_request.GET["q"]}
 
     def test_ignores_invalid_query(self, db_request):
         users = sorted(
-            [UserFactory.create() for _ in range(5)],
-            key=lambda u: u.username.lower(),
+            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
         )
         db_request.GET["q"] = "foobar:what"
         result = views.user_list(db_request)
 
-        assert result == {
-            "users": users,
-            "query": "foobar:what",
-        }
+        assert result == {"users": users, "query": "foobar:what"}
 
 
 class TestUserDetail:
-
     def test_404s_on_nonexistant_user(self, db_request):
         user = UserFactory.create()
         user_id = uuid.uuid4()
@@ -147,9 +117,7 @@ class TestUserDetail:
     def test_gets_user(self, db_request):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        roles = sorted(
-            [RoleFactory(project=project, user=user, role_name='Owner')],
-        )
+        roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
         db_request.matchdict["user_id"] = str(user.id)
         db_request.POST = MultiDict(db_request.POST)
         result = views.user_detail(db_request)
@@ -175,20 +143,19 @@ class TestUserDetail:
 
 
 class TestUserDelete:
-
     def test_deletes_user(self, db_request, monkeypatch):
         user = UserFactory.create()
         project = ProjectFactory.create()
         another_project = ProjectFactory.create()
         journal = JournalEntryFactory(submitted_by=user)
-        RoleFactory(project=project, user=user, role_name='Owner')
+        RoleFactory(project=project, user=user, role_name="Owner")
         deleted_user = UserFactory.create(username="deleted-user")
 
-        db_request.matchdict['user_id'] = str(user.id)
-        db_request.params = {'username': user.username}
-        db_request.route_path = pretend.call_recorder(lambda a: '/foobar')
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
         db_request.user = UserFactory.create()
-        db_request.remote_addr = '10.10.10.10'
+        db_request.remote_addr = "10.10.10.10"
 
         result = views.user_delete(db_request)
 
@@ -196,19 +163,19 @@ class TestUserDelete:
 
         assert not db_request.db.query(User).get(user.id)
         assert db_request.db.query(Project).all() == [another_project]
-        assert db_request.route_path.calls == [pretend.call('admin.user.list')]
+        assert db_request.route_path.calls == [pretend.call("admin.user.list")]
         assert result.status_code == 303
-        assert result.location == '/foobar'
+        assert result.location == "/foobar"
         assert journal.submitted_by == deleted_user
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
         project = ProjectFactory.create()
-        RoleFactory(project=project, user=user, role_name='Owner')
+        RoleFactory(project=project, user=user, role_name="Owner")
 
-        db_request.matchdict['user_id'] = str(user.id)
-        db_request.params = {'username': 'wrong'}
-        db_request.route_path = pretend.call_recorder(lambda a, **k: '/foobar')
+        db_request.matchdict["user_id"] = str(user.id)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
 
         result = views.user_delete(db_request)
 
@@ -217,7 +184,7 @@ class TestUserDelete:
         assert db_request.db.query(User).get(user.id)
         assert db_request.db.query(Project).all() == [project]
         assert db_request.route_path.calls == [
-            pretend.call('admin.user.detail', user_id=user.id),
+            pretend.call("admin.user.detail", user_id=user.id)
         ]
         assert result.status_code == 303
-        assert result.location == '/foobar'
+        assert result.location == "/foobar"

@@ -18,7 +18,10 @@ from warehouse.legacy.api import json
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
-    ProjectFactory, ReleaseFactory, FileFactory, JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    FileFactory,
+    JournalEntryFactory,
 )
 
 
@@ -34,7 +37,6 @@ def _assert_has_cors_headers(headers):
 
 
 class TestJSONProject:
-
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
@@ -52,9 +54,7 @@ class TestJSONProject:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=project.name),
-        ]
+        assert db_request.current_route_path.calls == [pretend.call(name=project.name)]
 
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
@@ -116,7 +116,6 @@ class TestJSONProject:
 
 
 class TestJSONRelease:
-
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
@@ -136,7 +135,7 @@ class TestJSONRelease:
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
         assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.name),
+            pretend.call(name=release.project.name)
         ]
 
     def test_detail_renders(self, pyramid_config, db_request):
@@ -166,10 +165,7 @@ class TestJSONRelease:
         ]
         user = UserFactory.create()
         JournalEntryFactory.reset_sequence()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
@@ -182,9 +178,7 @@ class TestJSONRelease:
             pretend.call("packaging.file", path=files[2].path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
-                "packaging.release",
-                name=project.name,
-                version=releases[3].version,
+                "packaging.release", name=project.name, version=releases[3].version
             ),
             pretend.call("legacy.docs", project=project.name),
         }
@@ -202,11 +196,7 @@ class TestJSONRelease:
                 "description": None,
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
-                "downloads": {
-                    "last_day": -1,
-                    "last_week": -1,
-                    "last_month": -1,
-                },
+                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
                 "home_page": None,
                 "keywords": None,
                 "license": None,
@@ -239,10 +229,10 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[0].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                    }
                 ],
                 "2.0": [
                     {
@@ -259,10 +249,10 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[1].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                    }
                 ],
                 "3.0": [
                     {
@@ -279,10 +269,10 @@ class TestJSONRelease:
                         "python_version": "source",
                         "size": 200,
                         "upload_time": files[2].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
+                            "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
-                    },
+                    }
                 ],
             },
             "urls": [
@@ -299,11 +289,9 @@ class TestJSONRelease:
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": files[2].upload_time.strftime(
-                        "%Y-%m-%dT%H:%M:%S",
-                    ),
+                    "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
-                },
+                }
             ],
             "last_serial": je.id,
         }
@@ -321,10 +309,7 @@ class TestJSONRelease:
 
         user = UserFactory.create()
         JournalEntryFactory.reset_sequence()
-        je = JournalEntryFactory.create(
-            name=project.name,
-            submitted_by=user,
-        )
+        je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
@@ -335,9 +320,7 @@ class TestJSONRelease:
             pretend.call("packaging.file", path=file.path),
             pretend.call("packaging.project", name=project.name),
             pretend.call(
-                "packaging.release",
-                name=project.name,
-                version=release.version,
+                "packaging.release", name=project.name, version=release.version
             ),
         }
 
@@ -354,11 +337,7 @@ class TestJSONRelease:
                 "description": None,
                 "docs_url": None,
                 "download_url": None,
-                "downloads": {
-                    "last_day": -1,
-                    "last_week": -1,
-                    "last_month": -1,
-                },
+                "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
                 "home_page": None,
                 "keywords": None,
                 "license": None,
@@ -389,12 +368,10 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": file.upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S",
-                        ),
+                        "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                         "url": "/the/fake/url/",
-                    },
-                ],
+                    }
+                ]
             },
             "urls": [
                 {
@@ -403,18 +380,13 @@ class TestJSONRelease:
                     "filename": file.filename,
                     "has_sig": True,
                     "md5_digest": file.md5_digest,
-                    "digests": {
-                        "md5": file.md5_digest,
-                        "sha256": file.sha256_digest,
-                    },
+                    "digests": {"md5": file.md5_digest, "sha256": file.sha256_digest},
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": file.upload_time.strftime(
-                        "%Y-%m-%dT%H:%M:%S",
-                    ),
+                    "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
-                },
+                }
             ],
             "last_serial": je.id,
         }

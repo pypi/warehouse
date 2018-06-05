@@ -29,10 +29,7 @@ def upgrade():
     op.add_column(
         "ses_emails",
         sa.Column(
-            "missing",
-            sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=False,
+            "missing", sa.Boolean(), server_default=sa.text("false"), nullable=False
         ),
     )
 

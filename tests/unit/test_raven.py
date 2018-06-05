@@ -27,12 +27,9 @@ def test_invalid_serializer():
 
 
 class TestRavenTween:
-
     def test_with_error(self):
         request = pretend.stub(
-            raven=pretend.stub(
-                captureException=pretend.call_recorder(lambda: None),
-            ),
+            raven=pretend.stub(captureException=pretend.call_recorder(lambda: None))
         )
 
         class TestException(Exception):
@@ -52,9 +49,7 @@ class TestRavenTween:
 
     def test_without_error(self):
         request = pretend.stub(
-            raven=pretend.stub(
-                captureException=pretend.call_recorder(lambda: None),
-            ),
+            raven=pretend.stub(captureException=pretend.call_recorder(lambda: None))
         )
         response = pretend.stub()
 
@@ -71,9 +66,7 @@ class TestRavenTween:
 
 def test_raven_request_method():
     client = pretend.stub(
-        context=pretend.stub(
-            clear=pretend.call_recorder(lambda: None),
-        ),
+        context=pretend.stub(clear=pretend.call_recorder(lambda: None))
     )
     request = pretend.stub(
         add_finished_callback=pretend.call_recorder(lambda cb: None),
@@ -90,7 +83,6 @@ def test_raven_request_method():
 
 def test_includeme(monkeypatch):
     class Registry(dict):
-
         def __init__(self):
             self.settings = {}
 
@@ -104,11 +96,13 @@ def test_includeme(monkeypatch):
         add_wsgi_middleware=pretend.call_recorder(lambda *a, **kw: None),
         add_tween=pretend.call_recorder(lambda *a, **kw: None),
     )
-    config.registry.settings.update({
-        "warehouse.commit": "blargh",
-        "sentry.dsn": "the dsn",
-        "sentry.transport": "the transport",
-    })
+    config.registry.settings.update(
+        {
+            "warehouse.commit": "blargh",
+            "sentry.dsn": "the dsn",
+            "sentry.transport": "the transport",
+        }
+    )
 
     raven.includeme(config)
 
@@ -118,22 +112,19 @@ def test_includeme(monkeypatch):
             include_paths=["warehouse"],
             release="blargh",
             transport="the transport",
-        ),
+        )
     ]
     assert config.registry["raven.client"] is client_obj
     assert config.add_request_method.calls == [
-        pretend.call(raven._raven, name="raven", reify=True),
+        pretend.call(raven._raven, name="raven", reify=True)
     ]
     assert config.add_tween.calls == [
         pretend.call(
             "warehouse.raven.raven_tween_factory",
             over=EXCVIEW,
-            under=[
-                "pyramid_debugtoolbar.toolbar_tween_factory",
-                INGRESS,
-            ],
-        ),
+            under=["pyramid_debugtoolbar.toolbar_tween_factory", INGRESS],
+        )
     ]
     assert config.add_wsgi_middleware.calls == [
-        pretend.call(SentryMiddleware, client=client_obj),
+        pretend.call(SentryMiddleware, client=client_obj)
     ]

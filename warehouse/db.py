@@ -35,7 +35,6 @@ DEFAULT_ISOLATION = "READ COMMITTED"
 # We'll add a basic predicate that won't do anything except allow marking a
 # route as read only (or not).
 class ReadOnlyPredicate:
-
     def __init__(self, val, config):
         self.val = val
 
@@ -51,12 +50,10 @@ class ReadOnlyPredicate:
 
 
 class ModelBase:
-
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
-            *[c_attr.key for c_attr in inst.mapper.column_attrs],
-            _self=self,
+            *[c_attr.key for c_attr in inst.mapper.column_attrs], _self=self
         )
         return self.__repr__()
 
@@ -95,15 +92,14 @@ def listens_for(target, identifier, *args, **kwargs):
         venusian.attach(wrapped, callback)
 
         return wrapped
+
     return deco
 
 
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
-    alembic_cfg.set_main_option(
-        "url", config.registry.settings["database.url"],
-    )
+    alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
     return alembic_cfg
 
 
@@ -113,9 +109,7 @@ def _reset(dbapi_connection, connection_record):
     needs_reset = connection_record.info.pop("warehouse.needs_reset", False)
     if needs_reset:
         dbapi_connection.set_session(
-            isolation_level=DEFAULT_ISOLATION,
-            readonly=False,
-            deferrable=False,
+            isolation_level=DEFAULT_ISOLATION, readonly=False, deferrable=False
         )
 
 
@@ -135,8 +129,10 @@ def _create_session(request):
     # Create our connection, most likely pulling it from the pool of
     # connections
     connection = request.registry["sqlalchemy.engine"].connect()
-    if (connection.connection.get_transaction_status() !=
-            psycopg2.extensions.TRANSACTION_STATUS_IDLE):
+    if (
+        connection.connection.get_transaction_status()
+        != psycopg2.extensions.TRANSACTION_STATUS_IDLE
+    ):
         # Work around a bug where SQLALchemy leaves the initial connection in
         # a pool inside of a transaction.
         # TODO: Remove this in the future, brand new connections on a fresh
@@ -148,9 +144,7 @@ def _create_session(request):
     if request.read_only:
         connection.info["warehouse.needs_reset"] = True
         connection.connection.set_session(
-            isolation_level="SERIALIZABLE",
-            readonly=True,
-            deferrable=True,
+            isolation_level="SERIALIZABLE", readonly=True, deferrable=True
         )
 
     # Now, create a session from our connection
@@ -168,7 +162,8 @@ def _create_session(request):
 
     # Check if we're in read-only mode
     from warehouse.admin.flags import AdminFlag
-    flag = session.query(AdminFlag).get('read-only')
+
+    flag = session.query(AdminFlag).get("read-only")
     if flag and flag.enabled and not request.user.is_superuser:
         request.tm.doom()
 
@@ -191,7 +186,7 @@ def includeme(config):
 
     # Create our SQLAlchemy Engine.
     config.registry["sqlalchemy.engine"] = _create_engine(
-        config.registry.settings["database.url"],
+        config.registry.settings["database.url"]
     )
 
     # Register our request.db property

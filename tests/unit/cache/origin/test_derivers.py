@@ -24,8 +24,8 @@ def test_no_renderer():
 
 def test_non_html_renderer():
     view = pretend.stub()
-    renderer = pretend.stub(name='foo.txt')
-    info = pretend.stub(options={'renderer': renderer})
+    renderer = pretend.stub(name="foo.txt")
+    info = pretend.stub(options={"renderer": renderer})
 
     assert html_cache_deriver(view, info) == view
 
@@ -33,8 +33,8 @@ def test_non_html_renderer():
 def test_no_origin_cache_found():
     view_result = pretend.stub()
     view = pretend.call_recorder(lambda context, request: view_result)
-    renderer = pretend.stub(name='foo.html')
-    info = pretend.stub(options={'renderer': renderer})
+    renderer = pretend.stub(name="foo.html")
+    info = pretend.stub(options={"renderer": renderer})
     context = pretend.stub()
 
     def raise_valueerror(*a):
@@ -42,7 +42,7 @@ def test_no_origin_cache_found():
 
     request = pretend.stub(
         find_service=raise_valueerror,
-        add_response_callback=pretend.call_recorder(lambda a: None)
+        add_response_callback=pretend.call_recorder(lambda a: None),
     )
 
     assert html_cache_deriver(view, info)(context, request) == view_result
@@ -50,9 +50,7 @@ def test_no_origin_cache_found():
 
 
 def test_response_hook():
-
     class Cache:
-
         @staticmethod
         @pretend.call_recorder
         def cache(keys, request, response):
@@ -68,10 +66,9 @@ def test_response_hook():
     cacher = Cache()
     callbacks = []
     request = pretend.stub(
-        find_service=lambda iface: cacher,
-        add_response_callback=callbacks.append,
+        find_service=lambda iface: cacher, add_response_callback=callbacks.append
     )
-    info = pretend.stub(options={'renderer': pretend.stub(name='foo.html')})
+    info = pretend.stub(options={"renderer": pretend.stub(name="foo.html")})
     derived_view = html_cache_deriver(view, info)
 
     assert derived_view(context, request) is response
@@ -81,9 +78,5 @@ def test_response_hook():
     callbacks[0](request, response)
 
     assert cacher.cache.calls == [
-        pretend.call(
-            ['all-html', 'foo.html'],
-            request,
-            response,
-        ),
+        pretend.call(["all-html", "foo.html"], request, response)
     ]
