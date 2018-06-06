@@ -13,7 +13,7 @@
 Add contributor table for issue #890
 
 Revision ID: 7a9ceafce0e8
-Revises: e0ca60b6a30b
+Revises: f2a453c96ded
 Create Date: 2018-05-13 01:23:43.819114
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = '7a9ceafce0e8'
-down_revision = 'e0ca60b6a30b'
+down_revision = 'f2a453c96ded'
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
