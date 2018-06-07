@@ -35,11 +35,7 @@ def includeme(config):
     # Some static, template driven pages
     config.add_template_view("help", "/help/", "pages/help.html")
     config.add_template_view("security", "/security/", "pages/security.html")
-    config.add_template_view(
-        "credits",
-        "/credits/",
-        "templates/pages/credits.html"
-    )
+    config.add_template_view("credits", "/credits/", "templates/pages/credits.html")
     config.add_template_view(
         "sponsors",
         "/sponsors/",
