@@ -50,18 +50,18 @@ six==1.11.0 \
 snowballstemmer==1.2.1 \
     --hash=sha256:9f3bcd3c401c3e862ec0ebe6d2c069ebc012ce142cce209c098ccb5b09136e89 \
     --hash=sha256:919f26a68b2c17a7634da993d91339e288964f93c274f1343e3bbbe2096e1128
-sphinx-rtd-theme==0.3.1 \
-    --hash=sha256:32424dac2779f0840b4788fbccb032ba2496c1ca47a439ad2510c8b1e55dfd33 \
-    --hash=sha256:6d0481532b5f441b075127a2d755f430f1f8410a50112b1af6b069518548381d
+sphinx-rtd-theme==0.4.0 \
+    --hash=sha256:aa3e190392e963551432de7df24b8a5fbe5b71a2f4fcd9d5b75808b52ad999e5 \
+    --hash=sha256:de88d637a60371d4f923e06b79c4ba260490c57d2ab5a8316942ab5d9a6ce1bf
 Sphinx==1.7.5 \
     --hash=sha256:85f7e32c8ef07f4ba5aeca728e0f7717bef0789fba8458b8d9c5c294cad134f3 \
     --hash=sha256:d45480a229edf70d84ca9fae3784162b1bc75ee47e480ffe04a4b7f21a95d76d
 sphinxcontrib-httpdomain==1.6.1 \
     --hash=sha256:2572c10bf84fab856999667369e3604eb209d8dda7321556bfee93fddcfc33b5 \
     --hash=sha256:029f596deb7b4246148a8e8a7d041764d0cad545cf4f3bb6252ac90c785ab221
-sphinxcontrib-websupport==1.0.1 \
-    --hash=sha256:f4932e95869599b89bf4f80fc3989132d83c9faa5bf633e7b5e0c25dffb75da2 \
-    --hash=sha256:7a85961326aa3a400cd4ad3c816d70ed6f7c740acd7ce5d78cd0a67825072eb9
+sphinxcontrib-websupport==1.1.0 \
+    --hash=sha256:68ca7ff70785cbe1e7bccc71a48b5b6d965d79ca50629606c7861a21b206d9dd \
+    --hash=sha256:9de47f375baf1ea07cdb3436ff39d7a9c76042c10a769c52353ec46e4e8fc3b9
 urllib3==1.22 \
     --hash=sha256:06330f386d6e4b195fbfc736b297f58c5a892e4440e54d294d7004e3a9bbea1b \
     --hash=sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f
