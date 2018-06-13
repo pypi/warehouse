@@ -700,7 +700,7 @@ class TestFileUpload:
             # metadata_version errors.
             (
                 {},
-                "None is an invalid value for Metadata-Version. "
+                "'' is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata",
