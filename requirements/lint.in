@@ -2,4 +2,4 @@ doc8
 flake8
 html-linter
 pep8-naming
-black==18.5b0
+black==18.6b2
