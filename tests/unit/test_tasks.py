@@ -28,7 +28,8 @@ from warehouse.config import Environment
 
 def test_tls_redis_backend():
     backend = tasks.TLSRedisBackend(app=Celery())
-    params = backend._params_from_url("rediss://localhost?ssl_cert_reqs=CERT_REQUIRED", {})
+    redis_url = "rediss://localhost?ssl_cert_reqs=CERT_REQUIRED"
+    params = backend._params_from_url(redis_url, {})
     assert params == {
         "connection_class": backend.redis.SSLConnection,
         "host": "localhost",
