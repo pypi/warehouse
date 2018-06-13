@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ssl import VerifyMode
+
 from unittest import mock
 
 import pretend
@@ -26,11 +28,13 @@ from warehouse.config import Environment
 
 def test_tls_redis_backend():
     backend = tasks.TLSRedisBackend(app=Celery())
-    params = backend._params_from_url("rediss://localhost", {})
+    redis_url = "rediss://localhost?ssl_cert_reqs=CERT_REQUIRED"
+    params = backend._params_from_url(redis_url, {})
     assert params == {
         "connection_class": backend.redis.SSLConnection,
         "host": "localhost",
         "db": 0,
+        "ssl_cert_reqs": VerifyMode.CERT_REQUIRED,
     }
 
 
