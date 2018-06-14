@@ -22,7 +22,7 @@ With the database loaded, run the clean script to remove personal information::
 Dump the result, compress it, and clean up::
 
     $ pg_dump --no-owner warehouse_dev_dump > dev/example.sql
-    $ $ xz -z -9 dev/example.sql
+    $ xz -z -9 dev/example.sql
     $ dropdb warehouse_dev_dump
 
 Now commit the result::
