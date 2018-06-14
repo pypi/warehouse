@@ -34,21 +34,21 @@
     <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
        target="_blank">
-      <i class="fas fa-star" aria-hidden="true"></i>
+      <i class="fa fa-star" aria-hidden="true"></i>
       <strong>Stars: </strong>
       <span class="github-repo-info__item" data-key="stargazers_count"></span>
     </a>
     <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
        target="_blank">
-      <i class="fas fa-code-branch" aria-hidden="true"></i>
+      <i class="fa fa-code-branch" aria-hidden="true"></i>
       <strong>Forks: </strong>
       <span class="github-repo-info__item" data-key="forks"></span>
     </a>
     <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
        target="_blank">
-      <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
       <strong>Open issues/PRs: </strong>
       <span class="github-repo-info__item" data-key="open_issues_count"></span>
     </a>
@@ -78,7 +78,7 @@
   {% endif %}
   {% if release.keywords %}
   <p class="tags">
-    <i class="fas fa-tags" aria-hidden="true"></i>
+    <i class="fa fa-tags" aria-hidden="true"></i>
     <span class="sr-only">Tags:</span>
     {% for keyword in release.keywords | format_tags %}
     <span class="package-keyword">

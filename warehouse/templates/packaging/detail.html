@@ -18,7 +18,7 @@
 {% set parsed = url|urlparse %}
 
 {% if name|lower == "download" %}
-   {% set icon = "fas fa-cloud-download-alt" %}
+   {% set icon = "fa fa-cloud-download-alt" %}
 {% elif parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com") %}
   {% set icon = "fab fa-github" %}
 {% elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com") %}
@@ -32,9 +32,9 @@
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "fab fa-twitter" %}
 {% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
-  {% set icon = "fas fa-home" %}
+  {% set icon = "fa fa-home" %}
 {% else %}
-  {% set icon = "fas fa-external-link-square-alt" %}
+  {% set icon = "fa fa-external-link-square-alt" %}
 {% endif %}
 
 <i class="{{ icon }}" aria-hidden="true"></i>
