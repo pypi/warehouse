@@ -14,7 +14,7 @@
 export default () => {
   var showPanel = document.querySelector(".-js-add-filter");
   var hidePanel = document.querySelector(".-js-close-panel");
-  var firstFilter = document.querySelector('#classifiers > .accordion > button');
+  var firstFilter = document.querySelector("#classifiers > .accordion > button");
 
   const togglePanelDisplay = (display, focusOn, event) => {
     event.preventDefault();
