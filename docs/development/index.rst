@@ -29,6 +29,7 @@ or the `pypa-dev mailing list`_, to ask questions or get involved.
     submitting-patches
     reviewing-patches
     legacy-application-structure
+    development-database
 
 .. _`GitHub`: https://github.com/pypa/warehouse
 .. _`"What to put in your bug report"`: http://www.contribution-guide.org/#what-to-put-in-your-bug-report
