@@ -125,13 +125,15 @@ gulp.task("dist:noscript", () => {
 gulp.task("dist:admin:fonts", () => {
   gulp.src("warehouse/admin/static/fonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/fonts"));
+  gulp.src("warehouse/admin/static/webfonts/*.*")
+    .pipe(gulp.dest("warehouse/admin/static/dist/webfonts"));
 });
 
 
 gulp.task("dist:admin:css", () => {
   let files = [ // Order matters!
     "warehouse/admin/static/css/bootstrap.min.css",
-    "warehouse/admin/static/css/font-awesome.min.css",
+    "warehouse/admin/static/css/fontawesome-all.min.css",
     "warehouse/admin/static/css/ionicons.min.css",
     "warehouse/admin/static/css/AdminLTE.min.css",
     "warehouse/admin/static/css/skins/skin-purple.min.css",
