@@ -35,8 +35,9 @@ var uglify = composer(uglifyjs, console);
 
 // Configure webpack so that it compiles all of our javascript into a bundle.
 let webpackConfig = {
+  mode: "production",
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,

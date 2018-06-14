@@ -3,7 +3,7 @@ python: 3.6.1
 
 env:
   global:
-    - TRAVIS_NODE_VERSION=6.6.0
+    - TRAVIS_NODE_VERSION=8.9.4
     - PGPORT=5433
 
 dist: trusty
@@ -25,6 +25,10 @@ cache:
   directories:
     - ~/.cache/pip
     - node_modules/
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install --no-install-recommends -y libjpeg-dev libpng-dev nasm
 
 install:
   - 'rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION'
