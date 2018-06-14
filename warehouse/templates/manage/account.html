@@ -105,7 +105,7 @@
               <input hidden name="delete_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button class="dropdown__link" type="submit" title="Remove this email address">
-                <i class="fa fa-trash" aria-hidden="true"></i>
+                <i class="fa fa-trash-alt" aria-hidden="true"></i>
                 Remove Email
               </button>
             </form>
@@ -131,7 +131,7 @@
         </p>
         <a href="{{ gravatar_profile(user.email) }}" target="_blank" rel="noopener" class="button">
           Change image<span class="hide-on-mobile"> on gravatar.com</span>
-          <i class="fa fa-external-link" aria-hidden="true"></i>
+          <i class="fa fa-external-link-alt" aria-hidden="true"></i>
           <span class="sr-only">Opens in new window</span>
         </a>
       </div>
@@ -292,7 +292,7 @@
       {% else %}
       <h3>Proceed with caution!</h3>
       <p>
-        <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
         You will not be able to recover your account after you delete it
       </p>
       {{ confirm_button("Delete your PyPI account", "Username", user.username) }}
