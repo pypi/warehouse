@@ -13,33 +13,10 @@ UPDATE accounts_user
         last_login = now(),
         date_joined = now();
 
--- Not sure what these values are exactly, will remove them to be safe.
-UPDATE releases SET cheesecake_installability_id = NULL,
-                    cheesecake_documentation_id = NULL,
-                    cheesecake_code_kwalitee_id = NULL;
-DELETE FROM browse_tally;
-DELETE FROM cheesecake_subindices;
-DELETE FROM cheesecake_main_indices;
-DELETE FROM comments;
-DELETE FROM comments_journal;
-DELETE FROM cookies;
-DELETE FROM csrf_tokens;
-DELETE FROM oauth_access_tokens;
-DELETE FROM oauth_consumers;
-DELETE FROM oauth_nonce;
-DELETE FROM oauth_request_tokens;
-DELETE FROM oid_associations;
-DELETE FROM oid_nonces;
-DELETE FROM openid_discovered;
-DELETE FROM openid_nonces;
-DELETE FROM openid_sessions;
-DELETE FROM openid_whitelist;
-DELETE FROM openids;
-DELETE FROM ratings;
 DELETE FROM rego_otk;
-DELETE FROM sshkeys;
-DELETE FROM timestamps;
 
 
 -- Remove any personally identifying information from journals
+ALTER TABLE journals DISABLE TRIGGER ALL;
 UPDATE journals SET submitted_by = 'dstufft', submitted_from = '127.0.0.1';
+ALTER TABLE journals ENABLE TRIGGER ALL;
