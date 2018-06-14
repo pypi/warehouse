@@ -158,7 +158,8 @@ class EmailStatus:
     soft_bounced.upon(
         deliver,
         enter=delivered,
-        outputs=[],
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
     )
 
     # This is an OOTO response, it's techincally a bounce, but we don't

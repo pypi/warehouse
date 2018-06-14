@@ -324,7 +324,6 @@ class TestNotification:
         assert event.event_type is EventTypes.Delivery
         assert event.data == {"someData": "this is some data"}
 
-
     def test_spam_complaint(self, db_request, monkeypatch):
         verify_sns_message = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "_verify_sns_message", verify_sns_message)
