@@ -67,14 +67,13 @@
       </h1>
 
       {% if files %}
-      <p class="package-header__pip-instructions">
-        <span id="pip-command">
         {% if request.matched_route.name == "packaging.release" %}
-          pip install {{ release.project.name }}=={{ release.version }}
+          {% set pip_command = "pip install {release.project.name}=={release.version}".format(release=release) %}
         {% else %}
-          pip install {{ release.project.name }}
+          {% set pip_command = "pip install {release.project.name}".format(release=release) %}
         {% endif %}
-        </span>
+      <p class="package-header__pip-instructions">
+        <span id="pip-command">{{ pip_command }}</span>
         <button class="-js-copy-pip-command tooltipped tooltipped-s" data-clipboard-target="#pip-command" aria-label="Copy to clipboard" data-original-label="Copy to clipboard">
           <i class="fa fa-copy" aria-hidden="true"></i>
           <span class="sr-only">Copy PIP instructions<span>
