@@ -61,7 +61,7 @@
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               </form>
               <a data-form-submit="admin-logout" href="{{ request.route_path('admin.logout') }}">
-                <i class="fa fa-sign-out"></i>
+                <i class="fa fa-sign-out-alt"></i>
               </a>
           </li>
         </ul>
@@ -154,7 +154,7 @@
     <section class="content-header">
       <h1>{{ self.title()|default('Dashboard', true) }}</h1>
       <ol class="breadcrumb">
-        <li><a href="{{ request.route_path('admin.dashboard') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+        <li><a href="{{ request.route_path('admin.dashboard') }}"><i class="fa fa-tachometer-alt"></i> Dashboard</a></li>
         {% block breadcrumb %}
         {% endblock %}
       </ol>

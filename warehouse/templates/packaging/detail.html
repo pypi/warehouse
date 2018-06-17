@@ -18,24 +18,26 @@
 {% set parsed = url|urlparse %}
 
 {% if name|lower == "download" %}
-   {% set icon = "cloud-download" %}
+   {% set icon = "fa fa-cloud-download-alt" %}
 {% elif parsed.netloc == "github.com" or parsed.netloc.endswith(".github.com") %}
-  {% set icon = "github" %}
+  {% set icon = "fab fa-github" %}
+{% elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com") %}
+  {% set icon = "fab fa-gitlab" %}
 {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}
-  {% set icon = "bitbucket" %}
+  {% set icon = "fab fa-bitbucket" %}
 {% elif parsed.netloc == "reddit.com" or parsed.netloc.endswith(".reddit.com") %}
-  {% set icon = "reddit-alien" %}
+  {% set icon = "fab fa-reddit-alien" %}
 {% elif parsed.netloc == "slack.com" or parsed.netloc.endswith(".slack.com") %}
-  {% set icon = "slack" %}
+  {% set icon = "fab fa-slack" %}
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
-  {% set icon = "twitter" %}
+  {% set icon = "fab fa-twitter" %}
 {% elif name|lower == "home" or name|lower == "homepage" or name|lower == "home page" %}
-  {% set icon = "home" %}
+  {% set icon = "fa fa-home" %}
 {% else %}
-  {% set icon = "external-link-square" %}
+  {% set icon = "fa fa-external-link-square-alt" %}
 {% endif %}
 
-<i class="fa fa-{{ icon }}" aria-hidden="true"></i>
+<i class="{{ icon }}" aria-hidden="true"></i>
 
 {%- endmacro %}
 
