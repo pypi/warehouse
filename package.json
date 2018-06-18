@@ -5,6 +5,7 @@
     "node": "8.9.4"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free-webfonts": "^1.0.9",
     "babel-core": "6.26.0",
     "babel-loader": "7.1.2",
     "babel-plugin-transform-class-properties": "6.24.1",
@@ -17,7 +18,6 @@
     "element-closest": "^2.0.2",
     "enter-view": "0.1.0",
     "exports-loader": "0.6.4",
-    "font-awesome": "4.7.0",
     "gulp": "3.9.1",
     "gulp-batch": "1.0.5",
     "gulp-brotli": "1.2.1",
