@@ -35,6 +35,7 @@
 
     &:before {
       font-family: "Font Awesome 5 Free";
+      font-weight: 900;
       content: "\f06a";
       margin-right: 5px;
       color: $danger-color;
@@ -53,6 +54,7 @@
 
       &:before {
         font-family: "Font Awesome 5 Free";
+        font-weight: 900;
         content: "\f00c"; // Check / Tick
         margin-right: 5px;
         color: $success-color;
