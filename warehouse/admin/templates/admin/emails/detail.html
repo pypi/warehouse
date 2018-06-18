@@ -114,7 +114,7 @@
     <div class="col-md-12">
       <div class="box-solid">
         <div class="box-header with-border">
-          <i class="fa fa-exchange"></i>
+          <i class="fa fa-exchange-alt"></i>
 
           <h3 class="box-title">Events</h3>
         </div>
@@ -144,7 +144,7 @@
 
               <i class="fa fa-{{ event_icon }} bg-{{ event_color }}"></i>
               <div class="timeline-item">
-                <span class="time"><i class="fa fa-clock-o"></i> {{ event.created|format_datetime }}</span>
+                <span class="time"><i class="fa fa-clock"></i> {{ event.created|format_datetime }}</span>
                 <h3 class="timeline-header">{{ event.event_type.value }}</h3>
                 <div class="timeline-body">
                   {{ render_data(event.data) }}
@@ -156,7 +156,7 @@
             <li>
               <i class="fa fa-check bg-blue"></i>
               <div class="timeline-item">
-                <span class="time"><i class="fa fa-clock-o"></i> {{ email.created|format_datetime }}</span>
+                <span class="time"><i class="fa fa-clock"></i> {{ email.created|format_datetime }}</span>
                 <h3 class="timeline-header no-border">Accepted</h3>
               </div>
             </li>

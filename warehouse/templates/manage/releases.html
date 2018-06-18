@@ -55,7 +55,7 @@
               <ul class="dropdown__content">
                 <li>
                   <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}" class="dropdown__link">
-                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                    <i class="fa fa-pencil-alt" aria-hidden="true"></i>
                     Manage
                   </a>
                 </li>
@@ -69,7 +69,7 @@
                   {% set title = "Delete Release" %}
                   {% set slug = title.lower().replace(' ', '-') + '-modal-{}'.format(loop.index) %}
                   <a href="#{{ slug }}" class="dropdown__link">
-                    <i class="fa fa-trash" aria-hidden="true"></i>
+                    <i class="fa fa-trash-alt" aria-hidden="true"></i>
                     Delete
                   </a>
                 </li>
