@@ -21,12 +21,9 @@ from warehouse.rate_limiting import RateLimiter, DummyRateLimiter, RateLimit
 
 
 class TestRateLimiter:
-
     def test_basic(self):
         limiter = RateLimiter(
-            storage.MemoryStorage(),
-            "1 per minute",
-            identifiers=["foo"],
+            storage.MemoryStorage(), "1 per minute", identifiers=["foo"]
         )
 
         assert limiter.test("foo")
@@ -65,20 +62,19 @@ class TestRateLimiter:
 
     def test_results_in_expired(self):
         limiter = RateLimiter(
-            storage.MemoryStorage(),
-            "1 per minute; 1 per hour; 1 per day",
+            storage.MemoryStorage(), "1 per minute; 1 per hour; 1 per day"
         )
 
         current = datetime.datetime.now(tz=datetime.timezone.utc)
-        stats = iter([
-            (0, 0),
-            ((current + datetime.timedelta(seconds=60)).timestamp(), 0),
-            ((current + datetime.timedelta(seconds=5)).timestamp(), 0),
-        ])
-
-        limiter._window = pretend.stub(
-            get_window_stats=lambda l, *a: next(stats),
+        stats = iter(
+            [
+                (0, 0),
+                ((current + datetime.timedelta(seconds=60)).timestamp(), 0),
+                ((current + datetime.timedelta(seconds=5)).timestamp(), 0),
+            ]
         )
+
+        limiter._window = pretend.stub(get_window_stats=lambda l, *a: next(stats))
 
         resets_in = limiter.resets_in("foo")
 
@@ -87,7 +83,6 @@ class TestRateLimiter:
 
 
 class TestDummyRateLimiter:
-
     def test_basic(self):
         limiter = DummyRateLimiter()
 
@@ -97,20 +92,15 @@ class TestDummyRateLimiter:
 
 
 class TestRateLimit:
-
     def test_basic(self):
         limiter_obj = pretend.stub()
         limiter_class = pretend.call_recorder(lambda *a, **kw: limiter_obj)
 
         context = pretend.stub()
-        request = pretend.stub(
-            registry={"ratelimiter.storage": pretend.stub()},
-        )
+        request = pretend.stub(registry={"ratelimiter.storage": pretend.stub()})
 
         result = RateLimit(
-            "1 per 5 minutes",
-            identifiers=["foo"],
-            limiter_class=limiter_class,
+            "1 per 5 minutes", identifiers=["foo"], limiter_class=limiter_class
         )(context, request)
 
         assert result is limiter_obj
@@ -119,7 +109,7 @@ class TestRateLimit:
                 request.registry["ratelimiter.storage"],
                 limit="1 per 5 minutes",
                 identifiers=["foo"],
-            ),
+            )
         ]
 
 
@@ -127,9 +117,8 @@ def test_includeme():
     registry = {}
     config = pretend.stub(
         registry=pretend.stub(
-            settings={"ratelimit.url": "memory://"},
-            __setitem__=registry.__setitem__,
-        ),
+            settings={"ratelimit.url": "memory://"}, __setitem__=registry.__setitem__
+        )
     )
 
     rate_limiting.includeme(config)

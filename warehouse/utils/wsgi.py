@@ -20,7 +20,6 @@ def _forwarded_value(values, num_proxies):
 
 
 class ProxyFixer:
-
     def __init__(self, app, token, num_proxies=1):
         self.app = app
         self.token = token
@@ -30,8 +29,7 @@ class ProxyFixer:
         # Determine if the request comes from a trusted proxy or not by looking
         # for a token in the request.
         request_token = environ.get("HTTP_WAREHOUSE_TOKEN")
-        if (request_token is not None and
-                hmac.compare_digest(self.token, request_token)):
+        if request_token is not None and hmac.compare_digest(self.token, request_token):
             # Compute our values from the environment.
             proto = environ.get("HTTP_WAREHOUSE_PROTO", "")
             remote_addr = environ.get("HTTP_WAREHOUSE_IP", "")
@@ -43,8 +41,7 @@ class ProxyFixer:
         else:
             proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
             remote_addr = _forwarded_value(
-                environ.get("HTTP_X_FORWARDED_FOR", ""),
-                self.num_proxies,
+                environ.get("HTTP_X_FORWARDED_FOR", ""), self.num_proxies
             )
             host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
@@ -58,10 +55,15 @@ class ProxyFixer:
 
         # Remove any of the forwarded or warehouse headers from the environment
         for header in {
-                "HTTP_X_FORWARDED_PROTO", "HTTP_X_FORWARDED_FOR",
-                "HTTP_X_FORWARDED_HOST", "HTTP_X_FORWARDED_PORT",
-                "HTTP_WAREHOUSE_TOKEN", "HTTP_WAREHOUSE_PROTO",
-                "HTTP_WAREHOUSE_IP", "HTTP_WAREHOUSE_HOST"}:
+            "HTTP_X_FORWARDED_PROTO",
+            "HTTP_X_FORWARDED_FOR",
+            "HTTP_X_FORWARDED_HOST",
+            "HTTP_X_FORWARDED_PORT",
+            "HTTP_WAREHOUSE_TOKEN",
+            "HTTP_WAREHOUSE_PROTO",
+            "HTTP_WAREHOUSE_IP",
+            "HTTP_WAREHOUSE_HOST",
+        }:
             if header in environ:
                 del environ[header]
 
@@ -70,7 +72,6 @@ class ProxyFixer:
 
 
 class VhmRootRemover:
-
     def __init__(self, app):
         self.app = app
 

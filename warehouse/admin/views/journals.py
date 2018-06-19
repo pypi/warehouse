@@ -35,11 +35,8 @@ def journals_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    journals_query = (
-        request.db.query(JournalEntry)
-                  .order_by(
-                      JournalEntry.submitted_date.desc(),
-                      JournalEntry.id.desc())
+    journals_query = request.db.query(JournalEntry).order_by(
+        JournalEntry.submitted_date.desc(), JournalEntry.id.desc()
     )
 
     if q:

@@ -251,6 +251,11 @@ access your developer environment, you'll:
 
 View Warehouse in the browser at http://localhost:80/.
 
+Debugging the webserver
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you would like to use a debugger like pdb that allows you to drop
+into a shell, you can use ``make debug`` instead of ``make serve``.
 
 Troubleshooting
 ---------------
@@ -433,6 +438,13 @@ You can run linters, programs that check the code, with:
 .. code-block:: console
 
     make lint
+
+Warehouse uses `black <https://github.com/ambv/black>`_ for opinionated
+formatting and linting. You can reformat with:
+
+.. code-block:: console
+
+    make reformat
 
 
 Building documentation

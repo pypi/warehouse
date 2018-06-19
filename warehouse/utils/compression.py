@@ -24,8 +24,7 @@ BUFFER_MAX = 1 * 1024 * 1024  # We'll buffer up to 1MB
 def _compressor(request, response):
     # Skip items with a Vary: Cookie/Authorization Header because we don't know
     # if they are safe from the CRIME attack.
-    if (response.vary is not None and
-            (set(response.vary) & {"Cookie", "Authorization"})):
+    if response.vary is not None and (set(response.vary) & {"Cookie", "Authorization"}):
         return
 
     # Avoid compression if we've already got a Content-Encoding.
@@ -39,8 +38,7 @@ def _compressor(request, response):
 
     # Negotiate the correct encoding from our request.
     target_encoding = request.accept_encoding.best_match(
-        ENCODINGS,
-        default_match=DEFAULT_ENCODING,
+        ENCODINGS, default_match=DEFAULT_ENCODING
     )
 
     # If we have a Sequence, we'll assume that we aren't streaming the
@@ -49,8 +47,11 @@ def _compressor(request, response):
 
     # If our streaming content is small enough to easily buffer in memory
     # then we'll just convert it to a non streaming response.
-    if (streaming and response.content_length is not None and
-            response.content_length <= BUFFER_MAX):
+    if (
+        streaming
+        and response.content_length is not None
+        and response.content_length <= BUFFER_MAX
+    ):
         response.body
         streaming = False
 
@@ -88,7 +89,6 @@ def _compressor(request, response):
 
 
 def compression_tween_factory(handler, registry):
-
     def compression_tween(request):
         response = handler(request)
 

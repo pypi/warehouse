@@ -125,13 +125,15 @@ gulp.task("dist:noscript", () => {
 gulp.task("dist:admin:fonts", () => {
   gulp.src("warehouse/admin/static/fonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/fonts"));
+  gulp.src("warehouse/admin/static/webfonts/*.*")
+    .pipe(gulp.dest("warehouse/admin/static/dist/webfonts"));
 });
 
 
 gulp.task("dist:admin:css", () => {
   let files = [ // Order matters!
     "warehouse/admin/static/css/bootstrap.min.css",
-    "warehouse/admin/static/css/font-awesome.min.css",
+    "warehouse/admin/static/css/fontawesome-all.min.css",
     "warehouse/admin/static/css/ionicons.min.css",
     "warehouse/admin/static/css/AdminLTE.min.css",
     "warehouse/admin/static/css/skins/skin-purple.min.css",
@@ -172,9 +174,9 @@ gulp.task("dist:css", () => {
 });
 
 
-gulp.task("dist:font-awesome:css", () => {
-  let fABasePath = path.dirname(require.resolve("font-awesome/package.json")); // eslint-disable-line no-undef
-  let fACSSPath = path.resolve(fABasePath, "css", "font-awesome.css");
+gulp.task("dist:fontawesome:css", () => {
+  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free-webfonts/package.json")); // eslint-disable-line no-undef
+  let fACSSPath = path.resolve(fABasePath, "css", "*.css");
 
   return gulp.src(fACSSPath)
     .pipe(sourcemaps.init({ loadMaps: true }))
@@ -186,17 +188,17 @@ gulp.task("dist:font-awesome:css", () => {
     .pipe(gulp.dest(path.join(distPath, "css")));
 });
 
-gulp.task("dist:font-awesome:fonts", () => {
-  let fABasePath = path.dirname(require.resolve("font-awesome/package.json")); // eslint-disable-line no-undef
-  let faFontPath = path.resolve(fABasePath, "fonts", "*.*");
+gulp.task("dist:fontawesome:fonts", () => {
+  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free-webfonts/package.json")); // eslint-disable-line no-undef
+  let faFontPath = path.resolve(fABasePath, "webfonts", "*.*");
 
   return gulp.src(faFontPath)
-    .pipe(gulp.dest(path.join(distPath, "fonts")));
+    .pipe(gulp.dest(path.join(distPath, "webfonts")));
 });
 
 
-gulp.task("dist:font-awesome",
-  ["dist:font-awesome:css", "dist:font-awesome:fonts"]);
+gulp.task("dist:fontawesome",
+  ["dist:fontawesome:css", "dist:fontawesome:fonts"]);
 
 
 gulp.task("dist:images", () => {
@@ -321,7 +323,7 @@ gulp.task("dist", (cb) => {
     "clean",
     // Build all of our static assets.
     [
-      "dist:font-awesome",
+      "dist:fontawesome",
       "dist:css",
       "dist:noscript",
       "dist:js",

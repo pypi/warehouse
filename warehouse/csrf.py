@@ -29,10 +29,11 @@ def require_method_view(view, info):
         # If the current request is using an unallowed method then we'll reject
         # it *UNLESS* it is an exception view, then we'll allow it again
         # *UNLESS* the exception view set an explicit require_methods itself.
-        if (request.method not in require_methods and
-                (getattr(request, "exception", None) is None or explicit)):
+        if request.method not in require_methods and (
+            getattr(request, "exception", None) is None or explicit
+        ):
             raise HTTPMethodNotAllowed(
-                headers={"Allow": ", ".join(sorted(require_methods))},
+                headers={"Allow": ", ".join(sorted(require_methods))}
             )
 
         return view(context, request)
@@ -57,8 +58,4 @@ def includeme(config):
     # methods get called on particular views. This needs to happen prior to
     # the CSRF checks happening to prevent the CSRF checks from firing on
     # views that don't expect them to.
-    config.add_view_deriver(
-        require_method_view,
-        under=INGRESS,
-        over="csrf_view",
-    )
+    config.add_view_deriver(require_method_view, under=INGRESS, over="csrf_view")

@@ -16,7 +16,6 @@ from warehouse.utils import wsgi
 
 
 class TestProxyFixer:
-
     def test_skips_headers(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
@@ -57,7 +56,7 @@ class TestProxyFixer:
                     "wsgi.url_scheme": "http",
                 },
                 start_response,
-            ),
+            )
         ]
 
     def test_missing_headers(self):
@@ -96,27 +95,21 @@ class TestProxyFixer:
                     "wsgi.url_scheme": "http",
                 },
                 start_response,
-            ),
+            )
         ]
 
     def test_skips_x_forwarded_when_not_enough(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
-        environ = {
-            "HTTP_X_FORWARDED_FOR": "1.2.3.4",
-            "HTTP_SOME_OTHER_HEADER": "woop",
-        }
+        environ = {"HTTP_X_FORWARDED_FOR": "1.2.3.4", "HTTP_SOME_OTHER_HEADER": "woop"}
         start_response = pretend.stub()
 
-        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(
-            environ,
-            start_response,
-        )
+        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(environ, start_response)
 
         assert resp is response
         assert app.calls == [
-            pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response),
+            pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
         ]
 
     def test_selects_right_x_forwarded_value(self):
@@ -131,10 +124,7 @@ class TestProxyFixer:
         }
         start_response = pretend.stub()
 
-        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(
-            environ,
-            start_response,
-        )
+        resp = wsgi.ProxyFixer(app, token=None, num_proxies=2)(environ, start_response)
 
         assert resp is response
         assert app.calls == [
@@ -146,12 +136,11 @@ class TestProxyFixer:
                     "wsgi.url_scheme": "http",
                 },
                 start_response,
-            ),
+            )
         ]
 
 
 class TestVhmRootRemover:
-
     def test_removes_header(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
@@ -172,13 +161,10 @@ class TestVhmRootRemover:
         resp = wsgi.VhmRootRemover(app)(environ, start_response)
 
         assert resp is response
-        assert app.calls == [
-            pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response),
-        ]
+        assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
 
 
 class TestHostRewrite:
-
     def test_rewrites_host(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
@@ -189,7 +175,7 @@ class TestHostRewrite:
 
         assert resp is response
         assert app.calls == [
-            pretend.call({"HTTP_HOST": "upload.pypi.org"}, start_response),
+            pretend.call({"HTTP_HOST": "upload.pypi.org"}, start_response)
         ]
 
     def test_ignores_other_hosts(self):
@@ -201,6 +187,4 @@ class TestHostRewrite:
         resp = wsgi.HostRewrite(app)(environ, start_response)
 
         assert resp is response
-        assert app.calls == [
-            pretend.call({"HTTP_HOST": "example.com"}, start_response),
-        ]
+        assert app.calls == [pretend.call({"HTTP_HOST": "example.com"}, start_response)]

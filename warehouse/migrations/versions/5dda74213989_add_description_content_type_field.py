@@ -21,14 +21,13 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = '5dda74213989'
-down_revision = '2730e54f8717'
+revision = "5dda74213989"
+down_revision = "2730e54f8717"
 
 
 def upgrade():
     op.add_column(
-        "releases",
-        sa.Column("description_content_type", sa.Text(), nullable=True)
+        "releases", sa.Column("description_content_type", sa.Text(), nullable=True)
     )
 
 

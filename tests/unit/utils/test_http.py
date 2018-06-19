@@ -18,32 +18,31 @@ from warehouse.utils.http import is_safe_url, is_valid_uri
 # (MOSTLY) FROM https://github.com/django/django/blob/
 # 011a54315e46acdf288003566b8570440f5ac985/tests/utils_tests/test_http.py
 class TestIsSafeUrl:
-
     @pytest.mark.parametrize(
         "url",
         [
             None,
-            'http://example.com',
-            'http:///example.com',
-            'https://example.com',
-            'ftp://exampel.com',
-            r'\\example.com',
-            r'\\\example.com',
-            r'/\\/example.com',
-            r'\\\example.com',
-            r'\\example.com',
-            r'\\//example.com',
-            r'/\/example.com',
-            r'\/example.com',
-            r'/\example.com',
-            'http:///example.com',
-            'http:/\//example.com',
-            'http:\/example.com',
-            'http:/\example.com',
+            "http://example.com",
+            "http:///example.com",
+            "https://example.com",
+            "ftp://exampel.com",
+            r"\\example.com",
+            r"\\\example.com",
+            r"/\\/example.com",
+            r"\\\example.com",
+            r"\\example.com",
+            r"\\//example.com",
+            r"/\/example.com",
+            r"\/example.com",
+            r"/\example.com",
+            "http:///example.com",
+            "http:/\//example.com",
+            "http:\/example.com",
+            "http:/\example.com",
             'javascript:alert("XSS")',
-            '\njavascript:alert(x)',
-            '\x08//example.com',
-            '\n',
+            "\njavascript:alert(x)",
+            "\x08//example.com",
+            "\n",
         ],
     )
     def test_rejects_bad_url(self, url):
@@ -52,14 +51,14 @@ class TestIsSafeUrl:
     @pytest.mark.parametrize(
         "url",
         [
-            '/view/?param=http://example.com',
-            '/view/?param=https://example.com',
-            '/view?param=ftp://exampel.com',
-            'view/?param=//example.com',
-            'https://testserver/',
-            'HTTPS://testserver/',
-            '//testserver/',
-            '/url%20with%20spaces/',
+            "/view/?param=http://example.com",
+            "/view/?param=https://example.com",
+            "/view?param=ftp://exampel.com",
+            "view/?param=//example.com",
+            "https://testserver/",
+            "HTTPS://testserver/",
+            "//testserver/",
+            "/url%20with%20spaces/",
         ],
     )
     def test_accepts_good_url(self, url):
@@ -67,7 +66,6 @@ class TestIsSafeUrl:
 
 
 class TestIsValidURI:
-
     @pytest.mark.parametrize(
         "uri",
         [
@@ -80,20 +78,15 @@ class TestIsValidURI:
         assert is_valid_uri(uri)
 
     @pytest.mark.parametrize(
-        "uri",
-        [
-            "javascript:alert(0)",
-            "UNKNOWN",
-            "ftp://example.com/",
-            "",
-        ],
+        "uri", ["javascript:alert(0)", "UNKNOWN", "ftp://example.com/", ""]
     )
     def test_invalid(self, uri):
         assert not is_valid_uri(uri)
 
     def test_plain_schemes(self):
-        assert is_valid_uri("ftp://example.com/", require_scheme=True,
-                            allowed_schemes=[])
+        assert is_valid_uri(
+            "ftp://example.com/", require_scheme=True, allowed_schemes=[]
+        )
 
     def test_scheme_not_required(self):
         assert is_valid_uri("//example.com", require_scheme=False)

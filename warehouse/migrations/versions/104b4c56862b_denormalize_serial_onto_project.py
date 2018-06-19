@@ -34,10 +34,7 @@ def upgrade():
     op.add_column(
         "packages",
         sa.Column(
-            "last_serial",
-            sa.Integer(),
-            nullable=True,
-            server_default=sa.text("0"),
+            "last_serial", sa.Integer(), nullable=True, server_default=sa.text("0")
         ),
     )
 

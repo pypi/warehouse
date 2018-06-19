@@ -29,7 +29,7 @@ def _compute_recipient(user, *, email=None):
         Address(
             first([user.name, user.username], default=""),
             addr_spec=first([email, user.email]),
-        ),
+        )
     )
 
 
@@ -50,30 +50,27 @@ def send_email(task, request, subject, body, *, recipient=None):
 
 
 def send_password_reset_email(request, user):
-    token_service = request.find_service(ITokenService, name='password')
-    token = token_service.dumps({
-        'action': 'password-reset',
-        'user.id': str(user.id),
-        'user.last_login': str(user.last_login),
-        'user.password_date': str(user.password_date),
-    })
+    token_service = request.find_service(ITokenService, name="password")
+    token = token_service.dumps(
+        {
+            "action": "password-reset",
+            "user.id": str(user.id),
+            "user.last_login": str(user.last_login),
+            "user.password_date": str(user.password_date),
+        }
+    )
 
     fields = {
-        'token': token,
-        'username': user.username,
-        'n_hours': token_service.max_age // 60 // 60,
+        "token": token,
+        "username": user.username,
+        "n_hours": token_service.max_age // 60 // 60,
     }
 
-    subject = render(
-        'email/password-reset.subject.txt', fields, request=request
-    )
+    subject = render("email/password-reset.subject.txt", fields, request=request)
 
-    body = render(
-        'email/password-reset.body.txt', fields, request=request
-    )
+    body = render("email/password-reset.body.txt", fields, request=request)
 
-    request.task(send_email).delay(subject, body,
-                                   recipient=_compute_recipient(user))
+    request.task(send_email).delay(subject, body, recipient=_compute_recipient(user))
 
     # Return the fields we used, in case we need to show any of them to the
     # user
@@ -81,158 +78,102 @@ def send_password_reset_email(request, user):
 
 
 def send_email_verification_email(request, user, email):
-    token_service = request.find_service(ITokenService, name='email')
+    token_service = request.find_service(ITokenService, name="email")
 
-    token = token_service.dumps({
-        "action": "email-verify",
-        "email.id": email.id,
-    })
+    token = token_service.dumps({"action": "email-verify", "email.id": email.id})
 
     fields = {
-        'token': token,
-        'email_address': email.email,
-        'n_hours': token_service.max_age // 60 // 60,
+        "token": token,
+        "email_address": email.email,
+        "n_hours": token_service.max_age // 60 // 60,
     }
 
-    subject = render(
-        'email/verify-email.subject.txt', fields, request=request
-    )
+    subject = render("email/verify-email.subject.txt", fields, request=request)
 
-    body = render(
-        'email/verify-email.body.txt', fields, request=request
-    )
+    body = render("email/verify-email.body.txt", fields, request=request)
 
     request.task(send_email).delay(
-        subject,
-        body,
-        recipient=_compute_recipient(user, email=email.email),
+        subject, body, recipient=_compute_recipient(user, email=email.email)
     )
 
     return fields
 
 
 def send_password_change_email(request, user):
-    fields = {
-        'username': user.username,
-    }
+    fields = {"username": user.username}
 
-    subject = render(
-        'email/password-change.subject.txt', fields, request=request
-    )
+    subject = render("email/password-change.subject.txt", fields, request=request)
 
-    body = render(
-        'email/password-change.body.txt', fields, request=request
-    )
+    body = render("email/password-change.body.txt", fields, request=request)
 
-    request.task(send_email).delay(subject, body,
-                                   recipient=_compute_recipient(user))
+    request.task(send_email).delay(subject, body, recipient=_compute_recipient(user))
 
     return fields
 
 
 def send_account_deletion_email(request, user):
-    fields = {
-        'username': user.username,
-    }
+    fields = {"username": user.username}
 
-    subject = render(
-        'email/account-deleted.subject.txt', fields, request=request
-    )
+    subject = render("email/account-deleted.subject.txt", fields, request=request)
 
-    body = render(
-        'email/account-deleted.body.txt', fields, request=request
-    )
+    body = render("email/account-deleted.body.txt", fields, request=request)
 
-    request.task(send_email).delay(subject, body,
-                                   recipient=_compute_recipient(user))
+    request.task(send_email).delay(subject, body, recipient=_compute_recipient(user))
 
     return fields
 
 
 def send_primary_email_change_email(request, user, email):
-    fields = {
-        'username': user.username,
-        'old_email': email,
-        'new_email': user.email,
-    }
+    fields = {"username": user.username, "old_email": email, "new_email": user.email}
 
-    subject = render(
-        'email/primary-email-change.subject.txt', fields, request=request
-    )
+    subject = render("email/primary-email-change.subject.txt", fields, request=request)
 
-    body = render(
-        'email/primary-email-change.body.txt', fields, request=request
-    )
+    body = render("email/primary-email-change.body.txt", fields, request=request)
 
     request.task(send_email).delay(
-        subject,
-        body,
-        recipient=_compute_recipient(user, email=email),
+        subject, body, recipient=_compute_recipient(user, email=email)
     )
 
     return fields
 
 
-def send_collaborator_added_email(request, user, submitter, project_name, role,
-                                  email_recipients):
+def send_collaborator_added_email(
+    request, user, submitter, project_name, role, email_recipients
+):
     fields = {
-        'username': user.username,
-        'project': project_name,
-        'submitter': submitter.username,
-        'role': role
+        "username": user.username,
+        "project": project_name,
+        "submitter": submitter.username,
+        "role": role,
     }
 
-    subject = render(
-        'email/collaborator-added.subject.txt', fields, request=request
-    )
+    subject = render("email/collaborator-added.subject.txt", fields, request=request)
 
-    body = render(
-        'email/collaborator-added.body.txt', fields, request=request
-    )
+    body = render("email/collaborator-added.body.txt", fields, request=request)
 
     for recipient in email_recipients:
         request.task(send_email).delay(
-            subject,
-            body,
-            recipient=_compute_recipient(recipient),
+            subject, body, recipient=_compute_recipient(recipient)
         )
 
     return fields
 
 
-def send_added_as_collaborator_email(request, submitter, project_name, role,
-                                     user):
-    fields = {
-        'project': project_name,
-        'submitter': submitter.username,
-        'role': role
-    }
+def send_added_as_collaborator_email(request, submitter, project_name, role, user):
+    fields = {"project": project_name, "submitter": submitter.username, "role": role}
 
-    subject = render(
-        'email/added-as-collaborator.subject.txt', fields, request=request
-    )
+    subject = render("email/added-as-collaborator.subject.txt", fields, request=request)
 
-    body = render(
-        'email/added-as-collaborator.body.txt', fields, request=request
-    )
+    body = render("email/added-as-collaborator.body.txt", fields, request=request)
 
-    request.task(send_email).delay(
-        subject,
-        body,
-        recipient=_compute_recipient(user),
-    )
+    request.task(send_email).delay(subject, body, recipient=_compute_recipient(user))
 
     return fields
 
 
 def includeme(config):
-    email_sending_class = config.maybe_dotted(
-        config.registry.settings["mail.backend"],
-    )
-    config.register_service_factory(
-        email_sending_class.create_service,
-        IEmailSender,
-    )
+    email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
+    config.register_service_factory(email_sending_class.create_service, IEmailSender)
 
     # Add a periodic task to cleanup our EmailMessage table. We're going to
     # do this cleanup, regardless of if we're configured to use SES to send

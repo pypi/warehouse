@@ -17,13 +17,9 @@ from warehouse.domain import DomainPredicate, includeme
 
 
 class TestDomainPredicate:
-
     @pytest.mark.parametrize(
         ("value", "expected"),
-        [
-            (None, "domain = None"),
-            ("pypi.io", "domain = {!r}".format("pypi.io")),
-        ]
+        [(None, "domain = None"), ("pypi.io", "domain = {!r}".format("pypi.io"))],
     )
     def test_text(self, value, expected):
         predicate = DomainPredicate(value, None)
@@ -45,10 +41,8 @@ class TestDomainPredicate:
 
 def test_includeme():
     config = pretend.stub(
-        add_route_predicate=pretend.call_recorder(lambda name, pred: None),
+        add_route_predicate=pretend.call_recorder(lambda name, pred: None)
     )
     includeme(config)
 
-    assert config.add_route_predicate.calls == [
-        pretend.call("domain", DomainPredicate),
-    ]
+    assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]

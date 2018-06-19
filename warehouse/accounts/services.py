@@ -21,14 +21,16 @@ from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
-    IUserService, ITokenService, TokenExpired, TokenInvalid, TokenMissing,
+    IUserService,
+    ITokenService,
+    TokenExpired,
+    TokenInvalid,
+    TokenMissing,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
-from warehouse.utils.crypto import (
-    BadData, SignatureExpired, URLSafeTimedSerializer,
-)
+from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,6 @@ PASSWORD_FIELD = "password"
 
 @implementer(IUserService)
 class DatabaseUserService:
-
     def __init__(self, session, ratelimiters=None):
         if ratelimiters is None:
             ratelimiters = {}
@@ -56,13 +57,11 @@ class DatabaseUserService:
             ],
             deprecated=["auto"],
             truncate_error=True,
-
             # Argon 2 Configuration
             argon2__memory_cost=1024,
             argon2__parallelism=6,
             argon2__time_cost=6,
         )
-
 
     @functools.lru_cache()
     def get_user(self, userid):
@@ -84,11 +83,7 @@ class DatabaseUserService:
     @functools.lru_cache()
     def find_userid(self, username):
         try:
-            user = (
-                self.db.query(User.id)
-                    .filter(User.username == username)
-                    .one()
-            )
+            user = self.db.query(User.id).filter(User.username == username).one()
         except NoResultFound:
             return
 
@@ -98,11 +93,9 @@ class DatabaseUserService:
     def find_userid_by_email(self, email):
         try:
             # flake8: noqa
-            user_id = (
-                self.db.query(Email.user_id)
-                    .filter(Email.email == email)
-                    .one()
-            )[0]
+            user_id = (self.db.query(Email.user_id).filter(Email.email == email).one())[
+                0
+            ]
         except NoResultFound:
             return
 
@@ -114,9 +107,7 @@ class DatabaseUserService:
         # global rate limiter anyways.
         if not self.ratelimiters["global"].test():
             logger.warning("Global failed login threshold reached.")
-            raise TooManyFailedLogins(
-                resets_in=self.ratelimiters["global"].resets_in(),
-            )
+            raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
 
         user = self.get_user(userid)
         if user is not None:
@@ -124,15 +115,12 @@ class DatabaseUserService:
             # per user basis.
             if not self.ratelimiters["user"].test(user.id):
                 raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["user"].resets_in(user.id),
+                    resets_in=self.ratelimiters["user"].resets_in(user.id)
                 )
 
             # Actually check our hash, optionally getting a new hash for it if
             # we should upgrade our saved hashed.
-            ok, new_hash = self.hasher.verify_and_update(
-                password,
-                user.password,
-            )
+            ok, new_hash = self.hasher.verify_and_update(password, user.password)
 
             # First, check to see if the password that we were given was OK.
             if ok:
@@ -154,15 +142,23 @@ class DatabaseUserService:
         return False
 
     def create_user(
-            self, username, name, password,
-            is_active=False, is_staff=False, is_superuser=False):
+        self,
+        username,
+        name,
+        password,
+        is_active=False,
+        is_staff=False,
+        is_superuser=False,
+    ):
 
-        user = User(username=username,
-                    name=name,
-                    password=self.hasher.hash(password),
-                    is_active=is_active,
-                    is_staff=is_staff,
-                    is_superuser=is_superuser)
+        user = User(
+            username=username,
+            name=name,
+            password=self.hasher.hash(password),
+            is_active=is_active,
+            is_staff=is_staff,
+            is_superuser=is_superuser,
+        )
         self.db.add(user)
         self.db.flush()  # flush the db now so user.id is available
 
@@ -170,8 +166,8 @@ class DatabaseUserService:
 
     def add_email(self, user_id, email_address, primary=False, verified=False):
         user = self.get_user(user_id)
-        email= Email(
-            email=email_address, user=user, primary=primary, verified=verified,
+        email = Email(
+            email=email_address, user=user, primary=primary, verified=verified
         )
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available
@@ -194,10 +190,7 @@ class TokenService:
         self.max_age = max_age
 
     def dumps(self, data):
-        return self.serializer.dumps({
-            key: str(value)
-            for key, value in data.items()
-        })
+        return self.serializer.dumps({key: str(value) for key, value in data.items()})
 
     def loads(self, token):
         if not token:
@@ -207,7 +200,7 @@ class TokenService:
             data = self.serializer.loads(token, max_age=self.max_age)
         except SignatureExpired:
             raise TokenExpired
-        except BadData: #  Catch all other exceptions
+        except BadData:  #  Catch all other exceptions
             raise TokenInvalid
 
         return data
@@ -218,21 +211,14 @@ def database_login_factory(context, request):
         request.db,
         ratelimiters={
             "global": request.find_service(
-                IRateLimiter,
-                name="global.login",
-                context=None,
+                IRateLimiter, name="global.login", context=None
             ),
-            "user": request.find_service(
-                IRateLimiter,
-                name="user.login",
-                context=None,
-            ),
+            "user": request.find_service(IRateLimiter, name="user.login", context=None),
         },
     )
 
 
 class TokenServiceFactory:
-
     def __init__(self, name, service_class=TokenService):
         self.name = name
         self.service_class = service_class

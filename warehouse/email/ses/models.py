@@ -136,24 +136,48 @@ class EmailStatus:
 
     # Transitions
 
-    accepted.upon(deliver, enter=delivered, outputs=[_reset_transient_bounce],
-                  collector=lambda iterable: list(iterable)[-1])
-    accepted.upon(bounce, enter=bounced,
-                  outputs=[_reset_transient_bounce, _handle_bounce],
-                  collector=lambda iterable: list(iterable)[-1])
-    accepted.upon(soft_bounce, enter=soft_bounced,
-                  outputs=[_incr_transient_bounce],
-                  collector=lambda iterable: list(iterable)[-1])
+    accepted.upon(
+        deliver,
+        enter=delivered,
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+    accepted.upon(
+        bounce,
+        enter=bounced,
+        outputs=[_reset_transient_bounce, _handle_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+    accepted.upon(
+        soft_bounce,
+        enter=soft_bounced,
+        outputs=[_incr_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+
+    soft_bounced.upon(
+        deliver,
+        enter=delivered,
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
 
     # This is an OOTO response, it's techincally a bounce, but we don't
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
-    delivered.upon(bounce, enter=bounced,
-                   outputs=[_reset_transient_bounce, _handle_bounce],
-                   collector=lambda iterable: list(iterable)[-1])
-    delivered.upon(complain, enter=complained, outputs=[_handle_complaint],
-                   collector=lambda iterable: list(iterable)[-1])
+    delivered.upon(
+        bounce,
+        enter=bounced,
+        outputs=[_reset_transient_bounce, _handle_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+    delivered.upon(
+        complain,
+        enter=complained,
+        outputs=[_handle_complaint],
+        collector=lambda iterable: list(iterable)[-1],
+    )
 
     # Serialization / Deserialization
 
@@ -183,9 +207,11 @@ class EmailStatus:
             return
 
         db = object_session(self._email_message)
-        email = (db.query(EmailAddress)
-                   .filter(EmailAddress.email == self._email_message.to)
-                   .first())
+        email = (
+            db.query(EmailAddress)
+            .filter(EmailAddress.email == self._email_message.to)
+            .first()
+        )
 
         # If our email is None, then we'll mark our log so that when we're
         # viewing the log, we can tell that it wasn't recorded.
@@ -243,12 +269,9 @@ class Event(db.Model):
 
     event_id = Column(Text, nullable=False, unique=True, index=True)
     event_type = Column(
-        Enum(EventTypes, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
+        Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
     )
 
     data = Column(
-        MutableDict.as_mutable(JSONB),
-        nullable=False,
-        server_default=sql.text("'{}'"),
+        MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")
     )

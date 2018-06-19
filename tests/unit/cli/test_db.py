@@ -110,9 +110,7 @@ def test_downgrade_command(monkeypatch, cli, pyramid_config):
     ],
 )
 def test_heads_command(monkeypatch, cli, pyramid_config, args, ekwargs):
-    alembic_heads = pretend.call_recorder(
-        lambda config, resolve_dependencies: None
-    )
+    alembic_heads = pretend.call_recorder(lambda config, resolve_dependencies: None)
     monkeypatch.setattr(alembic.command, "heads", alembic_heads)
 
     alembic_config = pretend.stub(attributes={})
@@ -165,11 +163,7 @@ def test_history_command(monkeypatch, cli, pyramid_config):
     ("args", "eargs", "ekwargs"),
     [
         (["foo"], [("foo",)], {"message": None, "branch_label": None}),
-        (
-            ["foo", "bar"],
-            [("foo", "bar")],
-            {"message": None, "branch_label": None},
-        ),
+        (["foo", "bar"], [("foo", "bar")], {"message": None, "branch_label": None}),
         (
             ["-m", "my message", "foo"],
             [("foo",)],
@@ -206,9 +200,7 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
         pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
         pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
     ]
-    assert alembic_merge.calls == [
-        pretend.call(alembic_config, *eargs, **ekwargs),
-    ]
+    assert alembic_merge.calls == [pretend.call(alembic_config, *eargs, **ekwargs)]
 
 
 @pytest.mark.parametrize(
@@ -226,8 +218,14 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
         ),
         (
             [
-                "-m", "the message", "-a", "--head", "foo", "--splice",
-                "--branch-label", "wat",
+                "-m",
+                "the message",
+                "-a",
+                "--head",
+                "foo",
+                "--splice",
+                "--branch-label",
+                "wat",
             ],
             {
                 "message": "the message",

@@ -20,7 +20,6 @@ from warehouse.cli import shell
 
 
 class TestAutoDetection:
-
     def test_bpython(self, monkeypatch):
         monkeypatch.setitem(sys.modules, "bpython", pretend.stub())
         assert shell.autodetect() == "bpython"
@@ -40,7 +39,6 @@ class TestAutoDetection:
 
 
 class TestShells:
-
     def test_bpython(self, monkeypatch):
         bpython_mod = pretend.stub(embed=pretend.call_recorder(lambda a: None))
         monkeypatch.setitem(sys.modules, "bpython", bpython_mod)
@@ -50,29 +48,24 @@ class TestShells:
 
     def test_ipython(self, monkeypatch):
         ipython_mod = pretend.stub(
-            start_ipython=pretend.call_recorder(lambda argv, user_ns: None),
+            start_ipython=pretend.call_recorder(lambda argv, user_ns: None)
         )
         monkeypatch.setitem(sys.modules, "IPython", ipython_mod)
         shell.ipython(two="one")
 
         assert ipython_mod.start_ipython.calls == [
-            pretend.call(argv=[], user_ns={"two": "one"}),
+            pretend.call(argv=[], user_ns={"two": "one"})
         ]
 
     def test_plain(self, monkeypatch):
-        code_mod = pretend.stub(
-            interact=pretend.call_recorder(lambda local: None),
-        )
+        code_mod = pretend.stub(interact=pretend.call_recorder(lambda local: None))
         monkeypatch.setitem(sys.modules, "code", code_mod)
         shell.plain(three="four")
 
-        assert code_mod.interact.calls == [
-            pretend.call(local={"three": "four"}),
-        ]
+        assert code_mod.interact.calls == [pretend.call(local={"three": "four"})]
 
 
 class TestCLIShell:
-
     def test_autodetects(self, monkeypatch, cli):
         autodetect = pretend.call_recorder(lambda: "plain")
         monkeypatch.setattr(shell, "autodetect", autodetect)
