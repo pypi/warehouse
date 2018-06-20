@@ -86,7 +86,8 @@ def includeme(config):
                         "https://api.github.com/repos/",
                     ]
                     if item
-                ],
+                ]
+                + ["*.fastly-insights.com"],
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
                 "form-action": [SELF],
@@ -96,13 +97,16 @@ def includeme(config):
                     SELF,
                     config.registry.settings["camo.url"],
                     "www.google-analytics.com",
+                    "*.fastly-insights.com",
                 ],
                 "script-src": [
                     SELF,
                     "www.googletagmanager.com",
                     "www.google-analytics.com",
+                    "*.fastly-insights.com",
                 ],
                 "style-src": [SELF, "fonts.googleapis.com"],
+                "worker-src": ["*.fastly-insights.com"],
             }
         }
     )
