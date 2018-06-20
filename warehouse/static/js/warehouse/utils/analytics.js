@@ -21,7 +21,7 @@ export default () => {
   if (element) {
     var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
     if (dnt == "1" || dnt == "yes") {
-      window['ga-disable-' + element.dataset.gaId] = true;
+      window["ga-disable-" + element.dataset.gaId] = true;
     }
 
     // This is more or less taken straight from Google Analytics Control Panel
