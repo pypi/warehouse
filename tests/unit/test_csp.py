@@ -202,19 +202,27 @@ def test_includeme():
                         "'self'",
                         "https://2p66nmmycsj3.statuspage.io",
                         "https://api.github.com/repos/",
+                        "*.fastly-insights.com",
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],
                     "form-action": ["'self'"],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
-                    "img-src": ["'self'", "camo.url.value", "www.google-analytics.com"],
+                    "img-src": [
+                        "'self'",
+                        "camo.url.value",
+                        "www.google-analytics.com",
+                        "*.fastly-insights.com",
+                    ],
                     "script-src": [
                         "'self'",
                         "www.googletagmanager.com",
                         "www.google-analytics.com",
+                        "*.fastly-insights.com",
                     ],
                     "style-src": ["'self'", "fonts.googleapis.com"],
+                    "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )
