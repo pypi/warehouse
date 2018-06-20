@@ -19,6 +19,11 @@ import * as cookie from "cookie";
 export default () => {
   let element = document.querySelector("script[data-ga-id]");
   if (element) {
+    var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+    if (dnt == "1" || dnt == "yes") {
+      window['ga-disable-' + element.dataset.gaId] = true;
+    }
+
     // This is more or less taken straight from Google Analytics Control Panel
     window.dataLayer = window.dataLayer || [];
     var gtag = function(){ dataLayer.push(arguments); };
