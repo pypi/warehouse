@@ -21,7 +21,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      CAMO_KEY: "insecure camo key"
+      CAMO_KEY: "insecurecamokey"
 
   web:
     build:
