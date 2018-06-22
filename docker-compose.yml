@@ -1,5 +1,8 @@
 version: '3'
 
+volumes:
+  packages:
+
 services:
   db:
     image: postgres:10.1
@@ -21,7 +24,7 @@ services:
     ports:
       - "9000:9000"
     environment:
-      CAMO_KEY: "insecure camo key"
+      CAMO_KEY: "insecurecamokey"
 
   web:
     build:
@@ -50,6 +53,7 @@ services:
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
+      - packages:/var/opt/warehouse/packages
     ports:
       - "80:8000"
     links:
@@ -58,6 +62,16 @@ services:
       - rabbitmq
       - elasticsearch
       - notdatadog
+
+  files:
+    build:
+      context: .
+    working_dir: /var/opt/warehouse
+    command: python -m http.server 9001
+    volumes:
+      - packages:/var/opt/warehouse/packages
+    ports:
+      - "9001:9001"
 
   worker:
     build:
