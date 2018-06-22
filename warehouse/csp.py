@@ -82,6 +82,7 @@ def includeme(config):
                     SELF,
                     "https://api.github.com/repos/",
                     "*.fastly-insights.com",
+                    "sentry.io",
                 ]
                 + [
                     item
@@ -104,6 +105,7 @@ def includeme(config):
                     "www.googletagmanager.com",
                     "www.google-analytics.com",
                     "*.fastly-insights.com",
+                    "https://cdn.ravenjs.com",
                 ],
                 "style-src": [SELF, "fonts.googleapis.com"],
                 "worker-src": ["*.fastly-insights.com"],
