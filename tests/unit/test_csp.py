@@ -200,9 +200,9 @@ def test_includeme():
                     "block-all-mixed-content": [],
                     "connect-src": [
                         "'self'",
-                        "https://2p66nmmycsj3.statuspage.io",
                         "https://api.github.com/repos/",
                         "*.fastly-insights.com",
+                        "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],

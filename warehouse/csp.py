@@ -79,15 +79,15 @@ def includeme(config):
                 "base-uri": [SELF],
                 "block-all-mixed-content": [],
                 "connect-src": [
-                    item
-                    for item in [
-                        SELF,
-                        config.registry.settings.get("statuspage.url"),
-                        "https://api.github.com/repos/",
-                    ]
-                    if item
+                    SELF,
+                    "https://api.github.com/repos/",
+                    "*.fastly-insights.com",
                 ]
-                + ["*.fastly-insights.com"],
+                + [
+                    item
+                    for item in [config.registry.settings.get("statuspage.url")]
+                    if item
+                ],
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
                 "form-action": [SELF],
