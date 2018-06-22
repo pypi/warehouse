@@ -84,7 +84,11 @@
      # of our JS would then execute before it, and we might miss exceptions.
      #}
     {% if request.registry.settings.get("sentry.frontend_dsn") -%}
-    <script src="https://cdn.ravenjs.com/3.26.2/raven.min.js" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.ravenjs.com/3.26.2/raven.min.js"
+      integrity="sha384-D6LXy67EIC102DTuqypxwQsTHgiatlbvg7q/1YAWFb6lRyZ1lIZ6bGDsX7jxHNKA"
+      crossorigin="anonymous">
+    </script>
     {% endif -%}
     {# All of our JavaScript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start
