@@ -143,13 +143,6 @@
       {% endif %}
     </section>
 
-    <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-target="notification.notification">
-      <button title="Dismiss this notification" data-target="notification.dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="close">
-        <i class="fa fa-times" aria-hidden="true"></i>
-      </button>
-      <span class="notification-bar__message">Help us improve PyPI by <a href="https://t.co/rkBRinecDx" target="_blank" title"participate in pypi user tests">participating in user testing</a>. All experience levels needed!</span>
-    </div>
-
     {% block flash_messages %}
       {% csi request.route_path("includes.flash-messages") %}
       {% endcsi %}
