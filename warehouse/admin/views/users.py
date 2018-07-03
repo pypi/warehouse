@@ -112,7 +112,7 @@ def user_detail(request):
         .all()
     )
 
-    form = UserForm(request.POST, user)
+    form = UserForm(request.POST if request.method == "POST" else None, user)
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
