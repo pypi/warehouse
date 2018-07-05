@@ -15,7 +15,7 @@ import pytest
 import uuid
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound
-from webob.multidict import MultiDict
+from webob.multidict import MultiDict, NoVars
 
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import Project
@@ -115,15 +115,17 @@ class TestUserDetail:
             views.user_detail(db_request)
 
     def test_gets_user(self, db_request):
-        user = UserFactory.create()
+        email = EmailFactory.create(primary=True)
+        user = UserFactory.create(emails=[email])
         project = ProjectFactory.create()
         roles = sorted([RoleFactory(project=project, user=user, role_name="Owner")])
         db_request.matchdict["user_id"] = str(user.id)
-        db_request.POST = MultiDict(db_request.POST)
+        db_request.POST = NoVars()
         result = views.user_detail(db_request)
 
         assert result["user"] == user
         assert result["roles"] == roles
+        assert result["form"].emails[0].primary.data
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
