@@ -51,10 +51,6 @@ class Project(Document):
     created = Date()
     classifiers = Keyword(multi=True)
 
-    class Meta:
-        # disable the _all field to save some space
-        all = MetaField(enabled=False)
-
     @classmethod
     def from_db(cls, release):
         obj = cls(meta={"id": release.normalized_name})
