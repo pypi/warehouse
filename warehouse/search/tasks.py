@@ -96,6 +96,7 @@ def _project_docs(db):
 
     for release in windowed_query(release_data, Release.name, 50000):
         p = ProjectDocument.from_db(release)
+        p._index = None
         p.full_clean()
         doc = p.to_dict(include_meta=True)
         doc.pop("_index", None)
