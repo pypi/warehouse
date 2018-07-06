@@ -1,8 +1,8 @@
 Warehouse
 =========
 
-Warehouse is a next-generation Python Package Repository that powers
-`PyPI`_. See `our development roadmap`_, `documentation`_, and
+Warehouse is the software that powers `PyPI`_.
+See `our development roadmap`_, `documentation`_, and
 `architectural overview`_.
 
 Getting Started
