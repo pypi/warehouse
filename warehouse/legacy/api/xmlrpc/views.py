@@ -39,9 +39,6 @@ from warehouse.packaging.models import (
 from warehouse.search.queries import SEARCH_BOOSTS
 
 
-_MAX_MULTICALLS = 20
-
-
 def submit_xmlrpc_metrics(method_name):
     """
     Submit metrics to DataDog
