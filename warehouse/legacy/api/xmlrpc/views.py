@@ -39,24 +39,7 @@ from warehouse.packaging.models import (
 from warehouse.search.queries import SEARCH_BOOSTS
 
 
-def submit_xmlrpc_metrics(method_name):
-    """
-    Submit metrics to DataDog
-    """
-
-    def decorator(f):
-        def wrapped(request, *args, **kwargs):
-            request.registry.datadog.increment(
-                "warehouse.xmlrpc.call", tags=[f"rpc_method:{method_name}"]
-            )
-            with request.registry.datadog.timed(
-                "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method_name}"]
-            ):
-                return f(request, *args, **kwargs)
-
-        return wrapped
-
-    return decorator
+_MAX_MULTICALLS = 20
 
 
 def xmlrpc_method(**kwargs):
@@ -71,8 +54,7 @@ def xmlrpc_method(**kwargs):
         rpc2 = _xmlrpc_method(endpoint="RPC2", **kwargs)
         pypi = _xmlrpc_method(endpoint="pypi", **kwargs)
         pypi_slash = _xmlrpc_method(endpoint="pypi_slash", **kwargs)
-        datadog_metric = submit_xmlrpc_metrics(kwargs["method"])
-        return rpc2(pypi_slash(pypi(datadog_metric(f))))
+        return rpc2(pypi_slash(pypi(f)))
 
     return decorator
 
