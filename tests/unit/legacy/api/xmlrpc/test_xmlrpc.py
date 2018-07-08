@@ -29,39 +29,25 @@ from .....common.db.packaging import (
 
 
 class TestSearch:
-    def test_fails_with_invalid_operator(self, pyramid_request):
+    def test_fails_with_invalid_operator(self):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pyramid_request, {}, "lol nope")
+            xmlrpc.search(pretend.stub(), {}, "lol nope")
 
         assert (
             exc.value.faultString
             == "ValueError: Invalid operator, must be one of 'and' or 'or'."
         )
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == []
 
-    def test_fails_if_spec_not_mapping(self, pyramid_request):
+    def test_fails_if_spec_not_mapping(self):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pyramid_request, "a string")
+            xmlrpc.search(pretend.stub(), "a string")
 
         assert (
             exc.value.faultString
             == "TypeError: Invalid spec, must be a mapping/dictionary."
         )
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == []
 
-    def test_default_search_operator(self, pyramid_request):
+    def test_default_search_operator(self):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -104,10 +90,13 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
         )
+        results = xmlrpc.search(request, {"name": "foo", "summary": ["one", "two"]})
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -122,17 +111,8 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
-    def test_default_search_operator_with_spaces_in_values(self, pyramid_request):
+    def test_default_search_operator_with_spaces_in_values(self):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -182,8 +162,13 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(pyramid_request, {"summary": ["fix code", "like this"]})
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
+        )
+        results = xmlrpc.search(request, {"summary": ["fix code", "like this"]})
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -198,17 +183,8 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
-    def test_searches_with_and(self, pyramid_request):
+    def test_searches_with_and(self):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -251,9 +227,14 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
+        )
         results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "and"
+            request, {"name": "foo", "summary": ["one", "two"]}, "and"
         )
         assert results == [
             {
@@ -269,17 +250,8 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
-    def test_searches_with_or(self, pyramid_request):
+    def test_searches_with_or(self):
         class FakeQuery:
             def __init__(self, type, should):
                 self.type = type
@@ -322,9 +294,14 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
+        )
         results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "or"
+            request, {"name": "foo", "summary": ["one", "two"]}, "or"
         )
         assert results == [
             {
@@ -340,17 +317,8 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
-    def test_version_search(self, pyramid_request):
+    def test_version_search(self):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -386,10 +354,13 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "version": "1.0"}, "and"
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
         )
+        results = xmlrpc.search(request, {"name": "foo", "version": "1.0"}, "and")
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -404,17 +375,8 @@ class TestSearch:
                 "version": "1.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
-    def test_version_search_returns_latest(self, pyramid_request):
+    def test_version_search_returns_latest(self):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -449,8 +411,13 @@ class TestSearch:
                     ),
                 ]
 
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
+        request = pretend.stub(
+            es=pretend.stub(query=FakeQuery),
+            registry=pretend.stub(
+                datadog=pretend.stub(histogram=lambda *a, **kw: None)
+            ),
+        )
+        results = xmlrpc.search(request, {"name": "foo"}, "and")
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -465,26 +432,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.increment.calls == [
-            pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.timed.calls == [
-            pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:search"])
-        ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
 
 
 def test_list_packages(db_request):
     projects = [ProjectFactory.create() for _ in range(10)]
     assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:list_packages"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:list_packages"])
-    ]
 
 
 def test_list_packages_with_serial(db_request):
@@ -497,41 +449,15 @@ def test_list_packages_with_serial(db_request):
             if entry.id > expected[project.name]:
                 expected[project.name] = entry.id
     assert xmlrpc.list_packages_with_serial(db_request) == expected
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.call", tags=["rpc_method:list_packages_with_serial"]
-        )
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:list_packages_with_serial"]
-        )
-    ]
 
 
 def test_package_hosting_mode_shows_none(db_request):
     assert xmlrpc.package_hosting_mode(db_request, "nope") is None
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_hosting_mode"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:package_hosting_mode"]
-        )
-    ]
 
 
 def test_package_hosting_mode_results(db_request):
     project = ProjectFactory.create(hosting_mode="pypi-explicit")
     assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-explicit"
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_hosting_mode"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:package_hosting_mode"]
-        )
-    ]
 
 
 def test_user_packages(db_request):
@@ -554,29 +480,17 @@ def test_user_packages(db_request):
             for p in sorted(maintained_projects, key=lambda x: x.name)
         ]
     )
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:user_packages"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:user_packages"])
-    ]
 
 
 @pytest.mark.parametrize("num", [None, 1, 5])
-def test_top_packages(num, pyramid_request):
+def test_top_packages(num):
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-        xmlrpc.top_packages(pyramid_request, num)
+        xmlrpc.top_packages(pretend.stub(), num)
 
     assert (
         exc.value.faultString
         == "RuntimeError: This API has been removed. Use BigQuery instead."
     )
-    assert pyramid_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:top_packages"])
-    ]
-    assert pyramid_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:top_packages"])
-    ]
 
 
 @pytest.mark.parametrize("domain", [None, "example.com"])
@@ -594,12 +508,6 @@ def test_package_urls(domain, db_request):
         "instead. The XMLRPC method release_urls can be used in the "
         "interim, but will be deprecated in the future."
     )
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_urls"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_urls"])
-    ]
 
 
 @pytest.mark.parametrize("domain", [None, "example.com"])
@@ -617,12 +525,6 @@ def test_package_data(domain, db_request):
         "instead. The XMLRPC method release_data can be used in the "
         "interim, but will be deprecated in the future."
     )
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_data"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_data"])
-    ]
 
 
 def test_package_releases(db_request):
@@ -638,12 +540,6 @@ def test_package_releases(db_request):
             for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
         ][:1]
     )
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_releases"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_releases"])
-    ]
 
 
 def test_package_releases_hidden(db_request):
@@ -655,56 +551,26 @@ def test_package_releases_hidden(db_request):
     assert result == [
         r.version for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
     ]
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_releases"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_releases"])
-    ]
 
 
 def test_package_releases_no_project(db_request):
     result = xmlrpc.package_releases(db_request, "foo")
     assert result == []
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_releases"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_releases"])
-    ]
 
 
 def test_package_releases_no_releases(db_request):
     project = ProjectFactory.create()
     result = xmlrpc.package_releases(db_request, project.name)
     assert result == []
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_releases"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_releases"])
-    ]
 
 
 def test_release_data_no_project(db_request):
     assert xmlrpc.release_data(db_request, "foo", "1.0") == {}
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:release_data"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:release_data"])
-    ]
 
 
 def test_release_data_no_release(db_request):
     project = ProjectFactory.create()
     assert xmlrpc.release_data(db_request, project.name, "1.0") == {}
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:release_data"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:release_data"])
-    ]
 
 
 def test_release_data(db_request):
@@ -751,15 +617,9 @@ def test_release_data(db_request):
         "cheesecake_documentation_id": None,
         "cheesecake_installability_id": None,
     }
-    assert db_request.route_url.calls == [
+    db_request.route_url.calls == [
         pretend.call("packaging.project", name=project.name),
         pretend.call("packaging.release", name=project.name, version=release.version),
-    ]
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:release_data"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:release_data"])
     ]
 
 
@@ -796,12 +656,6 @@ def test_release_urls(db_request):
     assert db_request.route_url.calls == [
         pretend.call("packaging.file", path=file_.path)
     ]
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:release_urls"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:release_urls"])
-    ]
 
 
 def test_package_roles(db_request):
@@ -822,24 +676,10 @@ def test_package_roles(db_request):
             + sorted(maintainers1, key=lambda x: x.user.username.lower())
         )
     ]
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:package_roles"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:package_roles"])
-    ]
 
 
 def test_changelog_last_serial_none(db_request):
     assert xmlrpc.changelog_last_serial(db_request) is None
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:changelog_last_serial"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:changelog_last_serial"]
-        )
-    ]
 
 
 def test_changelog_last_serial(db_request):
@@ -852,14 +692,6 @@ def test_changelog_last_serial(db_request):
     expected = max(e.id for e in entries)
 
     assert xmlrpc.changelog_last_serial(db_request) == expected
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:changelog_last_serial"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:changelog_last_serial"]
-        )
-    ]
 
 
 def test_changelog_since_serial(db_request):
@@ -883,16 +715,6 @@ def test_changelog_since_serial(db_request):
     serial = entries[int(len(entries) / 2) - 1].id
 
     assert xmlrpc.changelog_since_serial(db_request, serial) == expected
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.call", tags=["rpc_method:changelog_since_serial"]
-        )
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call(
-            "warehouse.xmlrpc.timing", tags=["rpc_method:changelog_since_serial"]
-        )
-    ]
 
 
 @pytest.mark.parametrize("with_ids", [True, False, None])
@@ -931,12 +753,6 @@ def test_changelog(db_request, with_ids):
         extra_args.append(with_ids)
 
     assert xmlrpc.changelog(db_request, since - 1, *extra_args) == expected
-    assert db_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:changelog"])
-    ]
-    assert db_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:changelog"])
-    ]
 
 
 def test_browse(db_request):
@@ -992,25 +808,14 @@ def test_browse(db_request):
             ],
         )
     ) == {(expected_release.name, expected_release.version)}
-    assert db_request.registry.datadog.increment.calls == 4 * [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:browse"])
-    ]
-    assert db_request.registry.datadog.timed.calls == 4 * [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:browse"])
-    ]
 
 
-def test_multicall(pyramid_request):
+def test_multicall():
+    request = pretend.stub()
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-        xmlrpc.multicall(pyramid_request, [])
+        xmlrpc.multicall(request, [])
 
     assert exc.value.faultString == (
         "ValueError: MultiCall requests have been deprecated, use individual "
         "requests instead."
     )
-    assert pyramid_request.registry.datadog.increment.calls == [
-        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:system.multicall"])
-    ]
-    assert pyramid_request.registry.datadog.timed.calls == [
-        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:system.multicall"])
-    ]
