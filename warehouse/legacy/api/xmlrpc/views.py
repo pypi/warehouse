@@ -45,15 +45,14 @@ def submit_xmlrpc_metrics(method=None):
     """
 
     def decorator(f):
-        @functools.wraps(f)
-        def wrapped(request, *args, **kwargs):
+        def wrapped(context, request):
             request.registry.datadog.increment(
                 "warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"]
             )
             with request.registry.datadog.timed(
                 "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method}"]
             ):
-                return f(request, *args, **kwargs)
+                return f(context, request)
 
         return wrapped
 
@@ -66,7 +65,11 @@ def xmlrpc_method(**kwargs):
     xmlrpc_method
     """
     # Add some default arguments
-    kwargs.update(require_csrf=False, require_methods=["POST"])
+    kwargs.update(
+        require_csrf=False,
+        require_methods=["POST"],
+        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+    )
 
     def decorator(f):
         rpc2 = _xmlrpc_method(endpoint="RPC2", **kwargs)
@@ -103,7 +106,6 @@ def exception_view(exc, request):
 
 
 @xmlrpc_method(method="search")
-@submit_xmlrpc_metrics(method="search")
 def search(request, spec, operator="and"):
     if not isinstance(spec, collections.abc.Mapping):
         raise XMLRPCWrappedError(
@@ -184,21 +186,18 @@ def search(request, spec, operator="and"):
 
 
 @xmlrpc_method(method="list_packages")
-@submit_xmlrpc_metrics(method="list_packages")
 def list_packages(request):
     names = request.db.query(Project.name).order_by(Project.name).all()
     return [n[0] for n in names]
 
 
 @xmlrpc_method(method="list_packages_with_serial")
-@submit_xmlrpc_metrics(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
     return dict((serial[0], serial[1]) for serial in serials)
 
 
 @xmlrpc_method(method="package_hosting_mode")
-@submit_xmlrpc_metrics(method="package_hosting_mode")
 def package_hosting_mode(request, package_name):
     try:
         project = (
@@ -213,7 +212,6 @@ def package_hosting_mode(request, package_name):
 
 
 @xmlrpc_method(method="user_packages")
-@submit_xmlrpc_metrics(method="user_packages")
 def user_packages(request, username):
     roles = (
         request.db.query(Role)
@@ -226,7 +224,6 @@ def user_packages(request, username):
 
 
 @xmlrpc_method(method="top_packages")
-@submit_xmlrpc_metrics(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
         RuntimeError("This API has been removed. Use BigQuery instead.")
@@ -234,7 +231,6 @@ def top_packages(request, num=None):
 
 
 @xmlrpc_cache_by_project(method="package_releases")
-@submit_xmlrpc_metrics(method="package_releases")
 def package_releases(request, package_name, show_hidden=False):
     try:
         project = (
@@ -259,7 +255,6 @@ def package_releases(request, package_name, show_hidden=False):
 
 
 @xmlrpc_method(method="package_data")
-@submit_xmlrpc_metrics(method="package_data")
 def package_data(request, package_name, version):
     settings = request.registry.settings
     domain = settings.get("warehouse.domain", request.domain)
@@ -276,7 +271,6 @@ def package_data(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_data")
-@submit_xmlrpc_metrics(method="release_data")
 def release_data(request, package_name, version):
     try:
         release = (
@@ -335,7 +329,6 @@ def release_data(request, package_name, version):
 
 
 @xmlrpc_method(method="package_urls")
-@submit_xmlrpc_metrics(method="package_urls")
 def package_urls(request, package_name, version):
     settings = request.registry.settings
     domain = settings.get("warehouse.domain", request.domain)
@@ -352,7 +345,6 @@ def package_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_urls")
-@submit_xmlrpc_metrics(method="release_urls")
 def release_urls(request, package_name, version):
     files = (
         request.db.query(File)
@@ -387,7 +379,6 @@ def release_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="package_roles")
-@submit_xmlrpc_metrics(method="package_roles")
 def package_roles(request, package_name):
     roles = (
         request.db.query(Role)
@@ -400,13 +391,11 @@ def package_roles(request, package_name):
 
 
 @xmlrpc_method(method="changelog_last_serial")
-@submit_xmlrpc_metrics(method="changelog_last_serial")
 def changelog_last_serial(request):
     return request.db.query(func.max(JournalEntry.id)).scalar()
 
 
 @xmlrpc_method(method="changelog_since_serial")
-@submit_xmlrpc_metrics(method="changelog_since_serial")
 def changelog_since_serial(request, serial):
     entries = (
         request.db.query(JournalEntry)
@@ -428,7 +417,6 @@ def changelog_since_serial(request, serial):
 
 
 @xmlrpc_method(method="changelog")
-@submit_xmlrpc_metrics(method="changelog")
 def changelog(request, since, with_ids=False):
     since = datetime.datetime.utcfromtimestamp(since)
     entries = (
@@ -456,7 +444,6 @@ def changelog(request, since, with_ids=False):
 
 
 @xmlrpc_method(method="browse")
-@submit_xmlrpc_metrics(method="browse")
 def browse(request, classifiers):
     classifiers_q = (
         request.db.query(Classifier)
@@ -487,7 +474,6 @@ def browse(request, classifiers):
 
 
 @xmlrpc_method(method="system.multicall")
-@submit_xmlrpc_metrics(method="system.multicall")
 def multicall(request, args):
     raise XMLRPCWrappedError(
         ValueError(
