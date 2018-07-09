@@ -101,7 +101,7 @@ class TestSESEmailSender:
         assert sender._sender == "DevPyPI <noreply@example.com>"
         assert sender._db is request.db
 
-    def test_send(self, db_session, monkeypatch):
+    def test_send(self, db_session):
         # Determine what the random boundary token will be
         import random
         import sys
