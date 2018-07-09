@@ -79,6 +79,7 @@ def datadog():
         event=pretend.call_recorder(lambda *args, **kwargs: None),
         increment=pretend.call_recorder(lambda *args, **kwargs: None),
         histogram=pretend.call_recorder(lambda *args, **kwargs: None),
+        timing=pretend.call_recorder(lambda *args, **kwargs: None),
         timed=pretend.call_recorder(
             lambda *args, **kwargs: datadog_timing(*args, **kwargs)
         ),
@@ -234,13 +235,14 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.yield_fixture
-def webtest(app_config):
+def webtest(app_config, datadog):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something
     #       between test cases to wipe any commited changes.
 
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
+    app_config.registry.datadog = datadog
 
     try:
         yield _TestApp(app_config.make_wsgi_app())
