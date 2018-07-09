@@ -233,6 +233,9 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_exact_phrase_query(self, monkeypatch, db_request, page):
@@ -274,6 +277,9 @@ class TestSearch:
         ]
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
+        ]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.views.search.results", (page or 1) + 10)
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
@@ -372,6 +378,9 @@ class TestSearch:
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
         assert suggest.sort.calls == [pretend.call(i) for i in expected]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_with_classifiers(self, monkeypatch, db_request, page):
@@ -432,6 +441,9 @@ class TestSearch:
             pretend.call("terms", classifiers=["foo :: bar"]),
             pretend.call("terms", classifiers=["fiz :: buz"]),
         ]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
     def test_without_a_query(self, monkeypatch, db_request, page):
@@ -462,6 +474,9 @@ class TestSearch:
             pretend.call(es_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert db_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.views.search.results", 1000)
+        ]
 
     def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request):
         params = MultiDict({"page": 15})
@@ -485,6 +500,7 @@ class TestSearch:
             pretend.call(es_query, url_maker=url_maker, page=15 or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert db_request.registry.datadog.histogram.calls == []
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
         params = MultiDict({"page": "abc"})
@@ -505,6 +521,7 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == []
+        assert db_request.registry.datadog.histogram.calls == []
 
 
 def test_classifiers(db_request):

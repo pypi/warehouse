@@ -12,9 +12,35 @@
 
 import xmlrpc.client
 
+import pretend
 import pytest
 
 
-def test_xmlrpc_raises_fault(webtest):
+def test_xmlrpc_raises_fault(app_config, webtest):
     with pytest.raises(xmlrpc.client.Fault):
         webtest.xmlrpc("/pypi", "list_packages", "one", "two")
+    assert app_config.registry.datadog.increment.calls == [
+        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:list_packages"])
+    ]
+    assert app_config.registry.datadog.timed.calls == [
+        pretend.call("warehouse.xmlrpc.timing", tags=["rpc_method:list_packages"])
+    ]
+
+
+def test_xmlrpc_nomethod(app_config, webtest):
+    with pytest.raises(xmlrpc.client.Fault):
+        webtest.xmlrpc("/pypi", "multipassssss")
+    assert app_config.registry.datadog.increment.calls == []
+    assert app_config.registry.datadog.timed.calls == []
+
+
+def test_xmlrpc_succeeds(app_config, webtest):
+    webtest.xmlrpc("/pypi", "changelog_last_serial")
+    assert app_config.registry.datadog.increment.calls == [
+        pretend.call("warehouse.xmlrpc.call", tags=["rpc_method:changelog_last_serial"])
+    ]
+    assert app_config.registry.datadog.timed.calls == [
+        pretend.call(
+            "warehouse.xmlrpc.timing", tags=["rpc_method:changelog_last_serial"]
+        )
+    ]
