@@ -169,9 +169,9 @@ cmarkgfm==0.4.2 \
     --hash=sha256:f20900f16377f2109783ae9348d34bc80530808439591c3d3df73d5c7ef1a00c
 datadog==0.22.0 \
     --hash=sha256:86cef95acd73543d18c417f1b0313c0a7274ed8f5ae9cceb46314f4e588085b1
-disposable-email-domains==0.0.29 \
-    --hash=sha256:bc34ba8345f75667a7f9ae355192f8db5f10b6fc9b9f1b96bf338355addaa793 \
-    --hash=sha256:8b2e8f0a8f47fa004c02b101ce72097b4e7d0b17ad5f65302ebfebf43c76aa8b
+disposable-email-domains==0.0.30 \
+    --hash=sha256:29ef00d34e7fd1c999e6ba7bdbb8b72da07ded52b24a26af291cff5a4bf570b1 \
+    --hash=sha256:dda4792144b37e0815c8da5f59469613bb6261c1627214c119dcc7aa4c6e66fb
 decorator==4.2.1 \
     --hash=sha256:7d46dd9f3ea1cf5f06ee0e4e1277ae618cf48dfb10ada7c8427cd46c42702a0e \
     --hash=sha256:94d1d8905f5010d74bbbd86c30471255661a14187c45f8d7f3e5aa8540fdb2e5
