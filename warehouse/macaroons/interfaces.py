@@ -18,3 +18,8 @@ class IMacaroonService(Interface):
         """
         Return the id of the user associated with the given macaroon.
         """
+
+    def verify(macaroon):
+        """
+        Verify the given macaroon.
+        """

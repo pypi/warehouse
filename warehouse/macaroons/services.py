@@ -20,16 +20,18 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon as Macaroon
 
 
+class InvalidMacaroon(Exception):
+    ...
+
+
 @implementer(IMacaroonService)
 class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
 
-    def find_userid(self, macaroon):
-        m = pymacaroons.Macaroon.deserialize(macaroon)
-
+    def _get_record_from_db(self, macaroon):
         # TODO: Better handle parsing the identifier here.
-        macaroon_id = m.identifier.split()[1].split(b":")[1].decode("utf8")
+        macaroon_id = macaroon.identifier.split()[1].split(b":")[1].decode("utf8")
 
         try:
             dm = (
@@ -41,7 +43,27 @@ class DatabaseMacaroonService:
         except NoResultFound:
             return
 
-        return dm.user.id
+        return dm
+
+    def find_userid(self, macaroon):
+        m = pymacaroons.Macaroon.deserialize(macaroon)
+        dm = self._get_record_from_db(m)
+
+        return None if dm is None else dm.user.id
+
+    def verify(self, macaroon):
+        m = pymacaroons.Macaroon.deserialize(macaroon)
+        dm = self._get_record_from_db(m)
+
+        if dm is None:
+            raise InvalidMacaroon
+
+        verifier = pymacaroons.Verifier()
+
+        if not verifier.verify(m, dm.key):
+            raise InvalidMacaroon
+        else:
+            return True
 
 
 def database_macaroon_factory(context, request):
