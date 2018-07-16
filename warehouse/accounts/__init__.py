@@ -33,6 +33,7 @@ from warehouse.accounts.services import (
 )
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import BasicAuthBreachedPassword
+from warehouse.macaroons.auth_policy import MacaroonAuthenticationPolicy
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
@@ -143,7 +144,12 @@ def includeme(config):
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_authenticate),
+<<<<<<< HEAD
                 BasicAuthAuthenticationPolicy(check=_basic_auth_login),
+=======
+                MacaroonAuthenticationPolicy(callback=_authenticate),
+                BasicAuthAuthenticationPolicy(check=_login),
+>>>>>>> Authenticate the user using Macaroons
             ]
         )
     )

@@ -12,6 +12,8 @@
 
 import os
 
+import pymacaroons
+
 from sqlalchemy import Column, ForeignKey, DateTime, String, LargeBinary
 from sqlalchemy import orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID

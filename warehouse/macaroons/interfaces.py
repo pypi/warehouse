@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.macaroons.services import database_macaroon_factory
+from zope.interface import Interface
 
 
-def includeme(config):
-    config.register_service_factory(database_macaroon_factory, IMacaroonService)
+class IMacaroonService(Interface):
+    def find_userid(macaroon):
+        """
+        Return the id of the user associated with the given macaroon.
+        """
