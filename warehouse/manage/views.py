@@ -301,8 +301,7 @@ def manage_projects(request):
     context=Project,
     renderer="manage/settings.html",
     uses_session=True,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 def manage_project_settings(project, request):
     return {"project": project}
@@ -313,7 +312,7 @@ def manage_project_settings(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def delete_project(project, request):
     confirm_project(project, request, fail_route="manage.project.settings")
@@ -327,7 +326,7 @@ def delete_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def destroy_project_docs(project, request):
     confirm_project(project, request, fail_route="manage.project.documentation")
@@ -345,8 +344,7 @@ def destroy_project_docs(project, request):
     context=Project,
     renderer="manage/releases.html",
     uses_session=True,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 def manage_project_releases(project, request):
     return {"project": project}
@@ -359,8 +357,7 @@ def manage_project_releases(project, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage",
-    effective_principals=Authenticated,
+    permission="manage:project",
 )
 class ManageProjectRelease:
     def __init__(self, release, request):
@@ -492,7 +489,7 @@ class ManageProjectRelease:
     renderer="manage/roles.html",
     uses_session=True,
     require_methods=False,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_roles(project, request, _form_class=CreateRoleForm):
     user_service = request.find_service(IUserService, context=None)
@@ -575,7 +572,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def change_project_role(project, request, _form_class=ChangeRoleForm):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -658,7 +655,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage",
+    permission="manage:project",
 )
 def delete_project_role(project, request):
     # TODO: This view was modified to handle deleting multiple roles for a
@@ -700,7 +697,7 @@ def delete_project_role(project, request):
     context=Project,
     renderer="manage/history.html",
     uses_session=True,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_history(project, request):
     journals = (
@@ -717,7 +714,7 @@ def manage_project_history(project, request):
     context=Project,
     renderer="manage/documentation.html",
     uses_session=True,
-    permission="manage",
+    permission="manage:project",
 )
 def manage_project_documentation(project, request):
     return {"project": project}
