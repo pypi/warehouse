@@ -46,7 +46,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    effective_principals=Authenticated,
+    permission="manage:user",
 )
 class ManageAccountViews:
     def __init__(self, request):
@@ -272,7 +272,7 @@ class ManageAccountViews:
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
-    effective_principals=Authenticated,
+    permission="manage:user",
 )
 def manage_projects(request):
     def _key(project):
