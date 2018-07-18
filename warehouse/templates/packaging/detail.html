@@ -246,6 +246,11 @@
                     <a href="{{ request.route_url('packaging.file', path=file.path) }}">
                       {{ file.filename }}
                     </a>
+                    {% if file.has_signature %}
+                    <a href="{{ request.route_url('packaging.file', path=file.pgp_path) }}">
+                      <i class="fa fa-key" aria-hidden="true"></i>
+                    </a>
+                    {% endif %}
                     {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
                     <a class="-js-copy-hash table__sha256-link tooltipped tooltipped-s" aria-label="Copy to clipboard" data-original-label="Copy to clipboard" data-clipboard-text="{{ file.sha256_digest }}">
                       <i class="fa fa-copy" aria-hidden="true"></i>
