@@ -175,7 +175,7 @@ gulp.task("dist:css", () => {
 
 
 gulp.task("dist:fontawesome:css", () => {
-  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free-webfonts/package.json")); // eslint-disable-line no-undef
+  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json")); // eslint-disable-line no-undef
   let fACSSPath = path.resolve(fABasePath, "css", "*.css");
 
   return gulp.src(fACSSPath)
@@ -189,7 +189,7 @@ gulp.task("dist:fontawesome:css", () => {
 });
 
 gulp.task("dist:fontawesome:fonts", () => {
-  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free-webfonts/package.json")); // eslint-disable-line no-undef
+  let fABasePath = path.dirname(require.resolve("@fortawesome/fontawesome-free/package.json")); // eslint-disable-line no-undef
   let faFontPath = path.resolve(fABasePath, "webfonts", "*.*");
 
   return gulp.src(faFontPath)
