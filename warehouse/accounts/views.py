@@ -19,7 +19,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.security import Authenticated, remember, forget
+from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 

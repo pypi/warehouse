@@ -13,7 +13,6 @@
 from collections import defaultdict
 
 from pyramid.httpexceptions import HTTPSeeOther
-from pyramid.security import Authenticated
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
