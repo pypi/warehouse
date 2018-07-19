@@ -46,6 +46,7 @@ from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.sitemap.models import SitemapMixin
+from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
 
 
@@ -280,6 +281,8 @@ class Release(db.ModelBase):
         )
 
     __repr__ = make_repr("name", "version")
+    __parent__ = dotted_navigator("project")
+    __name__ = dotted_navigator("version")
 
     name = Column(
         Text,
@@ -381,23 +384,6 @@ class Release(db.ModelBase):
         uselist=False,
         viewonly=True,
     )
-
-    def __acl__(self):
-        session = orm.object_session(self)
-        acls = [(Allow, "group:admins", "admin")]
-
-        # Get all of the users for this project.
-        query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload("project"))
-        query = query.options(orm.joinedload("user").lazyload("emails"))
-        for role in sorted(
-            query.all(), key=lambda x: ["Owner", "Maintainer"].index(x.role_name)
-        ):
-            if role.role_name == "Owner":
-                acls.append((Allow, str(role.user.id), ["manage:project", "upload"]))
-            else:
-                acls.append((Allow, str(role.user.id), ["upload"]))
-        return acls
 
     @property
     def urls(self):
