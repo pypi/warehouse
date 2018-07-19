@@ -263,6 +263,7 @@ class TestJSONRelease:
                             "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
+                        "requires_python": None,
                     }
                 ],
                 "2.0": [
@@ -283,6 +284,7 @@ class TestJSONRelease:
                             "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
+                        "requires_python": None,
                     }
                 ],
                 "3.0": [
@@ -303,6 +305,7 @@ class TestJSONRelease:
                             "%Y-%m-%dT%H:%M:%S"
                         ),
                         "url": "/the/fake/url/",
+                        "requires_python": None,
                     }
                 ],
             },
@@ -322,6 +325,7 @@ class TestJSONRelease:
                     "size": 200,
                     "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
+                    "requires_python": None,
                 }
             ],
             "last_serial": je.id,
@@ -402,6 +406,7 @@ class TestJSONRelease:
                         "size": 200,
                         "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                         "url": "/the/fake/url/",
+                        "requires_python": None,
                     }
                 ]
             },
@@ -418,6 +423,7 @@ class TestJSONRelease:
                     "size": 200,
                     "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "url": "/the/fake/url/",
+                    "requires_python": None,
                 }
             ],
             "last_serial": je.id,
