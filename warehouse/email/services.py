@@ -11,7 +11,9 @@
 # limitations under the License.
 
 from email.headerregistry import Address
-from email.utils import parseaddr
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.utils import parseaddr, formataddr
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -68,13 +70,25 @@ class SESEmailSender:
         )
 
     def send(self, subject, body, *, recipient):
-        resp = self._client.send_email(
+        message = MIMEMultipart("mixed")
+        message["Subject"] = subject
+        message["From"] = self._sender
+
+        # The following is necessary to support friendly names with Unicode characters,
+        # otherwise the entire value will get encoded and will not be accepted by SES:
+        #
+        #   >>> parseaddr("Fööbar <foo@bar.com>")
+        #   ('Fööbar', 'foo@bar.com')
+        #   >>> formataddr(_)
+        #   '=?utf-8?b?RsO2w7ZiYXI=?= <foo@bar.com>'
+        message["To"] = formataddr(parseaddr(recipient))
+
+        message.attach(MIMEText(body, "plain", "utf-8"))
+
+        resp = self._client.send_raw_email(
             Source=self._sender,
-            Destination={"ToAddresses": [recipient]},
-            Message={
-                "Subject": {"Data": subject, "Charset": "UTF-8"},
-                "Body": {"Text": {"Data": body, "Charset": "UTF-8"}},
-            },
+            Destinations=[recipient],
+            RawMessage={"Data": message.as_string()},
         )
 
         self._db.add(

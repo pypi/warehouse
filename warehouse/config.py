@@ -21,7 +21,7 @@ from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
-from pyramid.security import Allow
+from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -57,7 +57,7 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [(Allow, "group:admins", "admin")]
+    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
 
     def __init__(self, request):
         pass
@@ -194,6 +194,7 @@ def configure(settings=None):
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
+    maybe_set(settings, "sentry.frontend_dsn", "SENTRY_FRONTEND_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")

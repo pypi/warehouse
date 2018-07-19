@@ -22,7 +22,7 @@ import certifi
 import elasticsearch
 
 from warehouse.packaging.models import Classifier, Project, Release, release_classifiers
-from warehouse.packaging.search import Project as ProjectDocType
+from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
 from warehouse import tasks
 from warehouse.utils.db import windowed_query
@@ -95,7 +95,8 @@ def _project_docs(db):
     )
 
     for release in windowed_query(release_data, Release.name, 50000):
-        p = ProjectDocType.from_db(release)
+        p = ProjectDocument.from_db(release)
+        p._index = None
         p.full_clean()
         doc = p.to_dict(include_meta=True)
         doc.pop("_index", None)

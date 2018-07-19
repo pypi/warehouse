@@ -132,6 +132,8 @@ Package querying
 ``search(spec[, operator])``
   Search the package database using the indicated search `spec`.
 
+  Returns at most 100 results.
+
   The `spec` may include any of the keywords described in the above list
   (except 'stable_version' and 'classifiers'), for example:
   {'description': 'spam'} will search description fields. Within the spec, a

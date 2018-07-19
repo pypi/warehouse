@@ -65,7 +65,7 @@
           <form method="POST" action="{{ request.route_path('accounts.logout') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <button type="submit" value="log out" class="dropdown__link">
-              <i class="fa fa-sign-out" aria-hidden="true"></i>
+              <i class="fa fa-sign-out-alt" aria-hidden="true"></i>
               Log Out
             </button>
           </form>
