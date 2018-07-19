@@ -511,6 +511,12 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 f"User '{username}' already has {role_name} role for project",
                 queue="error",
             )
+        elif user.primary_email is None or not user.primary_email.verified:
+            request.session.flash(
+                f"User '{username}' does not have a verified primary email "
+                f"adddress and cannot be added as a {role_name} for project.",
+                queue="error",
+            )
         else:
             request.db.add(
                 Role(user=user, project=project, role_name=form.role_name.data)
