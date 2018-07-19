@@ -21,7 +21,7 @@ from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
-from pyramid.security import Allow
+from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -57,7 +57,7 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [(Allow, "group:admins", "admin")]
+    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
 
     def __init__(self, request):
         pass
