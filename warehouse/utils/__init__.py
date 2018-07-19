@@ -23,4 +23,5 @@ def dotted_navigator(path):
         for item in path.split("."):
             obj = getattr(obj, item)
         return obj
+
     return property(method)

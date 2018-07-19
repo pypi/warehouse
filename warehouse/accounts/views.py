@@ -361,9 +361,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.verify-email",
-    uses_session=True,
-    permission="manage:user",
+    route_name="accounts.verify-email", uses_session=True, permission="manage:user"
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")
