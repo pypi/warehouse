@@ -1152,6 +1152,7 @@ class TestManageProjectRoles:
     def test_post_new_role(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foobar")
         new_user = UserFactory.create(username="new_user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
         owner_2 = UserFactory.create(username="owner_2")
         owner_1_role = RoleFactory.create(
@@ -1293,6 +1294,54 @@ class TestManageProjectRoles:
             "roles_by_user": {user.username: [role]},
             "form": form_obj,
         }
+
+    @pytest.mark.parametrize("with_email", [True, False])
+    def test_post_unverified_email(self, db_request, with_email):
+        project = ProjectFactory.create(name="foobar")
+        user = UserFactory.create(username="testuser")
+        if with_email:
+            EmailFactory.create(user=user, verified=False, primary=True)
+
+        user_service = pretend.stub(
+            find_userid=lambda username: user.id, get_user=lambda userid: user
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context: user_service
+        )
+        db_request.method = "POST"
+        db_request.POST = pretend.stub()
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data=user.username),
+            role_name=pretend.stub(data="Owner"),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.manage_project_roles(project, db_request, _form_class=form_class)
+
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(db_request.POST, user_service=user_service),
+            pretend.call(user_service=user_service),
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "User 'testuser' does not have a verified primary email adddress "
+                "and cannot be added as a Owner for project.",
+                queue="error",
+            )
+        ]
+
+        # No additional roles are created
+        assert db_request.db.query(Role).all() == []
+
+        assert result == {"project": project, "roles_by_user": {}, "form": form_obj}
 
 
 class TestChangeProjectRoles:
