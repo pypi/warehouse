@@ -201,7 +201,9 @@ def reindex_project(request, project_name):
         replicas=request.registry.get("elasticsearch.replicas", 0),
     )
 
-    for _ in parallel_bulk(client, _project_docs(request.db, project_name)):
+    for _ in parallel_bulk(
+        client, _project_docs(request.db, project_name), index=index_name
+    ):
         pass
 
 
@@ -210,6 +212,6 @@ def unindex_project(request, project_name):
     client = request.registry["elasticsearch.client"]
     index_name = request.registry["elasticsearch.index"]
     try:
-        client.delete(index=index_name, doc_type="project", id=project_name)
+        client.delete(index=index_name, doc_type="doc", id=project_name)
     except elasticsearch.exceptions.NotFoundError:
         pass

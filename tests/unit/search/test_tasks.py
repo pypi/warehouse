@@ -296,7 +296,7 @@ class TestPartialReindex:
         class TestException(Exception):
             pass
 
-        def parallel_bulk(client, iterable):
+        def parallel_bulk(client, iterable, index=None):
             assert client is es_client
             assert iterable is docs
             raise TestException
@@ -335,7 +335,7 @@ class TestPartialReindex:
         unindex_project(db_request, "foo")
 
         assert es_client.delete.calls == [
-            pretend.call(index="warehouse", doc_type="project", id="foo")
+            pretend.call(index="warehouse", doc_type="doc", id="foo")
         ]
 
     def test_successfully_indexes(self, db_request, monkeypatch):
@@ -360,12 +360,14 @@ class TestPartialReindex:
             }
         )
 
-        parallel_bulk = pretend.call_recorder(lambda client, iterable: [None])
+        parallel_bulk = pretend.call_recorder(
+            lambda client, iterable, index=None: [None]
+        )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
         reindex_project(db_request, "foo")
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs)]
+        assert parallel_bulk.calls == [pretend.call(es_client, docs, index="warehouse")]
         assert es_client.indices.create.calls == []
         assert es_client.indices.delete.calls == []
         assert es_client.indices.aliases == {"warehouse": ["warehouse-aaaaaaaaaa"]}
