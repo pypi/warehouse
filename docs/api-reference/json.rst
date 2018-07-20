@@ -64,6 +64,10 @@ Project
                 "package_url": "https://pypi.org/project/sampleproject/",
                 "platform": "UNKNOWN",
                 "project_url": "https://pypi.org/project/sampleproject/",
+                "project_urls": {
+                    "Download": "UNKNOWN",
+                    "Homepage": "https://github.com/pypa/sampleproject"
+                },
                 "release_url": "https://pypi.org/project/sampleproject/1.2.0/",
                 "requires_dist": null,
                 "requires_python": null,
