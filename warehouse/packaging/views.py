@@ -128,7 +128,7 @@ def release_detail(release, request):
     context=Project,
     renderer="includes/manage-project-button.html",
     uses_session=True,
-    permission="manage",
+    permission="manage:project",
 )
 def edit_project_button(project, request):
     return {"project": project}

@@ -102,9 +102,17 @@ class TestSESEmailSender:
         assert sender._db is request.db
 
     def test_send(self, db_session):
+        # Determine what the random boundary token will be
+        import random
+        import sys
+
+        random.seed(42)
+        token = random.randrange(sys.maxsize)
+        random.seed(42)
+
         resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
         aws_client = pretend.stub(
-            send_email=pretend.call_recorder(lambda *a, **kw: resp)
+            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
         )
         sender = SESEmailSender(
             aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
@@ -116,13 +124,27 @@ class TestSESEmailSender:
             recipient="FooBar <somebody@example.com>",
         )
 
-        assert aws_client.send_email.calls == [
+        assert aws_client.send_raw_email.calls == [
             pretend.call(
                 Source="DevPyPI <noreply@example.com>",
-                Destination={"ToAddresses": ["FooBar <somebody@example.com>"]},
-                Message={
-                    "Subject": {"Data": "This is a Subject", "Charset": "UTF-8"},
-                    "Body": {"Text": {"Data": "This is a Body", "Charset": "UTF-8"}},
+                Destinations=["FooBar <somebody@example.com>"],
+                RawMessage={
+                    "Data": (
+                        'Content-Type: multipart/mixed; boundary="==============={token}=="\n'  # noqa
+                        "MIME-Version: 1.0\n"
+                        "Subject: This is a Subject\n"
+                        "From: DevPyPI <noreply@example.com>\n"
+                        "To: FooBar <somebody@example.com>\n"
+                        "\n"
+                        "--==============={token}==\n"
+                        'Content-Type: text/plain; charset="utf-8"\n'
+                        "MIME-Version: 1.0\n"
+                        "Content-Transfer-Encoding: base64\n"
+                        "\n"
+                        "VGhpcyBpcyBhIEJvZHk=\n"
+                        "\n"
+                        "--==============={token}==--\n"
+                    ).format(token=token)
                 },
             )
         ]

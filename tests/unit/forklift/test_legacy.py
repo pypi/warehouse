@@ -686,6 +686,8 @@ class TestFileUpload:
         pyramid_request.POST["protocol_version"] = version
         pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
 
+        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
+
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(pyramid_request)
 
@@ -700,7 +702,7 @@ class TestFileUpload:
             # metadata_version errors.
             (
                 {},
-                "None is an invalid value for Metadata-Version. "
+                "'' is an invalid value for Metadata-Version. "
                 "Error: This field is required. "
                 "See "
                 "https://packaging.python.org/specifications/core-metadata",
@@ -864,6 +866,9 @@ class TestFileUpload:
         self, pyramid_config, db_request, post_data, message
     ):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(post_data)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
@@ -1045,6 +1050,9 @@ class TestFileUpload:
         )
         admin_flag.enabled = True
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         name = "fails-with-admin-flag"
         db_request.POST = MultiDict(
             {
@@ -1078,6 +1086,9 @@ class TestFileUpload:
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1098,8 +1109,10 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
     def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
-
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1117,6 +1130,9 @@ class TestFileUpload:
 
     def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
         pyramid_config.testing_securitypolicy(userid=1)
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        db_request.user = user
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -1321,6 +1337,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1359,6 +1376,7 @@ class TestFileUpload:
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1394,6 +1412,7 @@ class TestFileUpload:
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
+        db_request.user = user
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1430,6 +1449,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1470,6 +1490,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1507,6 +1528,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1546,6 +1568,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1622,6 +1645,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1659,6 +1683,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1691,6 +1716,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name="foobar", upload_limit=(60 * 1024 * 1024)  # 60 MB
@@ -1732,6 +1758,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1770,6 +1797,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1813,6 +1841,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1859,6 +1888,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1910,6 +1940,8 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1961,6 +1993,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -1999,6 +2032,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2039,6 +2073,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2430,6 +2465,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
+        db_request.user = user
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2729,11 +2765,13 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
         [
-            ((True,), True),
-            ((False,), False),
-            ((True, True), True),
-            ((True, False), True),
-            ((False, False), False),
+            ([], False),
+            ([True], True),
+            ([False], False),
+            ([True, True], True),
+            ([True, False], True),
+            ([False, False], False),
+            ([False, True], False),
         ],
     )
     def test_upload_requires_verified_email(
@@ -2742,8 +2780,8 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
 
         user = UserFactory.create()
-        for verified in emails_verified:
-            EmailFactory.create(user=user, verified=verified)
+        for i, verified in enumerate(emails_verified):
+            EmailFactory.create(user=user, verified=verified, primary=i == 0)
 
         filename = "{}-{}.tar.gz".format("example", "1.0")
 
@@ -2782,11 +2820,10 @@ class TestFileUpload:
             assert resp.status_code == 400
             assert resp.status == (
                 (
-                    "400 User {!r} has no verified email "
-                    "addresses, verify at least one "
-                    "address before registering a new project "
-                    "on PyPI. See /the/help/url/ "
-                    "for more information."
+                    "400 User {!r} does not have a verified primary email "
+                    "address. Please add a verified primary email before "
+                    "attempting to upload to PyPI. See /the/help/url/ for "
+                    "more information.for more information."
                 ).format(user.username)
             )
 

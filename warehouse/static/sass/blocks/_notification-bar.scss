@@ -38,6 +38,7 @@
     - .notification-bar--dismissable to its classes
     - data-controller="notification" as an attribute
     - data-target="notification.notification" as an attribute
+    - a dismiss button (see html example below)
 
   The data-controller and data-target are used for handling visibility,
   including adding .notification-bar--visible to notification-bar div if it has
@@ -45,6 +46,14 @@
 
   <div class="notification-bar notification-bar--dismissable"
     data-controller="notification" data-target="notification.notification">
+      <button
+       title="Dismiss this notification"
+       data-target="notification.dismissButton"
+       data-action="click->notification#dismiss"
+       class="notification-bar__dismiss"
+       aria-label="close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
       <span class="notification-bar__icon">
         // icon here
       </span>

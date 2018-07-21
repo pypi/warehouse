@@ -15,6 +15,7 @@ from collections import OrderedDict
 import pretend
 import pytest
 
+from pyramid.location import lineage
 from pyramid.security import Allow
 
 from warehouse.packaging.models import ProjectFactory, Dependency, DependencyKind, File
@@ -108,10 +109,22 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
-        assert project.__acl__() == [
+        acls = []
+        for location in lineage(project):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage", "upload"]),
-            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]
@@ -265,10 +278,22 @@ class TestRelease:
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
         release = DBReleaseFactory.create(project=project)
 
-        assert release.__acl__() == [
+        acls = []
+        for location in lineage(release):
+            try:
+                acl = location.__acl__
+            except AttributeError:
+                continue
+
+            if acl and callable(acl):
+                acl = acl()
+
+            acls.extend(acl)
+
+        assert acls == [
             (Allow, "group:admins", "admin"),
-            (Allow, str(owner1.user.id), ["manage", "upload"]),
-            (Allow, str(owner2.user.id), ["manage", "upload"]),
+            (Allow, str(owner1.user.id), ["manage:project", "upload"]),
+            (Allow, str(owner2.user.id), ["manage:project", "upload"]),
             (Allow, str(maintainer1.user.id), ["upload"]),
             (Allow, str(maintainer2.user.id), ["upload"]),
         ]

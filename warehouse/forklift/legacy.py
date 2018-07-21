@@ -701,6 +701,26 @@ def file_upload(request):
             HTTPForbidden, "Invalid or non-existent authentication information."
         )
 
+    # Ensure that user has a verified, primary email address. This should both
+    # reduce the ease of spam account creation and activty, as well as act as
+    # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+    # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+    #       we might consider a different condition, possibly looking at
+    #       User.is_active instead.
+    if not (request.user.primary_email and request.user.primary_email.verified):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "User {!r} does not have a verified primary email address. "
+                "Please add a verified primary email before attempting to "
+                "upload to PyPI. See {project_help} for more information."
+                "for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="verified-email"),
+            ),
+        ) from None
+
     # Do some cleanup of the various form fields
     for key in list(request.POST):
         value = request.POST.get(key)
@@ -794,24 +814,6 @@ def file_upload(request):
                     "New project registration temporarily disabled. "
                     "See {projecthelp} for details"
                 ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
-            ) from None
-
-        # Ensure that user has at least one verified email address. This should
-        # reduce the ease of spam account creation and activity.
-        # TODO: Once legacy is shutdown consider the condition here, perhaps
-        # move to user.is_active or some other boolean
-        if not any(email.verified for email in request.user.emails):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "User {!r} has no verified email addresses, "
-                    "verify at least one address before registering "
-                    "a new project on PyPI. See {projecthelp} "
-                    "for more information."
-                ).format(
-                    request.user.username,
-                    projecthelp=request.help_url(_anchor="verified-email"),
-                ),
             ) from None
 
         # Before we create the project, we're going to check our blacklist to

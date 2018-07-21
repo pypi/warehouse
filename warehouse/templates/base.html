@@ -50,7 +50,10 @@
     <meta name="description" content="{% block description %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endblock %}">
 
     <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/warehouse.css') }}">
-    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/regular.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/solid.css') }}">
+    <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/brands.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,700,700italic|Source+Code+Pro:500">
     <noscript>
       <link rel="stylesheet" href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
@@ -75,6 +78,18 @@
 
     <link rel="search" type="application/opensearchdescription+xml" title="PyPI" href="{{ request.route_path('opensearch.xml') }}">
 
+    {# This needs to be included first (in order to capture errors when
+     # executing other JS scripts. It also can't be async, because then order
+     # of execution is not guaranteed, and it can't be deferred, because most
+     # of our JS would then execute before it, and we might miss exceptions.
+     #}
+    {% if request.registry.settings.get("sentry.frontend_dsn") -%}
+    <script
+      src="https://cdn.ravenjs.com/3.26.2/raven.min.js"
+      integrity="sha384-D6LXy67EIC102DTuqypxwQsTHgiatlbvg7q/1YAWFb6lRyZ1lIZ6bGDsX7jxHNKA"
+      crossorigin="anonymous">
+    </script>
+    {% endif -%}
     {# All of our JavaScript should be loaded using the async attribute so it's
      # fine to have it in the header. This will allow the browser to start
      # downloading it ASAP while still not blocking the parser.
@@ -83,6 +98,9 @@
             {% if request.registry.settings.get("ga.tracking_id") -%}
             data-ga-id="{{ request.registry.settings['ga.tracking_id'] }}"
             {% endif -%}
+            {% if request.registry.settings.get("sentry.frontend_dsn") -%}
+            data-sentry-frontend-dsn="{{ request.registry.settings['sentry.frontend_dsn'] }}"
+            {% endif -%}
             src="{{ request.static_path('warehouse:static/dist/js/warehouse.js') }}">
     </script>
     {% block extra_js %}
@@ -90,6 +108,7 @@
     {% if request.registry.settings.get("ga.tracking_id") -%}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ request.registry.settings['ga.tracking_id'] }}"></script>
     {% endif -%}
+    <script defer src="https://www.fastly-insights.com/insights.js?k=6a52360a-f306-421e-8ed5-7417d0d4a4e9"></script>
   </head>
 
   <body data-controller="viewport-toggle">

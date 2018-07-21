@@ -44,6 +44,14 @@ import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
+// Do this before anything else, to potentially capture errors down the line
+docReady(() => {
+  let element = document.querySelector("script[data-sentry-frontend-dsn]");
+  if (element) {
+    /* global Raven */
+    Raven.config(element.dataset.sentryFrontendDsn).install();
+  }
+});
 
 // Show unsupported browser warning if necessary
 docReady(() => {

@@ -22,7 +22,7 @@
   {% if not request.user.primary_email.verified %}
   <div class="notification-bar notification-bar--danger">
     <span class="notification-bar__message">
-      <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
       Your primary email address ({{ request.user.primary_email.email }}) is unverified.
       <a href="{{ request.route_path('manage.account', _anchor="account-emails") }}">
         Verify your email or add a new address.
@@ -86,7 +86,7 @@
           <h3 class="modal__title">{{ title }} {{ confirm_string }}?</h3>
         <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
           <p>
-            <i class="fa fa-warning" aria-hidden="true"><span class="sr-only">Warning</span></i>
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
             This action cannot be undone!
           </p>
         </div>

@@ -29,25 +29,27 @@ from .....common.db.packaging import (
 
 
 class TestSearch:
-    def test_fails_with_invalid_operator(self):
+    def test_fails_with_invalid_operator(self, pyramid_request):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pretend.stub(), {}, "lol nope")
+            xmlrpc.search(pyramid_request, {}, "lol nope")
 
         assert (
             exc.value.faultString
             == "ValueError: Invalid operator, must be one of 'and' or 'or'."
         )
+        assert pyramid_request.registry.datadog.histogram.calls == []
 
-    def test_fails_if_spec_not_mapping(self):
+    def test_fails_if_spec_not_mapping(self, pyramid_request):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pretend.stub(), "a string")
+            xmlrpc.search(pyramid_request, "a string")
 
         assert (
             exc.value.faultString
             == "TypeError: Invalid spec, must be a mapping/dictionary."
         )
+        assert pyramid_request.registry.datadog.histogram.calls == []
 
-    def test_default_search_operator(self):
+    def test_default_search_operator(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -90,13 +92,10 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+        results = xmlrpc.search(
+            pyramid_request, {"name": "foo", "summary": ["one", "two"]}
         )
-        results = xmlrpc.search(request, {"name": "foo", "summary": ["one", "two"]})
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -111,8 +110,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
+        ]
 
-    def test_default_search_operator_with_spaces_in_values(self):
+    def test_default_search_operator_with_spaces_in_values(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -162,13 +164,8 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
-        )
-        results = xmlrpc.search(request, {"summary": ["fix code", "like this"]})
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+        results = xmlrpc.search(pyramid_request, {"summary": ["fix code", "like this"]})
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -183,8 +180,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
+        ]
 
-    def test_searches_with_and(self):
+    def test_searches_with_and(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -227,14 +227,9 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
-        )
+        pyramid_request.es = pretend.stub(query=FakeQuery)
         results = xmlrpc.search(
-            request, {"name": "foo", "summary": ["one", "two"]}, "and"
+            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "and"
         )
         assert results == [
             {
@@ -250,8 +245,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
+        ]
 
-    def test_searches_with_or(self):
+    def test_searches_with_or(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, should):
                 self.type = type
@@ -294,14 +292,9 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
-        )
+        pyramid_request.es = pretend.stub(query=FakeQuery)
         results = xmlrpc.search(
-            request, {"name": "foo", "summary": ["one", "two"]}, "or"
+            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "or"
         )
         assert results == [
             {
@@ -317,8 +310,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
+        ]
 
-    def test_version_search(self):
+    def test_version_search(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -354,13 +350,10 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+        results = xmlrpc.search(
+            pyramid_request, {"name": "foo", "version": "1.0"}, "and"
         )
-        results = xmlrpc.search(request, {"name": "foo", "version": "1.0"}, "and")
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -375,8 +368,11 @@ class TestSearch:
                 "version": "1.0",
             },
         ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
+        ]
 
-    def test_version_search_returns_latest(self):
+    def test_version_search_returns_latest(self, pyramid_request):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -411,13 +407,8 @@ class TestSearch:
                     ),
                 ]
 
-        request = pretend.stub(
-            es=pretend.stub(query=FakeQuery),
-            registry=pretend.stub(
-                datadog=pretend.stub(histogram=lambda *a, **kw: None)
-            ),
-        )
-        results = xmlrpc.search(request, {"name": "foo"}, "and")
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+        results = xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
         assert results == [
             {
                 "_pypi_ordering": False,
@@ -431,6 +422,9 @@ class TestSearch:
                 "summary": "other summary",
                 "version": "2.0",
             },
+        ]
+        assert pyramid_request.registry.datadog.histogram.calls == [
+            pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
 
@@ -483,9 +477,9 @@ def test_user_packages(db_request):
 
 
 @pytest.mark.parametrize("num", [None, 1, 5])
-def test_top_packages(num):
+def test_top_packages(num, pyramid_request):
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-        xmlrpc.top_packages(pretend.stub(), num)
+        xmlrpc.top_packages(pyramid_request, num)
 
     assert (
         exc.value.faultString
@@ -617,7 +611,7 @@ def test_release_data(db_request):
         "cheesecake_documentation_id": None,
         "cheesecake_installability_id": None,
     }
-    db_request.route_url.calls == [
+    assert db_request.route_url.calls == [
         pretend.call("packaging.project", name=project.name),
         pretend.call("packaging.release", name=project.name, version=release.version),
     ]
@@ -810,10 +804,9 @@ def test_browse(db_request):
     ) == {(expected_release.name, expected_release.version)}
 
 
-def test_multicall():
-    request = pretend.stub()
+def test_multicall(pyramid_request):
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-        xmlrpc.multicall(request, [])
+        xmlrpc.multicall(pyramid_request, [])
 
     assert exc.value.faultString == (
         "ValueError: MultiCall requests have been deprecated, use individual "

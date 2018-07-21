@@ -19,7 +19,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.security import Authenticated, remember, forget
+from pyramid.security import remember, forget
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -361,9 +361,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
-    route_name="accounts.verify-email",
-    uses_session=True,
-    effective_principals=Authenticated,
+    route_name="accounts.verify-email", uses_session=True, permission="manage:user"
 )
 def verify_email(request):
     token_service = request.find_service(ITokenService, name="email")

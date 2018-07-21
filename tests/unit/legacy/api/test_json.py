@@ -10,11 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 import pretend
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
+from warehouse.packaging.models import Dependency, DependencyKind
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -138,9 +141,27 @@ class TestJSONRelease:
             pretend.call(name=release.project.name)
         ]
 
-    def test_detail_renders(self, pyramid_config, db_request):
+    def test_detail_renders(self, pyramid_config, db_request, db_session):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
+        url = "/the/fake/url/"
+        project_urls = [
+            "url," + url,
+            "Homepage,https://example.com/home2/",
+            "Source Code,https://example.com/source-code/",
+            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",  # noqa: E501
+            "ldap,ldap://[2001:db8::7]/c=GB?objectClass?one",
+            "tel,tel:+1-816-555-1212",
+            "telnet,telnet://192.0.2.16:80/",
+            "urn,urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
+            "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
+            "unsafechars,http://example.com <>[]{}|\^%",
+        ]
+        expected_urls = []
+        for project_url in reversed(project_urls):
+            expected_urls.append(tuple(project_url.split(",")))
+        expected_urls = OrderedDict(tuple(expected_urls))
+
         releases = [
             ReleaseFactory.create(project=project, version=v)
             for v in ["0.1", "1.0", "2.0"]
@@ -152,6 +173,16 @@ class TestJSONRelease:
                 description_content_type=description_content_type,
             )
         ]
+
+        for urlspec in project_urls:
+            db_session.add(
+                Dependency(
+                    name=releases[3].project.name,
+                    version="3.0",
+                    kind=DependencyKind.project_url.value,
+                    specifier=urlspec,
+                )
+            )
 
         files = [
             FileFactory.create(
@@ -167,7 +198,6 @@ class TestJSONRelease:
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        url = "/the/fake/url/"
         db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
 
         result = json.json_release(releases[3], db_request)
@@ -203,9 +233,10 @@ class TestJSONRelease:
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
+                "package_url": "/the/fake/url/",
                 "platform": None,
                 "project_url": "/the/fake/url/",
-                "package_url": "/the/fake/url/",
+                "project_urls": expected_urls,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
@@ -344,9 +375,10 @@ class TestJSONRelease:
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
+                "package_url": "/the/fake/url/",
                 "platform": None,
                 "project_url": "/the/fake/url/",
-                "package_url": "/the/fake/url/",
+                "project_urls": None,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
