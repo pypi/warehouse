@@ -95,4 +95,4 @@ def includeme(config):
 
     from warehouse.search.tasks import reindex
 
-    config.add_periodic_task(crontab(minute=0, hour="*/3"), reindex)
+    config.add_periodic_task(crontab(minute=0, hour=6), reindex)
