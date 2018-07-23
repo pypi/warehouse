@@ -87,6 +87,7 @@ def includeme(config):
         timeout=2,
         retry_on_timeout=False,
         serializer=serializer.serializer,
+        max_retries=1,
     )
     config.registry["elasticsearch.index"] = p.path.strip("/")
     config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
