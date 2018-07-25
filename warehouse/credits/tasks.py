@@ -12,10 +12,19 @@
 
 import json
 import requests
-from time import sleep
 
 from warehouse import tasks
 from .contributors import Contributor
+
+
+def call_github_api(url):
+    try:
+        r = requests.get(url)
+    except requests.exceptions.RequestException as e:
+        raise Exception(e)
+
+    if r.status_code is 200:
+        return r
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -27,54 +36,63 @@ def get_contributors(request):
 
     access_token = request.registry.settings["warehouse.github_access_token"]
 
-    try:
-        r = requests.get(
-            api_url
-            + "/repos/pypa/warehouse/stats/contributors"
-            + "?access_token="
-            + access_token
-        )
+    initial_url = (
+        api_url
+        + "/repos/pypa/warehouse/contributors"
+        + "?page=1&per_page=100"
+        + "&access_token="
+        + access_token
+    )
+
+    r = call_github_api(initial_url)
+
+    next_request = ""
+
+    # The GitHub API returns paginated results of 100 items maximum per
+    # response. We will loop until the next link header is not returned
+    # in the response header. This is documented here:
+    # https://developer.github.com/v3/#pagination
+    while next_request is not None:
         if r.status_code is 200:
             json_data = json.loads(r.text)
             for item in json_data:
-                r2 = requests.get(
+                users_query = (
                     api_url
                     + "/users/"
-                    + item["author"]["login"]
+                    + item["login"]
                     + "?access_token="
                     + access_token
                 )
+                r2 = call_github_api(users_query)
                 if r2.status_code is 200:
                     json_data2 = json.loads(r2.text)
                     if json_data2["name"] is None or len(json_data2["name"]) < 2:
-                        json_data2["name"] = item["author"]["login"]
-                    contributors[item["author"]["login"]] = {
+                        json_data2["name"] = item["login"]
+                    contributors[item["login"]] = {
                         "name": json_data2["name"],
-                        "html_url": item["author"]["html_url"],
+                        "html_url": item["html_url"],
                     }
                 else:
                     print(
-                        "Error in request: Status code: {} Error: ".format(
+                        "Error in request to /users/ endpoint: "
+                        "Status code: {} Error: ".format(
                             r2.status_code, r2.raise_for_status()
                         )
                     )
-        elif r.status_code is 202:
-            # The status code can be 202 when statistics haven't yet been
-            # cached by Github, in that case we will sleep and retry the
-            # request. See:
-            # https://developer.github.com/v3/repos/statistics/#a-word-about-caching
-            sleep(30)
-            get_contributors(request)
         else:
             print(
-                "Error in request: Status code: {} Error: ".format(
-                    r.status_code, r.raise_for_status()
-                )
+                "Error in request to /contributors/ endpoint: "
+                "Status code: {} Error: ".format(r.status_code, r.raise_for_status())
             )
-    except requests.exceptions.RequestException as e:
-        raise Exception(e)
 
-    # Get the list of contributors from the db and add new folks from GitHub
+        if r.links.get("next"):
+            next_request = r.links["next"]["url"]
+            r = call_github_api(next_request)
+        else:
+            next_request = None
+
+    # Get the list of contributors from the db, compare them to the list
+    # from GitHub, add new items to the db
     query = request.db.query(
         Contributor.id,
         Contributor.contributor_login,
@@ -85,7 +103,6 @@ def get_contributors(request):
     new_users = list(set(contributors.keys()).difference([q[1] for q in query]))
 
     for username in new_users:
-        # print("{}".format(item))
         request.db.add(
             Contributor(
                 contributor_login=username,

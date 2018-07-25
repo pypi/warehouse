@@ -23,10 +23,14 @@ def credits_page(request):
 
     contrib_count = contributors.count()
 
-    # separate the list into two lists to be used in the two column layout
-    separated = [
-        contributors[0 : int(contrib_count / 2)],
-        contributors[int(contrib_count / 2) : contrib_count],
-    ]
+    # In order to display all the names on the page, we split
+    # them into two columns, so here we calculate the number of
+    # items to place in each array.
+    if contrib_count % 2 == 0:
+        size = int(contrib_count / 2)
+    else:
+        size = int(contrib_count / 2 + 1)
+
+    separated = [contributors[i : i + size] for i in range(0, contrib_count, size)]
 
     return {"contributors": separated}
