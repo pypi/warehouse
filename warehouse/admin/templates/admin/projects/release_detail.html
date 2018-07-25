@@ -47,6 +47,10 @@
           <td>Uploader</td>
           <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
         </tr>
+        <tr>
+          <td>Uploader User-Agent</td>
+          <td><code>{{ release.uploader_user_agent }}</code></td>
+        </tr>
       </table>
     </div>
   </div>
@@ -56,18 +60,18 @@
     </div>
     <div class="box-body table-responsive">
       <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Filename</th>
-            <th>Package Type</th>
-            <th>Python Version</th>
-          </tr>
-        </thead>
+        <tr>
+          <th>Filename</th>
+          <th>Package Type</th>
+          <th>Python Version</th>
+          <th>User-Agent</th>
+        </tr>
         {% for file in release.files %}
         <tr>
           <td><a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a></td>
           <td>{{ file.packagetype }}</td>
           <td>{{ file.python_version }}</td>
+          <td><code>{{ file.uploader_user_agent }}</code></td>
         </tr>
         {% endfor %}
       </table>
