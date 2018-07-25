@@ -944,6 +944,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         db_request.POST = MultiDict(
             {
@@ -1212,6 +1213,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.40"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
         content.filename = filename
@@ -2184,6 +2186,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2286,6 +2289,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2383,6 +2387,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2429,6 +2434,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2516,6 +2522,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2609,6 +2616,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2654,6 +2662,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2705,6 +2714,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2804,6 +2814,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         if expected_success:
             resp = legacy.file_upload(db_request)
@@ -2854,6 +2865,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2900,6 +2912,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2975,6 +2988,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
