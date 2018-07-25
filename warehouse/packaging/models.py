@@ -385,7 +385,7 @@ class Release(db.ModelBase):
         viewonly=True,
     )
 
-    uploader_user_agent = Column(Text)
+    uploaded_via = Column(Text)
 
     @property
     def urls(self):
@@ -484,7 +484,7 @@ class File(db.Model):
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
-    uploader_user_agent = Column(Text)
+    uploaded_via = Column(Text)
 
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid

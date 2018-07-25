@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-uploader_user_agent field for Release and Files
+uploaded_via field for Release and Files
 
 Revision ID: b00323b3efd8
 Revises: f2a453c96ded
@@ -26,14 +26,10 @@ down_revision = "f2a453c96ded"
 
 
 def upgrade():
-    op.add_column(
-        "release_files", sa.Column("uploader_user_agent", sa.Text(), nullable=True)
-    )
-    op.add_column(
-        "releases", sa.Column("uploader_user_agent", sa.Text(), nullable=True)
-    )
+    op.add_column("release_files", sa.Column("uploaded_via", sa.Text(), nullable=True))
+    op.add_column("releases", sa.Column("uploaded_via", sa.Text(), nullable=True))
 
 
 def downgrade():
-    op.drop_column("releases", "uploader_user_agent")
-    op.drop_column("release_files", "uploader_user_agent")
+    op.drop_column("releases", "uploaded_via")
+    op.drop_column("release_files", "uploaded_via")
