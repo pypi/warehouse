@@ -986,6 +986,7 @@ def file_upload(request):
                     "requires_python",
                 }
             },
+            uploaded_via=request.user_agent,
         )
         request.db.add(release)
         # TODO: This should be handled by some sort of database trigger or
@@ -1227,6 +1228,7 @@ def file_upload(request):
                     filename,
                 ]
             ),
+            uploaded_via=request.user_agent,
         )
         request.db.add(file_)
 
