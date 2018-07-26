@@ -32,7 +32,7 @@ def cached_return_view(view, info):
                 return view(context, request)
             try:
                 key = json.dumps(request.rpc_args[slice_obj])
-                _tag = None
+                _tag = tag
                 if arg_index is not None:
                     _tag = tag % (tag_processor(request.rpc_args[arg_index]),)
                 return service.fetch(view, (context, request), {}, key, _tag, expires)
