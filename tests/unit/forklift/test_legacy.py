@@ -1306,9 +1306,13 @@ class TestFileUpload:
             )
 
         # Ensure that a File object has been created.
-        db_request.db.query(File).filter(
-            (File.release == release) & (File.filename == filename)
-        ).one()
+        uploaded_file = (
+            db_request.db.query(File)
+            .filter((File.release == release) & (File.filename == filename))
+            .one()
+        )
+
+        assert uploaded_file.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
@@ -2573,6 +2577,7 @@ class TestFileUpload:
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
         assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
@@ -2737,6 +2742,8 @@ class TestFileUpload:
             .filter((Release.project == project) & (Release.version == "1.0"))
             .one()
         )
+
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
