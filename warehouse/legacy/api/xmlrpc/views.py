@@ -83,10 +83,18 @@ def xmlrpc_method(**kwargs):
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
-    xmlrpc_cache_expires=24 * 60 * 60,  # 24 hours
+    xmlrpc_cache_expires=48 * 60 * 60,  # 48 hours
     xmlrpc_cache_tag="project/%s",
     xmlrpc_cache_arg_index=0,
     xmlrpc_cache_tag_processor=canonicalize_name,
+)
+
+
+xmlrpc_cache_all_projects = functools.partial(
+    xmlrpc_method,
+    xmlrpc_cache=True,
+    xmlrpc_cache_expires=1 * 60 * 60,  # 1 hours
+    xmlrpc_cache_tag="all-projects",
 )
 
 
@@ -185,13 +193,13 @@ def search(request, spec, operator="and"):
     ]
 
 
-@xmlrpc_method(method="list_packages")
+@xmlrpc_cache_all_projects(method="list_packages")
 def list_packages(request):
     names = request.db.query(Project.name).order_by(Project.name).all()
     return [n[0] for n in names]
 
 
-@xmlrpc_method(method="list_packages_with_serial")
+@xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
     return dict((serial[0], serial[1]) for serial in serials)
