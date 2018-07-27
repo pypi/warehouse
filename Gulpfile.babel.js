@@ -6,7 +6,6 @@ import gulpBatch from "gulp-batch";
 import gulpCSSNano from "gulp-cssnano";
 import gulpImage from "gulp-image";
 import gulpSass from "gulp-sass";
-import gulpSequence  from "gulp-sequence";
 import gulpWatch from "gulp-watch";
 import gulpWebpack  from "webpack-stream";
 import gulpConcat from "gulp-concat";
@@ -122,11 +121,13 @@ gulp.task("dist:noscript", () => {
 });
 
 
-gulp.task("dist:admin:fonts", () => {
+gulp.task("dist:admin:fonts", (done) => {
   gulp.src("warehouse/admin/static/fonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/fonts"));
   gulp.src("warehouse/admin/static/webfonts/*.*")
     .pipe(gulp.dest("warehouse/admin/static/dist/webfonts"));
+
+  done();
 });
 
 
@@ -197,8 +198,7 @@ gulp.task("dist:fontawesome:fonts", () => {
 });
 
 
-gulp.task("dist:fontawesome",
-  ["dist:fontawesome:css", "dist:fontawesome:fonts"]);
+gulp.task("dist:fontawesome", gulp.parallel("dist:fontawesome:css", "dist:fontawesome:fonts"));
 
 
 gulp.task("dist:images", () => {
@@ -309,20 +309,21 @@ gulp.task("dist:compress:br:text", () => {
 
 gulp.task(
   "dist:compress:br",
-  ["dist:compress:br:generic", "dist:compress:br:text"]
+  gulp.parallel("dist:compress:br:generic", "dist:compress:br:text")
 );
 
 
-gulp.task("dist:compress", ["dist:compress:gz", "dist:compress:br"]);
+gulp.task("dist:compress", gulp.parallel("dist:compress:gz", "dist:compress:br"));
 
 
-gulp.task("dist", (cb) => {
-  return gulpSequence(
+gulp.task("clean", () => { return del(distPath); });
+
+gulp.task("dist", gulp.series(
     // Ensure that we have a good clean base to start out with, by blowing away
     // any previously built files.
     "clean",
     // Build all of our static assets.
-    [
+    gulp.parallel(
       "dist:fontawesome",
       "dist:css",
       "dist:noscript",
@@ -331,7 +332,7 @@ gulp.task("dist", (cb) => {
       "dist:admin:css",
       "dist:admin:js",
       "dist:vendor",
-    ],
+    ),
     // We have this here, instead of in the list above even though there is no
     // ordering dependency so that all of it's output shows up together which
     // makes it easier to read.
@@ -343,14 +344,10 @@ gulp.task("dist", (cb) => {
     // Finally, once we've done everything else, we'll compress everything that
     // we've gotten.
     "dist:compress"
-  )(cb);
-});
+ ));
 
 
-gulp.task("clean", () => { return del(distPath); });
-
-
-gulp.task("watch", ["dist"], () => {
+gulp.task("watch", gulp.series("dist", () => {
   let watchPaths = [
     path.join(staticPrefix, "**", "*"),
     path.join("!" + distPath, "**", "*"),
@@ -362,7 +359,7 @@ gulp.task("watch", ["dist"], () => {
     watchPaths,
     gulpBatch((_, done) => { gulp.start("dist", done); })
   );
-});
+}));
 
 
-gulp.task("default", ["dist"]);
+gulp.task("default", gulp.series("dist"));
