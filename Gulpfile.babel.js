@@ -134,7 +134,7 @@ gulp.task("dist:admin:fonts", (done) => {
 gulp.task("dist:admin:css", () => {
   let files = [ // Order matters!
     "warehouse/admin/static/css/bootstrap.min.css",
-    "warehouse/admin/static/css/fontawesome-all.min.css",
+    "warehouse/admin/static/css/fontawesome.min.css",
     "warehouse/admin/static/css/ionicons.min.css",
     "warehouse/admin/static/css/AdminLTE.min.css",
     "warehouse/admin/static/css/skins/skin-purple.min.css",
