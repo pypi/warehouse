@@ -319,32 +319,32 @@ gulp.task("dist:compress", gulp.parallel("dist:compress:gz", "dist:compress:br")
 gulp.task("clean", () => { return del(distPath); });
 
 gulp.task("dist", gulp.series(
-    // Ensure that we have a good clean base to start out with, by blowing away
-    // any previously built files.
-    "clean",
-    // Build all of our static assets.
-    gulp.parallel(
-      "dist:fontawesome",
-      "dist:css",
-      "dist:noscript",
-      "dist:js",
-      "dist:admin:fonts",
-      "dist:admin:css",
-      "dist:admin:js",
-      "dist:vendor",
-    ),
-    // We have this here, instead of in the list above even though there is no
-    // ordering dependency so that all of it's output shows up together which
-    // makes it easier to read.
-    "dist:images",
-    // This has to be on it's own, and it has to be one of the last things we do
-    // because otherwise we won't catch all of the files in the revisioning
-    // process.
-    "dist:manifest",
-    // Finally, once we've done everything else, we'll compress everything that
-    // we've gotten.
-    "dist:compress"
- ));
+  // Ensure that we have a good clean base to start out with, by blowing away
+  // any previously built files.
+  "clean",
+  // Build all of our static assets.
+  gulp.parallel(
+    "dist:fontawesome",
+    "dist:css",
+    "dist:noscript",
+    "dist:js",
+    "dist:admin:fonts",
+    "dist:admin:css",
+    "dist:admin:js",
+    "dist:vendor",
+  ),
+  // We have this here, instead of in the list above even though there is no
+  // ordering dependency so that all of it's output shows up together which
+  // makes it easier to read.
+  "dist:images",
+  // This has to be on it's own, and it has to be one of the last things we do
+  // because otherwise we won't catch all of the files in the revisioning
+  // process.
+  "dist:manifest",
+  // Finally, once we've done everything else, we'll compress everything that
+  // we've gotten.
+  "dist:compress"
+));
 
 
 gulp.task("watch", gulp.series("dist", () => {
