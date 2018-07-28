@@ -4,11 +4,11 @@ about: Let us know what type of log friction issue you are encountering on PyPA
 
 ---
 
-* **Date @ Event:** _for example: 5/14/2018 @ PyCon Cleveland Sprints_
-* **Scenario:** _for example: I’m trying to install pandas_
-* **OS environment:** _for example: Windows 10, macOS 10.13, or Ubuntu 18.04_
-* **Things you used:** _for example: pip, warehouse, setuptools, etc..._
-* **Python version and origin:** _for example: Python 3.6.0 from apt_
+* **Date @ Event:** <!--for example: 5/14/2018 @ PyCon Cleveland Sprints -->
+* **Scenario:** <!--for example: I’m trying to install pandas -->
+* **OS environment:** <!--for example: Windows 10, macOS 10.13, or Ubuntu 18.04 -->
+* **Things you used:** <!--for example: pip, warehouse, setuptools, etc... -->
+* **Python version and origin:** <!--for example: Python 3.6.0 from apt -->
 
 
 ## Please highlight your log using this legend:
@@ -17,10 +17,10 @@ about: Let us know what type of log friction issue you are encountering on PyPA
 - [ ] :boom: I'd quit if I weren't specifically trying to improve things.
 
 ## Is there any actionable bugs?
-_If any please link to the bug on GitHub_
+<!-- If any please link to the bug on GitHub -->
 
 ## What were you trying to do, and what didn't work?
-_For example: I was trying to install pandas on Windows and pip made my cat turn purple_
+<!--For example: I was trying to install pandas on Windows and pip made my cat turn purple -->
 
 ## Ideally, what should have happened instead?
-_Feel free to be blunt!_
+<!--Feel free to be blunt! -->
