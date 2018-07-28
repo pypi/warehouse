@@ -16,13 +16,13 @@
 {% block title %}{% if testPyPI %}Test{% endif %}PyPI – the Python Package Index{% endblock %}
 
 {% macro project_snippet(release) -%}
-<div class="package-snippet">
+<a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
   <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
+    <span class="package-snippet__name">{{ release.project.name }}</span>
     <span class="package-snippet__version">{{ release.version }}</span>
   </h3>
   <p class="package-snippet__description">{{ release.summary }}</p>
-</div>
+</a>
 {%- endmacro %}
 
 

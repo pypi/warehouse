@@ -33,11 +33,14 @@ Detailed installation instructions
 
 Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the Warehouse repository from `GitHub`_:
+`Fork <https://help.github.com/articles/fork-a-repo/>`_ the repository
+on `GitHub`_ and
+`clone <https://help.github.com/articles/cloning-a-repository/>`_ it to
+your local machine:
 
 .. code-block:: console
 
-    git clone git@github.com:pypa/warehouse.git
+    git clone git@github.com:YOUR-USERNAME/warehouse.git
 
 
 Configure the development environment
@@ -139,6 +142,18 @@ increase the memory allocated to Docker in
 `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
 or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
 (on Windows) by moving the slider to 4 GB in the GUI.
+
+If you are using Linux, you may need to configure the maximum map count to get
+the `elasticsearch` up and running. According to the
+`documentation <https://www.elastic.co/guide/en/elasticsearch/guide/current/_file_descriptors_and_mmap.html>`_
+this can be set temporarily:
+
+.. code-block:: console
+
+    # sysctl -w vm.max_map_count=262144
+
+or permanently by modifying the ``vm.max_map_count`` setting in your
+:file:`/etc/sysctl.conf`.
 
 Then, in a terminal run the command:
 
