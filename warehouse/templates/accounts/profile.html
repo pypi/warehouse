@@ -54,13 +54,13 @@
       <div class="package-list">
         {% if projects %}
         {% for project in projects %}
-        <div class="package-snippet">
-          <h3 class="package-snippet__title"><a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a></h3>
+        <a class="package-snippet" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+          <h3 class="package-snippet__title">{{ project.name }}</h3>
           <p class="package-snippet__meta">
             <em>Last released on {{ project.releases[0].created|format_date() }}</em>
           </p>
           <p class="package-snippet__description">{{ project.releases[0].summary }}</p>
-        </div>
+        </a>
         {% endfor %}
         {% else %}
           {% csi request.route_url("includes.current-user-profile-callout", username=user.username) %}

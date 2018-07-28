@@ -50,7 +50,7 @@ class TestCreateRoleForm:
     @pytest.mark.parametrize(
         ("value", "expected"),
         [
-            ("", "Select a role"),
+            ("", "Select role"),
             ("invalid", "Not a valid choice"),
             (None, "Not a valid choice"),
         ],

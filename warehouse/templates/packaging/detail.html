@@ -43,13 +43,13 @@
 
 
 {% macro project_snippet(release) -%}
-<div class="package-snippet">
+<a class="package-snippet" href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">
   <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=release.project.normalized_name) }}">{{ release.project.name }}</a>
+    <span class="pacakge-snippet__name">{{ release.project.name }}</span>
     <span class="package-snippet__version">{{ release.version }}</span>
   </h3>
   <p class="package-snippet__description">{{ release.summary }}</p>
-</div>
+</a>
 {%- endmacro %}
 
 {% block title %}{{ release.project.name }}{% endblock %}
@@ -209,10 +209,12 @@
                 {% endif %}
               </div>
 
-              <div class="card release__card">
-                <p class="release__version"><a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">{{ hversion.version }}</a></p>
+              <a class="card release__card" href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">
+                <p class="release__version">
+                  {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">pre-release</span>{% endif %}
+                </p>
                 <p class="release__version-date">{{ humanize(hversion.created) }}</p>
-              </div>
+              </a>
             </div>
             {% endfor %}
           </section>
