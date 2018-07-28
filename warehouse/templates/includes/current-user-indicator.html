@@ -74,10 +74,6 @@
     </nav>
   </div>
   {% else %}
-  <nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
-    <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
-    <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
-    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
-    <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
-  </nav>
+    {% from 'base.html' import main_navigation_logged_out with context %}
+    {{ main_navigation_logged_out() }}
   {% endif %}
