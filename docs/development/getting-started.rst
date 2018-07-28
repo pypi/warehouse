@@ -33,11 +33,14 @@ Detailed installation instructions
 
 Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the Warehouse repository from `GitHub`_:
+`Fork <https://help.github.com/articles/fork-a-repo/>`_ the repository
+on `GitHub`_ and
+`clone <https://help.github.com/articles/cloning-a-repository/>`_ it to
+your local machine:
 
 .. code-block:: console
 
-    git clone git@github.com:pypa/warehouse.git
+    git clone git@github.com:YOUR-USERNAME/warehouse.git
 
 
 Configure the development environment
