@@ -109,7 +109,7 @@ For example, checking port ``80``:
 
 .. code-block:: console
 
-    lsof -i:80 | grep LISTEN
+    sudo lsof -i:80 | grep LISTEN
 
 If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
