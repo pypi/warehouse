@@ -70,6 +70,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.add_role",
+            "/admin/projects/{project_name}/add_role/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.del_role",
+            "/admin/projects/{project_name}/del_role/{user_name:.+}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.delete",
             "/admin/projects/{project_name}/delete/",
             factory="warehouse.packaging.models:ProjectFactory",
