@@ -15,7 +15,14 @@
 /*
   Navigation breadcrumbs.
 
-  <span class="breadcrumbs">Help</span>
+  <ul role="navigation" class="breadcrumbs">
+    <li class="breadcrumbs__breadcrumb">
+        // All project releases
+    </li>
+    <li class="breadcrumbs__breadcrumb">
+        // Release version
+    </li>
+  </ul>
 */
 
 
