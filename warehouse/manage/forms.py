@@ -19,16 +19,16 @@ from warehouse.accounts.forms import NewEmailMixin, NewPasswordMixin, PasswordMi
 class RoleNameMixin:
 
     role_name = wtforms.SelectField(
-        "Select a role",
+        "Select role",
         choices=[("Maintainer", "Maintainer"), ("Owner", "Owner")],
-        validators=[wtforms.validators.DataRequired(message="Select a role")],
+        validators=[wtforms.validators.DataRequired(message="Select role")],
     )
 
 
 class UsernameMixin:
 
     username = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify a username")]
+        validators=[wtforms.validators.DataRequired(message="Specify username")]
     )
 
     def validate_username(self, field):
