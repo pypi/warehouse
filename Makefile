@@ -173,4 +173,4 @@ purge: stop clean
 stop:
 	docker-compose down -v
 
-.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop list
+.PHONY: default build serve initdb shell tests docs deps travis-deps clean purge debug stop
