@@ -21,6 +21,10 @@ from zope.interface import implementer
 from warehouse.packaging.interfaces import IFileStorage, IDocsStorage
 
 
+class InsecureStorageWarning(UserWarning):
+    pass
+
+
 @implementer(IFileStorage)
 class LocalFileStorage:
     def __init__(self, base):
@@ -32,7 +36,7 @@ class LocalFileStorage:
             "LocalFileStorage is intended only for use in development, you "
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
-            RuntimeWarning,
+            InsecureStorageWarning,
         )
 
         self.base = base
@@ -63,7 +67,7 @@ class LocalDocsStorage:
             "LocalDocsStorage is intended only for use in development, you "
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
-            RuntimeWarning,
+            InsecureStorageWarning,
         )
 
         self.base = base
