@@ -327,6 +327,36 @@ class TestRelease:
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_repo_info_url == expected
 
+    @pytest.mark.parametrize(
+        ("home_page", "expected"),
+        [
+            (None, None),
+            (
+                "https://gitlab.com/user/project",
+                "https://gitlab.com/api/v4/projects/user%2Fproject",
+            ),
+            (
+                "https://gitlab.com/user/project/",
+                "https://gitlab.com/api/v4/projects/user%2Fproject",
+            ),
+            (
+                "https://gitlab.com/user/project/tree/master",
+                "https://gitlab.com/api/v4/projects/user%2Fproject",
+            ),
+            (
+                "https://www.gitlab.com/user/project",
+                "https://gitlab.com/api/v4/projects/user%2Fproject",
+            ),
+            ("https://gitlab.com/user/", None),
+            ("https://google.com/user/project/tree/master", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+        ],
+    )
+    def test_gitlab_repo_info_url(self, db_session, home_page, expected):
+        release = DBReleaseFactory.create(home_page=home_page)
+        assert release.gitlab_repo_info_url == expected
+
 
 class TestFile:
     def test_requires_python(self, db_session):

@@ -385,6 +385,18 @@ class Release(db.Model):
                 return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
+    def gitlab_repo_info_url(self):
+        # import pdb; pdb.set_trace()
+        for parsed in [urlparse(url) for url in self.urls.values()]:
+            segments = parsed.path.strip("/").rstrip("/").split("/")
+
+            if (
+                parsed.netloc == "gitlab.com" or parsed.netloc == "www.gitlab.com"
+            ) and len(segments) >= 2:
+                user_name, repo_name = segments[:2]
+                return f"https://gitlab.com/api/v4/projects/{user_name}%2F{repo_name}"
+
+    @property
     def has_meta(self):
         return any(
             [
