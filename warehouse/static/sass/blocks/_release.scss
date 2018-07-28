@@ -103,6 +103,10 @@
     font-weight: $bold-font-weight;
   }
 
+  &__version-badge {
+    margin-left: 4px;
+  }
+
   &__version-date {
     font-style: italic;
   }
