@@ -17,13 +17,13 @@
 
 {% macro project_snippet(item) -%}
 
-<div class="package-snippet">
+<a class="package-snippet" href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">
   <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a>
+    <span class="package-snippet__name">{{ item.name }}</span>
     <span class="package-snippet__version">{{ item.latest_version }}</span>
   </h3>
   <p class="package-snippet__description">{{ item.summary }}</p>
-</div>
+</a>
 {%- endmacro %}
 
 

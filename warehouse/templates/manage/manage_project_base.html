@@ -43,17 +43,15 @@
           </a>
         </nav>
         <div class="vertical-tabs__content">
-          <div class="package-snippet package-snippet--margin-bottom">
+          <a class="package-snippet package-snippet--margin-bottom" href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
             {% set release = project.releases[0] if project.releases else None %}
             {% if release %}
-            <h1 class="package-snippet__title package-snippet__title--page-title">
-              <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a>
-            </h1>
+            <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
             <p class="package-snippet__description">{{ release.summary }}</p>
             {% else %}
             <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
             {% endif %}
-          </div>
+          </a>
           <!-- mobile nav -->
           {% with mode="mobile" %}
             {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
