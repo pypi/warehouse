@@ -145,7 +145,7 @@ or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
 
 If you are using Linux, you may need to configure the maximum map count to get
 the `elasticsearch` up and running. According to the
-`documentation <https://www.elastic.co/guide/en/elasticsearch/guide/current/_file_descriptors_and_mmap.html>`_
+`documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
 this can be set temporarily:
 
 .. code-block:: console
