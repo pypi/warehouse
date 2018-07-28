@@ -92,6 +92,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route("accounts.login", "/account/login/", domain=warehouse)
+    config.add_route("accounts.two-factor", "/account/two-factor/", domain=warehouse)
     config.add_route("accounts.logout", "/account/logout/", domain=warehouse)
     config.add_route("accounts.register", "/account/register/", domain=warehouse)
     config.add_route(

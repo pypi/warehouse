@@ -119,6 +119,7 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("accounts.login", "/account/login/", domain=warehouse),
+        pretend.call("accounts.two-factor", "/account/two-factor/", domain=warehouse),
         pretend.call("accounts.logout", "/account/logout/", domain=warehouse),
         pretend.call("accounts.register", "/account/register/", domain=warehouse),
         pretend.call(
