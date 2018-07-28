@@ -32,6 +32,11 @@ class UsernameMixin:
             raise wtforms.validators.ValidationError("No user found with that username")
 
 
+class OtpCodeMixin:
+
+    otp_code = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+
+
 class NewUsernameMixin:
 
     username = wtforms.StringField(
@@ -217,6 +222,12 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )
+
+
+class TwoFactorForm(OtpCodeMixin, forms.Form):
+    def __init__(self, *args, user_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
 
 
 class RequestPasswordResetForm(forms.Form):

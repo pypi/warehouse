@@ -30,6 +30,7 @@ from warehouse.accounts.forms import (
     RegistrationForm,
     RequestPasswordResetForm,
     ResetPasswordForm,
+    TwoFactorForm,
 )
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -149,6 +150,45 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 .lower(),
             )
             return resp
+
+    return {
+        "form": form,
+        "redirect": {"field": REDIRECT_FIELD_NAME, "data": redirect_to},
+    }
+
+
+@view_config(
+    route_name="accounts.two-factor",
+    renderer="accounts/two-factor.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def two_factor(request, redirect_field_name=REDIRECT_FIELD_NAME,
+               _form_class=TwoFactorForm):
+    if request.authenticated_userid is not None:
+        return HTTPSeeOther(request.route_path("manage.projects"))
+
+    user_service = request.find_service(IUserService, context=None)
+
+    redirect_to = request.POST.get(
+        redirect_field_name, request.GET.get(redirect_field_name)
+    )
+
+    form = _form_class(request.POST, user_service=user_service)
+
+    if request.method == "POST":
+        request.registry.datadog.increment(
+            "warehouse.authentication.two-factor.start",
+            tags=["auth_method:two_factor_form"]
+        )
+        if form.validate():
+            pass  # TODO: replace by call of OTP validation method
+        else:
+            request.registry.datadog.increment(
+                "warehouse.authentication.two-factor.failure",
+                tags=["auth_method:two_factor_form"]
+            )
 
     return {
         "form": form,
@@ -429,8 +469,8 @@ def _login_user(request, userid):
     # that we create a new session (which will cause it to get a new
     # session identifier).
     if (
-        request.unauthenticated_userid is not None
-        and request.unauthenticated_userid != userid
+            request.unauthenticated_userid is not None
+            and request.unauthenticated_userid != userid
     ):
         # There is already a userid associated with this request and it is
         # a different userid than the one we're trying to remember now. In
