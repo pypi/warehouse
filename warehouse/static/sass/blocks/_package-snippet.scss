@@ -26,6 +26,7 @@
 
 .package-snippet {
   @include card;
+  display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
   // Use png fallback
@@ -60,12 +61,14 @@
   }
 
   &__version {
+    color: $text-color;
     font-weight: $bold-font-weight;
   }
 
   &__description {
     @include add-ellipsis;
     clear: both;
+    color: $text-color;
     font-size: 1rem;
     font-style: italic;
   }
