@@ -210,7 +210,9 @@
               </div>
 
               <a class="card release__card" href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">
-                <p class="release__version">{{ hversion.version }}</p>
+                <p class="release__version">
+                  {{ hversion.version }} {% if hversion.is_prerelease %}<span class="badge badge--warning release__version-badge">pre-release</span>{% endif %}
+                </p>
                 <p class="release__version-date">{{ humanize(hversion.created) }}</p>
               </a>
             </div>
