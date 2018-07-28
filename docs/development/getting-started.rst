@@ -109,7 +109,7 @@ For example, checking port ``80``:
 
 .. code-block:: console
 
-    lsof -i:80 | grep LISTEN
+    sudo lsof -i:80 | grep LISTEN
 
 If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
@@ -142,6 +142,18 @@ increase the memory allocated to Docker in
 `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
 or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
 (on Windows) by moving the slider to 4 GB in the GUI.
+
+If you are using Linux, you may need to configure the maximum map count to get
+the `elasticsearch` up and running. According to the
+`documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+this can be set temporarily:
+
+.. code-block:: console
+
+    # sysctl -w vm.max_map_count=262144
+
+or permanently by modifying the ``vm.max_map_count`` setting in your
+:file:`/etc/sysctl.conf`.
 
 Then, in a terminal run the command:
 
@@ -206,6 +218,16 @@ This means that all the services are up, and web container is listening on port
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
 
+.. note::
+
+    In development mode, the official logos are replaced with placeholders due to
+    copyright.
+
+    On Firefox, the logos might show up as black rectangles due to  the
+    *Content Security Policy* used and an implementation bug in Firefox (see
+    `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
+    for more info).
+
 
 Logging in to Warehouse
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,6 +284,16 @@ into a shell, you can use ``make debug`` instead of ``make serve``.
 
 Troubleshooting
 ---------------
+
+Errors when executing ``make build``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If you are using Ubuntu and ``invalid reference format`` error is displayed,
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+
+.. code-block:: console
+
+    snap install docker
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
