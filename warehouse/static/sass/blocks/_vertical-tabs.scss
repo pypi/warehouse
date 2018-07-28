@@ -54,12 +54,13 @@
   &__tab {
     display: block;
     padding: $spacing-unit / 2;
-    cursor: pointer;
 
-    &:hover,
-    &:focus {
-      text-decoration: none;
-      color: darken($primary-color, 10)
+    @at-root {
+      a#{&}:hover,
+      a#{&}:focus {
+        text-decoration: none;
+        color: darken($primary-color, 10)
+      }
     }
 
     &--mobile {

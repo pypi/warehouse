@@ -12,52 +12,46 @@
  */
 
 export default () => {
-  const services = [
-    {wrapper: ".github-repo-info", items: ".github-repo-info__item"},
-    {wrapper: ".gitlab-repo-info", items: ".gitlab-repo-info__item"},
-  ];
-  services.forEach((service) => {
-    let repoInfoContainer = document.querySelector(service.wrapper);
-    if (repoInfoContainer !== null){
-      const url = repoInfoContainer.dataset.url;
-      fetch(url, {
-        method: "GET",
-        mode: "cors",
-      }).then((response) => {
-        if (response.ok){
-          return response.json();
-        } else {
-          return null;
-        }
-      }).then((json) => {
-        if (json === null){
-          return;
-        }
-        repoInfoContainer.classList.remove("hidden");
-        const items = document.querySelectorAll(service.items);
-        items.forEach(function(elem) {
-          const jsonKey = elem.dataset.key;
-          let jsonValue = json[jsonKey];
-          if(jsonValue !== undefined){
-            const supplement = elem.dataset.supplement;
-            if (supplement !== undefined) {
-              jsonValue += supplement;
-            }
-            if (jsonKey.includes("_count")) {
-              // Number formatting for count keys.
-              jsonValue = jsonValue.toLocaleString();
-            }
-            const attr = elem.dataset.attr;
-            if (attr !== undefined) {
-              elem[attr] = jsonValue;
-            } else {
-              elem.innerText = jsonValue;
-            }
+  const repoInfoContainer = document.querySelector(".repo-info");
+  if (repoInfoContainer !== null) {
+    const url = repoInfoContainer.dataset.url;
+    fetch(url, {
+      method: "GET",
+      mode: "cors",
+    }).then((response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return null;
+      }
+    }).then((json) => {
+      if (json === null) {
+        return;
+      }
+      repoInfoContainer.classList.remove("hidden");
+      const items = document.querySelectorAll(".repo-info__item");
+      items.forEach(function(elem) {
+        const jsonKey = elem.dataset.key;
+        let jsonValue = json[jsonKey];
+        if(jsonValue !== undefined){
+          const supplement = elem.dataset.supplement;
+          if (supplement !== undefined) {
+            jsonValue += supplement;
           }
-        }, this);
-      }).catch(function() {
+          if (jsonKey.includes("_count")) {
+            // Number formatting for count keys.
+            jsonValue = jsonValue.toLocaleString();
+          }
+          const attr = elem.dataset.attr;
+          if (attr !== undefined) {
+            elem[attr] = jsonValue;
+          } else {
+            elem.innerText = jsonValue;
+          }
+        }
+      }, this);
+    }).catch(function() {
 
-      });
-    }
-  });
+    });
+  }
 };

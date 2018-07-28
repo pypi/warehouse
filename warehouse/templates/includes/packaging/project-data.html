@@ -29,48 +29,44 @@
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">Statistics</h3>
   {% if release.github_repo_info_url %}
-  <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
-    GitHub statistics:
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+  <div class="repo-info hidden" data-url="{{release.github_repo_info_url}}">
+    <em>GitHub statistics:</em>
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
        target="_blank">
       <i class="fa fa-star" aria-hidden="true"></i>
       <strong>Stars: </strong>
-      <span class="github-repo-info__item" data-key="stargazers_count"></span>
+      <span class="repo-info__item" data-key="stargazers_count"></span>
     </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
        target="_blank">
       <i class="fa fa-code-branch" aria-hidden="true"></i>
       <strong>Forks: </strong>
-      <span class="github-repo-info__item" data-key="forks_count"></span>
+      <span class="repo-info__item" data-key="forks_count"></span>
     </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
        data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
        target="_blank">
       <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
       <strong>Open issues/PRs: </strong>
-      <span class="github-repo-info__item" data-key="open_issues_count"></span>
+      <span class="repo-info__item" data-key="open_issues_count"></span>
     </a>
   </div>
-  {% endif %}
-
-  {% if release.gitlab_repo_info_url %}
-  <div class="gitlab-repo-info hidden" data-url="{{release.gitlab_repo_info_url}}">
+  {% elif release.gitlab_repo_info_url %}
+  <div class="repo-info hidden" data-url="{{release.gitlab_repo_info_url}}">
     <em>GitLab statistics:</em>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed gitlab-repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
-       target="_blank">
+    <span class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item">
       <i class="fa fa-star" aria-hidden="true"></i>
       <strong>Stars: </strong>
-      <span class="gitlab-repo-info__item" data-key="star_count"></span>
-    </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed gitlab-repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
+      <span class="repo-info__item" data-key="star_count"></span>
+    </span>
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
+       data-key="web_url" data-attr="href" data-supplement="/forks" rel="noopener"
        target="_blank">
       <i class="fa fa-code-branch" aria-hidden="true"></i>
       <strong>Forks: </strong>
-      <span class="gitlab-repo-info__item" data-key="forks_count"></span>
+      <span class="repo-info__item" data-key="forks_count"></span>
     </a>
   </div>
   {% endif %}
