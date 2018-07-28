@@ -26,52 +26,51 @@
 </div>
 {% endif %}
 
+{% macro statistic_item(title, json_data_key, json_base_url_key=None, url_ending=None, icon=None) %}
+{% if not icon %}
+  {% if title == 'Stars' %}
+    {% set icon = 'fa-star' %}
+  {% elif title == 'Forks' %}
+    {% set icon = 'fa-code-branch' %}
+  {% elif title == 'Open issues/PRs' %}
+    {% set icon = 'fa-exclamation-circle' %}
+  {% endif %}
+{% endif %}
+{% if json_base_url_key %}
+<a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
+    data-key="{{ json_base_url_key }}" data-attr="href" data-supplement="{{ url_ending }}"
+    rel="noopener" target="_blank">
+{% else %}
+<span class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item">
+{% endif %}
+  <i class="fa {{ icon }}" aria-hidden="true"></i>
+  <strong>{{ title }}: </strong>
+  <span class="repo-info__item" data-key="{{ json_data_key }}"></span>
+{% if json_base_url_key %}
+</a>
+{% else %}
+</span>
+{% endif %}
+{% endmacro %}
+
 <div class="sidebar-section">
   <h3 class="sidebar-section__title">Statistics</h3>
   {% if release.github_repo_info_url %}
   <div class="repo-info hidden" data-url="{{release.github_repo_info_url}}">
     <em>GitHub statistics:</em>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
-       target="_blank">
-      <i class="fa fa-star" aria-hidden="true"></i>
-      <strong>Stars: </strong>
-      <span class="repo-info__item" data-key="stargazers_count"></span>
-    </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
-       target="_blank">
-      <i class="fa fa-code-branch" aria-hidden="true"></i>
-      <strong>Forks: </strong>
-      <span class="repo-info__item" data-key="forks_count"></span>
-    </a>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
-       data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
-       target="_blank">
-      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-      <strong>Open issues/PRs: </strong>
-      <span class="repo-info__item" data-key="open_issues_count"></span>
-    </a>
+    {{ statistic_item('Stars', 'stargazers_count', 'html_url', '/stargazers') }}
+    {{ statistic_item('Forks', 'forks_count', 'html_url', '/network') }}
+    {{ statistic_item('Open issues/PRs', 'open_issues_count', 'html_url', '/issues') }}
   </div>
   {% elif release.gitlab_repo_info_url %}
   <div class="repo-info hidden" data-url="{{release.gitlab_repo_info_url}}">
     <em>GitLab statistics:</em>
-    <span class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item">
-      <i class="fa fa-star" aria-hidden="true"></i>
-      <strong>Stars: </strong>
-      <span class="repo-info__item" data-key="star_count"></span>
-    </span>
-    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
-       data-key="web_url" data-attr="href" data-supplement="/forks" rel="noopener"
-       target="_blank">
-      <i class="fa fa-code-branch" aria-hidden="true"></i>
-      <strong>Forks: </strong>
-      <span class="repo-info__item" data-key="forks_count"></span>
-    </a>
+    {{ statistic_item('Stars', 'star_count') }}
+    {{ statistic_item('Forks', 'forks_count', 'web_url', '/forks') }}
   </div>
   {% endif %}
   <p>View statistics for this project via <a
-          href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using
+      href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using
     <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google
       BigQuery</a></p>
 </div>
