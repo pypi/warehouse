@@ -386,7 +386,6 @@ class Release(db.Model):
 
     @property
     def gitlab_repo_info_url(self):
-        # import pdb; pdb.set_trace()
         for parsed in [urlparse(url) for url in self.urls.values()]:
             segments = parsed.path.strip("/").rstrip("/").split("/")
 
