@@ -260,6 +260,16 @@ into a shell, you can use ``make debug`` instead of ``make serve``.
 Troubleshooting
 ---------------
 
+Errors when executing ``make build``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If you are using Ubuntu and ``invalid reference format`` error is displayed,
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+
+.. code-block:: console
+
+    snap install docker
+
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
