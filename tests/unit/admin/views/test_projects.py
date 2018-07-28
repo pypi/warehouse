@@ -105,11 +105,22 @@ class TestProjectDetail:
 
 
 class TestReleaseDetail:
-    def test_gets_release(self):
-        release = pretend.stub()
-        request = pretend.stub()
+    def test_gets_release(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        journals = sorted(
+            [
+                JournalEntryFactory(name=project.name, version=release.version)
+                for _ in range(3)
+            ],
+            key=lambda x: (x.submitted_date, x.id),
+            reverse=True,
+        )
 
-        assert views.release_detail(release, request) == {"release": release}
+        assert views.release_detail(release, db_request) == {
+            "release": release,
+            "journals": journals,
+        }
 
 
 class TestProjectReleasesList:

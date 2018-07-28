@@ -944,6 +944,7 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         db_request.POST = MultiDict(
             {
@@ -1212,6 +1213,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.40"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
         content.filename = filename
@@ -1304,9 +1306,13 @@ class TestFileUpload:
             )
 
         # Ensure that a File object has been created.
-        db_request.db.query(File).filter(
-            (File.release == release) & (File.filename == filename)
-        ).one()
+        uploaded_file = (
+            db_request.db.query(File)
+            .filter((File.release == release) & (File.filename == filename))
+            .one()
+        )
+
+        assert uploaded_file.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
@@ -2184,6 +2190,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2286,6 +2293,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2383,6 +2391,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2429,6 +2438,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.30"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2516,6 +2526,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2566,6 +2577,7 @@ class TestFileUpload:
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert set(release.provides) == {"testing"}
         assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
@@ -2609,6 +2621,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2654,6 +2667,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2705,6 +2719,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2727,6 +2742,8 @@ class TestFileUpload:
             .filter((Release.project == project) & (Release.version == "1.0"))
             .one()
         )
+
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
 
         # Ensure that a File object has been created.
         db_request.db.query(File).filter(
@@ -2804,6 +2821,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         if expected_success:
             resp = legacy.file_upload(db_request)
@@ -2854,6 +2872,7 @@ class TestFileUpload:
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None: storage_service
         db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
 
         resp = legacy.file_upload(db_request)
 
@@ -2900,6 +2919,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2975,6 +2995,7 @@ class TestFileUpload:
 
         db_request.user = user
         db_request.remote_addr = "10.10.10.20"
+        db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
