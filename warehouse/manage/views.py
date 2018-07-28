@@ -279,19 +279,41 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
-    projects_owned = set(
-        project.name
-        for project in (
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == request.user)
-            .all()
-        )
+    projects_owned = (
+        request.db.query(Project)
+        .join(Role.project)
+        .filter(Role.role_name == "Owner", Role.user == request.user)
+        .subquery()
     )
+
+    with_owner_count = (
+        request.db.query(
+            Role.package_name, func.count(Role.package_name).label('owner_count')
+        )
+        .join(projects_owned)
+        .filter(Role.role_name == "Owner")
+        .group_by(Role.package_name)
+        .subquery()
+    )
+
+    query_result = (
+        request.db.query(Project.name, with_owner_count.c.owner_count)
+        .join(with_owner_count)
+        .all()
+    )
+
+    projects_owned = set()
+    projects_sole_owned = set()
+
+    for project, owner_count in query_result:
+        projects_owned.add(project)
+        if owner_count == 1:
+            projects_sole_owned.add(project)
 
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
+        "projects_sole_owned": projects_sole_owned,
     }
 
 

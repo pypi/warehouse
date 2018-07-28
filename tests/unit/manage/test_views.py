@@ -651,7 +651,15 @@ class TestManageProjects:
                 older_project_with_no_releases,
             ]
         )
+        user_second_owner = UserFactory(
+            projects=[
+                project_with_older_release,
+                older_project_with_no_releases,
+            ]
+        )
         RoleFactory.create(user=db_request.user, project=project_with_newer_release)
+        RoleFactory.create(user=db_request.user, project=newer_project_with_no_releases)
+        RoleFactory.create(user=user_second_owner, project=project_with_newer_release)
 
         assert views.manage_projects(db_request) == {
             "projects": [
@@ -660,7 +668,11 @@ class TestManageProjects:
                 older_project_with_no_releases,
                 project_with_older_release,
             ],
-            "projects_owned": {project_with_newer_release.name},
+            "projects_owned": {
+                project_with_newer_release.name,
+                newer_project_with_no_releases.name,
+            },
+            "projects_sole_owned": {newer_project_with_no_releases.name}
         }
 
 
