@@ -1,6 +1,6 @@
 ---
 name: PyPA friction logging template
-about: Let us know what type of log friction issue you are encountering on PyPA
+about: Let us know what type of log friction issue you are encountering on PyPI
 
 ---
 
