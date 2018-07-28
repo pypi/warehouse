@@ -5,16 +5,16 @@ volumes:
 
 services:
   db:
-    image: postgres:10.1
+    image: postgres:10.1-alpine
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
 
   redis:
-    image: redis:latest
+    image: redis:4.0-alpine
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.7-alpine
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
