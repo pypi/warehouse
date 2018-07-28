@@ -316,7 +316,7 @@ gulp.task(
 gulp.task("dist:compress", gulp.parallel("dist:compress:gz", "dist:compress:br"));
 
 
-gulp.task("clean", () => { return del(distPath); });
+gulp.task("clean", () => { return del([distPath, "warehouse/admin/static/dist"]); });
 
 gulp.task("dist", gulp.series(
   // Ensure that we have a good clean base to start out with, by blowing away
