@@ -339,7 +339,7 @@ class TestManageAccount:
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
         assert view.change_primary_email() == view.default_response
         assert send_email.calls == [
-            pretend.call(db_request, db_request.user, old_primary.email)
+            pretend.call(db_request, db_request.user, old_primary)
         ]
         assert db_request.session.flash.calls == [
             pretend.call(

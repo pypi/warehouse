@@ -147,7 +147,7 @@ class ManageAccountViews:
 
     @view_config(request_method="POST", request_param=["primary_email_id"])
     def change_primary_email(self):
-        previous_primary_email = self.request.user.email
+        previous_primary_email = self.request.user.primary_email
         try:
             new_primary_email = (
                 self.request.db.query(Email)
