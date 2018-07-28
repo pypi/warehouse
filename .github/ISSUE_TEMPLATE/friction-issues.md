@@ -16,7 +16,7 @@ about: Let us know what type of log friction issue you are encountering on PyPI
 - [ ] :tophat: This is a little annoying, I'm frustrated
 - [ ] :boom: I'd quit if I weren't specifically trying to improve things.
 
-## Is there any actionable bugs?
+## Are there any actionable bugs?
 <!-- If any please link to the bug on GitHub -->
 
 ## What were you trying to do, and what didn't work?
