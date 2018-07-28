@@ -171,7 +171,14 @@ def releases_list(project, request):
     uses_session=True,
 )
 def release_detail(release, request):
-    return {"release": release}
+    journals = (
+        request.db.query(JournalEntry)
+        .filter(JournalEntry.name == release.name)
+        .filter(JournalEntry.version == release.version)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        .all()
+    )
+    return {"release": release, "journals": journals}
 
 
 @view_config(
