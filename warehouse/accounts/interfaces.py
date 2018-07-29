@@ -19,16 +19,19 @@ class TooManyFailedLogins(Exception):
 
         return super().__init__(*args, **kwargs)
 
-
-class TokenExpired(Exception):
+class TokenException(Exception):
     pass
 
 
-class TokenInvalid(Exception):
+class TokenExpired(TokenException):
     pass
 
 
-class TokenMissing(Exception):
+class TokenInvalid(TokenException):
+    pass
+
+
+class TokenMissing(TokenException):
     pass
 
 
@@ -81,6 +84,21 @@ class IUserService(Interface):
     def update_user(user_id, **changes):
         """
         Updates the user object
+        """
+
+    def has_two_factor(user_id):
+        """
+        Returns True if the user has two factor authentication.
+        """
+
+    def send_otp_secret(user_id):
+        """
+        Sends two factor authentication OTP code to user
+        """
+
+    def check_otp_secret(user_id, otp_secret):
+        """
+        Returns True if the given OTP code is valid.
         """
 
 

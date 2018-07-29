@@ -13,7 +13,7 @@
 -#}
 {% extends "base.html" %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}Two-factor authentication{% endblock %}
 
 {% block content %}
 {% if testPyPI %}
@@ -29,10 +29,6 @@
         <form method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if redirect.data %}
-            <input name="{{ redirect.field }}" type="hidden" value="{{ redirect.data }}">
-            {% endif %}
-
             {% if form.errors.__all__ %}
             <ul class="form-errors">
                 {% for error in form.errors.__all__ %}
@@ -42,11 +38,11 @@
             {% endif %}
 
             <div class="form-group">
-                <label for="otp_code" class="form-group__label">Authentication code</label>
-                {{ form.otp_code(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
-                {% if form.otp_code.errors %}
+                <label for="otp_secret" class="form-group__label">Authentication code</label>
+                {{ form.otp_secret(placeholder="Authentication code", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="1", autofocus=true) }}
+                {% if form.otp_secret.errors %}
                 <ul class="form-errors">
-                    {% for error in form.otp_code.errors %}
+                    {% for error in form.otp_secret.errors %}
                     <li>{{ error }}</li>
                     {% endfor %}
                 </ul>

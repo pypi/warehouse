@@ -369,3 +369,29 @@ class TestResetPasswordForm:
         )
 
         assert form.validate()
+
+
+class TestTwoFactorForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        form = forms.TwoFactorForm(user_service=user_service)
+
+        assert form.user_service is user_service
+
+    def test_opt_secret_exists(self):
+        form = forms.TwoFactorForm(
+            data={
+                "otp_secret": "",
+            },
+            user_service=pretend.stub()
+        )
+        assert not form.validate()
+        assert form.otp_secret.errors.pop() == "This field is required."
+
+        form = forms.TwoFactorForm(
+            data={
+                "otp_secret": "otp_code",
+            },
+            user_service=pretend.stub()
+        )
+        assert form.validate()
