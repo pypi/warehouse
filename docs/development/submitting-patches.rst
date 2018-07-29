@@ -20,9 +20,10 @@ directions on the :doc:`security page </security>`.
 Code
 ----
 
-When in doubt, refer to `the Black Code Style`_ for Python code. You can
-check if your code meets our automated requirements by running ``make lint``
-against it.
+When in doubt, refer to `the Black Code Style`_ for Python code formatting. You
+can reformat your code according to this code style by running ``make reformat``
+against it. You can check if your code meets all our automated requirements by
+running ``make lint`` against it.
 
 `Write comments as complete sentences.`_
 
