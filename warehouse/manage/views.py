@@ -288,7 +288,7 @@ def manage_projects(request):
 
     with_owner_count = (
         request.db.query(
-            Role.package_name, func.count(Role.package_name).label('owner_count')
+            Role.package_name, func.count(Role.package_name).label("owner_count")
         )
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
