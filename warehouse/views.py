@@ -12,6 +12,7 @@
 
 import collections
 import re
+from datetime import datetime
 
 from pyramid.httpexceptions import (
     HTTPException,
@@ -307,6 +308,11 @@ def search(request):
     request.registry.datadog.histogram(
         "warehouse.views.search.results", page.item_count
     )
+
+    if hasattr(page, "items"):
+        for item in page.items:
+            item.created_timestamp = \
+                datetime.strptime(item.created, "%Y-%m-%dT%H:%M:%S.%f")
 
     return {
         "page": page,
