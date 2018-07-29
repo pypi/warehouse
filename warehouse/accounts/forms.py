@@ -32,9 +32,9 @@ class UsernameMixin:
             raise wtforms.validators.ValidationError("No user found with that username")
 
 
-class OtpCodeMixin:
+class OtpSecretMixin:
 
-    otp_code = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    otp_secret = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
 
 class NewUsernameMixin:
@@ -224,7 +224,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 )
 
 
-class TwoFactorForm(OtpCodeMixin, forms.Form):
+class TwoFactorForm(OtpSecretMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service

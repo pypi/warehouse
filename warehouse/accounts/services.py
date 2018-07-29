@@ -226,6 +226,24 @@ class DatabaseUserService:
         else:
             return (True, user.disabled_for)
 
+    def has_two_factor(self, user_id):
+        """
+        Returns True if the user has two factor authentication.
+        """
+        return True
+
+    def send_otp_secret(self, user_id):
+        """
+        Sends two factor authentication OTP code to user
+        """
+        pass
+
+    def check_otp_secret(self, user_id, otp_secret):
+        """
+        Returns True if the given OTP code is valid.
+        """
+        return True
+
 
 @implementer(ITokenService)
 class TokenService:
