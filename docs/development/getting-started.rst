@@ -74,6 +74,11 @@ for Linux Quirks`_ for extra configuration instructions.
 .. _Docker for Linux: https://docs.docker.com/engine/installation/linux/
 .. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
+.. warning::
+   If you have Docker already installed on your Linux system, make sure you
+   are using the version from the above link and *not* the one from your
+   distribution or from a snap
+
 
 Verifying Docker installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
