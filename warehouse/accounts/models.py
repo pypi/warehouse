@@ -69,6 +69,8 @@ class User(SitemapMixin, db.Model):
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
 
+    totp_secret = Column(String(length=32), nullable=True)
+
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
     )
