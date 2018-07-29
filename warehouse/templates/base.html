@@ -32,6 +32,15 @@
 </p>
 {%- endmacro %}
 
+{% macro main_navigation_logged_out() -%}
+<nav id="user-indicator" class="horizontal-menu horizontal-menu--light horizontal-menu--tall" aria-label="Main navigation">
+  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="{{ request.route_path('help') }}">Help</a>
+  <a class="horizontal-menu__link horizontal-menu__link--remove-on-mobile" href="https://donate.pypi.org">Donate</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.login') }}">Log in</a>
+  <a class="horizontal-menu__link" href="{{ request.route_path('accounts.register') }}">Register</a>
+</nav>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -141,6 +150,16 @@
         <span class="notification-bar__message">You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
       </div>
       {% endif %}
+      <noscript>
+      <div class="notification-bar notification-bar--danger">
+        {# TODO: This should be removed once GH-3828 is fixed. #}
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
+        <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it if you encounter problems.</span>
+      </div>
+      </noscript>
     </section>
 
     {% block flash_messages %}
@@ -182,6 +201,7 @@
           {% endblock %}
 
           {% csi request.route_path("includes.current-user-indicator") %}
+            {{ main_navigation_logged_out() }}
           {% endcsi %}
         </div>
       </div>
@@ -217,7 +237,7 @@
       <div class="footer__menus">
         <ul class="footer__menu">
           <li>
-            <h2>Get help</h2>
+            <h2>Help</h2>
           </li>
           <li><a href="https://packaging.python.org/installing/">Installing packages</a></li>
           <li><a href="https://packaging.python.org/distributing/">Uploading packages</a></li>
@@ -241,7 +261,7 @@
           <li>
             <h2>Contributing to PyPI</h2>
           </li>
-          <li><a href="{{ request.route_path('help')}}#feedback">Bugs &amp; feedback</a></li>
+          <li><a href="{{ request.route_path('help')}}#feedback">Bugs and feedback</a></li>
           <li><a href="https://github.com/pypa/warehouse">Contribute on GitHub</a></li>
           <li><a href="https://github.com/pypa/warehouse/graphs/contributors">Development credits</a></li>
         </ul>
@@ -250,7 +270,7 @@
             <h2>Using PyPI</h2>
           </li>
           <li><a href="https://www.pypa.io/en/latest/code-of-conduct/">Code of conduct</a></li>
-          <li><a href="{{ request.route_path('security') }}">Security policy</a></li>
+          <li><a href="{{ request.route_path('security') }}">Report security issue</a></li>
           <li><a href="https://www.python.org/privacy/">Privacy policy</a></li>
           <li><a href="{{ request.route_path('policy.terms-of-use') }}">Terms of use</a></li>
         </ul>
