@@ -1,0 +1,45 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  Styling for repository statistics.
+
+  <div class="repo-info">
+    <em>Service statistics:</em> // GitHub or GitLab
+    <span class="statistic-item">
+      <i class="fa fa-star" aria-hidden="true"></i> // fa icon
+      <strong>Star: </strong> // item title
+      <span class="repo-info__item" data-key="star_count">1</span> // item value
+    </span>
+  </div>
+
+*/
+.repo-info {
+  .statistic-item {
+    @include clearfix;
+    display: block;
+    padding: $spacing-unit / 4 $spacing-unit / 2;
+
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+
+    i {
+      width: 20px;
+      text-align: center;
+      margin-right: 5px;
+    }
+  }
+}

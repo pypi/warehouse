@@ -37,11 +37,11 @@
   {% endif %}
 {% endif %}
 {% if json_base_url_key %}
-<a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item"
+<a class="statistic-item repo-info__item"
     data-key="{{ json_base_url_key }}" data-attr="href" data-supplement="{{ url_ending }}"
     rel="noopener" target="_blank">
 {% else %}
-<span class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed repo-info__item">
+<span class="statistic-item">
 {% endif %}
   <i class="fa {{ icon }}" aria-hidden="true"></i>
   <strong>{{ title }}: </strong>
