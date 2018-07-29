@@ -80,6 +80,8 @@ class User(SitemapMixin, db.Model):
         nullable=True,
     )
 
+    totp_secret = Column(String(length=32), nullable=True)
+
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
     )
