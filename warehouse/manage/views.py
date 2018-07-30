@@ -279,7 +279,7 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
-    projects_owned = (
+    user_projects_query = (
         request.db.query(Project)
         .join(Role.project)
         .filter(Role.role_name == "Owner", Role.user == request.user)
@@ -290,7 +290,7 @@ def manage_projects(request):
         request.db.query(
             Role.package_name, func.count(Role.package_name).label("owner_count")
         )
-        .join(projects_owned)
+        .join(user_projects_query)
         .filter(Role.role_name == "Owner")
         .group_by(Role.package_name)
         .subquery()
