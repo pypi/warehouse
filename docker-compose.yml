@@ -11,10 +11,10 @@ services:
       - "5433:5432"
 
   redis:
-    image: redis:latest
+    image: redis:4.0
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.7
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4

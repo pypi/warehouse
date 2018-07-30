@@ -132,30 +132,42 @@ Warehouse and run all of the needed services. The Warehouse repository will be
 mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
+.. _running-warehouse-containers:
+
 Running the Warehouse container and services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to start the Docker services that make up the Warehouse
-application. These need ~4 GB of RAM dedicated to Docker to work. This is more
-than the default setting of the Docker Engine of 2 GB. Thus, you need to
-increase the memory allocated to Docker in
-`Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
-or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
-(on Windows) by moving the slider to 4 GB in the GUI.
+application.
 
-If you are using Linux, you may need to configure the maximum map count to get
-the `elasticsearch` up and running. According to the
-`documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
-this can be set temporarily:
+.. tip::
 
-.. code-block:: console
+   These services need ~4 GB of RAM dedicated to Docker to work. This is more
+   than the default setting of the Docker Engine of 2 GB. Thus, you
+   need to increase the memory allocated to Docker in
+   `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_
+   (on Mac) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+   (on Windows) by moving the slider to 4 GB in the GUI.
 
-    # sysctl -w vm.max_map_count=262144
+   If you are using Linux, you may need to configure the maximum map count to get
+   the `elasticsearch` up and running. According to the
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   this can be set temporarily:
 
-or permanently by modifying the ``vm.max_map_count`` setting in your
-:file:`/etc/sysctl.conf`.
+   .. code-block:: console
 
-Then, in a terminal run the command:
+       # sysctl -w vm.max_map_count=262144
+
+   or permanently by modifying the ``vm.max_map_count`` setting in your
+   :file:`/etc/sysctl.conf`.
+
+   Also check that you have more than 5% disk space free, otherwise
+   elasticsearch will become read only. See ``flood_stage`` in the
+   `elasticsearch disk allocation docs
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+
+
+In a terminal run the command:
 
 .. code-block:: console
 
@@ -217,6 +229,16 @@ This means that all the services are up, and web container is listening on port
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+.. note::
+
+    In development mode, the official logos are replaced with placeholders due to
+    copyright.
+
+    On Firefox, the logos might show up as black rectangles due to  the
+    *Content Security Policy* used and an implementation bug in Firefox (see
+    `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
+    for more info).
 
 
 Logging in to Warehouse
@@ -303,6 +325,29 @@ Errors when executing ``make serve``
   ``make serve`` has been executed, shut down the Docker containers. When the
   containers have shut down, run ``make serve`` in one terminal window while
   running ``make initdb`` in a separate terminal window.
+
+Errors when executing ``make purge``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make purge`` fails with a permission error, check ownership
+  and permissions on ``warehouse/static``. ``docker-compose`` is spawning
+  containers with docker. Generally on Linux that process is running as root.
+  So when it writes files back to the file system as the static container
+  does those are owned by root. So your docker daemon would be running as root,
+  so your user doesn't have permission to remove the files written by the
+  containers. ``sudo make purge`` will work.
+
+Errors when executing ``make initdb``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make initdb`` fails with a timeout like::
+
+    urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPConnection object at 0x8beca733c3c8>, 'Connection to elasticsearch timed out. (connect timeout=30)')
+
+  you might need to increase the amount of memory allocated to docker, since
+  elasticsearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
+  Refer to the tip under :ref:`running-warehouse-containers` section for more details.
+
 
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
