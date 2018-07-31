@@ -406,18 +406,33 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl", "broker_url", "queue_name", "transport_options"),
+    ("env", "ssl", "broker_url", "expected_url", "queue_name", "transport_options"),
     [
-        (Environment.development, False, "amqp://guest@rabbitmq:5672//", "celery", {}),
-        (Environment.production, True, "amqp://guest@rabbitmq:5672//", "celery", {}),
-        (Environment.development, False, "sqs://", "celery", {}),
-        (Environment.production, True, "sqs://", "celery", {}),
-        (Environment.development, False, "sqs:///my-queue", "my-queue", {}),
-        (Environment.production, True, "sqs:///my-queue", "my-queue", {}),
+        (
+            Environment.development,
+            False,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            "celery",
+            {},
+        ),
+        (
+            Environment.production,
+            True,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            "celery",
+            {},
+        ),
+        (Environment.development, False, "sqs://", "sqs://", "celery", {}),
+        (Environment.production, True, "sqs://", "sqs://", "celery", {}),
+        (Environment.development, False, "sqs:///my-queue", "sqs://", "my-queue", {}),
+        (Environment.production, True, "sqs:///my-queue", "sqs://", "my-queue", {}),
         (
             Environment.development,
             False,
             "sqs://?region=us-east-2",
+            "sqs://",
             "celery",
             {"region": "us-east-2"},
         ),
@@ -425,6 +440,7 @@ def test_make_celery_app():
             Environment.production,
             True,
             "sqs://?region=us-east-2",
+            "sqs://",
             "celery",
             {"region": "us-east-2"},
         ),
@@ -432,6 +448,7 @@ def test_make_celery_app():
             Environment.development,
             False,
             "sqs:///my-queue?region=us-east-2",
+            "sqs://",
             "my-queue",
             {"region": "us-east-2"},
         ),
@@ -439,12 +456,13 @@ def test_make_celery_app():
             Environment.production,
             True,
             "sqs:///my-queue?region=us-east-2",
+            "sqs://",
             "my-queue",
             {"region": "us-east-2"},
         ),
     ],
 )
-def test_includeme(env, ssl, broker_url, queue_name, transport_options):
+def test_includeme(env, ssl, broker_url, expected_url, queue_name, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -469,7 +487,7 @@ def test_includeme(env, ssl, broker_url, queue_name, transport_options):
     assert app.pyramid_config is config
     for key, value in {
         "broker_transport_options": transport_options,
-        "broker_url": config.registry.settings["celery.broker_url"],
+        "broker_url": expected_url,
         "broker_use_ssl": ssl,
         "worker_disable_rate_limits": True,
         "task_default_queue": queue_name,
