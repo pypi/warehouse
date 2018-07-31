@@ -61,7 +61,7 @@ help content).
 -------------------------------------------------------
 
 Warehouse follows the `Material design writing style guide
-<https://material.io/design/usability/accessibility.html#writing>`_.
+<https://web.archive.org/web/20180410101124/https://material.io/guidelines/style/writing.html>`_.
 
 When writing interfaces use direct, clear and simple language. This is
 especially important as Warehouse caters to an international audience with

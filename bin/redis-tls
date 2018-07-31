@@ -15,6 +15,4 @@ REDIS_URL="$(echo $REDIS_URL | sed "s/:[0-9][0-9]*$/:$REDIS_PORT/g" )"
 unset REDIS_PORT
 
 # Configure the TLS settings for our Redis connection
-# TODO: Currently it's not possible to actually verify the TLS used by Heroku
-#       Redis, so we'll comment this out for a future enhancement.
-# REDIS_URL="$REDIS_URL?ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"
+REDIS_URL="$REDIS_URL?ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"

@@ -33,9 +33,9 @@ html-linter==0.4.0 \
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
-pbr==4.1.1 \
-    --hash=sha256:c6bddbad814f23c7faaf88d8a186e9965243cc6206a23361b73023648e645794 \
-    --hash=sha256:754e766b4f4bad3aa68cfd532456298da1aa39375da8748392dbae90860d5f18
+pbr==4.2.0 \
+    --hash=sha256:b486975c0cafb6beeb50ca0e17ba047647f229087bd74e37f4a7e2cac17d2caa \
+    --hash=sha256:1b8be50d938c9bb75d0eaf7eda111eec1bf6dc88a62a6412e33bf077457e0f45
 pep8-naming==0.7.0 \
     --hash=sha256:360308d2c5d2fff8031c1b284820fbdb27a63274c0c1a8ce884d631836da4bdd \
     --hash=sha256:624258e0dd06ef32a9daf3c36cc925ff7314da7233209c5b01f7e5cdd3c34826
