@@ -4,7 +4,7 @@ argon2-cffi
 Babel
 bcrypt
 boto3
-celery>=4
+celery[sqs]>=4
 celery-redbeat
 certifi
 click
@@ -28,6 +28,7 @@ paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
 psycopg2
+pycurl
 pyramid>=1.9a2
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
