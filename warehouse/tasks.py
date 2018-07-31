@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import functools
+import urllib.parse
 
 import celery.app.backends
 
@@ -154,6 +155,20 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
 def includeme(config):
     s = config.registry.settings
 
+    queue_name = "celery"
+    broker_transport_options = {}
+
+    broker_url = s["celery.broker_url"]
+    if broker_url.startswith("sqs://"):
+        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_query = urllib.parse.parse_qs(parsed_url.query)
+
+        if parsed_url.path:
+            queue_name = parsed_url.path[1:]
+
+        if "region" in parsed_query:
+            broker_transport_options["region"] = parsed_query["region"][0]
+
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
     )
@@ -161,6 +176,8 @@ def includeme(config):
         accept_content=["json", "msgpack"],
         broker_url=s["celery.broker_url"],
         broker_use_ssl=s["warehouse.env"] == Environment.production,
+        broker_transport_options=broker_transport_options,
+        task_default_queue=queue_name,
         task_queue_ha_policy="all",
         task_serializer="json",
         worker_disable_rate_limits=True,
