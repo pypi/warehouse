@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
 from warehouse.credits import views
 
@@ -18,13 +19,13 @@ from ...common.db.contributors import ContributorFactory
 
 
 class TestCredits:
-    def test_credits_page(self, db_request):
+    @pytest.mark.parametrize("contrib_length", [2, 3])
+    def test_credits_page(self, db_request, contrib_length):
 
-        contrib = [
-            ContributorFactory.create(),
-            ContributorFactory.create(),
-            ContributorFactory.create(),
-        ]
+        contrib = []
+
+        for _ in range(contrib_length):
+            contrib.append(ContributorFactory.create())
 
         db_request.contributors = pretend.call_recorder(lambda contributors: contrib)
 
