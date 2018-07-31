@@ -33,6 +33,10 @@ from pyramid.threadlocal import get_current_request
 from warehouse.config import Environment
 
 
+# We need to register that the sqs:// url scheme uses a netloc
+urllib.parse.uses_netloc.append("sqs")
+
+
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
     def _params_from_url(self, url, defaults):
         params = super()._params_from_url(url, defaults)
@@ -162,6 +166,9 @@ def includeme(config):
     if broker_url.startswith("sqs://"):
         parsed_url = urllib.parse.urlparse(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
+        # Celery doesn't handle paths/query arms being passed into the SQS broker,
+        # so we'll jsut remove them from here.
+        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
 
         if parsed_url.path:
             queue_name = parsed_url.path[1:]
@@ -174,7 +181,7 @@ def includeme(config):
     )
     config.registry["celery.app"].conf.update(
         accept_content=["json", "msgpack"],
-        broker_url=s["celery.broker_url"],
+        broker_url=broker_url,
         broker_use_ssl=s["warehouse.env"] == Environment.production,
         broker_transport_options=broker_transport_options,
         task_default_queue=queue_name,
