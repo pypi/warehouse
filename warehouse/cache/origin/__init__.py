@@ -69,7 +69,7 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
 
             try:
                 cacher = request.find_service(IOriginCache)
-            except ValueError:
+            except LookupError:
                 pass
             else:
                 request.add_response_callback(
