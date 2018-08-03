@@ -47,7 +47,7 @@ def execute_purge(config, session):
 
     try:
         cacher_factory = config.find_service_factory(IOriginCache)
-    except ValueError:
+    except LookupError:
         return
 
     cacher = cacher_factory(None, config)

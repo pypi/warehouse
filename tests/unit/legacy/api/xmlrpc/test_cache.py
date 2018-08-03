@@ -323,7 +323,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service, rpc_method="rpc_method", rpc_args=(0, 1)
         )
@@ -354,7 +354,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service,
             rpc_method="rpc_method",
@@ -387,7 +387,7 @@ class TestDeriver:
         if service_available:
             _find_service = pretend.call_recorder(lambda *args, **kwargs: service)
         else:
-            _find_service = pretend.raiser(ValueError)
+            _find_service = pretend.raiser(LookupError)
         request = pretend.stub(
             find_service=_find_service, rpc_method="rpc_method", rpc_args=(0, 1)
         )
@@ -519,7 +519,7 @@ class TestPurgeTask:
     def test_execute_unsuccessful_purge(self):
         @pretend.call_recorder
         def find_service_factory(interface):
-            raise ValueError
+            raise LookupError
 
         config = pretend.stub(find_service_factory=find_service_factory)
         session = pretend.stub(
