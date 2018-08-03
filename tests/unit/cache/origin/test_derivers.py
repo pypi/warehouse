@@ -37,11 +37,11 @@ def test_no_origin_cache_found():
     info = pretend.stub(options={"renderer": renderer})
     context = pretend.stub()
 
-    def raise_valueerror(*a):
-        raise ValueError
+    def raise_lookuperror(*a):
+        raise LookupError
 
     request = pretend.stub(
-        find_service=raise_valueerror,
+        find_service=raise_lookuperror,
         add_response_callback=pretend.call_recorder(lambda a: None),
     )
 

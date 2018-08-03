@@ -47,7 +47,7 @@ class TestComputeTrending:
             if with_purges and issubclass(iface, IOriginCache):
                 return cacher
 
-            raise ValueError
+            raise LookupError
 
         db_request.find_service = find_service
         db_request.registry.settings = {
