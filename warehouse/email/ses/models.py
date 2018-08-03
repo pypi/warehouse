@@ -230,6 +230,7 @@ class EmailMessage(db.Model):
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
+        index=True,
     )
 
     message_id = Column(Text, nullable=False, unique=True, index=True)
@@ -263,7 +264,9 @@ class Event(db.Model):
 
     email_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("ses_emails.id", deferrable=True, initially="DEFERRED"),
+        ForeignKey(
+            "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
+        ),
         nullable=False,
     )
 
