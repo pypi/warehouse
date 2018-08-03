@@ -408,9 +408,9 @@ pyramid-retry==0.5 \
 pyramid-rpc==0.8 \
     --hash=sha256:0ad0368404d4f5c7afd31e801b48efed6866bdbeb0f5d14413d2a0bb17f00bd6 \
     --hash=sha256:5dcd59a52d28ed5594df897ddbd473f68e599d48d4c86546e688db9752fa1f3a
-pyramid-services==1.1 \
-    --hash=sha256:533e67659224c2064ed4ffa803c30adb99e6288c2a2c31d7e7447a8a4f19d7b4 \
-    --hash=sha256:adff1063ddf86e16c9c3d32e160c7b8b44ad28a0831333446fdf7bba8aa7146c
+pyramid-services==2.1 \
+    --hash=sha256:53f7df581fc6796fe44debbfa824bfd82d21e7ac0dc71ef846af6c9a21414616 \
+    --hash=sha256:0d041108f1cc57eb0e3fc3d7889a613ec64fcb170c958a2a254c316e84feaf62
 pyramid-tm==2.2 \
     --hash=sha256:11b0f31482339d655358081bc1366d39679d02588782b5c8019bfb41ae02ba3d \
     --hash=sha256:07d03bab7bdd265c3920db4e68dbaa8cbaff27da828700f404b1424244ad617f
