@@ -74,7 +74,6 @@ The top-level directory of the Warehouse repo contains files including:
 -  ``Dockerfile``: creates the Docker containers that Warehouse runs in
 -  ``docker-compose.yml`` file configures Docker Compose
 -  ``setup.cfg`` for test configuration
--  ``runtime.txt`` for Heroku
 -  ``Makefile``: commands to spin up Docker Compose and the Docker
    containers, run the linter and other tests, etc.
 -  files associated with Warehouse's front end, e.g.,
@@ -82,28 +81,29 @@ The top-level directory of the Warehouse repo contains files including:
 
 Directories within the repository:
 
-- bin/ - high-level scripts for Docker, Travis, and Makefile commands
-- dev/ - assets for developer environment
-- tests/ - tests
-- warehouse/ - code in modules
+- `bin/ <https://github.com/pypa/warehouse/tree/master/bin>`_ - high-level scripts for Docker, Travis, and Makefile commands
+- `dev/ <https://github.com/pypa/warehouse/tree/master/dev>`_ - assets for developer environment
+- `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
+- `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
 
-  - legacy/ - most of the read-only APIs implemented here
-  - forklift/ - :ref:`upload-api-forklift`
-  - accounts/ - user accounts
-  - admin/ - application-administrator-specific
-  - cache/ - caching
-  - classifiers/ - frame trove classifiers
-  - cli/ - entry scripts and `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
-  - i18n/ - internationalization
-  - locales/ - internationalization
-  - manage/ - logged-in user functionality (i.e., manage account &
+  - `legacy/ <https://github.com/pypa/warehouse/tree/master/warehouse/legacy>`_ - most of the read-only APIs implemented here
+  - `forklift/ <https://github.com/pypa/warehouse/tree/master/warehouse/forklift>`_ - :ref:`upload-api-forklift`
+  - `accounts/ <https://github.com/pypa/warehouse/tree/master/warehouse/accounts>`_ - user accounts
+  - `admin/ <https://github.com/pypa/warehouse/tree/master/warehouse/admin>`_ - application-administrator-specific
+  - `cache/ <https://github.com/pypa/warehouse/tree/master/warehouse/cache>`_ - caching
+  - `classifiers/ <https://github.com/pypa/warehouse/tree/master/warehouse/classifiers>`_ - frame trove classifiers
+  - `cli/ <https://github.com/pypa/warehouse/tree/master/warehouse/cli>`_ - entry scripts and
+    `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
+  - `i18n/ <https://github.com/pypa/warehouse/tree/master/warehouse/i18n>`_ - internationalization
+  - `locales/ <https://github.com/pypa/warehouse/tree/master/warehouse/locales>`_ - internationalization
+  - `manage/ <https://github.com/pypa/warehouse/tree/master/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
     owned/maintained projects)
-  - migrations/ - changes to the database schema
-  - packaging/ - models
-  - rate_limiting/ - rate limiting to prevent abuse
-  - rss/ - RSS feeds: :doc:`api-reference/feeds`
-  - sitemap/ - site maps
-  - utils/ - various utilities Warehouse uses
+  - `migrations/ <https://github.com/pypa/warehouse/tree/master/warehouse/migrations>`_ - changes to the database schema
+  - `packaging/ <https://github.com/pypa/warehouse/tree/master/warehouse/packaging>`_ - models
+  - `rate_limiting/ <https://github.com/pypa/warehouse/tree/master/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
+  - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
+  - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
 .. _Docker: https://docs.docker.com/

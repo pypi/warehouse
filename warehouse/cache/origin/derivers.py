@@ -22,7 +22,7 @@ def html_cache_deriver(view, info):
         def wrapper_view(context, request):
             try:
                 cacher = request.find_service(IOriginCache)
-            except ValueError:
+            except LookupError:
                 pass
             else:
                 request.add_response_callback(

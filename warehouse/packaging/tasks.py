@@ -90,7 +90,7 @@ def compute_trending(request):
     # Trigger a purge of the trending surrogate key.
     try:
         cacher = request.find_service(IOriginCache)
-    except ValueError:
+    except LookupError:
         pass
     else:
         cacher.purge(["trending"])

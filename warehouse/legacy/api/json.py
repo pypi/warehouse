@@ -138,6 +138,7 @@ def json_release(release, request):
                 "downloads": -1,
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "url": request.route_url("packaging.file", path=f.path),
+                "requires_python": r.requires_python if r.requires_python else None,
             }
             for f in fs
         ]

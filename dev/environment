@@ -5,7 +5,7 @@ WAREHOUSE_TOKEN=insecuretoken
 # repository due to the fact that other people's IP is contained in it.
 #WAREHOUSE_THEME=pypi_theme.pypi
 
-AMQP_URL=amqp://guest@rabbitmq:5672//
+BROKER_URL=amqp://guest@rabbitmq:5672//
 
 DATABASE_URL=postgresql://postgres@db/warehouse
 
