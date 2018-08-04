@@ -231,6 +231,5 @@ application.load(definitionsFromContext(context));
 
 docReady(() => {
   RepositoryInfo();
-  console.log(SoInfo());
-  console.log("WTF");
+  SoInfo();
 });
