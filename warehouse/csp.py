@@ -81,6 +81,7 @@ def includeme(config):
                 "connect-src": [
                     SELF,
                     "https://api.github.com/repos/",
+                    "https://api.stackexchange.com/",
                     "*.fastly-insights.com",
                     "sentry.io",
                 ]

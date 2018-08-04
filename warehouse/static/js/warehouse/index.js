@@ -42,6 +42,7 @@ import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import YouTubeIframeLoader from "youtube-iframe";
 import RepositoryInfo from "warehouse/utils/repository-info";
+import SoInfo from "warehouse/utils/so-info";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 
 // Do this before anything else, to potentially capture errors down the line
@@ -230,4 +231,6 @@ application.load(definitionsFromContext(context));
 
 docReady(() => {
   RepositoryInfo();
+  console.log(SoInfo());
+  console.log("WTF");
 });
