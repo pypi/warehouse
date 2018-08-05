@@ -353,3 +353,70 @@ def test_token_service_factory_eq():
     assert services.TokenServiceFactory("foo") == services.TokenServiceFactory("foo")
     assert services.TokenServiceFactory("foo") != services.TokenServiceFactory("bar")
     assert services.TokenServiceFactory("foo") != object()
+
+
+class TestHaveIBeenPwnedPasswordBreachedService:
+    @pytest.mark.parametrize(
+        ("password", "prefix", "expected", "dataset"),
+        [
+            (
+                "password",
+                "5baa6",
+                True,
+                (
+                    "1e4c9b93f3f0682250b6cf8331b7ee68fd8:5\r\n"
+                    "a8ff7fcd473d321e0146afd9e26df395147:3"
+                ),
+            ),
+            (
+                "password",
+                "5baa6",
+                True,
+                (
+                    "1E4C9B93F3F0682250B6CF8331B7EE68FD8:5\r\n"
+                    "A8FF7FCD473D321E0146AFD9E26DF395147:3"
+                ),
+            ),
+            (
+                "correct horse battery staple",
+                "abf7a",
+                False,
+                (
+                    "1e4c9b93f3f0682250b6cf8331b7ee68fd8:5\r\n"
+                    "a8ff7fcd473d321e0146afd9e26df395147:3"
+                ),
+            ),
+        ],
+    )
+    def test_success(self, password, prefix, expected, dataset):
+        response = pretend.stub(text=dataset, raise_for_status=lambda: None)
+        session = pretend.stub(get=pretend.call_recorder(lambda url: response))
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+
+        assert svc.check_password(password) == expected
+        assert session.get.calls == [
+            pretend.call(f"https://api.pwnedpasswords.com/range/{prefix}")
+        ]
+
+    def test_failure(self):
+        class AnError(Exception):
+            pass
+
+        def raiser():
+            raise AnError
+
+        response = pretend.stub(raise_for_status=raiser)
+        session = pretend.stub(get=lambda url: response)
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+
+        with pytest.raises(AnError):
+            svc.check_password("my password")
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(http=pretend.stub())
+        svc = services.hibp_password_breach_factory(context, request)
+
+        assert svc._http is request.http
