@@ -317,6 +317,23 @@ def search(request):
     }
 
 
+@view_config(route_name="stats", renderer="pages/stats.html")
+def stats(request):
+    total_size_query = request.db.query(func.sum(File.size)).all()
+    top_100_packages = (
+        request.db.query(File.name, func.sum(File.size))
+        .group_by(File.name)
+        .order_by(func.sum(File.size).desc())
+        .limit(100)
+        .all()
+    )
+
+    return {
+        "total_packages_size": total_size_query[0][0],
+        "top_packages": top_100_packages,
+    }
+
+
 @view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
