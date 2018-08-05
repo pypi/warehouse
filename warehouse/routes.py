@@ -83,6 +83,9 @@ def includeme(config):
     # Search Routes
     config.add_route("search", "/search/", domain=warehouse)
 
+    # Stats Routes
+    config.add_route("stats", "/stats/", domain=warehouse)
+
     # Accounts
     config.add_route(
         "accounts.profile",
