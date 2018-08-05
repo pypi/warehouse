@@ -317,7 +317,14 @@ def search(request):
     }
 
 
-@view_config(route_name="stats", renderer="pages/stats.html")
+@view_config(
+    route_name="stats",
+    renderer="pages/stats.html",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(1 * 24 * 60 * 60),  # 1 day
+    ],
+)
 def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
