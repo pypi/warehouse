@@ -232,3 +232,9 @@ class TokenServiceFactory:
         )
 
         return self.service_class(secret, salt, max_age)
+
+    def __eq__(self, other):
+        if not isinstance(other, TokenServiceFactory):
+            return NotImplemented
+
+        return (self.name, self.service_class) == (other.name, other.service_class)

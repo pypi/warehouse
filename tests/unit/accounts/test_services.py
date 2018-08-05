@@ -347,3 +347,9 @@ def test_token_service_factory_custom_max_age(monkeypatch):
 
     assert service_factory(context, request) is service_obj
     assert service_cls.calls == [pretend.call(secret, name, custom_max_age)]
+
+
+def test_token_service_factory_eq():
+    assert services.TokenServiceFactory("foo") == services.TokenServiceFactory("foo")
+    assert services.TokenServiceFactory("foo") != services.TokenServiceFactory("bar")
+    assert services.TokenServiceFactory("foo") != object()
