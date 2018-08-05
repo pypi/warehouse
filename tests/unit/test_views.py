@@ -548,7 +548,7 @@ def test_stats(db_request):
 
     assert stats(db_request) == {
         "total_packages_size": 69,
-        "top_packages": [(project.name, 69)]
+        "top_packages": [(project.name, 69)],
     }
 
 
