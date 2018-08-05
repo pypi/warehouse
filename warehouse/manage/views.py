@@ -17,7 +17,7 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
 from warehouse.accounts.models import User, Email
 from warehouse.accounts.views import logout
 from warehouse.email import (
@@ -51,6 +51,9 @@ class ManageAccountViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
+        self.breach_service = request.find_service(
+            IPasswordBreachedService, context=None
+        )
 
     @property
     def active_projects(self):
@@ -83,7 +86,9 @@ class ManageAccountViews:
         return {
             "save_account_form": SaveAccountForm(name=self.request.user.name),
             "add_email_form": AddEmailForm(user_service=self.user_service),
-            "change_password_form": ChangePasswordForm(user_service=self.user_service),
+            "change_password_form": ChangePasswordForm(
+                user_service=self.user_service, breach_service=self.breach_service
+            ),
             "active_projects": self.active_projects,
         }
 
@@ -211,6 +216,7 @@ class ManageAccountViews:
             full_name=self.request.user.name,
             email=self.request.user.email,
             user_service=self.user_service,
+            breach_service=self.breach_service,
         )
 
         if form.validate():
