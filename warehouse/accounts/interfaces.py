@@ -94,3 +94,11 @@ class ITokenService(Interface):
         """
         Gets the data corresponding to the token provided
         """
+
+
+class IPasswordBreachedService(Interface):
+    def check_password(password):
+        """
+        Returns a boolean indicating if the given password has been involved in a breach or is
+        otherwise insecure.
+        """

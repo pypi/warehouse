@@ -33,6 +33,7 @@ from warehouse.accounts.forms import (
 from warehouse.accounts.interfaces import (
     IUserService,
     ITokenService,
+    IPasswordBreachedService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -239,8 +240,11 @@ def register(request, _form_class=RegistrationForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
 
-    form = _form_class(data=request.POST, user_service=user_service)
+    form = _form_class(
+        data=request.POST, user_service=user_service, breach_service=breach_service
+    )
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
@@ -296,6 +300,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
     token_service = request.find_service(ITokenService, name="password")
 
     def _error(message):
@@ -343,6 +348,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         full_name=user.name,
         email=user.email,
         user_service=user_service,
+        breach_service=breach_service,
     )
 
     if request.method == "POST" and form.validate():

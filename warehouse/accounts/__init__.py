@@ -15,8 +15,16 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import IUserService, ITokenService
-from warehouse.accounts.services import database_login_factory, TokenServiceFactory
+from warehouse.accounts.interfaces import (
+    IUserService,
+    ITokenService,
+    IPasswordBreachedService,
+)
+from warehouse.accounts.services import (
+    TokenServiceFactory,
+    database_login_factory,
+    hibp_password_breach_factory,
+)
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
@@ -71,6 +79,11 @@ def includeme(config):
     )
     config.register_service_factory(
         TokenServiceFactory(name="email"), ITokenService, name="email"
+    )
+
+    # Register our password breach detection service.
+    config.register_service_factory(
+        hibp_password_breach_factory, IPasswordBreachedService
     )
 
     # Register our authentication and authorization policies

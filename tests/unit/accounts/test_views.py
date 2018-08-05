@@ -24,6 +24,7 @@ from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
     IUserService,
     ITokenService,
+    IPasswordBreachedService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -348,6 +349,7 @@ class TestRegister:
                 update_user=lambda *args, **kwargs: None,
                 create_user=create_user,
                 add_email=add_email,
+                check_password=lambda pw: False,
             )
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -578,6 +580,8 @@ class TestResetPassword:
         form_inst = pretend.stub()
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_inst)
 
+        breach_service = pretend.stub(check_password=lambda pw: False)
+
         db_request.GET.update({"token": "RANDOM_KEY"})
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -591,6 +595,7 @@ class TestResetPassword:
             lambda interface, **kwargs: {
                 IUserService: user_service,
                 ITokenService: token_service,
+                IPasswordBreachedService: breach_service,
             }[interface]
         )
 
@@ -604,11 +609,13 @@ class TestResetPassword:
                 full_name=user.name,
                 email=user.email,
                 user_service=user_service,
+                breach_service=breach_service,
             )
         ]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IPasswordBreachedService, context=None),
             pretend.call(ITokenService, name="password"),
         ]
 
@@ -622,6 +629,8 @@ class TestResetPassword:
         )
 
         form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
+
+        breach_service = pretend.stub(check_password=lambda pw: False)
 
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         token_service.loads = pretend.call_recorder(
@@ -637,6 +646,7 @@ class TestResetPassword:
             lambda interface, **kwargs: {
                 IUserService: user_service,
                 ITokenService: token_service,
+                IPasswordBreachedService: breach_service,
             }[interface]
         )
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -656,6 +666,7 @@ class TestResetPassword:
                 full_name=user.name,
                 email=user.email,
                 user_service=user_service,
+                breach_service=breach_service,
             )
         ]
         assert db_request.route_path.calls == [pretend.call("index")]
@@ -669,6 +680,7 @@ class TestResetPassword:
         ]
         assert db_request.find_service.calls == [
             pretend.call(IUserService, context=None),
+            pretend.call(IPasswordBreachedService, context=None),
             pretend.call(ITokenService, name="password"),
             pretend.call(IUserService, context=None),
         ]
@@ -688,6 +700,7 @@ class TestResetPassword:
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: pretend.stub(),
             ITokenService: pretend.stub(loads=loads),
+            IPasswordBreachedService: pretend.stub(),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -708,6 +721,7 @@ class TestResetPassword:
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: pretend.stub(),
             ITokenService: token_service,
+            IPasswordBreachedService: pretend.stub(),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -732,6 +746,7 @@ class TestResetPassword:
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: user_service,
             ITokenService: token_service,
+            IPasswordBreachedService: pretend.stub(),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -761,6 +776,7 @@ class TestResetPassword:
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: user_service,
             ITokenService: token_service,
+            IPasswordBreachedService: pretend.stub(),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")
@@ -793,6 +809,7 @@ class TestResetPassword:
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: user_service,
             ITokenService: token_service,
+            IPasswordBreachedService: pretend.stub(),
         }[interface]
         pyramid_request.params = {"token": "RANDOM_KEY"}
         pyramid_request.route_path = pretend.call_recorder(lambda name: "/")

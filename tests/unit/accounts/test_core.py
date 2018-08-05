@@ -17,8 +17,16 @@ import pretend
 import pytest
 
 from warehouse import accounts
-from warehouse.accounts.interfaces import IUserService, ITokenService
-from warehouse.accounts.services import TokenServiceFactory, database_login_factory
+from warehouse.accounts.interfaces import (
+    IUserService,
+    ITokenService,
+    IPasswordBreachedService,
+)
+from warehouse.accounts.services import (
+    TokenServiceFactory,
+    database_login_factory,
+    hibp_password_breach_factory,
+)
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 
@@ -151,6 +159,7 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
         pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
+        pretend.call(hibp_password_breach_factory, IPasswordBreachedService),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"

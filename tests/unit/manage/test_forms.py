@@ -77,6 +77,11 @@ class TestAddEmailForm:
 class TestChangePasswordForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.ChangePasswordForm(user_service=user_service)
+        breach_service = pretend.stub()
+
+        form = forms.ChangePasswordForm(
+            user_service=user_service, breach_service=breach_service
+        )
 
         assert form.user_service is user_service
+        assert form._breach_service is breach_service
