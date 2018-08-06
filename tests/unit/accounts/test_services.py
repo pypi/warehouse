@@ -10,12 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import datetime
 import uuid
 
 import freezegun
 import pretend
 import pytest
+import requests
 
 from zope.interface.verify import verifyClass
 
@@ -414,9 +416,44 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         with pytest.raises(AnError):
             svc.check_password("my password")
 
+    def test_http_failure(self):
+        @pretend.call_recorder
+        def raiser():
+            raise requests.RequestException()
+
+        response = pretend.stub(raise_for_status=raiser)
+        session = pretend.stub(get=lambda url: response)
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        assert not svc.check_password("my password")
+        assert raiser.calls
+
+    def test_metrics_increments(self):
+        class Metrics:
+            def __init__(self):
+                self.values = collections.Counter()
+
+            def increment(self, metric):
+                self.values[metric] += 1
+
+        metrics = Metrics()
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=pretend.stub(), metrics=metrics
+        )
+
+        svc._metrics_increment("something")
+        svc._metrics_increment("another_thing")
+        svc._metrics_increment("something")
+
+        assert metrics.values == {"something": 2, "another_thing": 1}
+
     def test_factory(self):
         context = pretend.stub()
-        request = pretend.stub(http=pretend.stub())
+        request = pretend.stub(
+            http=pretend.stub(), registry=pretend.stub(datadog=pretend.stub())
+        )
         svc = services.hibp_password_breach_factory(context, request)
 
         assert svc._http is request.http
+        assert svc._metrics is request.registry.datadog

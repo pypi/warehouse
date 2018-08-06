@@ -19,6 +19,8 @@ import posixpath
 import urllib.parse
 import uuid
 
+import requests
+
 from passlib.context import CryptContext
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
@@ -246,9 +248,16 @@ class TokenServiceFactory:
 
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
-    def __init__(self, *, session, api_base="https://api.pwnedpasswords.com"):
+    def __init__(
+        self, *, session, api_base="https://api.pwnedpasswords.com", metrics=None
+    ):
         self._http = session
         self._api_base = api_base
+        self._metrics = metrics
+
+    def _metrics_increment(self, *args, **kwargs):
+        if self._metrics is not None:
+            self._metrics.increment(*args, **kwargs)
 
     def _get_url(self, prefix):
         return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
@@ -262,12 +271,23 @@ class HaveIBeenPwnedPasswordBreachedService:
         # information see:
         #       https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/
 
+        self._metrics_increment("warehouse.compromised_password_check.start")
+
         # To work with the HIBP API, we need the sha1 of the UTF8 encoded passsword.
         hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
 
         # Fetch the passwords from the HIBP data set.
-        resp = self._http.get(self._get_url(hashed_password[:5]))
-        resp.raise_for_status()
+        try:
+            resp = self._http.get(self._get_url(hashed_password[:5]))
+            resp.raise_for_status()
+        except requests.RequestException:
+            logger.exception("Error contacting HaveIBeenPwned")
+            self._metrics_increment("warehouse.compromised_password_check.error")
+
+            # If we've failed to contact the HIBP service for some reason, we're going
+            # to "fail open" and allow the password. That's a better option then just
+            # hard failing whatever the user is attempting to do.
+            return False
 
         # The dataset that comes back from HIBP looks like:
         #
@@ -285,11 +305,17 @@ class HaveIBeenPwnedPasswordBreachedService:
         for line in resp.text.splitlines():
             possible, _ = line.split(":")
             if hashed_password[5:] == possible.lower():
+                self._metrics_increment(
+                    "warehouse.compromised_password_check.compromised"
+                )
                 return True
 
         # If we made it to this point, then the password is safe.
+        self._metrics_increment("warehouse.compromised_password_check.ok")
         return False
 
 
 def hibp_password_breach_factory(context, request):
-    return HaveIBeenPwnedPasswordBreachedService(session=request.http)
+    return HaveIBeenPwnedPasswordBreachedService(
+        session=request.http, metrics=request.registry.datadog
+    )
