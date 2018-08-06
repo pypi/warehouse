@@ -38,7 +38,7 @@ from sqlalchemy.sql import exists
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.cache.http import cache_control
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import Project, Release, File, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
@@ -321,6 +321,7 @@ def search(request):
     route_name="stats",
     renderer="pages/stats.html",
     decorator=[
+        add_vary("Accept"),
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(1 * 24 * 60 * 60),  # 1 day
     ],
@@ -329,6 +330,7 @@ def search(request):
     route_name="stats.json",
     renderer="json",
     decorator=[
+        add_vary("Accept"),
         cache_control(1 * 24 * 60 * 60),  # 1 day
         origin_cache(1 * 24 * 60 * 60),  # 1 day
     ],
