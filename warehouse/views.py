@@ -325,6 +325,15 @@ def search(request):
         origin_cache(1 * 24 * 60 * 60),  # 1 day
     ],
 )
+@view_config(
+    route_name="stats.json",
+    renderer="json",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(1 * 24 * 60 * 60),  # 1 day
+    ],
+    accept="application/json",
+)
 def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
@@ -334,11 +343,12 @@ def stats(request):
         .limit(100)
         .all()
     )
-
-    return {
-        "total_packages_size": total_size_query[0][0],
-        "top_packages": top_100_packages,
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
     }
+
+    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
 
 
 @view_config(
