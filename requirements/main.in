@@ -17,7 +17,6 @@ first
 google-cloud-bigquery
 hiredis
 html5lib
-humanfriendly
 itsdangerous
 Jinja2>=2.8
 limits

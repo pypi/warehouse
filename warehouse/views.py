@@ -13,7 +13,6 @@
 import collections
 import re
 
-from humanfriendly import format_size, parse_size
 from pyramid.httpexceptions import (
     HTTPException,
     HTTPSeeOther,
@@ -337,7 +336,6 @@ def search(request):
 )
 def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
-    total_size_human = format_size(parse_size(str(total_size_query[0][0])))
     top_100_packages = (
         request.db.query(File.name, func.sum(File.size))
         .group_by(File.name)
@@ -345,15 +343,10 @@ def stats(request):
         .limit(100)
         .all()
     )
-    top_100_packages_human = {}
-    for pkg_name, pkg_bytes in top_100_packages:
-        top_100_packages_human[pkg_name] = format_size(parse_size(str(pkg_bytes)))
 
     return {
         "total_packages_size": total_size_query[0][0],
-        "total_packages_size_human": total_size_human,
         "top_packages": top_100_packages,
-        "top_packages_human": top_100_packages_human,
     }
 
 
