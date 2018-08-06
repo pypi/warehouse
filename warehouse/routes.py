@@ -84,7 +84,10 @@ def includeme(config):
     config.add_route("search", "/search/", domain=warehouse)
 
     # Stats Routes
-    config.add_route("stats", "/stats/", domain=warehouse)
+    config.add_route("stats", "/stats/", accept="text/html", domain=warehouse)
+    config.add_route(
+        "stats.json", "/stats/", accept="application/json", domain=warehouse
+    )
 
     # Accounts
     config.add_route(

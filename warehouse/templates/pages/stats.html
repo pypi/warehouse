@@ -32,7 +32,7 @@
       <table id="all_pypi">
         <tr>
           <td>All of PyPI: </td>
-          <td>{{ total_packages_size }}</td>
+          <td>{{ total_packages_size_human }}</td>
         </tr>
       </table>
       <br>
@@ -41,10 +41,10 @@
           <th>Package Name</th>
           <th>Sum of Release Files (bytes)</th>
         <tr>
-        {% for package in top_packages %}
+        {% for pkg_name, pkg_size in top_packages_human.items() %}
           <tr>
-            <td>{{ package[0] }}</td>
-            <td>{{ package[1] }}</td>
+            <td>{{ pkg_name }}</td>
+            <td>{{ pkg_size }}</td>
           <tr>
         {% endfor %}
       </table>

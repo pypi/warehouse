@@ -111,7 +111,10 @@ def test_routes(warehouse):
         ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
-        pretend.call("stats", "/stats/", domain=warehouse),
+        pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
+        pretend.call(
+            "stats.json", "/stats/", accept="application/json", domain=warehouse
+        ),
         pretend.call(
             "accounts.profile",
             "/user/{username}/",
