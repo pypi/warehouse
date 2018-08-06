@@ -343,11 +343,12 @@ def stats(request):
         .limit(100)
         .all()
     )
-
-    return {
-        "total_packages_size": total_size_query[0][0],
-        "top_packages": top_100_packages,
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
     }
+
+    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
 
 
 @view_config(
