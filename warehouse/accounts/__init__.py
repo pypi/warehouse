@@ -44,6 +44,23 @@ def _login(username, password, request):
             return _authenticate(userid, request)
 
 
+def _login_via_basic_auth(username, password, request):
+    result = _login(username, password, request)
+
+    # If our authentication was successful (E.g. non None result), then we want to check
+    # our credentials to see if the password was comrpomised or not.
+    if result is not None:
+        # Run our password through our breach validation. We don't currently do anything
+        # with this information, but for now it will provide metrics into how many
+        # authentications are using compromised credentials.
+        breach_service = request.find_service(IPasswordBreachedService, context=None)
+        breach_service.check_password(
+            password, tags=["method:auth", "auth_method:basic"]
+        )
+
+    return result
+
+
 def _authenticate(userid, request):
     login_service = request.find_service(IUserService, context=None)
     user = login_service.get_user(userid)
@@ -91,7 +108,7 @@ def includeme(config):
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_authenticate),
-                BasicAuthAuthenticationPolicy(check=_login),
+                BasicAuthAuthenticationPolicy(check=_login_via_basic_auth),
             ]
         )
     )

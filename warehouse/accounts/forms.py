@@ -111,7 +111,9 @@ class NewPasswordMixin:
         self._breach_service = breach_service
 
     def validate_new_password(self, field):
-        if self._breach_service.check_password(field.data):
+        if self._breach_service.check_password(
+            field.data, tags=["method:new_password"]
+        ):
             raise wtforms.validators.ValidationError(
                 "This password has appeared in a breach or has otherwise been "
                 "compromised."

@@ -97,8 +97,11 @@ class ITokenService(Interface):
 
 
 class IPasswordBreachedService(Interface):
-    def check_password(password):
+    def check_password(password, *, tags=None):
         """
-        Returns a boolean indicating if the given password has been involved in a breach or is
-        otherwise insecure.
+        Returns a boolean indicating if the given password has been involved in a breach
+        or is otherwise insecure.
+
+        May have an optional list of tags, which allows identifiying the purpose of
+        checking the password.
         """
