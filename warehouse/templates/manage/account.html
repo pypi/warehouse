@@ -47,6 +47,28 @@
   {% endif %}
 {% endmacro %}
 
+{% macro email_verification_label(email) -%}
+  {% if email.verified %}
+    {% if email.transient_bounces %}
+    {% set message = "There's been some transient issues\r\nwhich could lead to unverified state" %}
+    <span class="badge badge--warning tooltipped tooltipped-multiline tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}">Verified</span>
+    {% else %}
+    <span class="badge badge--success">Verified</span>
+    {% endif %}
+  {% else %}
+    {% if email.unverify_reason.value == "spam complaint" %}
+      {% set message = "The owner's ISP has forwarded us a spam complaint" %}
+    {% elif email.unverify_reason.value == "hard bounce" %}
+      {% set message = "There was a hard failure during delivery" %}
+    {% elif email.unverify_reason.value == "soft bounce" %}
+      {% set message = "There has been too many transient delivery failures" %}
+    {% else %}
+      {% set message = "Email verification in progress, please be patient" %}
+    {% endif %}
+    <span class="badge badge--danger tooltipped tooltipped-multiline tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}">Unverified</span>
+  {% endif %}
+{% endmacro %}
+
 {% macro email_row(email) -%}
   <tr>
     <td class="table__email">
@@ -57,11 +79,7 @@
         {% if email.primary %}
         <span class="badge">Primary</span>
         {% endif %}
-        {% if email.verified %}
-        <span class="badge badge--success">Verified</span>
-        {% else %}
-        <span class="badge badge--danger">Unverified</span>
-        {% endif %}
+        {{ email_verification_label(email) }}
       </div>
     </td>
     <td class="table__action">
