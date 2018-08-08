@@ -164,7 +164,7 @@
 
         <h3 id="compromised-password">{{ compromised_password() }}</h3>
           <p>
-            Each time a user supplies a password &mdash; while registering, authenticating, or updating their password &mdash; PyPI securely checks whether that password has appeard in public data breaches.
+            Each time a user supplies a password &mdash; while registering, authenticating, or updating their password &mdash; PyPI securely checks whether that password has appeared in public data breaches.
           </p>
           <p>
             During each of these processes, PyPI generates a SHA-1 hash of the supplied password and uses the first five (5) characters of the hash to check the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">Have I Been Pwned API</a> and determine if the password has been previously compromised. The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.
