@@ -274,7 +274,7 @@ class TestSendPasswordResetEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_password_reset_email(pyramid_request, user=stub_user)
+        result = email.send_password_reset_email(pyramid_request, stub_user)
 
         assert result == {
             "token": "TOKEN",
@@ -345,8 +345,10 @@ class TestEmailVerificationEmail:
 
         result = email.send_email_verification_email(
             pyramid_request,
-            pretend.stub(username=None, name=None, email="foo@example.com"),
-            email=stub_email,
+            (
+                pretend.stub(username=None, name=None, email="foo@example.com"),
+                stub_email,
+            ),
         )
 
         assert result == {
@@ -405,7 +407,7 @@ class TestPasswordChangeEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_password_change_email(pyramid_request, user=stub_user)
+        result = email.send_password_change_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
@@ -453,7 +455,7 @@ class TestPasswordChangeEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_password_change_email(pyramid_request, user=stub_user)
+        result = email.send_password_change_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
@@ -491,7 +493,7 @@ class TestAccountDeletionEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_account_deletion_email(pyramid_request, user=stub_user)
+        result = email.send_account_deletion_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
@@ -540,7 +542,7 @@ class TestAccountDeletionEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_account_deletion_email(pyramid_request, user=stub_user)
+        result = email.send_account_deletion_email(pyramid_request, stub_user)
 
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
@@ -579,8 +581,7 @@ class TestPrimaryEmailChangeEmail:
 
         result = email.send_primary_email_change_email(
             pyramid_request,
-            stub_user,
-            pretend.stub(email="old_email@example.com", verified=True),
+            (stub_user, pretend.stub(email="old_email@example.com", verified=True)),
         )
 
         assert result == {
@@ -633,8 +634,7 @@ class TestPrimaryEmailChangeEmail:
 
         result = email.send_primary_email_change_email(
             pyramid_request,
-            stub_user,
-            pretend.stub(email="old_email@example.com", verified=False),
+            (stub_user, pretend.stub(email="old_email@example.com", verified=False)),
         )
 
         assert result == {
@@ -689,11 +689,11 @@ class TestCollaboratorAddedEmail:
 
         result = email.send_collaborator_added_email(
             pyramid_request,
+            [stub_user, stub_submitter_user],
             user=stub_user,
             submitter=stub_submitter_user,
             project_name="test_project",
             role="Owner",
-            email_recipients=[stub_user, stub_submitter_user],
         )
 
         assert result == {
@@ -778,11 +778,11 @@ class TestCollaboratorAddedEmail:
 
         result = email.send_collaborator_added_email(
             pyramid_request,
+            [stub_user, stub_submitter_user],
             user=stub_user,
             submitter=stub_submitter_user,
             project_name="test_project",
             role="Owner",
-            email_recipients=[stub_user, stub_submitter_user],
         )
 
         assert result == {
@@ -851,10 +851,10 @@ class TestAddedAsCollaboratorEmail:
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
+            stub_user,
             submitter=stub_submitter_user,
             project_name="test_project",
             role="Owner",
-            user=stub_user,
         )
 
         assert result == {
@@ -918,10 +918,10 @@ class TestAddedAsCollaboratorEmail:
 
         result = email.send_added_as_collaborator_email(
             pyramid_request,
+            stub_user,
             submitter=stub_submitter_user,
             project_name="test_project",
             role="Owner",
-            user=stub_user,
         )
 
         assert result == {

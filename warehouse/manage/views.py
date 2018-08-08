@@ -113,7 +113,7 @@ class ManageAccountViews:
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
 
-            send_email_verification_email(self.request, self.request.user, email)
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
                 f"Email {email.email} added - check your email for "
@@ -178,7 +178,7 @@ class ManageAccountViews:
         )
 
         send_primary_email_change_email(
-            self.request, self.request.user, previous_primary_email
+            self.request, (self.request.user, previous_primary_email)
         )
         return self.default_response
 
@@ -200,7 +200,7 @@ class ManageAccountViews:
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
         else:
-            send_email_verification_email(self.request, self.request.user, email)
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
                 f"Verification email for {email.email} resent", queue="success"
@@ -551,15 +551,19 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             send_collaborator_added_email(
                 request,
-                user,
-                request.user,
-                project.name,
-                form.role_name.data,
                 owner_users,
+                user=user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             send_added_as_collaborator_email(
-                request, request.user, project.name, form.role_name.data, user
+                request,
+                user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             request.session.flash(

@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
+
 from email.headerregistry import Address
 
 import attr
@@ -59,6 +61,67 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     )
 
 
+def _email(name, *, allow_unverified=False):
+    """
+    This decorator is used to turn an e function into an email sending function!
+
+    The name parameter is the name of the email we're going to be sending (used to
+    locate the templates on the file system).
+
+    The allow_unverified kwarg flags whether we will send this email to an unverified
+    email or not. We generally do not want to do this, but some emails are important
+    enough or have special requirements that require it.
+
+    Functions that are decorated by this need to accept two positional arguments, the
+    first argument is the Pyramid request object, and the second argument is either
+    a single User, or a list of Users. These users represent the recipients of this
+    email. Additional keyword arguments are supported, but are not otherwise restricted.
+
+    Functions decorated by this must return a mapping of context variables that will
+    ultimately be returned, but which will also be used to render the templates for
+    the emails.
+
+    Thus this function can decorate functions with a signature like so:
+
+        def foo(
+            request: Request, user_or_users: Union[User, List[User]]
+        ) -> Mapping[str, Any]:
+            ...
+
+    Finally, if the email needs to be sent to an address *other* than the user's primary
+    email address, instead of a User object, a tuple of (User, Email) objects may be
+    used in place of a User object.
+    """
+
+    def inner(fn):
+        @functools.wraps(fn)
+        def wrapper(request, user_or_users, **kwargs):
+            if isinstance(user_or_users, list):
+                recipients = user_or_users
+            else:
+                recipients = [user_or_users]
+
+            context = fn(request, user_or_users, **kwargs)
+            msg = EmailMessage.from_template(name, context, request=request)
+
+            for recipient in recipients:
+                if isinstance(recipient, tuple):
+                    user, email = recipient
+                else:
+                    user, email = recipient, None
+
+                _send_email_to_user(
+                    request, user, msg, email=email, allow_unverified=allow_unverified
+                )
+
+            return context
+
+        return wrapper
+
+    return inner
+
+
+@_email("password-reset", allow_unverified=True)
 def send_password_reset_email(request, user):
     token_service = request.find_service(ITokenService, name="password")
     token = token_service.dumps(
@@ -70,96 +133,61 @@ def send_password_reset_email(request, user):
         }
     )
 
-    fields = {
+    return {
         "token": token,
         "username": user.username,
         "n_hours": token_service.max_age // 60 // 60,
     }
 
-    msg = EmailMessage.from_template("password-reset", fields, request=request)
 
-    _send_email_to_user(request, user, msg, allow_unverified=True)
-
-    # Return the fields we used, in case we need to show any of them to the
-    # user
-    return fields
-
-
-def send_email_verification_email(request, user, email):
+@_email("verify-email", allow_unverified=True)
+def send_email_verification_email(request, user_and_email):
+    user, email = user_and_email
     token_service = request.find_service(ITokenService, name="email")
-
     token = token_service.dumps({"action": "email-verify", "email.id": email.id})
 
-    fields = {
+    return {
         "token": token,
         "email_address": email.email,
         "n_hours": token_service.max_age // 60 // 60,
     }
 
-    msg = EmailMessage.from_template("verify-email", fields, request=request)
 
-    _send_email_to_user(request, user, msg, email=email, allow_unverified=True)
-
-    return fields
-
-
+@_email("password-change")
 def send_password_change_email(request, user):
-    fields = {"username": user.username}
-    msg = EmailMessage.from_template("password-change", fields, request=request)
-
-    _send_email_to_user(request, user, msg)
-
-    return fields
+    return {"username": user.username}
 
 
+@_email("account-deleted")
 def send_account_deletion_email(request, user):
-    fields = {"username": user.username}
-    msg = EmailMessage.from_template("account-deleted", fields, request=request)
-
-    _send_email_to_user(request, user, msg)
-
-    return fields
+    return {"username": user.username}
 
 
-def send_primary_email_change_email(request, user, email):
-    fields = {
+@_email("primary-email-change")
+def send_primary_email_change_email(request, user_and_email):
+    user, email = user_and_email
+    return {
         "username": user.username,
         "old_email": email.email,
         "new_email": user.email,
     }
 
-    msg = EmailMessage.from_template("primary-email-change", fields, request=request)
 
-    _send_email_to_user(request, user, msg, email=email)
-
-    return fields
-
-
+@_email("collaborator-added")
 def send_collaborator_added_email(
-    request, user, submitter, project_name, role, email_recipients
+    request, email_recipients, *, user, submitter, project_name, role
 ):
-    fields = {
+    return {
         "username": user.username,
         "project": project_name,
         "submitter": submitter.username,
         "role": role,
     }
 
-    msg = EmailMessage.from_template("collaborator-added", fields, request=request)
 
-    for recipient in email_recipients:
-        _send_email_to_user(request, recipient, msg)
-
-    return fields
-
-
-def send_added_as_collaborator_email(request, submitter, project_name, role, user):
-    fields = {"project": project_name, "submitter": submitter.username, "role": role}
-    msg = EmailMessage.from_template("added-as-collaborator", fields, request=request)
-
-    _send_email_to_user(request, user, msg)
-
-    return fields
+@_email("added-as-collaborator")
+def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
+    return {"project": project_name, "submitter": submitter.username, "role": role}
 
 
 def includeme(config):
