@@ -213,7 +213,7 @@ class TestManageAccount:
                 queue="success",
             )
         ]
-        assert send_email.calls == [pretend.call(request, request.user, email)]
+        assert send_email.calls == [pretend.call(request, (request.user, email))]
 
     def test_add_email_validation_fails(self, monkeypatch):
         email_address = "test@example.com"
@@ -346,7 +346,7 @@ class TestManageAccount:
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
         assert view.change_primary_email() == view.default_response
         assert send_email.calls == [
-            pretend.call(db_request, db_request.user, old_primary)
+            pretend.call(db_request, (db_request.user, old_primary))
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -401,7 +401,7 @@ class TestManageAccount:
         assert request.session.flash.calls == [
             pretend.call("Verification email for email_address resent", queue="success")
         ]
-        assert send_email.calls == [pretend.call(request, request.user, email)]
+        assert send_email.calls == [pretend.call(request, (request.user, email))]
 
     def test_reverify_email_not_found(self, monkeypatch):
         def raise_no_result():
@@ -1189,12 +1189,12 @@ class TestManageProjectRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        send_collaborator_added_email = pretend.call_recorder(lambda *a: None)
+        send_collaborator_added_email = pretend.call_recorder(lambda r, u, **k: None)
         monkeypatch.setattr(
             views, "send_collaborator_added_email", send_collaborator_added_email
         )
 
-        send_added_as_collaborator_email = pretend.call_recorder(lambda *a: None)
+        send_added_as_collaborator_email = pretend.call_recorder(lambda r, u, **k: None)
         monkeypatch.setattr(
             views, "send_added_as_collaborator_email", send_added_as_collaborator_email
         )
@@ -1216,21 +1216,21 @@ class TestManageProjectRoles:
         assert send_collaborator_added_email.calls == [
             pretend.call(
                 db_request,
-                new_user,
-                db_request.user,
-                project.name,
-                form_obj.role_name.data,
                 {owner_2},
+                user=new_user,
+                submitter=db_request.user,
+                project_name=project.name,
+                role=form_obj.role_name.data,
             )
         ]
 
         assert send_added_as_collaborator_email.calls == [
             pretend.call(
                 db_request,
-                db_request.user,
-                project.name,
-                form_obj.role_name.data,
                 new_user,
+                submitter=db_request.user,
+                project_name=project.name,
+                role=form_obj.role_name.data,
             )
         ]
 
