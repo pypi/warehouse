@@ -25,7 +25,7 @@
 {% macro publishing() %}How do I package and publish my code for PyPI?{% endmacro %}
 {% macro trove_classifier() %}What's a trove classifier?{% endmacro %}
 {% macro verified_email() %}Why do I need a verified email address?{% endmacro %}
-{% macro compromised_password() %}Why won't PyPI accept my password?{% endmacro %}
+{% macro compromised_password() %}Why is PyPI telling me my password is compromised?{% endmacro %}
 {% macro mirroring() %}How can I run a mirror of PyPI?{% endmacro %}
 {% macro APIs() %}Does PyPI have APIs I can use?{% endmacro %}
 {% macro project_release_notifications() %}How do I get notified when a new version of a project is released?{% endmacro %}
@@ -164,7 +164,8 @@
 
         <h3 id="compromised-password">{{ compromised_password() }}</h3>
           <p>
-            PyPI securely checks if passwords users supply when registering, authenticating, or updating their password have appeared in known data breaches.
+            Each time a user supplies a password &mdash; while registering, authenticating, or updating their password &mdash; PyPI securely checks whether that password has appeard in public data breaches.
+          </p>
           <p>
             During each of these processes, PyPI generates a SHA-1 hash of the supplied password and uses the first five (5) characters of the hash to check the <a href="https://haveibeenpwned.com/API/v2#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener">Have I Been Pwned API</a> and determine if the password has been previously compromised. The plaintext password is never stored by PyPI or submitted to the Have I Been Pwned API.
           </p>
@@ -172,7 +173,7 @@
             PyPI will not allow such passwords to be used when setting a password at registration or updating your password.
           </p>
           <p>
-            If the password you supplied is noted as having appeared in known compromises, you should change it all other places that you use it as soon as possible.
+            If you receive an error that the password supplied has appeared in a breach or has otherwise been compromised, you should change it all other places that you use it as soon as possible.
           </p>
       </section>
 
