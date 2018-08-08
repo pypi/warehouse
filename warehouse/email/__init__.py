@@ -19,7 +19,8 @@ from first import first
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
-from warehouse.email.interfaces import IEmailSender, EmailMessage
+from warehouse.email.interfaces import IEmailSender
+from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 
 

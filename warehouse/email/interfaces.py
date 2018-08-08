@@ -10,37 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Optional
-
-import attr
-
-from jinja2.exceptions import TemplateNotFound
-from pyramid.renderers import render
 from zope.interface import Interface
-
-
-@attr.s(auto_attribs=True, frozen=True, slots=True)
-class EmailMessage:
-
-    subject: str
-    body_text: str
-    body_html: Optional[str] = None
-
-    @classmethod
-    def from_template(cls, email_name, context, *, request):
-        subject = render(f"email/{email_name}/subject.txt", context, request=request)
-        body_text = render(f"email/{email_name}/body.txt", context, request=request)
-
-        try:
-            body_html = render(
-                f"email/{email_name}/body.html", context, request=request
-            )
-        # Catching TemplateNotFound here is a bit of a leaky abstraction, but there's
-        # not much we can do about it.
-        except TemplateNotFound:
-            body_html = None
-
-        return cls(subject=subject, body_text=body_text, body_html=body_html)
 
 
 class IEmailSender(Interface):

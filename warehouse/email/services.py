@@ -13,18 +13,47 @@
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
 from email.utils import parseaddr
+from typing import Optional
 
+import attr
+
+from jinja2.exceptions import TemplateNotFound
+from pyramid.renderers import render
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 from zope.interface import implementer
 
 from warehouse.email.interfaces import IEmailSender
-from warehouse.email.ses.models import EmailMessage
+from warehouse.email.ses.models import EmailMessage as SESEmailMessage
 
 
 def _format_sender(sitename, sender):
     if sender is not None:
         return str(Address(sitename, addr_spec=sender))
+
+
+@attr.s(auto_attribs=True, frozen=True, slots=True)
+class EmailMessage:
+
+    subject: str
+    body_text: str
+    body_html: Optional[str] = None
+
+    @classmethod
+    def from_template(cls, email_name, context, *, request):
+        subject = render(f"email/{email_name}/subject.txt", context, request=request)
+        body_text = render(f"email/{email_name}/body.txt", context, request=request)
+
+        try:
+            body_html = render(
+                f"email/{email_name}/body.html", context, request=request
+            )
+        # Catching TemplateNotFound here is a bit of a leaky abstraction, but there's
+        # not much we can do about it.
+        except TemplateNotFound:
+            body_html = None
+
+        return cls(subject=subject, body_text=body_text, body_html=body_html)
 
 
 @implementer(IEmailSender)
@@ -90,7 +119,7 @@ class SESEmailSender:
         )
 
         self._db.add(
-            EmailMessage(
+            SESEmailMessage(
                 message_id=resp["MessageId"],
                 from_=parseaddr(self._sender)[1],
                 to=parseaddr(recipient)[1],
