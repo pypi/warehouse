@@ -75,7 +75,7 @@ def _email(name, *, allow_unverified=False):
     Functions that are decorated by this need to accept two positional arguments, the
     first argument is the Pyramid request object, and the second argument is either
     a single User, or a list of Users. These users represent the recipients of this
-    email. Additional parameters are supported, but are not otherwise restricted.
+    email. Additional keyword arguments are supported, but are not otherwise restricted.
 
     Functions decorated by this must return a mapping of context variables that will
     ultimately be returned, but which will also be used to render the templates for
@@ -92,15 +92,16 @@ def _email(name, *, allow_unverified=False):
     email address, instead of a User object, a tuple of (User, Email) objects may be
     used in place of a User object.
     """
+
     def inner(fn):
         @functools.wraps(fn)
-        def wrapper(request, user_or_users, *args, **kwargs):
+        def wrapper(request, user_or_users, **kwargs):
             if isinstance(user_or_users, list):
                 recipients = user_or_users
             else:
                 recipients = [user_or_users]
 
-            context = fn(request, user_or_users, *args, **kwargs)
+            context = fn(request, user_or_users, **kwargs)
             msg = EmailMessage.from_template(name, context, request=request)
 
             for recipient in recipients:
@@ -174,7 +175,7 @@ def send_primary_email_change_email(request, user_and_email):
 
 @_email("collaborator-added")
 def send_collaborator_added_email(
-    request, email_recipients, user, submitter, project_name, role,
+    request, email_recipients, *, user, submitter, project_name, role
 ):
     return {
         "username": user.username,
@@ -185,7 +186,7 @@ def send_collaborator_added_email(
 
 
 @_email("added-as-collaborator")
-def send_added_as_collaborator_email(request, user, submitter, project_name, role):
+def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
     return {"project": project_name, "submitter": submitter.username, "role": role}
 
 

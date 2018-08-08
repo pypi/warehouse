@@ -178,7 +178,7 @@ class ManageAccountViews:
         )
 
         send_primary_email_change_email(
-            self.request, (self.request.user, previous_primary_email),
+            self.request, (self.request.user, previous_primary_email)
         )
         return self.default_response
 
@@ -552,14 +552,18 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             send_collaborator_added_email(
                 request,
                 owner_users,
-                user,
-                request.user,
-                project.name,
-                form.role_name.data,
+                user=user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             send_added_as_collaborator_email(
-                request, user, request.user, project.name, form.role_name.data,
+                request,
+                user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             request.session.flash(

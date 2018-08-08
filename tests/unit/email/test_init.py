@@ -581,10 +581,7 @@ class TestPrimaryEmailChangeEmail:
 
         result = email.send_primary_email_change_email(
             pyramid_request,
-            (
-                stub_user,
-                pretend.stub(email="old_email@example.com", verified=True),
-            ),
+            (stub_user, pretend.stub(email="old_email@example.com", verified=True)),
         )
 
         assert result == {
@@ -637,10 +634,7 @@ class TestPrimaryEmailChangeEmail:
 
         result = email.send_primary_email_change_email(
             pyramid_request,
-            (
-                stub_user,
-                pretend.stub(email="old_email@example.com", verified=False),
-            ),
+            (stub_user, pretend.stub(email="old_email@example.com", verified=False)),
         )
 
         assert result == {
