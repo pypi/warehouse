@@ -46,7 +46,7 @@ class TestCSPTween:
         tween = csp.content_security_policy_tween_factory(handler, registry)
 
         request = pretend.stub(
-            path="/path/to/nowhere/", find_service=pretend.raiser(ValueError)
+            path="/path/to/nowhere/", find_service=pretend.raiser(LookupError)
         )
 
         assert tween(request) is response

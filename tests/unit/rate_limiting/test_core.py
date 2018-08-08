@@ -112,6 +112,15 @@ class TestRateLimit:
             )
         ]
 
+    def test_eq(self):
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) == RateLimit(
+            "1 per 5 minutes", identifiers=["foo"]
+        )
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) != RateLimit(
+            "1 per 5 minutes", identifiers=["bar"]
+        )
+        assert RateLimit("1 per 5 minutes", identifiers=["foo"]) != object()
+
 
 def test_includeme():
     registry = {}

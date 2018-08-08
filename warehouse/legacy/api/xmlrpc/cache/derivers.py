@@ -28,7 +28,7 @@ def cached_return_view(view, info):
         def wrapper_view(context, request):
             try:
                 service = request.find_service(interfaces.IXMLRPCCache)
-            except ValueError:
+            except LookupError:
                 return view(context, request)
             try:
                 key = json.dumps(request.rpc_args[slice_obj])

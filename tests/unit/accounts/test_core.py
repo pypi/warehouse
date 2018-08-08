@@ -17,8 +17,17 @@ import pretend
 import pytest
 
 from warehouse import accounts
-from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.services import database_login_factory
+from warehouse.accounts.interfaces import (
+    IUserService,
+    ITokenService,
+    IPasswordBreachedService,
+)
+from warehouse.accounts.services import (
+    TokenServiceFactory,
+    database_login_factory,
+    hibp_password_breach_factory,
+)
+from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 
 class TestLogin:
@@ -71,6 +80,35 @@ class TestLogin:
         assert service.update_user.calls == [pretend.call(userid, last_login=now)]
         assert authenticate.calls == [pretend.call(userid, request)]
 
+    def test_via_basic_auth_no_user(self, monkeypatch):
+        login = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(accounts, "_login", login)
+
+        username = pretend.stub()
+        password = pretend.stub()
+        request = pretend.stub()
+
+        assert accounts._login_via_basic_auth(username, password, request) is None
+        assert login.calls == [pretend.call(username, password, request)]
+
+    def test_via_basic_auth_with_user(self, monkeypatch):
+        login = pretend.call_recorder(lambda *a, **kw: ["foo"])
+        monkeypatch.setattr(accounts, "_login", login)
+
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags=None: False)
+        )
+
+        username = pretend.stub()
+        password = pretend.stub()
+        request = pretend.stub(find_service=lambda iface, context: breach_service)
+
+        assert accounts._login_via_basic_auth(username, password, request) == ["foo"]
+        assert login.calls == [pretend.call(username, password, request)]
+        assert breach_service.check_password.calls == [
+            pretend.call(password, tags=["method:auth", "auth_method:basic"])
+        ]
+
 
 class TestAuthenticate:
     @pytest.mark.parametrize(
@@ -120,11 +158,17 @@ class TestUser:
 
 
 def test_includeme(monkeypatch):
+    basic_authn_obj = pretend.stub()
+    basic_authn_cls = pretend.call_recorder(lambda check: basic_authn_obj)
+    session_authn_obj = pretend.stub()
+    session_authn_cls = pretend.call_recorder(lambda callback: session_authn_obj)
     authn_obj = pretend.stub()
-    authn_cls = pretend.call_recorder(lambda callback: authn_obj)
+    authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda: authz_obj)
-    monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", authn_cls)
+    monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
+    monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
+    monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
@@ -138,13 +182,24 @@ def test_includeme(monkeypatch):
 
     accounts.includeme(config)
 
-    config.register_service_factory.calls == [
-        pretend.call(database_login_factory, IUserService)
+    assert config.register_service_factory.calls == [
+        pretend.call(database_login_factory, IUserService),
+        pretend.call(
+            TokenServiceFactory(name="password"), ITokenService, name="password"
+        ),
+        pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
+        pretend.call(hibp_password_breach_factory, IPasswordBreachedService),
+        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
+        pretend.call(
+            RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+        ),
     ]
-    config.add_request_method.calls == [
+    assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True)
     ]
-    config.set_authentication_policy.calls == [pretend.call(authn_obj)]
-    config.set_authorization_policy.calls == [pretend.call(authz_obj)]
-    authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
-    authz_cls.calls == [pretend.call()]
+    assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
+    assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
+    assert basic_authn_cls.calls == [pretend.call(check=accounts._login_via_basic_auth)]
+    assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
+    assert authn_cls.calls == [pretend.call([session_authn_obj, basic_authn_obj])]
+    assert authz_cls.calls == [pretend.call()]

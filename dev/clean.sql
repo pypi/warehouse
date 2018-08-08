@@ -13,10 +13,12 @@ UPDATE accounts_user
         last_login = now(),
         date_joined = now();
 
-DELETE FROM rego_otk;
-
-
 -- Remove any personally identifying information from journals
 ALTER TABLE journals DISABLE TRIGGER ALL;
 UPDATE journals SET submitted_by = 'dstufft', submitted_from = '127.0.0.1';
 ALTER TABLE journals ENABLE TRIGGER ALL;
+
+
+-- Remove email logs
+DELETE FROM ses_events;
+DELETE FROM ses_emails;
