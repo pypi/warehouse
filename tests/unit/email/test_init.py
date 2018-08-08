@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import attr
 import celery.exceptions
 import pretend
 import pytest
@@ -17,6 +18,7 @@ import pytest
 from warehouse import email
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
+from warehouse.email.services import EmailMessage
 
 
 @pytest.mark.parametrize(
@@ -90,13 +92,17 @@ class TestSendEmailToUser:
         if address is not None:
             address = pretend.stub(email=address, verified=True)
 
-        subject = "My Subject"
-        body = "My Body"
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
 
-        email._send_email_to_user(request, user, subject, body, email=address)
+        email._send_email_to_user(request, user, msg, email=address)
 
         assert request.task.calls == [pretend.call(email.send_email)]
-        assert task.delay.calls == [pretend.call(subject, body, recipient=expected)]
+        assert task.delay.calls == [
+            pretend.call(
+                expected,
+                {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("primary_email", "address"),
@@ -118,10 +124,9 @@ class TestSendEmailToUser:
         if address is not None:
             address = pretend.stub(email=address, verified=False)
 
-        subject = "My Subject"
-        body = "My Body"
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
 
-        email._send_email_to_user(request, user, subject, body, email=address)
+        email._send_email_to_user(request, user, msg, email=address)
 
         assert request.task.calls == []
         assert task.delay.calls == []
@@ -155,15 +160,19 @@ class TestSendEmailToUser:
         if address is not None:
             address = pretend.stub(email=address, verified=False)
 
-        subject = "My Subject"
-        body = "My Body"
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
 
         email._send_email_to_user(
-            request, user, subject, body, email=address, allow_unverified=True
+            request, user, msg, email=address, allow_unverified=True
         )
 
         assert request.task.calls == [pretend.call(email.send_email)]
-        assert task.delay.calls == [pretend.call(subject, body, recipient=expected)]
+        assert task.delay.calls == [
+            pretend.call(
+                expected,
+                {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+            )
+        ]
 
 
 class TestSendEmail:
@@ -172,30 +181,41 @@ class TestSendEmail:
             def __init__(self):
                 self.emails = []
 
-            def send(self, subject, body, *, recipient):
+            def send(self, recipient, msg):
                 self.emails.append(
-                    {"subject": subject, "body": body, "recipient": recipient}
+                    {
+                        "subject": msg.subject,
+                        "body": msg.body_text,
+                        "html": msg.body_html,
+                        "recipient": recipient,
+                    }
                 )
 
         sender = FakeMailSender()
         task = pretend.stub()
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *a, **kw: sender),
-            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
+            find_service=pretend.call_recorder(lambda *a, **kw: sender)
         )
 
-        email.send_email(task, request, "subject", "body", recipient="recipient")
+        msg = EmailMessage(subject="subject", body_text="body")
+
+        email.send_email(task, request, "recipient", attr.asdict(msg))
 
         assert request.find_service.calls == [pretend.call(IEmailSender)]
         assert sender.emails == [
-            {"subject": "[DevPyPI] subject", "body": "body", "recipient": "recipient"}
+            {
+                "subject": "subject",
+                "body": "body",
+                "html": None,
+                "recipient": "recipient",
+            }
         ]
 
     def test_send_email_failure(self, monkeypatch):
         exc = Exception()
 
         class FakeMailSender:
-            def send(self, subject, body, *, recipient):
+            def send(self, recipient, msg):
                 raise exc
 
         class Task:
@@ -205,13 +225,11 @@ class TestSendEmail:
                 raise celery.exceptions.Retry
 
         sender, task = FakeMailSender(), Task()
-        request = pretend.stub(
-            find_service=lambda *a, **kw: sender,
-            registry=pretend.stub(settings={"site.name": "DevPyPI"}),
-        )
+        request = pretend.stub(find_service=lambda *a, **kw: sender)
+        msg = EmailMessage(subject="subject", body_text="body")
 
         with pytest.raises(celery.exceptions.Retry):
-            email.send_email(task, request, "subject", "body", recipient="recipient")
+            email.send_email(task, request, "recipient", attr.asdict(msg))
 
         assert task.retry.calls == [pretend.call(exc=exc)]
 
@@ -238,13 +256,17 @@ class TestSendPasswordResetEmail:
         )
 
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/password-reset.subject.txt"
+            "email/password-reset/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/password-reset.body.txt"
+            "email/password-reset/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/password-reset/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -261,6 +283,7 @@ class TestSendPasswordResetEmail:
         }
         subject_renderer.assert_()
         body_renderer.assert_(token="TOKEN", username=stub_user.username)
+        html_renderer.assert_(token="TOKEN", username=stub_user.username)
         assert token_service.dumps.calls == [
             pretend.call(
                 {
@@ -277,9 +300,14 @@ class TestSendPasswordResetEmail:
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient="name_value <" + stub_user.email + ">",
+                "name_value <" + stub_user.email + ">",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -297,13 +325,17 @@ class TestEmailVerificationEmail:
         )
 
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/verify-email.subject.txt"
+            "email/verify-email/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/verify-email.body.txt"
+            "email/verify-email/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/verify-email/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -324,6 +356,7 @@ class TestEmailVerificationEmail:
         }
         subject_renderer.assert_()
         body_renderer.assert_(token="TOKEN", email_address=stub_email.email)
+        html_renderer.assert_(token="TOKEN", email_address=stub_email.email)
         assert token_service.dumps.calls == [
             pretend.call({"action": "email-verify", "email.id": str(stub_email.id)})
         ]
@@ -332,7 +365,16 @@ class TestEmailVerificationEmail:
         ]
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
-            pretend.call("Email Subject", "Email Body", recipient=stub_email.email)
+            pretend.call(
+                stub_email.email,
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
+            )
         ]
 
 
@@ -345,13 +387,17 @@ class TestPasswordChangeEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/password-change.subject.txt"
+            "email/password-change/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/password-change.body.txt"
+            "email/password-change/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/password-change/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -364,12 +410,18 @@ class TestPasswordChangeEmail:
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient=f"{stub_user.username} <{stub_user.email}>",
+                f"{stub_user.username} <{stub_user.email}>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -383,13 +435,17 @@ class TestPasswordChangeEmail:
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/password-change.subject.txt"
+            "email/password-change/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/password-change.body.txt"
+            "email/password-change/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/password-change/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -402,6 +458,7 @@ class TestPasswordChangeEmail:
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
 
@@ -416,13 +473,17 @@ class TestAccountDeletionEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/account-deleted.subject.txt"
+            "email/account-deleted/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/account-deleted.body.txt"
+            "email/account-deleted/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-deleted/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -435,12 +496,18 @@ class TestAccountDeletionEmail:
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient=f"{stub_user.username} <{stub_user.email}>",
+                f"{stub_user.username} <{stub_user.email}>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -455,13 +522,17 @@ class TestAccountDeletionEmail:
             primary_email=pretend.stub(email="email@example.com", verified=False),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/account-deleted.subject.txt"
+            "email/account-deleted/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/account-deleted.body.txt"
+            "email/account-deleted/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-deleted/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -474,6 +545,7 @@ class TestAccountDeletionEmail:
         assert result == {"username": stub_user.username}
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
 
@@ -487,13 +559,17 @@ class TestPrimaryEmailChangeEmail:
             email="new_email@example.com", username="username", name=""
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/primary-email-change.subject.txt"
+            "email/primary-email-change/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/primary-email-change.body.txt"
+            "email/primary-email-change/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/primary-email-change/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -514,12 +590,18 @@ class TestPrimaryEmailChangeEmail:
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient="username <old_email@example.com>",
+                "username <old_email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -531,13 +613,17 @@ class TestPrimaryEmailChangeEmail:
             email="new_email@example.com", username="username", name=""
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/primary-email-change.subject.txt"
+            "email/primary-email-change/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/primary-email-change.body.txt"
+            "email/primary-email-change/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/primary-email-change/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -558,6 +644,7 @@ class TestPrimaryEmailChangeEmail:
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
 
@@ -582,13 +669,17 @@ class TestCollaboratorAddedEmail:
             ),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/collaborator-added.subject.txt"
+            "email/collaborator-added/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/collaborator-added.body.txt"
+            "email/collaborator-added/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-added/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -616,6 +707,10 @@ class TestCollaboratorAddedEmail:
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(role="Owner")
         body_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
 
         assert pyramid_request.task.calls == [
             pretend.call(send_email),
@@ -623,12 +718,24 @@ class TestCollaboratorAddedEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject", "Email Body", recipient="username <email@example.com>"
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             ),
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient="submitterusername <submiteremail@example.com>",
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             ),
         ]
 
@@ -651,13 +758,17 @@ class TestCollaboratorAddedEmail:
             ),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/collaborator-added.subject.txt"
+            "email/collaborator-added/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/collaborator-added.body.txt"
+            "email/collaborator-added/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/collaborator-added/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -685,13 +796,22 @@ class TestCollaboratorAddedEmail:
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(role="Owner")
         body_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(username=stub_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
 
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject",
-                "Email Body",
-                recipient="submitterusername <submiteremail@example.com>",
+                "submitterusername <submiteremail@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -711,13 +831,17 @@ class TestAddedAsCollaboratorEmail:
             username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/added-as-collaborator.subject.txt"
+            "email/added-as-collaborator/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/added-as-collaborator.body.txt"
+            "email/added-as-collaborator/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/added-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -742,11 +866,21 @@ class TestAddedAsCollaboratorEmail:
         body_renderer.assert_(submitter=stub_submitter_user.username)
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
 
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "Email Subject", "Email Body", recipient="username <email@example.com>"
+                "username <email@example.com>",
+                attr.asdict(
+                    EmailMessage(
+                        subject="Email Subject",
+                        body_text="Email Body",
+                        body_html="Email HTML Body",
+                    )
+                ),
             )
         ]
 
@@ -764,13 +898,17 @@ class TestAddedAsCollaboratorEmail:
             username="submitterusername", email="submiteremail"
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            "email/added-as-collaborator.subject.txt"
+            "email/added-as-collaborator/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            "email/added-as-collaborator.body.txt"
+            "email/added-as-collaborator/body.txt"
         )
         body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/added-as-collaborator/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -795,6 +933,9 @@ class TestAddedAsCollaboratorEmail:
         body_renderer.assert_(submitter=stub_submitter_user.username)
         body_renderer.assert_(project="test_project")
         body_renderer.assert_(role="Owner")
+        html_renderer.assert_(submitter=stub_submitter_user.username)
+        html_renderer.assert_(project="test_project")
+        html_renderer.assert_(role="Owner")
 
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []

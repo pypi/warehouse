@@ -12,13 +12,15 @@
 
 from email.headerregistry import Address
 
+import attr
+
 from celery.schedules import crontab
 from first import first
-from pyramid.renderers import render
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService
 from warehouse.email.interfaces import IEmailSender
+from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 
 
@@ -29,24 +31,17 @@ def _compute_recipient(user, email):
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, subject, body, *, recipient=None):
+def send_email(task, request, recipient, msg):
+    msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
 
-    # We want to include the site name into the lead in for every subject
-    # to reduce possible confusion about what site an email is talking
-    # about.
-    sitename = request.registry.settings["site.name"]
-    subject = f"[{sitename}] {subject}"
-
     try:
-        sender.send(subject, body, recipient=recipient)
+        sender.send(recipient, msg)
     except Exception as exc:
         task.retry(exc=exc)
 
 
-def _send_email_to_user(
-    request, user, subject, body, *, email=None, allow_unverified=False
-):
+def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=False):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
     if email is None:
@@ -60,7 +55,7 @@ def _send_email_to_user(
         return
 
     request.task(send_email).delay(
-        subject, body, recipient=_compute_recipient(user, email.email)
+        _compute_recipient(user, email.email), attr.asdict(msg)
     )
 
 
@@ -81,10 +76,9 @@ def send_password_reset_email(request, user):
         "n_hours": token_service.max_age // 60 // 60,
     }
 
-    subject = render("email/password-reset.subject.txt", fields, request=request)
-    body = render("email/password-reset.body.txt", fields, request=request)
+    msg = EmailMessage.from_template("password-reset", fields, request=request)
 
-    _send_email_to_user(request, user, subject, body, allow_unverified=True)
+    _send_email_to_user(request, user, msg, allow_unverified=True)
 
     # Return the fields we used, in case we need to show any of them to the
     # user
@@ -102,34 +96,27 @@ def send_email_verification_email(request, user, email):
         "n_hours": token_service.max_age // 60 // 60,
     }
 
-    subject = render("email/verify-email.subject.txt", fields, request=request)
-    body = render("email/verify-email.body.txt", fields, request=request)
+    msg = EmailMessage.from_template("verify-email", fields, request=request)
 
-    _send_email_to_user(
-        request, user, subject, body, email=email, allow_unverified=True
-    )
+    _send_email_to_user(request, user, msg, email=email, allow_unverified=True)
 
     return fields
 
 
 def send_password_change_email(request, user):
     fields = {"username": user.username}
+    msg = EmailMessage.from_template("password-change", fields, request=request)
 
-    subject = render("email/password-change.subject.txt", fields, request=request)
-    body = render("email/password-change.body.txt", fields, request=request)
-
-    _send_email_to_user(request, user, subject, body)
+    _send_email_to_user(request, user, msg)
 
     return fields
 
 
 def send_account_deletion_email(request, user):
     fields = {"username": user.username}
+    msg = EmailMessage.from_template("account-deleted", fields, request=request)
 
-    subject = render("email/account-deleted.subject.txt", fields, request=request)
-    body = render("email/account-deleted.body.txt", fields, request=request)
-
-    _send_email_to_user(request, user, subject, body)
+    _send_email_to_user(request, user, msg)
 
     return fields
 
@@ -141,10 +128,9 @@ def send_primary_email_change_email(request, user, email):
         "new_email": user.email,
     }
 
-    subject = render("email/primary-email-change.subject.txt", fields, request=request)
-    body = render("email/primary-email-change.body.txt", fields, request=request)
+    msg = EmailMessage.from_template("primary-email-change", fields, request=request)
 
-    _send_email_to_user(request, user, subject, body, email=email)
+    _send_email_to_user(request, user, msg, email=email)
 
     return fields
 
@@ -159,22 +145,19 @@ def send_collaborator_added_email(
         "role": role,
     }
 
-    subject = render("email/collaborator-added.subject.txt", fields, request=request)
-    body = render("email/collaborator-added.body.txt", fields, request=request)
+    msg = EmailMessage.from_template("collaborator-added", fields, request=request)
 
     for recipient in email_recipients:
-        _send_email_to_user(request, recipient, subject, body)
+        _send_email_to_user(request, recipient, msg)
 
     return fields
 
 
 def send_added_as_collaborator_email(request, submitter, project_name, role, user):
     fields = {"project": project_name, "submitter": submitter.username, "role": role}
+    msg = EmailMessage.from_template("added-as-collaborator", fields, request=request)
 
-    subject = render("email/added-as-collaborator.subject.txt", fields, request=request)
-    body = render("email/added-as-collaborator.body.txt", fields, request=request)
-
-    _send_email_to_user(request, user, subject, body)
+    _send_email_to_user(request, user, msg)
 
     return fields
 

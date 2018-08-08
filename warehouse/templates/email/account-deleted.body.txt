@@ -1,4 +1,0 @@
-Your PyPI account '{{ username }}' has been deleted.
-
-If you did not make this change, you can email admin@mail.pypi.org
-to communicate with the PyPI administrators.
