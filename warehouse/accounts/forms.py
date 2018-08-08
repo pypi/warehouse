@@ -14,8 +14,6 @@ import disposable_email_domains
 import wtforms
 import wtforms.fields.html5
 
-from pyramid.threadlocal import get_current_request
-
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
 
@@ -117,15 +115,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                (
-                    "This password has appeared in a breach or has otherwise been "
-                    "compromised and cannot be used. See {project_help} for more "
-                    "information."
-                ).format(
-                    project_help=get_current_request().help_url(
-                        _anchor="compromised-password"
-                    )
-                )
+                self._breach_service.failure_message
             )
 
 

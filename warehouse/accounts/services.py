@@ -249,11 +249,24 @@ class TokenServiceFactory:
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
     def __init__(
-        self, *, session, api_base="https://api.pwnedpasswords.com", metrics=None
+        self,
+        *,
+        session,
+        api_base="https://api.pwnedpasswords.com",
+        metrics=None,
+        help_url=None,
     ):
         self._http = session
         self._api_base = api_base
         self._metrics = metrics
+        self._help_url = help_url
+
+    @property
+    def failure_message(self):
+        message = "This password has appeared in a breach or has otherwise been compromised and cannot be used."
+        if self._help_url:
+            message += f" See {self._help_url} for more information."
+        return message
 
     def _metrics_increment(self, *args, **kwargs):
         if self._metrics is not None:
@@ -319,5 +332,7 @@ class HaveIBeenPwnedPasswordBreachedService:
 
 def hibp_password_breach_factory(context, request):
     return HaveIBeenPwnedPasswordBreachedService(
-        session=request.http, metrics=request.registry.datadog
+        session=request.http,
+        metrics=request.registry.datadog,
+        help_url=request.help_url(_anchor="compromised-password"),
     )

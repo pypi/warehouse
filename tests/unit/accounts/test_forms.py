@@ -270,24 +270,24 @@ class TestRegistrationForm:
             form.validate()
             assert (len(form.new_password.errors) == 0) == valid
 
-    def test_password_breached(self, monkeypatch):
-        request = pretend.stub(
-            help_url=lambda **kwargs: "http://localhost/help/#compromised-password"
-        )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(forms, "get_current_request", get_current_request)
+    def test_password_breached(self):
         form = forms.RegistrationForm(
             data={"new_password": "password"},
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
         )
         assert not form.validate()
         assert form.new_password.errors.pop() == (
             "This password has appeared in a breach or has otherwise been "
-            "compromised and cannot be used. See "
-            "http://localhost/help/#compromised-password for more information."
+            "compromised and cannot be used."
         )
 
     def test_name_too_long(self):
@@ -410,12 +410,7 @@ class TestResetPasswordForm:
 
         assert form.validate()
 
-    def test_password_breached(self, monkeypatch):
-        request = pretend.stub(
-            help_url=lambda **kwargs: "http://localhost/help/#compromised-password"
-        )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(forms, "get_current_request", get_current_request)
+    def test_password_breached(self):
         form = forms.ResetPasswordForm(
             data={
                 "new_password": "MyStr0ng!shPassword",
@@ -427,11 +422,16 @@ class TestResetPasswordForm:
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
         )
         assert not form.validate()
         assert form.new_password.errors.pop() == (
             "This password has appeared in a breach or has otherwise been "
-            "compromised and cannot be used. See "
-            "http://localhost/help/#compromised-password for more information."
+            "compromised and cannot be used."
         )

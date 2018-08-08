@@ -451,9 +451,42 @@ class TestHaveIBeenPwnedPasswordBreachedService:
     def test_factory(self):
         context = pretend.stub()
         request = pretend.stub(
-            http=pretend.stub(), registry=pretend.stub(datadog=pretend.stub())
+            http=pretend.stub(),
+            registry=pretend.stub(datadog=pretend.stub()),
+            help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
         )
         svc = services.hibp_password_breach_factory(context, request)
 
         assert svc._http is request.http
         assert svc._metrics is request.registry.datadog
+        assert svc._help_url == "http://localhost/help/#compromised-password"
+
+    @pytest.mark.parametrize(
+        ("help_url", "expected"),
+        [
+            (
+                None,
+                (
+                    "This password has appeared in a breach or has otherwise "
+                    "been compromised and cannot be used."
+                ),
+            ),
+            (
+                "http://localhost/help/#compromised-password",
+                (
+                    "This password has appeared in a breach or has otherwise "
+                    "been compromised and cannot be used. See "
+                    "http://localhost/help/#compromised-password for more information."
+                ),
+            ),
+        ],
+    )
+    def test_failure_message(self, help_url, expected):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(datadog=pretend.stub()),
+            help_url=lambda _anchor=None: help_url,
+        )
+        svc = services.hibp_password_breach_factory(context, request)
+        assert svc.failure_message == expected
