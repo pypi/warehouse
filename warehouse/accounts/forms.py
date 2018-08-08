@@ -13,6 +13,7 @@
 import disposable_email_domains
 import wtforms
 import wtforms.fields.html5
+import jinja2
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
@@ -115,7 +116,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                self._breach_service.failure_message
+                jinja2.Markup(self._breach_service.failure_message)
             )
 
 

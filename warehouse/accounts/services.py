@@ -265,7 +265,7 @@ class HaveIBeenPwnedPasswordBreachedService:
     def failure_message(self):
         message = "This password has appeared in a breach or has otherwise been compromised and cannot be used."
         if self._help_url:
-            message += f" See {self._help_url} for more information."
+            message += f' See <a href="{self._help_url}">this FAQ entry</a> for more information.'
         return message
 
     def _metrics_increment(self, *args, **kwargs):

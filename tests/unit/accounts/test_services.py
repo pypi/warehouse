@@ -476,7 +476,8 @@ class TestHaveIBeenPwnedPasswordBreachedService:
                 (
                     "This password has appeared in a breach or has otherwise "
                     "been compromised and cannot be used. See "
-                    "http://localhost/help/#compromised-password for more information."
+                    '<a href="http://localhost/help/#compromised-password">'
+                    "this FAQ entry</a> for more information."
                 ),
             ),
         ],
