@@ -38,7 +38,7 @@ from sqlalchemy.sql import exists
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.cache.http import cache_control
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.models import Project, Release, File, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
@@ -315,6 +315,42 @@ def search(request):
         "available_filters": sorted(available_filters.items(), key=filter_key),
         "applied_filters": request.params.getall("c"),
     }
+
+
+@view_config(
+    route_name="stats",
+    renderer="pages/stats.html",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(1 * 24 * 60 * 60),  # 1 day
+    ],
+)
+@view_config(
+    route_name="stats.json",
+    renderer="json",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(1 * 24 * 60 * 60),  # 1 day
+    ],
+    accept="application/json",
+)
+def stats(request):
+    total_size_query = request.db.query(func.sum(File.size)).all()
+    top_100_packages = (
+        request.db.query(File.name, func.sum(File.size))
+        .group_by(File.name)
+        .order_by(func.sum(File.size).desc())
+        .limit(100)
+        .all()
+    )
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
+    }
+
+    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
 
 
 @view_config(

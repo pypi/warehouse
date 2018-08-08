@@ -21,7 +21,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.manage import views
-from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
 from warehouse.packaging.models import JournalEntry, Project, Role, User
 from warehouse.utils.project import remove_documentation
 
@@ -37,10 +37,15 @@ from ...common.db.packaging import (
 
 class TestManageAccount:
     def test_default_response(self, monkeypatch):
+        breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
-            find_service=lambda *a, **kw: user_service, user=pretend.stub(name=name)
+            find_service=lambda iface, **kw: {
+                IPasswordBreachedService: breach_service,
+                IUserService: user_service,
+            }[iface],
+            user=pretend.stub(name=name),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -68,7 +73,9 @@ class TestManageAccount:
         assert view.user_service == user_service
         assert save_account_cls.calls == [pretend.call(name=name)]
         assert add_email_cls.calls == [pretend.call(user_service=user_service)]
-        assert change_pass_cls.calls == [pretend.call(user_service=user_service)]
+        assert change_pass_cls.calls == [
+            pretend.call(user_service=user_service, breach_service=breach_service)
+        ]
 
     def test_active_projects(self, db_request):
         user = UserFactory.create()

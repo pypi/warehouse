@@ -105,6 +105,16 @@ class RateLimit:
             identifiers=self.identifiers,
         )
 
+    def __eq__(self, other):
+        if not isinstance(other, RateLimit):
+            return NotImplemented
+
+        return (self.limit, self.identifiers, self.limiter_class) == (
+            other.limit,
+            other.identifiers,
+            other.limiter_class,
+        )
+
 
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(

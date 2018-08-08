@@ -33,6 +33,7 @@ from warehouse.accounts.forms import (
 from warehouse.accounts.interfaces import (
     IUserService,
     ITokenService,
+    IPasswordBreachedService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -105,6 +106,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
@@ -120,6 +122,13 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             # Get the user id for the given username.
             username = form.username.data
             userid = user_service.find_userid(username)
+
+            # Run our password through our breach validation. We don't currently do
+            # anything with this information, but for now it will provide metrics into
+            # how many authentications are using compromised credentials.
+            breach_service.check_password(
+                form.password.data, tags=["method:auth", "auth_method:login_form"]
+            )
 
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.
@@ -239,8 +248,11 @@ def register(request, _form_class=RegistrationForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
 
-    form = _form_class(data=request.POST, user_service=user_service)
+    form = _form_class(
+        data=request.POST, user_service=user_service, breach_service=breach_service
+    )
 
     if request.method == "POST" and form.validate():
         user = user_service.create_user(
@@ -296,6 +308,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
     token_service = request.find_service(ITokenService, name="password")
 
     def _error(message):
@@ -343,6 +356,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         full_name=user.name,
         email=user.email,
         user_service=user_service,
+        breach_service=breach_service,
     )
 
     if request.method == "POST" and form.validate():

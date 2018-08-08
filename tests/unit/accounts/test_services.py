@@ -10,12 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import datetime
 import uuid
 
 import freezegun
 import pretend
 import pytest
+import requests
 
 from zope.interface.verify import verifyClass
 
@@ -347,3 +349,111 @@ def test_token_service_factory_custom_max_age(monkeypatch):
 
     assert service_factory(context, request) is service_obj
     assert service_cls.calls == [pretend.call(secret, name, custom_max_age)]
+
+
+def test_token_service_factory_eq():
+    assert services.TokenServiceFactory("foo") == services.TokenServiceFactory("foo")
+    assert services.TokenServiceFactory("foo") != services.TokenServiceFactory("bar")
+    assert services.TokenServiceFactory("foo") != object()
+
+
+class TestHaveIBeenPwnedPasswordBreachedService:
+    @pytest.mark.parametrize(
+        ("password", "prefix", "expected", "dataset"),
+        [
+            (
+                "password",
+                "5baa6",
+                True,
+                (
+                    "1e4c9b93f3f0682250b6cf8331b7ee68fd8:5\r\n"
+                    "a8ff7fcd473d321e0146afd9e26df395147:3"
+                ),
+            ),
+            (
+                "password",
+                "5baa6",
+                True,
+                (
+                    "1E4C9B93F3F0682250B6CF8331B7EE68FD8:5\r\n"
+                    "A8FF7FCD473D321E0146AFD9E26DF395147:3"
+                ),
+            ),
+            (
+                "correct horse battery staple",
+                "abf7a",
+                False,
+                (
+                    "1e4c9b93f3f0682250b6cf8331b7ee68fd8:5\r\n"
+                    "a8ff7fcd473d321e0146afd9e26df395147:3"
+                ),
+            ),
+        ],
+    )
+    def test_success(self, password, prefix, expected, dataset):
+        response = pretend.stub(text=dataset, raise_for_status=lambda: None)
+        session = pretend.stub(get=pretend.call_recorder(lambda url: response))
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+
+        assert svc.check_password(password) == expected
+        assert session.get.calls == [
+            pretend.call(f"https://api.pwnedpasswords.com/range/{prefix}")
+        ]
+
+    def test_failure(self):
+        class AnError(Exception):
+            pass
+
+        def raiser():
+            raise AnError
+
+        response = pretend.stub(raise_for_status=raiser)
+        session = pretend.stub(get=lambda url: response)
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+
+        with pytest.raises(AnError):
+            svc.check_password("my password")
+
+    def test_http_failure(self):
+        @pretend.call_recorder
+        def raiser():
+            raise requests.RequestException()
+
+        response = pretend.stub(raise_for_status=raiser)
+        session = pretend.stub(get=lambda url: response)
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        assert not svc.check_password("my password")
+        assert raiser.calls
+
+    def test_metrics_increments(self):
+        class Metrics:
+            def __init__(self):
+                self.values = collections.Counter()
+
+            def increment(self, metric):
+                self.values[metric] += 1
+
+        metrics = Metrics()
+
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=pretend.stub(), metrics=metrics
+        )
+
+        svc._metrics_increment("something")
+        svc._metrics_increment("another_thing")
+        svc._metrics_increment("something")
+
+        assert metrics.values == {"something": 2, "another_thing": 1}
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(), registry=pretend.stub(datadog=pretend.stub())
+        )
+        svc = services.hibp_password_breach_factory(context, request)
+
+        assert svc._http is request.http
+        assert svc._metrics is request.registry.datadog
