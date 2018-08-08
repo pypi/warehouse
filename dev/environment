@@ -5,7 +5,9 @@ WAREHOUSE_TOKEN=insecuretoken
 # repository due to the fact that other people's IP is contained in it.
 #WAREHOUSE_THEME=pypi_theme.pypi
 
-BROKER_URL=amqp://guest@rabbitmq:5672//
+AWS_ACCESS_KEY_ID=foo
+AWS_SECRET_ACCESS_KEY=foo
+BROKER_URL=sqs://localstack:4576/warehouse-dev?region=us-east-1
 
 DATABASE_URL=postgresql://postgres@db/warehouse
 
