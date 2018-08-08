@@ -260,7 +260,7 @@ def register(request, _form_class=RegistrationForm):
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
-        send_email_verification_email(request, user, email)
+        send_email_verification_email(request, (user, email))
 
         return HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
