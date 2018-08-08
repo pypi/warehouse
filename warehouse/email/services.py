@@ -11,9 +11,8 @@
 # limitations under the License.
 
 from email.headerregistry import Address
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.utils import parseaddr, formataddr
+from email.message import EmailMessage as RawEmailMessage
+from email.utils import parseaddr
 
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
@@ -40,11 +39,16 @@ class SMTPEmailSender:
         sender = _format_sender(sitename, request.registry.settings.get("mail.sender"))
         return cls(get_mailer(request), sender=sender)
 
-    def send(self, subject, body, *, recipient):
-        message = Message(
-            subject=subject, body=body, recipients=[recipient], sender=self.sender
+    def send(self, recipient, message):
+        self.mailer.send_immediately(
+            Message(
+                subject=message.subject,
+                body=message.body_text,
+                html=message.body_html,
+                recipients=[recipient],
+                sender=self.sender,
+            )
         )
-        self.mailer.send_immediately(message)
 
 
 @implementer(IEmailSender)
@@ -69,26 +73,20 @@ class SESEmailSender:
             db=request.db,
         )
 
-    def send(self, subject, body, *, recipient):
-        message = MIMEMultipart("mixed")
-        message["Subject"] = subject
-        message["From"] = self._sender
+    def send(self, recipient, message):
+        raw = RawEmailMessage()
+        raw["Subject"] = message.subject
+        raw["From"] = self._sender
+        raw["To"] = recipient
 
-        # The following is necessary to support friendly names with Unicode characters,
-        # otherwise the entire value will get encoded and will not be accepted by SES:
-        #
-        #   >>> parseaddr("Fööbar <foo@bar.com>")
-        #   ('Fööbar', 'foo@bar.com')
-        #   >>> formataddr(_)
-        #   '=?utf-8?b?RsO2w7ZiYXI=?= <foo@bar.com>'
-        message["To"] = formataddr(parseaddr(recipient))
-
-        message.attach(MIMEText(body, "plain", "utf-8"))
+        raw.set_content(message.body_text)
+        if message.body_html:
+            raw.add_alternative(message.body_html, subtype="html")
 
         resp = self._client.send_raw_email(
             Source=self._sender,
             Destinations=[recipient],
-            RawMessage={"Data": message.as_string()},
+            RawMessage={"Data": bytes(raw)},
         )
 
         self._db.add(
@@ -96,6 +94,6 @@ class SESEmailSender:
                 message_id=resp["MessageId"],
                 from_=parseaddr(self._sender)[1],
                 to=parseaddr(recipient)[1],
-                subject=subject,
+                subject=message.subject,
             )
         )
