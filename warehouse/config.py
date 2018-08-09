@@ -220,6 +220,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
+    maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -260,8 +261,11 @@ def configure(settings=None):
     )
     config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 
-    # Register DataDog metrics
-    config.include(".datadog")
+    # Register support for services
+    config.include("pyramid_services")
+
+    # Register metrics
+    config.include(".metrics")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -348,9 +352,6 @@ def configure(settings=None):
         }
     )
     config.include("pyramid_tm")
-
-    # Register support for services
-    config.include("pyramid_services")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")

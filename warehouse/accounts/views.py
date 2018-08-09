@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import User, Email
 from warehouse.cache.origin import origin_cache
 from warehouse.email import send_password_reset_email, send_email_verification_email
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Project, Release
 from warehouse.utils.http import is_safe_url
 
@@ -101,6 +102,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     if request.authenticated_userid is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
+    metrics = request.find_service(IMetricsService, context=None)
     user_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
@@ -111,7 +113,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     form = _form_class(request.POST, user_service=user_service)
 
     if request.method == "POST":
-        request.registry.datadog.increment(
+        metrics.increment(
             "warehouse.authentication.start", tags=["auth_method:login_form"]
         )
         if form.validate():
@@ -153,12 +155,12 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 .lower(),
             )
 
-            request.registry.datadog.increment(
+            metrics.increment(
                 "warehouse.authentication.complete", tags=["auth_method:login_form"]
             )
             return resp
         else:
-            request.registry.datadog.increment(
+            metrics.increment(
                 "warehouse.authentication.failure", tags=["auth_method:login_form"]
             )
 

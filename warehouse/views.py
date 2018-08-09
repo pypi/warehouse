@@ -40,6 +40,7 @@ from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
 from warehouse.cache.http import add_vary, cache_control
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Project, Release, File, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
 from warehouse.utils.row_counter import RowCount
@@ -303,9 +304,8 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
-    request.registry.datadog.histogram(
-        "warehouse.views.search.results", page.item_count
-    )
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.histogram("warehouse.views.search.results", page.item_count)
 
     return {
         "page": page,

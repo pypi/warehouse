@@ -30,6 +30,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import UserFactory, EmailFactory
@@ -394,7 +395,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(text=dataset, raise_for_status=lambda: None)
         session = pretend.stub(get=pretend.call_recorder(lambda url: response))
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
 
         assert svc.check_password(password) == expected
         assert session.get.calls == [
@@ -411,7 +414,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
 
         with pytest.raises(AnError):
             svc.check_password("my password")
@@ -424,7 +429,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
         assert not svc.check_password("my password")
         assert raiser.calls
 
@@ -452,13 +459,15 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         context = pretend.stub()
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(datadog=pretend.stub()),
+            find_service=lambda iface, context: {
+                (IMetricsService, None): NullMetrics()
+            }[(iface, context)],
             help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
         )
         svc = services.hibp_password_breach_factory(context, request)
 
         assert svc._http is request.http
-        assert svc._metrics is request.registry.datadog
+        assert isinstance(svc._metrics, NullMetrics)
         assert svc._help_url == "http://localhost/help/#compromised-password"
 
     @pytest.mark.parametrize(
@@ -486,7 +495,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         context = pretend.stub()
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(datadog=pretend.stub()),
+            find_service=lambda iface, context: {
+                (IMetricsService, None): NullMetrics()
+            }[(iface, context)],
             help_url=lambda _anchor=None: help_url,
         )
         svc = services.hibp_password_breach_factory(context, request)

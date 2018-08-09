@@ -35,6 +35,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
+from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
@@ -252,8 +253,8 @@ class HaveIBeenPwnedPasswordBreachedService:
         self,
         *,
         session,
+        metrics,
         api_base="https://api.pwnedpasswords.com",
-        metrics=None,
         help_url=None,
     ):
         self._http = session
@@ -269,8 +270,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         return message
 
     def _metrics_increment(self, *args, **kwargs):
-        if self._metrics is not None:
-            self._metrics.increment(*args, **kwargs)
+        self._metrics.increment(*args, **kwargs)
 
     def _get_url(self, prefix):
         return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
@@ -333,6 +333,6 @@ class HaveIBeenPwnedPasswordBreachedService:
 def hibp_password_breach_factory(context, request):
     return HaveIBeenPwnedPasswordBreachedService(
         session=request.http,
-        metrics=request.registry.datadog,
+        metrics=request.find_service(IMetricsService, context=None),
         help_url=request.help_url(_anchor="compromised-password"),
     )

@@ -323,7 +323,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
-        [pretend.call(".datadog"), pretend.call(".csrf")]
+        [
+            pretend.call("pyramid_services"),
+            pretend.call(".metrics"),
+            pretend.call(".csrf"),
+        ]
         + [
             pretend.call(x)
             for x in [
@@ -342,7 +346,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
-            pretend.call("pyramid_services"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
