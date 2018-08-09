@@ -10,27 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-SEARCH_FIELDS = [
-    "author",
-    "author_email",
-    "description",
-    "download_url",
-    "home_page",
-    "keywords",
-    "license",
-    "maintainer",
-    "maintainer_email",
-    "normalized_name",
-    "platform",
-    "summary",
-]
 SEARCH_BOOSTS = {
     "name": 10,
     "normalized_name": 10,
     "description": 5,
     "keywords": 5,
     "summary": 5,
+    "author": 1,
+    "author_email": 1,
+    "download_url": 1,
+    "home_page": 1,
+    "license": 1,
+    "maintainer": 1,
+    "maintainer_email": 1,
+    "platform": 1,
 }
+
 SEARCH_FILTER_ORDER = (
     "Framework",
     "Topic",
