@@ -326,7 +326,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         [
             pretend.call("pyramid_services"),
             pretend.call(".metrics"),
-            pretend.call(".datadog"),
             pretend.call(".csrf"),
         ]
         + [

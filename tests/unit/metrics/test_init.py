@@ -12,7 +12,15 @@
 
 import pretend
 
-from warehouse.metrics import includeme, NullMetrics, DataDogMetrics, IMetricsService
+from pyramid import events
+
+from warehouse.metrics import (
+    includeme,
+    NullMetrics,
+    DataDogMetrics,
+    IMetricsService,
+    event_handlers,
+)
 
 
 def test_include_defaults_to_null():
@@ -20,11 +28,19 @@ def test_include_defaults_to_null():
         registry=pretend.stub(settings={}),
         maybe_dotted=lambda i: i,
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
+        add_subscriber=pretend.call_recorder(lambda handler, event: None),
     )
     includeme(config)
 
     assert config.register_service_factory.calls == [
         pretend.call(NullMetrics.create_service, IMetricsService)
+    ]
+    assert config.add_subscriber.calls == [
+        pretend.call(event_handlers.on_new_request, events.NewRequest),
+        pretend.call(event_handlers.on_before_traversal, events.BeforeTraversal),
+        pretend.call(event_handlers.on_context_found, events.ContextFound),
+        pretend.call(event_handlers.on_before_render, events.BeforeRender),
+        pretend.call(event_handlers.on_new_response, events.NewResponse),
     ]
 
 
@@ -37,9 +53,17 @@ def test_include_sets_class():
             pth
         ],
         register_service_factory=pretend.call_recorder(lambda factory, iface: None),
+        add_subscriber=pretend.call_recorder(lambda handler, event: None),
     )
     includeme(config)
 
     assert config.register_service_factory.calls == [
         pretend.call(DataDogMetrics.create_service, IMetricsService)
+    ]
+    assert config.add_subscriber.calls == [
+        pretend.call(event_handlers.on_new_request, events.NewRequest),
+        pretend.call(event_handlers.on_before_traversal, events.BeforeTraversal),
+        pretend.call(event_handlers.on_context_found, events.ContextFound),
+        pretend.call(event_handlers.on_before_render, events.BeforeRender),
+        pretend.call(event_handlers.on_new_response, events.NewResponse),
     ]

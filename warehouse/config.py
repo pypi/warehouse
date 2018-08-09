@@ -266,7 +266,6 @@ def configure(settings=None):
 
     # Register metrics
     config.include(".metrics")
-    config.include(".datadog")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
