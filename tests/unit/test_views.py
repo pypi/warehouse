@@ -19,6 +19,7 @@ from webob.multidict import MultiDict
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 
 from warehouse import views
+from warehouse.metrics import IMetricsService
 from warehouse.views import (
     classifiers,
     current_user_indicator,
@@ -209,6 +210,11 @@ class TestSearch:
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
 
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
+
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
         monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
@@ -234,7 +240,7 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
@@ -251,6 +257,11 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(
             page_count=(page or 1) + 10, item_count=(page or 1) + 10
@@ -279,7 +290,7 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", (page or 1) + 10)
         ]
 
@@ -296,6 +307,11 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -322,7 +338,7 @@ class TestSearch:
         assert es_query.suggest.calls == [
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
@@ -348,6 +364,11 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -379,7 +400,7 @@ class TestSearch:
             pretend.call("name_suggestion", params["q"], term={"field": "name"})
         ]
         assert suggest.sort.calls == [pretend.call(i) for i in expected]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
@@ -398,6 +419,11 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         classifier1 = ClassifierFactory.create(classifier="foo :: bar")
         classifier2 = ClassifierFactory.create(classifier="foo :: baz")
@@ -442,7 +468,7 @@ class TestSearch:
             pretend.call("terms", classifiers=["foo :: bar"]),
             pretend.call("terms", classifiers=["fiz :: buz"]),
         ]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
@@ -455,6 +481,11 @@ class TestSearch:
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -475,7 +506,7 @@ class TestSearch:
             pretend.call(es_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert db_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
@@ -485,6 +516,11 @@ class TestSearch:
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -501,7 +537,7 @@ class TestSearch:
             pretend.call(es_query, url_maker=url_maker, page=15 or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert db_request.registry.datadog.histogram.calls == []
+        assert metrics.histogram.calls == []
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
         params = MultiDict({"page": "abc"})
@@ -509,6 +545,11 @@ class TestSearch:
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
+        db_request.find_service = lambda iface, context: {
+            (IMetricsService, None): metrics
+        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -522,7 +563,7 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == []
-        assert db_request.registry.datadog.histogram.calls == []
+        assert metrics.histogram.calls == []
 
 
 def test_classifiers(db_request):
