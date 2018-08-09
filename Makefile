@@ -90,7 +90,7 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
-	docker-compose up
+	docker-compose up --remove-orphans
 
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
