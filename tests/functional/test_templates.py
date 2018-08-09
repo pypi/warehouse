@@ -50,7 +50,11 @@ def test_templates_for_empty_titles():
     )
 
     for dir_, _, files in os.walk(dir_name):
-        if dir_.find("/includes") > -1 or dir_.find("/legacy") > -1:
+        if (
+            dir_.find("/includes") > -1
+            or dir_.find("/legacy") > -1
+            or dir_.find("/email/") > -1
+        ):
             continue
 
         for file_name in files:

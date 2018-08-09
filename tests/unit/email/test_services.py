@@ -89,7 +89,9 @@ class TestEmailMessage:
 
         assert msg.subject == "Email Subject"
         assert msg.body_text == "Email Body"
-        assert msg.body_html == "<p>Email HTML Body</p>"
+        assert msg.body_html == (
+            "<html>\n<head></head>\n<body><p>Email HTML Body</p></body>\n</html>\n"
+        )
 
 
 class TestSMTPEmailSender:

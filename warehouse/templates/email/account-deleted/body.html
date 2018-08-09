@@ -11,19 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
+{% extends "email/_base/body.html" %}
+
 
 {% block content %}
-Someone, perhaps you, has added this email address to their PyPI account:
+<p>Your PyPI account <strong>{{ username }}</strong> has been deleted.
 
-  {{ email_address }}
-
-If you wish to proceed with this request, follow the link below to verify your
-email address:
-
-  {{ request.route_url('accounts.verify-email', _query={'token': token}) }}
-
-This link will expire in {{ n_hours }} hours.
-
-If you did not make this request, you can safely ignore this email.
+<p>If you did not make this change, you can email <a href="mailto:admin@mail.pypi.org">admin@mail.pypi.org</a> to communicate with the PyPI administrators.</p>
 {% endblock %}
