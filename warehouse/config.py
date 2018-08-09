@@ -25,7 +25,6 @@ from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse import __commit__
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
@@ -161,7 +160,7 @@ def configure(settings=None):
         settings = {}
 
     # Add information about the current copy of the code.
-    settings.setdefault("warehouse.commit", __commit__)
+    maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
     # Set the environment from an environment variable, if one hasn't already
     # been set.
