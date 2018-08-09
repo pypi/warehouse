@@ -49,7 +49,7 @@ class EmailMessage:
             body_html = render(
                 f"email/{email_name}/body.html", context, request=request
             )
-            body_html = premailer.transform(body_html)
+            body_html = premailer.Premailer(body_html, remove_classes=True).transform()
         # Catching TemplateNotFound here is a bit of a leaky abstraction, but there's
         # not much we can do about it.
         except TemplateNotFound:
