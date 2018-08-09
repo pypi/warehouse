@@ -11,7 +11,9 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{% extends "email/_base/body.txt" %}
 
+{% block content %}
 The primary email for your PyPI account:
 
   '{{ username }}'
@@ -26,3 +28,4 @@ to this address:
 
 If you did not make this change, you can email admin@mail.pypi.org to
 communicate with the PyPI administrators.
+{% endblock %}

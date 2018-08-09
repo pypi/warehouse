@@ -11,19 +11,14 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
+{% extends "email/_base/body.html" %}
+
 
 {% block content %}
-Someone, perhaps you, has added this email address to their PyPI account:
+<p>You have been added as <strong>{{ role }}</strong> to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.</p>
+{% endblock %}
 
-  {{ email_address }}
 
-If you wish to proceed with this request, follow the link below to verify your
-email address:
-
-  {{ request.route_url('accounts.verify-email', _query={'token': token}) }}
-
-This link will expire in {{ n_hours }} hours.
-
-If you did not make this request, you can safely ignore this email.
+{% block reason %}
+You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.
 {% endblock %}

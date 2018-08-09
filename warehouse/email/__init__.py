@@ -96,7 +96,7 @@ def _email(name, *, allow_unverified=False):
     def inner(fn):
         @functools.wraps(fn)
         def wrapper(request, user_or_users, **kwargs):
-            if isinstance(user_or_users, list):
+            if isinstance(user_or_users, (list, set)):
                 recipients = user_or_users
             else:
                 recipients = [user_or_users]
