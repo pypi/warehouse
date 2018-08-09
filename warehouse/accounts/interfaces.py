@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from zope.interface import Interface
+from zope.interface import Attribute, Interface
 
 
 class TooManyFailedLogins(Exception):
@@ -97,6 +97,8 @@ class ITokenService(Interface):
 
 
 class IPasswordBreachedService(Interface):
+    failure_message = Attribute("The message to describe the failure that occured")
+
     def check_password(password, *, tags=None):
         """
         Returns a boolean indicating if the given password has been involved in a breach
