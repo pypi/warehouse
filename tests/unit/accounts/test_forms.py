@@ -276,12 +276,18 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
         )
         assert not form.validate()
         assert form.new_password.errors.pop() == (
             "This password has appeared in a breach or has otherwise been "
-            "compromised."
+            "compromised and cannot be used."
         )
 
     def test_name_too_long(self):
@@ -416,10 +422,16 @@ class TestResetPasswordForm:
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+            breach_service=pretend.stub(
+                check_password=lambda pw, tags=None: True,
+                failure_message=(
+                    "This password has appeared in a breach or has otherwise been "
+                    "compromised and cannot be used."
+                ),
+            ),
         )
         assert not form.validate()
         assert form.new_password.errors.pop() == (
             "This password has appeared in a breach or has otherwise been "
-            "compromised."
+            "compromised and cannot be used."
         )
