@@ -29,7 +29,7 @@ from .....common.db.packaging import (
 
 
 class TestSearch:
-    def test_fails_with_invalid_operator(self, pyramid_request):
+    def test_fails_with_invalid_operator(self, pyramid_request, metrics):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {}, "lol nope")
 
@@ -37,9 +37,9 @@ class TestSearch:
             exc.value.faultString
             == "ValueError: Invalid operator, must be one of 'and' or 'or'."
         )
-        assert pyramid_request.registry.datadog.histogram.calls == []
+        assert metrics.histogram.calls == []
 
-    def test_fails_if_spec_not_mapping(self, pyramid_request):
+    def test_fails_if_spec_not_mapping(self, pyramid_request, metrics):
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, "a string")
 
@@ -47,9 +47,9 @@ class TestSearch:
             exc.value.faultString
             == "TypeError: Invalid spec, must be a mapping/dictionary."
         )
-        assert pyramid_request.registry.datadog.histogram.calls == []
+        assert metrics.histogram.calls == []
 
-    def test_default_search_operator(self, pyramid_request):
+    def test_default_search_operator(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -110,11 +110,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_default_search_operator_with_spaces_in_values(self, pyramid_request):
+    def test_default_search_operator_with_spaces_in_values(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -180,11 +180,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_searches_with_and(self, pyramid_request):
+    def test_searches_with_and(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -245,11 +245,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_searches_with_or(self, pyramid_request):
+    def test_searches_with_or(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, should):
                 self.type = type
@@ -310,11 +310,11 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_version_search(self, pyramid_request):
+    def test_version_search(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -368,11 +368,11 @@ class TestSearch:
                 "version": "1.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_version_search_returns_latest(self, pyramid_request):
+    def test_version_search_returns_latest(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
@@ -423,7 +423,7 @@ class TestSearch:
                 "version": "2.0",
             },
         ]
-        assert pyramid_request.registry.datadog.histogram.calls == [
+        assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
