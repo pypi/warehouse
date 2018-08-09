@@ -11,19 +11,33 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
 
-{% block content %}
-Someone, perhaps you, has added this email address to their PyPI account:
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
 
-  {{ email_address }}
+    <style>
+      p.footer {
+        font-size: small;
+        color: #666666;
+      }
 
-If you wish to proceed with this request, follow the link below to verify your
-email address:
+      {% block extra_style %}
+      {% endblock %}
+    </style>
+  </head>
+  <body>
+    {% block content %}
+    {% endblock %}
 
-  {{ request.route_url('accounts.verify-email', _query={'token': token}) }}
-
-This link will expire in {{ n_hours }} hours.
-
-If you did not make this request, you can safely ignore this email.
-{% endblock %}
+    {% if self.reason() %}
+    <p class="footer">
+        —<br>
+        {% block reason %}
+        {% endblock %}
+    </p>
+    {% endif %}
+  </body>
+</html>

@@ -305,7 +305,10 @@ class TestSendPasswordResetEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -373,7 +376,10 @@ class TestEmailVerificationEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -421,7 +427,10 @@ class TestPasswordChangeEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -507,7 +516,10 @@ class TestAccountDeletionEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -600,7 +612,10 @@ class TestPrimaryEmailChangeEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -723,7 +738,10 @@ class TestCollaboratorAddedEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             ),
@@ -733,7 +751,10 @@ class TestCollaboratorAddedEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             ),
@@ -809,7 +830,10 @@ class TestCollaboratorAddedEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
@@ -878,7 +902,10 @@ class TestAddedAsCollaboratorEmail:
                     EmailMessage(
                         subject="Email Subject",
                         body_text="Email Body",
-                        body_html="Email HTML Body",
+                        body_html=(
+                            "<html>\n<head></head>\n"
+                            "<body><p>Email HTML Body</p></body>\n</html>\n"
+                        ),
                     )
                 ),
             )
