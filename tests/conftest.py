@@ -33,6 +33,7 @@ from sqlalchemy import event
 from warehouse.config import configure
 from warehouse.accounts import services
 from warehouse.admin.flags import Flags
+from warehouse.metrics import IMetricsService
 
 from .common.db import Session
 
@@ -56,9 +57,25 @@ def pytest_collection_modifyitems(items):
 
 
 @pytest.fixture
-def pyramid_request(datadog):
+def metrics():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
+        timing=pretend.call_recorder(lambda *args, **kwargs: None),
+        timed=pretend.call_recorder(
+            lambda *args, **kwargs: datadog_timing(*args, **kwargs)
+        ),
+    )
+
+
+@pytest.fixture
+def pyramid_request(datadog, metrics):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.registry.datadog = datadog
+    dummy_request.find_service = pretend.call_recorder(
+        lambda iface, context: {(IMetricsService, None): metrics}[(iface, context)]
+    )
     return dummy_request
 
 
