@@ -27,6 +27,8 @@ DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehou
 
 MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
 
+METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
+
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
 
 TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
