@@ -19,7 +19,6 @@ from webob.multidict import MultiDict
 from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
 
 from warehouse import views
-from warehouse.metrics import IMetricsService
 from warehouse.views import (
     classifiers,
     current_user_indicator,
@@ -197,7 +196,7 @@ def test_esi_flash_messages():
 
 class TestSearch:
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_a_query(self, monkeypatch, db_request, page):
+    def test_with_a_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
@@ -209,11 +208,6 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -245,7 +239,7 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_exact_phrase_query(self, monkeypatch, db_request, page):
+    def test_with_exact_phrase_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict({"q": '"foo bar"'})
         if page is not None:
             params["page"] = page
@@ -257,11 +251,6 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(
             page_count=(page or 1) + 10, item_count=(page or 1) + 10
@@ -295,7 +284,7 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_a_single_char_query(self, monkeypatch, db_request, page):
+    def test_with_a_single_char_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict({"q": "a"})
         if page is not None:
             params["page"] = page
@@ -307,11 +296,6 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -350,7 +334,9 @@ class TestSearch:
             (5, "created", [{"created": {"unmapped_type": "long"}}]),
         ],
     )
-    def test_with_an_ordering(self, monkeypatch, db_request, page, order, expected):
+    def test_with_an_ordering(
+        self, monkeypatch, db_request, metrics, page, order, expected
+    ):
         params = MultiDict({"q": "foo bar"})
         if page is not None:
             params["page"] = page
@@ -364,11 +350,6 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -405,7 +386,7 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_with_classifiers(self, monkeypatch, db_request, page):
+    def test_with_classifiers(self, monkeypatch, db_request, metrics, page):
         params = MultiDict([("q", "foo bar"), ("c", "foo :: bar"), ("c", "fiz :: buz")])
         if page is not None:
             params["page"] = page
@@ -419,11 +400,6 @@ class TestSearch:
         db_request.es = pretend.stub(
             query=pretend.call_recorder(lambda *a, **kw: es_query)
         )
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         classifier1 = ClassifierFactory.create(classifier="foo :: bar")
         classifier2 = ClassifierFactory.create(classifier="foo :: baz")
@@ -473,7 +449,7 @@ class TestSearch:
         ]
 
     @pytest.mark.parametrize("page", [None, 1, 5])
-    def test_without_a_query(self, monkeypatch, db_request, page):
+    def test_without_a_query(self, monkeypatch, db_request, metrics, page):
         params = MultiDict()
         if page is not None:
             params["page"] = page
@@ -481,11 +457,6 @@ class TestSearch:
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -510,17 +481,12 @@ class TestSearch:
             pretend.call("warehouse.views.search.results", 1000)
         ]
 
-    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request):
+    def test_returns_404_with_pagenum_too_high(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": 15})
         db_request.params = params
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -539,17 +505,12 @@ class TestSearch:
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.histogram.calls == []
 
-    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
+    def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": "abc"})
         db_request.params = params
 
         es_query = pretend.stub()
         db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
-
-        metrics = pretend.stub(histogram=pretend.call_recorder(lambda m, r: None))
-        db_request.find_service = lambda iface, context: {
-            (IMetricsService, None): metrics
-        }[(iface, context)]
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)

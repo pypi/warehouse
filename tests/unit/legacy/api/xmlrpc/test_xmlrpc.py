@@ -114,7 +114,9 @@ class TestSearch:
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
 
-    def test_default_search_operator_with_spaces_in_values(self, pyramid_request, metrics):
+    def test_default_search_operator_with_spaces_in_values(
+        self, pyramid_request, metrics
+    ):
         class FakeQuery:
             def __init__(self, type, must):
                 self.type = type
