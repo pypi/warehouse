@@ -318,8 +318,8 @@ class HaveIBeenPwnedPasswordBreachedService:
         try:
             resp = self._http.get(self._get_url(hashed_password[:5]))
             resp.raise_for_status()
-        except requests.RequestException:
-            logger.exception("Error contacting HaveIBeenPwned")
+        except requests.RequestException as exc:
+            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
             self._metrics_increment(
                 "warehouse.compromised_password_check.error", tags=tags
             )
