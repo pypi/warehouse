@@ -9,28 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from warehouse.__about__ import (
-    __author__,
-    __commit__,
-    __copyright__,
-    __email__,
-    __license__,
-    __summary__,
-    __title__,
-    __uri__,
-    __version__,
-)
-
-
-__all__ = [
-    "__author__",
-    "__commit__",
-    "__copyright__",
-    "__email__",
-    "__license__",
-    "__summary__",
-    "__title__",
-    "__uri__",
-    "__version__",
-]

@@ -62,22 +62,30 @@ class TestLoginForm:
     def test_validate_password_ok(self):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=pretend.call_recorder(lambda userid, password: True),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
         )
         form = forms.LoginForm(
-            data={"username": "my_username"}, user_service=user_service
+            data={"username": "my_username"},
+            user_service=user_service,
+            check_password_metrics_tags=["bar"],
         )
         field = pretend.stub(data="pw")
 
         form.validate_password(field)
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.check_password.calls == [
+            pretend.call(1, "pw", tags=["bar"])
+        ]
 
     def test_validate_password_notok(self, db_session):
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
-            check_password=pretend.call_recorder(lambda userid, password: False),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
         )
         form = forms.LoginForm(
             data={"username": "my_username"}, user_service=user_service
@@ -88,11 +96,11 @@ class TestLoginForm:
             form.validate_password(field)
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
     def test_validate_password_too_many_failed(self):
         @pretend.call_recorder
-        def check_password(userid, password):
+        def check_password(userid, password, tags=None):
             raise TooManyFailedLogins(resets_in=None)
 
         user_service = pretend.stub(
@@ -108,7 +116,7 @@ class TestLoginForm:
             form.validate_password(field)
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
-        assert user_service.check_password.calls == [pretend.call(1, "pw")]
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
 
 class TestRegistrationForm:

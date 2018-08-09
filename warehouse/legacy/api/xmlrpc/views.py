@@ -28,6 +28,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     Role,
     Project,
@@ -41,15 +42,14 @@ from warehouse.search.queries import SEARCH_BOOSTS
 
 def submit_xmlrpc_metrics(method=None):
     """
-    Submit metrics to DataDog
+    Submit metrics.
     """
 
     def decorator(f):
         def wrapped(context, request):
-            request.registry.datadog.increment(
-                "warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"]
-            )
-            with request.registry.datadog.timed(
+            metrics = request.find_service(IMetricsService, context=None)
+            metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
+            with metrics.timed(
                 "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method}"]
             ):
                 return f(context, request)
@@ -168,7 +168,8 @@ def search(request, spec, operator="and"):
 
     results = query[:100].execute()
 
-    request.registry.datadog.histogram("warehouse.xmlrpc.search.results", len(results))
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
 
     if "version" in spec.keys():
         return [

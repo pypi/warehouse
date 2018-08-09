@@ -35,6 +35,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import Email, User
+from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import IRateLimiter, DummyRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
@@ -46,7 +47,7 @@ PASSWORD_FIELD = "password"
 
 @implementer(IUserService)
 class DatabaseUserService:
-    def __init__(self, session, ratelimiters=None):
+    def __init__(self, session, *, ratelimiters=None, metrics):
         if ratelimiters is None:
             ratelimiters = {}
         ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
@@ -68,6 +69,7 @@ class DatabaseUserService:
             argon2__parallelism=6,
             argon2__time_cost=6,
         )
+        self._metrics = metrics
 
     @functools.lru_cache()
     def get_user(self, userid):
@@ -107,12 +109,20 @@ class DatabaseUserService:
 
         return user_id
 
-    def check_password(self, userid, password):
+    def check_password(self, userid, password, *, tags=None):
+        tags = tags if tags is not None else []
+
+        self._metrics.increment("warehouse.authentication.start", tags=tags)
+
         # The very first thing we want to do is check to see if we've hit our
         # global rate limit or not, assuming that we've been configured with a
         # global rate limiter anyways.
         if not self.ratelimiters["global"].test():
             logger.warning("Global failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=tags + ["ratelimiter:global"],
+            )
             raise TooManyFailedLogins(resets_in=self.ratelimiters["global"].resets_in())
 
         user = self.get_user(userid)
@@ -120,6 +130,10 @@ class DatabaseUserService:
             # Now, check to make sure that we haven't hitten a rate limit on a
             # per user basis.
             if not self.ratelimiters["user"].test(user.id):
+                self._metrics.increment(
+                    "warehouse.authentication.ratelimited",
+                    tags=tags + ["ratelimiter:user"],
+                )
                 raise TooManyFailedLogins(
                     resets_in=self.ratelimiters["user"].resets_in(user.id)
                 )
@@ -136,7 +150,18 @@ class DatabaseUserService:
                 if new_hash:
                     user.password = new_hash
 
+                self._metrics.increment("warehouse.authentication.ok", tags=tags)
+
                 return True
+            else:
+                self._metrics.increment(
+                    "warehouse.authentication.failure",
+                    tags=tags + ["failure_reason:password"],
+                )
+        else:
+            self._metrics.increment(
+                "warehouse.authentication.failure", tags=tags + ["failure_reason:user"]
+            )
 
         # If we've gotten here, then we'll want to record a failed login in our
         # rate limiting before returning False to indicate a failed password
@@ -215,6 +240,7 @@ class TokenService:
 def database_login_factory(context, request):
     return DatabaseUserService(
         request.db,
+        metrics=request.find_service(IMetricsService, context=None),
         ratelimiters={
             "global": request.find_service(
                 IRateLimiter, name="global.login", context=None
@@ -252,8 +278,8 @@ class HaveIBeenPwnedPasswordBreachedService:
         self,
         *,
         session,
+        metrics,
         api_base="https://api.pwnedpasswords.com",
-        metrics=None,
         help_url=None,
     ):
         self._http = session
@@ -269,8 +295,7 @@ class HaveIBeenPwnedPasswordBreachedService:
         return message
 
     def _metrics_increment(self, *args, **kwargs):
-        if self._metrics is not None:
-            self._metrics.increment(*args, **kwargs)
+        self._metrics.increment(*args, **kwargs)
 
     def _get_url(self, prefix):
         return urllib.parse.urljoin(self._api_base, posixpath.join("/range/", prefix))
@@ -333,6 +358,6 @@ class HaveIBeenPwnedPasswordBreachedService:
 def hibp_password_breach_factory(context, request):
     return HaveIBeenPwnedPasswordBreachedService(
         session=request.http,
-        metrics=request.registry.datadog,
+        metrics=request.find_service(IMetricsService, context=None),
         help_url=request.help_url(_anchor="compromised-password"),
     )

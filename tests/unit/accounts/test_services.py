@@ -30,6 +30,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import UserFactory, EmailFactory
@@ -45,9 +46,41 @@ class TestDatabaseUserService:
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
         session = pretend.stub()
-        service = services.DatabaseUserService(session)
+        service = services.DatabaseUserService(session, metrics=NullMetrics())
 
         assert service.db is session
+        assert service.hasher is crypt_context_obj
+        assert crypt_context_cls.calls == [
+            pretend.call(
+                schemes=[
+                    "argon2",
+                    "bcrypt_sha256",
+                    "bcrypt",
+                    "django_bcrypt",
+                    "unix_disabled",
+                ],
+                deprecated=["auto"],
+                truncate_error=True,
+                argon2__memory_cost=1024,
+                argon2__parallelism=6,
+                argon2__time_cost=6,
+            )
+        ]
+
+    def test_service_creation_ratelimiters(self, monkeypatch):
+        crypt_context_obj = pretend.stub()
+        crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
+        monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
+
+        ratelimiters = {"user": pretend.stub(), "global": pretend.stub()}
+
+        session = pretend.stub()
+        service = services.DatabaseUserService(
+            session, metrics=NullMetrics(), ratelimiters=ratelimiters
+        )
+
+        assert service.db is session
+        assert service.ratelimiters == ratelimiters
         assert service.hasher is crypt_context_obj
         assert crypt_context_cls.calls == [
             pretend.call(
@@ -73,20 +106,33 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         assert user_service.find_userid(user.username) == user.id
 
-    def test_check_password_global_rate_limited(self, user_service):
+    def test_check_password_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
         user_service.ratelimiters["global"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
-            user_service.check_password(uuid.uuid4(), None)
+            user_service.check_password(uuid.uuid4(), None, tags=["foo"])
 
         assert excinfo.value.resets_in is resets
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.start", tags=["foo"]),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["foo", "ratelimiter:global"],
+            ),
+        ]
 
-    def test_check_password_nonexistant_user(self, user_service):
-        assert not user_service.check_password(uuid.uuid4(), None)
+    def test_check_password_nonexistant_user(self, user_service, metrics):
+        assert not user_service.check_password(uuid.uuid4(), None, tags=["foo"])
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.start", tags=["foo"]),
+            pretend.call(
+                "warehouse.authentication.failure", tags=["foo", "failure_reason:user"]
+            ),
+        ]
 
-    def test_check_password_user_rate_limited(self, user_service):
+    def test_check_password_user_rate_limited(self, user_service, metrics):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
@@ -101,8 +147,14 @@ class TestDatabaseUserService:
         assert excinfo.value.resets_in is resets
         assert limiter.test.calls == [pretend.call(user.id)]
         assert limiter.resets_in.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.start", tags=[]),
+            pretend.call(
+                "warehouse.authentication.ratelimited", tags=["ratelimiter:user"]
+            ),
+        ]
 
-    def test_check_password_invalid(self, user_service):
+    def test_check_password_invalid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(lambda l, r: (False, None))
@@ -112,16 +164,26 @@ class TestDatabaseUserService:
         assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password)
         ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.start", tags=[]),
+            pretend.call(
+                "warehouse.authentication.failure", tags=["failure_reason:password"]
+            ),
+        ]
 
-    def test_check_password_valid(self, user_service):
+    def test_check_password_valid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
             verify_and_update=pretend.call_recorder(lambda l, r: (True, None))
         )
 
-        assert user_service.check_password(user.id, "user password")
+        assert user_service.check_password(user.id, "user password", tags=["bar"])
         assert user_service.hasher.verify_and_update.calls == [
             pretend.call("user password", user.password)
+        ]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.start", tags=["bar"]),
+            pretend.call("warehouse.authentication.ok", tags=["bar"]),
         ]
 
     def test_check_password_updates(self, user_service):
@@ -268,15 +330,20 @@ class TestTokenService:
             token_service.loads("invalid")
 
 
-def test_database_login_factory(monkeypatch):
+def test_database_login_factory(monkeypatch, pyramid_services, metrics):
     service_obj = pretend.stub()
-    service_cls = pretend.call_recorder(lambda session, ratelimiters: service_obj)
+    service_cls = pretend.call_recorder(
+        lambda session, ratelimiters, metrics: service_obj
+    )
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
 
     global_ratelimiter = pretend.stub()
     user_ratelimiter = pretend.stub()
 
-    def find_service(iface, name, context):
+    def find_service(iface, name=None, context=None):
+        if iface != IRateLimiter and name is None:
+            return pyramid_services.find_service(iface, context=context)
+
         assert iface is IRateLimiter
         assert context is None
         assert name in {"global.login", "user.login"}
@@ -292,6 +359,7 @@ def test_database_login_factory(monkeypatch):
     assert service_cls.calls == [
         pretend.call(
             request.db,
+            metrics=metrics,
             ratelimiters={"global": global_ratelimiter, "user": user_ratelimiter},
         )
     ]
@@ -394,7 +462,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(text=dataset, raise_for_status=lambda: None)
         session = pretend.stub(get=pretend.call_recorder(lambda url: response))
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
 
         assert svc.check_password(password) == expected
         assert session.get.calls == [
@@ -411,7 +481,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
 
         with pytest.raises(AnError):
             svc.check_password("my password")
@@ -424,7 +496,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)
 
-        svc = services.HaveIBeenPwnedPasswordBreachedService(session=session)
+        svc = services.HaveIBeenPwnedPasswordBreachedService(
+            session=session, metrics=NullMetrics()
+        )
         assert not svc.check_password("my password")
         assert raiser.calls
 
@@ -452,13 +526,15 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         context = pretend.stub()
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(datadog=pretend.stub()),
+            find_service=lambda iface, context: {
+                (IMetricsService, None): NullMetrics()
+            }[(iface, context)],
             help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
         )
         svc = services.hibp_password_breach_factory(context, request)
 
         assert svc._http is request.http
-        assert svc._metrics is request.registry.datadog
+        assert isinstance(svc._metrics, NullMetrics)
         assert svc._help_url == "http://localhost/help/#compromised-password"
 
     @pytest.mark.parametrize(
@@ -486,7 +562,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         context = pretend.stub()
         request = pretend.stub(
             http=pretend.stub(),
-            registry=pretend.stub(datadog=pretend.stub()),
+            find_service=lambda iface, context: {
+                (IMetricsService, None): NullMetrics()
+            }[(iface, context)],
             help_url=lambda _anchor=None: help_url,
         )
         svc = services.hibp_password_breach_factory(context, request)

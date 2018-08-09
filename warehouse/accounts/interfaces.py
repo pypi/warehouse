@@ -57,10 +57,13 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(user_id, password):
+    def check_password(user_id, password, *, tags=None):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
+
+        May have an optional list of tags, which allows identifiying the purpose of
+        checking the password.
         """
 
     def create_user(

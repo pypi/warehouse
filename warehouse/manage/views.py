@@ -217,6 +217,7 @@ class ManageAccountViews:
             email=self.request.user.email,
             user_service=self.user_service,
             breach_service=self.breach_service,
+            check_password_metrics_tags=["method:new_password"],
         )
 
         if form.validate():

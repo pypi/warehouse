@@ -108,12 +108,13 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         redirect_field_name, request.GET.get(redirect_field_name)
     )
 
-    form = _form_class(request.POST, user_service=user_service)
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+    )
 
     if request.method == "POST":
-        request.registry.datadog.increment(
-            "warehouse.authentication.start", tags=["auth_method:login_form"]
-        )
         if form.validate():
             # Get the user id for the given username.
             username = form.username.data
@@ -152,15 +153,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 .hexdigest()
                 .lower(),
             )
-
-            request.registry.datadog.increment(
-                "warehouse.authentication.complete", tags=["auth_method:login_form"]
-            )
             return resp
-        else:
-            request.registry.datadog.increment(
-                "warehouse.authentication.failure", tags=["auth_method:login_form"]
-            )
 
     return {
         "form": form,
