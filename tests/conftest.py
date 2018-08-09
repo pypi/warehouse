@@ -69,13 +69,31 @@ def metrics():
     )
 
 
+class _Services:
+    def __init__(self):
+        self._services = {}
+
+    def register_service(self, iface, context, service_obj):
+        self._services[(iface, context)] = service_obj
+
+    def find_service(self, iface, context):
+        return self._services[(iface, context)]
+
+
 @pytest.fixture
-def pyramid_request(datadog, metrics):
+def pyramid_services():
+    return _Services()
+
+
+@pytest.fixture
+def pyramid_request(datadog, pyramid_services, metrics):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.registry.datadog = datadog
-    dummy_request.find_service = pretend.call_recorder(
-        lambda iface, context: {(IMetricsService, None): metrics}[(iface, context)]
-    )
+    dummy_request.find_service = pyramid_services.find_service
+
+    # Register our global services.
+    pyramid_services.register_service(IMetricsService, None, metrics)
+
     return dummy_request
 
 
