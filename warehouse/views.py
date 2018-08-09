@@ -235,7 +235,6 @@ def classifiers(request):
     decorator=[
         origin_cache(
             1 * 60 * 60,  # 1 hour
-            stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
             keys=["all-projects"],
         )
@@ -323,7 +322,11 @@ def search(request):
     decorator=[
         add_vary("Accept"),
         cache_control(1 * 24 * 60 * 60),  # 1 day
-        origin_cache(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
     ],
 )
 @view_config(
@@ -332,7 +335,11 @@ def search(request):
     decorator=[
         add_vary("Accept"),
         cache_control(1 * 24 * 60 * 60),  # 1 day
-        origin_cache(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
     ],
     accept="application/json",
 )
