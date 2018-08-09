@@ -69,9 +69,7 @@ def failed_logins(exc, request):
     context=User,
     renderer="accounts/profile.html",
     decorator=[
-        origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60  # 1 day each.
-        )
+        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
 )
 def profile(user, request):
