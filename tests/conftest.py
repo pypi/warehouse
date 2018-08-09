@@ -86,17 +86,19 @@ class _Services:
 
 
 @pytest.fixture
-def pyramid_services():
-    return _Services()
+def pyramid_services(metrics):
+    services = _Services()
+
+    # Register our global services.
+    services.register_service(IMetricsService, None, metrics)
+
+    return services
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, metrics):
+def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-
-    # Register our global services.
-    pyramid_services.register_service(IMetricsService, None, metrics)
 
     return dummy_request
 
@@ -193,8 +195,8 @@ def db_session(app_config):
 
 
 @pytest.yield_fixture
-def user_service(db_session, app_config):
-    return services.DatabaseUserService(db_session, app_config.registry.settings)
+def user_service(db_session, metrics):
+    return services.DatabaseUserService(db_session, metrics=metrics)
 
 
 @pytest.yield_fixture

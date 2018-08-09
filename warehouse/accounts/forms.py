@@ -65,11 +65,17 @@ class PasswordMixin:
 
     password = wtforms.PasswordField(validators=[wtforms.validators.DataRequired()])
 
+    def __init__(self, *args, check_password_metrics_tags=None, **kwargs):
+        self._check_password_metrics_tags = check_password_metrics_tags
+        super().__init__(*args, **kwargs)
+
     def validate_password(self, field):
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             try:
-                if not self.user_service.check_password(userid, field.data):
+                if not self.user_service.check_password(
+                    userid, field.data, tags=self._check_password_metrics_tags
+                ):
                     raise wtforms.validators.ValidationError(
                         "The password is invalid. Try again."
                     )
