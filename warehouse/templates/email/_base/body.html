@@ -32,7 +32,7 @@
     {% block content %}
     {% endblock %}
 
-    {% if self.reason() %}
+    {% if self.reason()|trim %}
     <p class="footer">
         —<br>
         {% block reason %}
