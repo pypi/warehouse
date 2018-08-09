@@ -11,10 +11,14 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
+{% extends "email/_base/body.html" %}
+
 
 {% block content %}
-You have been added as {{ role }} to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.
+<p>You have been added as <strong>{{ role }}</strong> to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.</p>
 {% endblock %}
 
-{% block reason %}You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.{% endblock %}
+
+{% block reason %}
+You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.
+{% endblock %}

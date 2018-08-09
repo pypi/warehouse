@@ -11,10 +11,33 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
 
-{% block content %}
-You have been added as {{ role }} to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.
-{% endblock %}
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
-{% block reason %}You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.{% endblock %}
+    <style>
+      p.footer {
+        font-size: small;
+        color: #666666;
+      }
+
+      {% block extra_style %}
+      {% endblock %}
+    </style>
+  </head>
+  <body>
+    {% block content %}
+    {% endblock %}
+
+    {% if self.reason() %}
+    <p class="footer">
+        —<br />
+        {% block reason %}
+        {% endblock %}
+    </p>
+    {% endif %}
+  </body>
+</html>

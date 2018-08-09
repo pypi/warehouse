@@ -11,10 +11,11 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.txt" %}
+{% extends "email/_base/body.html" %}
+
 
 {% block content %}
-You have been added as {{ role }} to the {{ request.registry.settings["site.name"] }} project {{ project }} by {{ submitter }}.
-{% endblock %}
+<p>Someone, perhaps you, has changed the password for your PyPI account <strong>{{ username }}</strong>.</p>
 
-{% block reason %}You are receiving this because you have been added by {{ submitter }} to a project on {{ request.registry.settings["site.name"] }}.{% endblock %}
+<p>If you did not make this change, you can email <a href="mailto:admin@mail.pypi.org">admin@mail.pypi.org</a> to communicate with the PyPI administrators.</p>
+{% endblock %}

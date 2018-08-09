@@ -16,6 +16,7 @@ from email.utils import parseaddr
 from typing import Optional
 
 import attr
+import premailer
 
 from jinja2.exceptions import TemplateNotFound
 from pyramid.renderers import render
@@ -48,6 +49,7 @@ class EmailMessage:
             body_html = render(
                 f"email/{email_name}/body.html", context, request=request
             )
+            body_html = premailer.transform(body_html)
         # Catching TemplateNotFound here is a bit of a leaky abstraction, but there's
         # not much we can do about it.
         except TemplateNotFound:
