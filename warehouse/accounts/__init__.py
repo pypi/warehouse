@@ -35,17 +35,22 @@ from warehouse.rate_limiting import RateLimit, IRateLimiter
 REDIRECT_FIELD_NAME = "next"
 
 
-def _login(username, password, request):
+def _login(username, password, request, check_password_tags=None):
     login_service = request.find_service(IUserService, context=None)
     userid = login_service.find_userid(username)
     if userid is not None:
-        if login_service.check_password(userid, password):
+        if login_service.check_password(userid, password, tags=check_password_tags):
             login_service.update_user(userid, last_login=datetime.datetime.utcnow())
             return _authenticate(userid, request)
 
 
 def _login_via_basic_auth(username, password, request):
-    result = _login(username, password, request)
+    result = _login(
+        username,
+        password,
+        request,
+        check_password_tags=["method:auth", "auth_method:basic"],
+    )
 
     # If our authentication was successful (E.g. non None result), then we want to check
     # our credentials to see if the password was comrpomised or not.

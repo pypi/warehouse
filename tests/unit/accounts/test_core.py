@@ -44,7 +44,9 @@ class TestLogin:
         userid = pretend.stub()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: userid),
-            check_password=pretend.call_recorder(lambda userid, password: False),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
         )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda iface, context: service)
@@ -52,7 +54,9 @@ class TestLogin:
         assert accounts._login("myuser", "mypass", request) is None
         assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
-        assert service.check_password.calls == [pretend.call(userid, "mypass")]
+        assert service.check_password.calls == [
+            pretend.call(userid, "mypass", tags=None)
+        ]
 
     def test_with_valid_password(self, monkeypatch):
         principals = pretend.stub()
@@ -62,7 +66,9 @@ class TestLogin:
         userid = pretend.stub()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: userid),
-            check_password=pretend.call_recorder(lambda userid, password: True),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
         )
         request = pretend.stub(
@@ -72,11 +78,18 @@ class TestLogin:
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
-            assert accounts._login("myuser", "mypass", request) is principals
+            assert (
+                accounts._login(
+                    "myuser", "mypass", request, check_password_tags=["foo"]
+                )
+                is principals
+            )
 
         assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
-        assert service.check_password.calls == [pretend.call(userid, "mypass")]
+        assert service.check_password.calls == [
+            pretend.call(userid, "mypass", tags=["foo"])
+        ]
         assert service.update_user.calls == [pretend.call(userid, last_login=now)]
         assert authenticate.calls == [pretend.call(userid, request)]
 
@@ -89,7 +102,14 @@ class TestLogin:
         request = pretend.stub()
 
         assert accounts._login_via_basic_auth(username, password, request) is None
-        assert login.calls == [pretend.call(username, password, request)]
+        assert login.calls == [
+            pretend.call(
+                username,
+                password,
+                request,
+                check_password_tags=["method:auth", "auth_method:basic"],
+            )
+        ]
 
     def test_via_basic_auth_with_user(self, monkeypatch):
         login = pretend.call_recorder(lambda *a, **kw: ["foo"])
@@ -104,7 +124,14 @@ class TestLogin:
         request = pretend.stub(find_service=lambda iface, context: breach_service)
 
         assert accounts._login_via_basic_auth(username, password, request) == ["foo"]
-        assert login.calls == [pretend.call(username, password, request)]
+        assert login.calls == [
+            pretend.call(
+                username,
+                password,
+                request,
+                check_password_tags=["method:auth", "auth_method:basic"],
+            )
+        ]
         assert breach_service.check_password.calls == [
             pretend.call(password, tags=["method:auth", "auth_method:basic"])
         ]
