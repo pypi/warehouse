@@ -16,7 +16,7 @@ from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import func, literal, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -137,6 +137,21 @@ def add_blacklist(request):
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
+
+    # Check to make sure the object doesn't already exist.
+    if (
+        request.db.query(literal(True))
+        .filter(
+            request.db.query(BlacklistedProject)
+            .filter(BlacklistedProject.name == project_name)
+            .exists()
+        )
+        .scalar()
+    ):
+        request.session.flash(
+            f"{project_name!r} has already been blacklisted.", queue="error"
+        )
+        return HTTPSeeOther(request.route_path("admin.blacklist.list"))
 
     # Add our requested blacklist.
     request.db.add(
