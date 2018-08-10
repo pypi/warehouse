@@ -16,10 +16,13 @@ import functools
 import xmlrpc.client
 import xmlrpc.server
 
+import elasticsearch
+
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import (
+    XmlRpcError,
     exception_view as _exception_view,
     xmlrpc_method as _xmlrpc_method,
 )
@@ -98,6 +101,11 @@ xmlrpc_cache_all_projects = functools.partial(
 )
 
 
+class XMLRPCServiceUnavailable(XmlRpcError):
+    faultCode = -32403
+    faultString = "server error; service unavailable"
+
+
 class XMLRPCWrappedError(xmlrpc.server.Fault):
     def __init__(self, exc):
         self.faultCode = -32500
@@ -124,6 +132,8 @@ def search(request, spec, operator="and"):
         raise XMLRPCWrappedError(
             ValueError("Invalid operator, must be one of 'and' or 'or'.")
         )
+
+    metrics = request.find_service(IMetricsService, context=None)
 
     # Remove any invalid spec fields
     spec = {
@@ -166,9 +176,12 @@ def search(request, spec, operator="and"):
     else:
         query = request.es.query("bool", should=queries)
 
-    results = query[:100].execute()
+    try:
+        results = query[:100].execute()
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.xmlrpc.search.error")
+        raise XMLRPCServiceUnavailable
 
-    metrics = request.find_service(IMetricsService, context=None)
     metrics.histogram("warehouse.xmlrpc.search.results", len(results))
 
     if "version" in spec.keys():
