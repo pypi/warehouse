@@ -124,3 +124,14 @@ def on_new_response(new_response_event):
         tags=tags
         + ["status_code:%s" % status_code, "status_type:%sxx" % status_code[0]],
     )
+
+
+def on_before_retry(event):
+    request = event.request
+    metrics = request.find_service(IMetricsService, context=None)
+
+    route_tag = "route:null"
+    if request.matched_route:
+        route_tag = "route:%s" % request.matched_route.name
+
+    metrics.increment("pyramid.request.retry", tags=[route_tag])

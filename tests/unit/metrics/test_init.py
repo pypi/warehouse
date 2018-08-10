@@ -13,6 +13,7 @@
 import pretend
 
 from pyramid import events
+from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import (
     includeme,
@@ -41,6 +42,7 @@ def test_include_defaults_to_null():
         pretend.call(event_handlers.on_context_found, events.ContextFound),
         pretend.call(event_handlers.on_before_render, events.BeforeRender),
         pretend.call(event_handlers.on_new_response, events.NewResponse),
+        pretend.call(event_handlers.on_before_retry, IBeforeRetry),
     ]
 
 
@@ -66,4 +68,5 @@ def test_include_sets_class():
         pretend.call(event_handlers.on_context_found, events.ContextFound),
         pretend.call(event_handlers.on_before_render, events.BeforeRender),
         pretend.call(event_handlers.on_new_response, events.NewResponse),
+        pretend.call(event_handlers.on_before_retry, IBeforeRetry),
     ]
