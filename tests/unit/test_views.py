@@ -33,6 +33,7 @@ from warehouse.views import (
     force_status,
     flash_messages,
     forbidden_include,
+    service_unavailable,
 )
 
 from ..common.db.accounts import UserFactory
@@ -148,6 +149,18 @@ class TestForbiddenIncludeView:
         assert resp.status_code == 403
         assert resp.content_type == "text/html"
         assert resp.content_length == 0
+
+
+class TestServiceUnavailableView:
+    def test_renders_503(self, pyramid_config, pyramid_request):
+        renderer = pyramid_config.testing_add_renderer("503.html")
+        renderer.string_response = "A 503 Error"
+
+        resp = service_unavailable(pretend.stub(), pyramid_request)
+
+        assert resp.status_code == 503
+        assert resp.content_type == "text/html"
+        assert resp.body == b"A 503 Error"
 
 
 def test_robotstxt(pyramid_request):
