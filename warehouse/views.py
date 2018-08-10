@@ -160,41 +160,41 @@ def index(request):
         r[0]
         for r in (
             request.db.query(Project.name)
-                .order_by(Project.zscore.desc().nullslast(), func.random())
-                .limit(5)
-                .all()
+            .order_by(Project.zscore.desc().nullslast(), func.random())
+            .limit(5)
+            .all()
         )
     ]
     release_a = aliased(
         Release,
         request.db.query(Release)
-            .distinct(Release.name)
-            .filter(Release.name.in_(project_names))
-            .order_by(
+        .distinct(Release.name)
+        .filter(Release.name.in_(project_names))
+        .order_by(
             Release.name,
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
-            .subquery(),
+        .subquery(),
     )
     trending_projects = (
         request.db.query(release_a)
-            .options(joinedload(release_a.project))
-            .order_by(func.array_idx(project_names, release_a.name))
-            .all()
+        .options(joinedload(release_a.project))
+        .order_by(func.array_idx(project_names, release_a.name))
+        .all()
     )
 
     latest_releases = (
         request.db.query(Release)
-            .options(joinedload(Release.project))
-            .order_by(Release.created.desc())
-            .limit(5)
-            .all()
+        .options(joinedload(Release.project))
+        .order_by(Release.created.desc())
+        .limit(5)
+        .all()
     )
 
     counts = dict(
         request.db.query(RowCount.table_name, RowCount.count)
-            .filter(
+        .filter(
             RowCount.table_name.in_(
                 [
                     Project.__tablename__,
@@ -204,7 +204,7 @@ def index(request):
                 ]
             )
         )
-            .all()
+        .all()
     )
 
     return {
@@ -221,9 +221,9 @@ def index(request):
 def classifiers(request):
     classifiers = (
         request.db.query(Classifier.classifier)
-            .filter(Classifier.deprecated.is_(False))
-            .order_by(Classifier.classifier)
-            .all()
+        .filter(Classifier.deprecated.is_(False))
+        .order_by(Classifier.classifier)
+        .all()
     )
 
     return {"classifiers": classifiers}
@@ -241,6 +241,7 @@ def classifiers(request):
     ],
 )
 def search(request):
+
     q = request.params.get("q", "")
     q = q.replace("'", '"')
 
@@ -282,14 +283,14 @@ def search(request):
 
     classifiers_q = (
         request.db.query(Classifier)
-            .with_entities(Classifier.classifier)
-            .filter(Classifier.deprecated.is_(False))
-            .filter(
+        .with_entities(Classifier.classifier)
+        .filter(Classifier.deprecated.is_(False))
+        .filter(
             exists([release_classifiers.c.trove_id]).where(
                 release_classifiers.c.trove_id == Classifier.id
             )
         )
-            .order_by(Classifier.classifier)
+        .order_by(Classifier.classifier)
     )
 
     for cls in classifiers_q:
@@ -346,10 +347,10 @@ def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
         request.db.query(File.name, func.sum(File.size))
-            .group_by(File.name)
-            .order_by(func.sum(File.size).desc())
-            .limit(100)
-            .all()
+        .group_by(File.name)
+        .order_by(func.sum(File.size).desc())
+        .limit(100)
+        .all()
     )
     # Move top packages into a dict to make JSON more self describing
     top_packages = {

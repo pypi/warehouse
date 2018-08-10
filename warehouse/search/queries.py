@@ -26,7 +26,6 @@ SEARCH_BOOSTS = {
     "maintainer_email": 1,
     "platform": 1,
 }
-
 SEARCH_FILTER_ORDER = (
     "Framework",
     "Topic",
