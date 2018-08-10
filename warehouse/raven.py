@@ -57,6 +57,11 @@ def includeme(config):
         include_paths=["warehouse"],
         release=config.registry.settings["warehouse.commit"],
         transport=config.registry.settings.get("sentry.transport"),
+        # For some reason we get periodic SystemExit exceptions, I think it is because
+        # of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and then
+        # Gunicorn treating that as being told to exit the process. Either way, there
+        # isn't anything we can do about them, so they just cause noise.
+        ignore_exceptions=[SystemExit],
     )
     config.registry["raven.client"] = client
 
