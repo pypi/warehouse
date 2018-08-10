@@ -19,6 +19,7 @@ from pyramid.httpexceptions import (
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPBadRequest,
+    HTTPServiceUnavailable,
     exception_response,
 )
 from pyramid.exceptions import PredicateMismatch
@@ -35,6 +36,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
+from warehouse.db import DatabaseNotAvailable
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
@@ -108,6 +110,11 @@ def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
     return Response(status=403)
+
+
+@view_config(context=DatabaseNotAvailable)
+def service_unavailable(exc, request):
+    return httpexception_view(HTTPServiceUnavailable(), request)
 
 
 @view_config(

@@ -11,8 +11,10 @@
 # limitations under the License.
 
 import functools
+import logging
 
 import alembic.config
+import psycopg2
 import psycopg2.extensions
 import sqlalchemy
 import venusian
@@ -23,13 +25,23 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
 
 __all__ = ["includeme", "metadata", "ModelBase"]
 
 
+logger = logging.getLogger(__name__)
+
+
 DEFAULT_ISOLATION = "READ COMMITTED"
+
+
+# A generic wrapper exception that we'll raise when the database isn't available, we
+# use this so we can catch it later and turn it into a generic 5xx error.
+class DatabaseNotAvailable(Exception):
+    ...
 
 
 # We'll add a basic predicate that won't do anything except allow marking a
@@ -126,9 +138,21 @@ def _create_engine(url):
 
 
 def _create_session(request):
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.increment("warehouse.db.session.start")
+
     # Create our connection, most likely pulling it from the pool of
     # connections
-    connection = request.registry["sqlalchemy.engine"].connect()
+    try:
+        connection = request.registry["sqlalchemy.engine"].connect()
+    except psycopg2.OperationalError:
+        # When we tried to connection to PostgreSQL, our database was not available for
+        # some reason. We're going to log it here and then raise our error. Most likely
+        # this is a transient error that will go away.
+        logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
+        metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
+        raise DatabaseNotAvailable()
+
     if (
         connection.connection.get_transaction_status()
         != psycopg2.extensions.TRANSACTION_STATUS_IDLE
@@ -157,6 +181,7 @@ def _create_session(request):
     # end of our connection.
     @request.add_finished_callback
     def cleanup(request):
+        metrics.increment("warehouse.db.session.finished")
         session.close()
         connection.close()
 
