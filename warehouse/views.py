@@ -13,6 +13,8 @@
 import collections
 import re
 
+import elasticsearch
+
 from pyramid.httpexceptions import (
     HTTPException,
     HTTPSeeOther,
@@ -249,6 +251,7 @@ def classifiers(request):
     ],
 )
 def search(request):
+    metrics = request.find_service(IMetricsService, context=None)
 
     q = request.params.get("q", "")
     q = q.replace("'", '"')
@@ -280,9 +283,13 @@ def search(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    page = ElasticsearchPage(
-        query, page=page_num, url_maker=paginate_url_factory(request)
-    )
+    try:
+        page = ElasticsearchPage(
+            query, page=page_num, url_maker=paginate_url_factory(request)
+        )
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.views.search.error")
+        raise HTTPServiceUnavailable
 
     if page.page_count and page_num > page.page_count:
         return HTTPNotFound()
