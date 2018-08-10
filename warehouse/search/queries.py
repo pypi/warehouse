@@ -11,6 +11,7 @@
 # limitations under the License.
 
 SEARCH_BOOSTS = {
+    "name.keyword": 20,
     "name": 10,
     "normalized_name": 10,
     "description": 5,

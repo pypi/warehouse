@@ -32,8 +32,7 @@ NameAnalyzer = analyzer(
 
 @doc_type
 class Project(Document):
-
-    name = Text()
+    name = Text(fields={'keyword': Keyword()})
     normalized_name = Text(analyzer=NameAnalyzer)
     version = Keyword(multi=True)
     latest_version = Keyword()
