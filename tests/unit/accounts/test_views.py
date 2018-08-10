@@ -273,14 +273,17 @@ class TestLogout:
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
 
+        pyramid_request.user = pretend.stub()
+
         assert views.logout(pyramid_request) == {
-            "redirect": {"field": "next", "data": next_url}
+            "redirect": {"field": "next", "data": next_url or "/"}
         }
 
     def test_post_forgets_user(self, monkeypatch, pyramid_request):
         forget = pretend.call_recorder(lambda request: [("foo", "bar")])
         monkeypatch.setattr(views, "forget", forget)
 
+        pyramid_request.user = pretend.stub()
         pyramid_request.method = "POST"
         pyramid_request.session = pretend.stub(
             invalidate=pretend.call_recorder(lambda: None)
@@ -303,9 +306,27 @@ class TestLogout:
     def test_post_redirects_user(
         self, pyramid_request, expected_next_url, observed_next_url
     ):
+        pyramid_request.user = pretend.stub()
         pyramid_request.method = "POST"
-
         pyramid_request.POST["next"] = expected_next_url
+
+        result = views.logout(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == observed_next_url
+
+    @pytest.mark.parametrize(
+        # The set of all possible next URLs. Since this set is infinite, we
+        # test only a finite set of reasonable URLs.
+        ("expected_next_url, observed_next_url"),
+        [("/security/", "/security/"), ("http://example.com", "/")],
+    )
+    def test_get_redirects_anonymous_user(
+        self, pyramid_request, expected_next_url, observed_next_url
+    ):
+        pyramid_request.user = None
+        pyramid_request.method = "GETT"
+        pyramid_request.GET["next"] = expected_next_url
 
         result = views.logout(pyramid_request)
 
