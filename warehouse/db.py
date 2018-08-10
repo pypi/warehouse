@@ -16,12 +16,14 @@ import logging
 import alembic.config
 import psycopg2
 import psycopg2.extensions
+import pyramid_retry
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -36,6 +38,27 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_ISOLATION = "READ COMMITTED"
+
+
+# On the surface this might seem wrong, becasue retrying a request whose data violates
+# the constraints of the database doesn't seem like a useful endeavor. However what
+# happens if you have two requests that are trying to insert a row, and that row
+# contains a unique, user provided value, you can get into a race condition where both
+# requests check the database, see nothing with that value exists, then both attempt to
+# insert it. One of the requests will succeed, the other will fail with an
+# IntegrityError. Retrying the request that failed will then have it see the object
+# created by the other request, and will have it do the appropiate action in that case.
+#
+# The most common way to run into this, is when submitting a form in the browser, if the
+# user clicks twice in rapid succession, the browser will send two almost identical
+# requests at basically the same time.
+#
+# One possible issue that this raises, is that it will slow down "legitimate"
+# IntegrityError because they'll have to fail multiple times before they ultimately
+# fail. We consider this an acceptable trade off, because determinsitic IntegrityError
+# should be caught with proper validation prior to submitting records to the database
+# anyways.
+pyramid_retry.mark_error_retryable(IntegrityError)
 
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
