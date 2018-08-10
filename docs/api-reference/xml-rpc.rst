@@ -7,6 +7,10 @@ PyPI's XML-RPC methods
    recommended, and existing consumers of the API should migrate to the RSS
    and/or JSON APIs instead.
 
+   Users of this API are **strongly** encouraged to subscribe to the
+   pypi-announce_ mailing list for notices as we begin the process of removing
+   XML-RPC from PyPI.
+
 Example usage::
 
   >>> import xmlrpclib
@@ -197,3 +201,5 @@ Mirroring Support
 ``list_packages_with_serial()``
   Retrieve a dictionary mapping package names to the last serial for each
   package.
+
+.. _pypi-announce: https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/
