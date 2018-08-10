@@ -29,3 +29,10 @@ def test_xmlrpc_nomethod(app_config, webtest, metrics):
 
 def test_xmlrpc_succeeds(app_config, webtest, metrics):
     webtest.xmlrpc("/pypi", "changelog_last_serial")
+
+
+def test_invalid_arguments(app_config, webtest):
+    with pytest.raises(
+        xmlrpc.client.Fault, match="server error; invalid method params"
+    ):
+        webtest.xmlrpc("/pypi", "package_releases")
