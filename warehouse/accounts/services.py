@@ -195,8 +195,16 @@ class DatabaseUserService:
 
         return user
 
-    def add_email(self, user_id, email_address, primary=False, verified=False):
+    def add_email(self, user_id, email_address, primary=None, verified=False):
         user = self.get_user(user_id)
+
+        # If primary is None, then we're going to auto detect whether this should be the
+        # primary address or not. The basic rule is that if the user doesn't already
+        # have a primary address, then the address we're adding now is going to be
+        # set to their primary.
+        if primary is None:
+            primary = True if user.primary_email is None else False
+
         email = Email(
             email=email_address, user=user, primary=primary, verified=verified
         )
