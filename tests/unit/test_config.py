@@ -253,6 +253,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
+        whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
@@ -440,14 +441,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call("warehouse:static/dist/manifest.json", reload=False, strict=True)
     ]
     assert configurator_obj.whitenoise_serve_static.calls == [
-        pretend.call(
-            autorefresh=False,
-            max_age=315360000,
-            manifest="warehouse:static/dist/manifest.json",
-        )
+        pretend.call(autorefresh=False, max_age=315360000)
     ]
     assert configurator_obj.whitenoise_add_files.calls == [
         pretend.call("warehouse:static/dist/", prefix="/static/")
+    ]
+    assert configurator_obj.whitenoise_add_manifest.calls == [
+        pretend.call("warehouse:static/dist/manifest.json", prefix="/static/")
     ]
     assert configurator_obj.add_directive.calls == [
         pretend.call("add_template_view", config.template_view, action_wrap=False)
