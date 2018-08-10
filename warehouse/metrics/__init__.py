@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from pyramid import events
+from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
 from warehouse.metrics.interfaces import IMetricsService
@@ -33,3 +34,4 @@ def includeme(config):
     config.add_subscriber(event_handlers.on_context_found, events.ContextFound)
     config.add_subscriber(event_handlers.on_before_render, events.BeforeRender)
     config.add_subscriber(event_handlers.on_new_response, events.NewResponse)
+    config.add_subscriber(event_handlers.on_before_retry, IBeforeRetry)
