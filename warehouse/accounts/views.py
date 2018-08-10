@@ -169,12 +169,21 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     require_methods=False,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
-    # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
     )
+
+    # If the user-originating redirection url is not safe, then redirect to
+    # the index instead.
+    if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+        redirect_to = "/"
+
+    # If we're already logged out, then we'll go ahead and issue our redirect right
+    # away instead of trying to log a non-existent user out.
+    if request.user is None:
+        return HTTPSeeOther(redirect_to)
 
     if request.method == "POST":
         # A POST to the logout view tells us to logout. There's no form to
@@ -192,11 +201,6 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # their account, and then gain access to anything sensitive stored in
         # the session for the original user.
         request.session.invalidate()
-
-        # If the user-originating redirection url is not safe, then redirect to
-        # the index instead.
-        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-            redirect_to = "/"
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
