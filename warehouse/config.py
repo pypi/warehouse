@@ -256,7 +256,18 @@ def configure(settings=None):
     # Add some fixups for some encoding/decoding issues
     config.add_tween(
         "warehouse.config.junk_encoding_tween_factory",
-        over="warehouse.csp.content_security_policy_tween_factory",
+        over=[
+            "warehouse.referrer_policy.referrer_policy_tween_factory",
+            "warehouse.config.require_https_tween_factory",
+            "warehouse.config.unicode_redirect_tween_factory",
+            "warehouse.csp.content_security_policy_tween_factory",
+            "warehouse.static.whitenoise_tween_factory",
+            "warehouse.utils.compression.compression_tween_factory",
+            "warehouse.raven.raven_tween_factory",
+            "pyramid_tm.tm_tween_factory",
+            "pyramid.tweens.excview_tween_factory",
+            "warehouse.cache.http.conditional_http_tween_factory",
+        ],
     )
     config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 

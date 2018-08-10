@@ -404,7 +404,18 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_tween.calls == [
         pretend.call(
             "warehouse.config.junk_encoding_tween_factory",
-            over="warehouse.csp.content_security_policy_tween_factory",
+            over=[
+                "warehouse.referrer_policy.referrer_policy_tween_factory",
+                "warehouse.config.require_https_tween_factory",
+                "warehouse.config.unicode_redirect_tween_factory",
+                "warehouse.csp.content_security_policy_tween_factory",
+                "warehouse.static.whitenoise_tween_factory",
+                "warehouse.utils.compression.compression_tween_factory",
+                "warehouse.raven.raven_tween_factory",
+                "pyramid_tm.tm_tween_factory",
+                "pyramid.tweens.excview_tween_factory",
+                "warehouse.cache.http.conditional_http_tween_factory",
+            ],
         ),
         pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
