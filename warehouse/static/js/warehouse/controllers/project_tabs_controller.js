@@ -31,7 +31,7 @@ export default class extends Controller {
   connect() {
     // Set up initial content
     let contentId = window.location.hash.substr(1);
-    this.toggleTab(this._getTabForContentId(contentId));
+    this.toggleTab(this._getTabForContentId(contentId) || this._getTabs()[0]);
     // Handle resizing events to update the displayed content
     this.resizeTimeout = null;
     this._handleResize = this._handleResize.bind(this);
@@ -81,12 +81,12 @@ export default class extends Controller {
 
   _getTabForContentId(contentId) {
     let tabs = this._getTabs();
-    return tabs.find(tab => tab.getAttribute("href").substr(1) === contentId) || tabs[0];
+    return tabs.find(tab => tab.getAttribute("href").substr(1) === contentId);
   }
 
   _getAllTabsForContentId(contentId) {
     return Array.of(...this.tabTargets, ...this.mobileTabTargets)
-      .filter(tab => tab.getAttribute("href").substr(1) === contentId) || [this.tabTargets[0], this.mobileTabTargets[0]];
+      .filter(tab => tab.getAttribute("href").substr(1) === contentId);
   }
 
   _getTabs() {
@@ -100,16 +100,23 @@ export default class extends Controller {
       this.resizeTimeout = setTimeout(() => {
         this.resizeTimeout = null;
         let tab = this._getTabForContentId(this.data.get("content"));
-        this.toggleTabAndPushState(tab);
+        if (!tab) {
+          let btn = this._getTabs()[0];
+          this.toggleTabAndPushState(btn);
+        }
       }, 66);
     }
   }
 
   _handleHashChange() {
     let contentId = window.location.hash.substr(1);
-    let tab = this._getTabForContentId(contentId);
-    if (tab) {
-      this.toggleTabAndPushState(tab);
+    if (!contentId) {
+      this.toggleTab(this._getTabs()[0]);
+    } else {
+      let tab = this._getTabForContentId(contentId);
+      if (tab) {
+        this.toggleTabAndPushState(tab);
+      }
     }
   }
 }
