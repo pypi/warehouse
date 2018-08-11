@@ -17,6 +17,7 @@ import jinja2
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.email import send_password_compromised_email
 
 
 class UsernameMixin:
@@ -180,22 +181,29 @@ class RegistrationForm(
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, user_service, breach_service, **kwargs):
+    def __init__(self, *args, request, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.request = request
         self.user_service = user_service
         self.breach_service = breach_service
 
     def validate_password(self, field):
         super().validate_password(field)
 
-        # Run our password through our breach validation. We don't currently do
-        # anything with this information, but for now it will provide metrics into
-        # how many authentications are using compromised credentials.
+        # If we have a user ID, then we'll go and check it against our breached password
+        # service. If the password has appeared in a breach or is otherwise compromised
+        # we will disable the user and reject the login.
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
-            self.breach_service.check_password(
+            if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
-            )
+            ):
+                user = self.user_service.get_user(userid)
+                send_password_compromised_email(self.request, user)
+                self.user_service.disable_password(user.id)
+                raise wtforms.validators.ValidationError(
+                    jinja2.Markup(self.breach_service.failure_message)
+                )
 
 
 class RequestPasswordResetForm(forms.Form):

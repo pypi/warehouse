@@ -110,6 +110,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
     form = _form_class(
         request.POST,
+        request=request,
         user_service=user_service,
         breach_service=breach_service,
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],

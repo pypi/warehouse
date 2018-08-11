@@ -16,6 +16,8 @@ import freezegun
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPUnauthorized
+
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
     IUserService,
@@ -93,13 +95,16 @@ class TestLogin:
         assert service.update_user.calls == [pretend.call(userid, last_login=now)]
         assert authenticate.calls == [pretend.call(userid, request)]
 
-    def test_via_basic_auth_no_user(self, monkeypatch):
+    def test_via_basic_auth_no_user(self, monkeypatch, pyramid_services):
         login = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(accounts, "_login", login)
 
+        login_service = pretend.stub()
+        pyramid_services.register_service(IUserService, None, login_service)
+
         username = pretend.stub()
         password = pretend.stub()
-        request = pretend.stub()
+        request = pretend.stub(find_service=pyramid_services.find_service)
 
         assert accounts._login_via_basic_auth(username, password, request) is None
         assert login.calls == [
@@ -111,17 +116,23 @@ class TestLogin:
             )
         ]
 
-    def test_via_basic_auth_with_user(self, monkeypatch):
+    def test_via_basic_auth_with_user(self, monkeypatch, pyramid_services):
         login = pretend.call_recorder(lambda *a, **kw: ["foo"])
         monkeypatch.setattr(accounts, "_login", login)
 
+        user_service = pretend.stub()
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: False)
         )
 
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
         username = pretend.stub()
         password = pretend.stub()
-        request = pretend.stub(find_service=lambda iface, context: breach_service)
+        request = pretend.stub(find_service=pyramid_services.find_service)
 
         assert accounts._login_via_basic_auth(username, password, request) == ["foo"]
         assert login.calls == [
@@ -135,6 +146,52 @@ class TestLogin:
         assert breach_service.check_password.calls == [
             pretend.call(password, tags=["method:auth", "auth_method:basic"])
         ]
+
+    def test_via_basic_auth_compromised(self, monkeypatch, pyramid_services):
+        login = pretend.call_recorder(lambda *a, **kw: ["foo"])
+        monkeypatch.setattr(accounts, "_login", login)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(accounts, "send_password_compromised_email", send_email)
+
+        user = pretend.stub(id=1)
+
+        user_service = pretend.stub(
+            find_userid=lambda username: 1,
+            get_user=lambda user_id: user,
+            disable_password=pretend.call_recorder(lambda user_id: None),
+        )
+        breach_service = pretend.stub(
+            failure_message="Bad Password!",
+            check_password=pretend.call_recorder(lambda pw, tags=None: True),
+        )
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
+        username = pretend.stub()
+        password = pretend.stub()
+        request = pretend.stub(find_service=pyramid_services.find_service)
+
+        with pytest.raises(HTTPUnauthorized) as excinfo:
+            accounts._login_via_basic_auth(username, password, request)
+
+        assert excinfo.value.status == "401 Bad Password!"
+        assert login.calls == [
+            pretend.call(
+                username,
+                password,
+                request,
+                check_password_tags=["method:auth", "auth_method:basic"],
+            )
+        ]
+        assert breach_service.check_password.calls == [
+            pretend.call(password, tags=["method:auth", "auth_method:basic"])
+        ]
+        assert user_service.disable_password.calls == [pretend.call(1)]
+        assert send_email.calls == [pretend.call(request, user)]
 
 
 class TestAuthenticate:

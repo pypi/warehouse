@@ -101,6 +101,7 @@ class TestLogin:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -135,6 +136,7 @@ class TestLogin:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
@@ -200,6 +202,7 @@ class TestLogin:
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
+                request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],

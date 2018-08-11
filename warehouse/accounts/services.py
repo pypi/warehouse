@@ -221,6 +221,10 @@ class DatabaseUserService:
             setattr(user, attr, value)
         return user
 
+    def disable_password(self, user_id):
+        user = self.get_user(user_id)
+        user.password = self.hasher.disable()
+
 
 @implementer(ITokenService)
 class TokenService:

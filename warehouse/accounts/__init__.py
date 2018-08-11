@@ -13,6 +13,7 @@
 import datetime
 
 from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import (
@@ -29,6 +30,7 @@ from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
 )
+from warehouse.email import send_password_compromised_email
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 
@@ -45,6 +47,8 @@ def _login(username, password, request, check_password_tags=None):
 
 
 def _login_via_basic_auth(username, password, request):
+    login_service = request.find_service(IUserService, context=None)
+
     result = _login(
         username,
         password,
@@ -59,9 +63,24 @@ def _login_via_basic_auth(username, password, request):
         # with this information, but for now it will provide metrics into how many
         # authentications are using compromised credentials.
         breach_service = request.find_service(IPasswordBreachedService, context=None)
-        breach_service.check_password(
+        if breach_service.check_password(
             password, tags=["method:auth", "auth_method:basic"]
-        )
+        ):
+            user = login_service.get_user(login_service.find_userid(username))
+            send_password_compromised_email(request, user)
+            login_service.disable_password(user.id)
+
+            # This technically violates the contract a little bit, this function is
+            # meant to return None if the user cannot log in. However we want to present
+            # a different error message than is normal when we're denying the log in
+            # becasue of a compromised password. So to do that, we'll need to raise a
+            # HTTPError that'll ultimately get returned to the client. This is OK to do
+            # here because we've already successfully authenticated the credentials, so
+            # it won't screw up the fall through to other authentication mechanisms
+            # (since we wouldn't have fell through to them anyways).
+            resp = HTTPUnauthorized()
+            resp.status = f"{resp.status_code} {breach_service.failure_message}"
+            raise resp
 
     return result
 

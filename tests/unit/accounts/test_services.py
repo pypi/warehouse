@@ -299,6 +299,17 @@ class TestDatabaseUserService:
 
         assert found_user is None
 
+    def test_disable_password(self, user_service):
+        user = UserFactory.create()
+
+        # Need to give the user a good password first.
+        user_service.update_user(user.id, password="foo")
+        assert user.password != "!"
+
+        # Now we'll actually test our disble function.
+        user_service.disable_password(user.id)
+        assert user.password == "!"
+
 
 class TestTokenService:
     def test_verify_service(self):

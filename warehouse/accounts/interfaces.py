@@ -86,6 +86,12 @@ class IUserService(Interface):
         Updates the user object
         """
 
+    def disable_password(user_id):
+        """
+        Disables the given user's password, preventing further login until the user
+        resets their password.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

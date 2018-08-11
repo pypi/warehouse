@@ -178,6 +178,9 @@
           <p>
             If you receive an error message saying that "This password has appeared in a breach or has otherwise been compromised and cannot be used", you should change it all other places that you use it as soon as possible.
           </p>
+          <p>
+            If you've received this error while attempting to log in to or upload to PyPI, then your password has been reset and you will no longer be able to log into PyPI until you <a href="{{ request.route_url('accounts.reset-password') }}">reset your password</a>.
+          </p>
       </section>
 
       <section class="faq-group" id="integrating">
