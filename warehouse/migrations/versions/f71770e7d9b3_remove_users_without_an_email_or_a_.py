@@ -36,8 +36,12 @@ def upgrade():
                 OR accounts_user.last_login IS NULL)
           AND NOT EXISTS
             (SELECT 1
-             FROM ROLES
+             FROM roles
              WHERE roles.user_name = accounts_user.username)
+          AND NOT EXISTS
+            (SELECT 1
+             FROM journals
+             WHERE journals.submitted_by = accounts_user.username)
         """
     )
 
