@@ -253,6 +253,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
+        whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
@@ -404,7 +405,18 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_tween.calls == [
         pretend.call(
             "warehouse.config.junk_encoding_tween_factory",
-            over="warehouse.csp.content_security_policy_tween_factory",
+            over=[
+                "warehouse.referrer_policy.referrer_policy_tween_factory",
+                "warehouse.config.require_https_tween_factory",
+                "warehouse.config.unicode_redirect_tween_factory",
+                "warehouse.csp.content_security_policy_tween_factory",
+                "warehouse.static.whitenoise_tween_factory",
+                "warehouse.utils.compression.compression_tween_factory",
+                "warehouse.raven.raven_tween_factory",
+                "pyramid_tm.tm_tween_factory",
+                "pyramid.tweens.excview_tween_factory",
+                "warehouse.cache.http.conditional_http_tween_factory",
+            ],
         ),
         pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
@@ -429,14 +441,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call("warehouse:static/dist/manifest.json", reload=False, strict=True)
     ]
     assert configurator_obj.whitenoise_serve_static.calls == [
-        pretend.call(
-            autorefresh=False,
-            max_age=315360000,
-            manifest="warehouse:static/dist/manifest.json",
-        )
+        pretend.call(autorefresh=False, max_age=315360000)
     ]
     assert configurator_obj.whitenoise_add_files.calls == [
         pretend.call("warehouse:static/dist/", prefix="/static/")
+    ]
+    assert configurator_obj.whitenoise_add_manifest.calls == [
+        pretend.call("warehouse:static/dist/manifest.json", prefix="/static/")
     ]
     assert configurator_obj.add_directive.calls == [
         pretend.call("add_template_view", config.template_view, action_wrap=False)

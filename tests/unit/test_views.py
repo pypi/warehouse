@@ -12,11 +12,13 @@
 
 import datetime
 
+import elasticsearch
 import pretend
 import pytest
+
 from webob.multidict import MultiDict
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest
+from pyramid.httpexceptions import HTTPNotFound, HTTPBadRequest, HTTPServiceUnavailable
 
 from warehouse import views
 from warehouse.views import (
@@ -33,6 +35,7 @@ from warehouse.views import (
     force_status,
     flash_messages,
     forbidden_include,
+    service_unavailable,
 )
 
 from ..common.db.accounts import UserFactory
@@ -148,6 +151,18 @@ class TestForbiddenIncludeView:
         assert resp.status_code == 403
         assert resp.content_type == "text/html"
         assert resp.content_length == 0
+
+
+class TestServiceUnavailableView:
+    def test_renders_503(self, pyramid_config, pyramid_request):
+        renderer = pyramid_config.testing_add_renderer("503.html")
+        renderer.string_response = "A 503 Error"
+
+        resp = service_unavailable(pretend.stub(), pyramid_request)
+
+        assert resp.status_code == 503
+        assert resp.content_type == "text/html"
+        assert resp.body == b"A 503 Error"
 
 
 def test_robotstxt(pyramid_request):
@@ -524,6 +539,29 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == []
+        assert metrics.histogram.calls == []
+
+    def test_returns_503_when_es_unavailable(self, monkeypatch, db_request, metrics):
+        params = MultiDict({"page": 15})
+        db_request.params = params
+
+        es_query = pretend.stub()
+        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+
+        def raiser(*args, **kwargs):
+            raise elasticsearch.ConnectionError()
+
+        monkeypatch.setattr(views, "ElasticsearchPage", raiser)
+
+        url_maker = pretend.stub()
+        url_maker_factory = pretend.call_recorder(lambda request: url_maker)
+        monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
+
+        with pytest.raises(HTTPServiceUnavailable):
+            search(db_request)
+
+        assert url_maker_factory.calls == [pretend.call(db_request)]
+        assert metrics.increment.calls == [pretend.call("warehouse.views.search.error")]
         assert metrics.histogram.calls == []
 
 

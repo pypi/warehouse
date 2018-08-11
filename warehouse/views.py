@@ -13,12 +13,15 @@
 import collections
 import re
 
+import elasticsearch
+
 from pyramid.httpexceptions import (
     HTTPException,
     HTTPSeeOther,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPBadRequest,
+    HTTPServiceUnavailable,
     exception_response,
 )
 from pyramid.exceptions import PredicateMismatch
@@ -35,6 +38,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
+from warehouse.db import DatabaseNotAvailable
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
@@ -108,6 +112,11 @@ def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
     return Response(status=403)
+
+
+@view_config(context=DatabaseNotAvailable)
+def service_unavailable(exc, request):
+    return httpexception_view(HTTPServiceUnavailable(), request)
 
 
 @view_config(
@@ -242,6 +251,7 @@ def classifiers(request):
     ],
 )
 def search(request):
+    metrics = request.find_service(IMetricsService, context=None)
 
     q = request.params.get("q", "")
     q = q.replace("'", '"')
@@ -273,9 +283,13 @@ def search(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    page = ElasticsearchPage(
-        query, page=page_num, url_maker=paginate_url_factory(request)
-    )
+    try:
+        page = ElasticsearchPage(
+            query, page=page_num, url_maker=paginate_url_factory(request)
+        )
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.views.search.error")
+        raise HTTPServiceUnavailable
 
     if page.page_count and page_num > page.page_count:
         return HTTPNotFound()

@@ -23,6 +23,7 @@ from warehouse.metrics.event_handlers import (
     on_context_found,
     on_before_render,
     on_new_response,
+    on_before_retry,
 )
 
 
@@ -213,3 +214,18 @@ class TestOnNewResponse:
             "template_render_duration": 1000.0,
             "request_duration": 2000.0,
         }
+
+
+class TestOnBeforeRetry:
+    @pytest.mark.parametrize(
+        ("matched_route", "route_tag"),
+        [(None, "route:null"), (pretend.stub(name="foo"), "route:foo")],
+    )
+    def test_emits_metric(self, pyramid_request, metrics, matched_route, route_tag):
+        pyramid_request.matched_route = matched_route
+
+        on_before_retry(pretend.stub(request=pyramid_request))
+
+        assert metrics.increment.calls == [
+            pretend.call("pyramid.request.retry", tags=[route_tag])
+        ]

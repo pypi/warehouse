@@ -172,6 +172,108 @@ gulp.task("dist:admin:js", () => {
 });
 
 
+gulp.task("dist:admin:compress:gz", () => {
+  return gulp.src(path.join("warehouse/admin/static/dist", "**", "*"))
+    .pipe(gzip({
+      skipGrowingFiles: true,
+      gzipOptions: { level: 9, memLevel: 9 },
+    }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task("dist:admin:compress:br:generic", () => {
+  let paths = [
+    path.join("warehouse/admin/static/dist", "fonts", "*.otf"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.woff"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.woff2"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.ttf"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.eot"),
+    path.join("warehouse/admin/static/dist", "fonts", "*.svg"),
+
+    path.join("warehouse/admin/static/dist", "images", "*.jpg"),
+    path.join("warehouse/admin/static/dist", "images", "*.png"),
+    path.join("warehouse/admin/static/dist", "images", "*.svg"),
+    path.join("warehouse/admin/static/dist", "images", "*.ico"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(brotli.compress({skipLarger: true, mode: 0, quality: 11}))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task("dist:admin:compress:br:text", () => {
+  let paths = [
+    path.join("warehouse/admin/static/dist", "css", "*.css"),
+    path.join("warehouse/admin/static/dist", "css", "*.map"),
+    path.join("warehouse/admin/static/dist", "js", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "*.map"),
+    path.join("warehouse/admin/static/dist", "manifest.json"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(brotli.compress({skipLarger: true, mode: 1, quality: 11}))
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
+gulp.task(
+  "dist:admin:compress:br",
+  gulp.parallel("dist:admin:compress:br:generic", "dist:admin:compress:br:text")
+);
+
+
+gulp.task("dist:admin:compress", gulp.parallel("dist:admin:compress:gz", "dist:admin:compress:br"));
+
+
+gulp.task("dist:admin:manifest", () => {
+  let paths = [
+    // Cachebust our CSS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "css", "*.css"),
+    path.join("warehouse/admin/static/dist", "css", "*.map"),
+
+    // Cachebust our Font files.
+    path.join("warehouse/admin/static/dist", "fonts", "*"),
+    path.join("warehouse/admin/static/dist", "webfonts", "*"),
+
+    // Cachebust our JS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "js", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "*.map"),
+
+    // Cachebust our vendored JS files and the source maps for them.
+    path.join("warehouse/admin/static/dist", "js", "vendor", "*.js"),
+    path.join("warehouse/admin/static/dist", "js", "vendor", "*.map"),
+
+    // Cachebust our Image files.
+    path.join("warehouse/admin/static/dist", "images", "*"),
+  ];
+
+  return gulp.src(paths, { base: "warehouse/admin/static/dist" })
+    .pipe(manifest.revision({
+      fileNameManifest: "manifest.json",
+      includeFilesInManifest: [
+        ".css",
+        ".map",
+        ".woff",
+        ".woff2",
+        ".svg",
+        ".eot",
+        ".ttf",
+        ".otf",
+        ".png",
+        ".jpg",
+        ".ico",
+        ".js",
+      ],
+    }))
+    .pipe(gulp.dest("warehouse/admin/static/dist"))
+    .pipe(manifestClean({ verbose: false }))
+    .pipe(manifest.manifestFile())
+    .pipe(gulp.dest("warehouse/admin/static/dist"));
+});
+
+
 
 gulp.task("dist:css", () => {
   let sassPath = path.join(staticPrefix, "sass");
@@ -238,6 +340,7 @@ gulp.task("dist:manifest", () => {
 
     // Cachebust our Font files.
     path.join(distPath, "fonts", "*"),
+    path.join(distPath, "webfonts", "*"),
 
     // Cachebust our JS files and the source maps for them.
     path.join(distPath, "js", "*.js"),
@@ -355,10 +458,10 @@ gulp.task("dist", gulp.series(
   // This has to be on it's own, and it has to be one of the last things we do
   // because otherwise we won't catch all of the files in the revisioning
   // process.
-  "dist:manifest",
+  gulp.parallel("dist:manifest", "dist:admin:manifest"),
   // Finally, once we've done everything else, we'll compress everything that
   // we've gotten.
-  "dist:compress"
+  gulp.parallel("dist:compress", "dist:admin:compress"),
 ));
 
 

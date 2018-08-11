@@ -112,6 +112,7 @@ def test_includeme(monkeypatch):
             include_paths=["warehouse"],
             release="blargh",
             transport="the transport",
+            ignore_exceptions=[SystemExit],
         )
     ]
     assert config.registry["raven.client"] is client_obj

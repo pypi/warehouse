@@ -12,6 +12,7 @@
 
 import datetime
 
+import elasticsearch
 import pretend
 import pytest
 
@@ -428,6 +429,27 @@ class TestSearch:
         assert metrics.histogram.calls == [
             pretend.call("warehouse.xmlrpc.search.results", 2)
         ]
+
+    def test_version_search_wraps_connection_error(self, pyramid_request, metrics):
+        class FakeQuery:
+            def __init__(self, type, must):
+                pass
+
+            def __getitem__(self, name):
+                return self
+
+            def execute(self):
+                raise elasticsearch.TransportError()
+
+        pyramid_request.es = pretend.stub(query=FakeQuery)
+
+        with pytest.raises(xmlrpc.XMLRPCServiceUnavailable):
+            xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.xmlrpc.search.error")
+        ]
+        assert metrics.histogram.calls == []
 
 
 def test_list_packages(db_request):
