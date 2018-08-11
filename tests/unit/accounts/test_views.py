@@ -87,9 +87,7 @@ class TestLogin:
         )
 
         form_obj = pretend.stub()
-        form_class = pretend.call_recorder(
-            lambda d, user_service, check_password_metrics_tags: form_obj
-        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         if next_url is not None:
             pyramid_request.GET["next"] = next_url
@@ -104,6 +102,7 @@ class TestLogin:
             pretend.call(
                 pyramid_request.POST,
                 user_service=user_service,
+                breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -124,9 +123,7 @@ class TestLogin:
         if next_url is not None:
             pyramid_request.POST["next"] = next_url
         form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
-        form_class = pretend.call_recorder(
-            lambda d, user_service, check_password_metrics_tags: form_obj
-        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         result = views.login(pyramid_request, _form_class=form_class)
         assert metrics.increment.calls == []
@@ -139,6 +136,7 @@ class TestLogin:
             pretend.call(
                 pyramid_request.POST,
                 user_service=user_service,
+                breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -183,9 +181,7 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
             password=pretend.stub(data="password"),
         )
-        form_class = pretend.call_recorder(
-            lambda d, user_service, check_password_metrics_tags: form_obj
-        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
 
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
@@ -205,6 +201,7 @@ class TestLogin:
             pretend.call(
                 pyramid_request.POST,
                 user_service=user_service,
+                breach_service=breach_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -250,9 +247,7 @@ class TestLogin:
             username=pretend.stub(data="theuser"),
             password=pretend.stub(data="password"),
         )
-        form_class = pretend.call_recorder(
-            lambda d, user_service, check_password_metrics_tags: form_obj
-        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.login(pyramid_request, _form_class=form_class)
 

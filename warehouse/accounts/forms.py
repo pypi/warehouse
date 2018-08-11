@@ -180,9 +180,22 @@ class RegistrationForm(
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+        self.breach_service = breach_service
+
+    def validate_password(self, field):
+        super().validate_password(field)
+
+        # Run our password through our breach validation. We don't currently do
+        # anything with this information, but for now it will provide metrics into
+        # how many authentications are using compromised credentials.
+        userid = self.user_service.find_userid(self.username.data)
+        if userid is not None:
+            self.breach_service.check_password(
+                field.data, tags=["method:auth", "auth_method:login_form"]
+            )
 
 
 class RequestPasswordResetForm(forms.Form):

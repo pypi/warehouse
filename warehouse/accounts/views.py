@@ -111,6 +111,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     form = _form_class(
         request.POST,
         user_service=user_service,
+        breach_service=breach_service,
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
 
@@ -119,13 +120,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
             # Get the user id for the given username.
             username = form.username.data
             userid = user_service.find_userid(username)
-
-            # Run our password through our breach validation. We don't currently do
-            # anything with this information, but for now it will provide metrics into
-            # how many authentications are using compromised credentials.
-            breach_service.check_password(
-                form.password.data, tags=["method:auth", "auth_method:login_form"]
-            )
 
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.

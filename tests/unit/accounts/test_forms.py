@@ -21,7 +21,8 @@ from warehouse.accounts.interfaces import TooManyFailedLogins
 class TestLoginForm:
     def test_creation(self):
         user_service = pretend.stub()
-        form = forms.LoginForm(user_service=user_service)
+        breach_service = pretend.stub()
+        form = forms.LoginForm(user_service=user_service, breach_service=breach_service)
 
         assert form.user_service is user_service
 
@@ -29,7 +30,8 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: None)
         )
-        form = forms.LoginForm(user_service=user_service)
+        breach_service = pretend.stub()
+        form = forms.LoginForm(user_service=user_service, breach_service=breach_service)
         field = pretend.stub(data="my_username")
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -39,7 +41,8 @@ class TestLoginForm:
 
     def test_validate_username_with_user(self):
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
-        form = forms.LoginForm(user_service=user_service)
+        breach_service = pretend.stub()
+        form = forms.LoginForm(user_service=user_service, breach_service=breach_service)
         field = pretend.stub(data="my_username")
 
         form.validate_username(field)
@@ -50,14 +53,20 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: None)
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
-            data={"username": "my_username"}, user_service=user_service
+            data={"username": "my_username"},
+            user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="password")
 
         form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
 
     def test_validate_password_ok(self):
         user_service = pretend.stub(
@@ -66,18 +75,28 @@ class TestLoginForm:
                 lambda userid, password, tags=None: True
             ),
         )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
         form = forms.LoginForm(
             data={"username": "my_username"},
             user_service=user_service,
+            breach_service=breach_service,
             check_password_metrics_tags=["bar"],
         )
         field = pretend.stub(data="pw")
 
         form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
         assert user_service.check_password.calls == [
             pretend.call(1, "pw", tags=["bar"])
+        ]
+        assert breach_service.check_password.calls == [
+            pretend.call("pw", tags=["method:auth", "auth_method:login_form"])
         ]
 
     def test_validate_password_notok(self, db_session):
@@ -87,8 +106,11 @@ class TestLoginForm:
                 lambda userid, password, tags=None: False
             ),
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
-            data={"username": "my_username"}, user_service=user_service
+            data={"username": "my_username"},
+            user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="pw")
 
@@ -107,8 +129,11 @@ class TestLoginForm:
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=check_password,
         )
+        breach_service = pretend.stub()
         form = forms.LoginForm(
-            data={"username": "my_username"}, user_service=user_service
+            data={"username": "my_username"},
+            user_service=user_service,
+            breach_service=breach_service,
         )
         field = pretend.stub(data="pw")
 
