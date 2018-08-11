@@ -15,13 +15,12 @@
 
 import brotli from "gulp-brotli";
 import composer from "gulp-uglify/composer";
+import debounce from "debounce";
 import del from "del";
 import gulp from "gulp";
-import gulpBatch from "gulp-batch";
 import gulpCSSNano from "gulp-cssnano";
 import gulpImage from "gulp-image";
 import gulpSass from "gulp-sass";
-import gulpWatch from "gulp-watch";
 import gulpWebpack  from "webpack-stream";
 import gulpConcat from "gulp-concat";
 import gzip from "gulp-gzip";
@@ -465,19 +464,23 @@ gulp.task("dist", gulp.series(
 ));
 
 
-gulp.task("watch", gulp.series("dist", () => {
-  let watchPaths = [
-    path.join(staticPrefix, "**", "*"),
-    path.join("!" + distPath, "**", "*"),
-    path.join("warehouse/admin/static", "**", "*"),
-    path.join("!warehouse/admin/static/dist", "**", "*"),
-  ];
+gulp.task("watch", gulp.series(
+  // We need to build our static files at least once to start.
+  "dist",
 
-  gulpWatch(
-    watchPaths,
-    gulpBatch((_, done) => { gulp.start("dist", done); })
-  );
-}));
+  // Finally we can start our watch task, which will watch our static files, and then
+  // kick off a new dist task whenever it finds changes.
+  () => {
+    let watchPaths = [
+      "warehouse/static/**/*",
+      "!warehouse/static/dist",
+      "warehouse/admin/static/**/*",
+      "!warehouse/admin/static/dist/**/*",
+    ];
+
+    gulp.watch( watchPaths, debounce(gulp.series("dist"), 200) );
+  },
+));
 
 
 gulp.task("default", gulp.series("dist"));
