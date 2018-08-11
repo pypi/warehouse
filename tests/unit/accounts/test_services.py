@@ -210,15 +210,32 @@ class TestDatabaseUserService:
         assert user_from_db.username == user.username
         assert user_from_db.name == user.name
 
-    def test_add_email(self, user_service):
+    def test_add_email_not_primary(self, user_service):
         user = UserFactory.create()
         email = "foo@example.com"
-        new_email = user_service.add_email(user.id, email)
+        new_email = user_service.add_email(user.id, email, primary=False)
 
         assert new_email.email == email
         assert new_email.user == user
         assert not new_email.primary
         assert not new_email.verified
+
+    def test_add_email_defaults_to_primary(self, user_service):
+        user = UserFactory.create()
+        email1 = "foo@example.com"
+        email2 = "bar@example.com"
+        new_email1 = user_service.add_email(user.id, email1)
+        new_email2 = user_service.add_email(user.id, email2)
+
+        assert new_email1.email == email1
+        assert new_email1.user == user
+        assert new_email1.primary
+        assert not new_email1.verified
+
+        assert new_email2.email == email2
+        assert new_email2.user == user
+        assert not new_email2.primary
+        assert not new_email2.verified
 
     def test_update_user(self, user_service):
         user = UserFactory.create()

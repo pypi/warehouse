@@ -177,9 +177,10 @@ class ManageAccountViews:
             f"Email address {new_primary_email.email} set as primary", queue="success"
         )
 
-        send_primary_email_change_email(
-            self.request, (self.request.user, previous_primary_email)
-        )
+        if previous_primary_email is not None:
+            send_primary_email_change_email(
+                self.request, (self.request.user, previous_primary_email)
+            )
         return self.default_response
 
     @view_config(request_method="POST", request_param=["reverify_email_id"])
