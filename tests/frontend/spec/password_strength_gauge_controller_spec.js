@@ -43,15 +43,15 @@ describe("PasswordStrengthGaugeController", function() {
           return {
             score: 0,
             feedback: {
-              suggestions: ["test", "0", "level"]
-            }
-          }
+              suggestions: ["test", "0", "level"],
+            },
+          };
         });
         // simulate typing password
         this.controller.passwordTarget.value = "foo";
         this.controller.checkPasswordStrength();
 
-        expect(this.controller.strengthGaugeTarget).to.have.class(`password-strength__gauge--0`);
+        expect(this.controller.strengthGaugeTarget).to.have.class("password-strength__gauge--0");
         expect(this.controller.strengthGaugeTarget).to.have.attr("data-zxcvbn-score", "0");
         expect(this.controller.strengthGaugeTarget.querySelector(".sr-only")).to.have.html("test 0 level");
       });
@@ -63,15 +63,15 @@ describe("PasswordStrengthGaugeController", function() {
           return {
             score: 5,
             feedback: {
-              suggestions: []
-            }
-          }
+              suggestions: [],
+            },
+          };
         });
         // simulate typing password
         this.controller.passwordTarget.value = "the strongest password ever";
         this.controller.checkPasswordStrength();
 
-        expect(this.controller.strengthGaugeTarget).to.have.class(`password-strength__gauge--5`);
+        expect(this.controller.strengthGaugeTarget).to.have.class("password-strength__gauge--5");
         expect(this.controller.strengthGaugeTarget).to.have.attr("data-zxcvbn-score", "5");
         expect(this.controller.strengthGaugeTarget.querySelector(".sr-only")).to.have.html("Password is strong");
       });
@@ -80,4 +80,3 @@ describe("PasswordStrengthGaugeController", function() {
   });
 
 });
-
