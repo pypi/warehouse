@@ -27,6 +27,8 @@ DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehou
 
 MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
 
+BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
+
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io

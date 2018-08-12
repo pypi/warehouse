@@ -22,9 +22,10 @@ from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
 )
 from warehouse.accounts.services import (
+    HaveIBeenPwnedPasswordBreachedService,
+    NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
-    hibp_password_breach_factory,
 )
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
@@ -32,6 +33,9 @@ from warehouse.accounts.auth_policy import (
 )
 from warehouse.email import send_password_compromised_email
 from warehouse.rate_limiting import RateLimit, IRateLimiter
+
+
+__all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService"]
 
 
 REDIRECT_FIELD_NAME = "next"
@@ -123,8 +127,13 @@ def includeme(config):
     )
 
     # Register our password breach detection service.
+    breached_pw_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "breached_passwords.backend", HaveIBeenPwnedPasswordBreachedService
+        )
+    )
     config.register_service_factory(
-        hibp_password_breach_factory, IPasswordBreachedService
+        breached_pw_class.create_service, IPasswordBreachedService
     )
 
     # Register our authentication and authorization policies

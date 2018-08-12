@@ -220,6 +220,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
+    maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:

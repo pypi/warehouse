@@ -26,8 +26,8 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.services import (
     TokenServiceFactory,
+    HaveIBeenPwnedPasswordBreachedService,
     database_login_factory,
-    hibp_password_breach_factory,
 )
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
@@ -256,12 +256,14 @@ def test_includeme(monkeypatch):
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
+        registry=pretend.stub(settings={}),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         set_authentication_policy=pretend.call_recorder(lambda p: None),
         set_authorization_policy=pretend.call_recorder(lambda p: None),
+        maybe_dotted=pretend.call_recorder(lambda path: path),
     )
 
     accounts.includeme(config)
@@ -272,7 +274,10 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
         pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
-        pretend.call(hibp_password_breach_factory, IPasswordBreachedService),
+        pretend.call(
+            HaveIBeenPwnedPasswordBreachedService.create_service,
+            IPasswordBreachedService,
+        ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"

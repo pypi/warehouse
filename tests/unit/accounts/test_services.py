@@ -25,6 +25,7 @@ from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     IUserService,
     ITokenService,
+    IPasswordBreachedService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
@@ -454,6 +455,11 @@ def test_token_service_factory_eq():
 
 
 class TestHaveIBeenPwnedPasswordBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IPasswordBreachedService, services.HaveIBeenPwnedPasswordBreachedService
+        )
+
     @pytest.mark.parametrize(
         ("password", "prefix", "expected", "dataset"),
         [
@@ -559,7 +565,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             }[(iface, context)],
             help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
         )
-        svc = services.hibp_password_breach_factory(context, request)
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
 
         assert svc._http is request.http
         assert isinstance(svc._metrics, NullMetrics)
@@ -595,7 +603,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             }[(iface, context)],
             help_url=lambda _anchor=None: help_url,
         )
-        svc = services.hibp_password_breach_factory(context, request)
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
         assert svc.failure_message == expected
 
     @pytest.mark.parametrize(
@@ -628,5 +638,26 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             }[(iface, context)],
             help_url=lambda _anchor=None: help_url,
         )
-        svc = services.hibp_password_breach_factory(context, request)
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
         assert svc.failure_message_plain == expected
+
+
+class TestNullPasswordBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IPasswordBreachedService, services.NullPasswordBreachedService
+        )
+
+    def test_check_password(self):
+        svc = services.NullPasswordBreachedService()
+        assert not svc.check_password("password")
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullPasswordBreachedService.create_service(context, request)
+
+        assert isinstance(svc, services.NullPasswordBreachedService)
+        assert not svc.check_password("hunter2")
