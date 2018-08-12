@@ -86,7 +86,7 @@
       </div>
     </td>
     <td class="table__action">
-      {% if not email.verified or user.emails|length > 1 and not email.primary%}
+      {% if not email.verified or not email.primary%}
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button class="button button--primary dropdown__trigger" aria-haspopup="true" aria-expanded="false">
           Options

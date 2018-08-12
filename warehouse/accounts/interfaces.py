@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from zope.interface import Interface
+from zope.interface import Attribute, Interface
 
 
 class TooManyFailedLogins(Exception):
@@ -57,10 +57,13 @@ class IUserService(Interface):
         is no user with the given username.
         """
 
-    def check_password(user_id, password):
+    def check_password(user_id, password, *, tags=None):
         """
         Returns a boolean representing whether the given password is valid for
         the given userid.
+
+        May have an optional list of tags, which allows identifiying the purpose of
+        checking the password.
         """
 
     def create_user(
@@ -97,8 +100,13 @@ class ITokenService(Interface):
 
 
 class IPasswordBreachedService(Interface):
-    def check_password(password):
+    failure_message = Attribute("The message to describe the failure that occured")
+
+    def check_password(password, *, tags=None):
         """
-        Returns a boolean indicating if the given password has been involved in a breach or is
-        otherwise insecure.
+        Returns a boolean indicating if the given password has been involved in a breach
+        or is otherwise insecure.
+
+        May have an optional list of tags, which allows identifiying the purpose of
+        checking the password.
         """

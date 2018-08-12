@@ -1,3 +1,17 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Adapted from code originally licensed as:
+
 # The MIT License (MIT)
 #
 # Copyright (c) 2016 SurveyMonkey
@@ -22,32 +36,11 @@
 
 import time
 
-
-from pyramid.events import (
-    ApplicationCreated,
-    NewResponse,
-    NewRequest,
-    ContextFound,
-    BeforeTraversal,
-    BeforeRender,
-)
+from warehouse.metrics.interfaces import IMetricsService
 
 
 def time_ms():
     return time.time() * 1000
-
-
-def configure_metrics(config, datadog_metrics):
-    """
-    * datadog_metrics: datadog metrics object initialized by user
-    """
-    config.registry.datadog = datadog_metrics
-
-
-def on_app_created(app_created_event):
-    registry = app_created_event.app.registry
-    datadog = registry.datadog
-    datadog.event("Pyramid application started", "Pyramid application started")
 
 
 def on_new_request(new_request_event):
@@ -61,7 +54,8 @@ def on_before_traversal(before_traversal_event):
     timings = request.timings
     timings["route_match_duration"] = time_ms() - timings["new_request_start"]
 
-    request.registry.datadog.timing(
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.timing(
         "pyramid.request.duration.route_match", timings["route_match_duration"]
     )
 
@@ -73,9 +67,8 @@ def on_context_found(context_found_event):
     timings["traversal_duration"] = time_ms() - timings["new_request_start"]
     timings["view_code_start"] = time_ms()
 
-    request.registry.datadog.timing(
-        "pyramid.request.duration.traversal", timings["traversal_duration"]
-    )
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.timing("pyramid.request.duration.traversal", timings["traversal_duration"])
 
 
 def on_before_render(before_render_event):
@@ -91,7 +84,8 @@ def on_before_render(before_render_event):
         route_tag = "route:%s" % request.matched_route.name
 
     if "view_duration" in timings:
-        request.registry.datadog.timing(
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.timing(
             "pyramid.request.duration.view", timings["view_duration"], tags=[route_tag]
         )
 
@@ -106,7 +100,7 @@ def on_new_response(new_response_event):
     timings["request_duration"] = new_response_time - timings["new_request_start"]
 
     tags = []
-    datadog = request.registry.datadog
+    metrics = request.find_service(IMetricsService, context=None)
 
     if request.matched_route:
         route_tag = "route:%s" % request.matched_route.name
@@ -117,14 +111,14 @@ def on_new_response(new_response_event):
                 new_response_time - timings["before_render_start"]
             )
 
-            datadog.timing(
+            metrics.timing(
                 "pyramid.request.duration.template_render",
                 timings["template_render_duration"],
                 tags=tags,
             )
 
     status_code = str(new_response_event.response.status_code)
-    datadog.timing(
+    metrics.timing(
         "pyramid.request.duration.total",
         timings["request_duration"],
         tags=tags
@@ -132,17 +126,12 @@ def on_new_response(new_response_event):
     )
 
 
-def includeme(config):
-    """
-    Events are triggered in the following chronological order:
-    NewRequest > BeforeTraversal > ContextFound > BeforeRender > NewResponse
-    Note that not all events may be triggered depending on the request scenario
-    eg. 404 Not Found would not trigger ContextFound event.
-    """
-    config.add_directive("configure_metrics", configure_metrics)
-    config.add_subscriber(on_app_created, ApplicationCreated)
-    config.add_subscriber(on_new_request, NewRequest)
-    config.add_subscriber(on_before_traversal, BeforeTraversal)
-    config.add_subscriber(on_context_found, ContextFound)
-    config.add_subscriber(on_before_render, BeforeRender)
-    config.add_subscriber(on_new_response, NewResponse)
+def on_before_retry(event):
+    request = event.request
+    metrics = request.find_service(IMetricsService, context=None)
+
+    route_tag = "route:null"
+    if request.matched_route:
+        route_tag = "route:%s" % request.matched_route.name
+
+    metrics.increment("pyramid.request.retry", tags=[route_tag])

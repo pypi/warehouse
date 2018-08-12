@@ -113,7 +113,7 @@ class ManageAccountViews:
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
 
-            send_email_verification_email(self.request, self.request.user, email)
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
                 f"Email {email.email} added - check your email for "
@@ -177,9 +177,10 @@ class ManageAccountViews:
             f"Email address {new_primary_email.email} set as primary", queue="success"
         )
 
-        send_primary_email_change_email(
-            self.request, self.request.user, previous_primary_email
-        )
+        if previous_primary_email is not None:
+            send_primary_email_change_email(
+                self.request, (self.request.user, previous_primary_email)
+            )
         return self.default_response
 
     @view_config(request_method="POST", request_param=["reverify_email_id"])
@@ -200,7 +201,7 @@ class ManageAccountViews:
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
         else:
-            send_email_verification_email(self.request, self.request.user, email)
+            send_email_verification_email(self.request, (self.request.user, email))
 
             self.request.session.flash(
                 f"Verification email for {email.email} resent", queue="success"
@@ -217,6 +218,7 @@ class ManageAccountViews:
             email=self.request.user.email,
             user_service=self.user_service,
             breach_service=self.breach_service,
+            check_password_metrics_tags=["method:new_password"],
         )
 
         if form.validate():
@@ -520,7 +522,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         elif user.primary_email is None or not user.primary_email.verified:
             request.session.flash(
                 f"User '{username}' does not have a verified primary email "
-                f"adddress and cannot be added as a {role_name} for project.",
+                f"address and cannot be added as a {role_name} for project.",
                 queue="error",
             )
         else:
@@ -551,15 +553,19 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
             send_collaborator_added_email(
                 request,
-                user,
-                request.user,
-                project.name,
-                form.role_name.data,
                 owner_users,
+                user=user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             send_added_as_collaborator_email(
-                request, request.user, project.name, form.role_name.data, user
+                request,
+                user,
+                submitter=request.user,
+                project_name=project.name,
+                role=form.role_name.data,
             )
 
             request.session.flash(

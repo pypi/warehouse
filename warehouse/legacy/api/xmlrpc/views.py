@@ -16,10 +16,13 @@ import functools
 import xmlrpc.client
 import xmlrpc.server
 
+import elasticsearch
+
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
 from pyramid_rpc.xmlrpc import (
+    XmlRpcError,
     exception_view as _exception_view,
     xmlrpc_method as _xmlrpc_method,
 )
@@ -28,6 +31,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import (
     Role,
     Project,
@@ -41,15 +45,14 @@ from warehouse.search.queries import SEARCH_BOOSTS
 
 def submit_xmlrpc_metrics(method=None):
     """
-    Submit metrics to DataDog
+    Submit metrics.
     """
 
     def decorator(f):
         def wrapped(context, request):
-            request.registry.datadog.increment(
-                "warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"]
-            )
-            with request.registry.datadog.timed(
+            metrics = request.find_service(IMetricsService, context=None)
+            metrics.increment("warehouse.xmlrpc.call", tags=[f"rpc_method:{method}"])
+            with metrics.timed(
                 "warehouse.xmlrpc.timing", tags=[f"rpc_method:{method}"]
             ):
                 return f(context, request)
@@ -98,6 +101,11 @@ xmlrpc_cache_all_projects = functools.partial(
 )
 
 
+class XMLRPCServiceUnavailable(XmlRpcError):
+    faultCode = -32403
+    faultString = "server error; service unavailable"
+
+
 class XMLRPCWrappedError(xmlrpc.server.Fault):
     def __init__(self, exc):
         self.faultCode = -32500
@@ -124,6 +132,8 @@ def search(request, spec, operator="and"):
         raise XMLRPCWrappedError(
             ValueError("Invalid operator, must be one of 'and' or 'or'.")
         )
+
+    metrics = request.find_service(IMetricsService, context=None)
 
     # Remove any invalid spec fields
     spec = {
@@ -166,9 +176,13 @@ def search(request, spec, operator="and"):
     else:
         query = request.es.query("bool", should=queries)
 
-    results = query[:100].execute()
+    try:
+        results = query[:100].execute()
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.xmlrpc.search.error")
+        raise XMLRPCServiceUnavailable
 
-    request.registry.datadog.histogram("warehouse.xmlrpc.search.results", len(results))
+    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
 
     if "version" in spec.keys():
         return [

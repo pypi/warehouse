@@ -69,11 +69,7 @@ def failed_logins(exc, request):
     context=User,
     renderer="accounts/profile.html",
     decorator=[
-        origin_cache(
-            1 * 24 * 60 * 60,  # 1 day
-            stale_while_revalidate=5 * 60,  # 5 minutes
-            stale_if_error=1 * 24 * 60 * 60,  # 1 day
-        )
+        origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
 )
 def profile(user, request):
@@ -106,21 +102,30 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     user_service = request.find_service(IUserService, context=None)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
     )
 
-    form = _form_class(request.POST, user_service=user_service)
+    form = _form_class(
+        request.POST,
+        user_service=user_service,
+        check_password_metrics_tags=["method:auth", "auth_method:login_form"],
+    )
 
     if request.method == "POST":
-        request.registry.datadog.increment(
-            "warehouse.authentication.start", tags=["auth_method:login_form"]
-        )
         if form.validate():
             # Get the user id for the given username.
             username = form.username.data
             userid = user_service.find_userid(username)
+
+            # Run our password through our breach validation. We don't currently do
+            # anything with this information, but for now it will provide metrics into
+            # how many authentications are using compromised credentials.
+            breach_service.check_password(
+                form.password.data, tags=["method:auth", "auth_method:login_form"]
+            )
 
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.
@@ -148,15 +153,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 .hexdigest()
                 .lower(),
             )
-
-            request.registry.datadog.increment(
-                "warehouse.authentication.complete", tags=["auth_method:login_form"]
-            )
             return resp
-        else:
-            request.registry.datadog.increment(
-                "warehouse.authentication.failure", tags=["auth_method:login_form"]
-            )
 
     return {
         "form": form,
@@ -172,12 +169,21 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     require_methods=False,
 )
 def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
-    # TODO: If already logged out just redirect to ?next=
     # TODO: Logging out should reset request.user
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
     )
+
+    # If the user-originating redirection url is not safe, then redirect to
+    # the index instead.
+    if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+        redirect_to = "/"
+
+    # If we're already logged out, then we'll go ahead and issue our redirect right
+    # away instead of trying to log a non-existent user out.
+    if request.user is None:
+        return HTTPSeeOther(redirect_to)
 
     if request.method == "POST":
         # A POST to the logout view tells us to logout. There's no form to
@@ -195,11 +201,6 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # their account, and then gain access to anything sensitive stored in
         # the session for the original user.
         request.session.invalidate()
-
-        # If the user-originating redirection url is not safe, then redirect to
-        # the index instead.
-        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
-            redirect_to = "/"
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
@@ -252,7 +253,7 @@ def register(request, _form_class=RegistrationForm):
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
 
-        send_email_verification_email(request, user, email)
+        send_email_verification_email(request, (user, email))
 
         return HTTPSeeOther(
             request.route_path("index"), headers=dict(_login_user(request, user.id))
