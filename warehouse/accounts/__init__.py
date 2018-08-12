@@ -15,8 +15,16 @@ import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
-from warehouse.accounts.interfaces import IUserService, ITokenService
-from warehouse.accounts.services import database_login_factory, TokenServiceFactory
+from warehouse.accounts.interfaces import (
+    IUserService,
+    ITokenService,
+    IPasswordBreachedService,
+)
+from warehouse.accounts.services import (
+    TokenServiceFactory,
+    database_login_factory,
+    hibp_password_breach_factory,
+)
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
@@ -27,13 +35,35 @@ from warehouse.rate_limiting import RateLimit, IRateLimiter
 REDIRECT_FIELD_NAME = "next"
 
 
-def _login(username, password, request):
+def _login(username, password, request, check_password_tags=None):
     login_service = request.find_service(IUserService, context=None)
     userid = login_service.find_userid(username)
     if userid is not None:
-        if login_service.check_password(userid, password):
+        if login_service.check_password(userid, password, tags=check_password_tags):
             login_service.update_user(userid, last_login=datetime.datetime.utcnow())
             return _authenticate(userid, request)
+
+
+def _login_via_basic_auth(username, password, request):
+    result = _login(
+        username,
+        password,
+        request,
+        check_password_tags=["method:auth", "auth_method:basic"],
+    )
+
+    # If our authentication was successful (E.g. non None result), then we want to check
+    # our credentials to see if the password was comrpomised or not.
+    if result is not None:
+        # Run our password through our breach validation. We don't currently do anything
+        # with this information, but for now it will provide metrics into how many
+        # authentications are using compromised credentials.
+        breach_service = request.find_service(IPasswordBreachedService, context=None)
+        breach_service.check_password(
+            password, tags=["method:auth", "auth_method:basic"]
+        )
+
+    return result
 
 
 def _authenticate(userid, request):
@@ -73,12 +103,17 @@ def includeme(config):
         TokenServiceFactory(name="email"), ITokenService, name="email"
     )
 
+    # Register our password breach detection service.
+    config.register_service_factory(
+        hibp_password_breach_factory, IPasswordBreachedService
+    )
+
     # Register our authentication and authorization policies
     config.set_authentication_policy(
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_authenticate),
-                BasicAuthAuthenticationPolicy(check=_login),
+                BasicAuthAuthenticationPolicy(check=_login_via_basic_auth),
             ]
         )
     )

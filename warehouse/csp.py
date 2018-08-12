@@ -33,7 +33,7 @@ def content_security_policy_tween_factory(handler, registry):
 
         try:
             policy = request.find_service(name="csp")
-        except ValueError:
+        except LookupError:
             policy = collections.defaultdict(list)
 
         # Replace CSP headers on /simple/ pages.

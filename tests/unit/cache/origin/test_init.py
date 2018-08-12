@@ -73,7 +73,7 @@ def test_execute_purge_success(app_config):
 def test_execute_purge_no_backend():
     @pretend.call_recorder
     def find_service_factory(interface):
-        raise ValueError
+        raise LookupError
 
     config = pretend.stub(find_service_factory=find_service_factory)
     session = pretend.stub(
@@ -95,7 +95,7 @@ class TestOriginCache:
             return response
 
         def raiser(iface):
-            raise ValueError
+            raise LookupError
 
         context = pretend.stub()
         request = pretend.stub(registry={"cache_keys": {}}, find_service=raiser)
@@ -114,7 +114,7 @@ class TestOriginCache:
 
         @pretend.call_recorder
         def raiser(iface):
-            raise ValueError
+            raise LookupError
 
         context = Fake()
         request = pretend.stub(

@@ -25,7 +25,6 @@ from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
-from warehouse import __commit__
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
@@ -161,7 +160,7 @@ def configure(settings=None):
         settings = {}
 
     # Add information about the current copy of the code.
-    settings.setdefault("warehouse.commit", __commit__)
+    maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
     # Set the environment from an environment variable, if one hasn't already
     # been set.
@@ -220,6 +219,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "origin_cache", "backend", "ORIGIN_CACHE")
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
+    maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
@@ -256,12 +256,26 @@ def configure(settings=None):
     # Add some fixups for some encoding/decoding issues
     config.add_tween(
         "warehouse.config.junk_encoding_tween_factory",
-        over="warehouse.csp.content_security_policy_tween_factory",
+        over=[
+            "warehouse.referrer_policy.referrer_policy_tween_factory",
+            "warehouse.config.require_https_tween_factory",
+            "warehouse.config.unicode_redirect_tween_factory",
+            "warehouse.csp.content_security_policy_tween_factory",
+            "warehouse.static.whitenoise_tween_factory",
+            "warehouse.utils.compression.compression_tween_factory",
+            "warehouse.raven.raven_tween_factory",
+            "pyramid_tm.tm_tween_factory",
+            "pyramid.tweens.excview_tween_factory",
+            "warehouse.cache.http.conditional_http_tween_factory",
+        ],
     )
     config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 
-    # Register DataDog metrics
-    config.include(".datadog")
+    # Register support for services
+    config.include("pyramid_services")
+
+    # Register metrics
+    config.include(".metrics")
 
     # Register our CSRF support. We do this here, immediately after we've
     # created the Configurator instance so that we ensure to get our defaults
@@ -348,9 +362,6 @@ def configure(settings=None):
         }
     )
     config.include("pyramid_tm")
-
-    # Register support for services
-    config.include("pyramid_services")
 
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
@@ -457,9 +468,11 @@ def configure(settings=None):
     config.whitenoise_serve_static(
         autorefresh=prevent_http_cache,
         max_age=0 if prevent_http_cache else 10 * 365 * 24 * 60 * 60,
-        manifest="warehouse:static/dist/manifest.json",
     )
     config.whitenoise_add_files("warehouse:static/dist/", prefix="/static/")
+    config.whitenoise_add_manifest(
+        "warehouse:static/dist/manifest.json", prefix="/static/"
+    )
 
     # Enable Warehouse to serve our locale files
     config.add_static_view("locales", "warehouse:locales/")

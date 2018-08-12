@@ -1,0 +1,53 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}Stats{% endblock %}
+
+{% block content %}
+<section class="horizontal-section">
+  <div class="narrow-container">
+    <h1 class="page-title">PyPI Stats</h1>
+      <p>
+        We all love stats, so here are some useful statistics about PyPI.
+        The statistics page is cached for 24 hours, so don't expect the
+        numbers to be realtime.
+      </p>
+
+      <h2>Top Storage Users</h2>
+      <p>Here is a list of the top 100 pacakges based on sum of their
+      packages sizes (in bytes).</p>
+
+      <table id="all_pypi">
+        <tr>
+          <td>All of PyPI: </td>
+          <td>{{ total_packages_size|filesizeformat() }}</td>
+        </tr>
+      </table>
+      <br>
+      <table id="top_packages">
+        <tr>
+          <th>Package Name</th>
+          <th>Sum of Release Files (bytes)</th>
+        <tr>
+        {% for pkg_name, pkg_data in top_packages.items() %}
+          <tr>
+            <td>{{ pkg_name }}</td>
+            <td>{{ pkg_data["size"]|filesizeformat() }}</td>
+          <tr>
+        {% endfor %}
+      </table>
+  </div>
+</section>
+{% endblock %}
