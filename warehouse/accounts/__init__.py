@@ -79,7 +79,7 @@ def _login_via_basic_auth(username, password, request):
             # it won't screw up the fall through to other authentication mechanisms
             # (since we wouldn't have fell through to them anyways).
             resp = HTTPUnauthorized()
-            resp.status = f"{resp.status_code} {breach_service.failure_message}"
+            resp.status = f"{resp.status_code} {breach_service.failure_message_plain}"
             raise resp
 
     return result

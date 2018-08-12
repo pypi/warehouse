@@ -162,7 +162,7 @@ class TestLogin:
             disable_password=pretend.call_recorder(lambda user_id: None),
         )
         breach_service = pretend.stub(
-            failure_message="Bad Password!",
+            failure_message_plain="Bad Password!",
             check_password=pretend.call_recorder(lambda pw, tags=None: True),
         )
 
