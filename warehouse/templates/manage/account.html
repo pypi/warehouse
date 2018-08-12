@@ -51,12 +51,12 @@
   {% if email.verified %}
     {% if email.transient_bounces %}
     {% set message = "Intermittent delivery problems may lead to verification loss" %}
-    <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}">Verified <i class="fa fa-exclamation-circle"></i></span>
+    <span class="badge badge--warning tooltipped tooltipped-s" data-original-label="{{ message }}" aria-label="{{ message }}"><i class="fa fa-exclamation-triangle"></i> Verified</span>
     {% else %}
-    <span class="badge badge--success">Verified <i class="fa fa-check"></i></span>
+    <span class="badge badge--success"><i class="fa fa-check"></i> Verified</span>
     {% endif %}
   {% else %}
-    {% set icon = 'exclamation-circle' %}
+    {% set icon = 'exclamation-triangle' %}
     {% if email.unverify_reason.value == "spam complaint" %}
       {% set message = "Email from PyPI being treated as spam" %}
       {% set icon = 'ban' %}
@@ -68,7 +68,7 @@
       {% set message = "Verification in progress" %}
       {% set icon = 'spinner' %}
     {% endif %}
-    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}">Unverified <i class="fa fa-{{ icon }}"></i></span>
+    <span class="badge badge--danger tooltipped tooltipped-s" aria-label="{{ message }}" data-original-label="{{ message }}"><i class="fa fa-{{ icon }}"></i> Unverified</span>
   {% endif %}
 {% endmacro %}
 
