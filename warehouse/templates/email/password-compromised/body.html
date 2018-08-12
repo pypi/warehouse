@@ -17,10 +17,10 @@
 {% block content %}
 <h3>What?</h3>
 <p>
-  During your recent attempt to log in or upload to PyPI, we noticed that your password
-  has appeared in public data breaches. To protect you and other users, we have
-  preemptively reset your password and you will no longer be able to log in or upload to
-  PyPI with your existing password.
+  During your recent attempt to log in or upload to PyPI, we noticed your password appears
+  in public data breaches. To protect you and other users, we have preemptively reset your
+  password and you will no longer be able to log in or upload to PyPI with your existing
+  password.
 </p>
 <p>
   PyPI itself has not suffered a breach. This is a protective measure to reduce the
@@ -31,7 +31,7 @@
 
 <h3>What should I do?</h3>
 <p>
-  To regain access to your account, you will need to
+  To regain access to your account,
   <a href="{{ request.route_url('accounts.reset-password') }}">reset your password</a>
   on PyPI. We also recommend that you go to
   <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a> and check your other
@@ -41,12 +41,11 @@
 
 <h3>How do you know this?</h3>
 <p>
-  We utilize a free security service from
+  We use a free security service from
   <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a>. When registering,
   authenticating, or updating your password, we generate a SHA1 hash of your password
-  and use the first five (5) characters of the hash to determine if the password has
-  been previously compromised. The plaintext password is never stored by PyPI or
-  submitted to the HaveIBeenPwned API.
+  and use the first 5 characters of the hash to decide if the password is compromised.
+  The plaintext password is never stored by PyPI or sent to HaveIBeenPwned.
 </p>
 <p>
   For more information, see our

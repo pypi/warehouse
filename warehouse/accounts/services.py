@@ -288,8 +288,7 @@ class TokenServiceFactory:
 class HaveIBeenPwnedPasswordBreachedService:
 
     _failure_message_preamble = (
-        "This password has appeared in a breach or has otherwise been compromised and "
-        "cannot be used."
+        "This password appears in a breach or has been compromised and cannot be used."
     )
 
     def __init__(
@@ -393,8 +392,8 @@ class HaveIBeenPwnedPasswordBreachedService:
 
 @implementer(IPasswordBreachedService)
 class NullPasswordBreachedService:
-    failure_message = "This password has appeared in a breach."
-    failure_message_plain = "This password has appeared in a breach."
+    failure_message = "This password appears in a breach."
+    failure_message_plain = "This password appears in a breach."
 
     @classmethod
     def create_service(cls, context, request):

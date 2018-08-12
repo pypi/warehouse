@@ -17,10 +17,10 @@
 {% block content %}
 # What?
 
-During your recent attempt to log in or upload to PyPI, we noticed that your password
-has appeared in public data breaches. To protect you and other users, we have
-preemptively reset your password and you will no longer be able to log in or upload to
-PyPI with your existing password.
+During your recent attempt to log in or upload to PyPI, we noticed your password appears
+in public data breaches. To protect you and other users, we have preemptively reset your
+password and you will no longer be able to log in or upload to PyPI with your existing
+password.
 
 PyPI itself has not suffered a breach. This is a protective measure to reduce the risk
 of credential stuffing (https://www.owasp.org/index.php/Credential_stuffing) attacks
@@ -29,7 +29,7 @@ against PyPI and its users.
 
 # What should I do?
 
-To regain access to your account, you will need to reset your password on PyPI
+To regain access to your account, reset your password on PyPI
 ({{ request.route_url('accounts.reset-password') }}). We also recommend that you go to
 HaveIBeenPwned (https://haveibeenpwned.com/) and check your other passwords and get
 yourself familiar with good password practices.
@@ -37,11 +37,10 @@ yourself familiar with good password practices.
 
 # How do you know this?
 
-We utilize a free security service from HaveIBeenPwned. When registering,
-authenticating, or updating your password, we generate a SHA1 hash of your password and
-use the first five (5) characters of the hash to determine if the password has been
-previously compromised. The plaintext password is never stored by PyPI or submitted to
-the HaveIBeenPwned API.
+We use a free security service from HaveIBeenPwned. When registering, authenticating, or
+updating your password, we generate a SHA1 hash of your password and use the first 5
+characters of the hash to decide if the password is compromised. The plaintext password
+is never stored by PyPI or sent to HaveIBeenPwned.
 
 For more information, see {{ request.help_url(_anchor='compromised-password') }}.
 {% endblock %}
