@@ -1364,7 +1364,7 @@ class TestManageProjectRoles:
         ]
         assert db_request.session.flash.calls == [
             pretend.call(
-                "User 'testuser' does not have a verified primary email adddress "
+                "User 'testuser' does not have a verified primary email address "
                 "and cannot be added as a Owner for project.",
                 queue="error",
             )
