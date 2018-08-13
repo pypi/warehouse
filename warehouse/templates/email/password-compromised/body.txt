@@ -30,7 +30,7 @@ against PyPI and its users.
 # What should I do?
 
 To regain access to your account, reset your password on PyPI
-({{ request.route_url('accounts.reset-password') }}). We also recommend that you go to
+({{ request.route_url('accounts.request-password-reset') }}). We also recommend that you go to
 HaveIBeenPwned (https://haveibeenpwned.com/) and check your other passwords and get
 yourself familiar with good password practices.
 
