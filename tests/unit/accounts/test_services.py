@@ -307,7 +307,7 @@ class TestDatabaseUserService:
         user_service.update_user(user.id, password="foo")
         assert user.password != "!"
 
-        # Now we'll actually test our disble function.
+        # Now we'll actually test our disable function.
         user_service.disable_password(user.id)
         assert user.password == "!"
 
