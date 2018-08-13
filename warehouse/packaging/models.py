@@ -546,6 +546,7 @@ class JournalEntry(db.ModelBase):
             Index("journals_id_idx", "id"),
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
+            Index("journals_submitted_by_idx", "submitted_by"),
             Index(
                 "journals_latest_releases",
                 "submitted_date",
@@ -588,7 +589,7 @@ class BlacklistedProject(db.Model):
     )
     name = Column(Text, unique=True, nullable=False)
     _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("accounts_user.id")
+        "blacklisted_by", UUID(as_uuid=True), ForeignKey("accounts_user.id"), index=True
     )
     blacklisted_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
