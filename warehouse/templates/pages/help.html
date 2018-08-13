@@ -176,7 +176,10 @@
             PyPI will not allow such passwords to be used when setting a password at registration or updating your password.
           </p>
           <p>
-            If you receive an error message saying that "This password has appeared in a breach or has otherwise been compromised and cannot be used", you should change it all other places that you use it as soon as possible.
+            If you receive an error message saying that "This password appears in a breach or has been compromised and cannot be used", you should change it all other places that you use it as soon as possible.
+          </p>
+          <p>
+            If you have received this error while attempting to log in or upload to PyPI, then your password has been reset and you cannot log in to PyPI until you <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>.
           </p>
       </section>
 

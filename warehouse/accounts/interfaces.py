@@ -86,6 +86,12 @@ class IUserService(Interface):
         Updates the user object
         """
 
+    def disable_password(user_id):
+        """
+        Disables the given user's password, preventing further login until the user
+        resets their password.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
@@ -101,6 +107,9 @@ class ITokenService(Interface):
 
 class IPasswordBreachedService(Interface):
     failure_message = Attribute("The message to describe the failure that occured")
+    failure_message_plain = Attribute(
+        "The message to describe the failure that occured in plain text"
+    )
 
     def check_password(password, *, tags=None):
         """
