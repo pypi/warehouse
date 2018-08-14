@@ -31,6 +31,7 @@ from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
 )
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.email import send_password_compromised_email
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
@@ -82,7 +83,7 @@ def _login_via_basic_auth(username, password, request):
             # here because we've already successfully authenticated the credentials, so
             # it won't screw up the fall through to other authentication mechanisms
             # (since we wouldn't have fell through to them anyways).
-            resp = HTTPUnauthorized()
+            resp = BasicAuthBreachedPassword()
             resp.status = f"{resp.status_code} {breach_service.failure_message_plain}"
             raise resp
 

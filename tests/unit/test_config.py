@@ -20,6 +20,7 @@ from pyramid.request import Request
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
 
@@ -135,6 +136,21 @@ class TestRequireHTTPSTween:
 def test_activate_hook(path, expected):
     request = pretend.stub(path=path)
     assert config.activate_hook(request) == expected
+
+
+@pytest.mark.parametrize(
+    ("exc_info", "expected"),
+    [
+        (None, False),
+        ((ValueError, ValueError(), None), True),
+        ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+    ],
+)
+def test_commit_veto(exc_info, expected):
+    request = pretend.stub(exc_info=exc_info)
+    response = pretend.stub()
+
+    assert bool(config.commit_veto(request, response)) == expected
 
 
 @pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
@@ -395,6 +411,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             {
                 "tm.manager_hook": mock.ANY,
                 "tm.activate_hook": config.activate_hook,
+                "tm.commit_veto": config.commit_veto,
                 "tm.annotate_user": False,
             }
         ),

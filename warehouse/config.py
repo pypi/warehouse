@@ -25,6 +25,7 @@ from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
 
@@ -126,6 +127,16 @@ def activate_hook(request):
     if request.path.startswith(("/_debug_toolbar/", "/static/")):
         return False
     return True
+
+
+def commit_veto(request, response):
+    # By default pyramid_tm will veto the commit anytime request.exc_info is not None,
+    # we are going to copy that logic with one difference, we are still going to commit
+    # if the exception was for a BreachedPassword.
+    # TODO: We should probably use a registry or something instead of hardcoded.
+    exc_info = getattr(request, "exc_info", None)
+    if exc_info is not None and not isinstance(exc_info[1], BasicAuthBreachedPassword):
+        return True
 
 
 def template_view(config, name, route, template, route_kw=None):
@@ -359,6 +370,7 @@ def configure(settings=None):
         {
             "tm.manager_hook": lambda request: transaction.TransactionManager(),
             "tm.activate_hook": activate_hook,
+            "tm.commit_veto": commit_veto,
             "tm.annotate_user": False,
         }
     )
