@@ -24,117 +24,189 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.services import (
     TokenServiceFactory,
+    HaveIBeenPwnedPasswordBreachedService,
     database_login_factory,
-    hibp_password_breach_factory,
 )
+from warehouse.accounts.models import DisableReason
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 
 class TestLogin:
-    def test_with_no_user(self):
-        service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service)
-        )
-        assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert service.find_userid.calls == [pretend.call("myuser")]
-
-    def test_with_invalid_password(self):
-        userid = pretend.stub()
+    def test_with_no_user(self, pyramid_request, pyramid_services):
         service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: userid),
+            find_userid=pretend.call_recorder(lambda username: None),
+            get_user=pretend.call_recorder(lambda user_id: None),
+        )
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, pretend.stub()
+        )
+        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(None)]
+
+    def test_with_invalid_password(self, pyramid_request, pyramid_services):
+        user = pretend.stub(id=1)
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 1),
             check_password=pretend.call_recorder(
                 lambda userid, password, tags=None: False
             ),
+            is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service)
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, pretend.stub()
         )
-        assert accounts._login("myuser", "mypass", request) is None
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
+        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
         assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(1)]
+        assert service.is_disabled.calls == [pretend.call(1)]
         assert service.check_password.calls == [
-            pretend.call(userid, "mypass", tags=None)
+            pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
         ]
 
-    def test_with_valid_password(self, monkeypatch):
+    def test_with_disabled_user_no_reason(self, pyramid_request, pyramid_services):
+        user = pretend.stub(id=1)
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
+            is_disabled=pretend.call_recorder(lambda user_id: (True, None)),
+        )
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, pretend.stub()
+        )
+        assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(1)]
+        assert service.is_disabled.calls == [pretend.call(1)]
+        assert service.check_password.calls == [
+            pretend.call(1, "mypass", tags=["method:auth", "auth_method:basic"])
+        ]
+
+    def test_with_disabled_user_compromised_pw(self, pyramid_request, pyramid_services):
+        user = pretend.stub(id=1)
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
+            is_disabled=pretend.call_recorder(
+                lambda user_id: (True, DisableReason.CompromisedPassword)
+            ),
+        )
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService,
+            None,
+            pretend.stub(failure_message_plain="Bad Password!"),
+        )
+
+        with pytest.raises(BasicAuthBreachedPassword) as excinfo:
+            assert (
+                accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
+            )
+
+        assert excinfo.value.status == "401 Bad Password!"
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(1)]
+        assert service.is_disabled.calls == [pretend.call(1)]
+        assert service.check_password.calls == []
+
+    def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
         principals = pretend.stub()
         authenticate = pretend.call_recorder(lambda userid, request: principals)
         monkeypatch.setattr(accounts, "_authenticate", authenticate)
 
-        userid = pretend.stub()
+        user = pretend.stub(id=2)
         service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: userid),
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 2),
             check_password=pretend.call_recorder(
                 lambda userid, password, tags=None: True
             ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
+            is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
         )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda iface, context: service)
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags=None: False)
+        )
+
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
         )
 
         now = datetime.datetime.utcnow()
 
         with freezegun.freeze_time(now):
             assert (
-                accounts._login(
-                    "myuser", "mypass", request, check_password_tags=["foo"]
-                )
+                accounts._basic_auth_login("myuser", "mypass", pyramid_request)
                 is principals
             )
 
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
         assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(2)]
+        assert service.is_disabled.calls == [pretend.call(2)]
         assert service.check_password.calls == [
-            pretend.call(userid, "mypass", tags=["foo"])
-        ]
-        assert service.update_user.calls == [pretend.call(userid, last_login=now)]
-        assert authenticate.calls == [pretend.call(userid, request)]
-
-    def test_via_basic_auth_no_user(self, monkeypatch):
-        login = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(accounts, "_login", login)
-
-        username = pretend.stub()
-        password = pretend.stub()
-        request = pretend.stub()
-
-        assert accounts._login_via_basic_auth(username, password, request) is None
-        assert login.calls == [
-            pretend.call(
-                username,
-                password,
-                request,
-                check_password_tags=["method:auth", "auth_method:basic"],
-            )
-        ]
-
-    def test_via_basic_auth_with_user(self, monkeypatch):
-        login = pretend.call_recorder(lambda *a, **kw: ["foo"])
-        monkeypatch.setattr(accounts, "_login", login)
-
-        breach_service = pretend.stub(
-            check_password=pretend.call_recorder(lambda pw, tags=None: False)
-        )
-
-        username = pretend.stub()
-        password = pretend.stub()
-        request = pretend.stub(find_service=lambda iface, context: breach_service)
-
-        assert accounts._login_via_basic_auth(username, password, request) == ["foo"]
-        assert login.calls == [
-            pretend.call(
-                username,
-                password,
-                request,
-                check_password_tags=["method:auth", "auth_method:basic"],
-            )
+            pretend.call(2, "mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert breach_service.check_password.calls == [
-            pretend.call(password, tags=["method:auth", "auth_method:basic"])
+            pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
+        assert service.update_user.calls == [pretend.call(2, last_login=now)]
+        assert authenticate.calls == [pretend.call(2, pyramid_request)]
+
+    def test_via_basic_auth_compromised(
+        self, monkeypatch, pyramid_request, pyramid_services
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(accounts, "send_password_compromised_email", send_email)
+
+        user = pretend.stub(id=2)
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 2),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+            is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
+            disable_password=pretend.call_recorder(lambda user_id, reason=None: None),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags=None: True),
+            failure_message_plain="Bad Password!",
+        )
+
+        pyramid_services.register_service(IUserService, None, service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
+        with pytest.raises(BasicAuthBreachedPassword) as excinfo:
+            accounts._basic_auth_login("myuser", "mypass", pyramid_request)
+
+        assert excinfo.value.status == "401 Bad Password!"
+        assert service.find_userid.calls == [pretend.call("myuser")]
+        assert service.get_user.calls == [pretend.call(2)]
+        assert service.is_disabled.calls == [pretend.call(2)]
+        assert service.check_password.calls == [
+            pretend.call(2, "mypass", tags=["method:auth", "auth_method:basic"])
+        ]
+        assert breach_service.check_password.calls == [
+            pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
+        ]
+        assert service.disable_password.calls == [
+            pretend.call(2, reason=DisableReason.CompromisedPassword)
+        ]
+        assert send_email.calls == [pretend.call(pyramid_request, user)]
 
 
 class TestAuthenticate:
@@ -199,12 +271,14 @@ def test_includeme(monkeypatch):
     monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
 
     config = pretend.stub(
+        registry=pretend.stub(settings={}),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
         add_request_method=pretend.call_recorder(lambda f, name, reify: None),
         set_authentication_policy=pretend.call_recorder(lambda p: None),
         set_authorization_policy=pretend.call_recorder(lambda p: None),
+        maybe_dotted=pretend.call_recorder(lambda path: path),
     )
 
     accounts.includeme(config)
@@ -215,7 +289,10 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
         pretend.call(TokenServiceFactory(name="email"), ITokenService, name="email"),
-        pretend.call(hibp_password_breach_factory, IPasswordBreachedService),
+        pretend.call(
+            HaveIBeenPwnedPasswordBreachedService.create_service,
+            IPasswordBreachedService,
+        ),
         pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
         pretend.call(
             RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
@@ -226,7 +303,7 @@ def test_includeme(monkeypatch):
     ]
     assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
-    assert basic_authn_cls.calls == [pretend.call(check=accounts._login_via_basic_auth)]
+    assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
     assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
     assert authn_cls.calls == [pretend.call([session_authn_obj, basic_authn_obj])]
     assert authz_cls.calls == [pretend.call()]
