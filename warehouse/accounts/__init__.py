@@ -13,7 +13,6 @@
 import datetime
 
 from pyramid.authorization import ACLAuthorizationPolicy
-from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import (
