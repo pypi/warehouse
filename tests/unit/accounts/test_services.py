@@ -31,6 +31,7 @@ from warehouse.accounts.interfaces import (
     TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -247,6 +248,13 @@ class TestDatabaseUserService:
         assert password != user_from_db.password
         assert user_service.hasher.verify(password, user_from_db.password)
 
+    def test_update_user_without_pw(self, user_service):
+        user = UserFactory.create()
+        new_name = "new username"
+        user_service.update_user(user.id, username=new_name)
+        user_from_db = user_service.get_user(user.id)
+        assert user_from_db.username == user.username
+
     def test_find_by_email(self, user_service):
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True, verified=False)
@@ -310,6 +318,27 @@ class TestDatabaseUserService:
         # Now we'll actually test our disable function.
         user_service.disable_password(user.id)
         assert user.password == "!"
+
+    @pytest.mark.parametrize(
+        ("disabled", "reason"),
+        [(True, None), (True, DisableReason.CompromisedPassword), (False, None)],
+    )
+    def test_is_disabled(self, user_service, disabled, reason):
+        user = UserFactory.create()
+        user_service.update_user(user.id, password="foo")
+        if disabled:
+            user_service.disable_password(user.id, reason=reason)
+        assert user_service.is_disabled(user.id) == (disabled, reason)
+
+    def test_updating_password_undisables(self, user_service):
+        user = UserFactory.create()
+        user_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+        assert user_service.is_disabled(user.id) == (
+            True,
+            DisableReason.CompromisedPassword,
+        )
+        user_service.update_user(user.id, password="foo")
+        assert user_service.is_disabled(user.id) == (False, None)
 
 
 class TestTokenService:

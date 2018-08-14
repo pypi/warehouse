@@ -17,6 +17,7 @@ import jinja2
 
 from warehouse import forms
 from warehouse.accounts.interfaces import TooManyFailedLogins
+from warehouse.accounts.models import DisableReason
 from warehouse.email import send_password_compromised_email
 
 
@@ -188,19 +189,31 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         self.breach_service = breach_service
 
     def validate_password(self, field):
+        # Before we try to validate the user's password, we'll first to check to see if
+        # they are disabled.
+        userid = self.user_service.find_userid(self.username.data)
+        if userid is not None:
+            is_disabled, disabled_for = self.user_service.is_disabled(userid)
+            if is_disabled and disabled_for == DisableReason.CompromisedPassword:
+                raise wtforms.validators.ValidationError(
+                    jinja2.Markup(self.breach_service.failure_message)
+                )
+
+        # Do our typical validation of the password.
         super().validate_password(field)
 
         # If we have a user ID, then we'll go and check it against our breached password
         # service. If the password has appeared in a breach or is otherwise compromised
         # we will disable the user and reject the login.
-        userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):
                 user = self.user_service.get_user(userid)
                 send_password_compromised_email(self.request, user)
-                self.user_service.disable_password(user.id)
+                self.user_service.disable_password(
+                    user.id, reason=DisableReason.CompromisedPassword
+                )
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )

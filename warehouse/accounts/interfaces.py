@@ -86,10 +86,17 @@ class IUserService(Interface):
         Updates the user object
         """
 
-    def disable_password(user_id):
+    def disable_password(user_id, reason=None):
         """
         Disables the given user's password, preventing further login until the user
-        resets their password.
+        resets their password. If a reason was given, this will be persisted and reset
+        when the user is re-enabled.
+        """
+
+    def is_disabled(user_id):
+        """
+        Checks if a user has been disabled, and returns a tuple of
+        (IsDisabled: bool, Reason: Optional[DisableReason])
         """
 
 
