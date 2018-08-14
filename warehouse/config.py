@@ -338,6 +338,9 @@ def configure(settings=None):
     )
     config.include("pyramid_tm")
 
+    # Register our XMLRPC service
+    config.include(".legacy.api.xmlrpc")
+
     # Register our XMLRPC cache
     config.include(".legacy.api.xmlrpc.cache")
 
