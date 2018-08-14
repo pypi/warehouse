@@ -32,7 +32,7 @@
 <h3>What should I do?</h3>
 <p>
   To regain access to your account,
-  <a href="{{ request.route_url('accounts.request-password-reset') }}">reset your password</a>
+  <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
   on PyPI. We also recommend that you go to
   <a href="https://haveibeenpwned.com/">HaveIBeenPwned</a> and check your other
   passwords and get yourself familiar with good password practices.
