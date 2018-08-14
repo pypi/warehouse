@@ -46,6 +46,11 @@ class UserFactory:
             raise KeyError from None
 
 
+class DisableReason(enum.Enum):
+
+    CompromisedPassword = "password compromised"
+
+
 class User(SitemapMixin, db.Model):
 
     __tablename__ = "accounts_user"
@@ -68,6 +73,10 @@ class User(SitemapMixin, db.Model):
     is_superuser = Column(Boolean, nullable=False)
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(DateTime, nullable=False, server_default=sql.func.now())
+    disabled_for = Column(
+        Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
+        nullable=True,
+    )
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
