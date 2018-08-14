@@ -34,17 +34,13 @@ from warehouse.rate_limiting import RateLimit, IRateLimiter
 
 class TestLogin:
     def test_with_no_user(self, pyramid_request, pyramid_services):
-        service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: None),
-            get_user=pretend.call_recorder(lambda user_id: None),
-        )
+        service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
         pyramid_services.register_service(IUserService, None, service)
         pyramid_services.register_service(
             IPasswordBreachedService, None, pretend.stub()
         )
         assert accounts._basic_auth_login("myuser", "mypass", pyramid_request) is None
         assert service.find_userid.calls == [pretend.call("myuser")]
-        assert service.get_user.calls == [pretend.call(None)]
 
     def test_with_invalid_password(self, pyramid_request, pyramid_services):
         user = pretend.stub(id=1)
