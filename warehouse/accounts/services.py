@@ -219,7 +219,29 @@ class DatabaseUserService:
             if attr == PASSWORD_FIELD:
                 value = self.hasher.hash(value)
             setattr(user, attr, value)
+
+        # If we've given the user a new password, then we also want to unset the
+        # reason for disable... because a new password means no more disabled
+        # user.
+        if PASSWORD_FIELD in changes:
+            user.disabled_for = None
+
         return user
+
+    def disable_password(self, user_id, reason=None):
+        user = self.get_user(user_id)
+        user.password = self.hasher.disable()
+        user.disabled_for = reason
+
+    def is_disabled(self, user_id):
+        user = self.get_user(user_id)
+
+        # User is not disabled.
+        if self.hasher.is_enabled(user.password):
+            return (False, None)
+        # User is disabled.
+        else:
+            return (True, user.disabled_for)
 
 
 @implementer(ITokenService)
@@ -282,6 +304,11 @@ class TokenServiceFactory:
 
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
+
+    _failure_message_preamble = (
+        "This password appears in a breach or has been compromised and cannot be used."
+    )
+
     def __init__(
         self,
         *,
@@ -295,11 +322,29 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics = metrics
         self._help_url = help_url
 
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(
+            session=request.http,
+            metrics=request.find_service(IMetricsService, context=None),
+            help_url=request.help_url(_anchor="compromised-password"),
+        )
+
     @property
     def failure_message(self):
-        message = "This password has appeared in a breach or has otherwise been compromised and cannot be used."
+        message = self._failure_message_preamble
         if self._help_url:
-            message += f' See <a href="{self._help_url}">this FAQ entry</a> for more information.'
+            message += (
+                f' See <a href="{self._help_url}">this FAQ entry</a> for more '
+                "information."
+            )
+        return message
+
+    @property
+    def failure_message_plain(self):
+        message = self._failure_message_preamble
+        if self._help_url:
+            message += f" See the FAQ entry at {self._help_url} for more information."
         return message
 
     def _metrics_increment(self, *args, **kwargs):
@@ -363,9 +408,16 @@ class HaveIBeenPwnedPasswordBreachedService:
         return False
 
 
-def hibp_password_breach_factory(context, request):
-    return HaveIBeenPwnedPasswordBreachedService(
-        session=request.http,
-        metrics=request.find_service(IMetricsService, context=None),
-        help_url=request.help_url(_anchor="compromised-password"),
-    )
+@implementer(IPasswordBreachedService)
+class NullPasswordBreachedService:
+    failure_message = "This password appears in a breach."
+    failure_message_plain = "This password appears in a breach."
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls()
+
+    def check_password(self, password, *, tags=None):
+        # This service allows *every* password as a non-breached password. It will never
+        # tell a user their password isn't good enough.
+        return False

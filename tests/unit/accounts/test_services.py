@@ -25,11 +25,13 @@ from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     IUserService,
     ITokenService,
+    IPasswordBreachedService,
     TokenExpired,
     TokenInvalid,
     TokenMissing,
     TooManyFailedLogins,
 )
+from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -246,6 +248,13 @@ class TestDatabaseUserService:
         assert password != user_from_db.password
         assert user_service.hasher.verify(password, user_from_db.password)
 
+    def test_update_user_without_pw(self, user_service):
+        user = UserFactory.create()
+        new_name = "new username"
+        user_service.update_user(user.id, username=new_name)
+        user_from_db = user_service.get_user(user.id)
+        assert user_from_db.username == user.username
+
     def test_find_by_email(self, user_service):
         user = UserFactory.create()
         EmailFactory.create(user=user, primary=True, verified=False)
@@ -298,6 +307,38 @@ class TestDatabaseUserService:
         user_service.db.flush()
 
         assert found_user is None
+
+    def test_disable_password(self, user_service):
+        user = UserFactory.create()
+
+        # Need to give the user a good password first.
+        user_service.update_user(user.id, password="foo")
+        assert user.password != "!"
+
+        # Now we'll actually test our disable function.
+        user_service.disable_password(user.id)
+        assert user.password == "!"
+
+    @pytest.mark.parametrize(
+        ("disabled", "reason"),
+        [(True, None), (True, DisableReason.CompromisedPassword), (False, None)],
+    )
+    def test_is_disabled(self, user_service, disabled, reason):
+        user = UserFactory.create()
+        user_service.update_user(user.id, password="foo")
+        if disabled:
+            user_service.disable_password(user.id, reason=reason)
+        assert user_service.is_disabled(user.id) == (disabled, reason)
+
+    def test_updating_password_undisables(self, user_service):
+        user = UserFactory.create()
+        user_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+        assert user_service.is_disabled(user.id) == (
+            True,
+            DisableReason.CompromisedPassword,
+        )
+        user_service.update_user(user.id, password="foo")
+        assert user_service.is_disabled(user.id) == (False, None)
 
 
 class TestTokenService:
@@ -443,6 +484,11 @@ def test_token_service_factory_eq():
 
 
 class TestHaveIBeenPwnedPasswordBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IPasswordBreachedService, services.HaveIBeenPwnedPasswordBreachedService
+        )
+
     @pytest.mark.parametrize(
         ("password", "prefix", "expected", "dataset"),
         [
@@ -548,7 +594,9 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             }[(iface, context)],
             help_url=lambda _anchor=None: f"http://localhost/help/#{_anchor}",
         )
-        svc = services.hibp_password_breach_factory(context, request)
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
 
         assert svc._http is request.http
         assert isinstance(svc._metrics, NullMetrics)
@@ -560,15 +608,15 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             (
                 None,
                 (
-                    "This password has appeared in a breach or has otherwise "
-                    "been compromised and cannot be used."
+                    "This password appears in a breach or has been compromised and "
+                    "cannot be used."
                 ),
             ),
             (
                 "http://localhost/help/#compromised-password",
                 (
-                    "This password has appeared in a breach or has otherwise "
-                    "been compromised and cannot be used. See "
+                    "This password appears in a breach or has been compromised and "
+                    "cannot be used. See "
                     '<a href="http://localhost/help/#compromised-password">'
                     "this FAQ entry</a> for more information."
                 ),
@@ -584,5 +632,60 @@ class TestHaveIBeenPwnedPasswordBreachedService:
             }[(iface, context)],
             help_url=lambda _anchor=None: help_url,
         )
-        svc = services.hibp_password_breach_factory(context, request)
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
         assert svc.failure_message == expected
+
+    @pytest.mark.parametrize(
+        ("help_url", "expected"),
+        [
+            (
+                None,
+                (
+                    "This password appears in a breach or has been compromised and "
+                    "cannot be used."
+                ),
+            ),
+            (
+                "http://localhost/help/#compromised-password",
+                (
+                    "This password appears in a breach or has been compromised and "
+                    "cannot be used. See the FAQ entry at "
+                    "http://localhost/help/#compromised-password for more information."
+                ),
+            ),
+        ],
+    )
+    def test_failure_message_plain(self, help_url, expected):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            find_service=lambda iface, context: {
+                (IMetricsService, None): NullMetrics()
+            }[(iface, context)],
+            help_url=lambda _anchor=None: help_url,
+        )
+        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
+            context, request
+        )
+        assert svc.failure_message_plain == expected
+
+
+class TestNullPasswordBreachedService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IPasswordBreachedService, services.NullPasswordBreachedService
+        )
+
+    def test_check_password(self):
+        svc = services.NullPasswordBreachedService()
+        assert not svc.check_password("password")
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullPasswordBreachedService.create_service(context, request)
+
+        assert isinstance(svc, services.NullPasswordBreachedService)
+        assert not svc.check_password("hunter2")
