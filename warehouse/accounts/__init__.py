@@ -51,8 +51,9 @@ def _basic_auth_login(username, password, request):
     login_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
-    user = login_service.get_user(login_service.find_userid(username))
-    if user is not None:
+    userid = login_service.find_userid(username)
+    if userid is not None:
+        user = login_service.get_user(userid)
         is_disabled, disabled_for = login_service.is_disabled(user.id)
         if is_disabled and disabled_for == DisableReason.CompromisedPassword:
             # This technically violates the contract a little bit, this function is
