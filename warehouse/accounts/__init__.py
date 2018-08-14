@@ -26,6 +26,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
@@ -41,39 +42,19 @@ __all__ = ["NullPasswordBreachedService", "HaveIBeenPwnedPasswordBreachedService
 REDIRECT_FIELD_NAME = "next"
 
 
-def _login(username, password, request, check_password_tags=None):
+def _format_exc_status(exc, message):
+    exc.status = f"{exc.status_code} {message}"
+    return exc
+
+
+def _basic_auth_login(username, password, request):
     login_service = request.find_service(IUserService, context=None)
-    userid = login_service.find_userid(username)
-    if userid is not None:
-        if login_service.check_password(userid, password, tags=check_password_tags):
-            login_service.update_user(userid, last_login=datetime.datetime.utcnow())
-            return _authenticate(userid, request)
+    breach_service = request.find_service(IPasswordBreachedService, context=None)
 
-
-def _login_via_basic_auth(username, password, request):
-    login_service = request.find_service(IUserService, context=None)
-
-    result = _login(
-        username,
-        password,
-        request,
-        check_password_tags=["method:auth", "auth_method:basic"],
-    )
-
-    # If our authentication was successful (E.g. non None result), then we want to check
-    # our credentials to see if the password was comrpomised or not.
-    if result is not None:
-        # Run our password through our breach validation. We don't currently do anything
-        # with this information, but for now it will provide metrics into how many
-        # authentications are using compromised credentials.
-        breach_service = request.find_service(IPasswordBreachedService, context=None)
-        if breach_service.check_password(
-            password, tags=["method:auth", "auth_method:basic"]
-        ):
-            user = login_service.get_user(login_service.find_userid(username))
-            send_password_compromised_email(request, user)
-            login_service.disable_password(user.id)
-
+    user = login_service.get_user(login_service.find_userid(username))
+    if user is not None:
+        is_disabled, disabled_for = login_service.is_disabled(user.id)
+        if is_disabled and disabled_for == DisableReason.CompromisedPassword:
             # This technically violates the contract a little bit, this function is
             # meant to return None if the user cannot log in. However we want to present
             # a different error message than is normal when we're denying the log in
@@ -82,11 +63,27 @@ def _login_via_basic_auth(username, password, request):
             # here because we've already successfully authenticated the credentials, so
             # it won't screw up the fall through to other authentication mechanisms
             # (since we wouldn't have fell through to them anyways).
-            resp = BasicAuthBreachedPassword()
-            resp.status = f"{resp.status_code} {breach_service.failure_message_plain}"
-            raise resp
-
-    return result
+            raise _format_exc_status(
+                BasicAuthBreachedPassword(), breach_service.failure_message_plain
+            )
+        elif login_service.check_password(
+            user.id, password, tags=["method:auth", "auth_method:basic"]
+        ):
+            if breach_service.check_password(
+                password, tags=["method:auth", "auth_method:basic"]
+            ):
+                send_password_compromised_email(request, user)
+                login_service.disable_password(
+                    user.id, reason=DisableReason.CompromisedPassword
+                )
+                raise _format_exc_status(
+                    BasicAuthBreachedPassword(), breach_service.failure_message_plain
+                )
+            else:
+                login_service.update_user(
+                    user.id, last_login=datetime.datetime.utcnow()
+                )
+                return _authenticate(user.id, request)
 
 
 def _authenticate(userid, request):
@@ -141,7 +138,7 @@ def includeme(config):
         MultiAuthenticationPolicy(
             [
                 SessionAuthenticationPolicy(callback=_authenticate),
-                BasicAuthAuthenticationPolicy(check=_login_via_basic_auth),
+                BasicAuthAuthenticationPolicy(check=_basic_auth_login),
             ]
         )
     )

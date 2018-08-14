@@ -219,11 +219,29 @@ class DatabaseUserService:
             if attr == PASSWORD_FIELD:
                 value = self.hasher.hash(value)
             setattr(user, attr, value)
+
+        # If we've given the user a new password, then we also want to unset the
+        # reason for disable... because a new password means no more disabled
+        # user.
+        if PASSWORD_FIELD in changes:
+            user.disabled_for = None
+
         return user
 
-    def disable_password(self, user_id):
+    def disable_password(self, user_id, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
+        user.disabled_for = reason
+
+    def is_disabled(self, user_id):
+        user = self.get_user(user_id)
+
+        # User is not disabled.
+        if self.hasher.is_enabled(user.password):
+            return (False, None)
+        # User is disabled.
+        else:
+            return (True, user.disabled_for)
 
 
 @implementer(ITokenService)
