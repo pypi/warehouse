@@ -236,7 +236,6 @@ class Dependency(db.Model):
 
     __tablename__ = "release_dependencies"
     __table_args__ = (
-        Index("rel_dep_name_idx", "name"),
         Index("rel_dep_name_version_idx", "name", "version"),
         Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
         ForeignKeyConstraint(
@@ -276,7 +275,6 @@ class Release(db.ModelBase):
             Index("release_created_idx", cls.created.desc()),
             Index("release_name_created_idx", cls.name, cls.created.desc()),
             Index("release_name_idx", cls.name),
-            Index("release_pypi_hidden_idx", cls._pypi_hidden),
             Index("release_version_idx", cls.version),
         )
 
@@ -444,7 +442,6 @@ class File(db.Model):
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
             Index("release_files_name_version_idx", "name", "version"),
-            Index("release_files_packagetype_idx", "packagetype"),
             Index("release_files_version_idx", "version"),
             Index(
                 "release_files_single_sdist",
@@ -528,7 +525,6 @@ release_classifiers = Table(
         onupdate="CASCADE",
         ondelete="CASCADE",
     ),
-    Index("rel_class_name_idx", "name"),
     Index("rel_class_name_version_idx", "name", "version"),
     Index("rel_class_trove_id_idx", "trove_id"),
     Index("rel_class_version_id_idx", "version"),
@@ -543,19 +539,9 @@ class JournalEntry(db.ModelBase):
     def __table_args__(cls):  # noqa
         return (
             Index("journals_changelog", "submitted_date", "name", "version", "action"),
-            Index("journals_id_idx", "id"),
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
-            Index(
-                "journals_latest_releases",
-                "submitted_date",
-                "name",
-                "version",
-                postgresql_where=(
-                    (cls.version != None) & (cls.action == "new release")  # noqa
-                ),
-            ),
         )
 
     id = Column(Integer, primary_key=True, nullable=False)

@@ -230,7 +230,6 @@ class EmailMessage(db.Model):
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
-        index=True,
     )
 
     message_id = Column(Text, nullable=False, unique=True, index=True)
