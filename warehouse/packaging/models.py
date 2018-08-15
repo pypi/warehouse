@@ -539,7 +539,6 @@ class JournalEntry(db.ModelBase):
     def __table_args__(cls):  # noqa
         return (
             Index("journals_changelog", "submitted_date", "name", "version", "action"),
-            Index("journals_id_idx", "id"),
             Index("journals_name_idx", "name"),
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),

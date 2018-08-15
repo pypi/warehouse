@@ -114,7 +114,6 @@ class Email(db.ModelBase):
     __tablename__ = "accounts_email"
     __table_args__ = (
         UniqueConstraint("email", name="accounts_email_email_key"),
-        Index("accounts_email_email_like", "email"),
         Index("accounts_email_user_id", "user_id"),
     )
 
