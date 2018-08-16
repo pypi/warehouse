@@ -21,6 +21,7 @@ import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event
+from sqlalchemy.exc import OperationalError
 
 from warehouse import db
 from warehouse.db import (
@@ -148,7 +149,7 @@ def test_creates_engine(monkeypatch):
 
 def test_raises_db_available_error(pyramid_services, metrics):
     def raiser():
-        raise psycopg2.OperationalError()
+        raise OperationalError("foo", {}, psycopg2.OperationalError())
 
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
