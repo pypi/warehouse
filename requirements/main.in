@@ -49,6 +49,7 @@ sqlalchemy-citext
 stdlib-list
 structlog
 transaction
+typeguard
 whitenoise
 WTForms>=2.0.0
 zope.sqlalchemy

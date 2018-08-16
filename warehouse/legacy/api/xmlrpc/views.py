@@ -17,12 +17,15 @@ import xmlrpc.client
 import xmlrpc.server
 
 import elasticsearch
+import typeguard
 
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
+from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
     XmlRpcError,
+    XmlRpcInvalidMethodParams,
     exception_view as _exception_view,
     xmlrpc_method as _xmlrpc_method,
 )
@@ -72,6 +75,7 @@ def xmlrpc_method(**kwargs):
         require_csrf=False,
         require_methods=["POST"],
         decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+        mapper=TypedMapplyViewMapper,
     )
 
     def decorator(f):
@@ -106,6 +110,15 @@ class XMLRPCServiceUnavailable(XmlRpcError):
     faultString = "server error; service unavailable"
 
 
+class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
+    def __init__(self, exc):
+        self.exc = exc
+
+    @property
+    def faultString(self):
+        return f"client error; {self.exc}"
+
+
 class XMLRPCWrappedError(xmlrpc.server.Fault):
     def __init__(self, exc):
         self.faultCode = -32500
@@ -114,6 +127,18 @@ class XMLRPCWrappedError(xmlrpc.server.Fault):
     @property
     def faultString(self):  # noqa
         return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
+
+
+class TypedMapplyViewMapper(MapplyViewMapper):
+    def mapply(self, fn, args, kwargs):
+        try:
+            memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
+            typeguard.check_argument_types(memo)
+        except TypeError as exc:
+            print(exc)
+            raise XMLRPCInvalidParamTypes(exc)
+
+        return super().mapply(fn, args, kwargs)
 
 
 @view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
