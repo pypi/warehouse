@@ -81,14 +81,12 @@ def sanity_tween_factory_egress(handler, registry):
 def _add_tween(config):
     tweens = config.registry.queryUtility(ITweens)
     tweens.add_explicit(
-        "warehouse.sanity.sanity_tween_factory_ingress",
-        sanity_tween_factory_ingress,
+        "warehouse.sanity.sanity_tween_factory_ingress", sanity_tween_factory_ingress
     )
     for tween_name, tween_factory in tweens.implicit():
         tweens.add_explicit(tween_name, tween_factory)
     tweens.add_explicit(
-        "warehouse.sanity.sanity_tween_factory_egress",
-        sanity_tween_factory_egress,
+        "warehouse.sanity.sanity_tween_factory_egress", sanity_tween_factory_egress
     )
 
 
@@ -96,7 +94,7 @@ def includeme(config):
     # I'm doing bad things, I'm sorry. - dstufft
     config.action(
         ("tween", "warehouse.sanity.sanity_tween_factory", True),
-        _add_tween ,
+        _add_tween,
         args=(config,),
         order=PHASE3_CONFIG,
     )

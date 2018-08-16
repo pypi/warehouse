@@ -42,31 +42,32 @@ class TestJunkEncoding:
 
 class TestInvalidForms:
     def test_valid(self):
-        request = Request({
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": (
-                "multipart/form-data; boundary=c397e2aa2980f1a53dee37c05b8fb45a"
-            ),
-            "wsgi.input": io.BytesIO(
-                b"--------------------------c397e2aa2980f1a53dee37c05b8fb45a\r\n"
-                b'Content-Disposition: form-data; name="person"\r\n'
-                b"anonymous"
-            )
-        })
+        request = Request(
+            {
+                "REQUEST_METHOD": "POST",
+                "CONTENT_TYPE": (
+                    "multipart/form-data; boundary=c397e2aa2980f1a53dee37c05b8fb45a"
+                ),
+                "wsgi.input": io.BytesIO(
+                    b"--------------------------c397e2aa2980f1a53dee37c05b8fb45a\r\n"
+                    b'Content-Disposition: form-data; name="person"\r\n'
+                    b"anonymous"
+                ),
+            }
+        )
 
         sanity.invalid_forms(request)
 
     def test_invalid_form(self):
-        request = Request({
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": (
-                "multipart/form-data"
-            ),
-            "wsgi.input": io.BytesIO(
-                b'Content-Disposition: form-data; name="person"\r\n'
-                b"anonymous"
-            )
-        })
+        request = Request(
+            {
+                "REQUEST_METHOD": "POST",
+                "CONTENT_TYPE": ("multipart/form-data"),
+                "wsgi.input": io.BytesIO(
+                    b'Content-Disposition: form-data; name="person"\r\n' b"anonymous"
+                ),
+            }
+        )
 
         with pytest.raises(HTTPBadRequest, match="Invalid Form Data."):
             sanity.invalid_forms(request)
@@ -76,11 +77,14 @@ class TestInvalidForms:
         sanity.invalid_forms(request)
 
 
-@pytest.mark.parametrize(("original_location", "expected_location"), [
-    ("/a/path/to/nowhere", "/a/path/to/nowhere"),
-    ("/project/☃/", "/project/%E2%98%83/"),
-    (None, None),
-])
+@pytest.mark.parametrize(
+    ("original_location", "expected_location"),
+    [
+        ("/a/path/to/nowhere", "/a/path/to/nowhere"),
+        ("/project/☃/", "/project/%E2%98%83/"),
+        (None, None),
+    ],
+)
 def test_unicode_redirects(original_location, expected_location):
     if original_location:
         resp_in = HTTPMovedPermanently(original_location)
