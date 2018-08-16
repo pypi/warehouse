@@ -13,13 +13,11 @@
 import enum
 import os
 import shlex
-import urllib.parse
 
 import transaction
 
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
-from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 from pyramid.security import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
@@ -61,47 +59,6 @@ class RootFactory:
 
     def __init__(self, request):
         pass
-
-
-def junk_encoding_tween_factory(handler, request):
-    def junk_encoding_tween(request):
-        # We're going to test our request a bit, before we pass it into the
-        # handler. This will let us return a better error than a 500 if we
-        # can't decode these.
-
-        # Ref: https://github.com/Pylons/webob/issues/161
-        # Ref: https://github.com/Pylons/webob/issues/115
-        try:
-            request.GET.get("", None)
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in query string.")
-
-        # Look for invalid bytes in a path.
-        try:
-            request.path_info
-        except UnicodeDecodeError:
-            return HTTPBadRequest("Invalid bytes in URL.")
-
-        # Everything worked! Handle this request as normal.
-        return handler(request)
-
-    return junk_encoding_tween
-
-
-def unicode_redirect_tween_factory(handler, request):
-    def unicode_redirect_tween(request):
-        response = handler(request)
-        if response.location:
-            try:
-                response.location.encode("ascii")
-            except UnicodeEncodeError:
-                response.location = "/".join(
-                    [urllib.parse.quote_plus(x) for x in response.location.split("/")]
-                )
-
-        return response
-
-    return unicode_redirect_tween
 
 
 def require_https_tween_factory(handler, registry):
@@ -264,24 +221,6 @@ def configure(settings=None):
     # the environment as well as the ones passed in to the configure function.
     config = Configurator(settings=settings)
     config.set_root_factory(RootFactory)
-
-    # Add some fixups for some encoding/decoding issues
-    config.add_tween(
-        "warehouse.config.junk_encoding_tween_factory",
-        over=[
-            "warehouse.referrer_policy.referrer_policy_tween_factory",
-            "warehouse.config.require_https_tween_factory",
-            "warehouse.config.unicode_redirect_tween_factory",
-            "warehouse.csp.content_security_policy_tween_factory",
-            "warehouse.static.whitenoise_tween_factory",
-            "warehouse.utils.compression.compression_tween_factory",
-            "warehouse.raven.raven_tween_factory",
-            "pyramid_tm.tm_tween_factory",
-            "pyramid.tweens.excview_tween_factory",
-            "warehouse.cache.http.conditional_http_tween_factory",
-        ],
-    )
-    config.add_tween("warehouse.config.unicode_redirect_tween_factory")
 
     # Register support for services
     config.include("pyramid_services")
@@ -526,6 +465,11 @@ def configure(settings=None):
     config.scan(
         ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
     )
+
+    # Sanity check our request and responses.
+    # Note: It is very important that this go last. We need everything else that might
+    #       have added a tween to be registered prior to this.
+    config.include(".sanity")
 
     # Finally, commit all of our changes
     config.commit()
