@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
+
 import pretend
 import pytest
 
@@ -38,6 +40,42 @@ class TestJunkEncoding:
             sanity.junk_encoding(request)
 
 
+class TestInvalidForms:
+    def test_valid(self):
+        request = Request({
+            "REQUEST_METHOD": "POST",
+            "CONTENT_TYPE": (
+                "multipart/form-data; boundary=c397e2aa2980f1a53dee37c05b8fb45a"
+            ),
+            "wsgi.input": io.BytesIO(
+                b"--------------------------c397e2aa2980f1a53dee37c05b8fb45a\r\n"
+                b'Content-Disposition: form-data; name="person"\r\n'
+                b"anonymous"
+            )
+        })
+
+        sanity.invalid_forms(request)
+
+    def test_invalid_form(self):
+        request = Request({
+            "REQUEST_METHOD": "POST",
+            "CONTENT_TYPE": (
+                "multipart/form-data"
+            ),
+            "wsgi.input": io.BytesIO(
+                b'Content-Disposition: form-data; name="person"\r\n'
+                b"anonymous"
+            )
+        })
+
+        with pytest.raises(HTTPBadRequest, match="Invalid Form Data."):
+            sanity.invalid_forms(request)
+
+    def test_not_post(self):
+        request = Request({"REQUEST_METHOD": "GET"})
+        sanity.invalid_forms(request)
+
+
 @pytest.mark.parametrize(("original_location", "expected_location"), [
     ("/a/path/to/nowhere", "/a/path/to/nowhere"),
     ("/project/☃/", "/project/%E2%98%83/"),
@@ -59,6 +97,9 @@ class TestSanityTween:
         junk_encoding = pretend.call_recorder(lambda request: None)
         monkeypatch.setattr(sanity, "junk_encoding", junk_encoding)
 
+        invalid_forms = pretend.call_recorder(lambda request: None)
+        monkeypatch.setattr(sanity, "invalid_forms", invalid_forms)
+
         response = pretend.stub()
         handler = pretend.call_recorder(lambda request: response)
         registry = pretend.stub()
@@ -69,6 +110,7 @@ class TestSanityTween:
 
         assert tween(request) is response
         assert junk_encoding.calls == [pretend.call(request)]
+        assert invalid_forms.calls == [pretend.call(request)]
         assert handler.calls == [pretend.call(request)]
 
     def test_ingress_invalid(self, monkeypatch):

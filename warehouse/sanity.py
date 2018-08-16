@@ -36,6 +36,16 @@ def junk_encoding(request):
         raise HTTPBadRequest("Invalid bytes in URL.")
 
 
+def invalid_forms(request):
+    # People send invalid forms that we can't actually decode, so we'll want to return
+    # a BadRequest here instead of a 500 error.
+    if request.method == "POST":
+        try:
+            request.POST.get("", None)
+        except ValueError:
+            raise HTTPBadRequest("Invalid Form Data.")
+
+
 def unicode_redirects(response):
     if response.location:
         try:
@@ -52,6 +62,7 @@ def sanity_tween_factory_ingress(handler, registry):
     def sanity_tween_ingress(request):
         try:
             junk_encoding(request)
+            invalid_forms(request)
         except HTTPException as exc:
             return exc
 
