@@ -40,16 +40,6 @@ class TestSearch:
         )
         assert metrics.histogram.calls == []
 
-    def test_fails_if_spec_not_mapping(self, pyramid_request, metrics):
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pyramid_request, "a string")
-
-        assert (
-            exc.value.faultString
-            == "TypeError: Invalid spec, must be a mapping/dictionary."
-        )
-        assert metrics.histogram.calls == []
-
     def test_default_search_operator(self, pyramid_request, metrics):
         class FakeQuery:
             def __init__(self, type, must):
