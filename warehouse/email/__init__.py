@@ -122,7 +122,8 @@ def _email(name, *, allow_unverified=False):
 
 
 @_email("password-reset", allow_unverified=True)
-def send_password_reset_email(request, user):
+def send_password_reset_email(request, user_and_email):
+    user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")
     token = token_service.dumps(
         {
