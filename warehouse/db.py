@@ -23,7 +23,7 @@ import zope.sqlalchemy
 
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -168,7 +168,7 @@ def _create_session(request):
     # connections
     try:
         connection = request.registry["sqlalchemy.engine"].connect()
-    except psycopg2.OperationalError:
+    except OperationalError:
         # When we tried to connection to PostgreSQL, our database was not available for
         # some reason. We're going to log it here and then raise our error. Most likely
         # this is a transient error that will go away.
