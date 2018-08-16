@@ -17,33 +17,28 @@ from warehouse.admin.flags import AdminFlag
 
 
 @view_config(
-    route_name='admin.flags',
-    renderer='admin/flags/index.html',
-    permission='admin',
+    route_name="admin.flags",
+    renderer="admin/flags/index.html",
+    permission="admin",
     uses_session=True,
 )
 def get_flags(request):
-    return {
-        'flags': request.db.query(AdminFlag).order_by(AdminFlag.id).all(),
-    }
+    return {"flags": request.db.query(AdminFlag).order_by(AdminFlag.id).all()}
 
 
 @view_config(
-    route_name='admin.flags.edit',
-    permission='admin',
-    request_method='POST',
+    route_name="admin.flags.edit",
+    permission="admin",
+    request_method="POST",
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
 def edit_flag(request):
-    flag = request.db.query(AdminFlag).get(request.POST['id'])
-    flag.description = request.POST['description']
-    flag.enabled = bool(request.POST.get('enabled'))
+    flag = request.db.query(AdminFlag).get(request.POST["id"])
+    flag.description = request.POST["description"]
+    flag.enabled = bool(request.POST.get("enabled"))
 
-    request.session.flash(
-        f'Successfully edited flag {flag.id!r}',
-        queue='success',
-    )
+    request.session.flash(f"Edited flag {flag.id!r}", queue="success")
 
-    return HTTPSeeOther(request.route_path('admin.flags'))
+    return HTTPSeeOther(request.route_path("admin.flags"))

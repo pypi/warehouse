@@ -12,22 +12,22 @@
 
 import json
 
-from pyramid.httpexceptions import HTTPBadRequest
+import requests
+
+from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import exists
 
-from warehouse.email.ses.models import (
-    EmailMessage, EmailStatus, Event, EventTypes,
-)
+from warehouse.email.ses.models import EmailMessage, EmailStatus, Event, EventTypes
+from warehouse.metrics import IMetricsService
 from warehouse.utils import sns
 
 
 def _verify_sns_message(request, message):
     verifier = sns.MessageVerifier(
-        topics=[request.registry.settings["mail.topic"]],
-        session=request.http,
+        topics=[request.registry.settings["mail.topic"]], session=request.http
     )
 
     try:
@@ -53,14 +53,11 @@ def confirm_subscription(request):
 
     aws_session = request.find_service(name="aws.session")
     sns_client = aws_session.client(
-        "sns",
-        region_name=request.registry.settings.get("mail.region"),
+        "sns", region_name=request.registry.settings.get("mail.region")
     )
 
     sns_client.confirm_subscription(
-        TopicArn=data["TopicArn"],
-        Token=data["Token"],
-        AuthenticateOnUnsubscribe='true',
+        TopicArn=data["TopicArn"], Token=data["Token"], AuthenticateOnUnsubscribe="true"
     )
 
     return Response()
@@ -73,17 +70,22 @@ def confirm_subscription(request):
     header="x-amz-sns-message-type:Notification",
 )
 def notification(request):
+    metrics = request.find_service(IMetricsService, context=None)
     data = request.json_body
 
     # Check to ensure that the Type is what we expect.
     if data.get("Type") != "Notification":
         raise HTTPBadRequest("Expected Type of Notification")
 
-    _verify_sns_message(request, data)
+    try:
+        _verify_sns_message(request, data)
+    except requests.HTTPError:
+        metrics.increment("warehouse.ses.sns_verify.error")
+        raise HTTPServiceUnavailable from None
 
-    event_exists = (
-        request.db.query(exists().where(Event.event_id == data["MessageId"]))
-                  .scalar())
+    event_exists = request.db.query(
+        exists().where(Event.event_id == data["MessageId"])
+    ).scalar()
     if event_exists:
         return Response()
 
@@ -93,8 +95,9 @@ def notification(request):
     try:
         email = (
             request.db.query(EmailMessage)
-                      .filter(EmailMessage.message_id == message_id)
-                      .one())
+            .filter(EmailMessage.message_id == message_id)
+            .one()
+        )
     except NoResultFound:
         raise HTTPBadRequest("Unknown messageId")
 
@@ -103,8 +106,10 @@ def notification(request):
     machine = EmailStatus.load(email)
     if message["notificationType"] == "Delivery":
         machine.deliver()
-    elif (message["notificationType"] == "Bounce" and
-            message["bounce"]["bounceType"] == "Permanent"):
+    elif (
+        message["notificationType"] == "Bounce"
+        and message["bounce"]["bounceType"] == "Permanent"
+    ):
         machine.bounce()
     elif message["notificationType"] == "Bounce":
         machine.soft_bounce()

@@ -58,7 +58,6 @@
 
   &__info {
     padding-top: $spacing-unit;
-    margin-bottom: $spacing-unit;
   }
 
   &__name {
@@ -76,10 +75,11 @@
 
   &__meta {
     font-style: italic;
+    margin-bottom: $spacing-unit;
   }
 
   &__edit-button {
-    margin-top: $spacing-unit;
+    margin-bottom: $spacing-unit;
     width: 100%;
     text-align: center;
   }

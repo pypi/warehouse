@@ -14,6 +14,7 @@
 def pypi_action(action):
     def predicate(info, request):
         return action == request.params.get(":action", None)
+
     return predicate
 
 
@@ -21,32 +22,20 @@ def add_pypi_action_route(config, name, action, **kwargs):
     custom_predicates = kwargs.pop("custom_predicates", [])
     custom_predicates += [pypi_action(action)]
 
-    config.add_route(
-        name, "/pypi",
-        custom_predicates=custom_predicates,
-        **kwargs
-    )
+    config.add_route(name, "/pypi", custom_predicates=custom_predicates, **kwargs)
 
 
 def add_pypi_action_redirect(config, action, target, **kwargs):
     custom_predicates = kwargs.pop("custom_predicates", [])
     custom_predicates += [pypi_action(action)]
 
-    config.add_redirect(
-        "/pypi", target,
-        custom_predicates=custom_predicates,
-        **kwargs
-    )
+    config.add_redirect("/pypi", target, custom_predicates=custom_predicates, **kwargs)
 
 
 def includeme(config):
     config.add_directive(
-        "add_pypi_action_route",
-        add_pypi_action_route,
-        action_wrap=False,
+        "add_pypi_action_route", add_pypi_action_route, action_wrap=False
     )
     config.add_directive(
-        "add_pypi_action_redirect",
-        add_pypi_action_redirect,
-        action_wrap=False,
+        "add_pypi_action_redirect", add_pypi_action_redirect, action_wrap=False
     )

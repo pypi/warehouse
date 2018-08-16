@@ -10,15 +10,15 @@ Your first pull request
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), please take a look at :doc:`our guide to the Warehouse
-codebase <../application>`. Then, look at our `open issues that are
-labelled "good first issue"`_, find one you want to work on, comment
-on it to say you're working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+document), take a look at :doc:`our guide to the Warehouse codebase
+<../application>`. Then, look at our `open issues that are labelled "good first
+issue"`_, find one you want to work on, comment on it to say you're working on
+it, then submit a pull request. Use our :doc:`submitting-patches` documentation
+to help.
 
 Setting up a development environment to work on Warehouse should be a
-straightforward process. If you have any difficulty, please contact us
-so we can improve the process:
+straightforward process. If you have any difficulty, contact us so we can
+improve the process:
 
 - For bug reports or general problems, file an issue on `GitHub`_;
 - For real-time chat with other PyPA developers, join ``#pypa-dev`` `on
@@ -26,30 +26,21 @@ so we can improve the process:
 - For longer-form questions or discussion, message the `pypa-dev mailing
   list`_.
 
-
-Quickstart for Developers with Docker experience
-------------------------------------------------
-.. code-block:: console
-
-    git clone git@github.com:pypa/warehouse.git
-    cd warehouse
-    make serve
-    make initdb
-
-View Warehouse in the browser at ``http://localhost:80/``.
-
 .. _dev-env-install:
 
-Detailed Installation Instructions
+Detailed installation instructions
 ----------------------------------
 
 Getting the Warehouse source code
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Clone the Warehouse repository from `GitHub`_:
+`Fork <https://help.github.com/articles/fork-a-repo/>`_ the repository
+on `GitHub`_ and
+`clone <https://help.github.com/articles/cloning-a-repository/>`_ it to
+your local machine:
 
 .. code-block:: console
 
-    git clone git@github.com:pypa/warehouse.git
+    git clone git@github.com:YOUR-USERNAME/warehouse.git
 
 
 Configure the development environment
@@ -84,7 +75,7 @@ for Linux Quirks`_ for extra configuration instructions.
 .. _Windows Subsystem for Linux: https://docs.microsoft.com/windows/wsl/
 
 
-Verifying Docker Installation
+Verifying Docker installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker is installed: ``docker -v``
@@ -101,10 +92,28 @@ Install Docker Compose using the Docker-provided
    `Docker for Windows`_ automatically.
 
 
-Verifying Docker Compose Installation
+Verifying Docker Compose installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Check that Docker Compose is installed: ``docker-compose -v``
+
+
+Verifying the neccessary ports are available
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Warehouse needs access to a few local ports in order to run, namely ports
+``80``, ``5433``, and ``9000``. You should check each of these for availability
+with the ``lsof`` command.
+
+For example, checking port ``80``:
+
+.. code-block:: console
+
+    sudo lsof -i:80 | grep LISTEN
+
+If the port is in use, the command will produce output, and you will need to
+determine what is occupying the port and shut down the corresponding service.
+Otherwise, the port is available for Warehouse to use, and you can continue.
 
 
 Building the Warehouse Container
@@ -123,59 +132,113 @@ Warehouse and run all of the needed services. The Warehouse repository will be
 mounted inside of the Docker container at :file:`/opt/warehouse/src/`.
 
 
-Running the Warehouse Container and Services
+.. _running-warehouse-containers:
+
+Running the Warehouse container and services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You have to start the Docker services that make up the Warehouse
-application. These need ~4 GB of RAM dedicated to Docker to work. This is more
-than the default setting of the Docker Engine of 2 GB. Thus, you need to
-increase the memory allocated to Docker in
-`Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_ (on Mac)
-or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
-(on Windows) by moving the slider to 4 GB in the GUI.
+application.
 
-Then, in one terminal run the command:
+.. tip::
+
+   These services need ~4 GB of RAM dedicated to Docker to work. This is more
+   than the default setting of the Docker Engine of 2 GB. Thus, you
+   need to increase the memory allocated to Docker in
+   `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_
+   (on Mac) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+   (on Windows) by moving the slider to 4 GB in the GUI.
+
+   If you are using Linux, you may need to configure the maximum map count to get
+   the `elasticsearch` up and running. According to the
+   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/vm-max-map-count.html>`_
+   this can be set temporarily:
+
+   .. code-block:: console
+
+       # sysctl -w vm.max_map_count=262144
+
+   or permanently by modifying the ``vm.max_map_count`` setting in your
+   :file:`/etc/sysctl.conf`.
+
+   Also check that you have more than 5% disk space free, otherwise
+   elasticsearch will become read only. See ``flood_stage`` in the
+   `elasticsearch disk allocation docs
+   <https://www.elastic.co/guide/en/elasticsearch/reference/6.2/disk-allocator.html>`_.
+
+
+In a terminal run the command:
 
 .. code-block:: console
 
     make serve
 
-Next, you will:
-
-* create a new Postgres database,
-* install example data to the Postgres database,
-* run migrations, and
-* load some example data from `Test PyPI`_
-
-In a second terminal, separate from the ``make serve`` command above, run:
+This command will produce output for a while, and will not exit. While it runs,
+open a second terminal, and run:
 
 .. code-block:: console
 
     make initdb
 
-If you get an error about xz, you may need to install the ``xz`` utility. This
-is highly likely on Mac OS X and Windows.
+This command will:
+
+* create a new Postgres database,
+* install example data to the Postgres database,
+* run migrations,
+* load some example data from `Test PyPI`_, and
+* index all the data for the search database.
+
+.. note::
+
+    If you get an error about xz, you may need to install the ``xz`` utility.
+    This is highly likely on macOS and Windows.
+
+Once the ``make initdb`` command has finished, you are ready to continue.
 
 
 Viewing Warehouse in a browser
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the terminal running the ``make serve`` command has logged that a
-``web`` service has started a reactor:
+Eventually the output of the ``make serve`` command will cease, and you will
+see a log message indicating that either the ``web`` service has started
+listening:
 
 .. code-block:: console
 
-    [twisted.application.runner._runner.Runner#info] Starting reactor...
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Starting gunicorn 19.7.1
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Listening at: http://0.0.0.0:8000 (6)
+    web_1 | [2018-05-01 20:28:14 +0000] [6] [INFO] Using worker: sync
+    web_1 | [2018-05-01 20:28:14 +0000] [15] [INFO] Booting worker with pid: 15
 
-the web container is listening on port 80. It's accessible at
-``http://localhost:80/``.
+or that the ``static`` container has finished compiling the static assets:
+
+.. code-block:: console
+
+    static_1 | [20:28:37] Starting 'dist:compress'...
+    static_1 | [20:28:37] Finished 'dist:compress' after 14 μs
+    static_1 | [20:28:37] Finished 'dist' after 43 s
+    static_1 | [20:28:37] Starting 'watch'...
+    static_1 | [20:28:37] Finished 'watch' after 11 ms
+
+This means that all the services are up, and web container is listening on port
+80. It's accessible at http://localhost:80/.
 
 .. note::
 
-    If you are using ``docker-machine`` on an older version of Mac OS or
+    If you are using ``docker-machine`` on an older version of macOS or
     Windows, the warehouse application might be accessible at
     ``https://<docker-ip>:80/`` instead. You can get information about the
     docker container with ``docker-machine env``
+
+.. note::
+
+    In development mode, the official logos are replaced with placeholders due to
+    copyright.
+
+    On Firefox, the logos might show up as black rectangles due to  the
+    *Content Security Policy* used and an implementation bug in Firefox (see
+    `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
+    for more info).
 
 
 Logging in to Warehouse
@@ -183,10 +246,10 @@ Logging in to Warehouse
 
 In the development environment, the password for every account has been set to
 the string ``password``. You can log in as any account at
-``http://localhost:80/account/login/``.
+http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password`` at ``http://localhost:80/admin/login/``.
+``password`` at http://localhost:80/admin/login/.
 
 
 Stopping Warehouse and other services
@@ -223,11 +286,26 @@ access your developer environment, you'll:
 
     make serve
 
-View Warehouse in the browser at ``http://localhost:80/``.
+View Warehouse in the browser at http://localhost:80/.
 
+Debugging the webserver
+^^^^^^^^^^^^^^^^^^^^^^^
+
+If you would like to use a debugger like pdb that allows you to drop
+into a shell, you can use ``make debug`` instead of ``make serve``.
 
 Troubleshooting
 ---------------
+
+Errors when executing ``make build``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If you are using Ubuntu and ``invalid reference format`` error is displayed,
+  you can fix it by installing Docker through `Snap <https://snapcraft.io/docker>`.
+
+.. code-block:: console
+
+    snap install docker
 
 Errors when executing ``make serve``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -247,6 +325,29 @@ Errors when executing ``make serve``
   ``make serve`` has been executed, shut down the Docker containers. When the
   containers have shut down, run ``make serve`` in one terminal window while
   running ``make initdb`` in a separate terminal window.
+
+Errors when executing ``make purge``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make purge`` fails with a permission error, check ownership
+  and permissions on ``warehouse/static``. ``docker-compose`` is spawning
+  containers with docker. Generally on Linux that process is running as root.
+  So when it writes files back to the file system as the static container
+  does those are owned by root. So your docker daemon would be running as root,
+  so your user doesn't have permission to remove the files written by the
+  containers. ``sudo make purge`` will work.
+
+Errors when executing ``make initdb``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* If ``make initdb`` fails with a timeout like::
+
+    urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPConnection object at 0x8beca733c3c8>, 'Connection to elasticsearch timed out. (connect timeout=30)')
+
+  you might need to increase the amount of memory allocated to docker, since
+  elasticsearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
+  Refer to the tip under :ref:`running-warehouse-containers` section for more details.
+
 
 "no space left on device" when using ``docker-compose``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -271,7 +372,18 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 This typically occur when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
-container and run ``make initdb`` again.
+container, temporarily stop ``make_serve`` and run ``make initdb`` again.
+
+
+``make initdb`` complains about PostgreSQL Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You built a Warehouse install some time ago and PostgreSQL has been updated.
+If you do not need the data in your databases, it might be best to just blow
+away your builds + ``docker`` containers and start again:
+``make purge``
+``docker volume rm $(docker volume ls -q --filter dangling=true)``
+
 
 Docker and Windows Subsystem for Linux Quirks
 ---------------------------------------------
@@ -331,6 +443,22 @@ db     The SQLAlchemy ORM ``Session`` object which has already been configured
        to connect to the database.
 ====== ========================================================================
 
+To use the ``db`` object in the interactive shell, import the class you're
+planning to use. For example, if I wanted to use the User object, I would
+do this:
+
+.. code-block:: console
+
+    $ make shell
+    docker-compose run --rm web python -m warehouse shell
+    Starting warehouse_redis_1 ...
+    ...
+    (InteractiveConsole)
+    >>>
+    >>> from warehouse.accounts.models import User
+    >>> db.query(User).filter_by(username='test').all()
+    [User(username='test')]
+
 You can also run the IPython shell as the interactive shell. To do so export
 the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
 ``make build`` *step*:
@@ -381,6 +509,13 @@ You can run linters, programs that check the code, with:
 
     make lint
 
+Warehouse uses `black <https://github.com/ambv/black>`_ for opinionated
+formatting and linting. You can reformat with:
+
+.. code-block:: console
+
+    make reformat
+
 
 Building documentation
 ----------------------
@@ -410,10 +545,9 @@ Building the docs requires Python 3.6. If it is not installed, the
 What next?
 ----------
 
-Please look at our `open issues that are labelled "good first
-issue"`_, find one you want to work on, comment on it to say you're
-working on it, then submit a pull request. Use our
-:doc:`submitting-patches` documentation to help.
+Look at our `open issues that are labelled "good first issue"`_, find one you
+want to work on, comment on it to say you're working on it, then submit a pull
+request. Use our :doc:`submitting-patches` documentation to help.
 
 Talk with us
 ^^^^^^^^^^^^
@@ -427,8 +561,7 @@ Learn about Warehouse and packaging
 
 Resources to help you learn Warehouse's context:
 
--  `the Warehouse
-   roadmap <https://wiki.python.org/psf/WarehouseRoadmap>`__
+-  :doc:`../roadmap`
 -  `blog posts, mailing list messages, and notes from our core developer
    meetings <https://wiki.python.org/psf/PackagingWG>`__
 - :doc:`../application`

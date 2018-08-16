@@ -29,10 +29,7 @@ def upgrade():
     op.add_column(
         "trove_classifiers",
         sa.Column(
-            "deprecated",
-            sa.Boolean(),
-            server_default=sa.text("false"),
-            nullable=False,
+            "deprecated", sa.Boolean(), server_default=sa.text("false"), nullable=False
         ),
     )
 

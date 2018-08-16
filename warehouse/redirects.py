@@ -23,6 +23,7 @@ def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
             raise HTTPBadRequest("URL may not contain control characters")
 
         return redirect(redirect_to)
+
     return redirect_view
 
 

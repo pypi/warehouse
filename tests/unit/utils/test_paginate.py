@@ -19,19 +19,16 @@ from warehouse.utils import paginate
 
 
 class FakeSuggestion:
-
     def __init__(self, options):
         self.options = options
 
 
 class FakeSuggest:
-
     def __init__(self, name_suggestion):
         self.name_suggestion = name_suggestion
 
 
 class FakeResult:
-
     def __init__(self, data, total):
         self.data = data
         self.total = total
@@ -46,7 +43,6 @@ class FakeResult:
 
 
 class FakeSuggestResult(FakeResult):
-
     def __init__(self, data, total, options=None, suggestion=None):
         super().__init__(data, total)
         self.options = options
@@ -61,7 +57,6 @@ class FakeSuggestResult(FakeResult):
 
 
 class FakeQuery:
-
     def __init__(self, fake):
         self.fake = fake
         self.range = slice(None)
@@ -79,7 +74,6 @@ class FakeQuery:
 
 
 class FakeSuggestQuery(FakeQuery):
-
     def __init__(self, fake, options=None, suggestion=None):
         super().__init__(fake)
         self.options = options
@@ -92,7 +86,6 @@ class FakeSuggestQuery(FakeQuery):
 
 
 class TestElasticsearchWrapper:
-
     def test_slices_and_length(self):
         wrapper = paginate._ElasticsearchWrapper(FakeQuery([1, 2, 3, 4, 5, 6]))
         assert wrapper[1:3] == [2, 3]
@@ -154,10 +147,8 @@ def test_elasticsearch_page_has_wrapper(monkeypatch):
     assert paginate.ElasticsearchPage("first", second="foo") is page_obj
     assert page_cls.calls == [
         pretend.call(
-            "first",
-            second="foo",
-            wrapper_class=paginate._ElasticsearchWrapper,
-        ),
+            "first", second="foo", wrapper_class=paginate._ElasticsearchWrapper
+        )
     ]
 
 
@@ -166,12 +157,11 @@ def test_paginate_url(pyramid_request):
     pyramid_request.GET["foo"] = "bar"
 
     url = pretend.stub()
-    pyramid_request.current_route_path = \
-        pretend.call_recorder(lambda _query: url)
+    pyramid_request.current_route_path = pretend.call_recorder(lambda _query: url)
 
     url_maker = paginate.paginate_url_factory(pyramid_request)
 
     assert url_maker(5) is url
     assert pyramid_request.current_route_path.calls == [
-        pretend.call(_query=[("foo", "bar"), ("page", 5)]),
+        pretend.call(_query=[("foo", "bar"), ("page", 5)])
     ]

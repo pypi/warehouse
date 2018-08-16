@@ -38,6 +38,10 @@ export default () => {
           if (supplement !== undefined) {
             jsonValue += supplement;
           }
+          if (jsonKey.includes("_count")) {
+            // Number formatting for count keys.
+            jsonValue = jsonValue.toLocaleString();
+          }
           const attr = elem.dataset.attr;
           if (attr !== undefined) {
             elem[attr] = jsonValue;

@@ -11,31 +11,65 @@
 # limitations under the License.
 
 import functools
+import logging
 
 import alembic.config
+import psycopg2
 import psycopg2.extensions
+import pyramid_retry
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
 
 __all__ = ["includeme", "metadata", "ModelBase"]
 
 
+logger = logging.getLogger(__name__)
+
+
 DEFAULT_ISOLATION = "READ COMMITTED"
+
+
+# On the surface this might seem wrong, becasue retrying a request whose data violates
+# the constraints of the database doesn't seem like a useful endeavor. However what
+# happens if you have two requests that are trying to insert a row, and that row
+# contains a unique, user provided value, you can get into a race condition where both
+# requests check the database, see nothing with that value exists, then both attempt to
+# insert it. One of the requests will succeed, the other will fail with an
+# IntegrityError. Retrying the request that failed will then have it see the object
+# created by the other request, and will have it do the appropiate action in that case.
+#
+# The most common way to run into this, is when submitting a form in the browser, if the
+# user clicks twice in rapid succession, the browser will send two almost identical
+# requests at basically the same time.
+#
+# One possible issue that this raises, is that it will slow down "legitimate"
+# IntegrityError because they'll have to fail multiple times before they ultimately
+# fail. We consider this an acceptable trade off, because determinsitic IntegrityError
+# should be caught with proper validation prior to submitting records to the database
+# anyways.
+pyramid_retry.mark_error_retryable(IntegrityError)
+
+
+# A generic wrapper exception that we'll raise when the database isn't available, we
+# use this so we can catch it later and turn it into a generic 5xx error.
+class DatabaseNotAvailable(Exception):
+    ...
 
 
 # We'll add a basic predicate that won't do anything except allow marking a
 # route as read only (or not).
 class ReadOnlyPredicate:
-
     def __init__(self, val, config):
         self.val = val
 
@@ -51,12 +85,10 @@ class ReadOnlyPredicate:
 
 
 class ModelBase:
-
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
-            *[c_attr.key for c_attr in inst.mapper.column_attrs],
-            _self=self,
+            *[c_attr.key for c_attr in inst.mapper.column_attrs], _self=self
         )
         return self.__repr__()
 
@@ -95,15 +127,14 @@ def listens_for(target, identifier, *args, **kwargs):
         venusian.attach(wrapped, callback)
 
         return wrapped
+
     return deco
 
 
 def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
-    alembic_cfg.set_main_option(
-        "url", config.registry.settings["database.url"],
-    )
+    alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
     return alembic_cfg
 
 
@@ -113,9 +144,7 @@ def _reset(dbapi_connection, connection_record):
     needs_reset = connection_record.info.pop("warehouse.needs_reset", False)
     if needs_reset:
         dbapi_connection.set_session(
-            isolation_level=DEFAULT_ISOLATION,
-            readonly=False,
-            deferrable=False,
+            isolation_level=DEFAULT_ISOLATION, readonly=False, deferrable=False
         )
 
 
@@ -132,11 +161,25 @@ def _create_engine(url):
 
 
 def _create_session(request):
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.increment("warehouse.db.session.start")
+
     # Create our connection, most likely pulling it from the pool of
     # connections
-    connection = request.registry["sqlalchemy.engine"].connect()
-    if (connection.connection.get_transaction_status() !=
-            psycopg2.extensions.TRANSACTION_STATUS_IDLE):
+    try:
+        connection = request.registry["sqlalchemy.engine"].connect()
+    except psycopg2.OperationalError:
+        # When we tried to connection to PostgreSQL, our database was not available for
+        # some reason. We're going to log it here and then raise our error. Most likely
+        # this is a transient error that will go away.
+        logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
+        metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
+        raise DatabaseNotAvailable()
+
+    if (
+        connection.connection.get_transaction_status()
+        != psycopg2.extensions.TRANSACTION_STATUS_IDLE
+    ):
         # Work around a bug where SQLALchemy leaves the initial connection in
         # a pool inside of a transaction.
         # TODO: Remove this in the future, brand new connections on a fresh
@@ -148,9 +191,7 @@ def _create_session(request):
     if request.read_only:
         connection.info["warehouse.needs_reset"] = True
         connection.connection.set_session(
-            isolation_level="SERIALIZABLE",
-            readonly=True,
-            deferrable=True,
+            isolation_level="SERIALIZABLE", readonly=True, deferrable=True
         )
 
     # Now, create a session from our connection
@@ -163,12 +204,14 @@ def _create_session(request):
     # end of our connection.
     @request.add_finished_callback
     def cleanup(request):
+        metrics.increment("warehouse.db.session.finished")
         session.close()
         connection.close()
 
     # Check if we're in read-only mode
     from warehouse.admin.flags import AdminFlag
-    flag = session.query(AdminFlag).get('read-only')
+
+    flag = session.query(AdminFlag).get("read-only")
     if flag and flag.enabled and not request.user.is_superuser:
         request.tm.doom()
 
@@ -191,7 +234,7 @@ def includeme(config):
 
     # Create our SQLAlchemy Engine.
     config.registry["sqlalchemy.engine"] = _create_engine(
-        config.registry.settings["database.url"],
+        config.registry.settings["database.url"]
     )
 
     # Register our request.db property

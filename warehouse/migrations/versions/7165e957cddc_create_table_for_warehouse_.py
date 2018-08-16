@@ -21,36 +21,40 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = '7165e957cddc'
-down_revision = '1e2ccd34f539'
+revision = "7165e957cddc"
+down_revision = "1e2ccd34f539"
 
 
 def upgrade():
     op.create_table(
-        'warehouse_admin_flag',
-        sa.Column('id', sa.Text(), nullable=False),
-        sa.Column('description', sa.Text(), nullable=False),
-        sa.Column('enabled', sa.Boolean(), nullable=False),
-        sa.PrimaryKeyConstraint('id')
+        "warehouse_admin_flag",
+        sa.Column("id", sa.Text(), nullable=False),
+        sa.Column("description", sa.Text(), nullable=False),
+        sa.Column("enabled", sa.Boolean(), nullable=False),
+        sa.PrimaryKeyConstraint("id"),
     )
     # Insert our initial flags.
-    op.execute("""
+    op.execute(
+        """
         INSERT INTO warehouse_admin_flag(id, description, enabled)
         VALUES (
             'disallow-new-user-registration',
             'Disallow ALL new User registrations',
             FALSE
         )
-    """)
-    op.execute("""
+    """
+    )
+    op.execute(
+        """
         INSERT INTO warehouse_admin_flag(id, description, enabled)
         VALUES (
             'disallow-new-project-registration',
             'Disallow ALL new Project registrations',
             FALSE
         )
-    """)
+    """
+    )
 
 
 def downgrade():
-    op.drop_table('warehouse_admin_flag')
+    op.drop_table("warehouse_admin_flag")

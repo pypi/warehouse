@@ -14,14 +14,13 @@ from zope.interface import Interface
 
 
 class IEmailSender(Interface):
-
     def create_service(context, request):
         """
         Create the service, given the context and request for which it is being
         created for.
         """
 
-    def send(subject, body, *, recipient):
+    def send(recipient, message):
         """
-        Sends an email with the given subject and body to the given recipient.
+        Sends an EmailMessage to the given recipient.
         """

@@ -15,6 +15,24 @@ import xmlrpc.client
 import pytest
 
 
-def test_xmlrpc_raises_fault(webtest):
+def test_xmlrpc_raises_fault(app_config, webtest, metrics):
     with pytest.raises(xmlrpc.client.Fault):
         webtest.xmlrpc("/pypi", "list_packages", "one", "two")
+
+
+def test_xmlrpc_nomethod(app_config, webtest, metrics):
+    with pytest.raises(xmlrpc.client.Fault):
+        webtest.xmlrpc("/pypi", "multipassssss")
+    assert metrics.increment.calls == []
+    assert metrics.timed.calls == []
+
+
+def test_xmlrpc_succeeds(app_config, webtest, metrics):
+    webtest.xmlrpc("/pypi", "changelog_last_serial")
+
+
+def test_invalid_arguments(app_config, webtest):
+    with pytest.raises(
+        xmlrpc.client.Fault, match="server error; invalid method params"
+    ):
+        webtest.xmlrpc("/pypi", "package_releases")

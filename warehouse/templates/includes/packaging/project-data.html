@@ -1,0 +1,129 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+
+{% if release.urls.values() | contains_valid_uris %}
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Project links</h3>
+  {% for name, url in release.urls.items() %}
+  {% if is_valid_uri(url) %}
+  <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
+    {# TODO: We need to figure out a way to get better icons here, like fa-github, fa-book, etc. #}
+    {{ url_icon(name, url) }}{{ name }}
+  </a>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Statistics</h3>
+  {% if release.github_repo_info_url %}
+  <div class="github-repo-info hidden" data-url="{{release.github_repo_info_url}}">
+    <em>GitHub statistics:</em>
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+       data-key="html_url" data-attr="href" data-supplement="/stargazers" rel="noopener"
+       target="_blank">
+      <i class="fa fa-star" aria-hidden="true"></i>
+      <strong>Stars: </strong>
+      <span class="github-repo-info__item" data-key="stargazers_count"></span>
+    </a>
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+       data-key="html_url" data-attr="href" data-supplement="/network" rel="noopener"
+       target="_blank">
+      <i class="fa fa-code-branch" aria-hidden="true"></i>
+      <strong>Forks: </strong>
+      <span class="github-repo-info__item" data-key="forks_count"></span>
+    </a>
+    <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed github-repo-info__item"
+       data-key="html_url" data-attr="href" data-supplement="/issues" rel="noopener"
+       target="_blank">
+      <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+      <strong>Open issues/PRs: </strong>
+      <span class="github-repo-info__item" data-key="open_issues_count"></span>
+    </a>
+  </div>
+  {% endif %}
+  <p>View statistics for this project via <a
+          href="https://libraries.io/pypi/{{ release.project.name }}">Libraries.io</a>, or by using
+    <a href="https://packaging.python.org/guides/analyzing-pypi-package-downloads/">Google
+      BigQuery</a></p>
+</div>
+
+{% if release.has_meta %}
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Meta</h3>
+  {% if license %}
+  <p><strong>License:</strong> {{ license }}</p>
+  {% endif %}
+  {% if release.author_email %}
+    <p><strong>Author:</strong> <a href="mailto:{{ release.author_email }}">{{ release.author or release.author_email }}</a></p>
+  {% elif release.author %}
+    <p><strong>Author:</strong> {{ release.author }}</p>
+  {% endif %}
+  {% if release.maintainer_email %}
+    <p><strong>Maintainer:</strong> <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+  {% elif release.maintainer %}
+    <p><strong>Maintainer:</strong> {{ release.maintainer }}</p>
+  {% endif %}
+  {% if release.keywords %}
+  <p class="tags">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+    <span class="sr-only">Tags:</span>
+    {% for keyword in release.keywords | format_tags %}
+    <span class="package-keyword">
+      {{ keyword }}{% if not loop.last %},{% endif %}
+    </span>
+    {% endfor %}
+  </p>
+  {% endif %}
+  {% if release.requires_python %}
+  <p>
+    <strong>Requires:</strong> Python {{ release.requires_python }}
+  </p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="sidebar-section">
+  <h3 class="sidebar-section__title">Maintainers</h3>
+  {% for maintainer in maintainers %}
+    {% set alt = "Avatar for {} from gravatar.com".format(maintainer.username) %}
+    <span class="sidebar-section__maintainer">
+      <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}" class="sidebar-section__user-gravatar">
+        <img src="{{ gravatar(request, maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+      </a>
+      <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" class="sidebar-section__user-gravatar-text">
+        {{ maintainer.username}}
+      </a>
+    </span>
+  {% endfor %}
+</div>
+
+{% if release.classifiers %}
+<div class="sidebar-section classifiers">
+  <h3>Classifiers</h3>
+  <dl>
+    {% for classifier_head, classifier_tail in (release.classifiers|format_classifiers()).items() %}
+    <dt>{{ classifier_head }}</dt>
+    {% for classifier in classifier_tail %}
+    <dd>
+    <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier))}) }}">
+      {{ classifier }}
+    </a>
+    </dd>
+    {% endfor %}
+    {% endfor %}
+  </dl>
+</div>
+{% endif %}

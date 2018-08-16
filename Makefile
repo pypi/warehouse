@@ -42,7 +42,13 @@ if extra_in_left or extra_in_right:
 endef
 
 default:
-	@echo "Must call a specific subcommand"
+	@echo "Call a specific subcommand:"
+	@echo
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null\
+	| awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}'\
+	| sort\
+	| egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
+	@echo
 	@exit 1
 
 .state/env/pyvenv.cfg: requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
@@ -84,7 +90,7 @@ build:
 	touch .state/docker-build
 
 serve: .state/docker-build
-	docker-compose up
+	docker-compose up --remove-orphans
 
 debug: .state/docker-build
 	docker-compose run --rm --service-ports web
@@ -94,12 +100,17 @@ tests:
 								  PATH="/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
 								  bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+
+reformat: .state/env/pyvenv.cfg
+	$(BINDIR)/black warehouse/ tests/
+
 lint: .state/env/pyvenv.cfg
 	$(BINDIR)/flake8 .
+	$(BINDIR)/black --check warehouse/ tests/
 	$(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
@@ -122,8 +133,10 @@ deps: .state/env/pyvenv.cfg
 	$(eval TMPDIR := $(shell mktemp -d))
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
 	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/deploy.txt requirements/deploy.txt
 	echo "$$DEPCHECKER" | python - $(TMPDIR)/main.txt requirements/main.txt
+	echo "$$DEPCHECKER" | python - $(TMPDIR)/lint.txt requirements/lint.txt
 	rm -r $(TMPDIR)
 	$(BINDIR)/pip check
 
@@ -136,9 +149,7 @@ endif
 initdb:
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -k dev/$(DB).sql.xz
-	docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f dev/$(DB).sql
-	rm dev/$(DB).sql
+	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
 	docker-compose run --rm web python -m warehouse db upgrade head
 	$(MAKE) reindex
 
@@ -151,6 +162,7 @@ shell:
 clean:
 	rm -rf warehouse/static/components
 	rm -rf warehouse/static/dist
+	rm -rf dev/*.sql
 
 purge: stop clean
 	rm -rf .state

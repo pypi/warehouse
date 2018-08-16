@@ -21,16 +21,12 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = 'a65114e48d6f'
-down_revision = '104b4c56862b'
+revision = "a65114e48d6f"
+down_revision = "104b4c56862b"
 
 
 def upgrade():
-    op.alter_column(
-        "accounts_user",
-        "last_login",
-        server_default=sa.func.now(),
-    )
+    op.alter_column("accounts_user", "last_login", server_default=sa.func.now())
 
 
 def downgrade():

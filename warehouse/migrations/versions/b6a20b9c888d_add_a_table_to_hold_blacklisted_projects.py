@@ -36,26 +36,18 @@ def upgrade():
             nullable=False,
         ),
         sa.Column(
-            "created",
-            sa.DateTime(),
-            server_default=sa.text("now()"),
-            nullable=False,
+            "created", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("blacklisted_by", postgresql.UUID(), nullable=True),
-        sa.Column(
-            "comment",
-            sa.Text(),
-            server_default="",
-            nullable=False,
-        ),
+        sa.Column("comment", sa.Text(), server_default="", nullable=False),
         sa.CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
             name="blacklist_valid_name",
         ),
         sa.ForeignKeyConstraint(["blacklisted_by"], ["accounts_user.id"]),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint('name'),
+        sa.UniqueConstraint("name"),
     )
 
     # Setup a trigger that will ensure that we never commit a name that hasn't

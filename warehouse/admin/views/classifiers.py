@@ -23,34 +23,27 @@ from warehouse.packaging.models import Classifier
     uses_session=True,
 )
 def get_classifiers(request):
-    classifiers = (
-        request.db.query(Classifier)
-        .order_by(Classifier.classifier)
-        .all()
-    )
+    classifiers = request.db.query(Classifier).order_by(Classifier.classifier).all()
 
-    return {
-        'classifiers': classifiers,
-    }
+    return {"classifiers": classifiers}
 
 
 @view_defaults(
-    route_name='admin.classifiers.add',
-    permission='admin',
-    request_method='POST',
+    route_name="admin.classifiers.add",
+    permission="admin",
+    request_method="POST",
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
 class AddClassifier:
-
     def __init__(self, request):
         self.request = request
 
-    @view_config(request_param=['parent'])
+    @view_config(request_param=["parent"])
     def add_parent_classifier(self):
         classifier = Classifier(
-            classifier=self.request.params.get('parent'), l3=0, l4=0, l5=0,
+            classifier=self.request.params.get("parent"), l3=0, l4=0, l5=0
         )
 
         self.request.db.add(classifier)
@@ -59,18 +52,15 @@ class AddClassifier:
         classifier.l2 = classifier.id
 
         self.request.session.flash(
-            f'Successfully added classifier {classifier.classifier!r}',
-            queue='success',
+            f"Added classifier {classifier.classifier!r}", queue="success"
         )
 
-        return HTTPSeeOther(self.request.route_path('admin.classifiers'))
+        return HTTPSeeOther(self.request.route_path("admin.classifiers"))
 
-    @view_config(request_param=['parent_id', 'child'])
+    @view_config(request_param=["parent_id", "child"])
     def add_child_classifier(self):
-        parent = (
-            self.request.db
-            .query(Classifier)
-            .get(self.request.params.get('parent_id'))
+        parent = self.request.db.query(Classifier).get(
+            self.request.params.get("parent_id")
         )
 
         classifier = Classifier(
@@ -78,46 +68,38 @@ class AddClassifier:
             l3=parent.l3,
             l4=parent.l4,
             l5=parent.l5,
-            classifier=(
-                parent.classifier + ' :: ' + self.request.params.get('child')
-            ),
+            classifier=(parent.classifier + " :: " + self.request.params.get("child")),
         )
         self.request.db.add(classifier)
         self.request.db.flush()  # To get the ID
 
-        for level in ['l3', 'l4', 'l5']:
+        for level in ["l3", "l4", "l5"]:
             if getattr(classifier, level) == 0:
                 setattr(classifier, level, classifier.id)
                 break
 
         self.request.session.flash(
-            f'Successfully added classifier {classifier.classifier!r}',
-            queue='success',
+            f"Added classifier {classifier.classifier!r}", queue="success"
         )
 
-        return HTTPSeeOther(self.request.route_path('admin.classifiers'))
+        return HTTPSeeOther(self.request.route_path("admin.classifiers"))
 
 
 @view_config(
-    route_name='admin.classifiers.deprecate',
-    permission='admin',
-    request_method='POST',
+    route_name="admin.classifiers.deprecate",
+    permission="admin",
+    request_method="POST",
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
 def deprecate_classifier(request):
-    classifier = (
-        request.db
-        .query(Classifier)
-        .get(request.params.get('classifier_id'))
-    )
+    classifier = request.db.query(Classifier).get(request.params.get("classifier_id"))
 
     classifier.deprecated = True
 
     request.session.flash(
-        f'Successfully deprecated classifier {classifier.classifier!r}',
-        queue='success',
+        f"Deprecated classifier {classifier.classifier!r}", queue="success"
     )
 
-    return HTTPSeeOther(request.route_path('admin.classifiers'))
+    return HTTPSeeOther(request.route_path("admin.classifiers"))

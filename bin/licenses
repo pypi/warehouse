@@ -3,9 +3,19 @@
 EXIT_CODE=0
 
 # Search all .py files
-for fn in $(find . -type f \( -name "*.py" -o -name "*.html" \) ! -path "./.state*" ! -path "./node_modules*" ! -path "./htmlcov*" ! -path "./warehouse/static*" ! -path "./warehouse/datadog/pyramid_datadog.py"); do
-    # Check for license in first 3 lines (allows for shebang and encoding)
-    if [[ ! "$(head -3 $fn | grep "^ *# Licensed")" ]]; then
+for fn in $(find . -type f \( \
+            -name "*.py" -o \
+            -name "*.html" -o \
+            -name "*.scss" -o \
+          ! -name "*.min.js" \
+            -name "*.js" \) \
+          ! -path "./.state*" \
+          ! -path "./node_modules*" \
+          ! -path "./htmlcov*" \
+          ! -path "./warehouse/static/html*" \
+          ! -path "./warehouse/static/js/vendor*"); do
+    # Check for license in first 5 lines (allows for shebang, encoding and handles comment character in various languages)
+    if [[ ! "$(head -5 $fn | grep "^ *\(#\|\*\|\/\/\) .* License\(d*\)")" ]]; then
         echo $fn is missing a license
         EXIT_CODE=1
     fi

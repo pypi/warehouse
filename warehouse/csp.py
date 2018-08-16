@@ -19,10 +19,12 @@ NONE = "'none'"
 
 
 def _serialize(policy):
-    return "; ".join([
-        " ".join([k] + [v2 for v2 in v if v2 is not None])
-        for k, v in sorted(policy.items())
-    ])
+    return "; ".join(
+        [
+            " ".join([k] + [v2 for v2 in v if v2 is not None])
+            for k, v in sorted(policy.items())
+        ]
+    )
 
 
 def content_security_policy_tween_factory(handler, registry):
@@ -31,8 +33,14 @@ def content_security_policy_tween_factory(handler, registry):
 
         try:
             policy = request.find_service(name="csp")
-        except ValueError:
+        except LookupError:
             policy = collections.defaultdict(list)
+
+        # Replace CSP headers on /simple/ pages.
+        if request.path.startswith("/simple/"):
+            policy = collections.defaultdict(list)
+            policy["sandbox"] = ["allow-top-navigation"]
+            policy["default-src"] = [NONE]
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
@@ -65,34 +73,43 @@ def csp_factory(_, request):
 def includeme(config):
     config.register_service_factory(csp_factory, name="csp")
     # Enable a Content Security Policy
-    config.add_settings({
-        "csp": {
-            "base-uri": [SELF],
-            "block-all-mixed-content": [],
-            "connect-src": [
-                item for item in [
+    config.add_settings(
+        {
+            "csp": {
+                "base-uri": [SELF],
+                "block-all-mixed-content": [],
+                "connect-src": [
                     SELF,
-                    config.registry.settings.get("statuspage.url"),
                     "https://api.github.com/repos/",
+                    "*.fastly-insights.com",
+                    "sentry.io",
                 ]
-                if item
-            ],
-            "default-src": [NONE],
-            "font-src": [SELF, "fonts.gstatic.com"],
-            "form-action": [SELF],
-            "frame-ancestors": [NONE],
-            "frame-src": [NONE],
-            "img-src": [
-                SELF,
-                config.registry.settings["camo.url"],
-                "www.google-analytics.com",
-            ],
-            "script-src": [
-                SELF,
-                "www.googletagmanager.com",
-                "www.google-analytics.com",
-            ],
-            "style-src": [SELF, "fonts.googleapis.com"],
-        },
-    })
+                + [
+                    item
+                    for item in [config.registry.settings.get("statuspage.url")]
+                    if item
+                ],
+                "default-src": [NONE],
+                "font-src": [SELF, "fonts.gstatic.com"],
+                "form-action": [SELF],
+                "frame-ancestors": [NONE],
+                "frame-src": [NONE],
+                "img-src": [
+                    SELF,
+                    config.registry.settings["camo.url"],
+                    "www.google-analytics.com",
+                    "*.fastly-insights.com",
+                ],
+                "script-src": [
+                    SELF,
+                    "www.googletagmanager.com",
+                    "www.google-analytics.com",
+                    "*.fastly-insights.com",
+                    "https://cdn.ravenjs.com",
+                ],
+                "style-src": [SELF, "fonts.googleapis.com"],
+                "worker-src": ["*.fastly-insights.com"],
+            }
+        }
+    )
     config.add_tween("warehouse.csp.content_security_policy_tween_factory")

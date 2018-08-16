@@ -1,2 +1,1 @@
-Twisted[http2,tls]>=16.6.0
 gunicorn==19.7.1

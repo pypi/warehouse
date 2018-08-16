@@ -15,7 +15,7 @@ def referrer_policy_tween_factory(handler, registry):
     def referrer_policy_tween(request):
         response = handler(request)
 
-        response.headers['Referrer-Policy'] = 'origin-when-cross-origin'
+        response.headers["Referrer-Policy"] = "origin-when-cross-origin"
 
         return response
 

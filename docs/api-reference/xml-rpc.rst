@@ -7,6 +7,10 @@ PyPI's XML-RPC methods
    recommended, and existing consumers of the API should migrate to the RSS
    and/or JSON APIs instead.
 
+   Users of this API are **strongly** encouraged to subscribe to the
+   pypi-announce_ mailing list for notices as we begin the process of removing
+   XML-RPC from PyPI.
+
 Example usage::
 
   >>> import xmlrpclib
@@ -47,14 +51,14 @@ returned.
 ``release_data`` The `stable_version` flag is always an empty string. It was
 never fully supported anyway.
 
-``release_downloads`` and ``top_packages`` No longer supported. Please
-use `Google BigQuery
+``release_downloads`` and ``top_packages`` No longer supported. Use
+`Google BigQuery
 <https://mail.python.org/pipermail/distutils-sig/2016-May/028986.html>`_
 instead (`guidance
 <https://packaging.python.org/guides/analyzing-pypi-package-downloads/>`_,
 `tips <https://langui.sh/2016/12/09/data-driven-decisions/>`_).
 
-Package Querying
+Package querying
 ----------------
 
 ``list_packages()``
@@ -132,6 +136,8 @@ Package Querying
 ``search(spec[, operator])``
   Search the package database using the indicated search `spec`.
 
+  Returns at most 100 results.
+
   The `spec` may include any of the keywords described in the above list
   (except 'stable_version' and 'classifiers'), for example:
   {'description': 'spam'} will search description fields. Within the spec, a
@@ -154,9 +160,9 @@ Package Querying
   * download_url
 
   Arguments for different fields are combined using either "and" (the default)
-  or "or". Example: search({'name': 'foo', 'description': 'bar'}, 'or'). The
-  results are returned as a list of dicts {'name': package name, 'version':
-  package release version, 'summary': package release summary}
+  or "or". Example: `search({'name': 'foo', 'description': 'bar'}, 'or')`.
+  The results are returned as a list of dicts `{'name': package name,
+  'version': package release version, 'summary': package release summary}`
 
 ``browse(classifiers)``
   Retrieve a list of `[name, version]` of all releases classified with all of
@@ -195,3 +201,5 @@ Mirroring Support
 ``list_packages_with_serial()``
   Retrieve a dictionary mapping package names to the last serial for each
   package.
+
+.. _pypi-announce: https://mail.python.org/mm3/mailman3/lists/pypi-announce.python.org/

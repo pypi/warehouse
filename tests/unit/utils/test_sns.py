@@ -24,8 +24,12 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.serialization import (
-    Encoding, PrivateFormat, PublicFormat, NoEncryption,
-    load_pem_private_key, load_pem_public_key,
+    Encoding,
+    PrivateFormat,
+    PublicFormat,
+    NoEncryption,
+    load_pem_private_key,
+    load_pem_public_key,
 )
 
 from warehouse.utils.sns import MessageVerifier, InvalidMessage
@@ -47,15 +51,10 @@ def sns_privatekey():
 @pytest.fixture(scope="module")
 def sns_publickey(sns_privatekey):
     private_key = load_pem_private_key(
-        sns_privatekey,
-        password=None,
-        backend=default_backend(),
+        sns_privatekey, password=None, backend=default_backend()
     )
     public_key = private_key.public_key()
-    return public_key.public_bytes(
-        Encoding.PEM,
-        PublicFormat.SubjectPublicKeyInfo,
-    )
+    return public_key.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
 
 
 @pytest.fixture(scope="module")
@@ -63,47 +62,36 @@ def sns_certificate(sns_privatekey, sns_publickey):
     one_day = datetime.timedelta(1, 0, 0)
 
     private_key = load_pem_private_key(
-        sns_privatekey,
-        password=None,
-        backend=default_backend(),
+        sns_privatekey, password=None, backend=default_backend()
     )
     public_key = load_pem_public_key(sns_publickey, backend=default_backend())
 
     builder = x509.CertificateBuilder()
     builder = builder.subject_name(
-        x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, "sns.amazonaws.com"),
-        ]),
+        x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "sns.amazonaws.com")])
     )
     builder = builder.issuer_name(
-        x509.Name([
-            x509.NameAttribute(NameOID.COMMON_NAME, "sns.amazonaws.com"),
-        ]),
+        x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "sns.amazonaws.com")])
     )
     builder = builder.not_valid_before(datetime.datetime.today() - one_day)
     builder = builder.not_valid_after(datetime.datetime.today() + one_day)
     builder = builder.serial_number(x509.random_serial_number())
     builder = builder.public_key(public_key)
     builder = builder.add_extension(
-        x509.SubjectAlternativeName([x509.DNSName("sns.amazonaws.com")]),
-        critical=False,
+        x509.SubjectAlternativeName([x509.DNSName("sns.amazonaws.com")]), critical=False
     )
     builder = builder.add_extension(
-        x509.BasicConstraints(ca=False, path_length=None),
-        critical=True,
+        x509.BasicConstraints(ca=False, path_length=None), critical=True
     )
 
     cert = builder.sign(
-        private_key=private_key,
-        algorithm=hashes.SHA256(),
-        backend=default_backend(),
+        private_key=private_key, algorithm=hashes.SHA256(), backend=default_backend()
     )
 
     return cert.public_bytes(Encoding.PEM)
 
 
 class TestMessageVerifier:
-
     @pytest.mark.parametrize(
         ("topics", "data", "error"),
         [
@@ -113,8 +101,7 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "http://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "http://sns.us-west-2.amazonaws.com/cert.pem",
                 },
                 "Invalid scheme for SigningCertURL",
             ),
@@ -122,8 +109,7 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.attacker.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.attacker.com/cert.pem",
                 },
                 "Invalid location for SigningCertURL",
             ),
@@ -131,8 +117,7 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Signature": "SNYwQnC0BxjSo2E4aZFRiA==",
                     "Type": "Who Knows?",
                 },
@@ -142,14 +127,14 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Signature": "SNYwQnC0BxjSo2E4aZFRiA==",
                     "Type": "Notification",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "This is My Topic",
                 },
                 "Invalid Signature",
@@ -158,8 +143,7 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Signature": VALID_SIGNATURE,
                     "Type": "Notification",
                     "Message": "This is My Message",
@@ -173,15 +157,16 @@ class TestMessageVerifier:
                 [],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Signature": VALID_SIGNATURE,
                     "Type": "Notification",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": ((datetime.datetime.utcnow() -
-                                   datetime.timedelta(days=1))
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        (
+                            datetime.datetime.utcnow() - datetime.timedelta(days=1)
+                        ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "This is My Topic",
                 },
                 "Message has expired",
@@ -190,39 +175,31 @@ class TestMessageVerifier:
                 ["The topic I expected"],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Signature": VALID_SIGNATURE,
                     "Type": "Notification",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "This topic I got but didn't expect",
                 },
                 "Invalid TopicArn",
             ),
-        ]
+        ],
     )
-    def test_invalid(self, sns_certificate, sns_privatekey,
-                     topics, data, error):
-        response = pretend.stub(
-            raise_for_status=lambda: None,
-            content=sns_certificate,
-        )
+    def test_invalid(self, sns_certificate, sns_privatekey, topics, data, error):
+        response = pretend.stub(raise_for_status=lambda: None, content=sns_certificate)
         session = pretend.stub(get=lambda url: response)
         verifier = MessageVerifier(topics=topics, session=session)
 
         if data.get("Signature") is VALID_SIGNATURE:
             private_key = load_pem_private_key(
-                sns_privatekey,
-                password=None,
-                backend=default_backend(),
+                sns_privatekey, password=None, backend=default_backend()
             )
             signature_bytes = private_key.sign(
-                verifier._get_data_to_sign(data),
-                PKCS1v15(),
-                hashes.SHA1(),
+                verifier._get_data_to_sign(data), PKCS1v15(), hashes.SHA1()
             )
             data["Signature"] = base64.b64encode(signature_bytes)
 
@@ -236,13 +213,13 @@ class TestMessageVerifier:
                 ["valid topic"],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Type": "Notification",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "valid topic",
                 },
             ),
@@ -250,13 +227,13 @@ class TestMessageVerifier:
                 ["valid topic", "another valid topic"],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Type": "Notification",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "another valid topic",
                 },
             ),
@@ -264,14 +241,14 @@ class TestMessageVerifier:
                 ["valid topic"],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Type": "Notification",
                     "Subject": "This is a subject",
                     "Message": "This is My Message",
                     "MessageId": "1",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "valid topic",
                 },
             ),
@@ -279,37 +256,30 @@ class TestMessageVerifier:
                 ["valid topic"],
                 {
                     "SignatureVersion": "1",
-                    "SigningCertURL":
-                        "https://sns.us-west-2.amazonaws.com/cert.pem",
+                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
                     "Type": "SubscriptionConfirmation",
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "SubscribeURL": "https://example.com/subscribe",
                     "Token": "1234",
-                    "Timestamp": (datetime.datetime.utcnow()
-                                  .strftime("%Y-%m-%dT%H:%M:%S.%fZ")),
+                    "Timestamp": (
+                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                    ),
                     "TopicArn": "valid topic",
                 },
             ),
         ],
     )
     def test_valid(self, sns_certificate, sns_privatekey, topics, data):
-        response = pretend.stub(
-            raise_for_status=lambda: None,
-            content=sns_certificate,
-        )
+        response = pretend.stub(raise_for_status=lambda: None, content=sns_certificate)
         session = pretend.stub(get=lambda url: response)
         verifier = MessageVerifier(topics=topics, session=session)
 
         private_key = load_pem_private_key(
-            sns_privatekey,
-            password=None,
-            backend=default_backend(),
+            sns_privatekey, password=None, backend=default_backend()
         )
         signature_bytes = private_key.sign(
-            verifier._get_data_to_sign(data),
-            PKCS1v15(),
-            hashes.SHA1(),
+            verifier._get_data_to_sign(data), PKCS1v15(), hashes.SHA1()
         )
         data["Signature"] = base64.b64encode(signature_bytes)
 
