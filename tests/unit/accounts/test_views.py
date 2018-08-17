@@ -506,14 +506,16 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
         assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, stub_user)
+            pretend.call(pyramid_request, (stub_user, None))
         ]
 
     def test_request_password_reset_with_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(email=pretend.stub())
+        stub_user = pretend.stub(
+            email="foo@example.com", emails=[pretend.stub(email="foo@example.com")]
+        )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
@@ -553,18 +555,24 @@ class TestRequestPasswordReset:
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
         assert send_password_reset_email.calls == [
-            pretend.call(pyramid_request, stub_user)
+            pretend.call(pyramid_request, (stub_user, stub_user.emails[0]))
         ]
 
-    def test_request_password_reset_with_wrong_credentials(
+    def test_request_password_reset_with_non_primary_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
 
-        stub_user = pretend.stub(username=pretend.stub())
+        stub_user = pretend.stub(
+            email="foo@example.com",
+            emails=[
+                pretend.stub(email="foo@example.com"),
+                pretend.stub(email="other@example.com"),
+            ],
+        )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
-        user_service.get_user_by_email = pretend.call_recorder(lambda a: None)
+        user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -572,7 +580,7 @@ class TestRequestPasswordReset:
             }[interface]
         )
         form_obj = pretend.stub(
-            username_or_email=pretend.stub(data=stub_user.username),
+            username_or_email=pretend.stub(data="other@example.com"),
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
@@ -588,10 +596,10 @@ class TestRequestPasswordReset:
 
         assert result == {"n_hours": n_hours}
         assert user_service.get_user_by_username.calls == [
-            pretend.call(stub_user.username)
+            pretend.call("other@example.com")
         ]
         assert user_service.get_user_by_email.calls == [
-            pretend.call(stub_user.username)
+            pretend.call("other@example.com")
         ]
         assert pyramid_request.find_service.calls == [
             pretend.call(IUserService, context=None),
@@ -601,7 +609,9 @@ class TestRequestPasswordReset:
         assert form_class.calls == [
             pretend.call(pyramid_request.POST, user_service=user_service)
         ]
-        assert send_password_reset_email.calls == [pretend.call(pyramid_request, None)]
+        assert send_password_reset_email.calls == [
+            pretend.call(pyramid_request, (stub_user, stub_user.emails[1]))
+        ]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
