@@ -299,7 +299,6 @@ class Release(db.ModelBase):
     platform = Column(Text)
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
-    _pypi_hidden = Column(Boolean)
     requires_python = Column(Text)
     description_from_readme = Column(Boolean)
     created = Column(

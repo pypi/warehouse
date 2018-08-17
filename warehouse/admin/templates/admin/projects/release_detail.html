@@ -40,10 +40,6 @@
           <td>{{ release.created }}</td>
         </tr>
         <tr>
-          <td>Hidden</td>
-          <td>{{ release._pypi_hidden }}</td>
-        </tr>
-        <tr>
           <td>Uploader</td>
           <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
         </tr>

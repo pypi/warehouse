@@ -961,7 +961,6 @@ def file_upload(request):
             _classifiers=[
                 c for c in all_classifiers if c.classifier in form.classifiers.data
             ],
-            _pypi_hidden=False,
             dependencies=list(
                 _construct_dependencies(
                     form,
@@ -1021,19 +1020,13 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering, Release._pypi_hidden))
+        .options(orm.load_only(Release._pypi_ordering))
         .all()
     )
     for i, r in enumerate(
         sorted(releases, key=lambda x: packaging.version.parse(x.version))
     ):
         r._pypi_ordering = i
-
-    # TODO: Again, we should figure out a better solution to doing this than
-    #       just inlining this inside this method.
-    if project.autohide:
-        for r in releases:
-            r._pypi_hidden = bool(not r == release)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
