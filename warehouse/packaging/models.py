@@ -112,7 +112,6 @@ class Project(SitemapMixin, db.ModelBase):
 
     name = Column(Text, primary_key=True, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
-    stable_version = Column(Text)
     autohide = Column(Boolean, server_default=sql.true())
     comments = Column(Boolean, server_default=sql.true())
     bugtrack_url = Column(Text)

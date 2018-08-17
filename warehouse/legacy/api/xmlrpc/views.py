@@ -332,7 +332,7 @@ def release_data(request, package_name: str, version: str):
     return {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
+        "stable_version": None,
         "bugtrack_url": release.project.bugtrack_url,
         "package_url": request.route_url(
             "packaging.project", name=release.project.name

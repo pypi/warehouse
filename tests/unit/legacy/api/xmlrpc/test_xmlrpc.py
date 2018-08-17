@@ -592,7 +592,7 @@ def test_release_data(db_request):
     assert xmlrpc.release_data(db_request, project.name, release.version) == {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
+        "stable_version": None,
         "bugtrack_url": release.project.bugtrack_url,
         "package_url": urls[0],
         "release_url": urls[1],
