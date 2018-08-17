@@ -296,7 +296,6 @@ class Release(db.ModelBase):
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
     requires_python = Column(Text)
-    description_from_readme = Column(Boolean)
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
