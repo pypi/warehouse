@@ -593,7 +593,7 @@ def test_release_data(db_request):
         "name": release.project.name,
         "version": release.version,
         "stable_version": None,
-        "bugtrack_url": release.project.bugtrack_url,
+        "bugtrack_url": None,
         "package_url": urls[0],
         "release_url": urls[1],
         "docs_url": release.project.documentation_url,

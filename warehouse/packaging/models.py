@@ -112,7 +112,6 @@ class Project(SitemapMixin, db.ModelBase):
 
     name = Column(Text, primary_key=True, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
-    bugtrack_url = Column(Text)
     hosting_mode = Column(Text, nullable=False, server_default="pypi-only")
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
