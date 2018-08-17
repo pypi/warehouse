@@ -12,6 +12,7 @@
 
 import datetime
 
+from celery.schedules import crontab
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
 
@@ -31,6 +32,7 @@ from warehouse.accounts.auth_policy import (
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
 )
+from warehouse.accounts.tasks import prune_unused_users
 from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.email import send_password_compromised_email
 from warehouse.rate_limiting import RateLimit, IRateLimiter
@@ -156,3 +158,6 @@ def includeme(config):
     config.register_service_factory(
         RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
     )
+
+    # Add our periodic user prune task
+    config.add_periodic_task(crontab(minute=0, hour=0), prune_unused_users)
