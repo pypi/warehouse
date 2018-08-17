@@ -43,7 +43,6 @@
       <tr>
         <th>Release version</th>
         <th>Created</th>
-        <th>Hidden</th>
         <th>Uploader</th>
         <th>Author email</th>
       </tr>
@@ -52,7 +51,6 @@
       <tr>
         <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.name }}-{{ release.version }}</a></td>
         <td>{{ release.created }}</td>
-        <td>{{ release._pypi_hidden }}</td>
         <td><a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a></td>
         <td>{{ release.author_email }}</td>
       </tr>

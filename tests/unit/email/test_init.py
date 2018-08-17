@@ -235,9 +235,23 @@ class TestSendEmail:
 
 
 class TestSendPasswordResetEmail:
-    @pytest.mark.parametrize("verified", [True, False])
+    @pytest.mark.parametrize(
+        ("verified", "email_addr"),
+        [
+            (True, None),
+            (False, None),
+            (True, "other@example.com"),
+            (False, "other@example.com"),
+        ],
+    )
     def test_send_password_reset_email(
-        self, verified, pyramid_request, pyramid_config, token_service, monkeypatch
+        self,
+        verified,
+        email_addr,
+        pyramid_request,
+        pyramid_config,
+        token_service,
+        monkeypatch,
     ):
 
         stub_user = pretend.stub(
@@ -249,6 +263,10 @@ class TestSendPasswordResetEmail:
             last_login="last_login",
             password_date="password_date",
         )
+        if email_addr is None:
+            stub_email = None
+        else:
+            stub_email = pretend.stub(email=email_addr, verified=verified)
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOKEN")
         pyramid_request.find_service = pretend.call_recorder(
@@ -274,7 +292,9 @@ class TestSendPasswordResetEmail:
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(email, "send_email", send_email)
 
-        result = email.send_password_reset_email(pyramid_request, stub_user)
+        result = email.send_password_reset_email(
+            pyramid_request, (stub_user, stub_email)
+        )
 
         assert result == {
             "token": "TOKEN",
@@ -300,7 +320,9 @@ class TestSendPasswordResetEmail:
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                "name_value <" + stub_user.email + ">",
+                "name_value <"
+                + (stub_user.email if email_addr is None else email_addr)
+                + ">",
                 attr.asdict(
                     EmailMessage(
                         subject="Email Subject",

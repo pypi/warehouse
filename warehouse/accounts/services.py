@@ -173,13 +173,7 @@ class DatabaseUserService:
         return False
 
     def create_user(
-        self,
-        username,
-        name,
-        password,
-        is_active=False,
-        is_staff=False,
-        is_superuser=False,
+        self, username, name, password, is_active=False, is_superuser=False
     ):
 
         user = User(
@@ -187,7 +181,6 @@ class DatabaseUserService:
             name=name,
             password=self.hasher.hash(password),
             is_active=is_active,
-            is_staff=is_staff,
             is_superuser=is_superuser,
         )
         self.db.add(user)

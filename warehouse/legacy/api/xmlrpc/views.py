@@ -242,16 +242,7 @@ def list_packages_with_serial(request):
 
 @xmlrpc_method(method="package_hosting_mode")
 def package_hosting_mode(request, package_name: str):
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(Project.normalized_name == func.normalize_pep426_name(package_name))
-            .one()
-        )
-    except NoResultFound:
-        return None
-    else:
-        return project.hosting_mode
+    return "pypi-only"
 
 
 @xmlrpc_method(method="user_packages")
@@ -332,8 +323,8 @@ def release_data(request, package_name: str, version: str):
     return {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
-        "bugtrack_url": release.project.bugtrack_url,
+        "stable_version": None,
+        "bugtrack_url": None,
         "package_url": request.route_url(
             "packaging.project", name=release.project.name
         ),
@@ -363,7 +354,6 @@ def release_data(request, package_name: str, version: str):
         "requires_python": release.requires_python,
         "requires_external": list(release.requires_external),
         "_pypi_ordering": release._pypi_ordering,
-        "_pypi_hidden": release._pypi_hidden,
         "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
         "cheesecake_code_kwalitee_id": None,
         "cheesecake_documentation_id": None,
