@@ -242,16 +242,7 @@ def list_packages_with_serial(request):
 
 @xmlrpc_method(method="package_hosting_mode")
 def package_hosting_mode(request, package_name: str):
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(Project.normalized_name == func.normalize_pep426_name(package_name))
-            .one()
-        )
-    except NoResultFound:
-        return None
-    else:
-        return project.hosting_mode
+    return "pypi-only"
 
 
 @xmlrpc_method(method="user_packages")
