@@ -172,7 +172,7 @@ def json_release(release, request):
                 list(release.requires_dist) if release.requires_dist else None
             ),
             "docs_url": project.documentation_url,
-            "bugtrack_url": project.bugtrack_url,
+            "bugtrack_url": None,
             "home_page": release.home_page,
             "download_url": release.download_url,
         },

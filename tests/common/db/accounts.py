@@ -28,7 +28,6 @@ class UserFactory(WarehouseFactory):
     name = factory.fuzzy.FuzzyText(length=12)
     password = "!"
     is_active = True
-    is_staff = False
     is_superuser = False
     date_joined = factory.fuzzy.FuzzyNaiveDateTime(
         datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)

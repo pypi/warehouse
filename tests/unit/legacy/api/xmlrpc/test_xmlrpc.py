@@ -460,12 +460,12 @@ def test_list_packages_with_serial(db_request):
 
 
 def test_package_hosting_mode_shows_none(db_request):
-    assert xmlrpc.package_hosting_mode(db_request, "nope") is None
+    assert xmlrpc.package_hosting_mode(db_request, "nope") == "pypi-only"
 
 
 def test_package_hosting_mode_results(db_request):
-    project = ProjectFactory.create(hosting_mode="pypi-explicit")
-    assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-explicit"
+    project = ProjectFactory.create()
+    assert xmlrpc.package_hosting_mode(db_request, project.name) == "pypi-only"
 
 
 def test_user_packages(db_request):
@@ -592,8 +592,8 @@ def test_release_data(db_request):
     assert xmlrpc.release_data(db_request, project.name, release.version) == {
         "name": release.project.name,
         "version": release.version,
-        "stable_version": release.project.stable_version,
-        "bugtrack_url": release.project.bugtrack_url,
+        "stable_version": None,
+        "bugtrack_url": None,
         "package_url": urls[0],
         "release_url": urls[1],
         "docs_url": release.project.documentation_url,
@@ -619,7 +619,6 @@ def test_release_data(db_request):
         "requires_python": release.requires_python,
         "requires_external": list(release.requires_external),
         "_pypi_ordering": release._pypi_ordering,
-        "_pypi_hidden": release._pypi_hidden,
         "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
         "cheesecake_code_kwalitee_id": None,
         "cheesecake_documentation_id": None,

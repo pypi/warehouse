@@ -112,11 +112,6 @@ class Project(SitemapMixin, db.ModelBase):
 
     name = Column(Text, primary_key=True, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
-    stable_version = Column(Text)
-    autohide = Column(Boolean, server_default=sql.true())
-    comments = Column(Boolean, server_default=sql.true())
-    bugtrack_url = Column(Text)
-    hosting_mode = Column(Text, nullable=False, server_default="pypi-only")
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
@@ -300,9 +295,7 @@ class Release(db.ModelBase):
     platform = Column(Text)
     download_url = Column(Text)
     _pypi_ordering = Column(Integer)
-    _pypi_hidden = Column(Boolean)
     requires_python = Column(Text)
-    description_from_readme = Column(Boolean)
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
@@ -485,10 +478,6 @@ class File(db.Model):
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
-
-    # TODO: Once Legacy PyPI is gone, then we should remove this column
-    #       completely as we no longer use it.
-    downloads = Column(Integer, server_default=sql.text("0"))
 
     @hybrid_property
     def pgp_path(self):
