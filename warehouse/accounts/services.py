@@ -173,12 +173,7 @@ class DatabaseUserService:
         return False
 
     def create_user(
-        self,
-        username,
-        name,
-        password,
-        is_active=False,
-        is_superuser=False,
+        self, username, name, password, is_active=False, is_superuser=False
     ):
 
         user = User(
