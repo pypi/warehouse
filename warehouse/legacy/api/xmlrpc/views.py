@@ -10,19 +10,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections.abc
 import datetime
 import functools
 import xmlrpc.client
 import xmlrpc.server
 
+from typing import List, Mapping, Union
+
 import elasticsearch
+import typeguard
 
 from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
 from pyramid.view import view_config
+from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
     XmlRpcError,
+    XmlRpcInvalidMethodParams,
     exception_view as _exception_view,
     xmlrpc_method as _xmlrpc_method,
 )
@@ -72,6 +76,7 @@ def xmlrpc_method(**kwargs):
         require_csrf=False,
         require_methods=["POST"],
         decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+        mapper=TypedMapplyViewMapper,
     )
 
     def decorator(f):
@@ -106,6 +111,15 @@ class XMLRPCServiceUnavailable(XmlRpcError):
     faultString = "server error; service unavailable"
 
 
+class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
+    def __init__(self, exc):
+        self.exc = exc
+
+    @property
+    def faultString(self):  # noqa
+        return f"client error; {self.exc}"
+
+
 class XMLRPCWrappedError(xmlrpc.server.Fault):
     def __init__(self, exc):
         self.faultCode = -32500
@@ -116,18 +130,25 @@ class XMLRPCWrappedError(xmlrpc.server.Fault):
         return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
 
 
+class TypedMapplyViewMapper(MapplyViewMapper):
+    def mapply(self, fn, args, kwargs):
+        try:
+            memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
+            typeguard.check_argument_types(memo)
+        except TypeError as exc:
+            print(exc)
+            raise XMLRPCInvalidParamTypes(exc)
+
+        return super().mapply(fn, args, kwargs)
+
+
 @view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
 
 
 @xmlrpc_method(method="search")
-def search(request, spec, operator="and"):
-    if not isinstance(spec, collections.abc.Mapping):
-        raise XMLRPCWrappedError(
-            TypeError("Invalid spec, must be a mapping/dictionary.")
-        )
-
+def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
     if operator not in {"and", "or"}:
         raise XMLRPCWrappedError(
             ValueError("Invalid operator, must be one of 'and' or 'or'.")
@@ -220,7 +241,7 @@ def list_packages_with_serial(request):
 
 
 @xmlrpc_method(method="package_hosting_mode")
-def package_hosting_mode(request, package_name):
+def package_hosting_mode(request, package_name: str):
     try:
         project = (
             request.db.query(Project)
@@ -234,7 +255,7 @@ def package_hosting_mode(request, package_name):
 
 
 @xmlrpc_method(method="user_packages")
-def user_packages(request, username):
+def user_packages(request, username: str):
     roles = (
         request.db.query(Role)
         .join(User, Project)
@@ -253,7 +274,7 @@ def top_packages(request, num=None):
 
 
 @xmlrpc_cache_by_project(method="package_releases")
-def package_releases(request, package_name, show_hidden=False):
+def package_releases(request, package_name: str, show_hidden: bool = False):
     try:
         project = (
             request.db.query(Project)
@@ -293,7 +314,7 @@ def package_data(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_data")
-def release_data(request, package_name, version):
+def release_data(request, package_name: str, version: str):
     try:
         release = (
             request.db.query(Release)
@@ -367,7 +388,7 @@ def package_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="release_urls")
-def release_urls(request, package_name, version):
+def release_urls(request, package_name: str, version: str):
     files = (
         request.db.query(File)
         .join(Release, Project)
@@ -401,7 +422,7 @@ def release_urls(request, package_name, version):
 
 
 @xmlrpc_cache_by_project(method="package_roles")
-def package_roles(request, package_name):
+def package_roles(request, package_name: str):
     roles = (
         request.db.query(Role)
         .join(User, Project)
@@ -418,7 +439,7 @@ def changelog_last_serial(request):
 
 
 @xmlrpc_method(method="changelog_since_serial")
-def changelog_since_serial(request, serial):
+def changelog_since_serial(request, serial: int):
     entries = (
         request.db.query(JournalEntry)
         .filter(JournalEntry.id > serial)
@@ -439,7 +460,7 @@ def changelog_since_serial(request, serial):
 
 
 @xmlrpc_method(method="changelog")
-def changelog(request, since, with_ids=False):
+def changelog(request, since: int, with_ids: bool = False):
     since = datetime.datetime.utcfromtimestamp(since)
     entries = (
         request.db.query(JournalEntry)
@@ -466,7 +487,7 @@ def changelog(request, since, with_ids=False):
 
 
 @xmlrpc_method(method="browse")
-def browse(request, classifiers):
+def browse(request, classifiers: List[str]):
     classifiers_q = (
         request.db.query(Classifier)
         .filter(Classifier.classifier.in_(classifiers))

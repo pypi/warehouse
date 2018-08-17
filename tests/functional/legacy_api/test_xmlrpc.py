@@ -33,6 +33,15 @@ def test_xmlrpc_succeeds(app_config, webtest, metrics):
 
 def test_invalid_arguments(app_config, webtest):
     with pytest.raises(
-        xmlrpc.client.Fault, match="server error; invalid method params"
+        xmlrpc.client.Fault,
+        match="client error; missing a required argument: 'package_name'",
     ):
         webtest.xmlrpc("/pypi", "package_releases")
+
+
+def test_arguments_with_wrong_type(app_config, webtest):
+    with pytest.raises(
+        xmlrpc.client.Fault,
+        match='client error; type of argument "serial" must be int; got str instead',
+    ):
+        webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
