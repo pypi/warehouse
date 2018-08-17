@@ -479,10 +479,6 @@ class File(db.Model):
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
 
-    # TODO: Once Legacy PyPI is gone, then we should remove this column
-    #       completely as we no longer use it.
-    downloads = Column(Integer, server_default=sql.text("0"))
-
     @hybrid_property
     def pgp_path(self):
         return self.path + ".asc"
