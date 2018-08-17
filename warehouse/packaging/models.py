@@ -236,7 +236,6 @@ class Dependency(db.Model):
 
     __tablename__ = "release_dependencies"
     __table_args__ = (
-        Index("rel_dep_name_version_idx", "name", "version"),
         Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
         ForeignKeyConstraint(
             ["name", "version"],
@@ -274,7 +273,6 @@ class Release(db.ModelBase):
         return (
             Index("release_created_idx", cls.created.desc()),
             Index("release_name_created_idx", cls.name, cls.created.desc()),
-            Index("release_name_idx", cls.name),
             Index("release_version_idx", cls.version),
         )
 
