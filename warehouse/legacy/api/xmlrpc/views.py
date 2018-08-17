@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections.abc
 import datetime
 import functools
 import xmlrpc.client
@@ -117,7 +116,7 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
         self.exc = exc
 
     @property
-    def faultString(self):
+    def faultString(self):  # noqa
         return f"client error; {self.exc}"
 
 
