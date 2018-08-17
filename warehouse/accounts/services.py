@@ -178,7 +178,6 @@ class DatabaseUserService:
         name,
         password,
         is_active=False,
-        is_staff=False,
         is_superuser=False,
     ):
 
@@ -187,7 +186,6 @@ class DatabaseUserService:
             name=name,
             password=self.hasher.hash(password),
             is_active=is_active,
-            is_staff=is_staff,
             is_superuser=is_superuser,
         )
         self.db.add(user)
