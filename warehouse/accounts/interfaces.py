@@ -97,6 +97,17 @@ class IUserService(Interface):
         (IsDisabled: bool, Reason: Optional[DisableReason])
         """
 
+    def find_userid_by_account_token(account_token_id):
+        """
+        Find the unique user identifier for the given token_id or None if there
+        is no matching user.
+        """
+
+    def get_tokens_by_username(username):
+        """
+        Returns tokens for the specified username.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

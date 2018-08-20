@@ -28,6 +28,7 @@ from warehouse.accounts.services import (
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.auth_policy import (
+    AccountTokenAuthenticationPolicy,
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
 )
@@ -138,6 +139,7 @@ def includeme(config):
     config.set_authentication_policy(
         MultiAuthenticationPolicy(
             [
+                AccountTokenAuthenticationPolicy(authenticate=_authenticate),
                 SessionAuthenticationPolicy(callback=_authenticate),
                 BasicAuthAuthenticationPolicy(check=_basic_auth_login),
             ]

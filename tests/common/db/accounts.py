@@ -11,11 +11,12 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import factory
 import factory.fuzzy
 
-from warehouse.accounts.models import User, Email
+from warehouse.accounts.models import User, Email, AccountToken
 
 from .base import WarehouseFactory, FuzzyEmail
 
@@ -45,3 +46,17 @@ class EmailFactory(WarehouseFactory):
     primary = True
     unverify_reason = None
     transient_bounces = 0
+
+
+class AccountTokenFactory(WarehouseFactory):
+    class Meta:
+        model = AccountToken
+
+    id = factory.Sequence(lambda n: str(uuid.uuid4()))
+    username = factory.fuzzy.FuzzyText()
+    description = factory.fuzzy.FuzzyText(length=100)
+    is_active = True
+    created = factory.fuzzy.FuzzyNaiveDateTime(
+        datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)
+    )
+    last_used = factory.fuzzy.FuzzyNaiveDateTime(datetime.datetime(2011, 1, 1))
