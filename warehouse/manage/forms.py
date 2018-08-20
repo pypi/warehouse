@@ -73,3 +73,19 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class AccountTokenForm(forms.Form):
+    """A form to add an account bearer token."""
+
+    __params__ = ['description']
+
+    description = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Length(
+                max=100,
+                message="Description too long; limit 100 characters.",
+            ),
+        ],
+    )

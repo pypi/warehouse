@@ -253,6 +253,8 @@ class TestUser:
 
 
 def test_includeme(monkeypatch):
+    account_token_obj = pretend.stub()
+    account_token_cls = pretend.call_recorder(lambda authenticate: account_token_obj)
     basic_authn_obj = pretend.stub()
     basic_authn_cls = pretend.call_recorder(lambda check: basic_authn_obj)
     session_authn_obj = pretend.stub()
@@ -261,6 +263,7 @@ def test_includeme(monkeypatch):
     authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
     authz_cls = pretend.call_recorder(lambda: authz_obj)
+    monkeypatch.setattr(accounts, "AccountTokenAuthenticationPolicy", account_token_cls)
     monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
     monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
     monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
@@ -299,7 +302,8 @@ def test_includeme(monkeypatch):
     ]
     assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
+    assert account_token_cls.calls == [pretend.call(authenticate=accounts._authenticate)]
     assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
     assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
-    assert authn_cls.calls == [pretend.call([session_authn_obj, basic_authn_obj])]
+    assert authn_cls.calls == [pretend.call([account_token_obj, session_authn_obj, basic_authn_obj])]
     assert authz_cls.calls == [pretend.call()]

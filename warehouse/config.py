@@ -189,6 +189,8 @@ def configure(settings=None):
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
+    maybe_set(settings, "account_token.secret", "ACCOUNT_TOKEN_SECRET")
+    maybe_set(settings, "account_token.id", "ACCOUNT_TOKEN_PUBLIC_ID")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:

@@ -38,14 +38,16 @@ from ...common.db.packaging import (
 class TestManageAccount:
     def test_default_response(self, monkeypatch):
         breach_service = pretend.stub()
-        user_service = pretend.stub()
+        user_service = pretend.stub(
+            get_tokens_by_username=lambda x: [],
+        )
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, username=pretend.stub()),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -59,6 +61,10 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
+        account_token_obj = pretend.stub()
+        account_token_cls = pretend.call_recorder(lambda **kw: account_token_obj)
+        monkeypatch.setattr(views, "AccountTokenForm", account_token_cls)
+
         view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
@@ -68,6 +74,8 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "account_token_form": account_token_obj,
+            "account_tokens": [],
         }
         assert view.request == request
         assert view.user_service == user_service
