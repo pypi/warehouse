@@ -16,11 +16,14 @@ import pytest
 from warehouse import forklift
 
 
-@pytest.mark.parametrize("forklift_domain", [None, "upload.pypi.io"])
-def test_includeme(forklift_domain, monkeypatch):
+@pytest.mark.parametrize(
+    "forklift_domain,test_domain", [(None, None), ("upload.pypi.io", "test.pypi.org")]
+)
+def test_includeme(forklift_domain, test_domain, monkeypatch):
     settings = {}
     if forklift_domain:
         settings["forklift.domain"] = forklift_domain
+        settings["test.domain"] = test_domain
 
     _help_url = pretend.stub()
     monkeypatch.setattr(forklift, "_help_url", _help_url)
@@ -58,10 +61,16 @@ def test_includeme(forklift_domain, monkeypatch):
                 route_kw={"domain": forklift_domain},
             ),
             pretend.call(
+                "forklift.test",
+                "/legacy/",
+                "upload.html",
+                route_kw={"domain": test_domain},
+            ),
+            pretend.call(
                 "forklift.legacy.invalid_request",
                 "/legacy/",
                 "upload.html",
-                route_kw={"domain": "upload.pypi.io"},
+                route_kw={"domain": forklift_domain},
             ),
         ]
     else:

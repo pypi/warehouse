@@ -51,7 +51,7 @@
     <meta name="defaultLanguage" content="en">
     <meta name="availableLanguages" content="en">
 
-    {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+    {% if request.registry.settings.get("warehouse.domain") == request.registry.settings.get("test.domain") %}
       {% set testPyPI = true %}
     {% endif %}
 

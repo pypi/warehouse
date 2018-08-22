@@ -25,6 +25,7 @@ def includeme(config):
     # these to segregate the Warehouse routes from the Forklift routes until
     # Forklift is properly split out into it's own project.
     forklift = config.get_settings().get("forklift.domain")
+    test_domain = config.get_settings().get("test.domain")
 
     # Include our legacy action routing
     config.include(".action_routing")
@@ -45,6 +46,10 @@ def includeme(config):
     if forklift:
         config.add_template_view(
             "forklift.index", "/", "upload.html", route_kw={"domain": forklift}
+        )
+
+        config.add_template_view(
+            "forklift.test", "/legacy/", "upload.html", route_kw={"domain": test_domain}
         )
 
         # Any call to /legacy/ not handled by another route (e.g. no :action
