@@ -137,7 +137,9 @@ class TestAccountTokenAuthenticationPolicy:
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IUserService: pretend.stub(
-                    find_userid_by_account_token=lambda x: user.id if x == token.id else None
+                    find_userid_by_account_token=(
+                        lambda x: user.id if x == token.id else None
+                    )
                 ),
             }[iface],
             params={"account_token": macaroon.serialize()},
