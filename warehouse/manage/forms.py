@@ -78,14 +78,13 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
 class AccountTokenForm(forms.Form):
     """A form to add an account bearer token."""
 
-    __params__ = ['description']
+    __params__ = ["description"]
 
     description = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Length(
-                max=100,
-                message="Description too long; limit 100 characters.",
+                max=100, message="Description too long; limit 100 characters."
             ),
-        ],
+        ]
     )
