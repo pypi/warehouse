@@ -259,7 +259,7 @@ class ManageAccountViews:
             account_token = self.request.db.query(AccountToken).filter(
                 AccountToken.id == account_token_id,
                 AccountToken.username == self.request.user.username,
-                ).one()
+            ).one()
 
             self.request.db.delete(account_token)
 
