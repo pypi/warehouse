@@ -302,8 +302,16 @@ def test_includeme(monkeypatch):
     ]
     assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
-    assert account_token_cls.calls == [pretend.call(authenticate=accounts._authenticate)]
-    assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
-    assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
-    assert authn_cls.calls == [pretend.call([account_token_obj, session_authn_obj, basic_authn_obj])]
+    assert account_token_cls.calls == [
+        pretend.call(authenticate=accounts._authenticate)
+    ]
+    assert basic_authn_cls.calls == [
+        pretend.call(check=accounts._basic_auth_login)
+    ]
+    assert session_authn_cls.calls == [
+        pretend.call(callback=accounts._authenticate)
+    ]
+    assert authn_cls.calls == [
+        pretend.call([account_token_obj, session_authn_obj, basic_authn_obj])
+    ]
     assert authz_cls.calls == [pretend.call()]

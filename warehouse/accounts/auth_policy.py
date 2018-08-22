@@ -22,7 +22,6 @@ from pyramid.authentication import (
     SessionAuthenticationPolicy as _SessionAuthenticationPolicy,
 )
 
-import warehouse.accounts
 from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 
@@ -58,9 +57,11 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
             # Check the macaroon against our configuration
             verifier = Verifier()
+
             verifier.third_party_caveat_verifier_delegate = (
-                    IgnoreThirdPartyCaveats()
+                IgnoreThirdPartyCaveats()
             )
+
             verifier.satisfy_general(self._validate_first_party_caveat)
 
             verified = verifier.verify(
@@ -95,7 +96,7 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
                     )
 
                     return login_service.find_userid_by_account_token(
-                            account_token_id)
+                        account_token_id)
 
         except (struct.error, MacaroonException) as e:
             return None
@@ -109,7 +110,7 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
         return []
 
     def _validate_first_party_caveat(self, caveat):
-        # Only support 'id' caveat for now
+        # Only support 'id' and 'package' caveat for now
         if caveat.split(': ')[0] not in ['id', 'package']:
             return False
 
