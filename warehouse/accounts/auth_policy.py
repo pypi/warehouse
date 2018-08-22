@@ -27,20 +27,17 @@ from warehouse.cache.http import add_vary_callback
 
 
 class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
-
     def __init__(self, authenticate):
         self._authenticate = authenticate
         self.callback = self._auth_callback
 
-        self._routes_allowed = [
-            'forklift.legacy.file_upload',
-        ]
+        self._routes_allowed = ["forklift.legacy.file_upload"]
 
     def unauthenticated_userid(self, request):
         if request.matched_route.name not in self._routes_allowed:
             return None
 
-        account_token = request.params.get('account_token')
+        account_token = request.params.get("account_token")
 
         if account_token is None:
             return None
@@ -49,23 +46,21 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
             macaroon = Macaroon.deserialize(account_token)
 
             # First, check identifier and location
-            if macaroon.identifier != request.registry.settings['account_token.id']:
+            if macaroon.identifier != request.registry.settings["account_token.id"]:
                 return None
 
-            if macaroon.location != 'pypi.org':
+            if macaroon.location != "pypi.org":
                 return None
 
             # Check the macaroon against our configuration
             verifier = Verifier()
 
-            verifier.third_party_caveat_verifier_delegate = (
-                IgnoreThirdPartyCaveats()
-            )
+            verifier.third_party_caveat_verifier_delegate = IgnoreThirdPartyCaveats()
 
             verifier.satisfy_general(self._validate_first_party_caveat)
 
             verified = verifier.verify(
-                macaroon, request.registry.settings['account_token.secret'],
+                macaroon, request.registry.settings["account_token.secret"]
             )
 
             if verified:
@@ -75,28 +70,25 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
                 for each in macaroon.first_party_caveats():
                     caveat = each.to_dict()
-                    caveat_parts = caveat['cid'].split(': ')
+                    caveat_parts = caveat["cid"].split(": ")
                     caveat_key = caveat_parts[0]
-                    caveat_value = ': '.join(caveat_parts[1:])
+                    caveat_value = ": ".join(caveat_parts[1:])
 
                     # If caveats are specified multiple times, only trust the
                     # first value we encounter.
-                    if caveat_key == 'id' and account_token_id is None:
+                    if caveat_key == "id" and account_token_id is None:
                         account_token_id = caveat_value
 
-                    elif caveat_key == 'package' and package is None:
+                    elif caveat_key == "package" and package is None:
                         package = caveat_value
 
                 if package is not None:
-                    request.session['account_token_package'] = package
+                    request.session["account_token_package"] = package
 
                 if account_token_id is not None:
-                    login_service = request.find_service(
-                        IUserService, context=None,
-                    )
+                    login_service = request.find_service(IUserService, context=None)
 
-                    return login_service.find_userid_by_account_token(
-                        account_token_id)
+                    return login_service.find_userid_by_account_token(account_token_id)
 
         except (struct.error, MacaroonException) as e:
             return None
@@ -111,7 +103,7 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
     def _validate_first_party_caveat(self, caveat):
         # Only support 'id' and 'package' caveat for now
-        if caveat.split(': ')[0] not in ['id', 'package']:
+        if caveat.split(": ")[0] not in ["id", "package"]:
             return False
 
         return True
@@ -121,7 +113,6 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
 
 class IgnoreThirdPartyCaveats(ThirdPartyCaveatVerifierDelegate):
-
     def verify_third_party_caveat(self, *args, **kwargs):
         return True
 

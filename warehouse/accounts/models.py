@@ -110,11 +110,7 @@ class AccountToken(db.Model):
 
     username = Column(
         CIText,
-        ForeignKey(
-            "accounts_user.username",
-            onupdate="CASCADE",
-            ondelete="CASCADE",
-        ),
+        ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
     description = Column(String(length=100))

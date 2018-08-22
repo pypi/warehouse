@@ -21,10 +21,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import auth_policy
 from warehouse.accounts.interfaces import IUserService
 
-from ...common.db.accounts import (
-    AccountTokenFactory,
-    UserFactory,
-)
+from ...common.db.accounts import AccountTokenFactory, UserFactory
 
 
 class TestBasicAuthAuthenticationPolicy:
@@ -114,7 +111,6 @@ class TestSessionAuthenticationPolicy:
 
 
 class TestAccountTokenAuthenticationPolicy:
-
     def test_verify(self):
         assert isinstance(
             auth_policy.AccountTokenAuthenticationPolicy(pretend.stub()),
@@ -127,9 +123,7 @@ class TestAccountTokenAuthenticationPolicy:
         token = AccountTokenFactory.create(username=user.username)
 
         macaroon = Macaroon(
-            location="pypi.org",
-            identifier=f"fake_id",
-            key="fake_secret",
+            location="pypi.org", identifier=f"fake_id", key="fake_secret"
         )
 
         macaroon.add_first_party_caveat(f"id: {token.id}")
@@ -140,7 +134,7 @@ class TestAccountTokenAuthenticationPolicy:
                     find_userid_by_account_token=(
                         lambda x: user.id if x == token.id else None
                     )
-                ),
+                )
             }[iface],
             params={"account_token": macaroon.serialize()},
             registry=pretend.stub(
@@ -149,9 +143,7 @@ class TestAccountTokenAuthenticationPolicy:
                     "account_token.secret": "fake_secret",
                 }
             ),
-            matched_route=pretend.stub(
-                name="forklift.legacy.file_upload"
-            ),
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
             db=db_request,
         )
 
@@ -159,16 +151,14 @@ class TestAccountTokenAuthenticationPolicy:
         assert policy.unauthenticated_userid(request) == user.id
 
         # Make sure route filtering is working
-        request.matched_route = pretend.stub(name='not.a.real.route')
+        request.matched_route = pretend.stub(name="not.a.real.route")
         assert policy.unauthenticated_userid(request) is None
 
         # Put things back, try a faked macaroon
-        request.matched_route = pretend.stub(name='forklift.legacy.file_upload')
+        request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         wrong_macaroon = Macaroon(
-            location="pypi.org",
-            identifier=f"fake_id",
-            key="fake_wrong_secret",
+            location="pypi.org", identifier=f"fake_id", key="fake_wrong_secret"
         )
 
         wrong_macaroon.add_first_party_caveat(f"id: {token.id}")

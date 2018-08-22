@@ -86,9 +86,7 @@ class ManageAccountViews:
     @property
     def active_tokens(self):
         """ Return all active tokens """
-        return self.user_service.get_tokens_by_username(
-            self.request.user.username
-        )
+        return self.user_service.get_tokens_by_username(self.request.user.username)
 
     @property
     def default_response(self):
@@ -226,8 +224,7 @@ class ManageAccountViews:
 
         if form.validate():
             account_token = AccountToken(
-                username=self.request.user.username,
-                description=form.description.data,
+                username=self.request.user.username, description=form.description.data
             )
             self.request.db.add(account_token)
             self.request.db.flush()
@@ -246,31 +243,28 @@ class ManageAccountViews:
                 queue="success",
             )
 
-        return {
-            **self.default_response,
-            "account_token_form": form,
-        }
+        return {**self.default_response, "account_token_form": form}
 
     @view_config(request_method="POST", request_param=["account_token_id"])
     def delete_account_token(self):
         account_token_id = self.request.params.get("account_token_id")
 
         try:
-            account_token = self.request.db.query(AccountToken).filter(
-                AccountToken.id == account_token_id,
-                AccountToken.username == self.request.user.username,
-            ).one()
+            account_token = (
+                self.request.db.query(AccountToken)
+                .filter(
+                    AccountToken.id == account_token_id,
+                    AccountToken.username == self.request.user.username,
+                )
+                .one()
+            )
 
             self.request.db.delete(account_token)
 
-            self.request.session.flash(
-                "Account token deleted", queue="success"
-            )
+            self.request.session.flash("Account token deleted", queue="success")
 
         except NoResultFound:
-            self.request.session.flash(
-                "Account token not found", queue="error"
-            )
+            self.request.session.flash("Account token not found", queue="error")
 
         return self.default_response
 

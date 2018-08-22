@@ -806,13 +806,12 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
 
     # Check if user authenticated with an api_token scoped to a certain project
-    package_caveat = request.session.get('account_token_package', None)
+    package_caveat = request.session.get("account_token_package", None)
 
     if package_caveat is not None:
         if package_caveat != packaging.utils.canonicalize_name(form.name.data):
             raise _exc_with_message(
-                HTTPForbidden,
-                "Invalid or non-existent authentication information.",
+                HTTPForbidden, "Invalid or non-existent authentication information."
             )
 
     # Look up the project first before doing anything else, this is so we can

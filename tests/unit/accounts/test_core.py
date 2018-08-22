@@ -305,12 +305,8 @@ def test_includeme(monkeypatch):
     assert account_token_cls.calls == [
         pretend.call(authenticate=accounts._authenticate)
     ]
-    assert basic_authn_cls.calls == [
-        pretend.call(check=accounts._basic_auth_login)
-    ]
-    assert session_authn_cls.calls == [
-        pretend.call(callback=accounts._authenticate)
-    ]
+    assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
+    assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
     assert authn_cls.calls == [
         pretend.call([account_token_obj, session_authn_obj, basic_authn_obj])
     ]

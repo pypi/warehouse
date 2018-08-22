@@ -240,28 +240,26 @@ class DatabaseUserService:
     def find_userid_by_account_token(self, account_token_id):
         # Look up user from token_id
         try:
-            account_token = self.db.query(AccountToken).filter(
-                AccountToken.id == account_token_id,
-            ).one()
+            account_token = (
+                self.db.query(AccountToken)
+                .filter(AccountToken.id == account_token_id)
+                .one()
+            )
 
         except NoResultFound:
             return None
 
         # Update that token was used
-        self.db.query(AccountToken).filter(
-            AccountToken.id == account_token_id,
-        ).update(values={
-            'last_used': datetime.datetime.utcnow()
-        })
+        self.db.query(AccountToken).filter(AccountToken.id == account_token_id).update(
+            values={"last_used": datetime.datetime.utcnow()}
+        )
 
         self.db.flush()
 
         return self.find_userid(account_token.username)
 
     def get_tokens_by_username(self, username):
-        return self.db.query(AccountToken).filter(
-            AccountToken.username == username,
-        )
+        return self.db.query(AccountToken).filter(AccountToken.username == username)
 
 
 @implementer(ITokenService)

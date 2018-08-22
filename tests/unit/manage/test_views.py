@@ -38,9 +38,7 @@ from ...common.db.packaging import (
 class TestManageAccount:
     def test_default_response(self, monkeypatch):
         breach_service = pretend.stub()
-        user_service = pretend.stub(
-            get_tokens_by_username=lambda x: [],
-        )
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
