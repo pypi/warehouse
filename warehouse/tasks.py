@@ -11,191 +11,140 @@
 # limitations under the License.
 
 import functools
-import urllib.parse
 
-import celery.app.backends
-
-# We need to trick Celery into supporting rediss:// URLs which is how redis-py
-# signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES[
-    "rediss"
-] = "warehouse.tasks:TLSRedisBackend"  # noqa
-
-import celery
-import celery.backends.redis
+import dramatiq
 import pyramid.scripting
-import pyramid_retry
-import transaction
 import venusian
+import transaction
 
-from pyramid.threadlocal import get_current_request
-
-from warehouse.config import Environment
-
-
-# We need to register that the sqs:// url scheme uses a netloc
-urllib.parse.uses_netloc.append("sqs")
-
-
-class TLSRedisBackend(celery.backends.redis.RedisBackend):
-    def _params_from_url(self, url, defaults):
-        params = super()._params_from_url(url, defaults)
-        params.update({"connection_class": self.redis.SSLConnection})
-        return params
+from dramatiq.middleware import (
+    AgeLimit,
+    TimeLimit,
+    ShutdownNotifications,
+    Callbacks,
+    Pipelines,
+    Retries,
+)
+from dramatiq_sqs import SQSBroker
 
 
-class WarehouseTask(celery.Task):
-    def __new__(cls, *args, **kwargs):
-        obj = super().__new__(cls, *args, **kwargs)
-        if getattr(obj, "__header__", None) is not None:
-            obj.__header__ = functools.partial(obj.__header__, object())
+def with_request(fn, *, registry):
+    @functools.wraps(fn)
+    def wrapped(*args, **kwargs):
+        env = pyramid.scripting.prepare(registry=registry)
+        request = env["request"]
+        request.tm = transaction.TransactionManager(explicit=True)
 
-        # We do this here instead of inside of __call__ so that exceptions
-        # coming from the transaction manager get caught by the autoretry
-        # mechanism.
-        @functools.wraps(obj.run)
-        def run(*args, **kwargs):
-            original_run = obj._wh_original_run
-            request = obj.get_request()
-
+        try:
             with request.tm:
-                try:
-                    return original_run(*args, **kwargs)
-                except BaseException as exc:
-                    if isinstance(
-                        exc, pyramid_retry.RetryableException
-                    ) or pyramid_retry.IRetryableError.providedBy(exc):
-                        raise obj.retry(exc=exc)
-                    raise
+                return fn(request, *args, **kwargs)
+        finally:
+            request._process_finished_callbacks()
+            env["closer"]()
 
-        obj._wh_original_run, obj.run = obj.run, run
+    return wrapped
 
-        return obj
 
-    def __call__(self, *args, **kwargs):
-        return super().__call__(*(self.get_request(),) + args, **kwargs)
+class TransactionAwareActor(dramatiq.Actor):
+    def send(self, request, *args, **kwargs):
+        return self.send_with_options(request, args=args, kwargs=kwargs)
 
-    def get_request(self):
-        if not hasattr(self.request, "pyramid_env"):
-            registry = self.app.pyramid_config.registry
-            env = pyramid.scripting.prepare(registry=registry)
-            env["request"].tm = transaction.TransactionManager(explicit=True)
-            self.request.update(pyramid_env=env)
+    def send_with_options(self, request, **kwargs):
+        if not hasattr(request, "tm"):
+            return super().send_with_options(**kwargs)
+        else:
+            request.tm.get().addAfterCommitHook(self._after_commit_hook, kws=kwargs)
 
-        return self.request.pyramid_env["request"]
-
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        if hasattr(self.request, "pyramid_env"):
-            pyramid_env = self.request.pyramid_env
-            pyramid_env["request"]._process_finished_callbacks()
-            pyramid_env["closer"]()
-
-    def apply_async(self, *args, **kwargs):
-        # The API design of Celery makes this threadlocal pretty impossible to
-        # avoid :(
-        request = get_current_request()
-
-        # If for whatever reason we were unable to get a request we'll just
-        # skip this and call the original method to send this immediately.
-        if request is None or not hasattr(request, "tm"):
-            return super().apply_async(*args, **kwargs)
-
-        # This will break things that expect to get an AsyncResult because
-        # we're no longer going to be returning an async result from this when
-        # called from within a request, response cycle. Ideally we shouldn't be
-        # waiting for responses in a request/response cycle anyways though.
-        request.tm.get().addAfterCommitHook(
-            self._after_commit_hook, args=args, kws=kwargs
-        )
-
-    def _after_commit_hook(self, success, *args, **kwargs):
+    def _after_commit_hook(self, success, **kwargs):
         if success:
-            super().apply_async(*args, **kwargs)
+            super().send_with_options(**kwargs)
+
+        def _after_commit_hook(self, success, *args, **kwargs):
+            if success:
+                super().apply_async(*args, **kwargs)
 
 
-def task(**kwargs):
-    kwargs.setdefault("shared", False)
+class RequestAwareActorProxy:
+    def __init__(self, request, actor):
+        self._request = request
+        self._actor = actor
 
-    def deco(wrapped):
-        def callback(scanner, name, wrapped):
-            celery_app = scanner.config.registry["celery.app"]
-            celery_app.task(**kwargs)(wrapped)
+    def send(self, *args, **kwargs):
+        return self._actor.send(self._request, *args, **kwargs)
 
-        venusian.attach(wrapped, callback)
+    def send_with_options(self, *args, **kwargs):
+        return self._actor.send(self._request, *args, **kwargs)
+
+
+def task(fn=None, *, actor_name=None, queue_name="default", priority=0, **options):
+    def deco(wrapped, *, depth=1):
+        wrapped.__actor_name__ = actor_name or wrapped.__name__
+
+        def callback(context, name, wrapped):
+            config = context.config.with_package(info.module)
+            broker = config.registry["dramatiq.broker"]
+            actor_name = wrapped.__actor_name__
+
+            invalid_options = set(options) - broker.actor_options
+            if invalid_options:
+                invalid_options_list = ", ".join(invalid_options)
+                raise ValueError(
+                    (
+                        "The following actor options are undefined: %s. "
+                        "Did you forget to add a middleware to your Broker?"
+                    )
+                    % invalid_options_list
+                )
+
+            TransactionAwareActor(
+                with_request(wrapped, registry=config.registry),
+                actor_name=actor_name,
+                queue_name=queue_name,
+                priority=priority,
+                broker=broker,
+                options=options,
+            )
+
+        info = venusian.attach(wrapped, callback, depth=depth)
 
         return wrapped
 
-    return deco
+    if fn is None:
+        return deco
+    return deco(fn, depth=2)
 
 
-def _get_task(celery_app, task_func):
-    task_name = celery_app.gen_task_name(task_func.__name__, task_func.__module__)
-    return celery_app.tasks[task_name]
+def _get_task_from_request(request, task):
+    if not hasattr(task, "__actor_name__"):
+        raise ValueError(f"Invalid task: {task!r}")
+
+    return RequestAwareActorProxy(
+        request, request.registry["dramatiq.broker"].actors[task.__actor_name__]
+    )
 
 
-def _get_task_from_request(request):
-    celery_app = request.registry["celery.app"]
-    return functools.partial(_get_task, celery_app)
-
-
-def _get_task_from_config(config, task):
-    celery_app = config.registry["celery.app"]
-    return _get_task(celery_app, task)
-
-
-def _get_celery_app(config):
-    return config.registry["celery.app"]
-
-
-def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **opts):
-    def add_task():
-        config.registry["celery.app"].add_periodic_task(
-            schedule, config.task(func).s(), args=args, kwargs=kwargs, name=name, **opts
-        )
-
-    config.action(None, add_task, order=100)
+def _make_broker(config):
+    return config.registry["dramatiq.broker"]
 
 
 def includeme(config):
-    s = config.registry.settings
-
-    queue_name = "celery"
-    broker_transport_options = {}
-
-    broker_url = s["celery.broker_url"]
-    if broker_url.startswith("sqs://"):
-        parsed_url = urllib.parse.urlparse(broker_url)
-        parsed_query = urllib.parse.parse_qs(parsed_url.query)
-        # Celery doesn't handle paths/query arms being passed into the SQS broker,
-        # so we'll jsut remove them from here.
-        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
-
-        if parsed_url.path:
-            queue_name = parsed_url.path[1:]
-
-        if "region" in parsed_query:
-            broker_transport_options["region"] = parsed_query["region"][0]
-
-    config.registry["celery.app"] = celery.Celery(
-        "warehouse", autofinalize=False, set_as_current=False
+    # # sqs://localstack:4576/warehouse-dev?region=us-east-1
+    # TODO: Handle Real URLs for SQS
+    # TODO: Datadog Metrics
+    config.registry["dramatiq.broker"] = SQSBroker(
+        middleware=[
+            AgeLimit(),
+            TimeLimit(),
+            ShutdownNotifications(),
+            Callbacks(),
+            Pipelines(),
+            Retries(),
+        ],
+        endpoint_url="http://localstack:4576",
+        region_name="us-east-1",
+        use_ssl=False,
     )
-    config.registry["celery.app"].conf.update(
-        accept_content=["json", "msgpack"],
-        broker_url=broker_url,
-        broker_use_ssl=s["warehouse.env"] == Environment.production,
-        broker_transport_options=broker_transport_options,
-        task_default_queue=queue_name,
-        task_queue_ha_policy="all",
-        task_serializer="json",
-        worker_disable_rate_limits=True,
-        REDBEAT_REDIS_URL=s["celery.scheduler_url"],
-    )
-    config.registry["celery.app"].Task = WarehouseTask
-    config.registry["celery.app"].pyramid_config = config
-
-    config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
-
-    config.add_directive("add_periodic_task", _add_periodic_task, action_wrap=False)
-    config.add_directive("make_celery_app", _get_celery_app, action_wrap=False)
-    config.add_directive("task", _get_task_from_config, action_wrap=False)
-    config.add_request_method(_get_task_from_request, name="task", reify=True)
+    config.add_directive("make_broker", _make_broker, action_wrap=False)
+    config.add_request_method(_get_task_from_request, name="task")
+    # TODO: Actually Handle Periodic Tasks
+    config.add_directive("add_periodic_task", lambda *a, **kw: None, action_wrap=False)

@@ -21,7 +21,7 @@ CLEANUP_DELIVERED_AFTER = datetime.timedelta(days=14)
 CLEANUP_AFTER = datetime.timedelta(days=90)
 
 
-@tasks.task(ignore_result=True, acks_late=True)
+@tasks.task
 def cleanup(request):
     # Cleanup any email message whose status is Accepted or Delivered.
     # We clean these up quicker than failures because we don't really

@@ -16,7 +16,6 @@ from email.headerregistry import Address
 
 import attr
 
-from celery.schedules import crontab
 from first import first
 
 from warehouse import tasks
@@ -32,15 +31,11 @@ def _compute_recipient(user, email):
     return str(Address(first([user.name, user.username], default=""), addr_spec=email))
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def send_email(task, request, recipient, msg):
+@tasks.task()
+def send_email(request, recipient, msg):
     msg = EmailMessage(**msg)
     sender = request.find_service(IEmailSender)
-
-    try:
-        sender.send(recipient, msg)
-    except Exception as exc:
-        task.retry(exc=exc)
+    sender.send(recipient, msg)
 
 
 def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=False):
@@ -56,7 +51,7 @@ def _send_email_to_user(request, user, msg, *, email=None, allow_unverified=Fals
     if email is None or not (email.verified or allow_unverified):
         return
 
-    request.task(send_email).delay(
+    request.task(send_email).send(
         _compute_recipient(user, email.email), attr.asdict(msg)
     )
 
@@ -204,4 +199,5 @@ def includeme(config):
     # do this cleanup, regardless of if we're configured to use SES to send
     # or not, because even if we stop using SES, we'll want to remove any
     # emails that had been sent, and the cost of doing this is very low.
-    config.add_periodic_task(crontab(minute=0, hour=0), ses_cleanup)
+    # TODO: Re-enable
+    # config.add_periodic_task(crontab(minute=0, hour=0), ses_cleanup)

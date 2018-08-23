@@ -15,7 +15,7 @@ from warehouse.cache.origin import IOriginCache
 from warehouse.packaging.models import Project
 
 
-@tasks.task(ignore_result=True, acks_late=True)
+@tasks.task
 def compute_trending(request):
     bq = request.find_service(name="gcloud.bigquery")
     query = bq.query(

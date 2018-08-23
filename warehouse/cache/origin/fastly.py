@@ -24,20 +24,11 @@ class UnsuccessfulPurge(Exception):
     pass
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def purge_key(task, request, key):
+@tasks.task
+def purge_key(request, key):
     cacher = request.find_service(IOriginCache)
     request.log.info("Purging %s", key)
-    try:
-        cacher.purge_key(key)
-    except (
-        requests.ConnectionError,
-        requests.HTTPError,
-        requests.Timeout,
-        UnsuccessfulPurge,
-    ) as exc:
-        request.log.error("Error purging %s: %s", key, str(exc))
-        raise task.retry(exc=exc)
+    cacher.purge_key(key)
 
 
 @implementer(IOriginCache)
@@ -55,7 +46,7 @@ class FastlyCache:
         return cls(
             api_key=request.registry.settings["origin_cache.api_key"],
             service_id=request.registry.settings["origin_cache.service_id"],
-            purger=request.task(purge_key).delay,
+            purger=request.task(purge_key).send,
         )
 
     def cache(

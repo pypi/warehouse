@@ -4,8 +4,6 @@ argon2-cffi
 Babel
 bcrypt
 boto3
-celery[sqs]>=4
-celery-redbeat
 certifi
 click
 cryptography
@@ -13,6 +11,8 @@ datadog>=0.19.0
 disposable-email-domains
 elasticsearch>=6.0.0,<7.0.0
 elasticsearch_dsl>=6.0.0,<7.0.0
+dramatiq
+dramatiq-sqs
 first
 google-cloud-bigquery
 hiredis

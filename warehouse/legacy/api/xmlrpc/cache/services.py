@@ -19,15 +19,11 @@ from warehouse.legacy.api.xmlrpc import cache
 from warehouse.legacy.api.xmlrpc.cache import interfaces
 
 
-@tasks.task(bind=True, ignore_result=True, acks_late=True)
-def purge_tag(task, request, tag):
+@tasks.task
+def purge_tag(request, tag):
     service = request.find_service(interfaces.IXMLRPCCache)
     request.log.info("Purging %s", tag)
-    try:
-        service.purge(tag)
-    except (interfaces.CacheError) as exc:
-        request.log.error("Error purging %s: %s", tag, str(exc))
-        raise task.retry(exc=exc)
+    service.purge(tag)
 
 
 @implementer(interfaces.IXMLRPCCache)
@@ -51,7 +47,7 @@ class RedisXMLRPCCache:
     def create_service(cls, context, request):
         return cls(
             request.registry.settings.get("warehouse.xmlrpc.cache.url"),
-            request.task(purge_tag).delay,
+            request.task(purge_tag).send,
             name=request.registry.settings.get("warehouse.xmlrpc.cache.name", "xmlrpc"),
             expires=int(
                 request.registry.settings.get(
@@ -80,7 +76,7 @@ class NullXMLRPCCache:
     def create_service(cls, context, request):
         return cls(
             request.registry.settings.get("warehouse.xmlrpc.cache.url"),
-            request.task(purge_tag).delay,
+            request.task(purge_tag).send,
         )
 
     def fetch(self, func, args, kwargs, key, tag, expires):

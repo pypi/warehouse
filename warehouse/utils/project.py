@@ -18,14 +18,11 @@ from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import JournalEntry
 
 
-@task(bind=True, ignore_result=True, acks_late=True)
-def remove_documentation(task, request, project_name):
+@task
+def remove_documentation(request, project_name):
     request.log.info("Removing documentation for %s", project_name)
     storage = request.find_service(IDocsStorage)
-    try:
-        storage.remove_by_prefix(project_name)
-    except Exception as exc:
-        task.retry(exc=exc)
+    storage.remove_by_prefix(project_name)
 
 
 def confirm_project(project, request, fail_route):
@@ -75,7 +72,7 @@ def destroy_docs(project, request, flash=True):
         )
     )
 
-    request.task(remove_documentation).delay(project.name)
+    request.task(remove_documentation).send(project.name)
 
     project.has_docs = False
 

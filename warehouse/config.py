@@ -463,7 +463,7 @@ def configure(settings=None):
 
     # Scan everything for configuration
     config.scan(
-        ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+        ignore=["warehouse.migrations.env", "warehouse.broker", "warehouse.wsgi"]
     )
 
     # Sanity check our request and responses.

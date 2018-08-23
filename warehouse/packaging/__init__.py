@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
 
 from warehouse import db
@@ -91,5 +90,6 @@ def includeme(config):
 
     # Add a periodic task to compute trending once a day, assuming we have
     # been configured to be able to access BigQuery.
-    if config.get_settings().get("warehouse.trending_table"):
-        config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)
+    # TODO: Re-enable
+    # if config.get_settings().get("warehouse.trending_table"):
+    #     config.add_periodic_task(crontab(minute=0, hour=3), compute_trending)

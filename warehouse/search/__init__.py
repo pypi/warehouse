@@ -15,7 +15,6 @@ import urllib.parse
 import certifi
 import elasticsearch
 
-from celery.schedules import crontab
 from elasticsearch_dsl import serializer
 
 from warehouse import db
@@ -96,4 +95,5 @@ def includeme(config):
 
     from warehouse.search.tasks import reindex
 
-    config.add_periodic_task(crontab(minute=0, hour=6), reindex)
+    # TODO: Re-enable
+    # config.add_periodic_task(crontab(minute=0, hour=6), reindex)

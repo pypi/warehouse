@@ -12,4 +12,4 @@
 
 from warehouse.config import configure
 
-app = configure().make_celery_app()
+broker = configure().make_broker()
