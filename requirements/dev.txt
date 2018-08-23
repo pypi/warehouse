@@ -1,3 +1,4 @@
 hupper>=0.4.0
 pip-tools>=1.0
 pyramid_debugtoolbar>=2.5
+dramatiq[watch]

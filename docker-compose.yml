@@ -85,7 +85,7 @@ services:
       context: .
       args:
         DEVEL: "yes"
-    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: dramatiq warehouse.broker:broker -p 1 --watch warehouse/
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
     env_file: dev/environment
