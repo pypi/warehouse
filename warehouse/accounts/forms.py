@@ -12,6 +12,7 @@
 
 import disposable_email_domains
 import jinja2
+import pyotp
 import wtforms
 import wtforms.fields.html5
 
@@ -86,6 +87,22 @@ class PasswordMixin:
                     "There have been too many unsuccessful login attempts, "
                     "try again later."
                 ) from None
+
+
+class AuthenticationCodeMixin:
+
+    authentication_code = wtforms.StringField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                r"^[0-9]{6}$",
+                message=(
+                    "Invalid authentication code. "
+                    "Authentication codes must be a 6-digit number."
+                ),
+            ),
+        ]
+    )
 
 
 class NewPasswordMixin:
@@ -217,6 +234,21 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 raise wtforms.validators.ValidationError(
                     jinja2.Markup(self.breach_service.failure_message)
                 )
+
+
+class LoginWithMfaForm(AuthenticationCodeMixin, LoginForm):
+    def validate_authentication_code(self, field):
+        authentication_code = field.data
+        user = self.user_service.get_user_by_username(self.username.data)
+
+        totp = pyotp.totp.TOTP(user.authentication_seed)
+        valid = totp.verify(authentication_code)
+
+        if not valid:
+            raise wtforms.validators.ValidationError(
+                "Invalid authentication code. "
+                "Please ensure your system's time is correct."
+            )
 
 
 class RequestPasswordResetForm(forms.Form):

@@ -44,12 +44,13 @@ class TestManageAccount:
         breach_service = pretend.stub()
         user_service = pretend.stub()
         name = pretend.stub()
+        email = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, email=email),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -63,6 +64,12 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
+        mfa_configuration_obj = pretend.stub()
+        mfa_configuration_cls = pretend.call_recorder(
+            lambda **kw: mfa_configuration_obj
+        )
+        monkeypatch.setattr(views, "MfaConfigurationForm", mfa_configuration_cls)
+
         view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
@@ -72,6 +79,7 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "mfa_configuration_form": mfa_configuration_obj,
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -79,6 +87,9 @@ class TestManageAccount:
         assert add_email_cls.calls == [pretend.call(user_service=user_service)]
         assert change_pass_cls.calls == [
             pretend.call(user_service=user_service, breach_service=breach_service)
+        ]
+        assert mfa_configuration_cls.calls == [
+            pretend.call(user_service=user_service, email=email)
         ]
 
     def test_active_projects(self, db_request):
@@ -574,6 +585,79 @@ class TestManageAccount:
         assert request.session.flash.calls == []
         assert send_email.calls == []
         assert user_service.update_user.calls == []
+
+    def test_mfa_configuration(self, monkeypatch):
+        authentication_code = "123456"
+        authentication_seed = "234567ABCDEFGHIJ"
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                "authentication_code": authentication_code,
+                "authentication_seed": authentication_seed,
+            },
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(id=pretend.stub(), email=pretend.stub()),
+        )
+        mfa_configuration_obj = pretend.stub(
+            validate=lambda: True,
+            authentication_code=pretend.stub(data=authentication_code),
+            authentication_seed=pretend.stub(data=authentication_seed),
+        )
+        mfa_configuration_cls = pretend.call_recorder(
+            lambda *a, **kw: mfa_configuration_obj
+        )
+        monkeypatch.setattr(views, "MfaConfigurationForm", mfa_configuration_cls)
+
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+        view = views.ManageAccountViews(request)
+
+        assert view.mfa_configuration() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call("Multi-factor authentication enabled", queue="success")
+        ]
+        assert user_service.update_user.calls == [
+            pretend.call(request.user.id, authentication_seed=authentication_seed)
+        ]
+
+    def test_mfa_configuration_validation_fails(self, monkeypatch):
+        authentication_code = "123456"
+        authentication_seed = "234567ABCDEFGHIJ"
+        user_service = pretend.stub(
+            update_user=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        request = pretend.stub(
+            POST={
+                "authentication_code": authentication_code,
+                "authentication_seed": authentication_seed,
+            },
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(id=pretend.stub(), email=pretend.stub()),
+        )
+        mfa_configuration_obj = pretend.stub(
+            validate=lambda: False,
+            authentication_code=pretend.stub(data=authentication_code),
+            authentication_seed=pretend.stub(data=authentication_seed),
+        )
+        mfa_configuration_cls = pretend.call_recorder(
+            lambda *a, **kw: mfa_configuration_obj
+        )
+        monkeypatch.setattr(views, "MfaConfigurationForm", mfa_configuration_cls)
+
+        monkeypatch.setattr(
+            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+        )
+        view = views.ManageAccountViews(request)
+
+        assert view.mfa_configuration() == view.default_response
+        assert request.session.flash.calls == [
+            pretend.call("Error enabling multi-factor authentication", queue="error")
+        ]
 
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()

@@ -71,13 +71,27 @@
           {% endif %}
         </div>
 
+        {% if form.authentication_code %}
+        <div class="form-group">
+          <label for="authentication_code" class="form-group__label">Authentication code</label>
+          {{ form.authentication_code(placeholder="e.g. 123456", autocorrect="off", autocapitalize="off", spellcheck="false", required="required", class_="form-group__input", tabindex="3") }}
+          {% if form.authentication_code.errors %}
+          <ul class="form-errors">
+            {% for error in form.authentication_code.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endif %}
+
         <div class="form-group">
           <div class="split-layout split-layout--table">
             <div>
-              <input type="submit" value="Log in" class="button button--primary" tabindex="3">
+              <input type="submit" value="Log in" class="button button--primary" tabindex="5">
             </div>
             <span>
-              <a href="{{request.route_url('accounts.request-password-reset')}}" tabindex="5">Forgot password?</a>
+              <a href="{{request.route_url('accounts.request-password-reset')}}" tabindex="6">Forgot password?</a>
             </span>
           </div>
         </div>

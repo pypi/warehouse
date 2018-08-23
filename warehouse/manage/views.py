@@ -35,6 +35,7 @@ from warehouse.manage.forms import (
     ChangePasswordForm,
     ChangeRoleForm,
     CreateRoleForm,
+    MfaConfigurationForm,
     SaveAccountForm,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
@@ -102,6 +103,9 @@ class ManageAccountViews:
                 user_service=self.user_service, breach_service=self.breach_service
             ),
             "active_projects": self.active_projects,
+            "mfa_configuration_form": MfaConfigurationForm(
+                user_service=self.user_service, email=self.request.user.email
+            ),
         }
 
     @view_config(request_method="GET")
@@ -241,6 +245,28 @@ class ManageAccountViews:
             self.request.session.flash("Password updated", queue="success")
 
         return {**self.default_response, "change_password_form": form}
+
+    @view_config(request_method="POST", request_param=MfaConfigurationForm.__params__)
+    def mfa_configuration(self):
+        form = MfaConfigurationForm(
+            **self.request.POST,
+            user_service=self.user_service,
+            email=self.request.user.email,
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, authentication_seed=form.authentication_seed.data
+            )
+            self.request.session.flash(
+                "Multi-factor authentication enabled", queue="success"
+            )
+        else:
+            self.request.session.flash(
+                "Error enabling multi-factor authentication", queue="error"
+            )
+
+        return self.default_response
 
     @view_config(request_method="POST", request_param=["confirm_username"])
     def delete_account(self):

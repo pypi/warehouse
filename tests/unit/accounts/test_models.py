@@ -65,3 +65,11 @@ class TestUser:
         result = db_session.query(User).filter(User.email == email.email).first()
 
         assert result is None
+
+    def test_mfa_enabled_default(self, db_session):
+        user = DBUserFactory.create()
+        assert user.mfa_enabled is False
+
+    def test_mfa_enabled_with_authentication_seed(self, db_session):
+        user = DBUserFactory.create(authentication_seed="234567ABCDEFGHIJ")
+        assert user.mfa_enabled is True

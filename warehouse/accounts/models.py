@@ -79,6 +79,7 @@ class User(SitemapMixin, db.Model):
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
+    authentication_seed = Column(String(length=16))
 
     emails = orm.relationship(
         "Email", backref="user", cascade="all, delete-orphan", lazy=False
@@ -102,6 +103,10 @@ class User(SitemapMixin, db.Model):
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .as_scalar()
         )
+
+    @property
+    def mfa_enabled(self):
+        return self.authentication_seed is not None
 
 
 class UnverifyReasons(enum.Enum):

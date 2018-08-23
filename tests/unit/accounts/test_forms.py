@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import pretend
+import pyotp
 import pytest
 import wtforms
 
@@ -227,6 +228,95 @@ class TestLoginForm:
             pretend.call(1, reason=DisableReason.CompromisedPassword)
         ]
         assert send_email.calls == [pretend.call(request, user)]
+
+
+class TestLoginWithMfaForm:
+    def test_subclass(self):
+        """Let's avoid duplicating all the tests in TestLoginForm. However,
+        LoginWithMfaForm still has important security validation properties
+        that it inherits from LoginForm, so let's ensure that we're notified
+        if it's ever no longer a subclass of LoginForm.
+        """
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginWithMfaForm(
+            request=request, user_service=user_service, breach_service=breach_service
+        )
+
+        assert isinstance(form, forms.LoginForm)
+
+    def test_creation(self):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginWithMfaForm(
+            request=request, user_service=user_service, breach_service=breach_service
+        )
+
+        assert form.request is request
+        assert form.user_service is user_service
+        assert form.breach_service is breach_service
+
+    def test_validate_authentication_code(self):
+        authentication_seed = "234567ABCDEFGHIJ"
+        request = pretend.stub()
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+            get_user_by_username=pretend.call_recorder(
+                lambda username: pretend.stub(authentication_seed=authentication_seed)
+            ),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
+        form = forms.LoginWithMfaForm(
+            data={"username": "my_username"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["bar"],
+        )
+
+        totp = pyotp.totp.TOTP(authentication_seed)
+        authentication_code = pretend.stub(data=totp.now())
+
+        form.validate_authentication_code(authentication_code)
+
+        assert user_service.get_user_by_username.calls == [pretend.call("my_username")]
+
+    def test_validate_authentication_code_fails(self):
+        authentication_seed = "234567ABCDEFGHIJ"
+        request = pretend.stub()
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+            is_disabled=pretend.call_recorder(lambda userid: (False, None)),
+            get_user_by_username=pretend.call_recorder(
+                lambda username: pretend.stub(authentication_seed=authentication_seed)
+            ),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
+        form = forms.LoginWithMfaForm(
+            data={"username": "my_username"},
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+            check_password_metrics_tags=["bar"],
+        )
+
+        authentication_code = pretend.stub(data="1234567")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_authentication_code(authentication_code)
 
 
 class TestRegistrationForm:

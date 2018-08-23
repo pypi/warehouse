@@ -27,6 +27,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
     LoginForm,
+    LoginWithMfaForm,
     RegistrationForm,
     RequestPasswordResetForm,
     ResetPasswordForm,
@@ -108,6 +109,16 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         redirect_field_name, request.GET.get(redirect_field_name)
     )
 
+    mfa = request.POST.get("mfa", request.GET.get("mfa"))
+    try:
+        with_mfa = bool(int(mfa))
+    except (ValueError, TypeError):
+        with_mfa = False
+
+    # Upgrade to MFA form
+    if with_mfa and _form_class == LoginForm:
+        _form_class = LoginWithMfaForm
+
     form = _form_class(
         request.POST,
         request=request,
@@ -120,7 +131,15 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         if form.validate():
             # Get the user id for the given username.
             username = form.username.data
-            userid = user_service.find_userid(username)
+            user = user_service.get_user_by_username(username)
+            userid = user.id
+
+            if userid and user.mfa_enabled and not with_mfa:
+                mfa_redirect_to = request.route_path(
+                    "accounts.login", _query={"mfa": "1"}
+                )
+                mfa_redirect = HTTPSeeOther(mfa_redirect_to)
+                return mfa_redirect
 
             # If the user-originating redirection url is not safe, then
             # redirect to the index instead.

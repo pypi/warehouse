@@ -276,6 +276,29 @@
 
   <hr>
 
+  <section id="mfa-configuration">
+    <h2 class="sub-title">Multi-factor Authentication</h2>
+
+    <canvas class="qr-code"></canvas>
+
+    <form method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <input id="provisioning_uri" type="hidden" value="{{ mfa_configuration_form.provisioning_uri }}">
+      {{ form_errors(mfa_configuration_form) }}
+      <div class="form-group">
+        <label class="form-group__label" for="name">Authentication code</label>
+        {{ mfa_configuration_form.authentication_code(placeholder="e.g. 123456", class_="form-group__input") }}
+        {{ field_errors(mfa_configuration_form.authentication_code) }}
+        {{ mfa_configuration_form.authentication_seed() }}
+        {{ field_errors(mfa_configuration_form.authentication_seed) }}
+        <p class="form-group__help-text">Scan the QR code, generate an authentication code, and enter the digits here.</p>
+      </div>
+      <input value="Update account" class="button button--primary" type="submit">
+    </form>
+  </section>
+
+  <hr>
+
   <section id="delete-account">
     <h2>Delete account</h2>
     <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">

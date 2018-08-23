@@ -10,10 +10,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pyotp
 import wtforms
 
 from warehouse import forms
-from warehouse.accounts.forms import NewEmailMixin, NewPasswordMixin, PasswordMixin
+from warehouse.accounts.forms import (
+    AuthenticationCodeMixin,
+    NewEmailMixin,
+    NewPasswordMixin,
+    PasswordMixin,
+)
 
 
 class RoleNameMixin:
@@ -73,3 +79,44 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
     def __init__(self, *args, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
+
+
+class AuthenticationSeedMixin:
+
+    authentication_seed = wtforms.HiddenField(
+        validators=[
+            wtforms.validators.DataRequired(),
+            wtforms.validators.Regexp(
+                r"^[A-Z2-7]{16}$",
+                message=(
+                    "Invalid authentication seed. "
+                    "Authentication seeds must be a 16-character base32 value."
+                ),
+            ),
+        ],
+        default=pyotp.random_base32,
+    )
+
+
+class MfaConfigurationForm(
+    AuthenticationCodeMixin, AuthenticationSeedMixin, forms.Form
+):
+
+    __params__ = ["authentication_code", "authentication_seed"]
+
+    def __init__(self, *args, user_service, email, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_service = user_service
+        self.totp = pyotp.totp.TOTP(self.authentication_seed.data)
+        self.provisioning_uri = self.totp.provisioning_uri(email, issuer_name="PyPI")
+
+    def validate_authentication_code(self, field):
+        authentication_code = field.data
+
+        valid = self.totp.verify(authentication_code)
+
+        if not valid:
+            raise wtforms.validators.ValidationError(
+                "Invalid authentication code. "
+                "Please ensure your system's time is correct."
+            )

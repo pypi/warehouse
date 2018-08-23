@@ -85,3 +85,48 @@ class TestChangePasswordForm:
 
         assert form.user_service is user_service
         assert form._breach_service is breach_service
+
+
+class TestMfaConfigurationForm:
+    def test_creation(self):
+        user_service = pretend.stub()
+        email = "test@example.com"
+        authentication_seed = pretend.stub(data="234567ABCDEFGHIJ")
+
+        mfa_configuration_cls = forms.MfaConfigurationForm
+        mfa_configuration_cls.authentication_seed = authentication_seed
+
+        form = mfa_configuration_cls(user_service=user_service, email=email)
+
+        assert form.user_service is user_service
+
+    def test_validate_authentication_code(self):
+        user_service = pretend.stub()
+        email = "test@example.com"
+        authentication_seed = pretend.stub(data="234567ABCDEFGHIJ")
+
+        mfa_configuration_cls = forms.MfaConfigurationForm
+        mfa_configuration_cls.authentication_seed = authentication_seed
+
+        form = mfa_configuration_cls(user_service=user_service, email=email)
+
+        authentication_code = form.totp.now()
+        field = pretend.stub(data=authentication_code)
+        form.validate_authentication_code(field)
+
+        assert form.user_service is user_service
+
+    def test_validate_authentication_code_fails(self):
+        user_service = pretend.stub()
+        email = "test@example.com"
+        authentication_seed = pretend.stub(data="234567ABCDEFGHIJ")
+
+        mfa_configuration_cls = forms.MfaConfigurationForm
+        mfa_configuration_cls.authentication_seed = authentication_seed
+
+        form = mfa_configuration_cls(user_service=user_service, email=email)
+
+        authentication_code = "1234567"
+        field = pretend.stub(data=authentication_code)
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_authentication_code(field)

@@ -15,12 +15,15 @@ import uuid
 
 import freezegun
 import pretend
+import pyotp
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm.exc import NoResultFound
+from webob.multidict import MultiDict
 
 from warehouse.accounts import views
+from warehouse.accounts.forms import LoginWithMfaForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -154,8 +157,11 @@ class TestLogin:
         new_session = {}
 
         user_id = uuid.uuid4()
+        user = pretend.stub(
+            id=user_id, username="theuser", password="password", mfa_enabled=False
+        )
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: user_id),
+            get_user_by_username=pretend.call_recorder(lambda username: user),
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
@@ -210,7 +216,7 @@ class TestLogin:
         ]
         assert form_obj.validate.calls == [pretend.call()]
 
-        assert user_service.find_userid.calls == [pretend.call("theuser")]
+        assert user_service.get_user_by_username.calls == [pretend.call("theuser")]
         assert user_service.update_user.calls == [pretend.call(user_id, last_login=now)]
 
         if with_user:
@@ -231,8 +237,11 @@ class TestLogin:
     def test_post_validate_no_redirects(
         self, pyramid_request, pyramid_services, expected_next_url, observed_next_url
     ):
+        user = pretend.stub(
+            id=1, username="theuser", password="password", mfa_enabled=False
+        )
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 1),
+            get_user_by_username=pretend.call_recorder(lambda username: user),
             update_user=lambda *a, **k: None,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
@@ -256,6 +265,94 @@ class TestLogin:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
+
+    def test_get_returns_form_mfa_enabled(self, pyramid_request, pyramid_services):
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
+        pyramid_request.POST = MultiDict({})
+        pyramid_request.GET = MultiDict({"mfa": "1"})
+
+        result = views.login(pyramid_request)
+
+        assert isinstance(result["form"], LoginWithMfaForm)
+
+    def test_redirect_mfa_enabled(self, pyramid_request, pyramid_services):
+        user = pretend.stub(
+            id=1, username="theuser", password="password", mfa_enabled=True
+        )
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda username: user),
+            update_user=lambda *a, **k: None,
+        )
+        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
+        pyramid_request.method = "POST"
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data="theuser"),
+            password=pretend.stub(data="password"),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda a, **kw: "/account/login/"
+        )
+        result = views.login(pyramid_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [
+            pretend.call("accounts.login", _query={"mfa": "1"})
+        ]
+        assert result.headers["Location"] == "/account/login/"
+
+    def test_post_validate_mfa_enabled(self, pyramid_request, pyramid_services):
+        authentication_seed = "234567ABCDEFGHIJ"
+        totp = pyotp.totp.TOTP(authentication_seed)
+
+        user = pretend.stub(
+            id=1,
+            username="theuser",
+            password="password",
+            authentication_seed=authentication_seed,
+            mfa_enabled=True,
+        )
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda username: user),
+            update_user=lambda *a, **k: None,
+        )
+        breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+
+        pyramid_services.register_service(IUserService, None, user_service)
+        pyramid_services.register_service(
+            IPasswordBreachedService, None, breach_service
+        )
+
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict({"next": "/security/", "mfa": "1"})
+
+        form_obj = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            username=pretend.stub(data="theuser"),
+            password=pretend.stub(data="password"),
+            authentication_code=pretend.stub(data=totp.now()),
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        result = views.login(pyramid_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/security/"
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
