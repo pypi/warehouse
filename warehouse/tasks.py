@@ -67,6 +67,15 @@ class SQSBroker(_SQSBroker):
             self.emit_after("declare_queue", queue_name)
 
 
+class SentryMiddleware(dramatiq.Middleware):
+    def __init__(self, raven_client):
+        self.raven_client = raven_client
+
+    def after_process_message(self, broker, message, *, result=None, exception=None):
+        if exception is not None:
+            self.raven_client.captureException()
+
+
 def with_request(fn, *, registry):
     @functools.wraps(fn)
     def wrapped(*args, **kwargs):
@@ -163,7 +172,16 @@ def _get_task_from_request(request, task):
 
 
 def _make_broker(config):
-    return config.registry["dramatiq.broker"]
+    broker = config.registry["dramatiq.broker"]
+
+    # We want to add the Sentry middleware, but we can't do it up front because Raven
+    # hasn't been configured yet. So we'll do it here. We'll also protect against the
+    # unlikely case that this function is called twice, by checking to make sure this
+    # middleware hasn't already been added.
+    if not any(isinstance(m, SentryMiddleware) for m in broker.middleware):
+        broker.add_middleware(SentryMiddleware(config.registry["raven.client"]))
+
+    return broker
 
 
 def includeme(config):
