@@ -155,9 +155,7 @@ def configure(settings=None):
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(settings, "warehouse.trending_table", "WAREHOUSE_TRENDING_TABLE")
     maybe_set(settings, "dramatiq.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.broker_url", "BROKER_URL")
-    maybe_set(settings, "celery.result_url", "REDIS_URL")
-    maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
+    maybe_set(settings, "lock.url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
     maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_SIX_URL")
@@ -339,7 +337,7 @@ def configure(settings=None):
     # Register the configuration for the PostgreSQL database.
     config.include(".db")
 
-    # Register the support for Celery Tasks
+    # Register the support for Dramatiq Tasks
     config.include(".tasks")
 
     # Register support for our rate limiting mechanisms

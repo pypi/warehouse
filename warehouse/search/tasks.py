@@ -129,7 +129,7 @@ def reindex(request):
     """
     Recreate the Search Index.
     """
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+    r = redis.StrictRedis.from_url(request.registry.settings["lock.url"])
 
     with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
         p = urllib.parse.urlparse(request.registry.settings["elasticsearch.url"])
@@ -212,7 +212,7 @@ def reindex(request):
 
 @tasks.task
 def reindex_project(request, project_name):
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+    r = redis.StrictRedis.from_url(request.registry.settings["lock.url"])
 
     with SearchLock(r, timeout=15, blocking_timeout=1):
         client = request.registry["elasticsearch.client"]
@@ -234,7 +234,7 @@ def reindex_project(request, project_name):
 
 @tasks.task
 def unindex_project(request, project_name):
-    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+    r = redis.StrictRedis.from_url(request.registry.settings["lock.url"])
 
     with SearchLock(r, timeout=15, blocking_timeout=1):
         client = request.registry["elasticsearch.client"]
