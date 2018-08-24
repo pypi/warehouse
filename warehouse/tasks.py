@@ -11,10 +11,8 @@
 # limitations under the License.
 
 import functools
-import json
 import urllib.parse
 
-import botocore.exceptions
 import dramatiq
 import pyramid.scripting
 import venusian
@@ -32,15 +30,15 @@ from dramatiq_sqs import SQSBroker as _SQSBroker
 
 
 class SQSBroker(_SQSBroker):
-    def _create_queue(self, QueueName, **kwargs):
+    def _create_queue(self, queue_name, **kwargs):
         try:
-            return self.sqs.get_queue_by_name(QueueName=QueueName)
+            return self.sqs.get_queue_by_name(QueueName=queue_name)
         except self.sqs.meta.client.exceptions.QueueDoesNotExist:
             pass
 
         # If we've gotten to this point, it means that the queue didn't already exist,
         # so we'll create it now.
-        return self.sqs.create_queue(QueueName=QueueName, **kwargs)
+        return self.sqs.create_queue(QueueName=queue_name, **kwargs)
 
     # We Override this method to provide two things:
     #   1. Checking if the Queue exists before we try to create it, in production we
