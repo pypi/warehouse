@@ -11,7 +11,10 @@
 # limitations under the License.
 
 import functools
+import json
+import urllib.parse
 
+import botocore.exceptions
 import dramatiq
 import pyramid.scripting
 import venusian
@@ -25,7 +28,43 @@ from dramatiq.middleware import (
     Pipelines,
     Retries,
 )
-from dramatiq_sqs import SQSBroker
+from dramatiq_sqs import SQSBroker as _SQSBroker
+
+
+class SQSBroker(_SQSBroker):
+    def _create_queue(self, QueueName, **kwargs):
+        try:
+            return self.sqs.get_queue_by_name(QueueName=QueueName)
+        except self.sqs.meta.client.exceptions.QueueDoesNotExist:
+            pass
+
+        # If we've gotten to this point, it means that the queue didn't already exist,
+        # so we'll create it now.
+        return self.sqs.create_queue(QueueName=QueueName, **kwargs)
+
+    # We Override this method to provide two things:
+    #   1. Checking if the Queue exists before we try to create it, in production we
+    #      manage the queue using Terraform, not by having the application  create it
+    #      on demand.
+    #   2. We want to use - instead of _ to act as queue name separators
+    def declare_queue(self, queue_name: str) -> None:
+        if queue_name not in self.queues:
+            prefixed_queue_name = queue_name
+            if self.namespace is not None:
+                prefixed_queue_name = f"{self.namespace}-{queue_name}"
+
+            self.emit_before("declare_queue", queue_name)
+            self.queues[queue_name] = self._create_queue(
+                QueueName=prefixed_queue_name,
+                Attributes={"MessageRetentionPeriod": self.retention},
+            )
+
+            if self.dead_letter:
+                raise RuntimeError(
+                    "Dead Letter Queues not supported. If needed port over from "
+                    "dramatiq-sqs."
+                )
+            self.emit_after("declare_queue", queue_name)
 
 
 def with_request(fn, *, registry):
@@ -128,8 +167,23 @@ def _make_broker(config):
 
 
 def includeme(config):
-    # # sqs://localstack:4576/warehouse-dev?region=us-east-1
-    # TODO: Handle Real URLs for SQS
+    s = config.registry.settings
+
+    broker_url = s["dramatiq.broker_url"]
+    parsed_url = urllib.parse.urlparse(broker_url)
+    parsed_query = urllib.parse.parse_qs(parsed_url.query)
+
+    options = {}
+    if "prefix" in parsed_query:
+        options["namespace"] = parsed_query["prefix"][0]
+    if "region" in parsed_query:
+        options["region_name"] = parsed_query["region"][0]
+    if parsed_url.netloc:
+        options["endpoint_url"] = urllib.parse.urlunparse(
+            ("http", parsed_url.netloc) + ("", "", "", "")
+        )
+        options["use_ssl"] = False
+
     # TODO: Datadog Metrics
     config.registry["dramatiq.broker"] = SQSBroker(
         middleware=[
@@ -140,9 +194,7 @@ def includeme(config):
             Pipelines(),
             Retries(),
         ],
-        endpoint_url="http://localstack:4576",
-        region_name="us-east-1",
-        use_ssl=False,
+        **options,
     )
     config.add_directive("make_broker", _make_broker, action_wrap=False)
     config.add_request_method(_get_task_from_request, name="task")
