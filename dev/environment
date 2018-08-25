@@ -37,3 +37,4 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
+TEST_DOMAIN=test.pypi.org
