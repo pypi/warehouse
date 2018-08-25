@@ -27,6 +27,9 @@ from dramatiq.middleware import (
     Retries,
 )
 from dramatiq_sqs import SQSBroker as _SQSBroker
+from pyramid_services import find_service_factory
+
+from warehouse.metrics import IMetricsService, time_ms
 
 
 class SQSBroker(_SQSBroker):
@@ -72,6 +75,90 @@ class SentryMiddleware(dramatiq.Middleware):
     def after_process_message(self, broker, message, *, result=None, exception=None):
         if exception is not None:
             self.raven_client.captureException()
+
+
+class MetricsMiddleware(dramatiq.Middleware):
+    def __init__(self, metrics):
+        self.metrics = metrics
+        # TODO: Can we change these to a weak reference? Or better yet, can we hang
+        #       these off of the message object instead of storing them on the
+        #       middleware?
+        self.delayed_messages = set()
+        self.message_start_times = {}
+
+    def _get_tags(self, broker, message):
+        return [f"queue:{message.queue_name}", f"task:{message.actor_name}"]
+
+    def after_nack(self, broker, message):
+        self.metrics.increment(
+            "warehouse.worker.message.rejected", tags=self._get_tags(broker, message)
+        )
+
+    def after_enqueue(self, broker, message, delay):
+        if "retries" in message.options:
+            self.metrics.increment(
+                "warehouse.worker.message.retried", tags=self._get_tags(broker, message)
+            )
+
+    def before_delay_message(self, broker, message):
+        self.delayed_messages.add(message.message_id)
+        self.metrics.gauge(
+            "warehouse.worker.message.delayed",
+            len(self.delayed_messages),
+            tags=self._get_tags(broker, message),
+        )
+
+    def before_process_message(self, broker, message):
+        if message.message_id in self.delayed_messages:
+            self.delayed_messages.remove(message.message_id)
+            self.metrics.gauge(
+                "warehouse.worker.message.delayed",
+                len(self.delayed_messages),
+                tags=self._get_tags(broker, message),
+            )
+
+        self.message_start_times[message.message_id] = time_ms()
+        self.metrics.gauge(
+            "warehouse.worker.message.inprogress",
+            len(self.message_start_times),
+            tags=self._get_tags(broker, message),
+        )
+
+    def _after_message_common(self, broker, message):
+        message_start_time = self.message_start_times.pop(message.message_id, time_ms())
+        message_duration = time_ms() - message_start_time
+        self.metrics.timing(
+            "warehouse.worker.message.duration",
+            message_duration,
+            tags=self._get_tags(broker, message),
+        )
+        self.metrics.gauge(
+            "warehouse.worker.message.inprogress",
+            len(self.message_start_times),
+            tags=self._get_tags(broker, message),
+        )
+        self.metrics.increment(
+            "warehouse.worker.message.total", tags=self._get_tags(broker, message)
+        )
+
+    def after_process_message(self, broker, message, *, result=None, exception=None):
+        self._after_message_common(broker, message)
+
+        if exception is not None:
+            self.metrics.increment(
+                "warehouse.worker.message.errored", tags=self._get_tags(broker, message)
+            )
+        else:
+            self.metrics.increment(
+                "warehouse.worker.message.completed",
+                tags=self._get_tags(broker, message),
+            )
+
+    def after_skip_message(self, broker, message):
+        self._after_message_common(broker, message)
+        self.metrics.increment(
+            "warehouse.worker.message.skipped", tags=self._get_tags(broker, message)
+        )
 
 
 def with_request(fn, *, registry):
@@ -173,11 +260,14 @@ def _make_broker(config):
     broker = config.registry["dramatiq.broker"]
 
     # We want to add the Sentry middleware, but we can't do it up front because Raven
-    # hasn't been configured yet. So we'll do it here. We'll also protect against the
-    # unlikely case that this function is called twice, by checking to make sure this
-    # middleware hasn't already been added.
-    if not any(isinstance(m, SentryMiddleware) for m in broker.middleware):
-        broker.add_middleware(SentryMiddleware(config.registry["raven.client"]))
+    # hasn't been configured yet. So we'll do it here.
+    broker.add_middleware(SentryMiddleware(config.registry["raven.client"]))
+
+    # We want to add our metrics information, again we need to do this towards the end
+    # of our configuration phase, to make sure that our metrics have been configured
+    # previously.
+    metrics = find_service_factory(config, IMetricsService, context=None)(None, config)
+    broker.add_middleware(MetricsMiddleware(metrics))
 
     return broker
 

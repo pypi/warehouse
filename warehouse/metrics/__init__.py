@@ -14,11 +14,12 @@ from pyramid import events
 from pyramid_retry import IBeforeRetry
 
 from warehouse.metrics import event_handlers
+from warehouse.metrics.event_handlers import time_ms
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.metrics.services import NullMetrics, DataDogMetrics
 
 
-__all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
+__all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme", "time_ms"]
 
 
 def includeme(config):
