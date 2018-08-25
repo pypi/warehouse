@@ -22,7 +22,9 @@ export default class extends Controller {
     // Set the preview
     this.previewTarget.innerHTML = this.inputTarget.value;
 
-    if (this.inputTarget.value.match(/^\w+(\s\w*)* :: \w+(\s\w*)*$/g)) {
+    // Classifer must have two parts, separated by a ' :: '
+    // Can contain a-z, A-Z, 0-9, underscore, hyphen or period
+    if (this.inputTarget.value.match(/^[\w.-]+(\s[\w.-]*)* :: [\w.-]+(\s[\w.-]*)*$/g)) {
       // Enable the submit button
       this.submitTarget.disabled = false;
     } else {
