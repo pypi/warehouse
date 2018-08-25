@@ -52,7 +52,7 @@ class AccountTokenFactory(WarehouseFactory):
     class Meta:
         model = AccountToken
 
-    id = factory.Sequence(lambda n: str(uuid.uuid4()))
+    id = factory.Sequence(lambda n: uuid.uuid4())
     username = factory.fuzzy.FuzzyText()
     description = factory.fuzzy.FuzzyText(length=100)
     is_active = True
