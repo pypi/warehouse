@@ -56,7 +56,7 @@ class SQSBroker(_SQSBroker):
 
             self.emit_before("declare_queue", queue_name)
             self.queues[queue_name] = self._create_queue(
-                QueueName=prefixed_queue_name,
+                prefixed_queue_name,
                 Attributes={"MessageRetentionPeriod": self.retention},
             )
 
