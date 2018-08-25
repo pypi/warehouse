@@ -117,53 +117,155 @@ class TestAccountTokenAuthenticationPolicy:
             authentication.CallbackAuthenticationPolicy,
         )
 
-    def test_account_token_auth(self, db_request):
-        # First test the happy path
-        user = UserFactory.create(username="test_user")
-        token = AccountTokenFactory.create(username=user.username)
+    def test_account_token_routes_allowed(self):
+        request = pretend.stub(matched_route=pretend.stub(name="not_a_real_route"))
 
-        macaroon = Macaroon(
-            location="pypi.org", identifier=f"fake_id", key="fake_secret"
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+    def test_account_token_required_parameter(self):
+        request = pretend.stub(
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"), params={}
         )
 
-        macaroon.add_first_party_caveat(f"id: {token.id}")
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+    def test_account_token_malformed(self):
+        request = pretend.stub(
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            params={"account_token": "DEADBEEF"},
+        )
+
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+    def test_account_token_bad_settings(self):
+        # Test bad location
+        macaroon = Macaroon(
+            location="notpypi.org", identifier="example_id", key="example_secret"
+        )
+
+        request = pretend.stub(
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            params={"account_token": macaroon.serialize()},
+            registry=pretend.stub(
+                settings={
+                    "account_token.id": "example_id",
+                    "account_token.secret": "example_secret",
+                }
+            ),
+        )
+
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+        # Test bad identifier
+        macaroon = Macaroon(
+            location="pypi.org", identifier="bad_id", key="example_secret"
+        )
+
+        request.params["account_token"] = macaroon.serialize()
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+        # Tamper with macaroon
+        macaroon = Macaroon(
+            location="pypi.org", identifier="example_id", key="example_secret"
+        )
+
+        serialized = macaroon.serialize()
+
+        request.params["account_token"] = "".join(
+            (serialized[:-8], "AAAAAAA", serialized[-1:])
+        )
+        assert policy.unauthenticated_userid(request) is None
+
+    def test_account_token_with_no_user(self, db_request):
+        macaroon = Macaroon(
+            location="pypi.org", identifier="example_id", key="example_secret"
+        )
+
+        request = pretend.stub(
+            find_service=lambda iface, **kw: {
+                IUserService: pretend.stub(find_userid_by_account_token=pretend.stub())
+            }[iface],
+            params={"account_token": macaroon.serialize()},
+            registry=pretend.stub(
+                settings={
+                    "account_token.id": "example_id",
+                    "account_token.secret": "example_secret",
+                }
+            ),
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            db=db_request,
+            session={},
+        )
+
+        policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
+        assert policy.unauthenticated_userid(request) is None
+
+    def test_account_token_auth(self, db_request):
+        # Test basic happy path
+        user = UserFactory.create(username="test_user")
+        account_token = AccountTokenFactory.create(username=user.username)
+        account_token_id = str(account_token.id)
+
+        macaroon = Macaroon(
+            location="pypi.org", identifier="example_id", key="example_secret"
+        )
+
+        macaroon.add_first_party_caveat(f"id: {account_token_id}")
 
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IUserService: pretend.stub(
                     find_userid_by_account_token=(
-                        lambda x: user.id if x == token.id else None
+                        lambda x: user.id if x == account_token_id else None
                     )
                 )
             }[iface],
             params={"account_token": macaroon.serialize()},
             registry=pretend.stub(
                 settings={
-                    "account_token.id": "fake_id",
-                    "account_token.secret": "fake_secret",
+                    "account_token.id": "example_id",
+                    "account_token.secret": "example_secret",
                 }
             ),
             matched_route=pretend.stub(name="forklift.legacy.file_upload"),
             db=db_request,
+            session={},
         )
 
         policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
         assert policy.unauthenticated_userid(request) == user.id
 
-        # Make sure route filtering is working
-        request.matched_route = pretend.stub(name="not.a.real.route")
-        assert policy.unauthenticated_userid(request) is None
-
-        # Put things back, try a faked macaroon
-        request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
-
-        wrong_macaroon = Macaroon(
-            location="pypi.org", identifier=f"fake_id", key="fake_wrong_secret"
+        # Test package caveats
+        macaroon.add_first_party_caveat("package: pyexample")
+        macaroon.add_third_party_caveat(
+            location="mysite.com", key="anykey", key_id="anykeyid"
         )
+        request.params["account_token"] = macaroon.serialize()
+        request.session["account_token_package"] = None
 
-        wrong_macaroon.add_first_party_caveat(f"id: {token.id}")
-        request.params["account_token"] = wrong_macaroon.serialize()
-        assert policy.unauthenticated_userid(request) is None
+        assert policy.unauthenticated_userid(request) == user.id
+        assert request.session["account_token_package"] == "pyexample"
+
+        # Ensure you can't overwrite previous caveats
+        takeover_user = UserFactory.create(username="takeover_user")
+        takeover_account_token = AccountTokenFactory.create(
+            username=takeover_user.username
+        )
+        takeover_account_token_id = str(takeover_account_token.id)
+
+        macaroon.add_first_party_caveat(f"id: {takeover_account_token_id}")
+        macaroon.add_first_party_caveat("package: additionalpackage")
+
+        request.params["account_token"] = macaroon.serialize()
+        request.session["account_token_package"] = None
+
+        assert policy.unauthenticated_userid(request) == user.id
+        assert request.session["account_token_package"] == "pyexample"
 
     def test_first_party_caveat_validation(self):
         policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
@@ -171,3 +273,13 @@ class TestAccountTokenAuthenticationPolicy:
         assert policy._validate_first_party_caveat("id")
         assert policy._validate_first_party_caveat("package")
         assert not policy._validate_first_party_caveat("not_valid")
+
+    def test_account_token_interface(self):
+        def _authenticate(a, b):
+            return a, b
+
+        policy = auth_policy.AccountTokenAuthenticationPolicy(_authenticate)
+
+        assert policy.remember("", "") == []
+        assert policy.forget("") == []
+        assert policy._auth_callback(1, 2) == (1, 2)

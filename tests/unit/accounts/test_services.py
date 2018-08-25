@@ -35,7 +35,7 @@ from warehouse.accounts.models import DisableReason
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
-from ...common.db.accounts import UserFactory, EmailFactory
+from ...common.db.accounts import UserFactory, EmailFactory, AccountTokenFactory
 
 
 class TestDatabaseUserService:
@@ -339,6 +339,24 @@ class TestDatabaseUserService:
         )
         user_service.update_user(user.id, password="foo")
         assert user_service.is_disabled(user.id) == (False, None)
+
+    def test_find_userid_by_account_token(self, user_service):
+        user = UserFactory.create()
+        account_token = AccountTokenFactory.create(username=user.username)
+
+        user_id = user_service.find_userid_by_account_token(account_token.id)
+        assert user_id == user.id
+
+    def test_find_userid_by_account_token_failure(self, user_service):
+        user_id = user_service.find_userid_by_account_token(uuid.uuid4())
+        assert user_id is None
+
+    def test_get_tokens_by_username(self, user_service):
+        user = UserFactory.create()
+        account_token = AccountTokenFactory.create(username=user.username)
+
+        found_account_token = user_service.get_tokens_by_username(user.username)
+        assert found_account_token.id == account_token.id
 
 
 class TestTokenService:

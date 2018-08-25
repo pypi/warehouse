@@ -59,36 +59,33 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
             verifier.satisfy_general(self._validate_first_party_caveat)
 
-            verified = verifier.verify(
-                macaroon, request.registry.settings["account_token.secret"]
-            )
+            verifier.verify(macaroon, request.registry.settings["account_token.secret"])
 
-            if verified:
-                # Get id from token
-                account_token_id = None
-                package = None
+            # Get id from token
+            account_token_id = None
+            package = None
 
-                for each in macaroon.first_party_caveats():
-                    caveat = each.to_dict()
-                    caveat_parts = caveat["cid"].split(": ")
-                    caveat_key = caveat_parts[0]
-                    caveat_value = ": ".join(caveat_parts[1:])
+            for each in macaroon.first_party_caveats():
+                caveat = each.to_dict()
+                caveat_parts = caveat["cid"].split(": ")
+                caveat_key = caveat_parts[0]
+                caveat_value = ": ".join(caveat_parts[1:])
 
-                    # If caveats are specified multiple times, only trust the
-                    # first value we encounter.
-                    if caveat_key == "id" and account_token_id is None:
-                        account_token_id = caveat_value
+                # If caveats are specified multiple times, only trust the
+                # first value we encounter.
+                if caveat_key == "id" and account_token_id is None:
+                    account_token_id = caveat_value
 
-                    elif caveat_key == "package" and package is None:
-                        package = caveat_value
+                elif caveat_key == "package" and package is None:
+                    package = caveat_value
 
-                if package is not None:
-                    request.session["account_token_package"] = package
+            if package is not None:
+                request.session["account_token_package"] = package
 
-                if account_token_id is not None:
-                    login_service = request.find_service(IUserService, context=None)
+            if account_token_id is not None:
+                login_service = request.find_service(IUserService, context=None)
 
-                    return login_service.find_userid_by_account_token(account_token_id)
+                return login_service.find_userid_by_account_token(account_token_id)
 
         except (struct.error, MacaroonException) as e:
             return None

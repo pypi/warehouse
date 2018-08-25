@@ -259,7 +259,9 @@ class DatabaseUserService:
         return self.find_userid(account_token.username)
 
     def get_tokens_by_username(self, username):
-        return self.db.query(AccountToken).filter(AccountToken.username == username)
+        return (
+            self.db.query(AccountToken).filter(AccountToken.username == username).one()
+        )
 
 
 @implementer(ITokenService)

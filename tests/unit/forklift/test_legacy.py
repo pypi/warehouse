@@ -2903,6 +2903,57 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information."
         )
 
+    def test_fails_account_token_package_mismatch(
+        self, pyramid_config, pyramid_request, db_request
+    ):
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "a fake md5 digest",
+                "content": pretend.stub(
+                    filename="example-1.0.tar.gz",
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+                "description": "an example description",
+            }
+        )
+
+        pyramid_config.testing_securitypolicy(userid=1)
+        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
+
+        pyramid_request.session["account_token_package"] = "anotherpackage"
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 Invalid or non-existent authentication information."
+        )
+
+        pyramid_request.session["account_token_package"] = "example"
+        pyramid_request.flags = pretend.stub(
+            enabled=lambda *a: a[0] == "disallow-new-project-registration"
+        )
+        pyramid_request.help_url = lambda **kwargs: "a"
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(pyramid_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            "403 New project registration temporarily disabled. See a for details"
+        )
+
 
 @pytest.mark.parametrize("status", [True, False])
 def test_legacy_purge(monkeypatch, status):
