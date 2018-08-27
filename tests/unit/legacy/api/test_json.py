@@ -118,6 +118,22 @@ class TestJSONProject:
         assert json_release.calls == [pretend.call(release, db_request)]
 
 
+class TestJSONProjectSlash:
+    def test_normalizing_redirects(self, db_request):
+        project = ProjectFactory.create()
+
+        name = project.name
+
+        db_request.matchdict = {"name": name}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda name: f"/project/the-redirect"
+        )
+
+        resp = json.json_project_slash(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
+
+
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
@@ -428,3 +444,19 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
         }
+
+
+class TestJSONReleaseSlash:
+    def test_normalizing_redirects(self, db_request):
+        project = ProjectFactory.create()
+
+        name = project.name
+
+        db_request.matchdict = {"name": name}
+        db_request.current_route_path = pretend.call_recorder(
+            lambda name: f"/project/the-redirect"
+        )
+
+        resp = json.json_release_slash(project, db_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
