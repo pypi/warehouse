@@ -122,9 +122,6 @@ class TestJSONProjectSlash:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
-        name = project.name
-
-        db_request.matchdict = {"name": name}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/project/the-redirect"
         )
@@ -132,6 +129,7 @@ class TestJSONProjectSlash:
         resp = json.json_project_slash(project, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/project/the-redirect"
 
 
 class TestJSONRelease:
@@ -450,9 +448,6 @@ class TestJSONReleaseSlash:
     def test_normalizing_redirects(self, db_request):
         release = ReleaseFactory.create()
 
-        name = release.name
-
-        db_request.matchdict = {"name": name}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/project/the-redirect"
         )
@@ -460,3 +455,4 @@ class TestJSONReleaseSlash:
         resp = json.json_release_slash(release, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
+        assert resp.headers["Location"] == "/project/the-redirect"
