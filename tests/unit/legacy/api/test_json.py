@@ -129,6 +129,9 @@ class TestJSONProjectSlash:
         resp = json.json_project_slash(project, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call("legacy.api.json.project", name=project.name)
+        ]
         assert resp.headers["Location"] == "/project/the-redirect"
 
 
@@ -455,4 +458,9 @@ class TestJSONReleaseSlash:
         resp = json.json_release_slash(release, db_request)
 
         assert isinstance(resp, HTTPMovedPermanently)
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "legacy.api.json.release", name=release.name, version=release.version
+            )
+        ]
         assert resp.headers["Location"] == "/project/the-redirect"
