@@ -85,7 +85,7 @@ def json_project(project, request):
 def json_project_slash(project, request):
     return HTTPMovedPermanently(
         # Respond with redirect to url without trailing slash
-        request.current_route_path(name=project.name)[:-1],
+        request.route_path("legacy.api.json.project", name=project.name),
         headers=_CORS_HEADERS,
     )
 
@@ -198,6 +198,8 @@ def json_release(release, request):
 def json_release_slash(project, request):
     return HTTPMovedPermanently(
         # Respond with redirect to url without trailing slash
-        request.current_route_path(name=project.name)[:-1],
+        request.route_path(
+            "legacy.api.json.release", name=project.name, version=project.version
+        ),
         headers=_CORS_HEADERS,
     )
