@@ -292,7 +292,7 @@ def search(request):
         raise HTTPServiceUnavailable
 
     if page.page_count and page_num > page.page_count:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     available_filters = collections.defaultdict(list)
 
