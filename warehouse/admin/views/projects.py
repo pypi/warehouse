@@ -313,7 +313,9 @@ def add_role(project, request):
         )
 
     already_there = (
-        request.db.query(Role).filter(user == User, project == Project).count()
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
+        .count()
     )
 
     if already_there > 0:
