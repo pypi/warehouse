@@ -29,13 +29,3 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);
 application.load(definitionsFromContext(context));
-
-document.querySelectorAll("a[data-delete-user]").forEach(function (element) {
-  element.addEventListener("click", function(event) {
-    document.querySelector("#" + element.dataset.deleteUser).classList.toggle("hidden");
-  });
-})
-
-document.querySelector("a[data-add-role]").addEventListener("click", function(event) {
-  document.querySelector("#add_role").classList.toggle("hidden");
-});
