@@ -78,7 +78,7 @@
                 </tr>
                 <tr class="hidden" id="remove_role_{{role.user.id}}">
                   <td colspan="4">
-                    <form method="POST" action="{{ request.route_path('admin.project.del_role', project_name=project.name, user_name=role.user.username) }}">
+                    <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, user_name=role.user.username) }}">
                       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                       <div class="box-body">
                         <div class="form-group col-sm-12">

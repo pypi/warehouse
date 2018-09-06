@@ -346,7 +346,7 @@ def add_role(project, request):
 
 
 @view_config(
-    route_name="admin.project.del_role",
+    route_name="admin.project.delete_role",
     permission="admin",
     request_method="POST",
     uses_session=True,
