@@ -285,21 +285,21 @@ def add_role(project, request):
         request.session.flash("Please provide a username", queue="error")
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name,
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
     try:
-        user = request.db.query(User) \
-            .filter(User.username == username, User.is_active == True) \
-            .one()  # noqa: E712
+        user = (
+            request.db.query(User)
+            .filter(User.username == username, User.is_active == True)
+            .one()
+        )  # noqa: E712
     except NoResultFound:
         request.session.flash(f"Unknown username: '{username}'", queue="error")
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name,
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
@@ -308,24 +308,21 @@ def add_role(project, request):
         request.session.flash("Please provide a role", queue="error")
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
-    already_there = request.db.query(Role) \
-        .filter(user == User, project == Project) \
-        .count()
+    already_there = (
+        request.db.query(Role).filter(user == User, project == Project).count()
+    )
 
     if already_there > 0:
         request.session.flash(
-            f"{username} already has a role on this project",
-            queue="error"
+            f"{username} already has a role on this project", queue="error"
         )
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name,
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
@@ -338,17 +335,10 @@ def add_role(project, request):
         )
     )
 
-    request.db.add(
-        Role(
-            role_name=rolename,
-            user=user,
-            project=project
-        )
-    )
+    request.db.add(Role(role_name=rolename, user=user, project=project))
 
     request.session.flash(
-        f"Added {rolename} for {username} on {project.name}",
-        queue="success"
+        f"Added {rolename} for {username} on {project.name}", queue="success"
     )
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -364,30 +354,29 @@ def add_role(project, request):
 )
 def delete_role(project, request):
     confirm = request.POST.get("username")
-    username = request.matchdict.get('user_name')
+    username = request.matchdict.get("user_name")
 
     if not confirm or confirm != username:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
     # getting *all* matches just in case of inconsistencies
-    roles = request.db.query(Role) \
-        .filter(Role.user_name == username, Role.package_name == project.name) \
+    roles = (
+        request.db.query(Role)
+        .filter(Role.user_name == username, Role.package_name == project.name)
         .all()
+    )
     if len(roles) == 0:
         request.session.flash(
-            f"User '{username}' has no role on this project",
-            queue="error",
+            f"User '{username}' has no role on this project", queue="error"
         )
         raise HTTPSeeOther(
             request.route_path(
-                "admin.project.detail",
-                project_name=project.normalized_name,
+                "admin.project.detail", project_name=project.normalized_name
             )
         )
 
