@@ -75,7 +75,7 @@ def includeme(config):
     )
     config.add_route(
         "admin.project.delete_role",
-        "/admin/projects/{project_name}/delete_role/{user_name:.+}/",
+        "/admin/projects/{project_name}/delete_role/{role_id}/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

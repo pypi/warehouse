@@ -356,9 +356,18 @@ def add_role(project, request):
 )
 def delete_role(project, request):
     confirm = request.POST.get("username")
-    username = request.matchdict.get("user_name")
+    role_id = request.matchdict.get("role_id")
 
-    if not confirm or confirm != username:
+    role = request.db.query(Role).get(role_id)
+    if not role:
+        request.session.flash(f"This role no longer exists", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    if not confirm or confirm != role.user_name:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
             request.route_path(
@@ -366,37 +375,20 @@ def delete_role(project, request):
             )
         )
 
-    # getting *all* matches just in case of inconsistencies
-    roles = (
-        request.db.query(Role)
-        .filter(Role.user_name == username, Role.package_name == project.name)
-        .all()
+    request.session.flash(
+        f"Removed {role.role_name} for {role.user_name} on {project.name}",
+        queue="success",
     )
-    if len(roles) == 0:
-        request.session.flash(
-            f"User '{username}' has no role on this project", queue="error"
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"remove {role.role_name} {role.user_name}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
         )
-        raise HTTPSeeOther(
-            request.route_path(
-                "admin.project.detail", project_name=project.normalized_name
-            )
-        )
+    )
 
-    for role in roles:
-        request.session.flash(
-            f"Removed {role.role_name} for {username} on {project.name}",
-            queue="success",
-        )
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action=f"remove {role.role_name} {username}",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-
-        request.db.delete(role)
+    request.db.delete(role)
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
