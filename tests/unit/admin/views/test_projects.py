@@ -12,11 +12,12 @@
 
 import pretend
 import pytest
+import uuid
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 
 from warehouse.admin.views import projects as views
-from warehouse.packaging.models import Project
+from warehouse.packaging.models import Project, Role
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -431,3 +432,164 @@ class TestDeleteProject:
         ]
 
         assert not (db_request.db.query(Project).filter(Project.name == "foo").count())
+
+
+class TestAddRole:
+    def test_add_role(self, db_request):
+        role_name = "Maintainer"
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="bar")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST["username"] = user.username
+        db_request.POST["role_name"] = role_name
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        views.add_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Added 'bar' as '{role_name}' on 'foo'", queue="success")
+        ]
+
+        role = db_request.db.query(Role).one()
+        assert role.role_name == role_name
+        assert role.user == user
+        assert role.project == project
+
+    def test_add_role_no_username(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = {}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        with pytest.raises(HTTPSeeOther):
+            views.add_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Provide a username", queue="error")
+        ]
+
+    def test_add_role_no_user(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.POST = {"username": "bar"}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        with pytest.raises(HTTPSeeOther):
+            views.add_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Unknown username 'bar'", queue="error")
+        ]
+
+    def test_add_role_no_role_name(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        UserFactory.create(username="bar")
+
+        db_request.POST = {"username": "bar"}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        with pytest.raises(HTTPSeeOther):
+            views.add_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Provide a role", queue="error")
+        ]
+
+    def test_add_role_with_existing_role(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="bar")
+        role = RoleFactory.create(project=project, user=user)
+
+        db_request.POST = {"username": "bar", "role_name": role.role_name}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        with pytest.raises(HTTPSeeOther):
+            views.add_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"User 'bar' already has a role on this project", queue="error"
+            )
+        ]
+
+
+class TestDeleteRole:
+    def test_delete_role(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="bar")
+        role = RoleFactory.create(project=project, user=user)
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST["username"] = user.username
+        db_request.matchdict["role_id"] = role.id
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        views.delete_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
+                queue="success",
+            )
+        ]
+
+        assert db_request.db.query(Role).all() == []
+
+    def test_delete_role_not_found(self, db_request):
+        project = ProjectFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["role_id"] = uuid.uuid4()
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        with pytest.raises(HTTPSeeOther):
+            views.delete_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("This role no longer exists", queue="error")
+        ]
+
+    def test_delete_role_no_confirm(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="bar")
+        role = RoleFactory.create(project=project, user=user)
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["role_id"] = role.id
+        db_request.user = UserFactory.create()
+        db_request.remote_addr = "192.168.1.1"
+
+        with pytest.raises(HTTPSeeOther):
+            views.delete_role(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
