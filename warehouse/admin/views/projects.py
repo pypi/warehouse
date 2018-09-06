@@ -290,11 +290,7 @@ def add_role(project, request):
         )
 
     try:
-        user = (
-            request.db.query(User)
-            .filter(User.username == username, User.is_active == True)
-            .one()
-        )  # noqa: E712
+        user = request.db.query(User).filter(User.username == username).one()
     except NoResultFound:
         request.session.flash(f"Unknown username: '{username}'", queue="error")
         raise HTTPSeeOther(
