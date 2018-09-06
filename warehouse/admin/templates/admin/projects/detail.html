@@ -74,27 +74,39 @@
                 <tr>
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
                   <td>{{ role.role_name }}</td>
-                  <td><a class="btn btn-danger btn-sm" data-delete-user="remove_role_{{role.user.id}}" title="Delete role"><i class="fa fa-trash"></i></a></td>
-                </tr>
-                <tr class="hidden" id="remove_role_{{role.user.id}}">
-                  <td colspan="4">
-                    <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
-                      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                      <div class="box-body">
-                        <div class="form-group col-sm-12">
-                          <label for="removeRoleName">
-                            To delete role "{{ role.role_name }}" for "{{role.user_name}}", type the username:
-                          </label>
-                          <input name="username" class="form-control" id="removeRoleName" required>
-                        </div>
+                  <td>
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                    <div class="modal fade" id="deleteRoleModal" tabindex="-1" role="dialog">
+                      <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
+                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user_name }}?</h4>
+                              <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <p>
+                                This will permanently destroy the user and cannot be undone.
+                              </p>
+                              <hr>
+                              <p>
+                                To delete role "{{ role.role_name }}" for "{{role.user_name}}", type the username:
+                              </p>
+                              <input type="text" name="username" placeholder="{{ role.user_name }}" required>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                          </div>
+                        </form>
                       </div>
-
-                      <div class="box-footer">
-                        <div class="pull-right">
-                          <button type="submit" class="btn btn-danger">Delete</button>
-                        </div>
-                      </div>
-                    </form>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}
