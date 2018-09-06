@@ -303,8 +303,8 @@ def add_role(project, request):
             )
         )
 
-    rolename = request.POST.get("role")
-    if not rolename:
+    role_name = request.POST.get("role_name")
+    if not role_name:
         request.session.flash("Please provide a role", queue="error")
         raise HTTPSeeOther(
             request.route_path(
@@ -318,7 +318,7 @@ def add_role(project, request):
 
     if already_there > 0:
         request.session.flash(
-            f"{username} already has a role on this project", queue="error"
+            f"{user.username} already has a role on this project", queue="error"
         )
         raise HTTPSeeOther(
             request.route_path(
@@ -329,16 +329,16 @@ def add_role(project, request):
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"add {rolename} {user.username}",
+            action=f"add {role_name} {user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )
     )
 
-    request.db.add(Role(role_name=rolename, user=user, project=project))
+    request.db.add(Role(role_name=role_name, user=user, project=project))
 
     request.session.flash(
-        f"Added {rolename} for {username} on {project.name}", queue="success"
+        f"Added {user.username} as {role_name} on {project.name}", queue="success"
     )
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
