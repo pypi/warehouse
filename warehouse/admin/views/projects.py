@@ -282,7 +282,7 @@ def set_upload_limit(project, request):
 def add_role(project, request):
     username = request.POST.get("username")
     if not username:
-        request.session.flash("Please provide a username", queue="error")
+        request.session.flash("Provide a username", queue="error")
         raise HTTPSeeOther(
             request.route_path(
                 "admin.project.detail", project_name=project.normalized_name
@@ -292,7 +292,7 @@ def add_role(project, request):
     try:
         user = request.db.query(User).filter(User.username == username).one()
     except NoResultFound:
-        request.session.flash(f"Unknown username: '{username}'", queue="error")
+        request.session.flash(f"Unknown username '{username}'", queue="error")
         raise HTTPSeeOther(
             request.route_path(
                 "admin.project.detail", project_name=project.normalized_name
@@ -301,7 +301,7 @@ def add_role(project, request):
 
     role_name = request.POST.get("role_name")
     if not role_name:
-        request.session.flash("Please provide a role", queue="error")
+        request.session.flash("Provide a role", queue="error")
         raise HTTPSeeOther(
             request.route_path(
                 "admin.project.detail", project_name=project.normalized_name
@@ -316,7 +316,7 @@ def add_role(project, request):
 
     if already_there > 0:
         request.session.flash(
-            f"{user.username} already has a role on this project", queue="error"
+            f"User '{user.username}' already has a role on this project", queue="error"
         )
         raise HTTPSeeOther(
             request.route_path(
@@ -336,7 +336,7 @@ def add_role(project, request):
     request.db.add(Role(role_name=role_name, user=user, project=project))
 
     request.session.flash(
-        f"Added {user.username} as {role_name} on {project.name}", queue="success"
+        f"Added '{user.username}' as '{role_name}' on '{project.name}'", queue="success"
     )
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -372,7 +372,7 @@ def delete_role(project, request):
         )
 
     request.session.flash(
-        f"Removed {role.role_name} for {role.user_name} on {project.name}",
+        f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
         queue="success",
     )
     request.db.add(
