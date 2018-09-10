@@ -511,8 +511,8 @@ class TestSearch:
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
         monkeypatch.setattr(views, "paginate_url_factory", url_maker_factory)
 
-        resp = search(db_request)
-        assert isinstance(resp, HTTPNotFound)
+        with pytest.raises(HTTPNotFound):
+            search(db_request)
 
         assert page_cls.calls == [
             pretend.call(es_query, url_maker=url_maker, page=15 or 1)
