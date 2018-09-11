@@ -43,7 +43,7 @@ def project_detail(project, request):
             .one()
         )
     except NoResultFound:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     return release_detail(release, request)
 

@@ -68,16 +68,71 @@
               <table class="table table-hover">
                 <tr>
                   <th>User</th>
-                  <th>Email</th>
                   <th>Role</th>
                 </tr>
                 {% for role in maintainers %}
                 <tr>
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
-                  <td>{{ role.user.email }}</td>
                   <td>{{ role.role_name }}</td>
+                  <td>
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                    <div class="modal fade" id="deleteRoleModal" tabindex="-1" role="dialog">
+                      <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
+                        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title" id="exampleModalLabel">Remove role for {{ role.user_name }}?</h4>
+                              <button type="button" class="close" data-dismiss="modal">
+                                <span>&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <p>
+                                This will permanently destroy the user and cannot be undone.
+                              </p>
+                              <hr>
+                              <p>
+                                To delete role "{{ role.role_name }}" for "{{role.user_name}}", type the username:
+                              </p>
+                              <input type="text" name="username" placeholder="{{ role.user_name }}" required>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
                 {% endfor %}
+                <tr id="add_role">
+                  <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>
+                    <input name="username" class="form-control" placeholder="Username" required>
+                  </td>
+                  <td>
+                    <select class="form-control" name="role_name" required>
+                      <option disabled selected>Select a role</option>
+                      {% for role_name in ['Maintainer', 'Owner'] %}
+                      <option value="{{ role_name }}">
+                        {{ role_name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                      <i class="fa fa-plus"></i>
+                    </button>
+                  </td>
+                  </form>
+                </tr>
               </table>
             </div>
             <div class="box-body box-releases">
