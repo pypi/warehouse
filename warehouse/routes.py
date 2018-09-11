@@ -221,6 +221,7 @@ def includeme(config):
         read_only=True,
         domain=warehouse,
     )
+
     config.add_route(
         "legacy.api.json.project",
         "/pypi/{name}/json",
@@ -230,8 +231,25 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "legacy.api.json.project_slash",
+        "/pypi/{name}/json/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        read_only=True,
+        domain=warehouse,
+    )
+
+    config.add_route(
         "legacy.api.json.release",
         "/pypi/{name}/{version}/json",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/{version}",
+        read_only=True,
+        domain=warehouse,
+    )
+    config.add_route(
+        "legacy.api.json.release_slash",
+        "/pypi/{name}/{version}/json/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}/{version}",
         read_only=True,
