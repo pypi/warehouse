@@ -42,6 +42,17 @@ your local machine:
 
     git clone git@github.com:YOUR-USERNAME/warehouse.git
 
+Add a `remote
+<https://help.github.com/articles/configuring-a-remote-for-a-fork/>`_ and
+regularly `sync <https://help.github.com/articles/syncing-a-fork/>`_ to make sure
+you stay up-to-date with our repository:
+
+.. code-block:: console
+
+    git remote add upstream https://github.com/pypa/warehouse.git
+    git checkout master
+    git merge upstream/master
+
 
 Configure the development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
