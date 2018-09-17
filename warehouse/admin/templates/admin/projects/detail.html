@@ -75,10 +75,10 @@
                   <td><a href="{{ request.route_path('admin.user.detail', user_id=role.user.id) }}">{{ role.user.username }}</a></td>
                   <td>{{ role.role_name }}</td>
                   <td>
-                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal">
+                    <button type="button" class="btn-danger btn-sm" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}">
                       <i class="fa fa-trash"></i>
                     </button>
-                    <div class="modal fade" id="deleteRoleModal" tabindex="-1" role="dialog">
+                    <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
                       <form method="POST" action="{{ request.route_path('admin.project.delete_role', project_name=project.name, role_id=role.id) }}">
                         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                         <div class="modal-dialog" role="document">
@@ -91,7 +91,7 @@
                             </div>
                             <div class="modal-body">
                               <p>
-                                This will permanently destroy the user and cannot be undone.
+                                This will remove the role for the user.
                               </p>
                               <hr>
                               <p>
