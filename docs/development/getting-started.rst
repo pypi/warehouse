@@ -187,7 +187,7 @@ Once ``make build`` has finished,  run the command:
 
 This command starts the containers that run Warehouse on your local machine.
 After the initial build process, you will only need this command each time you
-want to run Warehouse locally.
+want to startup Warehouse locally.
 
 ``make serve`` will produce output for a while, and will not exit. Eventually
 the output will cease, and you will see a log message indicating that either
