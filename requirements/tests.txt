@@ -94,9 +94,9 @@ nose==1.3.7 \
     --hash=sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98
 olefile==0.46 \
     --hash=sha256:133b031eaf8fd2c9399b78b8bc5b8fcbe4c31e85295749bb17a87cba8f3c3964
-path.py==11.1.0 \
-    --hash=sha256:0594610b07ded3960bbfa96ff0ee7b1ad41dfc7dd0b480b3b66956ba7dde56e6 \
-    --hash=sha256:cbcbb3ed71b42fb8df1bc7645ddde298817f1a51684c3f9b3101937bdb28ff79
+path.py==11.2.0 \
+    --hash=sha256:49848edc5b0cabc884cb5d58ed0cee87a2afa6fd3ffc22fe29016e3c63ad40d5 \
+    --hash=sha256:6ca2d090b7953c798ab8db465ef0aed091ad6a62e8d943af8841016b193591ed
 Pillow==5.2.0 \
     --hash=sha256:4fda62030f2c515b6e2e673c57caa55cb04026a81968f3128aae10fc28e5cc27 \
     --hash=sha256:79258a8df3e309a54c7ef2ef4a59bb8e28f7e4a8992a3ad17c24b1889ced44f3 \
