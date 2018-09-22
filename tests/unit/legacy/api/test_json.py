@@ -276,9 +276,7 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": files[0].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
+                        "upload_time": files[0].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
                     }
@@ -297,9 +295,7 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": files[1].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
+                        "upload_time": files[1].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
                     }
@@ -318,9 +314,7 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": files[2].upload_time.strftime(
-                            "%Y-%m-%dT%H:%M:%S"
-                        ),
+                        "upload_time": files[2].upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
                     }
@@ -340,7 +334,7 @@ class TestJSONRelease:
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": files[2].upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "upload_time": files[2].upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
                 }
@@ -421,7 +415,7 @@ class TestJSONRelease:
                         "packagetype": None,
                         "python_version": "source",
                         "size": 200,
-                        "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "upload_time": file.upload_time.isoformat() + "Z",
                         "url": "/the/fake/url/",
                         "requires_python": None,
                     }
@@ -438,7 +432,7 @@ class TestJSONRelease:
                     "packagetype": None,
                     "python_version": "source",
                     "size": 200,
-                    "upload_time": file.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "upload_time": file.upload_time.isoformat() + "Z",
                     "url": "/the/fake/url/",
                     "requires_python": None,
                 }
