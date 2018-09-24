@@ -92,3 +92,8 @@ specific. This tightly controls the cascade of styles.
 The majority of the SCSS styles are found within the 'blocks' layer,
 with each BEM block in its own file. All blocks are documented at the top of
 the file to provide guidelines for use and modification.
+
+One of these blocks provides code syntax highlighting, which can be tested with
+reference project provided at `<http://localhost/project/pypi-code-highlighting-demo/>`_
+when using development database. Source reStructuredText file is available
+`here <https://github.com/evemorgen/pypi-code-highlighting-demo>`_.
