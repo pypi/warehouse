@@ -1,2 +1,2 @@
-sphinx==1.8.0
+sphinx==1.8.1
 sphinxcontrib-httpdomain==1.7.0

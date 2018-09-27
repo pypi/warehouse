@@ -1626,11 +1626,11 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         older_journal = JournalEntryFactory.create(
             name=project.name,
-            submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462634),
+            submitted_date=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_journal = JournalEntryFactory.create(
             name=project.name,
-            submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462634),
+            submitted_date=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
         assert views.manage_project_history(project, db_request) == {
