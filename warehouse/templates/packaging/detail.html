@@ -37,7 +37,7 @@
   {% set icon = "fab fa-slack" %}
 {% elif parsed.netloc == "twitter.com" or parsed.netloc.endswith(".twitter.com") %}
   {% set icon = "fab fa-twitter" %}
-{% elif parsed.netloc in ["ci.appveyor.com", "circleci.com", "codecov.io", "coveralls.io", "travis-ci.com", "travis-ci.org"] or parsed.netloc.endswith((".appveyor.com", ".circleci.com", ".codecov.io", ".coveralls.io", ".travis-ci.org", ".travis-ci.com")) %}
+{% elif parsed.netloc in ["ci.appveyor.com", "circleci.com", "codecov.io", "coveralls.io", "shippable.com", "travis-ci.com", "travis-ci.org"] or parsed.netloc.endswith((".appveyor.com", ".circleci.com", ".codecov.io", ".coveralls.io", ".shippable.com", ".travis-ci.org", ".travis-ci.com")) %}
   {% set icon = "fas fa-check" %}
 {% elif parsed.netloc in ["cheeseshop.python.org", "pypi.io", "pypi.org", "pypi.python.org"] %}
   {% set icon = "fas fa-cube" %}
