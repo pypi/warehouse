@@ -196,7 +196,7 @@ Mirroring Support
 ``changelog_since_serial(since_serial)``
   Retrieve a list of `(name, version, timestamp, action, serial)` since the
   event identified by the given ``since_serial``. All timestamps are UTC
-  values. The argument is a UTC integer seconds since the epoch.
+  values.
 
 ``list_packages_with_serial()``
   Retrieve a dictionary mapping package names to the last serial for each
