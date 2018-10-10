@@ -45,8 +45,9 @@ Example usage::
 Changes to Legacy API
 ---------------------
 
-``package_releases`` The `show_hidden` flag is now ignored. All versions are
-returned.
+``package_releases`` As Warehouse does not support the concept of hidden
+releases, the `show_hidden` flag now controls whether the latest version or all
+versions are returned.
 
 ``release_data`` The `stable_version` flag is always an empty string. It was
 never fully supported anyway.
@@ -69,7 +70,8 @@ Package querying
   Retrieve a list of the releases registered for the given `package_name`,
   ordered by version.
 
-  The `show_hidden` flag is now ignored. All versions are returned.
+  If `show_hidden` is `False` (the default), only the latest version is
+  returned.  Otherwise, all versions are returned.
 
 ``package_roles(package_name)``
   Retrieve a list of `[role, user]` for a given `package_name`.
