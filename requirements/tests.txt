@@ -241,6 +241,6 @@ waitress==1.1.0 \
 WebOb==1.8.2 \
     --hash=sha256:263690003a3e092ca1ec4df787f93feb0004e39d7bac9cba2c19a552c765894b \
     --hash=sha256:1fe722f2ab857685fc96edec567dc40b1875b21219b3b348e58cd8c4d5ea7df3
-WebTest==2.0.30 \
-    --hash=sha256:0c08a44bb03dcb2f5ca61d40bd5b4638e74a564d4ec7848098f419a5fa078dfe \
-    --hash=sha256:5c69f73cc58bef355e919ff96054b68cbaecc7d970b60b602568d3d92ca967d5
+WebTest==2.0.32 \
+    --hash=sha256:9f1e6faad0b732911793e4d6f54aede292b0c3ee0b3ef7afb2011ec4f4044cc8 \
+    --hash=sha256:4221020d502ff414c5fba83c1213985b83219cb1cc611fe58aa4feaf96b5e062
