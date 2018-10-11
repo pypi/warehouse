@@ -86,9 +86,9 @@ bcrypt==3.1.4 \
     --hash=sha256:67ed1a374c9155ec0840214ce804616de49c3df9c5bc66740687c1c9b1cd9e8d
 billiard==3.5.0.4 \
     --hash=sha256:ed65448da5877b5558f19d2f7f11f8355ea76b3e63e1c0a6059f47cfae5f1c84
-bleach==3.0.1 \
-    --hash=sha256:f680cc08e2eea821f3173b875f68763960006f1e764c92b5d2b8354af3a47468 \
-    --hash=sha256:c39d25d9ada62009853b0281efdc35a792db8cdee89465433e6d0aaaf5defc3f
+bleach==3.0.2 \
+    --hash=sha256:73d26f018af5d5adcdabf5c1c974add4361a9c76af215fe32fdec8a6fc5fb9b9 \
+    --hash=sha256:48d39675b80a75f6d1c3bdbffec791cf0bbbab665cf01e20da701c77de278718
 boto3==1.9.21 \
     --hash=sha256:606c82cb388dbf92a988d01e77157f566356e69d0e696232ccce19677cca0723 \
     --hash=sha256:f6b9dd8ab398bd563ca43de7f758dd5facbca82e0db8a0dca99d636b36878d6e
