@@ -11,34 +11,28 @@ PyPI's XML-RPC methods
    pypi-announce_ mailing list for notices as we begin the process of removing
    XML-RPC from PyPI.
 
-Example usage::
+Example usage (Python 3)::
 
-  >>> import xmlrpclib
+  >>> import xmlrpc.client
   >>> import pprint
-  >>> client = xmlrpclib.ServerProxy('https://pypi.org/pypi')
+  >>> client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
   >>> client.package_releases('roundup')
-  ['1.4.10']
-  >>> pprint.pprint(client.release_urls('roundup', '1.4.10'))
+  ['1.6.0']
+  >>> pprint.pprint(client.release_urls('roundup', '1.6.0'))
   [{'comment_text': '',
-    'downloads': 3163,
-    'filename': 'roundup-1.1.2.tar.gz',
-    'has_sig': True,
-    'md5_digest': '7c395da56412e263d7600fa7f0afa2e5',
-    'packagetype': 'sdist',
-    'python_version': 'source',
-    'size': 876455,
-    'upload_time': <DateTime '20060427T06:22:35' at 912fecc>,
-    'url': 'https://pypi.org/packages/source/r/roundup/roundup-1.1.2.tar.gz'},
-   {'comment_text': '',
-    'downloads': 2067,
-    'filename': 'roundup-1.1.2.win32.exe',
-    'has_sig': True,
-    'md5_digest': '983d565b0b87f83f1b6460e54554a845',
-    'packagetype': 'bdist_wininst',
-    'python_version': 'any',
-    'size': 614270,
-    'upload_time': <DateTime '20060427T06:26:04' at 912fdec>,
-    'url': 'https://pypi.org/packages/any/r/roundup/roundup-1.1.2.win32.exe'}]
+  'digests': {'md5': '54d587da7c3d9c83f13d04674cacdc2a',
+              'sha256': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb'},
+  'downloads': -1,
+  'filename': 'roundup-1.6.0.tar.gz',
+  'has_sig': True,
+  'md5_digest': '54d587da7c3d9c83f13d04674cacdc2a',
+  'packagetype': 'sdist',
+  'path': 'f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz',
+  'python_version': 'source',
+  'sha256_digest': '1814c74b40c4a6287e0a97b810f6adc6a3312168201eaa0badd1dd8c216b1bcb',
+  'size': 2893499,
+  'upload_time': '2018-07-13T11:30:36.405653Z',
+  'url': 'https://files.pythonhosted.org/packages/f0/07/6f4e2164ed82dfff873ee55181f782926bcb4a29f6a83fe4f8b9cbf5489c/roundup-1.6.0.tar.gz'}]
 
 .. _changes-to-legacy-api:
 
