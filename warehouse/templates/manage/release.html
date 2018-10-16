@@ -128,7 +128,7 @@
     {% else %}
       Deleting will irreversibly delete this release.
       You will not be able to re-upload a new distribution of the same type with the same version number.
-      Consider making a new release or a post release instead
+      Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead
     {% endif %}
     </p>
     {{ confirm_button("Delete release", "Version", release.version) }}
