@@ -30,7 +30,7 @@ passlib>=1.6.4
 premailer
 psycopg2
 pycurl
-pyramid>=1.9a2
+pyramid>=1.9,<=1.9.2
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_multiauth
