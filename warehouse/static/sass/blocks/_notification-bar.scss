@@ -129,4 +129,18 @@
   &--success {
     background-color: $success-color;
   }
+
+  &--survey {
+    background-color: $warn-color;
+    color: $warn-text;
+    border-color: darken($primary-color, 10);
+
+    a {
+      color: $warn-text;
+    }
+
+    .button {
+      color: $white;
+    }
+  }
 }
