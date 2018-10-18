@@ -213,9 +213,9 @@ python-dateutil==2.7.3 \
 requests==2.19.1 \
     --hash=sha256:63b52e3c866428a224f97cab011de738c36aec0185aa91cfacd418b5d58911d1 \
     --hash=sha256:ec22d826a36ed72a7358ff3fe56cbd4ba69dd7a6718ffd450ff0e9df7a47ce6a
-responses==0.9.0 \
-    --hash=sha256:f23a29dca18b815d9d64a516b4a0abb1fbdccff6141d988ad8100facb81cf7b3 \
-    --hash=sha256:c6082710f4abfb60793899ca5f21e7ceb25aabf321560cc0726f8b59006811c9
+responses==0.10.1 \
+    --hash=sha256:f171f3cc74a6550b68c600c89f913e59337360ac7c1e563cee44a980833a0354 \
+    --hash=sha256:9a165718944c0ac3215e2507f4d63b5a6a44da883df8949a7ae659516f4ef883
 selenium==3.14.1 \
     --hash=sha256:fdb6b1143d8899e8a32e358ad05bf5d89a480dbac359dbbd341592aa8696dcd1 \
     --hash=sha256:ab192cd046164c40fabcf44b47c66c8b12495142f4a69dcc55ea6eeef096e614
