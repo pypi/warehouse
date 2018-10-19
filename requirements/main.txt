@@ -235,8 +235,9 @@ idna==2.7 \
 ipaddress==1.0.22 \
     --hash=sha256:64b28eec5e78e7510698f6d4da08800a5c575caa4a286c93d651c5d3ff7b6794 \
     --hash=sha256:b146c751ea45cad6188dd6cf2d9b757f6f4f8d6ffb96a023e6f2e26eea02a72c
-itsdangerous==0.24 \
-    --hash=sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519
+itsdangerous==1.0.0 \
+    --hash=sha256:aca4fc561b7671115a2156f625f2eaa5e0e3527e0adf2870340e7968c0a81f85 \
+    --hash=sha256:a7de3201740a857380421ef286166134e10fe58846bcefbc9d6424a69a0b99ec
 Jinja2==2.10 \
     --hash=sha256:74c935a1b8bb9a3947c50a54766a969d4846290e1e788ea44c1392163723c3bd \
     --hash=sha256:f84be1bb0040caca4cea721fcbbbbd61f9be9464ca236387158b0feea01914a4
@@ -510,10 +511,9 @@ stdlib-list==0.4.0 \
 structlog==18.2.0 \
     --hash=sha256:e912c03a3cf6876803c3f1b1e4b09dd4b9e4bcd0977586cb59cf538351ba6b1b \
     --hash=sha256:e361edb3b9aeaa85cd38a1bc9ddbb60cda8a991fc29de9db26832f6300e81eb4
-transaction==2.2.1 \
-    --hash=sha256:9de0f93f833713270fbceaf6092194313c1de0afb660e66dea8e089855eb281c \
-    --hash=sha256:269601a3493cd3eddeb869419ceadfc5e6d2bc931e9970d11fc4649dab189c3c \
-    --hash=sha256:f2242070e437e5d555ea3df809cb517860513254c828f33847df1c5e4b776c7a
+transaction==2.3.0 \
+    --hash=sha256:dada6d14a175959bfbdb2ffdf889bf7929a77bd6ee29954ce714b08002dfcffe \
+    --hash=sha256:f917cbdf9f730e9d7f312746c5724c7bce0c6d13b75b93db1d2c6fe5393b53d9
 translationstring==1.3 \
     --hash=sha256:4ee44cfa58c52ade8910ea0ebc3d2d84bdcad9fa0422405b1801ec9b9a65b72d \
     --hash=sha256:e26c7bf383413234ed442e0980a2ebe192b95e3745288a8fd2805156d27515b4
