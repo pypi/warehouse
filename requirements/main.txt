@@ -169,8 +169,8 @@ cssselect==1.0.3 \
 cssutils==1.0.2 \
     --hash=sha256:a2fcf06467553038e98fea9cfe36af2bf14063eb147a70958cfcaa8f5786acaf \
     --hash=sha256:c74dbe19c92f5052774eadb15136263548dd013250f1ed1027988e7fef125c8d
-datadog==0.22.0 \
-    --hash=sha256:86cef95acd73543d18c417f1b0313c0a7274ed8f5ae9cceb46314f4e588085b1
+datadog==0.23.0 \
+    --hash=sha256:6ed9aec2b3a26722b74465c2ed36d2efdb9c9fac1a07a84d81fa2fc0cfa66ae4
 disposable-email-domains==0.0.35 \
     --hash=sha256:bef218e9538741ef97c5ec7c69df98a4dcbd62c0b7361a6a6dead8ec2433ac4e \
     --hash=sha256:f10873618e4d1568514c7f638960212d5ca5f9b335032a909d551c720346df18
