@@ -50,9 +50,9 @@ restructuredtext-lint==1.1.3 \
 six==1.11.0 \
     --hash=sha256:832dc0e10feb1aa2c68dcc57dbb658f1c7e65b9b61af69048abc87a2db00a0eb \
     --hash=sha256:70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9
-stevedore==1.29.0 \
-    --hash=sha256:c7eac1c0d95824c88b655273da5c17cdde6482b2739f47c30bf851dcc9d3c2c0 \
-    --hash=sha256:1e153545aca7a6a49d8337acca4f41c212fbfa60bf864ecd056df0cafb9627e8
+stevedore==1.30.0 \
+    --hash=sha256:c58b7c231a9c4890cd3c2b5d2b23bd63fa807ff934d68579e3f6c3a1735e8a7c \
+    --hash=sha256:b92bc7add1a53fb76c634a178978d113330aaf2006f9498d9e2414b31fbfc104
 template-remover==0.1.9 \
     --hash=sha256:480f1ce63f56affac1edb29356afcca1260e8409cd928fcf9438fc149df5ff41
 toml==0.10.0 \
