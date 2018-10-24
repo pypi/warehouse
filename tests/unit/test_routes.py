@@ -74,7 +74,7 @@ def test_routes(warehouse):
 
     assert config.add_route.calls == [
         pretend.call("health", "/_health/"),
-        pretend.call("force-status", "/_force-status/{status:[45]\d\d}/"),
+        pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
