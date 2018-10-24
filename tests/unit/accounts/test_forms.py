@@ -99,7 +99,7 @@ class TestLoginForm:
         )
         field = pretend.stub(data="pw")
 
-        with pytest.raises(wtforms.validators.ValidationError, match="Bad Password\!"):
+        with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
             form.validate_password(field)
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
