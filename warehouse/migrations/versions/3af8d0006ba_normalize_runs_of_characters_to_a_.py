@@ -26,7 +26,7 @@ down_revision = "5ff0c99c94"
 
 def upgrade():
     op.execute(
-        """ CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
+        r""" CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
             RETURNS text AS
             $$
                 SELECT lower(regexp_replace($1, '(\.|_|-)+', '-', 'ig'))
@@ -41,7 +41,7 @@ def upgrade():
 
 def downgrade():
     op.execute(
-        """ CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
+        r""" CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
             RETURNS text AS
             $$
                 SELECT lower(regexp_replace($1, '(\.|_)', '-', 'ig'))

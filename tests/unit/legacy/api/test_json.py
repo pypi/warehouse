@@ -172,7 +172,7 @@ class TestJSONRelease:
             "telnet,telnet://192.0.2.16:80/",
             "urn,urn:oasis:names:specification:docbook:dtd:xml:4.1.2",
             "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
-            "unsafechars,http://example.com <>[]{}|\^%",
+            r"unsafechars,http://example.com <>[]{}|\^%",
         ]
         expected_urls = []
         for project_url in reversed(project_urls):
