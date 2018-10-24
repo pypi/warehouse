@@ -28,7 +28,7 @@ def upgrade():
     op.execute("DROP INDEX project_name_pep426_normalized")
 
     op.execute(
-        """ CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
+        r""" CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
             RETURNS text AS
             $$
                 SELECT lower(regexp_replace($1, '(\.|_)', '-', 'ig'))
@@ -42,7 +42,7 @@ def upgrade():
 
 def downgrade():
     op.execute(
-        """ CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
+        r""" CREATE OR REPLACE FUNCTION normalize_pep426_name(text)
             RETURNS text AS
             $$
                 SELECT lower(
