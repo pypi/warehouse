@@ -88,9 +88,9 @@ billiard==3.5.0.4 \
 bleach==3.0.2 \
     --hash=sha256:73d26f018af5d5adcdabf5c1c974add4361a9c76af215fe32fdec8a6fc5fb9b9 \
     --hash=sha256:48d39675b80a75f6d1c3bdbffec791cf0bbbab665cf01e20da701c77de278718
-boto3==1.9.31 \
-    --hash=sha256:03bdbd5bfc8c9f603877edf208a947b9e9d3d29268e3c3c46c3a8ee3d64ccda8 \
-    --hash=sha256:bc7b8e65b9612ee7ff03f71e765d0f380c8db096d898213bb4ead5b389c31cde
+boto3==1.9.32 \
+    --hash=sha256:b7af22c85610a3e50e8690d0fa61bd05f6d18ea1b40bfae4a9a8d71a294f0d9a \
+    --hash=sha256:ed0594881bf61bc3fa888385716ecd820bd6dca74c544bce3d2deab41b1b01a2
 botocore==1.12.31 \
     --hash=sha256:409edb0651313a04e93f2bfff2663ef84f742034f2099478d07b0c508b921c02 \
     --hash=sha256:dea459bfa0418689f2dfd8241739e7bb071d1cc944ffcc9cce0c19ecaf3612f3
