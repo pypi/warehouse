@@ -190,8 +190,8 @@ elasticsearch==6.3.1 \
 first==2.0.1 \
     --hash=sha256:3bb3de3582cb27071cfb514f00ed784dc444b7f96dc21e140de65fe00585c95e \
     --hash=sha256:41d5b64e70507d0c3ca742d68010a76060eea8a3d863e9b5130ab11a4a91aa0e
-future==0.16.0 \
-    --hash=sha256:e39ced1ab767b5936646cedba8bcce582398233d6a627067d4c6a454c90cfedb
+future==0.17.0 \
+    --hash=sha256:eb6d4df04f1fb538c99f69c9a28b255d1ee4e825d479b9c62fc38c0cf38065a4
 google-api-core==1.5.0 \
     --hash=sha256:13851b321a214ffa19c9caea6d6bf355a9021bed455c2afb03546704db5de247 \
     --hash=sha256:034215fd86972dd329b979a6acb89fb60fa0aaaf0ea4730401effde3b7aab19b
