@@ -438,9 +438,9 @@ pyramid-tm==2.2.1 \
 pyramid==1.9.2 \
     --hash=sha256:600f12e0d11211a55c2da970120af33214f77607ed45caba6af6c891afeaa771 \
     --hash=sha256:cf89a48cb899291639686bf3d4a883b39e496151fa4871fb83cc1a3200d5b925
-python-dateutil==2.7.3 \
-    --hash=sha256:1adb80e7a782c12e52ef9a8182bebeb73f1d7e24e374397af06fb4956c8dc5c0 \
-    --hash=sha256:e27001de32f627c22380a688bcc43ce83504a7bc5da472209b4c70f02829f0b8
+python-dateutil==2.7.4 \
+    --hash=sha256:f7cde3aecf8a797553d6ec49b65f0fbcffe7ffb971ccac452d181c28fd279936 \
+    --hash=sha256:2f13d3ea236aeb237e7258d5729c46eafe1506fd7f8507f34730734ed8b37454
 python-editor==1.0.3 \
     --hash=sha256:a3c066acee22a1c94f63938341d4fb374e3fdd69366ed6603d7b24bed1efc565
 pytz==2018.6 \
