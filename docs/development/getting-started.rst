@@ -51,6 +51,7 @@ you stay up-to-date with our repository:
 
     git remote add upstream https://github.com/pypa/warehouse.git
     git checkout master
+    git fetch master
     git merge upstream/master
 
 
@@ -129,6 +130,15 @@ Otherwise, the port is available for Warehouse to use, and you can continue.
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+   Given that the ``make`` executable may not be natively available in Windows,
+   one should do the following:
+   - Install and launch WSL (see above for details), preferably Ubuntu.
+   - All make commands should henceforth be executed under the WSL shell.
+   - If the make executable is not available, then one can run
+   ``sudo apt install make`` to obtain it.
+
 
 Once you have Docker and Docker Compose installed, run:
 
