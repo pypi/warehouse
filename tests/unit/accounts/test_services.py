@@ -356,7 +356,7 @@ class TestDatabaseUserService:
         account_token = AccountTokenFactory.create(username=user.username)
 
         found_account_token = user_service.get_tokens_by_username(user.username)
-        assert found_account_token.id == account_token.id
+        assert account_token in found_account_token
 
 
 class TestTokenService:
