@@ -12,6 +12,7 @@
 
 import datetime
 import hashlib
+import uuid
 
 import factory
 import factory.fuzzy
@@ -36,6 +37,7 @@ class ProjectFactory(WarehouseFactory):
     class Meta:
         model = Project
 
+    id = factory.LazyFunction(uuid.uuid4)
     name = factory.fuzzy.FuzzyText(length=12)
 
 
@@ -43,6 +45,7 @@ class ReleaseFactory(WarehouseFactory):
     class Meta:
         model = Release
 
+    id = factory.LazyFunction(uuid.uuid4)
     name = factory.LazyAttribute(lambda o: o.project.name)
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")

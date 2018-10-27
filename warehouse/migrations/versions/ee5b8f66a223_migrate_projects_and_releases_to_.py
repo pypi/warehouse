@@ -45,6 +45,10 @@ def upgrade():
         ),
     )
     op.add_column(
+        "roles",
+        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True),
+    )
+    op.add_column(
         "releases",
         sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True),
     )
@@ -66,6 +70,14 @@ def upgrade():
             SET project_id = packages.id
             FROM packages
             WHERE releases.name = packages.name
+        """
+    )
+    op.execute(
+        """ UPDATE roles
+            SET project_id = packages.id
+            FROM packages
+            WHERE
+                packages.name = roles.package_name
         """
     )
     op.execute(
@@ -103,6 +115,7 @@ def upgrade():
     )
 
     op.alter_column("releases", "project_id", nullable=False)
+    op.alter_column("roles", "package_name", nullable=False)
     op.alter_column("release_files", "release_id", nullable=False)
     op.alter_column("release_dependencies", "release_id", nullable=False)
     op.alter_column("release_classifiers", "release_id", nullable=False)
@@ -130,6 +143,15 @@ def upgrade():
     op.create_foreign_key(
         None,
         "releases",
+        "packages",
+        ["project_id"],
+        ["id"],
+        onupdate="CASCADE",
+        ondelete="CASCADE",
+    )
+    op.create_foreign_key(
+        None,
+        "roles",
         "packages",
         ["project_id"],
         ["id"],
