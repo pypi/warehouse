@@ -2926,7 +2926,7 @@ class TestFileUpload:
         pyramid_config.testing_securitypolicy(userid=1)
         pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
 
-        pyramid_request.session["account_token_package"] = "anotherpackage"
+        pyramid_request.session["account_token_package_list"] = "anotherpackage"
 
         with pytest.raises(HTTPForbidden) as excinfo:
             legacy.file_upload(pyramid_request)
@@ -2938,7 +2938,7 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information."
         )
 
-        pyramid_request.session["account_token_package"] = "example"
+        pyramid_request.session["account_token_package_list"] = "example"
         pyramid_request.flags = pretend.stub(
             enabled=lambda *a: a[0] == "disallow-new-project-registration"
         )

@@ -240,16 +240,16 @@ class TestAccountTokenAuthenticationPolicy:
         policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
         assert policy.unauthenticated_userid(request) == user.id
 
-        # Test package caveats
-        macaroon.add_first_party_caveat("package: pyexample")
+        # Test package_list caveats
+        macaroon.add_first_party_caveat("package_list: pyexample1 pyexample2")
         macaroon.add_third_party_caveat(
             location="mysite.com", key="anykey", key_id="anykeyid"
         )
         request.params["account_token"] = macaroon.serialize()
-        request.session["account_token_package"] = None
+        request.session["account_token_package_list"] = None
 
         assert policy.unauthenticated_userid(request) == user.id
-        assert request.session["account_token_package"] == "pyexample"
+        assert request.session["account_token_package_list"] == "pyexample1 pyexample2"
 
         # Ensure you can't overwrite previous caveats
         takeover_user = UserFactory.create(username="takeover_user")
@@ -259,19 +259,19 @@ class TestAccountTokenAuthenticationPolicy:
         takeover_account_token_id = str(takeover_account_token.id)
 
         macaroon.add_first_party_caveat(f"id: {takeover_account_token_id}")
-        macaroon.add_first_party_caveat("package: additionalpackage")
+        macaroon.add_first_party_caveat("package_list: additionalpackage")
 
         request.params["account_token"] = macaroon.serialize()
-        request.session["account_token_package"] = None
+        request.session["account_token_package_list"] = None
 
         assert policy.unauthenticated_userid(request) == user.id
-        assert request.session["account_token_package"] == "pyexample"
+        assert request.session["account_token_package_list"] == "pyexample1 pyexample2"
 
     def test_first_party_caveat_validation(self):
         policy = auth_policy.AccountTokenAuthenticationPolicy(pretend.stub())
 
         assert policy._validate_first_party_caveat("id")
-        assert policy._validate_first_party_caveat("package")
+        assert policy._validate_first_party_caveat("package_list")
         assert not policy._validate_first_party_caveat("not_valid")
 
     def test_account_token_interface(self):

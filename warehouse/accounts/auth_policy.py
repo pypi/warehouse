@@ -63,7 +63,7 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
 
             # Get id from token
             account_token_id = None
-            package = None
+            package_list = None
 
             for each in macaroon.first_party_caveats():
                 caveat = each.to_dict()
@@ -76,18 +76,18 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
                 if caveat_key == "id" and account_token_id is None:
                     account_token_id = caveat_value
 
-                elif caveat_key == "package" and package is None:
-                    package = caveat_value
+                elif caveat_key == "package_list" and package_list is None:
+                    package_list = caveat_value
 
-            if package is not None:
-                request.session["account_token_package"] = package
+            if package_list is not None:
+                request.session["account_token_package_list"] = package_list
 
             if account_token_id is not None:
                 login_service = request.find_service(IUserService, context=None)
 
                 return login_service.find_userid_by_account_token(account_token_id)
 
-        except (struct.error, MacaroonException) as e:
+        except (struct.error, MacaroonException):
             return None
 
     def remember(self, request, userid, **kw):
@@ -99,8 +99,8 @@ class AccountTokenAuthenticationPolicy(_CallbackAuthenticationPolicy):
         return []
 
     def _validate_first_party_caveat(self, caveat):
-        # Only support 'id' and 'package' caveat for now
-        if caveat.split(": ")[0] not in ["id", "package"]:
+        # Only support 'id' and 'package_list' caveat for now
+        if caveat.split(": ")[0] not in ["id", "package_list"]:
             return False
 
         return True
