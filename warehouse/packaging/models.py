@@ -65,9 +65,11 @@ class Role(db.Model):
         CIText,
         ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    package_name = Column(
-        Text, ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE")
+    project_id = Column(
+        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
+    package_name = Column(Text)
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
@@ -110,7 +112,8 @@ class Project(SitemapMixin, db.ModelBase):
 
     __repr__ = make_repr("name")
 
-    name = Column(Text, primary_key=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
+    name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
@@ -233,14 +236,12 @@ class Dependency(db.Model):
     __table_args__ = (
         Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
         ForeignKeyConstraint(
-            ["name", "version"],
-            ["releases.name", "releases.version"],
-            onupdate="CASCADE",
-            ondelete="CASCADE",
+            ["release_id"], ["releases.id"], onupdate="CASCADE", ondelete="CASCADE"
         ),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
 
+    release_id = Column(ForeignKey("releases.id"), nullable=False)
     name = Column(Text)
     version = Column(Text)
     kind = Column(Integer)
@@ -251,9 +252,7 @@ def _dependency_relation(kind):
     return orm.relationship(
         "Dependency",
         primaryjoin=lambda: sql.and_(
-            Release.name == Dependency.name,
-            Release.version == Dependency.version,
-            Dependency.kind == kind.value,
+            Release.id == Dependency.release_id, Dependency.kind == kind.value
         ),
         viewonly=True,
     )
@@ -266,6 +265,9 @@ class Release(db.ModelBase):
     @declared_attr
     def __table_args__(cls):  # noqa
         return (
+            ForeignKeyConstraint(
+                ["project_id"], ["packages.id"], onupdate="CASCADE", ondelete="CASCADE"
+            ),
             Index("release_created_idx", cls.created.desc()),
             Index("release_name_created_idx", cls.name, cls.created.desc()),
             Index("release_version_idx", cls.version),
@@ -275,12 +277,10 @@ class Release(db.ModelBase):
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    name = Column(
-        Text,
-        ForeignKey("packages.name", onupdate="CASCADE", ondelete="CASCADE"),
-        primary_key=True,
-    )
-    version = Column(Text, primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
+    project_id = Column(ForeignKey("packages.id"), nullable=False)
+    name = Column(Text, nullable=False)
+    version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
     author = Column(Text)
@@ -425,10 +425,7 @@ class File(db.Model):
     def __table_args__(cls):  # noqa
         return (
             ForeignKeyConstraint(
-                ["name", "version"],
-                ["releases.name", "releases.version"],
-                onupdate="CASCADE",
-                ondelete="CASCADE",
+                ["release_id"], ["releases.id"], onupdate="CASCADE", ondelete="CASCADE"
             ),
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
@@ -447,6 +444,7 @@ class File(db.Model):
             ),
         )
 
+    release_id = Column(ForeignKey("releases.id"), nullable=False)
     name = Column(Text)
     version = Column(Text)
     python_version = Column(Text)
@@ -503,15 +501,10 @@ class Filename(db.ModelBase):
 release_classifiers = Table(
     "release_classifiers",
     db.metadata,
+    Column("release_id", ForeignKey("releases.id"), nullable=False),
     Column("name", Text()),
     Column("version", Text()),
     Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
-    ForeignKeyConstraint(
-        ["name", "version"],
-        ["releases.name", "releases.version"],
-        onupdate="CASCADE",
-        ondelete="CASCADE",
-    ),
     Index("rel_class_name_version_idx", "name", "version"),
     Index("rel_class_trove_id_idx", "trove_id"),
     Index("rel_class_version_id_idx", "version"),
