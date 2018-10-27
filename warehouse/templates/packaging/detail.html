@@ -67,7 +67,7 @@
 
 {%- macro pip_command(release, request_route, test_environment) -%}
   {%- if test_environment -%}
-    {% set index_url = " --index-url https://test.pypi.org/simple/" %}
+    {% set index_url = " -i https://test.pypi.org/simple/" %}
   {%- endif -%}
 
   {%- if request_route == "packaging.release" -%}
