@@ -47,6 +47,33 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     require_methods=False,
     permission="manage:user",
 )
+
+def sole_user_projects(request):
+    """ Return all the projects for which the user is a sole owner """
+    projects_owned = (
+        request.db.query(Project)
+                  .join(Role.project)
+                  .filter(Role.role_name == "Owner", Role.user == request.user)
+                  .subquery()
+    )
+
+    with_sole_owner = (
+        request.db.query(Role.package_name)
+                  .join(projects_owned)
+                  .filter(Role.role_name == "Owner")
+                  .group_by(Role.package_name)
+                  .having(func.count(Role.package_name) == 1)
+                  .subquery()
+    )
+
+    return (
+        request.db.query(Project)
+               .join(with_sole_owner)
+               .order_by(Project.name)
+               .all()
+    )
+
+
 class ManageAccountViews:
     def __init__(self, request):
         self.request = request
@@ -57,29 +84,8 @@ class ManageAccountViews:
 
     @property
     def active_projects(self):
-        """ Return all the projects for with the user is a sole owner """
-        projects_owned = (
-            self.request.db.query(Project)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == self.request.user)
-            .subquery()
-        )
-
-        with_sole_owner = (
-            self.request.db.query(Role.package_name)
-            .join(projects_owned)
-            .filter(Role.role_name == "Owner")
-            .group_by(Role.package_name)
-            .having(func.count(Role.package_name) == 1)
-            .subquery()
-        )
-
-        return (
-            self.request.db.query(Project)
-            .join(with_sole_owner)
-            .order_by(Project.name)
-            .all()
-        )
+        """ Return all the projects for which the user is a sole owner """
+        return sole_user_projects(self.request)
 
     @property
     def default_response(self):
