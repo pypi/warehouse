@@ -16,14 +16,15 @@
 {% block title %}Search results{% endblock %}
 
 {% macro project_snippet(item) -%}
-
-<div class="package-snippet">
-  <h3 class="package-snippet__title">
-    <a href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">{{ item.name }}</a>
-    <span class="package-snippet__version">{{ item.latest_version }}</span>
-  </h3>
-  <p class="package-snippet__description">{{ item.summary }}</p>
-</div>
+<li>
+  <a class="package-snippet" href="{{ request.route_path('packaging.project', name=item.normalized_name) }}">
+    <h3 class="package-snippet__title">
+      <span class="package-snippet__name">{{ item.name }}</span>
+      <span class="package-snippet__version">{{ item.latest_version }}</span>
+    </h3>
+    <p class="package-snippet__description">{{ item.summary }}</p>
+  </a>
+</li>
 {%- endmacro %}
 
 
@@ -117,7 +118,7 @@
         {% set applied_filters_str = applied_filters|join(' ') %}
         {% for top_level, classifiers in available_filters %}
           <div class="accordion{{ ' accordion--closed' if top_level not in applied_filters_str else '' }}">
-            <button type="button" class="accordion__link -js-accordion-trigger">By {{ top_level }}</button>
+            <button type="button" class="accordion__link -js-accordion-trigger">{{ top_level }}</button>
             <div class="accordion__content">
               <div class="checkbox-tree">
               {% for classifier in classifiers %}
@@ -213,28 +214,30 @@
 
         {% if term or applied_filters %}
         <section>
-          <div class="package-list">
-          {% for item in page.items %}
-            {{ project_snippet(item) }}
+          {% if page.items %}
+          <ul class="unstyled" aria-label="Search results">
+            {% for item in page.items %}
+              {{ project_snippet(item) }}
+            {% endfor %}
+          </ul>
           {% else %}
-            <div class="callout-block">
-              <p>
-                {% if term %}
-                  There were no results for '<em>{{ term }}</em>'
-                {% elif applied_filters %}
-                  {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
-                    There were no results for '<em>{{ filters }}</em>' filter
-                  {% pluralize %}
-                    There were no results for '<em>{{ filters }}</em>' filters
-                  {% endtrans %}
-                {% endif %}
-                {% if page.collection.best_guess %}
-                  {{ suggestion_link(page.collection.best_guess) }}
-                {% endif %}
-              </p>
-            </div>
-          {% endfor %}
+          <div class="callout-block">
+            <p>
+              {% if term %}
+                There were no results for '<em>{{ term }}</em>'
+              {% elif applied_filters %}
+                {% trans count=applied_filters|length, filters=applied_filters|join(", ") %}
+                  There were no results for '<em>{{ filters }}</em>' filter
+                {% pluralize %}
+                  There were no results for '<em>{{ filters }}</em>' filters
+                {% endtrans %}
+              {% endif %}
+              {% if page.collection.best_guess %}
+                {{ suggestion_link(page.collection.best_guess) }}
+              {% endif %}
+            </p>
           </div>
+          {% endif %}
           {{ pagination(page) }}
         </section>
         {% endif %}

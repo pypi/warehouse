@@ -13,12 +13,15 @@
 import collections
 import re
 
+import elasticsearch
+
 from pyramid.httpexceptions import (
     HTTPException,
     HTTPSeeOther,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPBadRequest,
+    HTTPServiceUnavailable,
     exception_response,
 )
 from pyramid.exceptions import PredicateMismatch
@@ -35,11 +38,13 @@ from sqlalchemy import func
 from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.sql import exists
 
+from warehouse.db import DatabaseNotAvailable
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.cache.http import cache_control
+from warehouse.cache.http import add_vary, cache_control
 from warehouse.classifiers.models import Classifier
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import Project, Release, File, release_classifiers
 from warehouse.search.queries import SEARCH_BOOSTS, SEARCH_FIELDS, SEARCH_FILTER_ORDER
 from warehouse.utils.row_counter import RowCount
@@ -107,6 +112,11 @@ def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
     return Response(status=403)
+
+
+@view_config(context=DatabaseNotAvailable)
+def service_unavailable(exc, request):
+    return httpexception_view(HTTPServiceUnavailable(), request)
 
 
 @view_config(
@@ -235,13 +245,13 @@ def classifiers(request):
     decorator=[
         origin_cache(
             1 * 60 * 60,  # 1 hour
-            stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
             keys=["all-projects"],
         )
     ],
 )
 def search(request):
+    metrics = request.find_service(IMetricsService, context=None)
 
     q = request.params.get("q", "")
     q = q.replace("'", '"')
@@ -273,12 +283,16 @@ def search(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    page = ElasticsearchPage(
-        query, page=page_num, url_maker=paginate_url_factory(request)
-    )
+    try:
+        page = ElasticsearchPage(
+            query, page=page_num, url_maker=paginate_url_factory(request)
+        )
+    except elasticsearch.TransportError:
+        metrics.increment("warehouse.views.search.error")
+        raise HTTPServiceUnavailable
 
     if page.page_count and page_num > page.page_count:
-        return HTTPNotFound()
+        raise HTTPNotFound
 
     available_filters = collections.defaultdict(list)
 
@@ -304,9 +318,8 @@ def search(request):
         except ValueError:
             return 1, 0, item[0]
 
-    request.registry.datadog.histogram(
-        "warehouse.views.search.results", page.item_count
-    )
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.histogram("warehouse.views.search.results", page.item_count)
 
     return {
         "page": page,
@@ -315,6 +328,50 @@ def search(request):
         "available_filters": sorted(available_filters.items(), key=filter_key),
         "applied_filters": request.params.getall("c"),
     }
+
+
+@view_config(
+    route_name="stats",
+    renderer="pages/stats.html",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+)
+@view_config(
+    route_name="stats.json",
+    renderer="json",
+    decorator=[
+        add_vary("Accept"),
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=1 * 24 * 60 * 60,  # 1 day
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+    accept="application/json",
+)
+def stats(request):
+    total_size_query = request.db.query(func.sum(File.size)).all()
+    top_100_packages = (
+        request.db.query(File.name, func.sum(File.size))
+        .group_by(File.name)
+        .order_by(func.sum(File.size).desc())
+        .limit(100)
+        .all()
+    )
+    # Move top packages into a dict to make JSON more self describing
+    top_packages = {
+        pkg_name: {"size": pkg_bytes} for pkg_name, pkg_bytes in top_100_packages
+    }
+
+    return {"total_packages_size": total_size_query[0][0], "top_packages": top_packages}
 
 
 @view_config(

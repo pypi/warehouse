@@ -34,7 +34,7 @@ def cleanup(request):
             EmailMessage.created
             < (datetime.datetime.utcnow() - CLEANUP_DELIVERED_AFTER)
         )
-        .delete(synchronize_session="fetch")
+        .delete(synchronize_session=False)
     )
 
     # Cleanup *all* messages, this is our hard limit after which we
@@ -42,5 +42,5 @@ def cleanup(request):
     (
         request.db.query(EmailMessage)
         .filter(EmailMessage.created < (datetime.datetime.utcnow() - CLEANUP_AFTER))
-        .delete()
+        .delete(synchronize_session=False)
     )

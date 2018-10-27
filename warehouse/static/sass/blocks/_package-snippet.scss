@@ -14,18 +14,21 @@
 
 /*
   A card that contains information about a package. Often found in package lists.
+  The card can be an "a" or "div" element, but if it contains a link, choosing
+  a top-level "a" element is recommended for accessibility reasons.
 
-  <div class="package-snippet">
+  <a class="package-snippet" href="/link/to/target">
     <h3 class="package-snippet__title">
       // Package title
       <span class="package-snippet__version">// Version</span> // Optional!
     </h3>
     <p class="package-snippet__description">// Description</p>
-  </div>
+  </a>
 */
 
 .package-snippet {
   @include card;
+  display: block;
   padding: ($spacing-unit / 2) 20px ($spacing-unit / 2) 75px;
   margin: 0 0 20px;
   // Use png fallback
@@ -60,12 +63,14 @@
   }
 
   &__version {
+    color: $text-color;
     font-weight: $bold-font-weight;
   }
 
   &__description {
     @include add-ellipsis;
     clear: both;
+    color: $text-color;
     font-size: 1rem;
     font-style: italic;
   }

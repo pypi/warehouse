@@ -16,6 +16,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_
+from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import Project, Release, Role, JournalEntry
@@ -265,6 +266,125 @@ def set_upload_limit(project, request):
     project.upload_limit = upload_limit
 
     request.session.flash(f"Set the upload limit on {project.name!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.add_role",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_role(project, request):
+    username = request.POST.get("username")
+    if not username:
+        request.session.flash("Provide a username", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    try:
+        user = request.db.query(User).filter(User.username == username).one()
+    except NoResultFound:
+        request.session.flash(f"Unknown username '{username}'", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    role_name = request.POST.get("role_name")
+    if not role_name:
+        request.session.flash("Provide a role", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    already_there = (
+        request.db.query(Role)
+        .filter(Role.user == user, Role.project == project)
+        .count()
+    )
+
+    if already_there > 0:
+        request.session.flash(
+            f"User '{user.username}' already has a role on this project", queue="error"
+        )
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"add {role_name} {user.username}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    request.db.add(Role(role_name=role_name, user=user, project=project))
+
+    request.session.flash(
+        f"Added '{user.username}' as '{role_name}' on '{project.name}'", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.delete_role",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_role(project, request):
+    confirm = request.POST.get("username")
+    role_id = request.matchdict.get("role_id")
+
+    role = request.db.query(Role).get(role_id)
+    if not role:
+        request.session.flash(f"This role no longer exists", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    if not confirm or confirm != role.user_name:
+        request.session.flash("Confirm the request", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    request.session.flash(
+        f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
+        queue="success",
+    )
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action=f"remove {role.role_name} {role.user_name}",
+            submitted_by=request.user,
+            submitted_from=request.remote_addr,
+        )
+    )
+
+    request.db.delete(role)
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)

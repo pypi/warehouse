@@ -65,7 +65,7 @@ def execute_purge(config, session):
 
     try:
         xmlrpc_cache_factory = config.find_service_factory(IXMLRPCCache)
-    except ValueError:
+    except LookupError:
         return
 
     xmlrpc_cache = xmlrpc_cache_factory(None, config)

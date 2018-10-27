@@ -33,6 +33,7 @@ from sqlalchemy import event
 from warehouse.config import configure
 from warehouse.accounts import services
 from warehouse.admin.flags import Flags
+from warehouse.metrics import IMetricsService
 
 from .common.db import Session
 
@@ -55,10 +56,50 @@ def pytest_collection_modifyitems(items):
             raise RuntimeError("Unknown test type (filename = {0})".format(module_path))
 
 
+@contextmanager
+def metrics_timing(*args, **kwargs):
+    yield None
+
+
 @pytest.fixture
-def pyramid_request(datadog):
+def metrics():
+    return pretend.stub(
+        event=pretend.call_recorder(lambda *args, **kwargs: None),
+        increment=pretend.call_recorder(lambda *args, **kwargs: None),
+        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
+        timing=pretend.call_recorder(lambda *args, **kwargs: None),
+        timed=pretend.call_recorder(
+            lambda *args, **kwargs: metrics_timing(*args, **kwargs)
+        ),
+    )
+
+
+class _Services:
+    def __init__(self):
+        self._services = {}
+
+    def register_service(self, iface, context, service_obj):
+        self._services[(iface, context)] = service_obj
+
+    def find_service(self, iface, context):
+        return self._services[(iface, context)]
+
+
+@pytest.fixture
+def pyramid_services(metrics):
+    services = _Services()
+
+    # Register our global services.
+    services.register_service(IMetricsService, None, metrics)
+
+    return services
+
+
+@pytest.fixture
+def pyramid_request(pyramid_services):
     dummy_request = pyramid.testing.DummyRequest()
-    dummy_request.registry.datadog = datadog
+    dummy_request.find_service = pyramid_services.find_service
+
     return dummy_request
 
 
@@ -66,24 +107,6 @@ def pyramid_request(datadog):
 def pyramid_config(pyramid_request):
     with pyramid.testing.testConfig(request=pyramid_request) as config:
         yield config
-
-
-@contextmanager
-def datadog_timing(*args, **kwargs):
-    yield None
-
-
-@pytest.yield_fixture
-def datadog():
-    return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: None),
-        increment=pretend.call_recorder(lambda *args, **kwargs: None),
-        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
-        timing=pretend.call_recorder(lambda *args, **kwargs: None),
-        timed=pretend.call_recorder(
-            lambda *args, **kwargs: datadog_timing(*args, **kwargs)
-        ),
-    )
 
 
 @pytest.yield_fixture
@@ -172,8 +195,8 @@ def db_session(app_config):
 
 
 @pytest.yield_fixture
-def user_service(db_session, app_config):
-    return services.DatabaseUserService(db_session, app_config.registry.settings)
+def user_service(db_session, metrics):
+    return services.DatabaseUserService(db_session, metrics=metrics)
 
 
 @pytest.yield_fixture
@@ -220,8 +243,7 @@ def query_recorder(app_config):
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session, datadog):
-    pyramid_request.registry.datadog = datadog
+def db_request(pyramid_request, db_session):
     pyramid_request.db = db_session
     pyramid_request.flags = Flags(pyramid_request)
     return pyramid_request
@@ -235,14 +257,13 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.yield_fixture
-def webtest(app_config, datadog):
+def webtest(app_config):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something
     #       between test cases to wipe any commited changes.
 
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
-    app_config.registry.datadog = datadog
 
     try:
         yield _TestApp(app_config.make_wsgi_app())

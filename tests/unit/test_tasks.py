@@ -406,9 +406,63 @@ def test_make_celery_app():
 
 
 @pytest.mark.parametrize(
-    ("env", "ssl"), [(Environment.development, False), (Environment.production, True)]
+    ("env", "ssl", "broker_url", "expected_url", "queue_name", "transport_options"),
+    [
+        (
+            Environment.development,
+            False,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            "celery",
+            {},
+        ),
+        (
+            Environment.production,
+            True,
+            "amqp://guest@rabbitmq:5672//",
+            "amqp://guest@rabbitmq:5672//",
+            "celery",
+            {},
+        ),
+        (Environment.development, False, "sqs://", "sqs://", "celery", {}),
+        (Environment.production, True, "sqs://", "sqs://", "celery", {}),
+        (Environment.development, False, "sqs:///my-queue", "sqs://", "my-queue", {}),
+        (Environment.production, True, "sqs:///my-queue", "sqs://", "my-queue", {}),
+        (
+            Environment.development,
+            False,
+            "sqs://?region=us-east-2",
+            "sqs://",
+            "celery",
+            {"region": "us-east-2"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://?region=us-east-2",
+            "sqs://",
+            "celery",
+            {"region": "us-east-2"},
+        ),
+        (
+            Environment.development,
+            False,
+            "sqs:///my-queue?region=us-east-2",
+            "sqs://",
+            "my-queue",
+            {"region": "us-east-2"},
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs:///my-queue?region=us-east-2",
+            "sqs://",
+            "my-queue",
+            {"region": "us-east-2"},
+        ),
+    ],
 )
-def test_includeme(env, ssl):
+def test_includeme(env, ssl, broker_url, expected_url, queue_name, transport_options):
     registry_dict = {}
     config = pretend.stub(
         action=pretend.call_recorder(lambda *a, **kw: None),
@@ -419,7 +473,7 @@ def test_includeme(env, ssl):
             __setitem__=registry_dict.__setitem__,
             settings={
                 "warehouse.env": env,
-                "celery.broker_url": pretend.stub(),
+                "celery.broker_url": broker_url,
                 "celery.result_url": pretend.stub(),
                 "celery.scheduler_url": pretend.stub(),
             },
@@ -432,9 +486,11 @@ def test_includeme(env, ssl):
     assert app.Task is tasks.WarehouseTask
     assert app.pyramid_config is config
     for key, value in {
-        "broker_url": config.registry.settings["celery.broker_url"],
+        "broker_transport_options": transport_options,
+        "broker_url": expected_url,
         "broker_use_ssl": ssl,
         "worker_disable_rate_limits": True,
+        "task_default_queue": queue_name,
         "task_serializer": "json",
         "accept_content": ["json", "msgpack"],
         "task_queue_ha_policy": "all",

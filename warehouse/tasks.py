@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import functools
+import urllib.parse
 
 import celery.app.backends
 
@@ -30,6 +31,10 @@ import venusian
 from pyramid.threadlocal import get_current_request
 
 from warehouse.config import Environment
+
+
+# We need to register that the sqs:// url scheme uses a netloc
+urllib.parse.uses_netloc.append("sqs")
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -154,13 +159,32 @@ def _add_periodic_task(config, schedule, func, args=(), kwargs=(), name=None, **
 def includeme(config):
     s = config.registry.settings
 
+    queue_name = "celery"
+    broker_transport_options = {}
+
+    broker_url = s["celery.broker_url"]
+    if broker_url.startswith("sqs://"):
+        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_query = urllib.parse.parse_qs(parsed_url.query)
+        # Celery doesn't handle paths/query arms being passed into the SQS broker,
+        # so we'll jsut remove them from here.
+        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+
+        if parsed_url.path:
+            queue_name = parsed_url.path[1:]
+
+        if "region" in parsed_query:
+            broker_transport_options["region"] = parsed_query["region"][0]
+
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
     )
     config.registry["celery.app"].conf.update(
         accept_content=["json", "msgpack"],
-        broker_url=s["celery.broker_url"],
+        broker_url=broker_url,
         broker_use_ssl=s["warehouse.env"] == Environment.production,
+        broker_transport_options=broker_transport_options,
+        task_default_queue=queue_name,
         task_queue_ha_policy="all",
         task_serializer="json",
         worker_disable_rate_limits=True,

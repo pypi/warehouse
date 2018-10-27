@@ -77,6 +77,19 @@ STDLIB_PROHIBITTED = {
 }
 
 # Wheel platform checking
+
+# Note: defining new platform ABI compatibility tags that don't
+#       have a python.org binary release to anchor them is a
+#       complex task that needs more than just OS+architecture info.
+#       For Linux specifically, the platform ABI is defined by each
+#       individual distro version, so wheels built on one version may
+#       not even work on older versions of the same distro, let alone
+#       a completely different distro.
+#
+#       That means new entries should only be added given an
+#       accompanying ABI spec that explains how to build a
+#       compatible binary (see the manylinux specs as examples).
+
 # These platforms can be handled by a simple static list:
 _allowed_platforms = {
     "any",
@@ -91,7 +104,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile("macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_10_(\d+)+_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -948,7 +961,6 @@ def file_upload(request):
             _classifiers=[
                 c for c in all_classifiers if c.classifier in form.classifiers.data
             ],
-            _pypi_hidden=False,
             dependencies=list(
                 _construct_dependencies(
                     form,
@@ -1008,19 +1020,13 @@ def file_upload(request):
     releases = (
         request.db.query(Release)
         .filter(Release.project == project)
-        .options(orm.load_only(Release._pypi_ordering, Release._pypi_hidden))
+        .options(orm.load_only(Release._pypi_ordering))
         .all()
     )
     for i, r in enumerate(
         sorted(releases, key=lambda x: packaging.version.parse(x.version))
     ):
         r._pypi_ordering = i
-
-    # TODO: Again, we should figure out a better solution to doing this than
-    #       just inlining this inside this method.
-    if project.autohide:
-        for r in releases:
-            r._pypi_hidden = bool(not r == release)
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename

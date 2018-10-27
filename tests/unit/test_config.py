@@ -16,76 +16,11 @@ import pretend
 import pytest
 
 from pyramid import renderers
-from pyramid.request import Request
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
+from warehouse.errors import BasicAuthBreachedPassword
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover, HostRewrite
-
-
-class TestJunkEncodingTween:
-    def test_valid(self):
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda request: response)
-
-        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
-
-        request = Request({"QUERY_STRING": ":action=browse", "PATH_INFO": "/pypi"})
-        resp = tween(request)
-
-        assert resp is response
-
-    def test_invalid_qsl(self):
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda request: response)
-
-        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
-
-        request = Request({"QUERY_STRING": "%Aaction=browse"})
-        resp = tween(request)
-
-        assert resp is not response
-        assert resp.status_code == 400
-        assert resp.detail == "Invalid bytes in query string."
-
-    def test_invalid_path(self):
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda request: response)
-
-        tween = config.junk_encoding_tween_factory(handler, pretend.stub())
-
-        request = Request({"PATH_INFO": "/projects/abouÅt"})
-        resp = tween(request)
-
-        assert resp is not response
-        assert resp.status_code == 400
-        assert resp.detail == "Invalid bytes in URL."
-
-
-class TestUnicodeRedirectTween:
-    def test_basic_redirect(self):
-        response = pretend.stub(location="/a/path/to/nowhere")
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
-        tween = config.unicode_redirect_tween_factory(handler, registry)
-        request = pretend.stub(path="/A/pAtH/tO/nOwHeRe/")
-        assert tween(request) == response
-
-    def test_unicode_basic_redirect(self):
-        response = pretend.stub(location="/pypi/\u2603/json/")
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
-        tween = config.unicode_redirect_tween_factory(handler, registry)
-        request = pretend.stub(path="/pypi/snowman/json/")
-        assert tween(request).location == "/pypi/%E2%98%83/json/"
-
-    def test_not_redirect(self):
-        response = pretend.stub(location=None)
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
-        tween = config.unicode_redirect_tween_factory(handler, registry)
-        request = pretend.stub(path="/wu/tang/")
-        assert tween(request) == response
 
 
 class TestRequireHTTPSTween:
@@ -135,6 +70,21 @@ class TestRequireHTTPSTween:
 def test_activate_hook(path, expected):
     request = pretend.stub(path=path)
     assert config.activate_hook(request) == expected
+
+
+@pytest.mark.parametrize(
+    ("exc_info", "expected"),
+    [
+        (None, False),
+        ((ValueError, ValueError(), None), True),
+        ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+    ],
+)
+def test_commit_veto(exc_info, expected):
+    request = pretend.stub(exc_info=exc_info)
+    response = pretend.stub()
+
+    assert bool(config.commit_veto(request, response)) == expected
 
 
 @pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
@@ -253,6 +203,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
+        whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
         scan=pretend.call_recorder(lambda ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
@@ -273,7 +224,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
 
     expected_settings = {
         "warehouse.env": environment,
-        "warehouse.commit": None,
+        "warehouse.commit": "null",
         "site.name": "Warehouse",
         "token.default.max_age": 21600,
     }
@@ -323,7 +274,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
-        [pretend.call(".datadog"), pretend.call(".csrf")]
+        [
+            pretend.call("pyramid_services"),
+            pretend.call(".metrics"),
+            pretend.call(".csrf"),
+        ]
         + [
             pretend.call(x)
             for x in [
@@ -342,7 +297,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
-            pretend.call("pyramid_services"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
@@ -373,6 +327,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".http"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
+        + [pretend.call(".sanity")]
     )
     assert configurator_obj.add_jinja2_renderer.calls == [
         pretend.call(".html"),
@@ -391,6 +346,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             {
                 "tm.manager_hook": mock.ANY,
                 "tm.activate_hook": config.activate_hook,
+                "tm.commit_veto": config.commit_veto,
                 "tm.annotate_user": False,
             }
         ),
@@ -399,11 +355,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     add_settings_dict = configurator_obj.add_settings.calls[2].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is transaction_manager
     assert configurator_obj.add_tween.calls == [
-        pretend.call(
-            "warehouse.config.junk_encoding_tween_factory",
-            over="warehouse.csp.content_security_policy_tween_factory",
-        ),
-        pretend.call("warehouse.config.unicode_redirect_tween_factory"),
         pretend.call("warehouse.config.require_https_tween_factory"),
         pretend.call(
             "warehouse.utils.compression.compression_tween_factory",
@@ -426,14 +377,13 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         pretend.call("warehouse:static/dist/manifest.json", reload=False, strict=True)
     ]
     assert configurator_obj.whitenoise_serve_static.calls == [
-        pretend.call(
-            autorefresh=False,
-            max_age=315360000,
-            manifest="warehouse:static/dist/manifest.json",
-        )
+        pretend.call(autorefresh=False, max_age=315360000)
     ]
     assert configurator_obj.whitenoise_add_files.calls == [
         pretend.call("warehouse:static/dist/", prefix="/static/")
+    ]
+    assert configurator_obj.whitenoise_add_manifest.calls == [
+        pretend.call("warehouse:static/dist/manifest.json", prefix="/static/")
     ]
     assert configurator_obj.add_directive.calls == [
         pretend.call("add_template_view", config.template_view, action_wrap=False)

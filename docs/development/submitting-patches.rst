@@ -20,8 +20,10 @@ directions on the :doc:`security page </security>`.
 Code
 ----
 
-When in doubt, refer to :pep:`8` for Python code. You can check if your code
-meets our automated requirements by running ``make lint`` against it.
+When in doubt, refer to `the Black Code Style`_ for Python code formatting. You
+can reformat your code according to this code style by running ``make reformat``
+against it. You can check if your code meets all our automated requirements by
+running ``make lint`` against it.
 
 `Write comments as complete sentences.`_
 
@@ -175,3 +177,4 @@ feature branch at least once while you are working on it.
 .. _`Studies have shown`: https://smartbear.com/smartbear/media/pdfs/wp-cc-11-best-practices-of-peer-code-review.pdf
 .. _`doc8`: https://github.com/stackforge/doc8
 .. _`coverage.py`: https://pypi.org/project/coverage
+.. _`the Black Code Style`: https://github.com/ambv/black#the-black-code-style

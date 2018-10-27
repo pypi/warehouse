@@ -162,6 +162,34 @@
   > a  {
     margin-top: $spacing-unit / 2;
   }
+
+  img.align-left,
+  .figure.align-left,
+  object.align-left {
+    clear: left;
+    float: left;
+    margin-top: $spacing-unit / 2;
+    margin-right: $spacing-unit / 2;
+  }
+
+  img.align-right,
+  .figure.align-right,
+  object.align-right {
+    clear: right;
+    float: right;
+    margin-top: $spacing-unit / 2;
+    margin-left: $spacing-unit / 2;
+  }
+
+  img.align-center,
+  .figure.align-center,
+  object.align-center {
+    display: block;
+    margin-top: $spacing-unit / 2;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
 }
 
 
@@ -194,7 +222,7 @@ $black:         #000;
   }
 
   .k { /* Keyword */
-    color: $green;
+    color: $darkest-blue;
     font-weight: bold;
   }
 
@@ -267,7 +295,7 @@ $black:         #000;
   }
 
   .kn { /* Keyword.Namespace */
-    color: $green;
+    color: $darkest-blue;
     font-weight: bold;
   }
 
@@ -369,7 +397,7 @@ $black:         #000;
   }
 
   .mi { /* Literal.Number.Integer */
-    color: $blue;
+    color: $green;
     font-weight: bold;
   }
 
