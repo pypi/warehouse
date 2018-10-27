@@ -4,8 +4,8 @@ PR := $(shell echo "$${TRAVIS_PULL_REQUEST:-false}")
 BRANCH := $(shell echo "$${TRAVIS_BRANCH:-master}")
 DB := example
 IPYTHON := no
-RUN_IN_WEB =
-RUN_IN_WEB_DEP =
+RUN_IN_DOCKER =
+RUN_IN_DOCKER_DEP =
 
 # set environment variable WAREHOUSE_IPYTHON_SHELL=1 if IPython
 # needed in development environment
@@ -14,8 +14,8 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
 endif
 
 ifeq ($(TRAVIS), false)
-    RUN_IN_WEB = docker-compose run --rm build
-    RUN_IN_WEB_DEP = .state/docker-build
+    RUN_IN_DOCKER = docker-compose run --rm build
+    RUN_IN_DOCKER_DEP = .state/docker-build
     BINDIR = .state/env/bin
 endif
 
@@ -59,22 +59,22 @@ default:
 	@echo
 	@exit 1
 
-.state/env/pyvenv.cfg: $(RUN_IN_WEB_DEP) requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
+.state/env/pyvenv.cfg: $(RUN_IN_DOCKER_DEP) requirements/dev.txt requirements/docs.txt requirements/lint.txt requirements/ipython.txt
 	# Create our Python 3.6 virtual environment
 	rm -rf .state/env
-	$(RUN_IN_WEB) python3.6 -m venv .state/env
+	$(RUN_IN_DOCKER) python3.6 -m venv .state/env
 
 	# install/upgrade general requirements
-	$(RUN_IN_WEB) .state/env/bin/python -m pip install --upgrade pip setuptools wheel
+	$(RUN_IN_DOCKER) .state/env/bin/python -m pip install --upgrade pip setuptools wheel
 
 	# install various types of requirements
-	$(RUN_IN_WEB) .state/env/bin/python -m pip install -r requirements/dev.txt
-	$(RUN_IN_WEB) .state/env/bin/python -m pip install -r requirements/docs.txt
-	$(RUN_IN_WEB) .state/env/bin/python -m pip install -r requirements/lint.txt
+	$(RUN_IN_DOCKER) .state/env/bin/python -m pip install -r requirements/dev.txt
+	$(RUN_IN_DOCKER) .state/env/bin/python -m pip install -r requirements/docs.txt
+	$(RUN_IN_DOCKER) .state/env/bin/python -m pip install -r requirements/lint.txt
 
 	# install ipython if enabled
     ifeq ($(IPYTHON),"yes")
-        $(RUN_IN_WEB) .state/env/bin/python -m pip install -r requirements/ipython.txt
+        $(RUN_IN_DOCKER) .state/env/bin/python -m pip install -r requirements/ipython.txt
     endif
 
 .state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
@@ -110,15 +110,15 @@ tests:
 
 
 reformat: .state/env/pyvenv.cfg
-	$(RUN_IN_WEB) $(BINDIR)/black warehouse/ tests/
+	$(RUN_IN_DOCKER) $(BINDIR)/black warehouse/ tests/
 
 lint: .state/env/pyvenv.cfg
-	$(RUN_IN_WEB) $(BINDIR)/flake8 .
-	$(RUN_IN_WEB) $(BINDIR)/black --check warehouse/ tests/
-	$(RUN_IN_WEB) $(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
+	$(RUN_IN_DOCKER) $(BINDIR)/flake8 .
+	$(RUN_IN_DOCKER) $(BINDIR)/black --check warehouse/ tests/
+	$(RUN_IN_DOCKER) $(BINDIR)/doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path docs/_build/
 	# TODO: Figure out a solution to https://github.com/deezer/template-remover/issues/1
 	#       so we can remove extra_whitespace from below.
-	$(RUN_IN_WEB) $(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
+	$(RUN_IN_DOCKER) $(BINDIR)/html_lint.py --printfilename --disable=optional_tag,names,protocol,extra_whitespace,concerns_separation `find ./warehouse/templates -path ./warehouse/templates/legacy -prune -o -name '*.html' -print`
 ifneq ($(TRAVIS), false)
 	# We're on Travis, so we can lint static files locally
 	./node_modules/.bin/eslint 'warehouse/static/js/**' '**.js' --ignore-pattern 'warehouse/static/js/vendor/**'
@@ -130,23 +130,23 @@ else
 endif
 
 docs: .state/env/pyvenv.cfg
-	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build" RUN_IN_WEB="$(RUN_IN_WEB)"
-	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build" RUN_IN_WEB="$(RUN_IN_WEB)"
+	$(MAKE) -C docs/ doctest SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build" RUN_IN_DOCKER="$(RUN_IN_DOCKER)"
+	$(MAKE) -C docs/ html SPHINXOPTS="-W" SPHINXBUILD="$(BINDIR)/sphinx-build" RUN_IN_DOCKER="$(RUN_IN_DOCKER)"
 
 licenses:
 	bin/licenses
 
 export DEPCHECKER
 deps: .state/env/pyvenv.cfg
-	$(RUN_IN_WEB) $(eval TMPDIR := $(shell mktemp -d))
-	$(RUN_IN_WEB) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
-	$(RUN_IN_WEB) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
-	$(RUN_IN_WEB) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
-	$(RUN_IN_WEB) python $(TMPDIR)/deploy.txt requirements/deploy.txt -c "$$DEPCHECKER"
-	$(RUN_IN_WEB) python - $(TMPDIR)/main.txt requirements/main.txt -c "$$DEPCHECKER"
-	$(RUN_IN_WEB) python - $(TMPDIR)/lint.txt requirements/lint.txt -c "$$DEPCHECKER"
-	$(RUN_IN_WEB) rm -r $(TMPDIR)
-	$(RUN_IN_WEB) $(BINDIR)/pip check
+	$(RUN_IN_DOCKER) $(eval TMPDIR := $(shell mktemp -d))
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/deploy.txt requirements/deploy.in > /dev/null
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/main.txt requirements/main.in > /dev/null
+	$(RUN_IN_DOCKER) $(BINDIR)/pip-compile --no-annotate --no-header --upgrade --allow-unsafe -o $(TMPDIR)/lint.txt requirements/lint.in > /dev/null
+	$(RUN_IN_DOCKER) python $(TMPDIR)/deploy.txt requirements/deploy.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) python - $(TMPDIR)/main.txt requirements/main.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) python - $(TMPDIR)/lint.txt requirements/lint.txt -c "$$DEPCHECKER"
+	$(RUN_IN_DOCKER) rm -r $(TMPDIR)
+	$(RUN_IN_DOCKER) $(BINDIR)/pip check
 
 travis-deps:
 ifneq ($(PR), false)

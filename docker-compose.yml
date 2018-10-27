@@ -106,16 +106,9 @@ services:
     command: bash -c "node --trace-warnings `which gulp` watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./tests:/opt/warehouse/src/tests:z
-      - ./docs:/opt/warehouse/src/docs:z
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
-      - .state/env:/opt/warehouse/src/.state/env:z
-      - ./requirements:/opt/warehouse/src/requirements:z
-      - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
-      - ./README.rst:/opt/warehouse/src/README.rst:z
-      - ./CONTRIBUTING.rst:/opt/warehouse/src/CONTRIBUTING.rst:z
 
   build:
     image: python:3.6.6-slim-stretch
