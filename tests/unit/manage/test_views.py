@@ -25,7 +25,7 @@ from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
 from warehouse.packaging.models import JournalEntry, Project, Role, User
 from warehouse.utils.project import remove_documentation
 
-from ...common.db.accounts import EmailFactory
+from ...common.db.accounts import AccountTokenFactory, EmailFactory
 from ...common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
@@ -38,14 +38,14 @@ from ...common.db.packaging import (
 class TestManageAccount:
     def test_default_response(self, monkeypatch):
         breach_service = pretend.stub()
-        user_service = pretend.stub()
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda iface, **kw: {
                 IPasswordBreachedService: breach_service,
                 IUserService: user_service,
             }[iface],
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, username=pretend.stub()),
         )
         save_account_obj = pretend.stub()
         save_account_cls = pretend.call_recorder(lambda **kw: save_account_obj)
@@ -59,6 +59,10 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
+        account_token_obj = pretend.stub()
+        account_token_cls = pretend.call_recorder(lambda **kw: account_token_obj)
+        monkeypatch.setattr(views, "AccountTokenForm", account_token_cls)
+
         view = views.ManageAccountViews(request)
 
         monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
@@ -68,6 +72,8 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "account_token_form": account_token_obj,
+            "account_tokens": [],
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -482,6 +488,103 @@ class TestManageAccount:
             pretend.call("Email is already verified", queue="error")
         ]
         assert send_email.calls == []
+
+    def test_add_new_account_token(self, db_request):
+        user = UserFactory.create()
+        breach_service = pretend.stub()
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
+
+        request = pretend.stub(
+            db=db_request.db,
+            find_service=lambda iface, **kw: {
+                IPasswordBreachedService: breach_service,
+                IUserService: user_service,
+            }[iface],
+            POST={"description": "account token description"},
+            registry=pretend.stub(
+                settings={
+                    "account_token.id": "example_id",
+                    "account_token.secret": "example_secret",
+                }
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+        )
+
+        view = views.ManageAccountViews(request)
+        view.add_new_account_token()
+
+        assert "Here is your account token" in request.session.flash.calls[0].args[0]
+        assert request.session.flash.calls[0].kwargs["queue"] == "success"
+
+    def test_invalid_add_new_account_token(self, db_request):
+        user = UserFactory.create()
+        breach_service = pretend.stub()
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
+
+        request = pretend.stub(
+            db=db_request.db,
+            find_service=lambda iface, **kw: {
+                IPasswordBreachedService: breach_service,
+                IUserService: user_service,
+            }[iface],
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+        )
+
+        view = views.ManageAccountViews(request)
+        view.add_new_account_token()
+
+        assert request.session.flash.calls == []
+
+    def test_delete_account_token(self, db_request):
+        user = UserFactory.create()
+        account_token = AccountTokenFactory.create(username=user.username)
+
+        breach_service = pretend.stub()
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
+
+        request = pretend.stub(
+            db=db_request.db,
+            find_service=lambda iface, **kw: {
+                IPasswordBreachedService: breach_service,
+                IUserService: user_service,
+            }[iface],
+            params={"account_token_id": account_token.id},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+        )
+
+        view = views.ManageAccountViews(request)
+        view.delete_account_token()
+
+        assert request.session.flash.calls == [
+            pretend.call("Account token deleted", queue="success")
+        ]
+
+    def test_delete_nonexistent_account_token(self, db_request):
+        user = UserFactory.create()
+        breach_service = pretend.stub()
+        user_service = pretend.stub(get_tokens_by_username=lambda x: [])
+
+        request = pretend.stub(
+            db=db_request.db,
+            find_service=lambda iface, **kw: {
+                IPasswordBreachedService: breach_service,
+                IUserService: user_service,
+            }[iface],
+            params={"account_token_id": uuid.uuid4()},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+        )
+
+        view = views.ManageAccountViews(request)
+        view.delete_account_token()
+
+        assert request.session.flash.calls == [
+            pretend.call("Account token not found", queue="error")
+        ]
 
     def test_change_password(self, monkeypatch):
         old_password = "0ld_p455w0rd"

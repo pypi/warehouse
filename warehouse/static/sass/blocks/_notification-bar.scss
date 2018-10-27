@@ -80,6 +80,7 @@
 
   &__message {
     @include h3;
+    word-wrap: break-word;
 
     a {
       color: $white;

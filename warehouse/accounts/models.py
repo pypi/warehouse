@@ -101,6 +101,24 @@ class User(SitemapMixin, db.Model):
         )
 
 
+class AccountToken(db.Model):
+    __tablename__ = "accounts_token"
+
+    # db.Model includes an `id` column, which is a UUID,
+    # and will be used to distinguish this token from others which
+    # may otherwise be equivalent.
+
+    username = Column(
+        CIText,
+        ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+
+    description = Column(String(length=100))
+    is_active = Column(Boolean, server_default="TRUE")
+    created = Column(DateTime, server_default=sql.func.now())
+    last_used = Column(DateTime, nullable=True)
+
+
 class UnverifyReasons(enum.Enum):
 
     SpamComplaint = "spam complaint"

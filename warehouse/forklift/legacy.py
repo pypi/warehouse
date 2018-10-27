@@ -343,7 +343,6 @@ class ListField(wtforms.Field):
 #       library and we should just call that. However until PEP 426 is done
 #       that library won't have an API for this.
 class MetadataForm(forms.Form):
-
     # Metadata version
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
@@ -805,6 +804,16 @@ def file_upload(request):
     # Ensure that we have file data in the request.
     if "content" not in request.POST:
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
+
+    # Check if user authenticated with an api_token scoped to a certain project
+    package_caveat = request.session.get("account_token_package_list", None)
+
+    if package_caveat is not None:
+        package_canonical_name = packaging.utils.canonicalize_name(form.name.data)
+        if package_canonical_name not in package_caveat.split(" "):
+            raise _exc_with_message(
+                HTTPForbidden, "Invalid or non-existent authentication information."
+            )
 
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
