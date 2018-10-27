@@ -43,12 +43,17 @@
         <th>Blacklisted by</th>
         <th>Blackisted on</th>
         <th>Comment</th>
+        <th>Reason</th>
         <th>Actions</th>
       </tr>
 
       {% for blacklisted in blacklist %}
       <tr>
-        <td>{{ blacklisted.name }}</td>
+        <td>
+          <a href="{{ request.route_path('admin.blacklist.detail', blacklist_id=blacklisted.id) }}">
+            {{ blacklisted.name }}
+          </a>
+        </td>
         <td>
           {% if blacklisted.blacklisted_by %}
             <a href="{{ request.route_path('admin.user.detail', user_id=blacklisted.blacklisted_by.id) }}">
@@ -58,6 +63,7 @@
         </td>
         <td>{{ blacklisted.created|format_datetime() }}</td>
         <td>{{ blacklisted.comment }}</td>
+        <td>{{ blacklisted.reason.value }}</td>
         <td>
           <form method="POST" action="{{ request.route_path('admin.blacklist.remove') }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -94,12 +100,22 @@
 
   <form method="GET" action="{{ request.route_path('admin.blacklist.add') }}">
     <div class="box-body">
-      <div class="form-group col-sm-4">
+      <div class="form-group col-sm-6">
         <label for="blacklistedProject">Project name</label>
         <input name="project" class="form-control" id="blacklistedProject" placeholder="Enter project to blacklist" autocomplete="off" autocorrect="off" autocapitalize="off">
       </div>
-
-      <div class="form-group col-sm-8">
+      <div class="form-group col-sm-6">
+        <label for="blacklistedReason">Reason</label>
+        <select class="form-control" id="blacklistedReason" name="reason">
+          <option value="not_labeled" disabled>Not Labeled</option>
+          {% for enum in BlacklistReason %}
+            {% if enum.name != "not_labeled" %}
+              <option value="{{ enum.name }}">{{ enum.value }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-sm-12">
         <label for="blacklistedComment">Comment</label>
         <textarea name="comment" class="form-control" id="blacklistedComment" rows="3" placeholder="Enter comment ..."></textarea>
       </div>

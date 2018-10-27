@@ -20,7 +20,7 @@ from sqlalchemy import func, literal, or_
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
-from warehouse.packaging.models import Project, Release, File, Role, BlacklistedProject
+from warehouse.packaging.models import Project, Release, File, Role, BlacklistedProject, BlacklistReason
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import remove_project
@@ -62,7 +62,7 @@ def blacklist(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"blacklist": blacklist, "query": q}
+    return {"blacklist": blacklist, "query": q, "BlacklistReason": BlacklistReason}
 
 
 @view_config(
@@ -78,6 +78,7 @@ def confirm_blacklist(request):
         raise HTTPBadRequest("Have a project to confirm.")
 
     comment = request.GET.get("comment", "")
+    reason = request.GET.get("reason", "")
 
     # We need to look up to see if there is an existing project, releases,
     # files, roles, etc for what we're attempting to blacklist. If there is we
@@ -104,7 +105,7 @@ def confirm_blacklist(request):
         roles = []
 
     return {
-        "blacklist": {"project": project_name, "comment": comment},
+        "blacklist": {"project": project_name, "comment": comment, "reason": reason},
         "existing": {
             "project": project,
             "releases": releases,
@@ -125,7 +126,13 @@ def add_blacklist(request):
     project_name = request.POST.get("project")
     if project_name is None:
         raise HTTPBadRequest("Have a project to confirm.")
+
     comment = request.POST.get("comment", "")
+    reason = request.POST.get("reason")
+
+    if not reason:
+        request.session.flash("Include a reason for blacklist request", queue="error")
+        return HTTPSeeOther(request.current_route_path())
 
     # Verify that the user has confirmed the request to blacklist.
     confirm = request.POST.get("confirm")
@@ -156,7 +163,8 @@ def add_blacklist(request):
     # Add our requested blacklist.
     request.db.add(
         BlacklistedProject(
-            name=project_name, comment=comment, blacklisted_by=request.user
+            name=project_name, comment=comment, blacklisted_by=request.user,
+            reason=reason
         )
     )
 
@@ -208,3 +216,39 @@ def remove_blacklist(request):
         redirect_to = request.route_path("admin.blacklist.list")
 
     return HTTPSeeOther(redirect_to)
+
+
+@view_config(
+    route_name="admin.blacklist.detail",
+    renderer="admin/blacklist/detail.html",
+    permission="admin",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def detail(request):
+    try:
+        blacklist = (
+            request.db.query(BlacklistedProject)
+                .filter(BlacklistedProject.id == request.matchdict["blacklist_id"])
+                .one()
+        )
+    except NoResultFound:
+        raise HTTPNotFound
+
+    if request.method == "POST":
+        comment = request.POST.get("comment")
+        reason = request.POST.get("reason")
+        blacklist.comment = comment
+        blacklist.reason = reason
+        request.db.add(blacklist)
+        request.session.flash(f"{blacklist.name} updated", queue="success")
+        redirect_to = request.POST.get("next")
+        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+            redirect_to = request.route_path("admin.blacklist.list")
+        return HTTPSeeOther(redirect_to)
+
+    return {
+        "blacklist": blacklist,
+        "BlacklistReason": BlacklistReason
+    }

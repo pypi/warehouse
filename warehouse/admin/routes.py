@@ -106,6 +106,9 @@ def includeme(config):
     config.add_route(
         "admin.blacklist.remove", "/admin/blacklist/remove/", domain=warehouse
     )
+    config.add_route(
+        "admin.blacklist.detail", "/admin/blacklist/{blacklist_id}/", domain=warehouse
+    )
 
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)

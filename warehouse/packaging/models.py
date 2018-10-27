@@ -545,8 +545,16 @@ class JournalEntry(db.ModelBase):
     submitted_from = Column(Text)
 
 
-class BlacklistedProject(db.Model):
+class BlacklistReason(enum.Enum):
+    other = "Other"
+    not_labeled = "Not Labeled"
+    spam = "Spam"
+    malicious = "Malicious"
+    typo_squat = "Typo Squat"
+    dmca = "DMCA"
 
+
+class BlacklistedProject(db.Model):
     __tablename__ = "blacklist"
     __table_args__ = (
         CheckConstraint(
@@ -566,3 +574,4 @@ class BlacklistedProject(db.Model):
     )
     blacklisted_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
+    reason = Column(Enum(BlacklistReason), nullable=True)

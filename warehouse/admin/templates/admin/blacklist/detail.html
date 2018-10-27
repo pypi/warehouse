@@ -1,0 +1,63 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Edit Blacklist{% endblock %}
+
+{% block breadcrumb %}
+  <li class="active">Blacklist</li>
+{% endblock %}
+
+{% block content %}
+<div class="box box-primary">
+  <div class="box-header with-border">
+    <h3 class="box-title">Editing {{ blacklist.name }}</h3>
+  </div>
+
+  <form method="POST" action="{{ request.route_path('admin.blacklist.detail', blacklist_id=blacklist.id) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="box-body">
+      <div class="form-group col-sm-6">
+        <label for="blacklistedProject">Project name</label>
+        <input name="project" class="form-control" id="blacklistedProject" value="{{ blacklist.name }}" readonly>
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="blacklistedReason">Reason</label>
+        <select class="form-control" id="blacklistedReason" name="reason"}">
+          <option value={{ BlacklistReason.not_labeled.name }}
+                  {% if blacklist.reason==BlacklistReason.not_labeled %} selected="selected"{% endif %}
+                  disabled>{{ BlacklistReason.not_labeled.value }}</option>
+          {% for enum in BlacklistReason %}
+            {% if enum.name != "not_labeled" %}
+              <option value="{{ enum.name }}"
+                      {% if blacklist.reason==enum %} selected="selected"{% endif %}>{{ enum.value }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-sm-12">
+        <label for="blacklistedComment">Comment</label>
+        <textarea name="comment" class="form-control" id="blacklistedComment" rows="3">{{ blacklist.comment }}</textarea>
+      </div>
+    </div>
+    <div class="box-footer">
+      <div class="pull-right">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}
