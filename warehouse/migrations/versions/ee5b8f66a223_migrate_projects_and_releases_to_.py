@@ -45,8 +45,7 @@ def upgrade():
         ),
     )
     op.add_column(
-        "roles",
-        sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True),
+        "roles", sa.Column("project_id", postgresql.UUID(as_uuid=True), nullable=True)
     )
     op.add_column(
         "releases",
