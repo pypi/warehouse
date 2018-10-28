@@ -91,7 +91,7 @@
             </div>
             {# the password field needs to be wrapped in a div to properly place tooltips #}
             <div>
-              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="keyup->password-match#checkPasswordsMatch keyup->password-strength-gauge#checkPasswordStrength", tabindex="4") }}
+              {{ form.new_password(placeholder="Select a password", required="required", class_="form-group__input", autocomplete="new-password", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", tabindex="4") }}
             </div>
             {% if form.new_password.errors %}
             <ul class="form-errors">
@@ -105,7 +105,7 @@
 
           <div class="form-group">
             <label for="password_confirm" class="form-group__label">Confirm password</label>
-            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="keyup->password-match#checkPasswordsMatch", tabindex="5") }}
+            {{ form.password_confirm(placeholder="Confirm password", required="required", class_="form-group__input", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", tabindex="5") }}
             {% if form.password_confirm.errors %}
             <ul class="form-errors">
               {% for error in form.password_confirm.errors %}
