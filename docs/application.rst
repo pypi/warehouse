@@ -106,6 +106,7 @@ Directories within the repository:
   - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
   - `search/ <https://github.com/pypa/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `templates/ <https://github.com/pypa/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
   - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
