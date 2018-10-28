@@ -43,31 +43,31 @@ def user_projects(request):
     """ Return all the projects for which the user is a sole owner """
     projects_owned = (
         request.db.query(Project)
-               .join(Role.project)
-               .filter(Role.role_name == "Owner", Role.user == request.user)
-               .subquery()
+        .join(Role.project)
+        .filter(Role.role_name == "Owner", Role.user == request.user)
+        .subquery()
     )
 
     with_sole_owner = (
         request.db.query(Role.package_name)
-               .join(projects_owned)
-               .filter(Role.role_name == "Owner")
-               .group_by(Role.package_name)
-               .having(func.count(Role.package_name) == 1)
-               .subquery()
+        .join(projects_owned)
+        .filter(Role.role_name == "Owner")
+        .group_by(Role.package_name)
+        .having(func.count(Role.package_name) == 1)
+        .subquery()
     )
 
     return {
         "projects_owned": [
-            project.name for project in
-            request.db.query(projects_owned)
-            .all()],
+            project.name for project in request.db.query(projects_owned).all()
+        ],
         "projects_sole_owned": [
-            project.name for project in
-            request.db.query(Project)
+            project.name
+            for project in request.db.query(Project)
             .join(with_sole_owner)
             .order_by(Project.name)
-            .all()]
+            .all()
+        ],
     }
 
 
@@ -304,7 +304,7 @@ def manage_projects(request):
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
-        "projects_sole_owned": projects_sole_owned
+        "projects_sole_owned": projects_sole_owned,
     }
 
 
