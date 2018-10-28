@@ -100,12 +100,12 @@ class TestManageAccount:
 
         # A project with a sole owner that is not the user
         not_an_owner = ProjectFactory.create()
-        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintatiner")
+        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
         RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
 
         view = views.ManageAccountViews(db_request)
 
-        assert view.active_projects == [with_sole_owner]
+        assert view.active_projects == [with_sole_owner.name]
 
     def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
