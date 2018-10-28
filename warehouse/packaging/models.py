@@ -53,10 +53,7 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (
-        Index("roles_pack_name_idx", "package_name"),
-        Index("roles_user_name_idx", "user_name"),
-    )
+    __table_args__ = (Index("roles_user_name_idx", "user_name"),)
 
     __repr__ = make_repr("role_name", "user_name", "package_name")
 
@@ -69,10 +66,13 @@ class Role(db.Model):
         ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    package_name = Column(Text)
 
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
+
+    @property
+    def package_name(self):
+        return project.name
 
     def __gt__(self, other):
         """

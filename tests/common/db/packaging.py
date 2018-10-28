@@ -101,6 +101,7 @@ class DependencyFactory(WarehouseFactory):
 
     name = factory.fuzzy.FuzzyText(length=12)
     version = factory.Sequence(lambda n: str(n) + ".0")
+    release = project = factory.SubFactory(ReleaseFactory)
     kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
     specifier = factory.fuzzy.FuzzyText(length=12)
 

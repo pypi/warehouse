@@ -114,10 +114,11 @@ def upgrade():
     )
 
     op.alter_column("releases", "project_id", nullable=False)
-    op.alter_column("roles", "package_name", nullable=False)
     op.alter_column("release_files", "release_id", nullable=False)
     op.alter_column("release_dependencies", "release_id", nullable=False)
     op.alter_column("release_classifiers", "release_id", nullable=False)
+
+    op.drop_column("roles", "package_name")
 
     op.drop_constraint(
         "release_classifiers_name_fkey", "release_classifiers", type_="foreignkey"
