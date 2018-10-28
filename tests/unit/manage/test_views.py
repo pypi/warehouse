@@ -105,7 +105,7 @@ class TestManageAccount:
 
         view = views.ManageAccountViews(db_request)
 
-        assert view.active_projects == [with_sole_owner.name]
+        assert view.active_projects == [with_sole_owner]
 
     def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
