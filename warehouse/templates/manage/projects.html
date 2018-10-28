@@ -36,14 +36,14 @@
           </h3>
           {% if release %}
           <p class="package-snippet__meta">
-            <em>Last released on {{ release.created|format_date() }}</em>
+            Last released on {{ release.created|format_date() }}
           </p>
           <p class="package-snippet__description">
             {{ release.summary }}
           </p>
           {% else %}
           <p class="package-snippet__meta">
-            <em>Created on {{ project.created|format_date() }}</em>
+            Created on {{ project.created|format_date() }}
           </p>
           {% endif %}
         </div>
