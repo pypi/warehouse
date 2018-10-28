@@ -37,6 +37,3 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
-
-ACCOUNT_TOKEN_SECRET="an insecure token api secret"
-ACCOUNT_TOKEN_PUBLIC_ID="a public token api id"

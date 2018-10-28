@@ -19,7 +19,7 @@ import transaction
 from pyramid import renderers
 from pyramid.config import Configurator as _Configurator
 from pyramid.response import Response
-from pyramid.security import Allow, Authenticated
+from pyramid.security import Allow, Authenticated, Everyone
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -55,7 +55,11 @@ class RootFactory:
     __parent__ = None
     __name__ = None
 
-    __acl__ = [(Allow, "group:admins", "admin"), (Allow, Authenticated, "manage:user")]
+    __acl__ = [
+        (Allow, "group:admins", "admin"),
+        (Allow, Authenticated, "manage:user"),
+        (Allow, Everyone, "check_macaroon_authorization"),
+    ]
 
     def __init__(self, request):
         pass
@@ -189,8 +193,6 @@ def configure(settings=None):
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
-    maybe_set(settings, "account_token.secret", "ACCOUNT_TOKEN_SECRET")
-    maybe_set(settings, "account_token.id", "ACCOUNT_TOKEN_PUBLIC_ID")
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:

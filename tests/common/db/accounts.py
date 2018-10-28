@@ -53,6 +53,7 @@ class AccountTokenFactory(WarehouseFactory):
         model = AccountToken
 
     id = factory.Sequence(lambda n: uuid.uuid4())
+    secret = factory.fuzzy.FuzzyText(length=100)
     username = factory.fuzzy.FuzzyText()
     description = factory.fuzzy.FuzzyText(length=100)
     is_active = True

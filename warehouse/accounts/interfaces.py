@@ -97,15 +97,36 @@ class IUserService(Interface):
         (IsDisabled: bool, Reason: Optional[DisableReason])
         """
 
-    def find_userid_by_account_token(account_token_id):
+
+class IAccountTokenService(Interface):
+    def get_unverified_macaroon():
         """
-        Find the unique user identifier for the given token_id or None if there
-        is no matching user.
+        Extract macaroon from request. Return macaroon with matching account token.
+        """
+
+    def get_account_token(account_token_id):
+        """
+        Get the account token object associated with an id.
+        """
+
+    def update_last_used(account_token_id):
+        """
+        Update when account token was last used to now.
         """
 
     def get_tokens_by_username(username):
         """
         Returns tokens for the specified username.
+        """
+
+    def create_token(username, description):
+        """
+        Creates a token for the specified username.
+        """
+
+    def delete_token(account_token_id, username):
+        """
+        Deletes a token with the given id (if the specified username matches).
         """
 
 

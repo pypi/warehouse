@@ -24,6 +24,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     IUserService,
+    IAccountTokenService,
     ITokenService,
     IPasswordBreachedService,
     TokenExpired,
@@ -340,23 +341,91 @@ class TestDatabaseUserService:
         user_service.update_user(user.id, password="foo")
         assert user_service.is_disabled(user.id) == (False, None)
 
-    def test_find_userid_by_account_token(self, user_service):
-        user = UserFactory.create()
-        account_token = AccountTokenFactory.create(username=user.username)
 
-        user_id = user_service.find_userid_by_account_token(account_token.id)
-        assert user_id == user.id
+class TestAccountTokenService:
+    def test_verify_service(self):
+        assert verifyClass(IAccountTokenService, services.AccountTokenService)
 
-    def test_find_userid_by_account_token_failure(self, user_service):
-        user_id = user_service.find_userid_by_account_token(uuid.uuid4())
-        assert user_id is None
+    def test_get_nonexistant_account_token(self, db_session):
+        service = services.AccountTokenService(headers={}, session=db_session)
+        assert service.get_account_token(str(uuid.uuid4())) is None
 
-    def test_get_tokens_by_username(self, user_service):
-        user = UserFactory.create()
-        account_token = AccountTokenFactory.create(username=user.username)
+    def test_get_account_token(self, db_session):
+        user = UserFactory.create(username="test_user")
+        account_token = AccountTokenFactory.create(
+            secret="some_secret", username=user.username
+        )
 
-        found_account_token = user_service.get_tokens_by_username(user.username)
-        assert account_token in found_account_token
+        service = services.AccountTokenService(headers={}, session=db_session)
+        assert service.get_account_token(account_token.id).id == account_token.id
+
+    def test_get_unverified_macaroon(self, db_session):
+        user = UserFactory.create(username="test_user")
+        service = services.AccountTokenService(headers={}, session=db_session)
+
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon is None and account_token is None
+
+        service.headers["Authorization"] = "Basic"
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon is None and account_token is None
+
+        service.headers["Authorization"] = "notmacaroon 123"
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon is None and account_token is None
+
+        service.headers["Authorization"] = "macaroon AAAAAA"
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon is None and account_token is None
+
+        macaroon = service.create_token(user.username, "testing tokens")
+        service.headers["Authorization"] = "macaroon {}".format(macaroon)
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon.identifier == str(account_token.id)
+
+        service.delete_token(account_token.id, user.username)
+        unverified_macaroon, account_token = service.get_unverified_macaroon()
+        assert unverified_macaroon is None and account_token is None
+
+    def test_update_last_used(self, db_session):
+        user = UserFactory.create(username="test_user")
+        account_token = AccountTokenFactory.create(
+            secret="some_secret", username=user.username
+        )
+
+        service = services.AccountTokenService(headers={}, session=db_session)
+        service.update_last_used(account_token.id)
+
+        account_token = service.get_account_token(account_token.id)
+        assert account_token.last_used is not None
+
+    def test_get_tokens_by_username(self, db_session):
+        user = UserFactory.create(username="test_user")
+        service = services.AccountTokenService(headers={}, session=db_session)
+
+        service.create_token(user.username, "test token 1")
+        service.create_token(user.username, "test token 2")
+
+        assert len(service.get_tokens_by_username("test_user")) == 2
+
+    def test_delete_token(self, db_session):
+        user = UserFactory.create(username="test_user")
+        account_token = AccountTokenFactory.create(
+            secret="some_secret", username=user.username
+        )
+
+        service = services.AccountTokenService(headers={}, session=db_session)
+        assert service.delete_token(account_token.id, user.username)
+        assert not service.delete_token(account_token.id, user.username)
+
+
+def test_database_account_token_factory():
+    account_token_service = services.database_account_token_factory(
+        pretend.stub(), pretend.stub(headers=1, db=2)
+    )
+
+    assert account_token_service.headers == 1
+    assert account_token_service.db == 2
 
 
 class TestTokenService:

@@ -108,6 +108,8 @@ class AccountToken(db.Model):
     # and will be used to distinguish this token from others which
     # may otherwise be equivalent.
 
+    secret = Column(String(length=100))
+
     username = Column(
         CIText,
         ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),

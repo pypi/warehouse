@@ -19,6 +19,7 @@ import pytest
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
     IUserService,
+    IAccountTokenService,
     ITokenService,
     IPasswordBreachedService,
 )
@@ -26,6 +27,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     HaveIBeenPwnedPasswordBreachedService,
     database_login_factory,
+    database_account_token_factory,
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.errors import BasicAuthBreachedPassword
@@ -254,7 +256,9 @@ class TestUser:
 
 def test_includeme(monkeypatch):
     account_token_obj = pretend.stub()
-    account_token_cls = pretend.call_recorder(lambda authenticate: account_token_obj)
+    account_token_cls = pretend.call_recorder(
+        lambda authenticate, routes_allowed: account_token_obj
+    )
     basic_authn_obj = pretend.stub()
     basic_authn_cls = pretend.call_recorder(lambda check: basic_authn_obj)
     session_authn_obj = pretend.stub()
@@ -262,12 +266,15 @@ def test_includeme(monkeypatch):
     authn_obj = pretend.stub()
     authn_cls = pretend.call_recorder(lambda *a: authn_obj)
     authz_obj = pretend.stub()
-    authz_cls = pretend.call_recorder(lambda: authz_obj)
+    authz_cls = pretend.call_recorder(lambda policy: authz_obj)
+    acl_authz_obj = pretend.stub()
+    acl_authz_cls = pretend.call_recorder(lambda *args: acl_authz_obj)
     monkeypatch.setattr(accounts, "AccountTokenAuthenticationPolicy", account_token_cls)
     monkeypatch.setattr(accounts, "BasicAuthAuthenticationPolicy", basic_authn_cls)
     monkeypatch.setattr(accounts, "SessionAuthenticationPolicy", session_authn_cls)
     monkeypatch.setattr(accounts, "MultiAuthenticationPolicy", authn_cls)
-    monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
+    monkeypatch.setattr(accounts, "AccountTokenAuthorizationPolicy", authz_cls)
+    monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", acl_authz_cls)
 
     config = pretend.stub(
         registry=pretend.stub(settings={}),
@@ -284,6 +291,7 @@ def test_includeme(monkeypatch):
 
     assert config.register_service_factory.calls == [
         pretend.call(database_login_factory, IUserService),
+        pretend.call(database_account_token_factory, IAccountTokenService),
         pretend.call(
             TokenServiceFactory(name="password"), ITokenService, name="password"
         ),
@@ -303,11 +311,14 @@ def test_includeme(monkeypatch):
     assert config.set_authentication_policy.calls == [pretend.call(authn_obj)]
     assert config.set_authorization_policy.calls == [pretend.call(authz_obj)]
     assert account_token_cls.calls == [
-        pretend.call(authenticate=accounts._authenticate)
+        pretend.call(
+            authenticate=accounts._authenticate,
+            routes_allowed=["forklift.legacy.file_upload"],
+        )
     ]
     assert basic_authn_cls.calls == [pretend.call(check=accounts._basic_auth_login)]
     assert session_authn_cls.calls == [pretend.call(callback=accounts._authenticate)]
     assert authn_cls.calls == [
         pretend.call([account_token_obj, session_authn_obj, basic_authn_obj])
     ]
-    assert authz_cls.calls == [pretend.call()]
+    assert authz_cls.calls == [pretend.call(policy=acl_authz_obj)]

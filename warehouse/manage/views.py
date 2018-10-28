@@ -12,14 +12,17 @@
 
 from collections import defaultdict
 
-from pymacaroons import Macaroon
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
 
-from warehouse.accounts.interfaces import IUserService, IPasswordBreachedService
-from warehouse.accounts.models import AccountToken, Email, User
+from warehouse.accounts.interfaces import (
+    IUserService,
+    IAccountTokenService,
+    IPasswordBreachedService,
+)
+from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.email import (
     send_account_deletion_email,
@@ -79,6 +82,9 @@ class ManageAccountViews:
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
+        self.account_token_service = request.find_service(
+            IAccountTokenService, context=None
+        )
         self.breach_service = request.find_service(
             IPasswordBreachedService, context=None
         )
@@ -90,7 +96,9 @@ class ManageAccountViews:
     @property
     def active_tokens(self):
         """ Return all active tokens """
-        return self.user_service.get_tokens_by_username(self.request.user.username)
+        return self.account_token_service.get_tokens_by_username(
+            self.request.user.username
+        )
 
     @property
     def default_response(self):
@@ -227,23 +235,13 @@ class ManageAccountViews:
         form = AccountTokenForm(**self.request.POST)
 
         if form.validate():
-            account_token = AccountToken(
-                username=self.request.user.username, description=form.description.data
+            serialized_macaroon = self.account_token_service.create_token(
+                self.request.user.username, form.description.data
             )
-            self.request.db.add(account_token)
-            self.request.db.flush()
-
-            macaroon = Macaroon(
-                location="pypi.org",
-                identifier=self.request.registry.settings["account_token.id"],
-                key=self.request.registry.settings["account_token.secret"],
-            )
-
-            macaroon.add_first_party_caveat(f"id: {account_token.id}")
 
             self.request.session.flash(
                 "Here is your account token, save it in a safe place: "
-                f"{macaroon.serialize()}",
+                f"{serialized_macaroon}",
                 queue="success",
             )
 
@@ -253,21 +251,13 @@ class ManageAccountViews:
     def delete_account_token(self):
         account_token_id = self.request.params.get("account_token_id")
 
-        try:
-            account_token = (
-                self.request.db.query(AccountToken)
-                .filter(
-                    AccountToken.id == account_token_id,
-                    AccountToken.username == self.request.user.username,
-                )
-                .one()
-            )
+        success = self.account_token_service.delete_token(
+            account_token_id, self.request.user.username
+        )
 
-            self.request.db.delete(account_token)
-
+        if success:
             self.request.session.flash("Account token deleted", queue="success")
-
-        except NoResultFound:
+        else:
             self.request.session.flash("Account token not found", queue="error")
 
         return self.default_response

@@ -17,6 +17,7 @@ from pyramid_multiauth import MultiAuthenticationPolicy
 
 from warehouse.accounts.interfaces import (
     IUserService,
+    IAccountTokenService,
     ITokenService,
     IPasswordBreachedService,
 )
@@ -25,10 +26,12 @@ from warehouse.accounts.services import (
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
+    database_account_token_factory,
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.auth_policy import (
     AccountTokenAuthenticationPolicy,
+    AccountTokenAuthorizationPolicy,
     BasicAuthAuthenticationPolicy,
     SessionAuthenticationPolicy,
 )
@@ -117,6 +120,11 @@ def includeme(config):
     # Register our login service
     config.register_service_factory(database_login_factory, IUserService)
 
+    # Register our account token service
+    config.register_service_factory(
+        database_account_token_factory, IAccountTokenService
+    )
+
     # Register our token services
     config.register_service_factory(
         TokenServiceFactory(name="password"), ITokenService, name="password"
@@ -139,13 +147,18 @@ def includeme(config):
     config.set_authentication_policy(
         MultiAuthenticationPolicy(
             [
-                AccountTokenAuthenticationPolicy(authenticate=_authenticate),
+                AccountTokenAuthenticationPolicy(
+                    authenticate=_authenticate,
+                    routes_allowed=["forklift.legacy.file_upload"],
+                ),
                 SessionAuthenticationPolicy(callback=_authenticate),
                 BasicAuthAuthenticationPolicy(check=_basic_auth_login),
             ]
         )
     )
-    config.set_authorization_policy(ACLAuthorizationPolicy())
+    config.set_authorization_policy(
+        AccountTokenAuthorizationPolicy(policy=ACLAuthorizationPolicy())
+    )
 
     # Add a request method which will allow people to access the user object.
     config.add_request_method(_user, name="user", reify=True)

@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-add accounts_token table to store API key state
+adding accounts_token table
 
-Revision ID: ac7073f2f9f2
-Revises: e82c3a017d60
-Create Date: 2018-08-22 12:48:48.526328
+Revision ID: 6230118da311
+Revises: eeb23d9b4d00
+Create Date: 2018-11-09 21:47:21.174973
 """
 
 from alembic import op
@@ -22,8 +22,8 @@ import citext
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "ac7073f2f9f2"
-down_revision = "e82c3a017d60"
+revision = "6230118da311"
+down_revision = "eeb23d9b4d00"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
@@ -45,6 +45,7 @@ def upgrade():
             server_default=sa.text("gen_random_uuid()"),
             nullable=False,
         ),
+        sa.Column("secret", sa.String(length=100), nullable=True),
         sa.Column("username", citext.CIText(), nullable=True),
         sa.Column("description", sa.String(length=100), nullable=True),
         sa.Column("is_active", sa.Boolean(), server_default="TRUE", nullable=True),

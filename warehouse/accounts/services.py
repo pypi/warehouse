@@ -10,12 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import collections
 import datetime
 import functools
 import hashlib
 import hmac
 import logging
+import os
 import posixpath
 import urllib.parse
 import uuid
@@ -23,11 +25,14 @@ import uuid
 import requests
 
 from passlib.context import CryptContext
+from pymacaroons import Macaroon, Verifier
+from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
     IUserService,
+    IAccountTokenService,
     ITokenService,
     IPasswordBreachedService,
     TokenExpired,
@@ -237,31 +242,105 @@ class DatabaseUserService:
         else:
             return (True, user.disabled_for)
 
-    def find_userid_by_account_token(self, account_token_id):
-        # Look up user from token_id
+
+@implementer(IAccountTokenService)
+class AccountTokenService(object):
+    def __init__(self, headers, session):
+        self.headers = headers
+        self.db = session
+
+    def get_unverified_macaroon(self):
+        authorization_header = self.headers.get("Authorization")
+
+        if not authorization_header or " " not in authorization_header:
+            return (None, None)
+
+        auth_type, credential = authorization_header.split(" ")
+
+        if auth_type.lower() != "macaroon":
+            return (None, None)
+
+        try:
+            unverified_macaroon = Macaroon.deserialize(credential)
+        except MacaroonDeserializationException:
+            return (None, None)
+
+        account_token = self.get_account_token(unverified_macaroon.identifier)
+
+        if account_token is None:
+            return (None, None)
+
+        return (unverified_macaroon, account_token)
+
+    def get_account_token(self, account_token_id):
         try:
             account_token = (
                 self.db.query(AccountToken)
                 .filter(AccountToken.id == account_token_id)
+                .filter(AccountToken.is_active == True)
                 .one()
             )
 
         except NoResultFound:
             return None
 
-        # Update that token was used
+        return account_token
+
+    def update_last_used(self, account_token_id):
         self.db.query(AccountToken).filter(AccountToken.id == account_token_id).update(
             values={"last_used": datetime.datetime.utcnow()}
         )
 
         self.db.flush()
 
-        return self.find_userid(account_token.username)
-
     def get_tokens_by_username(self, username):
         return (
-            self.db.query(AccountToken).filter(AccountToken.username == username).all()
+            self.db.query(AccountToken)
+            .filter(AccountToken.username == username)
+            .filter(AccountToken.is_active == True)
+            .all()
         )
+
+    def create_token(self, username, description):
+        secret = os.urandom(72)
+
+        account_token = AccountToken(
+            secret=base64.b64encode(secret).decode("utf8"),
+            username=username,
+            description=description,
+        )
+
+        self.db.add(account_token)
+        self.db.flush()
+
+        macaroon = Macaroon(
+            location="pypi.org",
+            identifier=str(account_token.id),
+            key=account_token.secret,
+        )
+
+        return macaroon.serialize()
+
+    def delete_token(self, account_token_id, username):
+        try:
+            account_token = (
+                self.db.query(AccountToken)
+                .filter(
+                    AccountToken.id == account_token_id,
+                    AccountToken.username == username,
+                )
+                .one()
+            )
+
+            self.db.delete(account_token)
+            return True
+
+        except NoResultFound:
+            return False
+
+
+def database_account_token_factory(context, request):
+    return AccountTokenService(request.headers, request.db)
 
 
 @implementer(ITokenService)
