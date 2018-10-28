@@ -39,15 +39,6 @@ from warehouse.packaging.models import File, JournalEntry, Project, Release, Rol
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
 
-@view_defaults(
-    route_name="manage.account",
-    renderer="manage/account.html",
-    uses_session=True,
-    require_csrf=True,
-    require_methods=False,
-    permission="manage:user",
-)
-
 def user_projects(request):
     """ Return all the projects for which the user is a sole owner """
     projects_owned = (
@@ -80,6 +71,14 @@ def user_projects(request):
     }
 
 
+@view_defaults(
+    route_name="manage.account",
+    renderer="manage/account.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission="manage:user",
+)
 class ManageAccountViews:
     def __init__(self, request):
         self.request = request
@@ -90,8 +89,7 @@ class ManageAccountViews:
 
     @property
     def active_projects(self):
-        """ Return all the projects for which the user is a sole owner """
-        return user_projects(self.request)["projects_sole_owned"]
+        return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
     def default_response(self):
