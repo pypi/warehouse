@@ -75,6 +75,9 @@ More information on how BEM works can be found in `this article from
 CSS Wizardry
 <https://csswizardry.com/2013/01/mindbemding-getting-your-head-round-bem-syntax/>`_.
 
+When using ``target="_blank_"`` for a hyperlink (usually to an external site),
+we should always set ``rel="noopener"``.
+
 
 SCSS Style and Structure
 ------------------------
