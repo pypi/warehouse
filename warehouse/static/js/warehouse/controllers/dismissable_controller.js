@@ -20,7 +20,7 @@ export default class extends Controller {
    */
   _getDimissedFromCookie() {
     const id = this.data.get("identifier");
-    const value = document.cookie.split(";").find(item => item.startsWith(`${id}_dismissed=`));
+    const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_dismissed=`));
     return value ? value.split("=")[1] : null;
   }
 
@@ -32,6 +32,6 @@ export default class extends Controller {
   dismiss() {
     this.element.classList.add("callout-block--dismissed");
     if (!this._getDimissedFromCookie())
-      document.cookie = `${this.data.get("identifier")}_dismissed=1`;
+      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=1`;
   }
 }
