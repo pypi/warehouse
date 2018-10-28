@@ -92,6 +92,10 @@
           <p>
             <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">Warning</span></i>
             This action cannot be undone!
+            {% if confirm_name == "Version" %}
+            You will not be able to re-upload a new distribution of the same type with the same version number.
+            Consider making a new release or a <a href="https://www.python.org/dev/peps/pep-0440/#post-releases">post release</a> instead
+            {% endif %}
           </p>
         </div>
         {% set context = 'your' if confirm_name.lower() == 'username' else 'the' %}
