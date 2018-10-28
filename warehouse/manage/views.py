@@ -42,18 +42,18 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 def user_projects(request):
     """ Return all the projects for which the user is a sole owner """
     projects_owned = (
-        request.db.query(Project)
+        request.db.query(Project.id)
         .join(Role.project)
         .filter(Role.role_name == "Owner", Role.user == request.user)
         .subquery()
     )
 
     with_sole_owner = (
-        request.db.query(Role.package_name)
+        request.db.query(Role.package_id)
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
-        .group_by(Role.package_name)
-        .having(func.count(Role.package_name) == 1)
+        .group_by(Role.package_id)
+        .having(func.count(Role.package_id) == 1)
         .subquery()
     )
 

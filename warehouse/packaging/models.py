@@ -70,10 +70,6 @@ class Role(db.Model):
     user = orm.relationship(User, lazy=False)
     project = orm.relationship("Project", lazy=False)
 
-    @property
-    def package_name(self):
-        return project.name
-
     def __gt__(self, other):
         """
         Temporary hack to allow us to only display the 'highest' role when

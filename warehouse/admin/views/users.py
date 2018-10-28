@@ -108,7 +108,7 @@ def user_detail(request):
         request.db.query(Role)
         .join(User)
         .filter(Role.user == user)
-        .order_by(Role.role_name, Role.package_name)
+        .order_by(Role.role_name, Role.project_id)
         .all()
     )
 
