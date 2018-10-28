@@ -60,9 +60,9 @@ def user_projects(request):
     return {
         "projects_owned": request.db.query(projects_owned).all(),
         "projects_sole_owned": request.db.query(Project)
-            .join(with_sole_owner)
-            .order_by(Project.name)
-            .all()
+        .join(with_sole_owner)
+        .order_by(Project.name)
+        .all(),
     }
 
 
@@ -293,8 +293,12 @@ def manage_projects(request):
         return project.created
 
     all_user_projects = user_projects(request)
-    projects_owned = set(project.name for project in all_user_projects["projects_owned"])
-    projects_sole_owned = set(project.name for project in all_user_projects["projects_sole_owned"])
+    projects_owned = set(
+        project.name for project in all_user_projects["projects_owned"]
+    )
+    projects_sole_owned = set(
+        project.name for project in all_user_projects["projects_sole_owned"]
+    )
 
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
