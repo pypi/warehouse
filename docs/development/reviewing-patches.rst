@@ -27,6 +27,9 @@ Implementation
 * Are there sufficient tests?
 * Should and has it been documented?
 * Will this change introduce new bugs?
+* Are we ensuring that we set ``rel="noopener"`` whenever using
+  ``target="_blank_"`` for a hyperlink?
+
 
 Grammar and style
 -----------------
