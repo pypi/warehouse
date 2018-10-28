@@ -1608,7 +1608,134 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Invalid value for classifiers. "
-            "Error: Classifier 'AA :: BB' has been deprecated, see /url "
+            "Error: Classifier 'AA :: BB' has been deprecated. See /url "
+            "for a list of valid classifiers."
+        )
+
+    @pytest.mark.parametrize(
+        "is_alternative_deprecated, expected_message",
+        [
+            (
+                False,
+                (
+                    "400 Invalid value for classifiers. "
+                    "Error: Classifier 'AA :: BB' has been deprecated, "
+                    "and replaced with the following classifier: 'AA :: Alternative'. "
+                    "See /url for a list of valid classifiers."
+                ),
+            ),
+            (
+                True,
+                (
+                    "400 Invalid value for classifiers. "
+                    "Error: Classifier 'AA :: BB' has been deprecated. "
+                    "See /url for a list of valid classifiers."
+                ),
+            ),
+        ],
+    )
+    def test_upload_fails_with_deprecated_classifier_with_alternative(
+        self, pyramid_config, db_request, is_alternative_deprecated, expected_message
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+        classifier = ClassifierFactory(classifier="AA :: BB", deprecated=True)
+
+        alternative = ClassifierFactory(
+            classifier="AA :: Alternative", deprecated=is_alternative_deprecated
+        )
+        classifier.alternatives.append(alternative)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend([("classifiers", classifier.classifier)])
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == expected_message
+
+    def test_upload_fails_with_deprecated_classifier_with_alternatives(
+        self, pyramid_config, db_request
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+        classifier = ClassifierFactory(classifier="AA :: BB", deprecated=True)
+
+        alternative_one = ClassifierFactory(
+            classifier="AA :: FirstLevel :: Deprecated Alternative", deprecated=True
+        )
+        alternative_two = ClassifierFactory(
+            classifier="AA :: FirstLevel :: OK", deprecated=False
+        )
+        alternative_three = ClassifierFactory(
+            classifier="AA :: SecondLevel :: OK", deprecated=False
+        )
+        classifier.alternatives.append(alternative_one)
+        classifier.alternatives.append(alternative_two)
+        alternative_one.alternatives.append(classifier)
+        alternative_one.alternatives.append(alternative_three)
+
+        filename = "{}-{}.tar.gz".format(project.name, release.version)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend([("classifiers", classifier.classifier)])
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Invalid value for classifiers. "
+            "Error: Classifier 'AA :: BB' has been deprecated, "
+            "and replaced with the following classifiers: "
+            "'AA :: FirstLevel :: OK', 'AA :: SecondLevel :: OK'. See /url "
             "for a list of valid classifiers."
         )
 

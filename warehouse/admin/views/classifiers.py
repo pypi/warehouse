@@ -16,6 +16,10 @@ from pyramid.view import view_config, view_defaults
 from warehouse.packaging.models import Classifier
 
 
+class ValidationException(Exception):
+    ...
+
+
 @view_config(
     route_name="admin.classifiers",
     renderer="admin/classifiers/index.html",
@@ -92,14 +96,58 @@ class AddClassifier:
     uses_session=True,
     require_methods=False,
     require_csrf=True,
+    request_param=["classifier_id"],
 )
 def deprecate_classifier(request):
-    classifier = request.db.query(Classifier).get(request.params.get("classifier_id"))
+    deprecated_classifier_id = int(request.params.get("classifier_id"))
+    alternative_classifier_ids = {
+        int(alternative_classifier_id)
+        for alternative_classifier_id in request.params.getall("deprecated_by")
+        if alternative_classifier_id
+    }
 
-    classifier.deprecated = True
+    deprecated_classifier = request.db.query(Classifier).get(deprecated_classifier_id)
 
-    request.session.flash(
-        f"Deprecated classifier {classifier.classifier!r}", queue="success"
-    )
+    try:
+        if deprecated_classifier_id in alternative_classifier_ids:
+            raise ValidationException(
+                f"You can not deprecate the classifier in favor of itself"
+            )
+
+        alternative_classifiers = []
+        for alternative_classifier_id in alternative_classifier_ids:
+            alternative_classifier = request.db.query(Classifier).get(
+                alternative_classifier_id
+            )
+            if alternative_classifier.deprecated:
+                # It is not a 100% protection from circular dependencies, because if
+                # exactly at the same moment
+                # one admin will deprecate classifier A in favor of classifier B,
+                # and another admin will deprecate classifier B in favor of classifier A
+                # this will create a circular dependency.
+                raise ValidationException(
+                    f"You can not deprecate the classifier "
+                    f"{deprecated_classifier.classifier!r} "
+                    f"in favor of already deprecated classifier "
+                    f"{alternative_classifier.classifier!r}"
+                )
+            else:
+                alternative_classifiers.append(alternative_classifier)
+    except ValidationException as e:
+        request.session.flash(e.args[0], queue="error")
+        return HTTPSeeOther(request.route_path("admin.classifiers"))
+
+    deprecated_classifier.deprecated = True
+    for alternative_classifier in alternative_classifiers:
+        deprecated_classifier.alternatives.append(alternative_classifier)
+
+    message = f"Deprecated classifier {deprecated_classifier.classifier!r}"
+    if alternative_classifiers:
+        message += f" in favor of " + ", ".join(
+            f"{alternative_classifier.classifier!r}"
+            for alternative_classifier in alternative_classifiers
+        )
+
+    request.session.flash(message, queue="success")
 
     return HTTPSeeOther(request.route_path("admin.classifiers"))

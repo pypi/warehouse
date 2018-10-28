@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
 import email
 import hashlib
 import hmac
+import operator
 import os.path
 import re
 import tempfile
@@ -678,17 +680,55 @@ def _no_deprecated_classifiers(request):
         )
     }
 
+    def get_alternatives(classifier):
+        queue = collections.deque()
+        queue.append(classifier)
+
+        found_alternatives = []
+        visited_classifiers = {classifier.id}
+
+        while queue:
+            classifier = queue.popleft()
+
+            for alternative_classifier in classifier.alternatives:
+                if alternative_classifier.id in visited_classifiers:
+                    continue
+                visited_classifiers.add(alternative_classifier.id)
+                if alternative_classifier.deprecated:
+                    queue.append(alternative_classifier)
+                else:
+                    found_alternatives.append(alternative_classifier)
+
+        return found_alternatives
+
     def validate_no_deprecated_classifiers(form, field):
         invalid_classifiers = set(field.data or []) & deprecated_classifiers
         if invalid_classifiers:
-            first_invalid_classifier = sorted(invalid_classifiers)[0]
+            first_invalid_classifier = min(invalid_classifiers)
             host = request.registry.settings.get("warehouse.domain")
             classifiers_url = request.route_url("classifiers", _host=host)
+            alternatives = get_alternatives(
+                request.db.query(Classifier)
+                .filter(Classifier.classifier == first_invalid_classifier)
+                .limit(1)
+                .one()
+            )
+            alternatives.sort(key=operator.attrgetter("classifier"))
+
+            alternative_classifiers = ""
+            if alternatives:
+                alternative_classifiers = (
+                    f", and replaced with the following "
+                    f"classifier{'s' if len(alternatives) > 1 else ''}: "
+                    + ", ".join(
+                        f"{classifier.classifier!r}" for classifier in alternatives
+                    )
+                )
 
             raise wtforms.validators.ValidationError(
                 f"Classifier {first_invalid_classifier!r} has been "
-                f"deprecated, see {classifiers_url} for a list of valid "
-                "classifiers."
+                f"deprecated{alternative_classifiers}. "
+                f"See {classifiers_url} for a list of valid classifiers."
             )
 
     return validate_no_deprecated_classifiers
@@ -715,7 +755,7 @@ def file_upload(request):
         )
 
     # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activty, as well as act as
+    # reduce the ease of spam account creation and activity, as well as act as
     # a forcing function for https://github.com/pypa/warehouse/issues/3632.
     # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
     #       we might consider a different condition, possibly looking at

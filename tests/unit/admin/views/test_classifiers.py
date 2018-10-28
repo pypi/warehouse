@@ -13,6 +13,8 @@
 import pretend
 import pytest
 
+from webob.multidict import MultiDict
+
 from warehouse.admin.views import classifiers as views
 from warehouse.classifiers.models import Classifier
 
@@ -83,9 +85,11 @@ class TestAddClassifier:
 
 class TestDeprecateClassifier:
     def test_deprecate_classifier(self, db_request):
-        classifier = ClassifierFactory(deprecated=False)
+        classifier = ClassifierFactory(
+            classifier="Classifier :: For Testing", deprecated=False
+        )
 
-        db_request.params = {"classifier_id": classifier.id}
+        db_request.params = MultiDict({"classifier_id": classifier.id})
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         db_request.route_path = lambda *a: "/the/path"
 
@@ -93,3 +97,89 @@ class TestDeprecateClassifier:
         db_request.db.flush()
 
         assert classifier.deprecated
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Deprecated classifier 'Classifier :: For Testing'", queue="success"
+            )
+        ]
+
+    def test_deprecation_with_alternative(self, db_request):
+        classifier = ClassifierFactory(
+            classifier="Classifier :: For tSeting", deprecated=False
+        )
+        alternative_one = ClassifierFactory(
+            classifier="Classifier :: For Testing", deprecated=False
+        )
+        alternative_two = ClassifierFactory(
+            classifier="Classifier :: For QA", deprecated=False
+        )
+        db_request.params = MultiDict(
+            [
+                ("classifier_id", classifier.id),
+                ("deprecated_by", alternative_one.id),
+                ("deprecated_by", alternative_two.id),
+            ]
+        )
+
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: "/the/path"
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert classifier.deprecated
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Deprecated classifier 'Classifier :: For tSeting' "
+                    "in favor of 'Classifier :: For Testing', 'Classifier :: For QA'"
+                ),
+                queue="success",
+            )
+        ]
+
+    def test_self_deprecation(self, db_request):
+        classifier = ClassifierFactory(deprecated=False)
+        db_request.params = MultiDict(
+            [("classifier_id", classifier.id), ("deprecated_by", classifier.id)]
+        )
+
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: "/the/path"
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert not classifier.deprecated
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "You can not deprecate the classifier in favor of itself", queue="error"
+            )
+        ]
+
+    def test_deprecation_in_favor_of_deprecated(self, db_request):
+        classifier = ClassifierFactory(classifier="Classifier :: OK", deprecated=False)
+        alternative = ClassifierFactory(
+            classifier="Classifier :: Deprecated", deprecated=True
+        )
+        db_request.params = MultiDict(
+            [("classifier_id", classifier.id), ("deprecated_by", alternative.id)]
+        )
+
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = lambda *a: "/the/path"
+
+        views.deprecate_classifier(db_request)
+        db_request.db.flush()
+
+        assert not classifier.deprecated
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "You can not deprecate the classifier 'Classifier :: OK' "
+                    "in favor of already deprecated classifier "
+                    "'Classifier :: Deprecated'"
+                ),
+                queue="error",
+            )
+        ]
