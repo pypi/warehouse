@@ -39,6 +39,32 @@ from warehouse.packaging.models import File, JournalEntry, Project, Release, Rol
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
 
+def user_projects(request):
+    """ Return all the projects for which the user is a sole owner """
+    projects_owned = (
+        request.db.query(Project)
+        .join(Role.project)
+        .filter(Role.role_name == "Owner", Role.user == request.user)
+        .subquery()
+    )
+
+    with_sole_owner = (
+        request.db.query(Role.package_name)
+        .join(projects_owned)
+        .filter(Role.role_name == "Owner")
+        .group_by(Role.package_name)
+        .having(func.count(Role.package_name) == 1)
+        .subquery()
+    )
+
+    return {
+        "projects_owned": request.db.query(projects_owned).all(),
+        "projects_sole_owned": (
+            request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
+        ),
+    }
+
+
 @view_defaults(
     route_name="manage.account",
     renderer="manage/account.html",
@@ -57,29 +83,7 @@ class ManageAccountViews:
 
     @property
     def active_projects(self):
-        """ Return all the projects for with the user is a sole owner """
-        projects_owned = (
-            self.request.db.query(Project)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == self.request.user)
-            .subquery()
-        )
-
-        with_sole_owner = (
-            self.request.db.query(Role.package_name)
-            .join(projects_owned)
-            .filter(Role.role_name == "Owner")
-            .group_by(Role.package_name)
-            .having(func.count(Role.package_name) == 1)
-            .subquery()
-        )
-
-        return (
-            self.request.db.query(Project)
-            .join(with_sole_owner)
-            .order_by(Project.name)
-            .all()
-        )
+        return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
     def default_response(self):
@@ -287,19 +291,18 @@ def manage_projects(request):
             return project.releases[0].created
         return project.created
 
+    all_user_projects = user_projects(request)
     projects_owned = set(
-        project.name
-        for project in (
-            request.db.query(Project.name)
-            .join(Role.project)
-            .filter(Role.role_name == "Owner", Role.user == request.user)
-            .all()
-        )
+        project.name for project in all_user_projects["projects_owned"]
+    )
+    projects_sole_owned = set(
+        project.name for project in all_user_projects["projects_sole_owned"]
     )
 
     return {
         "projects": sorted(request.user.projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
+        "projects_sole_owned": projects_sole_owned,
     }
 
 
