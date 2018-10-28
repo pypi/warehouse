@@ -59,10 +59,9 @@ def user_projects(request):
 
     return {
         "projects_owned": request.db.query(projects_owned).all(),
-        "projects_sole_owned": request.db.query(Project)
-        .join(with_sole_owner)
-        .order_by(Project.name)
-        .all(),
+        "projects_sole_owned": (
+            request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
+        ),
     }
 
 
