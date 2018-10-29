@@ -260,8 +260,7 @@ class TestRelease:
         for urlspec in project_urls:
             db_session.add(
                 Dependency(
-                    name=release.project.name,
-                    version=release.version,
+                    release=release,
                     kind=DependencyKind.project_url.value,
                     specifier=urlspec,
                 )

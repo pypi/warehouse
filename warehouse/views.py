@@ -166,10 +166,10 @@ def opensearchxml(request):
     ],
 )
 def index(request):
-    project_names = [
+    project_ids = [
         r[0]
         for r in (
-            request.db.query(Project.name)
+            request.db.query(Project.id)
             .order_by(Project.zscore.desc().nullslast(), func.random())
             .limit(5)
             .all()
@@ -178,10 +178,10 @@ def index(request):
     release_a = aliased(
         Release,
         request.db.query(Release)
-        .distinct(Release.name)
-        .filter(Release.name.in_(project_names))
+        .distinct(Release.project_id)
+        .filter(Release.project_id.in_(project_ids))
         .order_by(
-            Release.name,
+            Release.project_id,
             Release.is_prerelease.nullslast(),
             Release._pypi_ordering.desc(),
         )
@@ -190,7 +190,7 @@ def index(request):
     trending_projects = (
         request.db.query(release_a)
         .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_names, release_a.name))
+        .order_by(func.array_idx(project_ids, release_a.project_id))
         .all()
     )
 
@@ -360,8 +360,10 @@ def search(request):
 def stats(request):
     total_size_query = request.db.query(func.sum(File.size)).all()
     top_100_packages = (
-        request.db.query(File.name, func.sum(File.size))
-        .group_by(File.name)
+        request.db.query(Project.name, func.sum(File.size))
+        .join(Release)
+        .join(File)
+        .group_by(Project.name)
         .order_by(func.sum(File.size).desc())
         .limit(100)
         .all()

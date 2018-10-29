@@ -118,8 +118,6 @@ def upgrade():
     op.alter_column("release_dependencies", "release_id", nullable=False)
     op.alter_column("release_classifiers", "release_id", nullable=False)
 
-    op.drop_column("roles", "package_name")
-
     op.drop_constraint(
         "release_classifiers_name_fkey", "release_classifiers", type_="foreignkey"
     )
@@ -184,6 +182,79 @@ def upgrade():
         ["id"],
         onupdate="CASCADE",
         ondelete="CASCADE",
+    )
+
+    op.drop_index("rel_dep_name_version_kind_idx", table_name="release_dependencies")
+    op.create_index(
+        "release_dependencies_release_kind_idx",
+        "release_dependencies",
+        ["release_id", "kind"],
+    )
+
+    op.drop_index("release_name_created_idx", table_name="releases")
+    op.create_index(
+        "release_project_created_idx",
+        "releases",
+        ["project_id", sa.text("created DESC")],
+    )
+
+    op.drop_index("release_files_name_version_idx", table_name="release_files")
+    op.drop_index("release_files_version_idx", table_name="release_files")
+    op.drop_index("release_files_single_sdist", table_name="release_files")
+
+    op.create_index("release_files_release_id_idx", "release_files", ["release_id"])
+    op.create_index(
+        "release_files_single_sdist",
+        "release_files",
+        ["release_id", "packagetype"],
+        unique=True,
+        postgresql_where=sa.text(
+            "packagetype = 'sdist' AND allow_multiple_sdist = false"
+        ),
+    )
+
+    op.drop_index("rel_class_name_version_idx", table_name="release_classifiers")
+    op.drop_index("rel_class_version_id_idx", table_name="release_classifiers")
+
+    op.create_index("rel_class_release_id_idx", "release_classifiers", ["release_id"])
+
+    op.drop_column("roles", "package_name")
+    op.drop_column("releases", "name")
+    op.drop_column("release_files", "name")
+    op.drop_column("release_files", "version")
+    op.drop_column("release_classifiers", "name")
+    op.drop_column("release_classifiers", "version")
+    op.drop_column("release_dependencies", "name")
+    op.drop_column("release_dependencies", "version")
+
+    op.execute(
+        """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                IF (TG_TABLE_NAME = 'releases') THEN
+                    UPDATE
+                        release_files
+                    SET
+                        requires_python = releases.requires_python
+                    FROM releases
+                    WHERE
+                        release_files.release_id = releases.id
+                            AND releases.id = NEW.id;
+                ELSEIF (TG_TABLE_NAME = 'release_files') THEN
+                    UPDATE
+                        release_files
+                    SET
+                        requires_python = releases.requires_python
+                    FROM releases
+                    WHERE
+                        release_files.release_id = releases.id
+                            AND releases.id = NEW.release_id;
+                END IF;
+
+                RETURN NULL;
+            END;
+            $$ LANGUAGE plpgsql;
+        """
     )
 
 

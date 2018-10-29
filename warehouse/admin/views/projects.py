@@ -174,7 +174,7 @@ def releases_list(project, request):
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.name == release.name)
+        .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
