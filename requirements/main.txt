@@ -433,9 +433,9 @@ pyramid-services==2.1 \
 pyramid-tm==2.2.1 \
     --hash=sha256:7e374c0b774d4a5c83b04fe4c195a601c7219023cf4944a8e4251a86b7e288da \
     --hash=sha256:fde97db9d92039a154ca6afffdd2485874c7d3e7a6432adb51b7a60810bad422
-pyramid==1.9.2 \
-    --hash=sha256:600f12e0d11211a55c2da970120af33214f77607ed45caba6af6c891afeaa771 \
-    --hash=sha256:cf89a48cb899291639686bf3d4a883b39e496151fa4871fb83cc1a3200d5b925
+pyramid==1.10 \
+    --hash=sha256:3f91bcb8ee8ad3168eaf836d701b7b8c59481cec9ca085ab0251d1b953ffc46a \
+    --hash=sha256:e3cf837472c7c9acbd3a4169421a5b61ca79569054aacc1c3836274668015290
 python-dateutil==2.7.5 \
     --hash=sha256:063df5763652e21de43de7d9e00ccf239f953a832941e37be541614732cdfc93 \
     --hash=sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02
@@ -453,9 +453,6 @@ readme-renderer[md]==24.0 \
 redis==2.10.6 \
     --hash=sha256:8a1900a9f2a0a44ecf6e8b5eb3e967a9909dfed219ad66df094f27f7d6f330fb \
     --hash=sha256:a22ca993cea2962dbb588f9f30d0015ac4afcc45bee27d3978c0dbe9e97c6c0f
-repoze.lru==0.7 \
-    --hash=sha256:0429a75e19380e4ed50c0694e26ac8819b4ea7851ee1fc7583c8572db80aff77 \
-    --hash=sha256:f77bf0e1096ea445beadd35f3479c5cff2aa1efe604a133e67150bc8630a62ea
 repoze.sendmail==4.4.1 \
     --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
     --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347
