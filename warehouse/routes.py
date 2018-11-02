@@ -23,7 +23,7 @@ def includeme(config):
 
     # Internal route to make it easier to force a particular status for
     # debugging HTTPException templates.
-    config.add_route("force-status", "/_force-status/{status:[45]\d\d}/")
+    config.add_route("force-status", r"/_force-status/{status:[45]\d\d}/")
 
     # Basic global routes
     config.add_route("index", "/", domain=warehouse)

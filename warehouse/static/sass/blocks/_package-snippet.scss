@@ -72,7 +72,10 @@
     clear: both;
     color: $text-color;
     font-size: 1rem;
-    font-style: italic;
+  }
+
+  &__sole-owner-badge {
+    margin-left: 4px;
   }
 
   &__buttons {

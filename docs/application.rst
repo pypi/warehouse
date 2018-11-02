@@ -86,23 +86,27 @@ Directories within the repository:
 - `tests/ <https://github.com/pypa/warehouse/tree/master/tests>`_ - tests
 - `warehouse/ <https://github.com/pypa/warehouse/tree/master/warehouse>`_ - code in modules
 
-  - `legacy/ <https://github.com/pypa/warehouse/tree/master/warehouse/legacy>`_ - most of the read-only APIs implemented here
-  - `forklift/ <https://github.com/pypa/warehouse/tree/master/warehouse/forklift>`_ - :ref:`upload-api-forklift`
   - `accounts/ <https://github.com/pypa/warehouse/tree/master/warehouse/accounts>`_ - user accounts
   - `admin/ <https://github.com/pypa/warehouse/tree/master/warehouse/admin>`_ - application-administrator-specific
   - `cache/ <https://github.com/pypa/warehouse/tree/master/warehouse/cache>`_ - caching
   - `classifiers/ <https://github.com/pypa/warehouse/tree/master/warehouse/classifiers>`_ - frame trove classifiers
   - `cli/ <https://github.com/pypa/warehouse/tree/master/warehouse/cli>`_ - entry scripts and
     `the interactive shell <https://warehouse.readthedocs.io/development/getting-started/#running-the-interactive-shell>`_
+  - `email/ <https://github.com/pypa/warehouse/tree/master/warehouse/email>`_ - services for sending emails
+  - `forklift/ <https://github.com/pypa/warehouse/tree/master/warehouse/forklift>`_ - :ref:`upload-api-forklift`
   - `i18n/ <https://github.com/pypa/warehouse/tree/master/warehouse/i18n>`_ - internationalization
+  - `legacy/ <https://github.com/pypa/warehouse/tree/master/warehouse/legacy>`_ - most of the read-only APIs implemented here
   - `locales/ <https://github.com/pypa/warehouse/tree/master/warehouse/locales>`_ - internationalization
   - `manage/ <https://github.com/pypa/warehouse/tree/master/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
     owned/maintained projects)
+  - `metrics/ <https://github.com/pypa/warehouse/tree/master/warehouse/metrics>`_ - services for recording metrics
   - `migrations/ <https://github.com/pypa/warehouse/tree/master/warehouse/migrations>`_ - changes to the database schema
   - `packaging/ <https://github.com/pypa/warehouse/tree/master/warehouse/packaging>`_ - models
   - `rate_limiting/ <https://github.com/pypa/warehouse/tree/master/warehouse/rate_limiting>`_ - rate limiting to prevent abuse
   - `rss/ <https://github.com/pypa/warehouse/tree/master/warehouse/rss>`_ - RSS feeds: :doc:`api-reference/feeds`
+  - `search/ <https://github.com/pypa/warehouse/tree/master/warehouse/search>`_ - utilities for building and querying the search index
   - `sitemap/ <https://github.com/pypa/warehouse/tree/master/warehouse/sitemap>`_ - site maps
+  - `templates/ <https://github.com/pypa/warehouse/tree/master/warehouse/templates>`_ - Jinja templates for web pages, emails, etc.
   - `utils/ <https://github.com/pypa/warehouse/tree/master/warehouse/utils>`_ - various utilities Warehouse uses
 
 .. _Pyramid: https://docs.pylonsproject.org/projects/pyramid/en/latest/index.html
