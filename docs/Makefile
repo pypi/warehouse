@@ -18,7 +18,7 @@ ifdef RUN_IN_DOCKER
   SPHINXBUILD   = $(RUN_IN_DOCKER)  sphinx-build
   SOURCEDIR = $(SUBDIR)
 else
-  SPHINXBUILD   = $(BINDIR)sphinx-build
+  SPHINXBUILD   = $(BINDIR)/sphinx-build
   SOURCEDIR = .
 endif
 
