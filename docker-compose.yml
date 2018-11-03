@@ -109,20 +109,28 @@ services:
       - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./docs:/opt/warehouse/src/docs:z
+      - ./requirements:/opt/warehouse/src/requirements:z
+      - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
+      - ./README.rst:/opt/warehouse/src/README.rst:z
+      - ./CONTRIBUTING.rst:/opt/warehouse/src/CONTRIBUTING.rst:z
 
   build:
-    image: python:3.6.6-slim-stretch
-    working_dir: /opt/warehouse
+    build:
+      context: .
+      dockerfile: Dockerfile.build
     volumes:
-      - ./warehouse:/opt/warehouse/warehouse:z
-      - ./tests:/opt/warehouse/tests:z
-      - ./docs:/opt/warehouse/docs:z
-      - ./.sass-lint.yml:/opt/warehouse/.sass-lint.yml:z
-      - .state/env:/opt/warehouse/.state/env:z
-      - ./requirements:/opt/warehouse/requirements:z
-      - ./setup.cfg:/opt/warehouse/setup.cfg:z
-      - ./README.rst:/opt/warehouse/README.rst:z
-      - ./CONTRIBUTING.rst:/opt/warehouse/CONTRIBUTING.rst:z
+      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
+      - ./.babelrc:/opt/warehouse/src/.babelrc:z
+      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./tests:/opt/warehouse/src/tests:z
+      - ./docs:/opt/warehouse/src/docs:z
+      - ./requirements:/opt/warehouse/src/requirements:z
+      - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
+      - ./README.rst:/opt/warehouse/src/README.rst:z
+      - ./CONTRIBUTING.rst:/opt/warehouse/src/CONTRIBUTING.rst:z
 
   smtp:
     build:
