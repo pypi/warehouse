@@ -46,6 +46,7 @@
         <div class="box box-primary">
           <div class="box-body box-profile">
             <h3 class="project-name text-center">{{ project.name }}</h3>
+            <h4>Attributes:</h4>
             <div class="box-body box-attributes">
               <table class="table table-hover">
                 <tr>
@@ -64,6 +65,7 @@
                 </tr>
               </table>
             </div>
+            <h4>Maintainers:</h4>
             <div class="box-body box-maintainers">
               <table class="table table-hover">
                 <tr>
@@ -135,6 +137,7 @@
                 </tr>
               </table>
             </div>
+            <h4>Releases:</h4>
             <div class="box-body box-releases">
               <table class="table table-hover">
                 <th>Release version</th>
@@ -152,6 +155,7 @@
               </table>
               <a href="{{ request.route_path('admin.project.releases', project_name=project.normalized_name) }}">All releases</a>
             </div>
+            <h4>Journals:</h4>
             <div class="box-body box-journals">
               <table class="table table-hover">
                 <tr>
@@ -175,6 +179,49 @@
               </table>
               <a href="{{ request.route_path('admin.project.journals', project_name=project.normalized_name) }}">All journals</a>
             </div>
+            {% if squatters %}
+            <h4>Projects that might be squatting on this project:</h4>
+            <div class="box-body box-squats">
+              <table class="table table-hover">
+                <tr>
+                  <th>name</th>
+                  <th>created</th>
+                </tr>
+                {% for project in squatters %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                      {{ project.normalized_name }}
+                    </a>
+                  </td>
+                  <td>{{ project.created }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            {% endif %}
+
+            {% if squattees %}
+            <h4>Projects that this project might be squatting on:</h4>
+            <div class="box-body box-squats">
+              <table class="table table-hover">
+                <tr>
+                  <th>name</th>
+                  <th>created</th>
+                </tr>
+                {% for project in squattees %}
+                <tr>
+                  <td>
+                    <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                      {{ project.normalized_name }}
+                    </a>
+                  </td>
+                  <td>{{ project.created }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>
