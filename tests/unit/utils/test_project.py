@@ -95,9 +95,9 @@ def test_remove_project(db_request, flash):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     release = ReleaseFactory.create(project=project)
-    FileFactory.create(name=project.name, version=release.version, filename="who cares")
+    FileFactory.create(release=release, filename="who cares")
     RoleFactory.create(user=user, project=project)
-    DependencyFactory.create(name=project.name, version=release.version)
+    DependencyFactory.create(release=release)
 
     db_request.user = user
     db_request.remote_addr = "192.168.1.1"
@@ -113,13 +113,20 @@ def test_remove_project(db_request, flash):
         assert db_request.session.flash.calls == []
 
     assert not (db_request.db.query(Role).filter(Role.project == project).count())
-    assert not (db_request.db.query(File).filter(File.name == project.name).count())
     assert not (
-        db_request.db.query(Dependency).filter(Dependency.name == project.name).count()
+        db_request.db.query(File)
+        .join(Release)
+        .join(Project)
+        .filter(Release.project == project)
+        .count()
     )
     assert not (
-        db_request.db.query(Release).filter(Release.name == project.name).count()
+        db_request.db.query(Dependency)
+        .join(Release)
+        .filter(Release.project == project)
+        .count()
     )
+    assert not (db_request.db.query(Release).filter(Release.project == project).count())
     assert not (
         db_request.db.query(Project).filter(Project.name == project.name).count()
     )

@@ -49,16 +49,21 @@ def user_projects(request):
     )
 
     with_sole_owner = (
-        request.db.query(Role.package_id)
+        request.db.query(Role.project_id)
         .join(projects_owned)
         .filter(Role.role_name == "Owner")
-        .group_by(Role.package_id)
-        .having(func.count(Role.package_id) == 1)
+        .group_by(Role.project_id)
+        .having(func.count(Role.project_id) == 1)
         .subquery()
     )
 
     return {
-        "projects_owned": request.db.query(projects_owned).all(),
+        "projects_owned": (
+            request.db.query(Project)
+            .join(projects_owned, Project.id == projects_owned.c.id)
+            .order_by(Project.name)
+            .all()
+        ),
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
         ),
@@ -454,7 +459,7 @@ class ManageProjectRelease:
             release_file = (
                 self.request.db.query(File)
                 .filter(
-                    File.name == self.release.project.name,
+                    File.release == self.release,
                     File.id == self.request.POST.get("file_id"),
                 )
                 .one()

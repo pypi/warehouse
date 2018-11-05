@@ -96,7 +96,7 @@ class ProjectFactory:
             raise KeyError from None
 
 
-class Project(SitemapMixin, db.ModelBase):
+class Project(SitemapMixin, db.Model):
 
     __tablename__ = "packages"
     __table_args__ = (
@@ -108,7 +108,6 @@ class Project(SitemapMixin, db.ModelBase):
 
     __repr__ = make_repr("name")
 
-    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
     name = Column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_pep426_name(name))
     created = Column(
@@ -230,7 +229,7 @@ class Dependency(db.Model):
 
     __tablename__ = "release_dependencies"
     __table_args__ = (
-        Index("rel_dep_name_version_kind_idx", "name", "version", "kind"),
+        Index("release_dependencies_release_kind_idx", "release_id", "kind"),
         ForeignKeyConstraint(
             ["release_id"], ["releases.id"], onupdate="CASCADE", ondelete="CASCADE"
         ),
@@ -238,8 +237,6 @@ class Dependency(db.Model):
     __repr__ = make_repr("name", "version", "kind", "specifier")
 
     release_id = Column(ForeignKey("releases.id"), nullable=False)
-    name = Column(Text)
-    version = Column(Text)
     kind = Column(Integer)
     specifier = Column(Text)
 
@@ -254,7 +251,7 @@ def _dependency_relation(kind):
     )
 
 
-class Release(db.ModelBase):
+class Release(db.Model):
 
     __tablename__ = "releases"
 
@@ -265,17 +262,15 @@ class Release(db.ModelBase):
                 ["project_id"], ["packages.id"], onupdate="CASCADE", ondelete="CASCADE"
             ),
             Index("release_created_idx", cls.created.desc()),
-            Index("release_name_created_idx", cls.name, cls.created.desc()),
+            Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
         )
 
-    __repr__ = make_repr("name", "version")
+    __repr__ = make_repr("project", "version")
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    id = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
     project_id = Column(ForeignKey("packages.id"), nullable=False)
-    name = Column(Text, nullable=False)
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
@@ -323,7 +318,12 @@ class Release(db.ModelBase):
         passive_deletes=True,
     )
 
-    dependencies = orm.relationship("Dependency")
+    dependencies = orm.relationship(
+        "Dependency",
+        backref="release",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
     _requires = _dependency_relation(DependencyKind.requires)
     requires = association_proxy("_requires", "specifier")
@@ -353,7 +353,8 @@ class Release(db.ModelBase):
         "User",
         secondary=lambda: JournalEntry.__table__,
         primaryjoin=lambda: (
-            (JournalEntry.name == orm.foreign(Release.name))
+            (JournalEntry.name == orm.foreign(Project.name))
+            & (Project.id == Release.project_id)
             & (JournalEntry.version == orm.foreign(Release.version))
             & (JournalEntry.action == "new release")
         ),
@@ -425,12 +426,9 @@ class File(db.Model):
             ),
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
-            Index("release_files_name_version_idx", "name", "version"),
-            Index("release_files_version_idx", "version"),
             Index(
                 "release_files_single_sdist",
-                "name",
-                "version",
+                "release_id",
                 "packagetype",
                 unique=True,
                 postgresql_where=(
@@ -441,8 +439,6 @@ class File(db.Model):
         )
 
     release_id = Column(ForeignKey("releases.id"), nullable=False)
-    name = Column(Text)
-    version = Column(Text)
     python_version = Column(Text)
     requires_python = Column(Text)
     packagetype = Column(
@@ -498,12 +494,8 @@ release_classifiers = Table(
     "release_classifiers",
     db.metadata,
     Column("release_id", ForeignKey("releases.id"), nullable=False),
-    Column("name", Text()),
-    Column("version", Text()),
     Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
-    Index("rel_class_name_version_idx", "name", "version"),
     Index("rel_class_trove_id_idx", "trove_id"),
-    Index("rel_class_version_id_idx", "version"),
 )
 
 

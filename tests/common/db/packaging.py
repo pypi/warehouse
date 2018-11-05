@@ -46,7 +46,6 @@ class ReleaseFactory(WarehouseFactory):
         model = Release
 
     id = factory.LazyFunction(uuid.uuid4)
-    name = factory.LazyAttribute(lambda o: o.project.name)
     project = factory.SubFactory(ProjectFactory)
     version = factory.Sequence(lambda n: str(n) + ".0")
     canonical_version = factory.LazyAttribute(
@@ -61,7 +60,6 @@ class FileFactory(WarehouseFactory):
     class Meta:
         model = File
 
-    name = factory.LazyAttribute(lambda o: o.release.name)
     release = factory.SubFactory(ReleaseFactory)
     python_version = "source"
     md5_digest = factory.LazyAttribute(
@@ -99,9 +97,7 @@ class DependencyFactory(WarehouseFactory):
     class Meta:
         model = Dependency
 
-    name = factory.fuzzy.FuzzyText(length=12)
-    version = factory.Sequence(lambda n: str(n) + ".0")
-    release = project = factory.SubFactory(ReleaseFactory)
+    release = factory.SubFactory(ReleaseFactory)
     kind = factory.fuzzy.FuzzyChoice(int(kind) for kind in DependencyKind)
     specifier = factory.fuzzy.FuzzyText(length=12)
 
