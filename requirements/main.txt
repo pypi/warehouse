@@ -74,9 +74,9 @@ boto3==1.9.37 \
 botocore==1.12.37 \
     --hash=sha256:a256dbe50b05111a53640ac5defd71aa589d1fab27bd7df7310d7f0da72447a7 \
     --hash=sha256:eed1b39027ee882ebd0df10dcb7307db20fc4b468debae513dc183743e850d17
-cachetools==2.1.0 \
-    --hash=sha256:90f1d559512fc073483fe573ef5ceb39bf6ad3d39edc98dc55178a2b2b176fa3 \
-    --hash=sha256:d1c398969c478d336f767ba02040fa22617333293fb0b8968e79b16028dfee35
+cachetools==3.0.0 \
+    --hash=sha256:0a258d82933a1dd18cb540aca4ac5d5690731e24d1239a08577b814998f49785 \
+    --hash=sha256:4621965b0d9d4c82a79a29edbad19946f5e7702df4afae7d1ed2df951559a8cc
 celery-redbeat==0.11.1 \
     --hash=sha256:fa1951cee7dfb8e185f53ce6dfb78f53b66ace76d5799f67ddac75ae1550aa87
 celery[sqs]==4.2.1 \
