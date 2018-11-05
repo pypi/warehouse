@@ -15,7 +15,7 @@ import shlex
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
@@ -107,11 +107,27 @@ def project_detail(project, request):
         )
     ]
 
+    squattees = (
+        request.db.query(Project)
+        .filter(Project.created < project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
+    squatters = (
+        request.db.query(Project)
+        .filter(Project.created > project.created)
+        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
+        .all()
+    )
+
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "squatters": squatters,
+        "squattees": squattees,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
     }

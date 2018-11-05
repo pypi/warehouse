@@ -149,26 +149,16 @@
         </span>
         <span class="notification-bar__message">You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.</span>
       </div>
-      {% else %}
-      <div class="notification-bar notification-bar--survey">
-        <span class="notification-bar__icon">
-          <i class="fa fa-chart-line" aria-hidden="true"></i>
-        </span>
-        <span class="notification-bar__message">Join the official <b>Python Developers Survey 2018</b> and win valuable prizes:
-          <a href="https://surveys.jetbrains.com/s3/c19-python-developers-survey-2018" class="button button--dark button--small button--primary" target="_blank" rel="noopener">Start
-            the survey!</a></span>
-      </div>
       {% endif %}
       <noscript>
-        <div class="notification-bar notification-bar--danger">
-          {# TODO: This should be removed once GH-3828 is fixed. #}
-          <span class="notification-bar__icon">
-            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            <span class="sr-only">Warning:</span>
-          </span>
-          <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it
-            if you encounter problems.</span>
-        </div>
+      <div class="notification-bar notification-bar--danger">
+        {# TODO: This should be removed once GH-3828 is fixed. #}
+        <span class="notification-bar__icon">
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+          <span class="sr-only">Warning:</span>
+        </span>
+        <span class="notification-bar__message">Some features may not work without JavaScript. Please try enabling it if you encounter problems.</span>
+      </div>
       </noscript>
     </section>
 

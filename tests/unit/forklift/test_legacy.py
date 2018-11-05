@@ -29,6 +29,7 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.packaging.interfaces import IFileStorage
@@ -2778,6 +2779,50 @@ class TestFileUpload:
                 "10.10.10.10",
             ),
         ]
+
+    def test_upload_succeeds_creates_squats(self, pyramid_config, db_request):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        squattee = ProjectFactory(name="example")
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("exmaple", "1.0")
+
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "exmaple",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"A fake file."),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None: storage_service
+        db_request.remote_addr = "10.10.10.10"
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Project object has been created.
+        squatter = db_request.db.query(Project).filter(Project.name == "exmaple").one()
+
+        # Ensure that a Squat object has been created.
+        squat = db_request.db.query(Squat).one()
+
+        assert squat.squattee == squattee
+        assert squat.squatter == squatter
+        assert squat.reviewed is False
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),

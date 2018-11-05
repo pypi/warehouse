@@ -39,6 +39,7 @@ from sqlalchemy import exists, func, orm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from warehouse import forms
+from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
@@ -863,10 +864,29 @@ def file_upload(request):
                 ),
             ) from None
 
-        # The project doesn't exist in our database, so we'll add it along with
-        # a role setting the current user as the "Owner" of the project.
+        # The project doesn't exist in our database, so first we'll check for
+        # projects with a similar name
+        squattees = (
+            request.db.query(Project)
+            .filter(
+                func.levenshtein(
+                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
+                )
+                <= 2
+            )
+            .all()
+        )
+
+        # Next we'll create the project
         project = Project(name=form.name.data)
         request.db.add(project)
+
+        # Now that the project exists, add any squats which it is the squatter for
+        for squattee in squattees:
+            request.db.add(Squat(squatter=project, squattee=squattee))
+
+        # Then we'll add a role setting the current user as the "Owner" of the
+        # project.
         request.db.add(Role(user=request.user, project=project, role_name="Owner"))
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
