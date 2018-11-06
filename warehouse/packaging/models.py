@@ -53,14 +53,14 @@ from warehouse.utils.attrs import make_repr
 class Role(db.Model):
 
     __tablename__ = "roles"
-    __table_args__ = (Index("roles_user_name_idx", "user_name"),)
+    __table_args__ = (Index("roles_user_id_idx", "user_id"),)
 
     __repr__ = make_repr("role_name", "user_name", "package_name")
 
     role_name = Column(Text)
-    user_name = Column(
-        CIText,
-        ForeignKey("accounts_user.username", onupdate="CASCADE", ondelete="CASCADE"),
+    user_id = Column(
+        ForeignKey("accounts_user.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
     )
     project_id = Column(
         ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),

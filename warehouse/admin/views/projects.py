@@ -379,7 +379,7 @@ def delete_role(project, request):
             )
         )
 
-    if not confirm or confirm != role.user_name:
+    if not confirm or confirm != role.user.username:
         request.session.flash("Confirm the request", queue="error")
         raise HTTPSeeOther(
             request.route_path(
@@ -388,13 +388,13 @@ def delete_role(project, request):
         )
 
     request.session.flash(
-        f"Removed '{role.user_name}' as '{role.role_name}' on '{project.name}'",
+        f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
         queue="success",
     )
     request.db.add(
         JournalEntry(
             name=project.name,
-            action=f"remove {role.role_name} {role.user_name}",
+            action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
             submitted_from=request.remote_addr,
         )

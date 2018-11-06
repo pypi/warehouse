@@ -615,6 +615,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             # TODO: This branch should be removed when fixing GH-2745.
             roles = (
                 request.db.query(Role)
+                .join(User)
                 .filter(
                     Role.id.in_(role_ids),
                     Role.project == project,
@@ -634,7 +635,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                     request.db.add(
                         JournalEntry(
                             name=project.name,
-                            action=f"remove {role.role_name} {role.user_name}",
+                            action=f"remove {role.role_name} {role.user.username}",
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
                         )
@@ -645,6 +646,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             try:
                 role = (
                     request.db.query(Role)
+                    .join(User)
                     .filter(
                         Role.id == request.POST.get("role_id"), Role.project == project
                     )
@@ -659,7 +661,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                         JournalEntry(
                             name=project.name,
                             action="change {} {} to {}".format(
-                                role.role_name, role.user_name, form.role_name.data
+                                role.role_name, role.user.username, form.role_name.data
                             ),
                             submitted_by=request.user,
                             submitted_from=request.remote_addr,
@@ -688,6 +690,7 @@ def delete_project_role(project, request):
 
     roles = (
         request.db.query(Role)
+        .join(User)
         .filter(Role.id.in_(request.POST.getall("role_id")), Role.project == project)
         .all()
     )
@@ -705,7 +708,7 @@ def delete_project_role(project, request):
             request.db.add(
                 JournalEntry(
                     name=project.name,
-                    action=f"remove {role.role_name} {role.user_name}",
+                    action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
                     submitted_from=request.remote_addr,
                 )
