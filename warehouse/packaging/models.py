@@ -348,28 +348,12 @@ class Release(db.Model):
     _project_urls = _dependency_relation(DependencyKind.project_url)
     project_urls = association_proxy("_project_urls", "specifier")
 
-    uploader = orm.relationship(
-        "User",
-        secondary=lambda: JournalEntry.__table__,
-        primaryjoin=lambda: (
-            (JournalEntry.name == orm.foreign(Project.name))
-            & (Project.id == Release.project_id)
-            & (JournalEntry.version == orm.foreign(Release.version))
-            & (JournalEntry.action == "new release")
-        ),
-        secondaryjoin=lambda: (
-            (User.username == orm.foreign(JournalEntry._submitted_by))
-        ),
-        order_by=lambda: JournalEntry.id.desc(),
-        # TODO: We have uselist=False here which raises a warning because
-        # multiple items were returned. This should only be temporary because
-        # we should add a nullable FK to JournalEntry so we don't need to rely
-        # on ordering and implicitly selecting the first object to make this
-        # happen,
-        uselist=False,
-        viewonly=True,
+    uploader_id = Column(
+        ForeignKey("accounts_user.id", onupdate="CASCADE", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
-
+    uploader = orm.relationship(User)
     uploaded_via = Column(Text)
 
     @property
