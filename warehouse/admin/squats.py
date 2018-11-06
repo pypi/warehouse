@@ -18,18 +18,18 @@ from warehouse import db
 
 class Squat(db.ModelBase):
 
-    __tablename__ = "warehouse_admin_squat"
+    __tablename__ = "admin_squats"
 
     id = Column(Integer, primary_key=True, nullable=False)
     created = Column(
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     squatter_id = Column(
-        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     squattee_id = Column(
-        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     squatter = orm.relationship("Project", foreign_keys=[squatter_id], lazy=False)
