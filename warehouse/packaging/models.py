@@ -58,11 +58,10 @@ class Role(db.Model):
 
     role_name = Column(Text)
     user_id = Column(
-        ForeignKey("accounts_user.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
     project_id = Column(
-        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
 
@@ -97,11 +96,11 @@ class ProjectFactory:
 
 class Project(SitemapMixin, db.Model):
 
-    __tablename__ = "packages"
+    __tablename__ = "projects"
     __table_args__ = (
         CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="packages_valid_name",
+            name="projects_valid_name",
         ),
     )
 
@@ -267,7 +266,7 @@ class Release(db.Model):
     __name__ = dotted_navigator("version")
 
     project_id = Column(
-        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     version = Column(Text, nullable=False)
@@ -349,7 +348,7 @@ class Release(db.Model):
     project_urls = association_proxy("_project_urls", "specifier")
 
     uploader_id = Column(
-        ForeignKey("accounts_user.id", onupdate="CASCADE", ondelete="SET NULL"),
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
@@ -509,7 +508,7 @@ class JournalEntry(db.ModelBase):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
     _submitted_by = Column(
-        "submitted_by", CIText, ForeignKey("accounts_user.username", onupdate="CASCADE")
+        "submitted_by", CIText, ForeignKey("users.username", onupdate="CASCADE")
     )
     submitted_by = orm.relationship(User)
     submitted_from = Column(Text)
@@ -532,7 +531,7 @@ class BlacklistedProject(db.Model):
     )
     name = Column(Text, unique=True, nullable=False)
     _blacklisted_by = Column(
-        "blacklisted_by", UUID(as_uuid=True), ForeignKey("accounts_user.id"), index=True
+        "blacklisted_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
     )
     blacklisted_by = orm.relationship(User)
     comment = Column(Text, nullable=False, server_default="")
