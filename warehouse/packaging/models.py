@@ -25,7 +25,6 @@ from sqlalchemy import (
     Column,
     Enum,
     ForeignKey,
-    ForeignKeyConstraint,
     Index,
     Boolean,
     DateTime,

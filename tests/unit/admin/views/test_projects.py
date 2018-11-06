@@ -567,7 +567,8 @@ class TestDeleteRole:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
+                f"Removed '{role.user.username}' as '{role.role_name}' "
+                f"on '{project.name}'",
                 queue="success",
             )
         ]
