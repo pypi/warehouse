@@ -137,6 +137,10 @@ def upgrade():
         """
     )
 
+    # We need to delete the old admin roles, which aren't actually used anymore.
+    op.execute("DELETE FROM roles WHERE role_name = 'Admin'")
+
+    op.alter_column("roles", "project_id", nullable=False)
     op.alter_column("releases", "project_id", nullable=False)
     op.alter_column("release_files", "release_id", nullable=False)
     op.alter_column("release_dependencies", "release_id", nullable=False)

@@ -230,13 +230,13 @@ class Dependency(db.Model):
     __tablename__ = "release_dependencies"
     __table_args__ = (
         Index("release_dependencies_release_kind_idx", "release_id", "kind"),
-        ForeignKeyConstraint(
-            ["release_id"], ["releases.id"], onupdate="CASCADE", ondelete="CASCADE"
-        ),
     )
     __repr__ = make_repr("name", "version", "kind", "specifier")
 
-    release_id = Column(ForeignKey("releases.id"), nullable=False)
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
     kind = Column(Integer)
     specifier = Column(Text)
 
@@ -258,9 +258,6 @@ class Release(db.Model):
     @declared_attr
     def __table_args__(cls):  # noqa
         return (
-            ForeignKeyConstraint(
-                ["project_id"], ["packages.id"], onupdate="CASCADE", ondelete="CASCADE"
-            ),
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
@@ -270,7 +267,10 @@ class Release(db.Model):
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    project_id = Column(ForeignKey("packages.id"), nullable=False)
+    project_id = Column(
+        ForeignKey("packages.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = orm.column_property(func.pep440_is_prerelease(version))
@@ -421,9 +421,6 @@ class File(db.Model):
     @declared_attr
     def __table_args__(cls):  # noqa
         return (
-            ForeignKeyConstraint(
-                ["release_id"], ["releases.id"], onupdate="CASCADE", ondelete="CASCADE"
-            ),
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
             Index(
@@ -436,9 +433,13 @@ class File(db.Model):
                     & (cls.allow_multiple_sdist == False)  # noqa
                 ),
             ),
+            Index("release_files_release_id_idx", "release_id"),
         )
 
-    release_id = Column(ForeignKey("releases.id"), nullable=False)
+    release_id = Column(
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    )
     python_version = Column(Text)
     requires_python = Column(Text)
     packagetype = Column(
@@ -493,9 +494,14 @@ class Filename(db.ModelBase):
 release_classifiers = Table(
     "release_classifiers",
     db.metadata,
-    Column("release_id", ForeignKey("releases.id"), nullable=False),
+    Column(
+        "release_id",
+        ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+    ),
     Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
     Index("rel_class_trove_id_idx", "trove_id"),
+    Index("rel_class_release_id_idx", "release_id"),
 )
 
 
