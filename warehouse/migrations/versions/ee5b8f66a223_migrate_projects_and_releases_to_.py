@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "ee5b8f66a223"
-down_revision = "e82c3a017d60"
+down_revision = "eeb23d9b4d00"
 
 
 def upgrade():
@@ -62,6 +62,14 @@ def upgrade():
     op.add_column(
         "release_classifiers",
         sa.Column("release_id", postgresql.UUID(as_uuid=True), nullable=True),
+    )
+    op.add_column(
+        "warehouse_admin_squat",
+        sa.Column("squattee_id", postgresql.UUID(as_uuid=True), nullable=True),
+    )
+    op.add_column(
+        "warehouse_admin_squat",
+        sa.Column("squatter_id", postgresql.UUID(as_uuid=True), nullable=True),
     )
 
     op.execute(
@@ -112,11 +120,29 @@ def upgrade():
                 AND release_classifiers.version = releases.version
         """
     )
+    op.execute(
+        """ UPDATE warehouse_admin_squat
+            SET squattee_id = packages.id
+            FROM packages
+            WHERE
+                packages.name = warehouse_admin_squat.squattee_name
+        """
+    )
+    op.execute(
+        """ UPDATE warehouse_admin_squat
+            SET squatter_id = packages.id
+            FROM packages
+            WHERE
+                packages.name = warehouse_admin_squat.squatter_name
+        """
+    )
 
     op.alter_column("releases", "project_id", nullable=False)
     op.alter_column("release_files", "release_id", nullable=False)
     op.alter_column("release_dependencies", "release_id", nullable=False)
     op.alter_column("release_classifiers", "release_id", nullable=False)
+    op.alter_column("warehouse_admin_squat", "squattee_id", nullable=False)
+    op.alter_column("warehouse_admin_squat", "squatter_id", nullable=False)
 
     op.drop_constraint(
         "release_classifiers_name_fkey", "release_classifiers", type_="foreignkey"
@@ -126,6 +152,16 @@ def upgrade():
     )
     op.drop_constraint("release_files_name_fkey", "release_files", type_="foreignkey")
     op.drop_constraint("releases_name_fkey", "releases", type_="foreignkey")
+    op.drop_constraint(
+        "warehouse_admin_squat_squattee_name_fkey",
+        "warehouse_admin_squat",
+        type_="foreignkey",
+    )
+    op.drop_constraint(
+        "warehouse_admin_squat_squatter_name_fkey",
+        "warehouse_admin_squat",
+        type_="foreignkey",
+    )
 
     op.execute("ALTER TABLE packages DROP CONSTRAINT packages_pkey CASCADE")
     op.create_primary_key(None, "packages", ["id"])
@@ -183,6 +219,24 @@ def upgrade():
         onupdate="CASCADE",
         ondelete="CASCADE",
     )
+    op.create_foreign_key(
+        None,
+        "warehouse_admin_squat",
+        "packages",
+        ["squattee_id"],
+        ["id"],
+        onupdate="CASCADE",
+        ondelete="CASCADE",
+    )
+    op.create_foreign_key(
+        None,
+        "warehouse_admin_squat",
+        "packages",
+        ["squatter_id"],
+        ["id"],
+        onupdate="CASCADE",
+        ondelete="CASCADE",
+    )
 
     op.drop_index("rel_dep_name_version_kind_idx", table_name="release_dependencies")
     op.create_index(
@@ -226,6 +280,8 @@ def upgrade():
     op.drop_column("release_classifiers", "version")
     op.drop_column("release_dependencies", "name")
     op.drop_column("release_dependencies", "version")
+    op.drop_column("warehouse_admin_squat", "squattee_name")
+    op.drop_column("warehouse_admin_squat", "squatter_name")
 
     op.execute(
         """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
